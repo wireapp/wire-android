@@ -1,30 +1,24 @@
-/*
+/**
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
- *
+ * Copyright (C) 2018 Wire Swiss GmbH
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.wire.android.feature.sketch;
 
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-
-import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.media.ExifInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -35,45 +29,22 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-//import com.waz.api.BitmapCallback;
-//import com.waz.api.ImageAsset;
-//import com.waz.api.ImageAssetFactory;
-//import com.waz.api.LoadHandle;
-//import com.waz.api.MemoryImageCache;
-//import com.waz.permissions.PermissionsService;
-//import com.waz.utils.wrappers.URI;
-//import com.waz.zclient.OnBackPressedListener;
-//import com.waz.zclient.common.controllers.ScreenController;
-//import com.waz.zclient.controllers.drawing.IDrawingController;
-//import com.waz.zclient.conversation.ConversationController;
-//import com.waz.zclient.pages.main.conversation.AssetIntentsManager;
-//import com.waz.zclient.ui.colorpicker.ColorPickerLayout;
-//import com.waz.zclient.ui.colorpicker.EmojiBottomSheetDialog;
-//import com.waz.zclient.ui.colorpicker.EmojiSize;
-//import com.waz.zclient.ui.text.TypefaceTextView;
-//import com.waz.zclient.ui.utils.ColorUtils;
-//import com.waz.zclient.ui.utils.KeyboardUtils;
-//import com.waz.zclient.ui.utils.MathUtils;
-//import com.waz.zclient.ui.views.CursorIconButton;
-//import com.waz.zclient.ui.views.SketchEditText;
-//import com.waz.zclient.utils.Callback;
-//import com.waz.zclient.utils.ContextUtils;
-//import com.waz.zclient.utils.ViewUtils;
-//import com.waz.zclient.utils.debug.ShakeEventListener;
-
+import com.wire.android.feature.sketch.databinding.FragmentDrawingBinding;
 import com.wire.android.feature.sketch.util.ColorPickerLayout;
+import com.wire.android.feature.sketch.util.ColorUtils;
+import com.wire.android.feature.sketch.util.SketchEditText;
+import com.wire.android.feature.sketch.util.ViewUtils;
 
-import java.util.Locale;
-
-public class DrawingFragment extends Fragment implements,
+public class DrawingFragment extends Fragment implements
+        ColorPickerLayout.OnColorSelectedListener,
         DrawingCanvasCallback,
         ViewTreeObserver.OnScrollChangedListener,
-        ColorPickerLayout.OnWidthChangedListener,
-        ColorPickerLayout.OnColorSelectedListener {
+        ColorPickerLayout.OnWidthChangedListener {
 
     public static final String TAG = DrawingFragment.class.getName();
     private static final String SAVED_INSTANCE_BITMAP = "SAVED_INSTANCE_BITMAP";
@@ -86,15 +57,17 @@ public class DrawingFragment extends Fragment implements,
     private static final float TEXT_ALPHA_VISIBLE = 1F;
     private static final int SEND_BUTTON_DISABLED_ALPHA = 102;
 
-    private SensorManager sensorManager;
     private DrawingCanvasView drawingCanvasView;
     private ColorPickerLayout colorLayout;
     private Toolbar toolbar;
 
-    private TypefaceTextView drawingViewTip;
+    // TODO uncomment once AN-4649 is fixed
+    //private ColorPickerScrollView colorPickerScrollBar;
+
+    private TextView drawingViewTip;
     private View drawingTipBackground;
 
-    private CursorIconButton sendDrawingButton;
+    private AppCompatButton sendDrawingButton;
     private SketchEditText sketchEditTextView;
     private boolean shouldOpenEditText = false;
     private int currentBackgroundColor;
@@ -104,7 +77,13 @@ public class DrawingFragment extends Fragment implements,
     private View galleryButton;
     private int defaultTextColor;
 
+//    private ImageAsset backgroundImage;
+//    private LoadHandle bitmapLoadHandle;
+
+    private IDrawingController.DrawingDestination drawingDestination;
+    private IDrawingController.DrawingMethod drawingMethod;
     private boolean includeBackgroundImage;
+//    private EmojiSize currentEmojiSize = EmojiSize.SMALL;
 
     private View.OnTouchListener drawingCanvasViewOnTouchListener = new View.OnTouchListener() {
         @Override
@@ -120,15 +99,7 @@ public class DrawingFragment extends Fragment implements,
     private Toolbar.OnMenuItemClickListener toolbarOnMenuItemClickListener = new Toolbar.OnMenuItemClickListener() {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
-//            switch (item.getItemId()) {
-//                case R.id.close:
-//                    if (getControllerFactory() == null || getControllerFactory().isTornDown()) {
-//                        return false;
-//                    }
-//                    inject(ScreenController.class).hideSketchJava(drawingDestination);
-//                    return true;
-//            }
-            return false;
+            return item.getItemId() == R.id.close;
         }
     };
     private View.OnClickListener toolbarNavigationClickListener = new View.OnClickListener() {
@@ -176,63 +147,65 @@ public class DrawingFragment extends Fragment implements,
         }
     };
 
-    public static DrawingFragment newInstance(ImageAsset backgroundAsset, IDrawingController.DrawingDestination drawingDestination) {
-        return DrawingFragment.newInstance(backgroundAsset, drawingDestination, IDrawingController.DrawingMethod.DRAW);
-    }
-
-    public static DrawingFragment newInstance(ImageAsset backgroundAsset, IDrawingController.DrawingDestination drawingDestination, IDrawingController.DrawingMethod method) {
-        DrawingFragment fragment = new DrawingFragment();
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(ARGUMENT_BACKGROUND_IMAGE, backgroundAsset);
-        bundle.putString(ARGUMENT_DRAWING_DESTINATION, drawingDestination.toString());
-        bundle.putString(ARGUMENT_DRAWING_METHOD, method.toString());
-        fragment.setArguments(bundle);
-        return fragment;
-    }
+//    public static DrawingFragment newInstance(ImageAsset backgroundAsset, IDrawingController.DrawingDestination drawingDestination) {
+//        return DrawingFragment.newInstance(backgroundAsset, drawingDestination, IDrawingController.DrawingMethod.DRAW);
+//    }
+//
+//    public static DrawingFragment newInstance(ImageAsset backgroundAsset, IDrawingController.DrawingDestination drawingDestination, IDrawingController.DrawingMethod method) {
+//        DrawingFragment fragment = new DrawingFragment();
+//        Bundle bundle = new Bundle();
+////        bundle.putParcelable(ARGUMENT_BACKGROUND_IMAGE, backgroundAsset);
+//        bundle.putString(ARGUMENT_DRAWING_DESTINATION, drawingDestination.toString());
+//        bundle.putString(ARGUMENT_DRAWING_METHOD, method.toString());
+//        fragment.setArguments(bundle);
+//        return fragment;
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        backgroundImage = args.getParcelable(ARGUMENT_BACKGROUND_IMAGE);
+//        backgroundImage = args.getParcelable(ARGUMENT_BACKGROUND_IMAGE);
         drawingDestination = IDrawingController.DrawingDestination.valueOf(args.getString(ARGUMENT_DRAWING_DESTINATION));
         drawingMethod = IDrawingController.DrawingMethod.valueOf(args.getString(ARGUMENT_DRAWING_METHOD));
-        sensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
-        defaultTextColor = ContextCompat.getColor(getContext(), R.color.text__primary_light);
+        defaultTextColor = ContextCompat.getColor(getContext(), android.R.color.system_on_primary_dark);
 //        assetIntentsManager = new AssetIntentsManager(getActivity(), this, savedInstanceState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_drawing, container, false);
+        FragmentDrawingBinding binding = FragmentDrawingBinding.inflate(inflater, container, false);
+        View rootView = binding.getRoot();
+
         drawingCanvasView = ViewUtils.getView(rootView, R.id.dcv__canvas);
         drawingCanvasView.setDrawingCanvasCallback(this);
-        drawingCanvasView.setDrawingColor(getControllerFactory().getAccentColorController().getColor());
+//        drawingCanvasView.setDrawingColor(getControllerFactory().getAccentColorController().getColor());
         drawingCanvasView.setOnTouchListener(drawingCanvasViewOnTouchListener);
 
         colorLayout = ViewUtils.getView(rootView, R.id.cpdl__color_layout);
         colorLayout.setOnColorSelectedListener(this);
         int[] colors = getResources().getIntArray(R.array.draw_color);
-        colorLayout.setAccentColors(colors, getControllerFactory().getAccentColorController().getColor());
+//        colorLayout.setAccentColors(colors, getControllerFactory().getAccentColorController().getColor());
         colorLayout.getViewTreeObserver().addOnScrollChangedListener(this);
 
         // TODO uncomment once AN-4649 is fixed
 //        colorPickerScrollBar = ViewUtils.getView(rootView, R.id.cpsb__color_picker_scrollbar);
 //        colorPickerScrollBar.setScrollBarColor(getControllerFactory().getAccentColorController().getColor());
 
-        final TypefaceTextView conversationTitle = ViewUtils.getView(rootView, R.id.tv__drawing_toolbar__title);
-        inject(ConversationController.class).withCurrentConvName(new Callback<String>() {
-            @Override
-            public void callback(String convName) {
-                conversationTitle.setText(convName.toUpperCase(Locale.getDefault()));
-            }
-        });
+        //todo set title from conversation
+        final TextView conversationTitle = ViewUtils.getView(rootView, R.id.tv__drawing_toolbar__title);
+//        inject(ConversationController.class).withCurrentConvName(new Callback<String>() {
+//            @Override
+//            public void callback(String convName) {
+//                conversationTitle.setText(convName.toUpperCase(Locale.getDefault()));
+//            }
+//        });
 
         toolbar = ViewUtils.getView(rootView, R.id.t_drawing_toolbar);
         toolbar.inflateMenu(R.menu.toolbar_sketch);
         toolbar.setOnMenuItemClickListener(toolbarOnMenuItemClickListener);
         toolbar.setNavigationOnClickListener(toolbarNavigationClickListener);
-        toolbar.setNavigationIcon(R.drawable.toolbar_action_undo_disabled);
+        toolbar.setNavigationIcon(android.R.drawable.ic_media_rew); // todo change icon
 
         actionButtonText = ViewUtils.getView(rootView, R.id.gtv__drawing_button__text);
         actionButtonText.setOnClickListener(new View.OnClickListener() {
@@ -245,11 +218,11 @@ public class DrawingFragment extends Fragment implements,
         actionButtonEmoji.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onEmojiClick();
+//                onEmojiClick();
             }
         });
         actionButtonSketch = ViewUtils.getView(rootView, R.id.gtv__drawing_button__sketch);
-        actionButtonSketch.setTextColor(getControllerFactory().getAccentColorController().getColor());
+//        actionButtonSketch.setTextColor(getControllerFactory().getAccentColorController().getColor());
         actionButtonSketch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -262,20 +235,20 @@ public class DrawingFragment extends Fragment implements,
             @Override
             public void onClick(View view) {
 
-                PermissionsService pService = inject(PermissionsService.class);
-                if (pService.checkPermission(READ_EXTERNAL_STORAGE)) {
-                    sketchEditTextView.destroyDrawingCache();
-                    assetIntentsManager.openGalleryForSketch();
-                } else {
-                    pService.requestPermission(READ_EXTERNAL_STORAGE, new PermissionsService.PermissionsCallback() {
-                        @Override
-                        public void onPermissionResult(boolean granted) {
-                            if (granted) {
-                                assetIntentsManager.openGalleryForSketch();
-                            }
-                        }
-                    });
-                }
+//                PermissionsService pService = inject(PermissionsService.class);
+//                if (pService.checkPermission(READ_EXTERNAL_STORAGE)) {
+//                    sketchEditTextView.destroyDrawingCache();
+//                    assetIntentsManager.openGalleryForSketch();
+//                } else {
+//                    pService.requestPermission(READ_EXTERNAL_STORAGE, new PermissionsService.PermissionsCallback() {
+//                        @Override
+//                        public void onPermissionResult(boolean granted) {
+//                            if (granted) {
+//                                assetIntentsManager.openGalleryForSketch();
+//                            }
+//                        }
+//                    });
+//                }
             }
         });
 
@@ -290,11 +263,11 @@ public class DrawingFragment extends Fragment implements,
         sketchEditTextView = ViewUtils.getView(rootView, R.id.et__sketch_text);
         sketchEditTextView.setAlpha(TEXT_ALPHA_INVISIBLE);
         sketchEditTextView.setVisibility(View.INVISIBLE);
-        sketchEditTextView.setCustomHint(getString(R.string.drawing__text_hint));
-        currentBackgroundColor = getControllerFactory().getAccentColorController().getColor();
+        sketchEditTextView.setCustomHint("TYPE A MESSAGE");
+//        currentBackgroundColor = getControllerFactory().getAccentColorController().getColor();
         sketchEditTextView.setBackground(ColorUtils.getTransparentDrawable());
-        sketchEditTextView.setHintFontId(R.string.wire__typeface__medium);
-        sketchEditTextView.setTextFontId(R.string.wire__typeface__regular);
+//        sketchEditTextView.setHintFontId(R.string.wire__typeface__medium);
+//        sketchEditTextView.setTextFontId(R.string.wire__typeface__regular);
         sketchEditTextView.setSketchScale(1.0f);
         sketchEditTextView.setOnTouchListener(sketchEditTextOnTouchListener);
 
@@ -326,77 +299,58 @@ public class DrawingFragment extends Fragment implements,
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(SAVED_INSTANCE_BITMAP, getBitmapDrawing());
-        assetIntentsManager.onSaveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }
 
     public void setBackgroundBitmap(boolean showHint) {
-        if (getActivity() == null || backgroundImage == null) {
+        if (getActivity() == null) {
             return;
         }
 
         if (showHint) {
-            drawingViewTip.setText(getResources().getString(R.string.drawing__tip__picture__message));
+            drawingViewTip.setText("TAP COLOR TO CHANGE THE BRUSH SIZE.");
             drawingTipBackground.setVisibility(View.VISIBLE);
         } else {
             hideTip();
         }
-        drawingViewTip.setTextColor(ContextUtils.getColorWithTheme(R.color.drawing__tip__font__color_image, getContext()));
 
-        cancelLoadHandle();
-        bitmapLoadHandle = backgroundImage.getSingleBitmap(ContextUtils.getOrientationDependentDisplayWidth(getActivity()), new BitmapCallback() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap) {
-                if (getActivity() == null || drawingCanvasView == null) {
-                    return;
-                }
-                includeBackgroundImage = true;
-                drawingCanvasView.setBackgroundBitmap(bitmap);
-                cancelLoadHandle();
+//        drawingViewTip.setTextColor(ContextUtils.getColorWithTheme(R.color.drawing__tip__font__color_image, getContext()));
 
-                if (drawingMethod == IDrawingController.DrawingMethod.EMOJI) {
-                    onEmojiClick();
-                } else if (drawingMethod == IDrawingController.DrawingMethod.TEXT) {
-                    onTextClick();
-                }
-            }
-
-            @Override
-            public void onBitmapLoadingFailed() {
-                cancelLoadHandle();
-            }
-        });
+//        cancelLoadHandle();
+//        bitmapLoadHandle = backgroundImage.getSingleBitmap(ContextUtils.getOrientationDependentDisplayWidth(getActivity()), new BitmapCallback() {
+//            @Override
+//            public void onBitmapLoaded(Bitmap bitmap) {
+//                if (getActivity() == null || drawingCanvasView == null) {
+//                    return;
+//                }
+//                includeBackgroundImage = true;
+//                drawingCanvasView.setBackgroundBitmap(bitmap);
+//                cancelLoadHandle();
+//
+//                if (drawingMethod == IDrawingController.DrawingMethod.EMOJI) {
+//                    onEmojiClick();
+//                } else if (drawingMethod == IDrawingController.DrawingMethod.TEXT) {
+//                    onTextClick();
+//                }
+//            }
+//
+//            @Override
+//            public void onBitmapLoadingFailed() {
+//                cancelLoadHandle();
+//            }
+//        });
     }
 
     @Override
     public void onStart() {
         super.onStart();
         colorLayout.setOnWidthChangedListener(this);
-        shakeEventListener = new ShakeEventListener();
-        shakeEventListener.setOnShakeListener(new ShakeEventListener.OnShakeListener() {
-            @Override
-            public void onShake() {
-                if (includeBackgroundImage) {
-                    drawingCanvasView.removeBackgroundBitmap();
-                    includeBackgroundImage = false;
-                } else {
-                    drawingCanvasView.drawBackgroundBitmap();
-                    includeBackgroundImage = true;
-                }
-            }
-        });
-        sensorManager.registerListener(shakeEventListener,
-                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                SensorManager.SENSOR_DELAY_NORMAL);
-        getControllerFactory().getGlobalLayoutController().addKeyboardVisibilityObserver(this);
-        getControllerFactory().getAccentColorController().addAccentColorObserver(this);
+//        getControllerFactory().getGlobalLayoutController().addKeyboardVisibilityObserver(this);
     }
 
     @Override
     public void onStop() {
-        getControllerFactory().getAccentColorController().removeAccentColorObserver(this);
-        getControllerFactory().getGlobalLayoutController().removeKeyboardVisibilityObserver(this);
-        sensorManager.unregisterListener(shakeEventListener);
+//        getControllerFactory().getGlobalLayoutController().removeKeyboardVisibilityObserver(this);
         super.onStop();
     }
 
@@ -408,70 +362,70 @@ public class DrawingFragment extends Fragment implements,
         }
         colorLayout = null;
         sendDrawingButton = null;
-        cancelLoadHandle();
+//        cancelLoadHandle();
         super.onDestroyView();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        assetIntentsManager.onActivityResult(requestCode, resultCode, data);
+//        assetIntentsManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    @Override
-    public void onDataReceived(AssetIntentsManager.IntentType type, URI uri) {
-        switch (type) {
-            case SKETCH_FROM_GALLERY:
-                drawingMethod = IDrawingController.DrawingMethod.DRAW;
-                sketchEditTextView.setText("");
-                sketchEditTextView.setVisibility(View.GONE);
-                drawingCanvasView.reset();
-                drawingCanvasView.removeBackgroundBitmap();
-                backgroundImage = ImageAssetFactory.getImageAsset(uri);
-                setBackgroundBitmap(false);
-                onSketchClick();
-                break;
-        }
-    }
+//    @Override
+//    public void onDataReceived(AssetIntentsManager.IntentType type, URI uri) {
+//        switch (type) {
+//            case SKETCH_FROM_GALLERY:
+//                drawingMethod = IDrawingController.DrawingMethod.DRAW;
+//                sketchEditTextView.setText("");
+//                sketchEditTextView.setVisibility(View.GONE);
+//                drawingCanvasView.reset();
+//                drawingCanvasView.removeBackgroundBitmap();
+//                backgroundImage = ImageAssetFactory.getImageAsset(uri);
+//                setBackgroundBitmap(false);
+//                onSketchClick();
+//                break;
+//        }
+//    }
 
-    @Override
-    public void onCanceled(AssetIntentsManager.IntentType type) {
+//    @Override
+//    public void onCanceled(AssetIntentsManager.IntentType type) {
+//
+//    }
+//
+//    @Override
+//    public void onFailed(AssetIntentsManager.IntentType type) {
+//
+//    }
 
-    }
+//    @Override
+//    public void openIntent(Intent intent, AssetIntentsManager.IntentType intentType) {
+//        startActivityForResult(intent, intentType.requestCode);
+//        getActivity().overridePendingTransition(R.anim.camera_in, R.anim.camera_out);
+//    }
 
-    @Override
-    public void onFailed(AssetIntentsManager.IntentType type) {
-
-    }
-
-    @Override
-    public void openIntent(Intent intent, AssetIntentsManager.IntentType intentType) {
-        startActivityForResult(intent, intentType.requestCode);
-        getActivity().overridePendingTransition(R.anim.camera_in, R.anim.camera_out);
-    }
-
-    public void cancelLoadHandle() {
-        if (bitmapLoadHandle != null) {
-            bitmapLoadHandle.cancel();
-            bitmapLoadHandle = null;
-        }
-    }
+//    public void cancelLoadHandle() {
+//        if (bitmapLoadHandle != null) {
+//            bitmapLoadHandle.cancel();
+//            bitmapLoadHandle = null;
+//        }
+//    }
 
     private Bitmap getBitmapDrawing() {
         return drawingCanvasView.getBitmap();
     }
 
-    @Override
-    public boolean onBackPressed() {
-        if (isShowingKeyboard()) {
-            closeKeyboard();
-            return true;
-        }
-        if (drawingCanvasView != null && drawingCanvasView.undo()) {
-            return true;
-        }
-        inject(ScreenController.class).hideSketchJava(drawingDestination);
-        return true;
-    }
+//    @Override
+//    public boolean onBackPressed() {
+//        if (isShowingKeyboard()) {
+//            closeKeyboard();
+//            return true;
+//        }
+//        if (drawingCanvasView != null && drawingCanvasView.undo()) {
+//            return true;
+//        }
+//        inject(ScreenController.class).hideSketchJava(drawingDestination);
+//        return true;
+//    }
 
     @Override
     public void onScrollWidthChanged(int width) {
@@ -485,30 +439,28 @@ public class DrawingFragment extends Fragment implements,
             if (drawingCanvasView == null) {
                 return;
             }
-            switch (v.getId()) {
-                case R.id.tv__send_button:
-                    if (!drawingCanvasView.isEmpty()) {
-                        inject(ConversationController.class).sendMessage(getFinalSketchImage());
-                        inject(ScreenController.class).hideSketchJava(drawingDestination);
-                    }
-                    break;
-                default:
-                    //nothing
-                    break;
+            //nothing
+            if (v.getId() == R.id.tv__send_button) {
+                if (!drawingCanvasView.isEmpty()) {
+//                    inject(ConversationController.class).sendMessage(getFinalSketchImage());
+//                    inject(ScreenController.class).hideSketchJava(drawingDestination);
+                    // todo send image
+                }
             }
         }
     };
 
-    private ImageAsset getFinalSketchImage() {
-        Bitmap finalBitmap = getBitmapDrawing();
-        try {
-            Rect bitmapTrim = drawingCanvasView.getImageTrimValues();
-            MemoryImageCache.reserveImageMemory(bitmapTrim.width(), bitmapTrim.height());
-            finalBitmap = Bitmap.createBitmap(finalBitmap, bitmapTrim.left, bitmapTrim.top, bitmapTrim.width(), bitmapTrim.height());
-        } catch (Throwable t) {
-            // ignore
-        }
-        return ImageAssetFactory.getImageAsset(finalBitmap, ExifInterface.ORIENTATION_NORMAL);
+    // todo, prepare image to send
+    private void getFinalSketchImage() {
+//        Bitmap finalBitmap = getBitmapDrawing();
+//        try {
+//            Rect bitmapTrim = drawingCanvasView.getImageTrimValues();
+//            MemoryImageCache.reserveImageMemory(bitmapTrim.width(), bitmapTrim.height());
+//            finalBitmap = Bitmap.createBitmap(finalBitmap, bitmapTrim.left, bitmapTrim.top, bitmapTrim.width(), bitmapTrim.height());
+//        } catch (Throwable t) {
+//            // ignore
+//        }
+//        return ImageAssetFactory.getImageAsset(finalBitmap, ExifInterface.ORIENTATION_NORMAL);
     }
 
     @Override
@@ -520,17 +472,17 @@ public class DrawingFragment extends Fragment implements,
         //colorPickerScrollBar.setLeftX(colorPickerScrollContainer.getScrollX());
     }
 
-    @Override
-    public void onAccentColorHasChanged(int color) {
-        // TODO uncomment once AN-4649 is fixed
-        //colorPickerScrollBar.setBackgroundColor(color);
-        if (drawingCanvasView.isEmpty()) {
-            int accentColorWithAlpha = ColorUtils.injectAlpha(SEND_BUTTON_DISABLED_ALPHA, getControllerFactory().getAccentColorController().getColor());
-            sendDrawingButton.setSolidBackgroundColor(accentColorWithAlpha);
-        } else {
-            sendDrawingButton.setSolidBackgroundColor(getControllerFactory().getAccentColorController().getColor());
-        }
-    }
+//    @Override
+//    public void onAccentColorHasChanged(int color) {
+//        // TODO uncomment once AN-4649 is fixed
+//        //colorPickerScrollBar.setBackgroundColor(color);
+//        if (drawingCanvasView.isEmpty()) {
+//            int accentColorWithAlpha = ColorUtils.injectAlpha(SEND_BUTTON_DISABLED_ALPHA, getControllerFactory().getAccentColorController().getColor());
+//            sendDrawingButton.setSolidBackgroundColor(accentColorWithAlpha);
+//        } else {
+//            sendDrawingButton.setSolidBackgroundColor(getControllerFactory().getAccentColorController().getColor());
+//        }
+//    }
 
     @Override
     public void onColorSelected(int color, int strokeSize) {
@@ -541,57 +493,57 @@ public class DrawingFragment extends Fragment implements,
         drawingCanvasView.setStrokeSize(strokeSize);
         currentBackgroundColor = color;
         sketchEditTextView.setBackground(ColorUtils.getRoundedTextBoxBackground(getContext(), color, sketchEditTextView.getHeight()));
-        if (MathUtils.floatEqual(sketchEditTextView.getAlpha(), TEXT_ALPHA_INVISIBLE)) {
+        if (floatEqual(sketchEditTextView.getAlpha(), TEXT_ALPHA_INVISIBLE)) {
             drawSketchEditText();
         }
     }
 
-    public void onEmojiClick() {
-        final EmojiBottomSheetDialog dialog = new EmojiBottomSheetDialog(getContext(),
-                currentEmojiSize,
-                new EmojiBottomSheetDialog.EmojiDialogListener() {
-                    @Override
-                    public void onEmojiSelected(String emoji, EmojiSize emojiSize) {
-                        actionButtonEmoji.setTextColor(getControllerFactory().getAccentColorController().getColor());
-                        actionButtonSketch.setTextColor(defaultTextColor);
-                        actionButtonText.setTextColor(defaultTextColor);
-                        drawingCanvasView.setEmoji(emoji, emojiSize.getEmojiSize(getContext()));
-                        currentEmojiSize = emojiSize;
-                        getControllerFactory().getUserPreferencesController().addRecentEmoji(emoji);
-                    }
-                },
-                getControllerFactory().getUserPreferencesController().getRecentEmojis(),
-                getControllerFactory().getUserPreferencesController().getUnsupportedEmojis());
-        dialog.show();
-    }
+//    public void onEmojiClick() {
+//        final EmojiBottomSheetDialog dialog = new EmojiBottomSheetDialog(getContext(),
+//                currentEmojiSize,
+//                new EmojiBottomSheetDialog.EmojiDialogListener() {
+//                    @Override
+//                    public void onEmojiSelected(String emoji, EmojiSize emojiSize) {
+//                        actionButtonEmoji.setTextColor(getControllerFactory().getAccentColorController().getColor());
+//                        actionButtonSketch.setTextColor(defaultTextColor);
+//                        actionButtonText.setTextColor(defaultTextColor);
+//                        drawingCanvasView.setEmoji(emoji, emojiSize.getEmojiSize(getContext()));
+//                        currentEmojiSize = emojiSize;
+//                        getControllerFactory().getUserPreferencesController().addRecentEmoji(emoji);
+//                    }
+//                },
+//                getControllerFactory().getUserPreferencesController().getRecentEmojis(),
+//                getControllerFactory().getUserPreferencesController().getUnsupportedEmojis());
+//        dialog.show();
+//    }
 
     private void closeKeyboard() {
         drawSketchEditText();
-        KeyboardUtils.hideKeyboard(getActivity());
+//        KeyboardUtils.hideKeyboard(getActivity());
     }
 
     private void showKeyboard() {
         drawingCanvasView.hideText();
         sketchEditTextView.setCursorVisible(true);
         sketchEditTextView.requestFocus();
-        KeyboardUtils.showKeyboard(getActivity());
+//        KeyboardUtils.showKeyboard(getActivity());
     }
 
     private boolean isShowingKeyboard() {
         return sketchEditTextView.getVisibility() == View.VISIBLE &&
-                Float.compare(sketchEditTextView.getAlpha(), TEXT_ALPHA_VISIBLE) == 0 &&
-                KeyboardUtils.isKeyboardVisible(getContext());
+                Float.compare(sketchEditTextView.getAlpha(), TEXT_ALPHA_VISIBLE) == 0;
+//                KeyboardUtils.isKeyboardVisible(getContext());
     }
 
     private void onSketchClick() {
         drawingCanvasView.setCurrentMode(DrawingCanvasView.Mode.SKETCH);
         actionButtonText.setTextColor(defaultTextColor);
         actionButtonEmoji.setTextColor(defaultTextColor);
-        actionButtonSketch.setTextColor(getControllerFactory().getAccentColorController().getColor());
+        actionButtonSketch.setTextColor(getContext().getColor(android.R.color.system_on_primary_dark));
     }
 
     private void onTextClick() {
-        actionButtonText.setTextColor(getControllerFactory().getAccentColorController().getColor());
+        actionButtonText.setTextColor(getContext().getColor(android.R.color.system_on_primary_dark));
         actionButtonEmoji.setTextColor(defaultTextColor);
         actionButtonSketch.setTextColor(defaultTextColor);
         drawingCanvasView.setCurrentMode(DrawingCanvasView.Mode.TEXT);
@@ -615,22 +567,22 @@ public class DrawingFragment extends Fragment implements,
         if (isShowingKeyboard()) {
             closeKeyboard();
         }
-        toolbar.setNavigationIcon(R.drawable.toolbar_action_undo);
-        sendDrawingButton.setSolidBackgroundColor(getControllerFactory().getAccentColorController().getColor());
+        toolbar.setNavigationIcon(android.R.drawable.ic_media_rew); // todo change icon
+        sendDrawingButton.setBackgroundColor(getContext().getColor(android.R.color.system_on_primary_dark));//todo define colors
         sendDrawingButton.setClickable(true);
     }
 
     @Override
     public void drawingCleared() {
-        toolbar.setNavigationIcon(R.drawable.toolbar_action_undo_disabled);
-        int colorWithAlpha = ColorUtils.injectAlpha(SEND_BUTTON_DISABLED_ALPHA, getControllerFactory().getAccentColorController().getColor());
-        sendDrawingButton.setSolidBackgroundColor(colorWithAlpha);
+        toolbar.setNavigationIcon(android.R.drawable.ic_media_rew);
+//        int colorWithAlpha = ColorUtils.injectAlpha(SEND_BUTTON_DISABLED_ALPHA, getControllerFactory().getAccentColorController().getColor());
+        sendDrawingButton.setBackgroundColor(getContext().getColor(android.R.color.darker_gray));//todo define colors
         sendDrawingButton.setClickable(false);
     }
 
     @Override
     public void reserveBitmapMemory(int width, int height) {
-        MemoryImageCache.reserveImageMemory(width, height);
+//        MemoryImageCache.reserveImageMemory(width, height);
     }
 
     @Override
@@ -668,13 +620,12 @@ public class DrawingFragment extends Fragment implements,
         sketchEditTextView.setVisibility(View.INVISIBLE);
     }
 
-    @Override
-    public void onKeyboardVisibilityChanged(boolean keyboardIsVisible, int keyboardHeight, View currentFocus) {
-        if (!keyboardIsVisible) {
-            closeKeyboard();
-        }
-        changeEditTextVisibility(keyboardHeight);
-    }
+//    public void onKeyboardVisibilityChanged(boolean keyboardIsVisible, int keyboardHeight, View currentFocus) {
+//        if (!keyboardIsVisible) {
+//            closeKeyboard();
+//        }
+//        changeEditTextVisibility(keyboardHeight);
+//    }
 
     private void changeEditTextVisibility(int keyboardHeight) {
         if (shouldOpenEditText) {
@@ -701,7 +652,7 @@ public class DrawingFragment extends Fragment implements,
     private void changeEditTextVisibility() {
         View view = ViewUtils.getContentView(getActivity().getWindow());
         if (view != null) {
-            changeEditTextVisibility(KeyboardUtils.getKeyboardHeight(view));
+//            changeEditTextVisibility(KeyboardUtils.getKeyboardHeight(view));
         }
     }
 
@@ -747,5 +698,9 @@ public class DrawingFragment extends Fragment implements,
     }
 
     public interface Container {
+    }
+
+    public static boolean floatEqual(float val1, float val2) {
+        return Float.compare(val2, val1) == 0;
     }
 }

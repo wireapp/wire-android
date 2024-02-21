@@ -19,6 +19,8 @@
 package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
+import android.view.View
+import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,13 +28,19 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import com.wire.android.feature.sketch.DrawingCanvasView
+import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.commit
+import com.wire.android.feature.sketch.DrawingFragment
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
-import com.wire.android.ui.home.messagecomposer.location.LocationPickerComponent
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
@@ -129,53 +137,75 @@ fun AdditionalOptionSubMenu(
             }
 
             AdditionalOptionSubMenuState.Location -> {
-                LocationPickerComponent(
-                    onLocationPicked = onLocationPicked,
-                    onLocationClosed = onCloseAdditionalAttachment
-                )
+                AndroidView(factory = { context ->
+                    FragmentContainerView(context)
+                }) { view ->
+                    val fragment = DrawingFragment()
+                    fragment.childFragmentManager.commit {
+                        replace(view.id, fragment)
+                    }
+                }
             }
             // non functional for now
             AdditionalOptionSubMenuState.AttachImage -> {}
             AdditionalOptionSubMenuState.Emoji -> {}
-            AdditionalOptionSubMenuState.Gif -> {
-                AndroidView(factory = { context ->
-                    DrawingCanvasView(context)
-                }, update = { view ->
-                    view.refreshDrawableState()
-                })
-            }
+            AdditionalOptionSubMenuState.Gif -> {}
         }
     }
+}
 
-    @Composable
-    fun AttachmentAndAdditionalOptionsMenuItems(
-        isEditing: Boolean,
-        selectedOption: AdditionalOptionSelectItem,
-        isMentionActive: Boolean,
-        onMentionButtonClicked: () -> Unit,
-        onAdditionalOptionsMenuClicked: () -> Unit = {},
-        onPingClicked: () -> Unit = {},
-        onSelfDeletionOptionButtonClicked: () -> Unit,
-        isSelfDeletingSettingEnabled: Boolean,
-        isSelfDeletingActive: Boolean,
-        onGifButtonClicked: () -> Unit = {},
-        onRichEditingButtonClicked: () -> Unit = {},
-        modifier: Modifier = Modifier
-    ) {
-        Column(modifier.wrapContentSize()) {
-            Divider(color = MaterialTheme.wireColorScheme.outline)
-            MessageComposeActions(
-                isEditing = isEditing,
-                selectedOption = selectedOption,
-                isMentionActive = isMentionActive,
-                onMentionButtonClicked = onMentionButtonClicked,
-                onAdditionalOptionButtonClicked = onAdditionalOptionsMenuClicked,
-                onPingButtonClicked = onPingClicked,
-                onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
-                isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-                isSelfDeletingActive = isSelfDeletingActive,
-                onGifButtonClicked = onGifButtonClicked,
-                onRichEditingButtonClicked = onRichEditingButtonClicked
-            )
-        }
+@Composable
+fun AttachmentAndAdditionalOptionsMenuItems(
+    isEditing: Boolean,
+    selectedOption: AdditionalOptionSelectItem,
+    isMentionActive: Boolean,
+    onMentionButtonClicked: () -> Unit,
+    onAdditionalOptionsMenuClicked: () -> Unit = {},
+    onPingClicked: () -> Unit = {},
+    onSelfDeletionOptionButtonClicked: () -> Unit,
+    isSelfDeletingSettingEnabled: Boolean,
+    isSelfDeletingActive: Boolean,
+    onGifButtonClicked: () -> Unit = {},
+    onRichEditingButtonClicked: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    Column(modifier.wrapContentSize()) {
+        Divider(color = MaterialTheme.wireColorScheme.outline)
+        MessageComposeActions(
+            isEditing = isEditing,
+            selectedOption = selectedOption,
+            isMentionActive = isMentionActive,
+            onMentionButtonClicked = onMentionButtonClicked,
+            onAdditionalOptionButtonClicked = onAdditionalOptionsMenuClicked,
+            onPingButtonClicked = onPingClicked,
+            onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
+            isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
+            isSelfDeletingActive = isSelfDeletingActive,
+            onGifButtonClicked = onGifButtonClicked,
+            onRichEditingButtonClicked = onRichEditingButtonClicked
+        )
     }
+}
+
+@Composable
+fun FragmentContainer(
+    modifier: Modifier = Modifier,
+    fragmentManager: FragmentManager,
+    commit: FragmentTransaction.(containerId: Int) -> Unit
+) {
+    val containerId by rememberSaveable { mutableStateOf(View.generateViewId()) }
+
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
+            fragmentManager.findFragmentById(containerId)?.view
+                ?.also { (it.parent as? ViewGroup)?.removeView(it) }
+                ?: FragmentContainerView(context)
+                    .apply { id = containerId }
+                    .also {
+                        fragmentManager.commit { commit(it.id) }
+                    }
+        },
+        update = {}
+    )
+}

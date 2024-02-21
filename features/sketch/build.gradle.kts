@@ -6,6 +6,7 @@ plugins {
 
 android {
     namespace = "com.wire.android.feature.sketch"
+    android.buildFeatures.viewBinding = true
 }
 
 dependencies {

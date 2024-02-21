@@ -182,6 +182,8 @@ compose-ui-test-junit = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-ui-viewbinding = { module = "androidx.compose.ui:ui-viewbinding" }
+
 
 # Compose other
 compose-activity = { module = "androidx.activity:activity-compose", version.ref = "compose-activity" }

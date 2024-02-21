@@ -83,8 +83,6 @@ sealed interface UIMessage {
         override val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
         override val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val addingFailed: Boolean = messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd
-        val singleUserAddFailed: Boolean =
-            messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd && messageContent.usersCount == 1
     }
 }
 
@@ -512,16 +510,25 @@ sealed class UIMessageContent {
         )
 
         data class MemberFailedToAdd(
-            val memberNames: List<UIText>
+            val memberNames: List<UIText>,
+            val type: Type,
         ) : SystemMessage(
             R.drawable.ic_info,
             if (memberNames.size > 1) {
                 R.string.label_system_message_conversation_failed_add_many_members_details
             } else {
                 R.string.label_system_message_conversation_failed_add_one_member_details
+            },
+            learnMoreResId = when (type) {
+                Type.Federation -> R.string.url_message_details_offline_backends_learn_more
+                Type.LegalHold -> R.string.url_legal_hold_learn_more
+                Type.Unknown -> null
             }
+
         ) {
             val usersCount = memberNames.size
+
+            enum class Type { Federation, LegalHold, Unknown; }
         }
 
         data class ConversationDegraded(val protocol: Conversation.Protocol) : SystemMessage(

@@ -21,6 +21,7 @@ package com.wire.android.ui.home.newconversation
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
+import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -33,10 +34,12 @@ import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCaseImpl
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 
 internal class NewConversationViewModelArrangement {
@@ -47,6 +50,7 @@ internal class NewConversationViewModelArrangement {
         // Default empty values
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
+        every { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
     }
 
     @MockK
@@ -60,6 +64,13 @@ internal class NewConversationViewModelArrangement {
 
     @MockK(relaxed = true)
     lateinit var onGroupCreated: (ConversationId) -> Unit
+
+    @MockK
+    lateinit var getDefaultProtocol: GetDefaultProtocolUseCase
+
+    private var groupOptionsState: GroupOptionState = GroupOptionState()
+
+    private var createGroupState: CreateGroupState = CreateGroupState()
 
     private companion object {
         val CONVERSATION_ID = ConversationId(value = "userId", domain = "domainId")
@@ -128,14 +139,6 @@ internal class NewConversationViewModelArrangement {
         )
     }
 
-    private val viewModel by lazy {
-        NewConversationViewModel(
-            createGroupConversation = createGroupConversation,
-            isMLSEnabled = isMLSEnabledUseCase,
-            isSelfATeamMember = isSelfTeamMember,
-        )
-    }
-
     fun withSyncFailureOnCreatingGroup() = apply {
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.SyncFailure
     }
@@ -147,7 +150,7 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withConflictingBackendsFailure() = apply {
-        viewModel.createGroupState = viewModel.createGroupState.copy(
+        createGroupState = createGroupState.copy(
             error = CreateGroupState.Error.ConflictedBackends(listOf("bella.wire.link", "foma.wire.link"))
         )
     }
@@ -157,14 +160,24 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withGuestEnabled(isGuestModeEnabled: Boolean) = apply {
-        viewModel.groupOptionsState = viewModel
-            .groupOptionsState
-            .copy(isAllowGuestEnabled = isGuestModeEnabled)
+        groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = isGuestModeEnabled)
     }
 
     fun withServicesEnabled(areServicesEnabled: Boolean) = apply {
-        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowServicesEnabled = areServicesEnabled)
+        groupOptionsState = groupOptionsState.copy(isAllowServicesEnabled = areServicesEnabled)
     }
 
-    fun arrange() = this to viewModel
+    fun withDefaultProtocol(supportedProtocol: SupportedProtocol) = apply {
+        every { getDefaultProtocol() } returns supportedProtocol
+    }
+
+    fun arrange() = this to NewConversationViewModel(
+        createGroupConversation = createGroupConversation,
+        isMLSEnabled = isMLSEnabledUseCase,
+        isSelfATeamMember = isSelfTeamMember,
+        getDefaultProtocol = getDefaultProtocol
+    ).also {
+        it.groupOptionsState = groupOptionsState
+        it.createGroupState = createGroupState
+    }
 }

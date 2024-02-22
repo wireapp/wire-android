@@ -276,12 +276,10 @@ class DeviceDetailsViewModelTest {
                 .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT, true))
                 .arrange()
 
-            viewModel.enrollE2eiCertificate()
+            viewModel.enrollE2EICertificate()
 
-            coVerify {
-                arrangement.enrolE2EICertificateUseCase(any(), any())
-            }
             assertTrue(viewModel.state.isLoadingCertificate)
+            assertTrue(viewModel.state.startGettingE2EICertificate)
         }
 
     private class Arrangement {
@@ -310,9 +308,6 @@ class DeviceDetailsViewModelTest {
         @MockK
         lateinit var getE2eiCertificate: GetE2eiCertificateUseCase
 
-        @MockK
-        lateinit var enrolE2EICertificateUseCase: GetE2EICertificateUseCase
-
         @MockK(relaxed = true)
         lateinit var onSuccess: () -> Unit
 
@@ -332,7 +327,6 @@ class DeviceDetailsViewModelTest {
                 currentUserId = currentUserId,
                 observeUserInfo = observeUserInfo,
                 e2eiCertificate = getE2eiCertificate,
-                enrolE2EICertificateUseCase = enrolE2EICertificateUseCase,
                 isE2EIEnabledUseCase = isE2EIEnabledUseCase
             )
         }

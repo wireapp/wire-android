@@ -27,6 +27,7 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
 
+// TODO remove it
 class GetE2EICertificateUseCaseProvider @AssistedInject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     @ApplicationContext private val applicationContext: Context,

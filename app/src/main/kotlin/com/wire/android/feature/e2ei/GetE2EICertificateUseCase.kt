@@ -32,6 +32,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// TODO remove it
 class GetE2EICertificateUseCase @Inject constructor(
     private val enrollE2EI: EnrollE2EIUseCase,
     @ApplicationContext private val applicationContext: Context,

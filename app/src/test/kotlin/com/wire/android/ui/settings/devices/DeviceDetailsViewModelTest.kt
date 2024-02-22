@@ -20,7 +20,6 @@ package com.wire.android.ui.settings.devices
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState

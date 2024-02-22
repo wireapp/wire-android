@@ -52,5 +52,4 @@ fun GetE2EICertificateUI(
     }
 
     viewModel.getCertificate(isNewClient)
-
 }

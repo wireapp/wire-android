@@ -61,7 +61,7 @@ class GetE2EICertificateViewModel @Inject constructor(
     fun getCertificate(isNewClient: Boolean) {
         scope.launch {
             val currentSessionResult = currentSession()
-            if (currentSessionResult is CurrentSessionResult.Success && currentSessionResult.accountInfo.isValid())
+            if (currentSessionResult is CurrentSessionResult.Success && currentSessionResult.accountInfo.isValid()) {
                 coreLogic.getSessionScope(currentSessionResult.accountInfo.userId)
                     .enrollE2EI
                     .initialEnrollment(isNewClientRegistration = isNewClient)
@@ -71,6 +71,7 @@ class GetE2EICertificateViewModel @Inject constructor(
                         if (it is E2EIEnrollmentResult.Initialized) requestOAuthFlow.emit(it)
                         else enrollmentResultFlow.emit(Either.Right(it))
                     })
+            }
         }
     }
 

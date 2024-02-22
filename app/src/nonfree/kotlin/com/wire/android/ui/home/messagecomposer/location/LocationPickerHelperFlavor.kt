@@ -19,7 +19,7 @@ package com.wire.android.ui.home.messagecomposer.location
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Geocode
+import android.location.Geocoder
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource

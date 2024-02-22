@@ -8,6 +8,7 @@ fi
 if [ "$RUN_APP_UNIT_TESTS" = true ] ; then
     echo "Running App Unit Tests"
     ./gradlew runUnitTests
+    ./gradlew runUnitTestsFdroid
 fi
 
 if [ "$RUN_APP_ACCEPTANCE_TESTS" = true ] ; then

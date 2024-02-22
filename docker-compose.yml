@@ -11,7 +11,7 @@ services:
             - BUILD_TYPE=Release
             - PATCH_VERSION=0
             - CLEAN_PROJECT_BEFORE_BUILD=true
-            - RUN_APP_UNIT_TESTS=false
+            - RUN_APP_UNIT_TESTS=true
             - RUN_STATIC_CODE_ANALYSIS=true
             - RUN_STORAGE_UNIT_TESTS=true
             - RUN_STORAGE_ACCEPTANCE_TESTS=true

@@ -28,7 +28,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.tasks.await
 
-
 @Singleton
 class LocationPickerHelperFlavor @Inject constructor(context: Context) : LocationPickerHelper(context) {
 

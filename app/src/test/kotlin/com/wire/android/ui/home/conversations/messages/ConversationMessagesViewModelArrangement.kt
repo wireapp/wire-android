@@ -106,7 +106,6 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var observeAssetStatuses: ObserveAssetStatusesUseCase
 
-
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             savedStateHandle,

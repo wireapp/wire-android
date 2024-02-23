@@ -415,7 +415,7 @@ fun ConversationScreen(
                     description = description
                 )
             )
-       },
+        },
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { link ->

@@ -87,6 +87,6 @@ class LocationPickerHelperTest {
             }
         }
 
-        fun arrange() = this to LocationPickerHelper(context)
+        fun arrange() = this to LocationPickerHelperFlavor(context)
     }
 }

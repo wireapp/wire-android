@@ -234,7 +234,6 @@ class RegularMessageMapper @Inject constructor(
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
                 // If some of image data are still missing, we mark it as incomplete which won't be shown until we get missing data
-                // TODO Kubaz remove this if we want to show image when it's uploading
                 assetMessageContentMetadata.isIncompleteImage() -> {
                     UIMessageContent.IncompleteAssetMessage
                 }
@@ -302,12 +301,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
 
     // Sometimes client receives two events for the same asset, first one with only part of the data ("preview" type from web),
     // so such asset shouldn't be shown until all the required data is received.
-    fun isIncompleteImage(): Boolean = isDisplayableImage()
-            // we check only assets uploaded by other clients and they have upload status NOT_UPLOADED
-//             TODO Kubaz move this where we have access to AssetTransferStatus
-//            && assetMessageContent.uploadStatus == AssetTransferStatus.NOT_UPLOADED
-            // sometimes we can receive two asset events, we want to show the image only after we get all required data
-            && !assetMessageContent.hasValidRemoteData()
+    fun isIncompleteImage(): Boolean = isDisplayableImage() && !assetMessageContent.hasValidRemoteData()
 }
 
 private fun String?.orUnknownName(): UIText = when {

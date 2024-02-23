@@ -85,6 +85,14 @@ To see how they are customised in details, check [the customization file](./defa
 | Prod     | ⚪                      | The production app available to the general public.                                                                                                                                               | ✖️              | Wire Prod       |
 | F-Droid  | ⚪                      | Also a production app available to the general public. Published on the F-Droid store, but without any closed-source software.                                                                    | ✖️              | Wire Prod       |
 
+## Logging
+> [!IMPORTANT]
+> Logs on all builds except Prod and F-Droid will be uploaded to a third party service for developer analysis.
+> 
+> Logs on Prod and F-Droid can be enabled within the application, but they are **NOT** uploaded anywhere. Users can export and read the log files manually from the application.
+> 
+> We do not log sensitive content (such as content of messages, encryption keys, etc.) in any way whatsoever. And things like unique identifiers are obfuscated.
+
 ## Build Types
 
 The apps can be built for release or debugging. Debug versions might have extra debugging tools, are not minified, and can be profiled if needed. In general, debug builds _run slower_ due to the lack of minimisation. 

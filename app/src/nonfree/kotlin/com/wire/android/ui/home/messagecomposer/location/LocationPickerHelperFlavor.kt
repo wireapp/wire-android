@@ -23,10 +23,12 @@ import android.location.Geocoder
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.wire.android.AppJsonStyledLogger
 import com.wire.android.util.extension.isGoogleServicesAvailable
+import com.wire.kalium.logger.KaliumLogLevel
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.tasks.await
 
 @Singleton
 class LocationPickerHelperFlavor @Inject constructor(context: Context) : LocationPickerHelper(context) {
@@ -52,12 +54,25 @@ class LocationPickerHelperFlavor @Inject constructor(context: Context) : Locatio
     @SuppressLint("MissingPermission")
     private suspend fun getLocationWithGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
         if (isLocationServicesEnabled()) {
+            AppJsonStyledLogger.log(
+                level = KaliumLogLevel.INFO,
+                leadingMessage = "GetLocation",
+                jsonStringKeyValues = mapOf("isUsingGms" to true)
+            )
             val locationProvider = LocationServices.getFusedLocationProviderClient(context)
             val currentLocation =
                 locationProvider.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).await()
             val address = Geocoder(context).getFromLocation(currentLocation.latitude, currentLocation.longitude, 1).orEmpty()
             onSuccess(GeoLocatedAddress(address.firstOrNull(), currentLocation))
         } else {
+            AppJsonStyledLogger.log(
+                level = KaliumLogLevel.WARN,
+                leadingMessage = "GetLocation",
+                jsonStringKeyValues = mapOf(
+                    "isUsingGms" to true,
+                    "error" to "Location services are not enabled"
+                )
+            )
             onError()
         }
     }

@@ -24,51 +24,13 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import androidx.core.location.LocationManagerCompat
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
-import com.wire.android.util.extension.isGoogleServicesAvailable
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class LocationPickerHelper @Inject constructor(@ApplicationContext val context: Context) {
-
-    suspend fun getLocation(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
-        if (context.isGoogleServicesAvailable()) {
-            getLocationWithGms(
-                onSuccess = onSuccess,
-                onError = onError
-            )
-        } else {
-            getLocationWithoutGms(
-                onSuccess = onSuccess,
-                onError = onError
-            )
-        }
-    }
-
-    /**
-     * Choosing the best location estimate by docs.
-     * https://developer.android.com/develop/sensors-and-location/location/retrieve-current#BestEstimate
-     */
-    @SuppressLint("MissingPermission")
-    private suspend fun getLocationWithGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
-        if (isLocationServicesEnabled()) {
-            val locationProvider = LocationServices.getFusedLocationProviderClient(context)
-            val currentLocation =
-                locationProvider.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).await()
-            val address = Geocoder(context).getFromLocation(currentLocation.latitude, currentLocation.longitude, 1).orEmpty()
-            onSuccess(GeoLocatedAddress(address.firstOrNull(), currentLocation))
-        } else {
-            onError()
-        }
-    }
+open class LocationPickerHelper @Inject constructor(@ApplicationContext val context: Context) {
 
     @SuppressLint("MissingPermission")
-    private fun getLocationWithoutGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
+    protected fun getLocationWithoutGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
         if (isLocationServicesEnabled()) {
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             val networkLocationListener: LocationListener = object : LocationListener {
@@ -84,7 +46,7 @@ class LocationPickerHelper @Inject constructor(@ApplicationContext val context: 
         }
     }
 
-    private fun isLocationServicesEnabled(): Boolean {
+    protected fun isLocationServicesEnabled(): Boolean {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return LocationManagerCompat.isLocationEnabled(locationManager)
     }

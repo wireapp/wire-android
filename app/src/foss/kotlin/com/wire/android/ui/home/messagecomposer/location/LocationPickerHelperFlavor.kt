@@ -15,22 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
-package com.wire.android.util.extension
+package com.wire.android.ui.home.messagecomposer.location
 
 import android.content.Context
-import android.content.ContextWrapper
-import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import javax.inject.Inject
+import javax.inject.Singleton
 
-fun Context.checkPermission(permission: String): Boolean {
-    return ContextCompat.checkSelfPermission(this, permission) ==
-            PackageManager.PERMISSION_GRANTED
-}
-
-fun Context.getActivity(): AppCompatActivity? = when (this) {
-    is AppCompatActivity -> this
-    is ContextWrapper -> baseContext.getActivity()
-    else -> null
+@Singleton
+class LocationPickerHelperFlavor @Inject constructor(context: Context) : LocationPickerHelper(context) {
+    suspend fun getLocation(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
+        getLocationWithoutGms(
+            onSuccess = onSuccess,
+            onError = onError
+        )
+    }
 }

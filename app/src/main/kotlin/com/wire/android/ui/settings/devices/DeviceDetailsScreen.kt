@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.settings.devices
 
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -131,7 +132,7 @@ fun DeviceDetailsContent(
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
     onErrorDialogDismiss: () -> Unit = {},
-    enrollE2eiCertificate: () -> Unit = {},
+    enrollE2eiCertificate: (Context) -> Unit = {},
     onUpdateClientVerification: (Boolean) -> Unit = {},
     onEnrollE2EIErrorDismiss: () -> Unit = {},
     onEnrollE2EISuccessDismiss: () -> Unit = {}
@@ -172,6 +173,7 @@ fun DeviceDetailsContent(
             }
         }
     ) { internalPadding ->
+        val context = LocalContext.current
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -193,7 +195,7 @@ fun DeviceDetailsContent(
                         certificate = state.e2eiCertificate,
                         isCurrentDevice = state.isCurrentDevice,
                         isLoadingCertificate = state.isLoadingCertificate,
-                        enrollE2eiCertificate = { enrollE2eiCertificate() },
+                        enrollE2eiCertificate = { enrollE2eiCertificate(context) },
                         showCertificate = onNavigateToE2eiCertificateDetailsScreen
                     )
                     Divider(color = colorsScheme().background)
@@ -275,7 +277,7 @@ fun DeviceDetailsContent(
         if (state.isE2EICertificateEnrollError) {
             E2EIErrorWithDismissDialog(
                 isE2EILoading = state.isLoadingCertificate,
-                updateCertificate = { enrollE2eiCertificate() },
+                updateCertificate = { enrollE2eiCertificate(context) },
                 onDismiss = onEnrollE2EIErrorDismiss
             )
         }

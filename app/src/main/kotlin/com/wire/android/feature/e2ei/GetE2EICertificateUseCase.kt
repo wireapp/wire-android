@@ -25,8 +25,6 @@ import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.fold
-import dagger.hilt.android.qualifiers.ApplicationContext
-import com.wire.kalium.logic.functional.left
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -34,7 +32,6 @@ import javax.inject.Inject
 
 class GetE2EICertificateUseCase @Inject constructor(
     private val enrollE2EI: EnrollE2EIUseCase,
-    @ApplicationContext private val applicationContext: Context,
     val dispatcherProvider: DispatcherProvider
 ) {
 
@@ -43,6 +40,7 @@ class GetE2EICertificateUseCase @Inject constructor(
     lateinit var enrollmentResultHandler: (Either<E2EIFailure, E2EIEnrollmentResult>) -> Unit
 
     operator fun invoke(
+        context: Context,
         isNewClient: Boolean,
         enrollmentResultHandler: (Either<E2EIFailure, E2EIEnrollmentResult>) -> Unit
     ) {
@@ -52,8 +50,8 @@ class GetE2EICertificateUseCase @Inject constructor(
                 enrollmentResultHandler(Either.Left(it))
             }, {
                 initialEnrollmentResult = it
-                OAuthUseCase(applicationContext, it.target, it.oAuthClaims, it.oAuthState).launch(
-                    applicationContext.getActivity()!!.activityResultRegistry,
+                OAuthUseCase(context, it.target, it.oAuthClaims, it.oAuthState).launch(
+                    context.getActivity()!!.activityResultRegistry,
                     ::oAuthResultHandler
                 )
             })

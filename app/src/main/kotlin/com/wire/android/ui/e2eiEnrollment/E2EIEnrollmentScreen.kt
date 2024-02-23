@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -75,6 +76,7 @@ fun E2EIEnrollmentScreen(
     viewModel: E2EIEnrollmentViewModel = hiltViewModel(),
 ) {
     val state = viewModel.state
+    val context = LocalContext.current
 
     E2EIEnrollmentScreenContent(
         state = state,
@@ -83,7 +85,7 @@ fun E2EIEnrollmentScreen(
             viewModel.finalizeMLSClient()
         },
         dismissErrorDialog = viewModel::dismissErrorDialog,
-        enrollE2EICertificate = { viewModel.enrollE2EICertificate() },
+        enrollE2EICertificate = { viewModel.enrollE2EICertificate(context) },
         openCertificateDetails = {
             navigator.navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(state.certificate)))
         },

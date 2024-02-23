@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.e2eiEnrollment
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -93,9 +94,9 @@ class E2EIEnrollmentViewModel @Inject constructor(
             }
         }
     }
-    fun enrollE2EICertificate() {
+    fun enrollE2EICertificate(context: Context) {
         state = state.copy(isLoading = true)
-        e2eiCertificateUseCase(true) { result ->
+        e2eiCertificateUseCase(context, true) { result ->
             result.fold({
                 state = state.copy(
                     isLoading = false,

@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -125,8 +126,8 @@ class DebugDataOptionsViewModel
         }
     }
 
-    fun enrollE2EICertificate() {
-        e2eiCertificateUseCase(false) { result ->
+    fun enrollE2EICertificate(context: Context) {
+        e2eiCertificateUseCase(context, false) { result ->
             result.fold({
                 state = state.copy(
                     certificate = it.toString(), showCertificate = true
@@ -252,7 +253,7 @@ fun DebugDataOptionsContent(
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
     onManualMigrationPressed: () -> Unit,
-    enrollE2EICertificate: () -> Unit,
+    enrollE2EICertificate: (Context) -> Unit,
     dismissCertificateDialog: () -> Unit
 ) {
     Column {
@@ -354,8 +355,9 @@ fun DebugDataOptionsContent(
 
 @Composable
 private fun GetE2EICertificateSwitch(
-    enrollE2EI: () -> Unit
+    enrollE2EI: (context: Context) -> Unit
 ) {
+    val context = LocalContext.current
     Column {
         FolderHeader(stringResource(R.string.debug_settings_e2ei_enrollment_title))
         RowItemTemplate(modifier = Modifier.wrapContentWidth(),
@@ -370,7 +372,7 @@ private fun GetE2EICertificateSwitch(
             actions = {
                 WirePrimaryButton(
                     onClick = {
-                        enrollE2EI()
+                        enrollE2EI(context)
                     },
                     text = stringResource(R.string.label_get_e2ei_cetificate),
                     fillMaxWidth = false

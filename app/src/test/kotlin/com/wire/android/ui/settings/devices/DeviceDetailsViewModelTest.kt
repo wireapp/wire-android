@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.settings.devices
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
@@ -276,15 +277,18 @@ class DeviceDetailsViewModelTest {
                 .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT, true))
                 .arrange()
 
-            viewModel.enrollE2eiCertificate()
+            viewModel.enrollE2eiCertificate(arrangement.context)
 
             coVerify {
-                arrangement.enrolE2EICertificateUseCase(any(), any())
+                arrangement.enrolE2EICertificateUseCase(any(), any(), any())
             }
             assertTrue(viewModel.state.isLoadingCertificate)
         }
 
     private class Arrangement {
+
+        @MockK
+        lateinit var context: Context
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle

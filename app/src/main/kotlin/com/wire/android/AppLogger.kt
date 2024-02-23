@@ -64,8 +64,8 @@ object AppJsonStyledLogger {
             KaliumLogLevel.INFO -> i(logMessage)
             KaliumLogLevel.WARN -> w(logMessage)
             KaliumLogLevel.ERROR -> e(logMessage, throwable = error)
-            KaliumLogLevel.DISABLED,
             KaliumLogLevel.VERBOSE -> v(logMessage)
+            KaliumLogLevel.DISABLED -> Unit
         }
     }
 }

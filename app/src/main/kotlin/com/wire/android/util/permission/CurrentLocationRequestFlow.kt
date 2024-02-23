@@ -36,8 +36,8 @@ fun rememberCurrentLocationFlow(
 
     val requestPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            val atLeastOneLocationTypeAccessGranted = permissions.any { it.value }
-            if (atLeastOneLocationTypeAccessGranted) {
+            val allPermissionGranted = permissions.all { it.value }
+            if (allPermissionGranted) {
                 onPermissionAllowed()
             } else {
                 onPermissionDenied()

@@ -32,6 +32,7 @@ data class GroupMetadataState(
     val animatedGroupNameError: Boolean = false,
     val continueEnabled: Boolean = false,
     val mlsEnabled: Boolean = true,
+    val defaultProtocol: ConversationOptions.Protocol = ConversationOptions.Protocol.PROTEUS,
     val isLoading: Boolean = false,
     val error: NewGroupError = NewGroupError.None,
     val mode: GroupNameMode = GroupNameMode.CREATION,

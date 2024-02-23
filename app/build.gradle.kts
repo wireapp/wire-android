@@ -69,7 +69,7 @@ android {
         // For all other flavors use the "nonfree" sourceSets
         } else {
             getByName("main") {
-                java.srcDirs("src/nonfree/kotlin")
+                java.srcDirs("src/main/kotlin", "src/nonfree/kotlin")
                 println("Building with non-free sourceSets")
             }
         }

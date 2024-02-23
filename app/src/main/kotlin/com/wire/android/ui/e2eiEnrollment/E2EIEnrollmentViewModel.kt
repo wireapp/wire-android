@@ -109,6 +109,11 @@ class E2EIEnrollmentViewModel @Inject constructor(
                         isCertificateEnrollError = false,
                         isLoading = false
                     )
+                } else {
+                    state = state.copy(
+                        isLoading = false,
+                        isCertificateEnrollError = true
+                    )
                 }
             })
         }

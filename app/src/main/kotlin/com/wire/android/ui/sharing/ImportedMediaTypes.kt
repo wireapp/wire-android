@@ -42,7 +42,7 @@ fun ImportedImageView(item: ImportedMediaAsset.Image, isMultipleImport: Boolean)
     MessageImage(
         asset = item.localImageAsset,
         imgParams = ImageMessageParams(item.width, item.height),
-        transferStatus = AssetTransferStatus.NOT_PROCESSED,
+        transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
         onImageClick = Clickable(enabled = false),
         shouldFillMaxWidth = !isMultipleImport,
         isImportedMediaAsset = true
@@ -56,7 +56,7 @@ fun ImportedGenericAssetView(item: ImportedMediaAsset.GenericAsset, isMultipleIm
         assetExtension = item.name.fileExtension() ?: "",
         assetSizeInBytes = item.size,
         onAssetClick = Clickable(enabled = false),
-        assetTransferStatus = AssetTransferStatus.NOT_PROCESSED,
+        assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
         shouldFillMaxWidth = !isMultipleImport,
         isImportedMediaAsset = true
     )

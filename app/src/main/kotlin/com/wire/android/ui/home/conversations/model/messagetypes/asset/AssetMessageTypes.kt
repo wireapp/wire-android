@@ -299,18 +299,17 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
 
 @Composable
 private fun DownloadStatusIcon(assetTransferStatus: AssetTransferStatus) {
-    return if (assetTransferStatus.isInProgress()) {
+    if (assetTransferStatus.isInProgress()) {
         WireCircularProgressIndicator(
             progressColor = MaterialTheme.wireColorScheme.secondaryText,
             size = dimensions().spacing16x
         )
-    } else {
     }
 }
 
 @Composable
 fun getDownloadStatusText(assetTransferStatus: AssetTransferStatus): String = when (assetTransferStatus) {
-    AssetTransferStatus.NOT_PROCESSED -> stringResource(R.string.asset_message_tap_to_download_text)
+    AssetTransferStatus.NOT_DOWNLOADED -> stringResource(R.string.asset_message_tap_to_download_text)
     AssetTransferStatus.UPLOAD_IN_PROGRESS -> stringResource(R.string.asset_message_upload_in_progress_text)
     AssetTransferStatus.DOWNLOAD_IN_PROGRESS -> stringResource(R.string.asset_message_download_in_progress_text)
     AssetTransferStatus.UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)

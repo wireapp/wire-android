@@ -224,7 +224,7 @@ fun previewAssetGrid() {
                 ),
                 message2.messageId to messageAssetStatus.copy(
                     id = message2.messageId,
-                    transferStatus = AssetTransferStatus.NOT_PROCESSED
+                    transferStatus = AssetTransferStatus.NOT_DOWNLOADED
                 ),
                 message3.messageId to messageAssetStatus.copy(
                     id = message3.messageId,

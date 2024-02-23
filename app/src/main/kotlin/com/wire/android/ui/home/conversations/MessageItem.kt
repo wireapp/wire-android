@@ -87,7 +87,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isSaved
-import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
@@ -526,7 +525,7 @@ private fun MessageContent(
                 MessageImage(
                     asset = messageContent.asset,
                     imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-                    transferStatus = assetStatus?.transferStatus ?: AssetTransferStatus.NOT_PROCESSED,
+                    transferStatus = assetStatus?.transferStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                     onImageClick = onImageClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
@@ -594,7 +593,7 @@ private fun MessageContent(
                     assetName = messageContent.assetName,
                     assetExtension = messageContent.assetExtension,
                     assetSizeInBytes = messageContent.assetSizeInBytes,
-                    assetTransferStatus = assetStatus?.transferStatus ?: AssetTransferStatus.NOT_PROCESSED,
+                    assetTransferStatus = assetStatus?.transferStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                     onAssetClick = onAssetClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)

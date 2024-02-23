@@ -273,7 +273,7 @@ fun PreviewImportedMediaAssetMessageContent() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetTransferStatus = AssetTransferStatus.NOT_PROCESSED,
+            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
             shouldFillMaxWidth = false,
             isImportedMediaAsset = true
         )
@@ -289,7 +289,7 @@ fun PreviewWideImportedAssetMessageContent() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetTransferStatus = AssetTransferStatus.NOT_PROCESSED,
+            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
             shouldFillMaxWidth = true,
             isImportedMediaAsset = true
         )

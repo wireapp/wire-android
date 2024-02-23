@@ -51,7 +51,6 @@ class TypingIndicatorViewModel @Inject constructor(
     private fun observeUsersTypingState() {
         viewModelScope.launch {
             observeUsersTypingInConversation(conversationId).collect {
-                appLogger.d("Users typing: $it")
                 usersTypingViewState = usersTypingViewState.copy(usersTyping = it)
             }
         }

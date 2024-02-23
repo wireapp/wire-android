@@ -70,3 +70,21 @@ To do so, you will find instructions there, but you can do the following:
 1. Create a [Crowdin account](https://crowdin.com/).
 2. Request access to add translations in our [project](https://crowdin.com/project/wire-android-reloaded).
 3. Translate away.
+
+# App flavours
+
+We have a few different app flavours with different intended usages. Each app flavour has a different icon background colour to enable easier distinction.
+To see how they are customised in details, check [the customization file](./default.json).
+
+| Name     | Icon background colour | Description / Intended Usage                                                                                                                                                                      | Logging Enabled | Default Backend |
+|----------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|-----------------|
+| Dev      | 🔴                     | For developing new features. Bleeding edge. Unstable. Staging Backend. Eats experimental features for breakfast and drinks developers tears as dessert.                                           | ✅               | Wire Staging    |
+| Staging  | 🟡                     | Mainly for QA to test a release-like app with a staging backend. Imitates the Production/Release application, having features flags following the Prod/White app below, but with extra dev tools. | ✅               | Wire Staging    |
+| Internal | 🟢                     | Currently unused (?). It was used in the past and _probably_ should be deleted any time soon.                                                                                                     | ✅               | Wire Prod       |
+| Beta     | 🔵                     | Used by internal users within the company as dogfood. Some features that are not yet ready for the general public might be tested here first.                                                     | ✅               | Wire Prod       |
+| Prod     | ⚪                      | The production app available to the general public.                                                                                                                                               | ✖️              | Wire Prod       |
+| F-Droid  | ⚪                      | Also a production app available to the general public. Published on the F-Droid store, but without any closed-source software.                                                                    | ✖️              | Wire Prod       |
+
+## Build Types
+
+The apps can be built for release or debugging. Debug versions might have extra debugging tools, are not minified, and can be profiled if needed. In general, debug builds _run slower_ due to the lack of minimisation. 

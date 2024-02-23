@@ -24,6 +24,8 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import androidx.core.location.LocationManagerCompat
+import com.wire.android.AppJsonStyledLogger
+import com.wire.kalium.logger.KaliumLogLevel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -32,6 +34,11 @@ open class LocationPickerHelper @Inject constructor(@ApplicationContext val cont
     @SuppressLint("MissingPermission")
     protected fun getLocationWithoutGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
         if (isLocationServicesEnabled()) {
+            AppJsonStyledLogger.log(
+                level = KaliumLogLevel.INFO,
+                leadingMessage = "GetLocation",
+                jsonStringKeyValues = mapOf("isUsingGms" to false)
+            )
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             val networkLocationListener: LocationListener = object : LocationListener {
                 override fun onLocationChanged(location: Location) {
@@ -42,6 +49,14 @@ open class LocationPickerHelper @Inject constructor(@ApplicationContext val cont
             }
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, networkLocationListener)
         } else {
+            AppJsonStyledLogger.log(
+                level = KaliumLogLevel.WARN,
+                leadingMessage = "GetLocation",
+                jsonStringKeyValues = mapOf(
+                    "isUsingGms" to false,
+                    "error" to "Location services are not enabled"
+                )
+            )
             onError()
         }
     }

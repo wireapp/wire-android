@@ -74,7 +74,7 @@ To do so, you will find instructions there, but you can do the following:
 # App flavours
 
 We have a few different app flavours with different intended usages. Each app flavour has a different icon background colour to enable easier distinction.
-To see how they are customised in details, check [the customization file](./default.json).
+To see how they are customised in details, check [the flavour configuration file](./default.json).
 
 | Name     | Icon background colour | Description / Intended Usage                                                                                                                                                                      | Logging Enabled | Default Backend |
 |----------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|-----------------|

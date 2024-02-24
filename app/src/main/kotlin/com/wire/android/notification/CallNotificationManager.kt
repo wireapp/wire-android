@@ -142,7 +142,6 @@ class CallNotificationBuilder @Inject constructor(
             .addAction(getOpenIncomingCallAction(context, conversationIdString, userIdString))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString))
-            .setDeleteIntent(declineCallPendingIntent(context, conversationIdString, userIdString))
             .build()
 
         // Added FLAG_INSISTENT so the ringing sound repeats itself until an action is done.

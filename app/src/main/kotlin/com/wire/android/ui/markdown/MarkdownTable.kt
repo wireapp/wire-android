@@ -35,6 +35,7 @@ import org.commonmark.ext.gfm.tables.TableCell
 import org.commonmark.ext.gfm.tables.TableHead
 import org.commonmark.node.Node
 
+// TODO remove
 @Composable
 fun MarkdownTable(tableBlock: TableBlock, nodeData: NodeData, onMentionsUpdate: (List<DisplayMention>) -> Unit) {
     val tableData = mutableListOf<List<RowData>>()
@@ -115,3 +116,73 @@ private fun parseRow(
 }
 
 data class RowData(val annotatedString: AnnotatedString, val isHeader: Boolean)
+
+@Composable
+fun MarkdownNodeTable(tableBlock: MarkdownNode.Block.Table, nodeData: NodeData, onMentionsUpdate: (List<DisplayMention>) -> Unit) {
+    val tableData = mutableListOf<List<RowData>>()
+    tableBlock.children.forEach { child ->
+        when (child) {
+            is MarkdownNode.Block.TableContent.Head -> {
+                child.children.forEach { rowNode ->
+                    val row = parseRowCells(rowNode.children, nodeData, true, onMentionsUpdate)
+                    tableData.add(row)
+                }
+            }
+
+            is MarkdownNode.Block.TableContent.Body -> {
+                child.children.forEach { rowNode ->
+                    val row = parseRowCells(rowNode.children, nodeData, false, onMentionsUpdate)
+                    tableData.add(row)
+                }
+            }
+        }
+    }
+
+    val columnCount = tableData.firstOrNull()?.size ?: 0
+    println("KBX column count $columnCount")
+
+    // Create a table
+    Column(modifier = Modifier.padding(bottom = dimensions().spacing8x)) {
+        tableData.map { row ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        if (row.firstOrNull()?.isHeader == true) {
+                            MaterialTheme.wireColorScheme.outline
+                        } else {
+                            MaterialTheme.wireColorScheme.background
+                        }
+                    )
+            ) {
+                for (columnIndex in 0 until columnCount) {
+                    MarkdownText(
+                        annotatedString = row[columnIndex].annotatedString,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(dimensions().spacing8x),
+                        onLongClick = nodeData.onLongClick,
+                        onOpenProfile = nodeData.onOpenProfile
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun parseRowCells(
+    tableCells: List<MarkdownNode.TableCell>,
+    nodeData: NodeData,
+    isHeader: Boolean,
+    onMentionsUpdate: (List<DisplayMention>) -> Unit
+): List<RowData> {
+    val rowsData = mutableListOf<RowData>()
+
+    tableCells.forEach { child ->
+        val cellText = buildAnnotatedString {
+            onMentionsUpdate(inlineNodeChildren(child.children, this, nodeData))
+        }
+        rowsData.add(RowData(cellText, isHeader))
+    }
+    return rowsData
+}

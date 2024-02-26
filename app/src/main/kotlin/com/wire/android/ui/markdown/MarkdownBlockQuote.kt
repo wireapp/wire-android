@@ -33,6 +33,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import org.commonmark.node.BlockQuote
 
+// TODO remove
 @Composable
 fun MarkdownBlockQuote(blockQuote: BlockQuote, nodeData: NodeData) {
     val color = MaterialTheme.wireColorScheme.onBackground
@@ -65,6 +66,49 @@ fun MarkdownBlockQuote(blockQuote: BlockQuote, nodeData: NodeData) {
                 }
             }
             child = child.next
+        }
+    }
+}
+
+@Composable
+fun MarkdownNodeBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: NodeData) {
+    val color = MaterialTheme.wireColorScheme.onBackground
+    val xOffset = dimensions().spacing12x.value
+    Column(modifier = Modifier
+        .drawBehind {
+            drawLine(
+                color = color,
+                strokeWidth = 2f,
+                start = Offset(xOffset, 0f),
+                end = Offset(xOffset, size.height)
+            )
+        }
+        .padding(start = dimensions().spacing16x, top = dimensions().spacing4x, bottom = dimensions().spacing4x)) {
+
+        blockQuote.children.map { child ->
+            when (child) {
+                is MarkdownNode.Block.BlockQuote -> MarkdownNodeBlockQuote(child, nodeData)
+                is MarkdownNode.Block.Paragraph -> {
+                    val text = buildAnnotatedString {
+                        pushStyle(
+                            MaterialTheme.wireTypography.body01.toSpanStyle()
+                                .plus(SpanStyle(fontStyle = FontStyle.Italic))
+                        )
+                        inlineNodeChildren(child.children, this, nodeData)
+                        pop()
+                    }
+                    MarkdownText(
+                        text,
+                        onLongClick = nodeData.onLongClick,
+                        onOpenProfile = nodeData.onOpenProfile
+                    )
+                }
+
+                else -> MarkdownNodeBlockChildren(
+                    children = child.children.filterIsInstance<MarkdownNode.Block>(),
+                    nodeData = nodeData
+                )
+            }
         }
     }
 }

@@ -28,6 +28,7 @@ import com.wire.android.ui.theme.wireTypography
 import org.commonmark.node.Document
 import org.commonmark.node.Paragraph
 
+// TODO remove
 @Composable
 fun MarkdownParagraph(
     paragraph: Paragraph,
@@ -52,4 +53,30 @@ fun MarkdownParagraph(
                 clickable = clickable
             )
         }
+}
+
+@Composable
+fun MarkdownNodeParagraph(
+    paragraph: MarkdownNode.Block.Paragraph,
+    nodeData: NodeData,
+    clickable: Boolean,
+    onMentionsUpdate: (List<DisplayMention>) -> Unit
+) {
+    val padding = if (paragraph.isParentDocument) dimensions().spacing4x else dimensions().spacing0x
+    Box(modifier = Modifier.padding(bottom = padding)) {
+        val annotatedString = buildAnnotatedString {
+            pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
+            val updatedMentions = inlineNodeChildren(paragraph.children, this, nodeData)
+            onMentionsUpdate(updatedMentions)
+            pop()
+        }
+        MarkdownText(
+            annotatedString,
+            style = nodeData.style,
+            onLongClick = nodeData.onLongClick,
+            onOpenProfile = nodeData.onOpenProfile,
+            onClickLink = nodeData.onLinkClick,
+            clickable = clickable
+        )
+    }
 }

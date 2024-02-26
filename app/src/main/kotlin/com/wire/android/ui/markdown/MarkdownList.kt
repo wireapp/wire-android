@@ -18,6 +18,7 @@
 package com.wire.android.ui.markdown
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -32,6 +33,7 @@ import org.commonmark.node.ListBlock
 import org.commonmark.node.Node
 import org.commonmark.node.OrderedList
 
+// TODO remove
 @Composable
 fun MarkdownBulletList(bulletList: BulletList, nodeData: NodeData) {
     MarkdownListItems(bulletList, nodeData) {
@@ -41,7 +43,8 @@ fun MarkdownBulletList(bulletList: BulletList, nodeData: NodeData) {
             inlineChildren(it, this, nodeData)
             pop()
         }
-        MarkdownText(annotatedString = text,
+        MarkdownText(
+            annotatedString = text,
             style = MaterialTheme.wireTypography.body01,
             onLongClick = nodeData.onLongClick,
             onOpenProfile = nodeData.onOpenProfile
@@ -86,6 +89,58 @@ fun MarkdownListItems(listBlock: ListBlock, nodeData: NodeData, item: @Composabl
                 child = child.next
             }
             listItem = listItem.next
+        }
+    }
+}
+
+@Composable
+fun MarkdownNodeBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData: NodeData) {
+    val bottom = if (bulletList.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
+    val start = if (bulletList.isParentDocument) dimensions().spacing0x else dimensions().spacing8x
+
+    val text = buildAnnotatedString {
+        pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
+        append("$BULLET_MARK ")
+        pop()
+    }
+
+    Column(modifier = Modifier.padding(bottom = bottom)) {
+        bulletList.children.forEach { listItem ->
+            Row {
+                MarkdownText(
+                    annotatedString = text,
+                    style = MaterialTheme.wireTypography.body01,
+                    onLongClick = nodeData.onLongClick,
+                    onOpenProfile = nodeData.onOpenProfile
+                )
+                MarkdownNodeBlockChildren(children = listItem.children, nodeData = nodeData)
+            }
+        }
+    }
+}
+
+@Composable
+fun MarkdownNodeOrderedList(orderedList: MarkdownNode.Block.ListBlock.Ordered, nodeData: NodeData) {
+    val bottom = if (orderedList.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
+    val start = if (orderedList.isParentDocument) dimensions().spacing0x else dimensions().spacing8x
+
+    Column(modifier = Modifier.padding(bottom = bottom)) {
+        orderedList.children.forEach { listItem ->
+            val text = buildAnnotatedString {
+                pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
+                append("${listItem.orderNumber}${orderedList.delimiter} ")
+                pop()
+            }
+
+            Row {
+                MarkdownText(
+                    annotatedString = text,
+                    style = MaterialTheme.wireTypography.body01,
+                    onLongClick = nodeData.onLongClick,
+                    onOpenProfile = nodeData.onOpenProfile
+                )
+                MarkdownNodeBlockChildren(children = listItem.children, nodeData = nodeData)
+            }
         }
     }
 }

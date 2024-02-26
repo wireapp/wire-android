@@ -52,7 +52,6 @@ import org.commonmark.node.OrderedList
 import org.commonmark.node.Paragraph
 import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
-import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
 import kotlin.math.max
 import kotlin.math.min
@@ -126,7 +125,7 @@ fun inlineChildren(
             is nodeText -> {
                 updatedMentions = appendLinksAndMentions(
                     annotatedString,
-                    convertTypoGraphs(child),
+                    convertTypoGraphs(child.literal),
                     nodeData.copy(mentions = updatedMentions)
                 )
             }
@@ -350,7 +349,7 @@ fun highlightText(nodeData: NodeData, text: String): AnnotatedString {
     }
 }
 
-private fun convertTypoGraphs(child: Text) = child.literal
+fun convertTypoGraphs(literal: String) = literal
     .replace("(c)", "©")
     .replace("(C)", "©")
     .replace("(r)", "®")

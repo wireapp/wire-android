@@ -27,6 +27,7 @@ import com.wire.android.ui.common.dimensions
 import org.commonmark.node.Document
 import org.commonmark.node.Heading
 
+// TODO remove
 @Composable
 @Suppress("MagicNumber")
 fun MarkdownHeading(heading: Heading, nodeData: NodeData) {
@@ -55,5 +56,33 @@ fun MarkdownHeading(heading: Heading, nodeData: NodeData) {
         }
     } else {
         MarkdownBlockChildren(heading, nodeData)
+    }
+}
+
+@Composable
+@Suppress("MagicNumber")
+fun MarkdownNodeHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData) {
+    val style: TextStyle = when (heading.level) {
+        1 -> nodeData.typography.title01
+        2 -> nodeData.typography.title01
+        3 -> nodeData.typography.title01
+        4 -> nodeData.typography.title01
+        5 -> nodeData.typography.title01
+        6 -> nodeData.typography.title01
+        else -> nodeData.typography.title01
+    }
+
+    val padding = if (heading.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
+
+    Box(modifier = Modifier.padding(bottom = padding)) {
+        val text = buildAnnotatedString {
+            inlineNodeChildren(heading.children, this, nodeData)
+        }
+        MarkdownText(
+            annotatedString = text,
+            style = style,
+            onLongClick = nodeData.onLongClick,
+            onOpenProfile = nodeData.onOpenProfile
+        )
     }
 }

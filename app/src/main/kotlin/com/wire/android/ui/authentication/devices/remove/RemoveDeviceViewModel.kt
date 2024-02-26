@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.authentication.devices.remove
@@ -26,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.logic.data.client.ClientType
@@ -94,7 +93,7 @@ class RemoveDeviceViewModel @Inject constructor(
         updateStateIfDialogVisible { state.copy(error = RemoveDeviceError.None) }
     }
 
-    fun onItemClicked(device: Device, onCompleted: (initialSyncCompleted: Boolean) -> Unit) {
+    fun onItemClicked(device: Device, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         viewModelScope.launch {
             val isPasswordRequired: Boolean = when (val passwordRequiredResult = isPasswordRequired()) {
                 is IsPasswordRequiredUseCase.Result.Failure -> {
@@ -115,9 +114,12 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    private suspend fun registerClient(password: String?, onCompleted: (initialSyncCompleted: Boolean) -> Unit) {
+    private suspend fun registerClient(password: String?, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         registerClientUseCase(
-            RegisterClientUseCase.RegisterClientParam(password, null)
+            RegisterClientUseCase.RegisterClientParam(
+                password, null,
+                modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
+            )
         ).also { result ->
             when (result) {
                 is RegisterClientResult.Failure.PasswordAuthRequired -> {
@@ -127,12 +129,17 @@ class RemoveDeviceViewModel @Inject constructor(
                 is RegisterClientResult.Failure.Generic -> state = state.copy(error = RemoveDeviceError.GenericError(result.genericFailure))
                 is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
                 is RegisterClientResult.Failure.TooManyClients -> loadClientsList()
-                is RegisterClientResult.Success -> onCompleted(userDataStore.initialSyncCompleted.first())
+                is RegisterClientResult.Success -> onCompleted(userDataStore.initialSyncCompleted.first(), false)
+                is RegisterClientResult.E2EICertificateRequired -> onCompleted(userDataStore.initialSyncCompleted.first(), true)
             }
         }
     }
 
-    private suspend fun deleteClient(password: String?, device: Device, onCompleted: (initialSyncCompleted: Boolean) -> Unit) {
+    private suspend fun deleteClient(
+        password: String?,
+        device: Device,
+        onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit
+    ) {
         when (val deleteResult = deleteClientUseCase(DeleteClientParam(password, device.clientId))) {
             is DeleteClientResult.Failure.Generic -> {
                 state = state.copy(error = RemoveDeviceError.GenericError(deleteResult.genericFailure))
@@ -149,7 +156,7 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    fun onRemoveConfirmed(onCompleted: (initialSyncCompleted: Boolean) -> Unit) {
+    fun onRemoveConfirmed(onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         (state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
             updateStateIfDialogVisible { state.copy(removeDeviceDialogState = it.copy(loading = true, removeEnabled = false)) }
             viewModelScope.launch {

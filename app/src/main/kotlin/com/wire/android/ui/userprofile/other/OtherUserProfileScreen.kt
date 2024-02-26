@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 @file:OptIn(ExperimentalMaterial3Api::class)
@@ -50,10 +48,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -69,6 +67,7 @@ import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
+import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
@@ -82,6 +81,7 @@ import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -91,9 +91,12 @@ import com.wire.android.ui.destinations.ConversationMediaScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
+import com.wire.android.ui.home.conversations.details.SearchAndMediaRow
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
+import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -102,6 +105,7 @@ import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserBottomSheetState
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserProfileBottomSheetContent
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
@@ -156,6 +160,8 @@ fun OtherUserProfileScreen(
         }
     }
 
+    val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
+
     OtherProfileScreenContent(
         scope = scope,
         state = viewModel.state,
@@ -174,7 +180,8 @@ fun OtherUserProfileScreen(
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
         navigateBack = navigator::navigateBack,
         navigationIconType = NavigationIconType.Close,
-        onConversationMediaClick = onConversationMediaClick
+        onConversationMediaClick = onConversationMediaClick,
+        onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
     )
 
     LaunchedEffect(Unit) {
@@ -186,6 +193,10 @@ fun OtherUserProfileScreen(
         viewModel.closeBottomSheet.collect {
             sheetState.hide()
         }
+    }
+
+    VisibilityState(legalHoldSubjectDialogState) {
+        LegalHoldSubjectProfileDialog(viewModel.state.userName, legalHoldSubjectDialogState::dismiss)
     }
 }
 
@@ -207,7 +218,8 @@ fun OtherProfileScreenContent(
     onOpenDeviceDetails: (Device) -> Unit = {},
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit = {},
-    navigateBack: () -> Unit = {}
+    navigateBack: () -> Unit = {},
+    onLegalHoldLearnMoreClick: () -> Unit = {},
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
@@ -285,7 +297,8 @@ fun OtherProfileScreenContent(
             TopBarCollapsing(
                 state = state,
                 onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-                onConversationMediaClick = onConversationMediaClick
+                onConversationMediaClick = onConversationMediaClick,
+                onLegalHoldLearnMoreClick = onLegalHoldLearnMoreClick,
             )
         },
         topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
@@ -386,28 +399,44 @@ private fun TopBarHeader(
 private fun TopBarCollapsing(
     state: OtherUserProfileState,
     onSearchConversationMessagesClick: () -> Unit,
-    onConversationMediaClick: () -> Unit = {}
+    onConversationMediaClick: () -> Unit = {},
+    onLegalHoldLearnMoreClick: () -> Unit = {},
 ) {
     Crossfade(
         targetState = state,
         label = "OtherUserProfileScreenTopBarCollapsing"
     ) { targetState ->
-        UserProfileInfo(
-            userId = targetState.userId,
-            isLoading = targetState.isAvatarLoading,
-            avatarAsset = targetState.userAvatarAsset,
-            fullName = targetState.fullName,
-            userName = targetState.userName,
-            teamName = targetState.teamName,
-            membership = targetState.membership,
-            editableState = EditableState.NotEditable,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(bottom = dimensions().spacing16x),
-            connection = targetState.connectionState,
-            isProteusVerified = targetState.isProteusVerified,
-            onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-            shouldShowSearchButton = state.shouldShowSearchButton(),
-            onConversationMediaClick = onConversationMediaClick
-        )
+        ) {
+            UserProfileInfo(
+                userId = targetState.userId,
+                isLoading = targetState.isAvatarLoading,
+                avatarAsset = targetState.userAvatarAsset,
+                fullName = targetState.fullName,
+                userName = targetState.userName,
+                teamName = targetState.teamName,
+                membership = targetState.membership,
+                editableState = EditableState.NotEditable,
+                connection = targetState.connectionState,
+                isProteusVerified = targetState.isProteusVerified,
+                isMLSVerified = targetState.isMLSVerified,
+            )
+            if (state.isUnderLegalHold) {
+                LegalHoldSubjectBanner(
+                    onClick = onLegalHoldLearnMoreClick,
+                    modifier = Modifier.padding(top = dimensions().spacing8x)
+                )
+            }
+            if (state.shouldShowSearchButton()) {
+                VerticalSpace.x24()
+                SearchAndMediaRow(
+                    onSearchConversationMessagesClick = onSearchConversationMessagesClick,
+                    onConversationMediaClick = onConversationMediaClick
+                )
+            }
+        }
     }
 }
 
@@ -550,12 +579,15 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview(name = "Connected")
-fun PreviewOtherProfileScreenContent() {
+@PreviewMultipleThemes
+fun PreviewOtherProfileScreenGroupMemberContent() {
     WireTheme {
         OtherProfileScreenContent(
             scope = rememberCoroutineScope(),
-            state = OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
+            state = OtherUserProfileState.PREVIEW.copy(
+                connectionState = ConnectionState.ACCEPTED,
+                isUnderLegalHold = true,
+            ),
             navigationIconType = NavigationIconType.Back,
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
@@ -570,12 +602,39 @@ fun PreviewOtherProfileScreenContent() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview(name = "Not Connected")
+@PreviewMultipleThemes
+fun PreviewOtherProfileScreenContent() {
+    WireTheme {
+        OtherProfileScreenContent(
+            scope = rememberCoroutineScope(),
+            state = OtherUserProfileState.PREVIEW.copy(
+                connectionState = ConnectionState.ACCEPTED,
+                isUnderLegalHold = true,
+                groupState = null
+            ),
+            navigationIconType = NavigationIconType.Back,
+            requestInProgress = false,
+            sheetState = rememberWireModalSheetState(),
+            openBottomSheet = {},
+            closeBottomSheet = {},
+            eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
+            bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
+            onSearchConversationMessagesClick = {}
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@PreviewMultipleThemes
 fun PreviewOtherProfileScreenContentNotConnected() {
     WireTheme {
         OtherProfileScreenContent(
             scope = rememberCoroutineScope(),
-            state = OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
+            state = OtherUserProfileState.PREVIEW.copy(
+                connectionState = ConnectionState.CANCELLED,
+                isUnderLegalHold = true,
+            ),
             navigationIconType = NavigationIconType.Back,
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),

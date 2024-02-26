@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 @file:OptIn(ExperimentalCoroutinesApi::class)
@@ -30,6 +28,8 @@ import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import io.mockk.coEvery
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
@@ -68,6 +68,12 @@ class SelfDevicesViewModelTest {
         @MockK
         lateinit var fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase
 
+        @MockK
+        lateinit var getUserE2eiCertificates: GetUserE2eiCertificatesUseCase
+
+        @MockK
+        lateinit var isE2EIEnabledUseCase: IsE2EIEnabledUseCase
+
         val selfId = UserId("selfId", "domain")
 
         private val viewModel by lazy {
@@ -75,7 +81,9 @@ class SelfDevicesViewModelTest {
                 observeClientList = observeClientsByUserId,
                 currentAccountId = selfId,
                 currentClientIdUseCase = currentClientId,
-                fetchSelfClientsFromRemote = fetchSelfClientsFromRemote
+                fetchSelfClientsFromRemote = fetchSelfClientsFromRemote,
+                getUserE2eiCertificates = getUserE2eiCertificates,
+                isE2EIEnabledUseCase = isE2EIEnabledUseCase
             )
         }
 
@@ -91,6 +99,8 @@ class SelfDevicesViewModelTest {
                     )
                 )
             )
+            coEvery { getUserE2eiCertificates.invoke(any()) } returns mapOf()
+            coEvery { isE2EIEnabledUseCase() } returns true
         }
 
         fun arrange() = this to viewModel

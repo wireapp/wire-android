@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,19 +14,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.model
 
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserAssetId
+import okio.Path
 
 @Stable
 sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
@@ -52,7 +50,7 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
     @Stable
     data class LocalImageAsset(
         private val imageLoader: WireSessionImageLoader,
-        val dataUri: Uri,
+        val dataPath: Path,
         val idKey: String
     ) : ImageAsset(imageLoader) {
 

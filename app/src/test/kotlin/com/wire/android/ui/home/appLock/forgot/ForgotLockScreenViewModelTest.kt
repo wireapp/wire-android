@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -159,7 +159,6 @@ class ForgotLockScreenViewModelTest {
         val logoutActionsCalledExactly = if (userLogoutActionsCalled) 1 else 0
         coVerify(exactly = logoutActionsCalledExactly) { logoutUseCase(any(), any()) }
         coVerify(exactly = logoutActionsCalledExactly) { notificationManager.stopObservingOnLogout(any()) }
-        coVerify(exactly = logoutActionsCalledExactly) { notificationChannelsManager.deleteChannelGroup(any()) }
         coVerify(exactly = logoutActionsCalledExactly) { userDataStore.clear() }
     }
     private fun testLoggingOut(

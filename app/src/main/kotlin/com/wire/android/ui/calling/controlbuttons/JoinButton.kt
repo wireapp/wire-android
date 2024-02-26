@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.calling.controlbuttons
@@ -37,19 +35,24 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
 
 @Composable
 fun JoinButton(
     buttonClick: () -> Unit,
-    onPermanentPermissionDecline: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     minSize: DpSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
     minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
     horizontalPadding: Dp = MaterialTheme.wireDimensions.spacing8x,
 ) {
     val audioPermissionCheck = AudioPermissionCheckFlow(
         onJoinCall = buttonClick,
-        onPermanentPermissionDecline = onPermanentPermissionDecline
+        onPermanentPermissionDecline = {
+            onPermissionPermanentlyDenied(
+                PermissionDenialType.CallingMicrophone
+            )
+        }
     )
 
     WirePrimaryButton(
@@ -89,6 +92,6 @@ private fun AudioPermissionCheckFlow(
 fun PreviewJoinButton() {
     JoinButton(
         buttonClick = {},
-        onPermanentPermissionDecline = {}
+        onPermissionPermanentlyDenied = {}
     )
 }

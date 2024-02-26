@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.search
@@ -35,9 +33,13 @@ import com.wire.android.util.QueryMatchExtractor
 @Composable
 fun HighlightSubtitle(
     subTitle: String,
-    searchQuery: String = "",
+    searchQuery: String = String.EMPTY,
     suffix: String = "@"
 ) {
+    if (subTitle.isBlank()) {
+        return
+    }
+
     val queryWithoutSuffix = searchQuery.removeQueryPrefix()
 
     val highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
@@ -65,7 +67,8 @@ fun HighlightSubtitle(
                         if (highLightIndex.endIndex <= this.length) {
                             addStyle(
                                 style = SpanStyle(
-                                    background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f),
+                                    background = MaterialTheme.wireColorScheme.highlight,
+                                    color = MaterialTheme.wireColorScheme.onHighlight,
                                 ),
                                 start = highLightIndex.startIndex + suffix.length,
                                 end = highLightIndex.endIndex + suffix.length

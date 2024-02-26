@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.authentication.login
@@ -76,6 +74,7 @@ import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
@@ -100,13 +99,12 @@ fun LoginScreen(
 
     LoginContent(
         navigator::navigateBack,
-        { initialSyncCompleted ->
-            navigator.navigate(
-                NavigationCommand(
-                    if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
-                    BackStackMode.CLEAR_WHOLE
-                )
-            )
+        { initialSyncCompleted, isE2EIRequired ->
+            val destination = if (isE2EIRequired) E2EIEnrollmentScreenDestination
+            else if (initialSyncCompleted) HomeScreenDestination
+            else InitialSyncScreenDestination
+
+            navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
         },
         { navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE)) },
         loginViewModel,
@@ -119,7 +117,7 @@ fun LoginScreen(
 @Composable
 private fun LoginContent(
     onBackPressed: () -> Unit,
-    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     viewModel: LoginViewModel,
     loginEmailViewModel: LoginEmailViewModel,
@@ -148,7 +146,7 @@ private fun LoginContent(
 @Composable
 private fun MainLoginContent(
     onBackPressed: () -> Unit,
-    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     viewModel: LoginViewModel,
     loginEmailViewModel: LoginEmailViewModel,
@@ -355,6 +353,6 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
 @Composable
 private fun PreviewLoginScreen() {
     WireTheme {
-        MainLoginContent({}, {}, {}, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
+        MainLoginContent({}, { _, _ -> }, {}, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
     }
 }

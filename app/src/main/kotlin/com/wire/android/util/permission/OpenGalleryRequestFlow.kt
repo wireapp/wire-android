@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.util.permission
@@ -27,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import com.wire.android.util.extension.getActivity
 
 /**
  * Flow that will launch gallery browser to select a picture.
@@ -38,21 +37,27 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 fun rememberOpenGalleryFlow(
     onGalleryItemPicked: (Uri) -> Unit,
-    onPermissionDenied: () -> Unit
+    onPermissionDenied: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
 ): UseStorageRequestFlow {
     val context = LocalContext.current
-    val openGalleryLauncher: ManagedActivityResultLauncher<String, Uri?> = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { onChosenPictureUri ->
-        onChosenPictureUri?.let { onGalleryItemPicked(it) }
-    }
+    val openGalleryLauncher: ManagedActivityResultLauncher<String, Uri?> =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { onChosenPictureUri ->
+            onChosenPictureUri?.let { onGalleryItemPicked(it) }
+        }
 
     val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 openGalleryLauncher.launch(MIME_TYPE)
             } else {
-                onPermissionDenied()
+                context.getActivity()?.let {
+                    it.checkStoragePermission(onPermissionDenied) {
+                        onPermissionPermanentlyDenied(PermissionDenialType.Gallery)
+                    }
+                }
             }
         }
 

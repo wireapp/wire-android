@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package scripts
@@ -25,8 +23,8 @@ import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
     id("com.android.application") apply false
-    id("jacoco")
     id("io.gitlab.arturbosch.detekt")
+    id("org.jetbrains.kotlinx.kover")
 }
 
 dependencies {
@@ -85,71 +83,49 @@ tasks.register("staticCodeAnalysis") {
     dependsOn(detektAll)
 }
 
-// Jacoco Configuration
-val jacocoReport by tasks.registering(JacocoReport::class) {
-    group = "Quality"
-    description = "Reports code coverage on tests within the Wire Android codebase"
-    val buildVariant = "devDebug" // It's not necessary to run unit tests on every variant so we default to "devDebug"
-    dependsOn("test${buildVariant.capitalize()}UnitTest")
-
-    val outputDir = "$buildDir/jacoco/html"
-    val classPathBuildVariant = buildVariant
-
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-        html.outputLocation.set(file(outputDir))
-    }
-
-    classDirectories.setFrom(
-        fileTree(project.buildDir) {
-            include(
-                "**/classes/**/main/**", // This probably can be removed
-                "**/tmp/kotlin-classes/$classPathBuildVariant/**"
-            )
-            exclude(
-                "**/R.class",
-                "**/R\$*.class",
-                "**/BuildConfig.*",
-                "**/Manifest*.*",
-                "**/Manifest$*.class",
-                "**/*Test*.*",
-                "**/Injector.*",
-                "android/**/*.*",
-                "**/*\$Lambda$*.*",
-                "**/*\$inlined$*.*",
-                "**/di/*.*",
-                "**/*Database.*",
-                "**/*Response.*",
-                "**/*Application.*",
-                "**/*Entity.*",
-                "**/mock/**",
-                "**/*Screen*", // These are composable classes
-                "**/*Kt*", // These are "usually" kotlin generated classes
-                "**/theme/**/*.*", // Ignores jetpack compose theme related code
-                "**/common/**/*.*", // Ignores jetpack compose common components related code
-                "**/navigation/**/*.*" // Ignores jetpack navigation related code
-            )
-        }
-    )
-
-    sourceDirectories.setFrom(
-        fileTree(project.projectDir) {
-            include("src/main/java/**", "src/main/kotlin/**")
-        }
-    )
-
-    executionData.setFrom(
-        fileTree(project.buildDir) {
-            include("**/*.exec", "**/*.ec")
-        }
-    )
-
-    doLast { println("Report file: $outputDir/index.html") }
-}
-
 tasks.register("testCoverage") {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase."
-    dependsOn(jacocoReport)
+    dependsOn("koverXmlReport")
+}
+
+koverReport {
+    defaults {
+        mergeWith("devDebug")
+
+        filters {
+            excludes {
+                classes(
+                    "*Fragment",
+                    "*Fragment\$*",
+                    "*Activity",
+                    "*Activity\$*",
+                    "*.databinding.*",
+                    "*.BuildConfig",
+                    "**/R.class",
+                    "**/R\$*.class",
+                    "**/Manifest*.*",
+                    "**/Manifest$*.class",
+                    "**/*Test*.*",
+                    "*NavArgs*",
+                    "*ComposableSingletons*",
+                    "*_HiltModules*",
+                    "*Hilt_*",
+                )
+                packages(
+                    "hilt_aggregated_deps",
+                    "com.wire.android.di",
+                    "dagger.hilt.internal.aggregatedroot.codegen",
+                    "com.wire.android.ui.home.conversations.mock",
+                )
+                annotatedBy(
+                    "*Generated*",
+                    "*HomeNavGraph*",
+                    "*Destination*",
+                    "*Composable*",
+                    "*Preview*",
+                )
+            }
+        }
+    }
 }

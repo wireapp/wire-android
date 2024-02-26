@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 plugins {
@@ -58,7 +56,28 @@ android {
         jniLibs.pickFirsts.add("**/libsodium.so")
     }
     android.buildFeatures.buildConfig = true
+
+    var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
+    sourceSets {
+        // Add the "foss" sourceSets for the fdroid flavor
+        if(fdroidBuild) {
+            getByName("main") {
+                java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
+                resources.srcDirs("src/prod/res")
+                println("Building with FOSS sourceSets")
+            }
+        // For all other flavors use the "nonfree" sourceSets
+        } else {
+            getByName("main") {
+                java.srcDirs("src/main/kotlin", "src/nonfree/kotlin")
+                println("Building with non-free sourceSets")
+            }
+        }
+    }
 }
+
+
+
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
@@ -72,6 +91,7 @@ dependencies {
     implementation(libs.androidx.splashscreen)
     implementation(libs.androidx.exifInterface)
     implementation(libs.androidx.biometric)
+    implementation(libs.androidx.startup)
 
     implementation(libs.ktx.dateTime)
     implementation(libs.material)
@@ -120,7 +140,6 @@ dependencies {
     // Accompanist
     implementation(libs.accompanist.systemUI)
     implementation(libs.accompanist.placeholder)
-    implementation(libs.accompanist.navAnimation)
 
     implementation(libs.androidx.paging3)
     implementation(libs.androidx.paging3Compose)
@@ -145,8 +164,8 @@ dependencies {
     // firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.fcm)
-
     implementation(libs.androidx.work)
+    implementation(libs.googleGms.location)
 
     // commonMark
     implementation(libs.commonmark.core)
@@ -166,6 +185,8 @@ dependencies {
     testImplementation(libs.kluent.core)
     testImplementation(libs.turbine)
     testImplementation(libs.okio.fakeFileSystem)
+    testImplementation(libs.robolectric)
+    testRuntimeOnly(libs.junit5.vintage.engine)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.androidx.paging.testing)
 

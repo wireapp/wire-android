@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ fun TextMessageEditMenuItems(
     isEphemeral: Boolean,
     isUploading: Boolean,
     isComposite: Boolean,
+    isLocation: Boolean,
     onDeleteClick: () -> Unit,
     onDetailsClick: () -> Unit,
     onReplyClick: () -> Unit,
@@ -41,7 +42,7 @@ fun TextMessageEditMenuItems(
             add { MessageDetailsMenuOption(onDetailsClick) }
             onCopyClick?.also { add { CopyItemMenuOption(it) } }
             if (!isEphemeral && !isComposite) add { ReplyMessageOption(onReplyClick) }
-            if (!isEphemeral && onEditClick != null) add { EditMessageMenuOption(onEditClick) }
+            if (!isEphemeral && !isLocation && onEditClick != null) add { EditMessageMenuOption(onEditClick) }
         }
         add { DeleteItemMenuOption(onDeleteClick) }
     }

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,9 @@ package com.wire.android.navigation.style
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -28,7 +30,17 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.ui.unit.IntOffset
 import io.github.esentsov.PackagePrivate
+
+private val fadeAnimationSpec: FiniteAnimationSpec<Float> = spring(
+    stiffness = Spring.StiffnessMediumLow,
+    visibilityThreshold = Spring.DefaultDisplacementThreshold,
+)
+private val slideAnimationSpec: FiniteAnimationSpec<IntOffset> = spring(
+    stiffness = Spring.StiffnessMediumLow,
+    visibilityThreshold = IntOffset.Companion.VisibilityThreshold,
+)
 
 /**
  * Animation that allows a smooth transition from rtl, adding a fade in effect
@@ -37,10 +49,10 @@ import io.github.esentsov.PackagePrivate
 @PackagePrivate
 internal fun smoothSlideInFromRight(): EnterTransition {
     return slideInHorizontally(
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = slideAnimationSpec,
         initialOffsetX = { fullWidth -> fullWidth / 3 },
     ) + fadeIn(
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = fadeAnimationSpec,
     )
 }
 
@@ -51,10 +63,10 @@ internal fun smoothSlideInFromRight(): EnterTransition {
 @PackagePrivate
 internal fun smoothSlideOutFromLeft(): ExitTransition {
     return slideOutHorizontally(
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = slideAnimationSpec,
         targetOffsetX = { fullWidth -> fullWidth / 3 },
     ) + fadeOut(
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = fadeAnimationSpec,
     )
 }
 
@@ -65,10 +77,10 @@ internal fun smoothSlideOutFromLeft(): ExitTransition {
 @PackagePrivate
 internal fun expandInToView(): EnterTransition {
     return slideInVertically(
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = slideAnimationSpec,
         initialOffsetY = { fullHeight -> fullHeight / 4 },
     ) + fadeIn(
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = fadeAnimationSpec,
     )
 }
 
@@ -79,10 +91,10 @@ internal fun expandInToView(): EnterTransition {
 @PackagePrivate
 internal fun shrinkOutFromView(): ExitTransition {
     return slideOutVertically(
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = slideAnimationSpec,
         targetOffsetY = { fullHeight -> fullHeight / 4 },
     ) + fadeOut(
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = fadeAnimationSpec,
     )
 }
 
@@ -92,7 +104,7 @@ internal fun shrinkOutFromView(): ExitTransition {
 @PackagePrivate
 internal fun fadeInToView(): EnterTransition {
     return fadeIn(
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = fadeAnimationSpec,
     )
 }
 
@@ -102,6 +114,6 @@ internal fun fadeInToView(): EnterTransition {
 @PackagePrivate
 internal fun fadeOutFromView(): ExitTransition {
     return fadeOut(
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = fadeAnimationSpec,
     )
 }

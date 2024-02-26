@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.fold
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -33,6 +34,7 @@ import javax.inject.Inject
 
 class GetE2EICertificateUseCase @Inject constructor(
     private val enrollE2EI: EnrollE2EIUseCase,
+    @ApplicationContext private val applicationContext: Context,
     val dispatcherProvider: DispatcherProvider
 ) {
 
@@ -40,16 +42,19 @@ class GetE2EICertificateUseCase @Inject constructor(
     private lateinit var initialEnrollmentResult: E2EIEnrollmentResult.Initialized
     lateinit var enrollmentResultHandler: (Either<E2EIFailure, E2EIEnrollmentResult>) -> Unit
 
-    operator fun invoke(context: Context, enrollmentResultHandler: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit) {
+    operator fun invoke(
+        isNewClient: Boolean,
+        enrollmentResultHandler: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit
+    ) {
         this.enrollmentResultHandler = enrollmentResultHandler
         scope.launch {
-            enrollE2EI.initialEnrollment().fold({
+            enrollE2EI.initialEnrollment(isNewClientRegistration = isNewClient).fold({
                 enrollmentResultHandler(Either.Left(it))
             }, {
                 if (it is E2EIEnrollmentResult.Initialized) {
                     initialEnrollmentResult = it
-                    OAuthUseCase(context, it.target, it.oAuthState).launch(
-                        context.getActivity()!!.activityResultRegistry,
+                    OAuthUseCase(applicationContext, it.target, it.oAuthClaims, it.oAuthState).launch(
+                        applicationContext.getActivity()!!.activityResultRegistry,
                         ::oAuthResultHandler
                     )
                 } else enrollmentResultHandler(Either.Right(it))

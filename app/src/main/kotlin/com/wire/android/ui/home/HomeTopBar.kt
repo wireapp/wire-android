@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home
@@ -40,6 +38,7 @@ fun HomeTopBar(
     status: UserAvailabilityStatus,
     title: String,
     elevation: Dp,
+    withLegalHoldIndicator: Boolean,
     onHamburgerMenuClick: () -> Unit,
     onNavigateToSelfUserProfile: () -> Unit
 ) {
@@ -50,7 +49,8 @@ fun HomeTopBar(
         actions = {
             UserProfileAvatar(
                 avatarData = UserAvatarData(avatarAsset, status),
-                clickable = remember { Clickable(enabled = true) { onNavigateToSelfUserProfile() } }
+                clickable = remember { Clickable(enabled = true) { onNavigateToSelfUserProfile() } },
+                withLegalHoldIndicator = withLegalHoldIndicator,
             )
         },
         elevation = elevation,
@@ -61,6 +61,14 @@ fun HomeTopBar(
 @Composable
 fun PreviewTopBar() {
     WireTheme {
-        HomeTopBar(null, UserAvailabilityStatus.AVAILABLE, "Title", 0.dp, {}, {})
+        HomeTopBar(null, UserAvailabilityStatus.AVAILABLE, "Title", 0.dp, false, {}, {})
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewTopBarWithLegalHold() {
+    WireTheme {
+        HomeTopBar(null, UserAvailabilityStatus.AVAILABLE, "Title", 0.dp, true, {}, {})
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,8 +37,8 @@ import androidx.lifecycle.LifecycleOwner
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.permission.rememberRecordAudioRequestFlow
@@ -55,7 +55,7 @@ fun RecordAudioComponent(
 
     val recordAudioFlow = RecordAudioFlow(
         startRecording = { viewModel.startRecording() },
-        showPermissionsDeniedDialog = viewModel::showPermissionsDeniedDialog
+        onAudioPermissionPermanentlyDenied = viewModel::showPermissionsDeniedDialog
     )
 
     LaunchedEffect(Unit) {
@@ -155,12 +155,11 @@ fun RecordAudioComponent(
 @Composable
 private fun RecordAudioFlow(
     startRecording: () -> Unit,
-    showPermissionsDeniedDialog: () -> Unit
+    onAudioPermissionPermanentlyDenied: () -> Unit
 ) = rememberRecordAudioRequestFlow(
     onPermissionAllowed = {
         startRecording()
     },
-    onPermissionDenied = {
-        showPermissionsDeniedDialog()
-    }
+    onPermissionDenied = { /** Nothing to do **/ },
+    onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied
 )

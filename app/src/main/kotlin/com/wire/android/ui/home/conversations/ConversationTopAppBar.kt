@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations
@@ -24,6 +22,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -31,8 +30,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,12 +46,14 @@ import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.calling.controlbuttons.StartCallButton
-import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.ConversationVerificationIcons
+import com.wire.android.ui.common.LegalHoldIndicator
+import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
@@ -62,6 +63,7 @@ import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -78,7 +80,7 @@ fun ConversationScreenTopAppBar(
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     onJoinCallButtonClick: () -> Unit,
-    onPermanentPermissionDecline: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     isInteractionEnabled: Boolean,
 ) {
     val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
@@ -91,7 +93,7 @@ fun ConversationScreenTopAppBar(
         onPhoneButtonClick,
         hasOngoingCall,
         onJoinCallButtonClick,
-        onPermanentPermissionDecline,
+        onPermissionPermanentlyDenied,
         isInteractionEnabled,
         featureVisibilityFlags.ConversationSearchIcon
     )
@@ -108,15 +110,16 @@ private fun ConversationScreenTopAppBarContent(
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     onJoinCallButtonClick: () -> Unit,
-    onPermanentPermissionDecline: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     isInteractionEnabled: Boolean,
     isSearchEnabled: Boolean,
 ) {
-    SmallTopAppBar(
+    TopAppBar(
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
+                    .fillMaxWidth()
                     // TopAppBar adds TopAppBarHorizontalPadding = 4.dp to each element, so we need to offset it to retain the desired
                     // spacing between navigation icon button and avatar according to the designs
                     .offset(x = -dimensions().spacing4x)
@@ -138,6 +141,10 @@ private fun ConversationScreenTopAppBarContent(
                     conversationInfoViewState.mlsVerificationStatus,
                     conversationInfoViewState.proteusVerificationStatus
                 )
+                if (conversationInfoViewState.legalHoldStatus == Conversation.LegalHoldStatus.ENABLED) {
+                    HorizontalSpace.x4()
+                    LegalHoldIndicator()
+                }
                 if (isDropDownEnabled && isInteractionEnabled) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),
@@ -172,7 +179,7 @@ private fun ConversationScreenTopAppBarContent(
                     onJoinCallButtonClick = onJoinCallButtonClick,
                     onPhoneButtonClick = onPhoneButtonClick,
                     isCallingEnabled = isInteractionEnabled,
-                    onPermanentPermissionDecline = onPermanentPermissionDecline,
+                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                 )
             }
         }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -216,20 +223,20 @@ private fun Avatar(
 private fun CallControlButton(
     hasOngoingCall: Boolean,
     onJoinCallButtonClick: () -> Unit,
-    onPermanentPermissionDecline: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     onPhoneButtonClick: () -> Unit,
     isCallingEnabled: Boolean
 ) {
     if (hasOngoingCall) {
         JoinButton(
             buttonClick = onJoinCallButtonClick,
-            onPermanentPermissionDecline = onPermanentPermissionDecline,
+            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
             horizontalPadding = dimensions().spacing0x,
         )
     } else {
         StartCallButton(
             onPhoneButtonClick = onPhoneButtonClick,
-            onPermanentPermissionDecline = onPermanentPermissionDecline,
+            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
             isCallingEnabled = isCallingEnabled
         )
     }
@@ -254,7 +261,7 @@ fun PreviewConversationScreenTopAppBarLongTitle() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
-        onPermanentPermissionDecline = {},
+        onPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = false
     )
@@ -279,7 +286,7 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearch() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
-        onPermanentPermissionDecline = {},
+        onPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = true
     )
@@ -304,7 +311,7 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearchAndOngoingCall() {
         onPhoneButtonClick = {},
         hasOngoingCall = true,
         onJoinCallButtonClick = {},
-        onPermanentPermissionDecline = {},
+        onPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = true
     )
@@ -328,7 +335,7 @@ fun PreviewConversationScreenTopAppBarShortTitle() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
-        onPermanentPermissionDecline = {},
+        onPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = false
     )
@@ -352,7 +359,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
         onPhoneButtonClick = {},
         hasOngoingCall = true,
         onJoinCallButtonClick = {},
-        onPermanentPermissionDecline = {},
+        onPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = false
     )
@@ -379,7 +386,33 @@ fun PreviewConversationScreenTopAppBarShortTitleWithVerified() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
-        onPermanentPermissionDecline = {},
+        onPermissionPermanentlyDenied = {},
+        isInteractionEnabled = true,
+        isSearchEnabled = false
+    )
+}
+
+@Preview("Topbar with a short conversation title and verified")
+@Composable
+fun PreviewConversationScreenTopAppBarShortTitleWithLegalHold() {
+    val conversationId = QualifiedID("", "")
+    ConversationScreenTopAppBarContent(
+        ConversationInfoViewState(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = UIText.DynamicString("Short title"),
+            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationAvatar = ConversationAvatar.Group(conversationId),
+            protocolInfo = Conversation.ProtocolInfo.Proteus,
+            legalHoldStatus = Conversation.LegalHoldStatus.ENABLED,
+        ),
+        onBackButtonClick = {},
+        onDropDownClick = {},
+        isDropDownEnabled = true,
+        onSearchButtonClick = {},
+        onPhoneButtonClick = {},
+        hasOngoingCall = false,
+        onJoinCallButtonClick = {},
+        onPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = false
     )

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.search
@@ -39,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
@@ -78,3 +77,9 @@ fun EmptySearchQueryScreen() {
 }
 
 private const val LEARN_ABOUT_SEARCH_URL = "${BuildConfig.URL_SUPPORT}/hc/en-us/articles/203121850-How-can-I-find-someone"
+
+@Preview
+@Composable
+fun EmptySearchQueryScreenPreview() {
+    EmptySearchQueryScreen()
+}

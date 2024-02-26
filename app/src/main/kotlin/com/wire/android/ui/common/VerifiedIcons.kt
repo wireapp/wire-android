@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 
 @Composable
 fun RowScope.ConversationVerificationIcons(
@@ -67,6 +68,29 @@ fun RowScope.ConversationVerificationIcons(
 }
 
 @Composable
+fun RowScope.MLSVerificationIcon(mlsVerificationStatus: CertificateStatus?) {
+    val mlsIconModifier = Modifier
+        .wrapContentWidth()
+        .align(Alignment.CenterVertically)
+
+    when (mlsVerificationStatus) {
+        CertificateStatus.VALID -> MLSVerifiedIcon(
+            contentDescriptionId = R.string.e2ei_certificat_status_valid,
+            modifier = mlsIconModifier
+        )
+
+        CertificateStatus.REVOKED -> MLSRevokedIcon(modifier = mlsIconModifier)
+
+        CertificateStatus.EXPIRED -> MLSNotVerifiedIcon(
+            contentDescriptionId = R.string.e2ei_certificat_status_expired,
+            modifier = mlsIconModifier
+        )
+
+        null -> MLSNotVerifiedIcon(modifier = mlsIconModifier)
+    }
+}
+
+@Composable
 fun ProteusVerifiedIcon(
     modifier: Modifier = Modifier,
     @StringRes contentDescriptionId: Int = R.string.label_client_verified
@@ -86,6 +110,30 @@ fun MLSVerifiedIcon(
     Image(
         modifier = modifier.padding(start = dimensions().spacing4x),
         painter = painterResource(id = R.drawable.ic_certificate_valid_mls),
+        contentDescription = stringResource(contentDescriptionId)
+    )
+}
+
+@Composable
+fun MLSRevokedIcon(
+    modifier: Modifier = Modifier,
+    @StringRes contentDescriptionId: Int = R.string.e2ei_certificat_status_revoked
+) {
+    Image(
+        modifier = modifier.padding(start = dimensions().spacing4x),
+        painter = painterResource(id = R.drawable.ic_certificate_revoked_mls),
+        contentDescription = stringResource(contentDescriptionId)
+    )
+}
+
+@Composable
+fun MLSNotVerifiedIcon(
+    modifier: Modifier = Modifier,
+    @StringRes contentDescriptionId: Int = R.string.e2ei_certificat_status_not_activated
+) {
+    Image(
+        modifier = modifier.padding(start = dimensions().spacing4x),
+        painter = painterResource(id = R.drawable.ic_certificate_not_activated_mls),
         contentDescription = stringResource(contentDescriptionId)
     )
 }

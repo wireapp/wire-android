@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.calling.ongoing.participantsview
@@ -96,6 +94,7 @@ fun ParticipantTile(
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
+    val defaultUserName = stringResource(id = R.string.calling_participant_tile_default_user_name)
     val alpha =
         if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
     Surface(
@@ -156,7 +155,7 @@ fun ParticipantTile(
                         end.linkTo((parent.end))
                     }
                     .widthIn(max = onGoingCallTileUsernameMaxWidth),
-                name = participantTitleState.name,
+                name = participantTitleState.name ?: defaultUserName,
                 isSpeaking = participantTitleState.isSpeaking,
                 hasEstablishedAudio = participantTitleState.hasEstablishedAudio
             )

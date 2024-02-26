@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations
@@ -49,7 +47,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -75,6 +72,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
+import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -201,6 +199,9 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase
 
+    @MockK
+    lateinit var sendLocation: SendLocationUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -231,6 +232,7 @@ internal class MessageComposerViewModelArrangement {
             observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
             setNotifiedAboutConversationUnderLegalHold = setNotifiedAboutConversationUnderLegalHold,
             observeConversationUnderLegalHoldNotified = observeConversationUnderLegalHoldNotified,
+            sendLocation = sendLocation
         )
     }
 
@@ -279,9 +281,32 @@ internal class MessageComposerViewModelArrangement {
         } returns Either.Right(Unit)
     }
 
+    fun withFailedSendTextMessage(failure: CoreFailure) = apply {
+        coEvery {
+            sendTextMessage(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Left(failure)
+    }
+
     fun withSuccessfulSendEditTextMessage() = apply {
         coEvery {
             sendEditTextMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Right(Unit)
+    }
+
+    fun withSuccessfulSendLocationMessage() = apply {
+        coEvery {
+            sendLocation(
                 any(),
                 any(),
                 any(),
@@ -334,6 +359,10 @@ internal class MessageComposerViewModelArrangement {
         coEvery { observeConversationUnderLegalHoldNotified(any()) } returns flowOf(flag)
     }
 
+    fun withSuccessfulRetryFailedMessage() = apply {
+        coEvery { retryFailedMessageUseCase(any(), any()) } returns Either.Right(Unit)
+    }
+
     fun arrange() = this to viewModel
 }
 
@@ -354,7 +383,6 @@ internal fun withMockConversationDetailsOneOnOne(
         every { isUnavailableUser } returns unavailable
         every { deleted } returns false
     },
-    legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
     lastMessage = null,
     unreadEventCount = emptyMap()
@@ -366,7 +394,6 @@ internal fun mockConversationDetailsGroup(
 ) = ConversationDetails.Group(
     conversation = TestConversation.GROUP()
         .copy(name = conversationName, id = mockedConversationId),
-    legalHoldStatus = mockk(),
     hasOngoingCall = false,
     lastMessage = null,
     isSelfUserCreator = true,

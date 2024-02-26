@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.messages
@@ -37,8 +35,9 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
-import com.wire.kalium.logic.feature.asset.UpdateDownloadStatusResult
+import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
+import com.wire.kalium.logic.feature.asset.UpdateTransferStatusResult
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -84,7 +83,7 @@ class ConversationMessagesViewModelArrangement {
     lateinit var getMessageAsset: GetMessageAssetUseCase
 
     @MockK
-    lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
+    lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageTransferStatusUseCase
 
     @MockK
     lateinit var toggleReaction: ToggleReactionUseCase
@@ -104,6 +103,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase
 
+    @MockK
+    lateinit var observeAssetStatuses: ObserveAssetStatusesUseCase
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             savedStateHandle,
@@ -111,6 +113,7 @@ class ConversationMessagesViewModelArrangement {
             getMessageAsset,
             getMessageById,
             updateAssetMessageDownloadStatus,
+            observeAssetStatuses,
             fileManager,
             TestDispatcherProvider(),
             getMessagesForConversationUseCase,
@@ -132,11 +135,13 @@ class ConversationMessagesViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesChannel.consumeAsFlow()
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
-        coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateDownloadStatusResult.Success
+        coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateTransferStatusResult.Success
         coEvery { clearUsersTypingEvents() } returns Unit
         coEvery {
             getSearchedConversationMessagePosition(any(), any())
         } returns GetSearchedConversationMessagePositionUseCase.Result.Success(position = 0)
+
+        coEvery { observeAssetStatuses(any()) } returns flowOf(mapOf())
     }
 
     fun withSuccessfulOpenAssetMessage(

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.mapper
@@ -57,25 +55,25 @@ class MessageMapper @Inject constructor(
 ) {
 
     fun memberIdList(messages: List<Message>): List<UserId> = messages.flatMap { message ->
-        listOf(message.senderUserId).plus(
-            when (message) {
-                is Message.Regular -> {
-                    when (val failureType = message.deliveryStatus) {
-                        is DeliveryStatus.CompleteDelivery -> listOf()
-                        is DeliveryStatus.PartialDelivery ->
-                            failureType.recipientsFailedDelivery + failureType.recipientsFailedWithNoClients
-                    }
+        when (message) {
+            is Message.Regular -> {
+                when (val failureType = message.deliveryStatus) {
+                    is DeliveryStatus.CompleteDelivery -> listOf()
+                    is DeliveryStatus.PartialDelivery ->
+                        failureType.recipientsFailedDelivery + failureType.recipientsFailedWithNoClients
                 }
-                is Message.System -> {
-                    when (val content = message.content) {
-                        is MessageContent.MemberChange -> content.members
-                        is MessageContent.LegalHold.ForMembers -> content.members
-                        else -> listOf()
-                    }
-                }
-                is Message.Signaling -> listOf()
             }
-        )
+
+            is Message.System -> {
+                when (val content = message.content) {
+                    is MessageContent.MemberChange -> content.members
+                    is MessageContent.LegalHold.ForMembers -> content.members
+                    else -> listOf()
+                }
+            }
+
+            is Message.Signaling -> listOf()
+        }
     }.distinct()
 
     @Suppress("LongMethod")
@@ -172,7 +170,7 @@ class MessageMapper @Inject constructor(
             when (val status = message.status) {
                 Message.Status.Pending -> MessageFlowStatus.Sending
                 Message.Status.Sent -> MessageFlowStatus.Sent
-               is Message.Status.Read -> MessageFlowStatus.Read(status.readCount)
+                is Message.Status.Read -> MessageFlowStatus.Read(status.readCount)
                 Message.Status.Failed -> MessageFlowStatus.Failure.Send.Locally(isMessageEdited)
                 Message.Status.FailedRemotely -> MessageFlowStatus.Failure.Send.Remotely(isMessageEdited, message.conversationId.domain)
                 Message.Status.Delivered -> MessageFlowStatus.Delivered

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 @OptIn(ExperimentalMaterial3Api::class)
 class WireModalSheetState(
     initialValue: SheetValue = SheetValue.Hidden,
+    private val onDismissAction: () -> Unit = {}
 ) {
     val sheetState: SheetState = SheetState(
         skipPartiallyExpanded = true,
@@ -51,6 +52,7 @@ class WireModalSheetState(
     }
 
     fun onDismissRequest() {
+        onDismissAction()
         currentValue = SheetValue.Hidden
     }
 
@@ -69,9 +71,29 @@ class WireModalSheetState(
     }
 }
 
+/**
+ * Creates a Default [WireModalSheetState] that can be used to show and hide a [WireModalSheetLayout].
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberWireModalSheetState(initialValue: SheetValue = SheetValue.Hidden): WireModalSheetState =
     rememberSaveable(saver = WireModalSheetState.saver()) {
         WireModalSheetState(initialValue)
+    }
+
+/**
+ * Creates a [WireModalSheetState] that can be used to show and hide a [WireModalSheetLayout],
+ * that can override the default dismiss action.
+ *
+ * @param initialValue The initial value of the sheet.
+ * @param onDismissAction The action to be executed when the sheet is dismissed.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun rememberDismissibleWireModalSheetState(
+    initialValue: SheetValue = SheetValue.Hidden,
+    onDismissAction: () -> Unit
+): WireModalSheetState =
+    rememberSaveable(saver = WireModalSheetState.saver()) {
+        WireModalSheetState(initialValue, onDismissAction)
     }

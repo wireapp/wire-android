@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.notification
@@ -57,9 +55,12 @@ import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveE2EIRequiredUseCase
 import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
@@ -83,6 +84,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.minutes
 
@@ -666,6 +668,81 @@ class WireNotificationManagerTest {
             verify(exactly = 1) { arrangement.servicesManager.stopOngoingCallService() }
         }
 
+    @Test
+    fun givenSomeNotificationsAndUserBlockedByE2EIRequired_whenObserveCalled_thenNotificationIsNotShowed() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val conversationId = ConversationId("conversation_value", "conversation_domain")
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(
+                    listOf(
+                        provideLocalNotificationConversation(
+                            id = conversationId,
+                            messages = listOf(provideLocalNotificationMessage())
+                        )
+                    )
+                ).withIncomingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.SomeOther)
+                .withObserveE2EIRequired(E2EIRequiredResult.NoGracePeriod.Create)
+                .arrange()
+
+            manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId(TestUser.SELF_USER.id.value)), this)
+            runCurrent()
+
+            verify(exactly = 0) {
+                arrangement.messageNotificationManager.handleNotification(
+                    listOf(), TestUser.SELF_USER.id, TestUser.SELF_USER.handle!!
+                )
+            }
+            coVerify(atLeast = 1) {
+                arrangement.markMessagesAsNotified(MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations)
+            }
+        }
+
+    @Test
+    fun givenSessionExistsForTheUserAndNoActiveJobs_whenGettingUsersToObserve_thenReturnThatUser() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val userId = provideUserId()
+            val (_, manager) = Arrangement()
+                .withDoesValidSessionExistResult(userId, DoesValidSessionExistResult.Success(true))
+                .arrange()
+            val hasActiveJobs: (UserId) -> Boolean = { false }
+            // when
+            val result = manager.newUsersWithValidSessionAndWithoutActiveJobs(listOf(userId), hasActiveJobs)
+            // then
+            assertEquals(listOf(userId), result)
+        }
+
+    @Test
+    fun givenSessionExistsForTheUserButWithActiveJobs_whenGettingUsersToObserve_thenDoNotReturnThatUser() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val userId = provideUserId()
+            val (_, manager) = Arrangement()
+                .withDoesValidSessionExistResult(userId, DoesValidSessionExistResult.Success(true))
+                .arrange()
+            val hasActiveJobs: (UserId) -> Boolean = { true }
+            // when
+            val result = manager.newUsersWithValidSessionAndWithoutActiveJobs(listOf(userId), hasActiveJobs)
+            // then
+            assertEquals(listOf(), result)
+        }
+
+    @Test
+    fun givenSessionDoesNotExistForTheUserAndNoActiveJobs_whenGettingUsersToObserve_thenDoNotReturnThatUser() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val userId = provideUserId()
+            val (_, manager) = Arrangement()
+                .withDoesValidSessionExistResult(userId, DoesValidSessionExistResult.Success(false))
+                .arrange()
+            val hasActiveJobs: (UserId) -> Boolean = { false }
+            // when
+            val result = manager.newUsersWithValidSessionAndWithoutActiveJobs(listOf(userId), hasActiveJobs)
+            // then
+            assertEquals(listOf(), result)
+        }
+
     private inner class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
@@ -733,6 +810,9 @@ class WireNotificationManagerTest {
         @MockK
         lateinit var pingRinger: PingRinger
 
+        @MockK
+        lateinit var observeE2EIRequired: ObserveE2EIRequiredUseCase
+
         private val currentSessionChannel = Channel<CurrentSessionResult>(capacity = Channel.UNLIMITED)
 
         val wireNotificationManager by lazy {
@@ -751,11 +831,13 @@ class WireNotificationManagerTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
+            coEvery { observeE2EIRequired() } returns flowOf(E2EIRequiredResult.NotRequired)
             coEvery { userSessionScope.calls } returns callsScope
             coEvery { userSessionScope.messages } returns messageScope
             coEvery { userSessionScope.syncManager } returns syncManager
             coEvery { userSessionScope.conversations } returns conversationScope
             coEvery { userSessionScope.users } returns userScope
+            coEvery { userSessionScope.observeE2EIRequired } returns observeE2EIRequired
             coEvery { conversationScope.markConnectionRequestAsNotified } returns markConnectionRequestAsNotified
             coEvery { userScope.getSelfUser } returns getSelfUser
             coEvery { markConnectionRequestAsNotified(any()) } returns Unit
@@ -778,6 +860,7 @@ class WireNotificationManagerTest {
             every { servicesManager.startOngoingCallService() } returns Unit
             every { servicesManager.stopOngoingCallService() } returns Unit
             every { pingRinger.ping(any(), any()) } returns Unit
+            coEvery { globalKaliumScope.doesValidSessionExist.invoke(any()) } returns DoesValidSessionExistResult.Success(true)
         }
 
         private fun mockSpecificUserSession(
@@ -803,6 +886,7 @@ class WireNotificationManagerTest {
                 coEvery { users } returns mockk {
                     coEvery { getSelfUser() } returns flowOf(selfUser)
                 }
+                coEvery { observeE2EIRequired } returns this@Arrangement.observeE2EIRequired
             }
         }
 
@@ -848,6 +932,14 @@ class WireNotificationManagerTest {
 
         fun withSelfUser(selfUserFlow: Flow<SelfUser>) = apply {
             coEvery { getSelfUser.invoke() } returns selfUserFlow
+        }
+
+        fun withObserveE2EIRequired(result: E2EIRequiredResult) = apply {
+            coEvery { observeE2EIRequired.invoke() } returns flowOf(result)
+        }
+
+        fun withDoesValidSessionExistResult(userId: UserId, result: DoesValidSessionExistResult) = apply {
+            coEvery { globalKaliumScope.doesValidSessionExist.invoke(userId) } returns result
         }
 
         fun arrange() = this to wireNotificationManager

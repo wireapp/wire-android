@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun LegalHoldSubjectBaseDialog(
-    name: String,
+    title: String,
     customInfo: String? = null,
     withDefaultInfo: Boolean,
     cancelText: String,
@@ -45,7 +45,7 @@ fun LegalHoldSubjectBaseDialog(
         if (withDefaultInfo) stringResource(id = R.string.legal_hold_subject_dialog_description) else null
     ).joinToString("\n\n")
     WireDialog(
-        title = stringResource(id = R.string.legal_hold_subject_dialog_title, name),
+        title = title,
         text = text,
         onDismiss = dialogDismissed,
         buttonsHorizontalAlignment = false,

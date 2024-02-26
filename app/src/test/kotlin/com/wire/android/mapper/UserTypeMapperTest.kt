@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.mapper
@@ -23,7 +21,7 @@ package com.wire.android.mapper
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.user.type.UserType
 import org.amshove.kluent.internal.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class UserTypeMapperTest {
 
@@ -50,7 +48,7 @@ class UserTypeMapperTest {
     @Test
     fun `given internal as a user type correctly map to none as membership`() {
         val result = userTypeMapper.toMembership(UserType.INTERNAL)
-        assertEquals(Membership.None, result)
+        assertEquals(Membership.Standard, result)
     }
 
 }

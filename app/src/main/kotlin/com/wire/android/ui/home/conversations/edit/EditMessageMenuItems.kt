@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.edit
@@ -135,10 +133,11 @@ fun EditMessageMenuItems(
             isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
             isUploading = message.isPending,
             isComposite = isComposite,
+            isLocation = message.isLocation,
             onDeleteClick = onDeleteItemClick,
             onDetailsClick = onDetailsItemClick,
             onReactionClick = onReactionItemClick,
-            onEditClick = if (message.isMyMessage) onEditItemClick else null,
+            onEditClick = if (message.isMyMessage && !message.isDeleted) onEditItemClick else null,
             onCopyClick = onCopyItemClick,
             onReplyClick = onReplyItemClick
         )

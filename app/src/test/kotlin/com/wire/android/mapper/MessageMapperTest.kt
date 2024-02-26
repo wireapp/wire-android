@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.mapper
@@ -62,16 +60,14 @@ class MessageMapperTest {
     fun givenMessagesList_whenGettingMemberIdList_thenReturnCorrectList() = runTest {
         // Given
         val (_, mapper) = Arrangement().arrange()
-        val clientMessageAuthor = UserId("client-id", "client-domain")
-        val serverMessageAuthor = UserId("server-id", "server-domain")
+        val removedUserId = UserId("server-id", "server-domain")
         val messages = listOf(
-            TestMessage.TEXT_MESSAGE.copy(senderUserId = clientMessageAuthor),
+            TestMessage.TEXT_MESSAGE,
             TestMessage.MEMBER_REMOVED_MESSAGE.copy(
-                senderUserId = serverMessageAuthor,
-                content = MessageContent.MemberChange.Removed(listOf(serverMessageAuthor))
+                content = MessageContent.MemberChange.Removed(listOf(removedUserId))
             )
         )
-        val expected = listOf(clientMessageAuthor, serverMessageAuthor)
+        val expected = listOf(removedUserId)
         // When
         val list = mapper.memberIdList(messages)
         // Then

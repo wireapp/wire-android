@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.settings.backup.dialog.create
@@ -49,6 +47,7 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.rememberCreateFileFlow
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import java.util.Locale
@@ -99,6 +98,7 @@ fun CreateBackupDialog(
     isBackupCreationCompleted: Boolean,
     createBackupProgress: Float,
     backupFileName: String,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     onSaveBackup: (Uri) -> Unit,
     onShareBackup: () -> Unit,
     onDismissDialog: () -> Unit
@@ -110,6 +110,7 @@ fun CreateBackupDialog(
             onDismissDialog()
         },
         onPermissionDenied = { /* do nothing */ },
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         fileName = backupFileName
     )
     WireDialog(

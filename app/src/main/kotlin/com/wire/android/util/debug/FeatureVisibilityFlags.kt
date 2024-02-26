@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.util.debug
@@ -48,7 +46,7 @@ object FeatureVisibilityFlags {
     const val AppSettings = false
     const val BackUpSettings = true
     const val AudioMessagesIcon = true
-    const val ShareLocationIcon = false
+    const val ShareLocationIcon = true
     const val RichTextIcon = true
     const val EmojiIcon = false
     const val GifIcon = false

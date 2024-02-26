@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.userprofile.other
@@ -37,6 +35,7 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.DialogState
+import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
@@ -55,8 +54,8 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
-import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
@@ -70,12 +69,19 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.CertificateStatus
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusResult
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.legalhold.LegalHoldState
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -94,15 +100,18 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val unblockUser: UnblockUserUseCase,
     private val observeOneToOneConversation: GetOneToOneConversationUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
+    private val observeLegalHoldStateForUser: ObserveLegalHoldStateForUserUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateMemberRole: UpdateConversationMemberRoleUseCase,
     private val observeClientList: ObserveClientsByUserIdUseCase,
-    private val persistOtherUserClients: PersistOtherUserClientsUseCase,
+    private val fetchUsersClients: FetchUsersClientsFromRemoteUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
+    private val getUserE2eiCertificateStatus: GetUserE2eiCertificateStatusUseCase,
+    private val getUserE2eiCertificates: GetUserE2eiCertificatesUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
@@ -129,12 +138,31 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     init {
         observeUserInfoAndUpdateViewState()
         persistClients()
+        getMLSVerificationStatus()
+        observeLegalHoldStatus()
+    }
+
+    private fun observeLegalHoldStatus() {
+        viewModelScope.launch {
+            observeLegalHoldStateForUser(userId)
+                .collectLatest { state = state.copy(isUnderLegalHold = it is LegalHoldState.Enabled) }
+        }
+    }
+
+    private fun getMLSVerificationStatus() {
+        viewModelScope.launch {
+            val isMLSVerified = getUserE2eiCertificateStatus(userId).let {
+                it is GetUserE2eiCertificateStatusResult.Success && it.status == CertificateStatus.VALID
+            }
+            state = state.copy(isMLSVerified = isMLSVerified)
+        }
     }
 
     override fun observeClientList() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.io()) {
             observeClientList(userId)
                 .collect {
+                    val e2eiCertificates = getUserE2eiCertificates(userId)
                     when (it) {
                         is ObserveClientsByUserIdUseCase.Result.Failure -> {
                             /* no-op */
@@ -142,7 +170,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
                         is ObserveClientsByUserIdUseCase.Result.Success -> {
                             state = state.copy(otherUserDevices = it.clients.map { item ->
-                                Device(item)
+                                Device(item, e2eiCertificates[item.id.value]?.status)
                             })
                         }
                     }
@@ -152,7 +180,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun persistClients() {
         viewModelScope.launch(dispatchers.io()) {
-            persistOtherUserClients(userId)
+            fetchUsersClients(listOf(userId))
         }
     }
 
@@ -388,7 +416,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     isArchived = conversation.archived,
                     protocol = conversation.protocol,
                     mlsVerificationStatus = conversation.mlsVerificationStatus,
-                    proteusVerificationStatus = conversation.proteusVerificationStatus
+                    proteusVerificationStatus = conversation.proteusVerificationStatus,
+                    isUnderLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
                 )
             }
         )

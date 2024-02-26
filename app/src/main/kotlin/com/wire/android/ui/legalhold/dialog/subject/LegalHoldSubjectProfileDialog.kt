@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,15 @@ fun LegalHoldSubjectProfileDialog(
     dialogDismissed: () -> Unit,
 ) {
     LegalHoldSubjectBaseDialog(
-        name = userName,
+        title = stringResource(id = R.string.legal_hold_subject_dialog_title, userName),
+        withDefaultInfo = true,
+        cancelText = stringResource(id = R.string.label_close),
+        dialogDismissed = dialogDismissed)
+}
+@Composable
+fun LegalHoldSubjectProfileSelfDialog(dialogDismissed: () -> Unit) {
+    LegalHoldSubjectBaseDialog(
+        title = stringResource(id = R.string.legal_hold_subject_self_dialog_title),
         withDefaultInfo = true,
         cancelText = stringResource(id = R.string.label_close),
         dialogDismissed = dialogDismissed)
@@ -40,5 +48,12 @@ fun LegalHoldSubjectProfileDialog(
 fun PreviewLegalHoldSubjectProfileDialog() {
     WireTheme {
         LegalHoldSubjectProfileDialog("username", {})
+    }
+}
+@Composable
+@PreviewMultipleThemes
+fun PreviewLegalHoldSubjectProfileSelfDialog() {
+    WireTheme {
+        LegalHoldSubjectProfileSelfDialog {}
     }
 }

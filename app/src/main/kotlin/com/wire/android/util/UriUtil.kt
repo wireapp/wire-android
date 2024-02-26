@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,5 +59,25 @@ fun sanitizeUrl(url: String): String {
         // Handle any exceptions that might occur during the processing
         appLogger.w("Error sanitizing URL: $url", e)
         return url // Return the original URL if any errors occur
+    }
+}
+
+fun URI.removeQueryParams(): URI {
+    val regex = Regex("[?&][^=]+=[^&]*")
+    return URI(this.toString().replace(regex, ""))
+}
+
+@Suppress("TooGenericExceptionCaught")
+fun URI.findParameterValue(parameterName: String): String? {
+    return try {
+        rawQuery.split('&').map {
+            val parts = it.split('=')
+            val name = parts.firstOrNull() ?: ""
+            val value = parts.drop(1).firstOrNull() ?: ""
+            Pair(name, value)
+        }.firstOrNull { it.first == parameterName }?.second
+    } catch (e: NullPointerException) {
+        appLogger.w("Error finding parameter value: $parameterName", e)
+        null
     }
 }

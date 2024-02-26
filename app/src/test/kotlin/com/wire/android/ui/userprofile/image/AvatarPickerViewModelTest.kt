@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.userprofile.image
@@ -54,6 +52,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import okio.buffer
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -114,6 +113,32 @@ class AvatarPickerViewModelTest {
         }
     }
 
+    @Test
+    fun `given current avatar download failed, when uploading the asset fails, then set state as Empty`() = runTest {
+        // Given
+        val (arrangement, avatarPickerViewModel) = Arrangement()
+            .withFailedInitialAvatarLoad()
+            .withErrorUploadResponse()
+            .arrange()
+        // When
+        avatarPickerViewModel.uploadNewPickedAvatar(arrangement.onSuccess)
+        // Then
+        assertInstanceOf(AvatarPickerViewModel.PictureState.Empty::class.java, avatarPickerViewModel.pictureState)
+    }
+
+    @Test
+    fun `given current avatar download succeeded, when uploading the asset fails, then set state as Initial`() = runTest {
+        // Given
+        val (arrangement, avatarPickerViewModel) = Arrangement()
+            .withSuccessfulInitialAvatarLoad()
+            .withErrorUploadResponse()
+            .arrange()
+        // When
+        avatarPickerViewModel.uploadNewPickedAvatar(arrangement.onSuccess)
+        // Then
+        assertInstanceOf(AvatarPickerViewModel.PictureState.Initial::class.java, avatarPickerViewModel.pictureState)
+    }
+
     private class Arrangement {
 
         val userDataStore = mockk<UserDataStore>()
@@ -148,9 +173,12 @@ class AvatarPickerViewModelTest {
 
         private val mockUri = mockk<Uri>()
 
+        init {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+        }
+
         fun withSuccessfulInitialAvatarLoad(): Arrangement {
             val avatarAssetId = "avatar-value@avatar-domain"
-            MockKAnnotations.init(this, relaxUnitFun = true)
             mockkStatic(Uri::class)
             mockkStatic(Uri::resampleImageAndCopyToTempPath)
             mockkStatic(Uri::toByteArray)
@@ -165,6 +193,16 @@ class AvatarPickerViewModelTest {
             coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockUri
             coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), any()) } returns 1L
             coEvery { any<Uri>().toByteArray(any(), any()) } returns ByteArray(5)
+            every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
+            every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")
+
+            return this
+        }
+
+        fun withFailedInitialAvatarLoad(): Arrangement {
+            val avatarAssetId = "avatar-value@avatar-domain"
+            coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Failure(Unknown(RuntimeException("some error")), false)
+            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockUri
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")
 

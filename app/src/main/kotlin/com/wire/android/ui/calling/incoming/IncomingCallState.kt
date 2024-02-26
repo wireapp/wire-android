@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,11 @@ import com.wire.kalium.logic.data.id.ConversationId
 data class IncomingCallState(
     val hasEstablishedCall: Boolean = false,
     val shouldShowJoinCallAnywayDialog: Boolean = false,
-    val shouldShowPermissionDialog: Boolean = false,
     val flowState: FlowState = FlowState.Default
 ) {
     sealed interface FlowState {
-        object Default : FlowState
-        object CallClosed : FlowState
+        data object Default : FlowState
+        data object CallClosed : FlowState
         data class CallAccepted(val conversationId: ConversationId) : FlowState
     }
 }

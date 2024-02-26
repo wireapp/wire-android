@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversationslist.all
@@ -54,6 +52,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
@@ -87,7 +86,7 @@ fun AllConversationScreenContent(
     onOpenConversation: (ConversationId) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onJoinedCall: (ConversationId) -> Unit,
-    onPermanentPermissionDecline: () -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
     val callConversationIdToJoin = remember { mutableStateOf(ConversationId("", "")) }
@@ -117,7 +116,7 @@ fun AllConversationScreenContent(
                 callConversationIdToJoin.value = it
                 viewModel.joinOngoingCall(it, onJoinedCall)
             },
-            onPermanentPermissionDecline = onPermanentPermissionDecline
+            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
         )
     }
 }
@@ -169,7 +168,7 @@ fun PreviewAllConversationScreen() {
         onOpenConversation = {},
         onOpenUserProfile = {},
         onJoinedCall = {},
-        onPermanentPermissionDecline = {}
+        onPermissionPermanentlyDenied = {}
     )
 }
 
@@ -183,7 +182,7 @@ fun ConversationListEmptyStateScreenPreview() {
         onOpenConversation = {},
         onOpenUserProfile = {},
         onJoinedCall = {},
-        onPermanentPermissionDecline = {}
+        onPermissionPermanentlyDenied = {}
     )
 }
 

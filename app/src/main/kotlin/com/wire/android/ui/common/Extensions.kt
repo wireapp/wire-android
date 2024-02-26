@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.common
@@ -50,11 +48,20 @@ import com.google.accompanist.placeholder.shimmer
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.LocalSyncStateObserver
+import com.wire.kalium.logic.data.message.Message
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
+import java.time.format.TextStyle
+import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -145,3 +152,28 @@ fun <T : R, R> Flow<T>.collectAsStateLifecycleAware(
 fun <T> StateFlow<T>.collectAsStateLifecycleAware(
     context: CoroutineContext = EmptyCoroutineContext
 ): State<T> = collectAsStateLifecycleAware(value, context)
+
+fun monthYearHeader(month: Int, year: Int): String {
+    val currentYear = Instant.fromEpochMilliseconds(System.currentTimeMillis()).toLocalDateTime(
+        TimeZone.currentSystemDefault()).year
+    val monthYearInstant = LocalDateTime(year = year, monthNumber = month, 1, 0, 0, 0)
+
+    val monthName = monthYearInstant.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())
+    return if (year == currentYear) {
+        // If it's the current year, display only the month name
+        monthName
+    } else {
+        // If it's not the current year, display both the month name and the year
+        "$monthName $year"
+    }
+}
+
+fun List<UIAssetMessage>.toImageAssetGroupedByMonthAndYear(timeZone: TimeZone) = this.groupBy { asset ->
+    val localDateTime = asset.time.toLocalDateTime(timeZone)
+    monthYearHeader(year = localDateTime.year, month = localDateTime.monthNumber)
+}
+
+fun List<Message.Standalone>.toGenericAssetGroupedByMonthAndYear(timeZone: TimeZone) = this.groupBy { message ->
+    val localDateTime = message.date.toInstant().toLocalDateTime(timeZone)
+    monthYearHeader(year = localDateTime.year, month = localDateTime.monthNumber)
+}

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.migration.feature
@@ -49,7 +47,7 @@ class MigrateClientsDataUseCase @Inject constructor(
     private val scalaUserDBProvider: ScalaUserDatabaseProvider,
     private val userDataStoreProvider: UserDataStoreProvider
 ) {
-    @Suppress("ReturnCount")
+    @Suppress("ReturnCount", "ComplexMethod")
     suspend operator fun invoke(userId: UserId, isFederated: Boolean): Either<CoreFailure, Unit> =
         scalaUserDBProvider.clientDAO(userId.value).flatMap { clientDAO ->
             val clientId = clientDAO.clientInfo()?.clientId?.let { ClientId(it) }
@@ -103,6 +101,19 @@ class MigrateClientsDataUseCase @Inject constructor(
                             syncManager.waitUntilLiveOrFailure()
                                 .onSuccess {
                                     userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
+                                }
+                        }
+
+                    is RegisterClientResult.E2EICertificateRequired ->
+                        withTimeoutOrNull(SYNC_START_TIMEOUT) {
+                            syncManager.waitUntilStartedOrFailure()
+                        }.let {
+                            it ?: Either.Left(NetworkFailure.NoNetworkConnection(null))
+                        }.flatMap {
+                            syncManager.waitUntilLiveOrFailure()
+                                .onSuccess {
+                                    userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
+                                    TODO() // TODO: ask question about this!
                                 }
                         }
                 }

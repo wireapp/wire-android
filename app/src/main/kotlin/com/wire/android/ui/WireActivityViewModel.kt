@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui
@@ -31,11 +29,13 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
@@ -65,6 +65,8 @@ import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
@@ -95,6 +97,7 @@ class WireActivityViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider,
     private val currentSessionFlow: CurrentSessionFlowUseCase,
+    private val doesValidSessionExist: DoesValidSessionExistUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val authServerConfigProvider: AuthServerConfigProvider,
@@ -109,12 +112,14 @@ class WireActivityViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: GlobalDataStore,
+    private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
         private set
 
     private val observeUserId = currentSessionFlow()
+        .distinctUntilChanged()
         .onEach {
             if (it is CurrentSessionResult.Success) {
                 if (it.accountInfo.isValid().not()) {
@@ -132,10 +137,16 @@ class WireActivityViewModel @Inject constructor(
             } else {
                 null
             }
-        }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+        }
+        .distinctUntilChanged()
+        .flowOn(dispatchers.io())
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
+
+    private val _observeE2EIState: MutableStateFlow<Boolean?> = MutableStateFlow(null)
+    private val observeE2EIState: StateFlow<Boolean?> = _observeE2EIState
 
     init {
         observeSyncState()
@@ -143,6 +154,7 @@ class WireActivityViewModel @Inject constructor(
         observeNewClientState()
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
+        observerE2EIState()
     }
 
     private fun observeAppThemeState() {
@@ -152,6 +164,18 @@ class WireActivityViewModel @Inject constructor(
                 .collect {
                     globalAppState = globalAppState.copy(themeOption = it)
                 }
+        }
+    }
+
+    fun observerE2EIState() {
+        viewModelScope.launch(dispatchers.io()) {
+            observeUserId
+                .flatMapLatest {
+                    it?.let { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(it).observeIfE2EIIsRequiredDuringLogin() }
+                        ?: flowOf(null)
+                }
+                .distinctUntilChanged()
+                .collect { _observeE2EIState.emit(it) }
         }
     }
 
@@ -228,6 +252,7 @@ class WireActivityViewModel @Inject constructor(
         get() = when {
             shouldMigrate() -> InitialAppState.NOT_MIGRATED
             shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
+            blockedByE2EI() -> InitialAppState.ENROLL_E2EI
             else -> InitialAppState.LOGGED_IN
         }
 
@@ -258,8 +283,10 @@ class WireActivityViewModel @Inject constructor(
                     // to handle the deepLinks above user needs to be Logged in
                     // do nothing, already handled by initialAppState
                 }
+
                 result is DeepLinkResult.JoinConversation ->
                     onConversationInviteDeepLink(result.code, result.key, result.domain, onOpenConversation)
+
                 result != null -> onResult(result)
                 result is DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
             }
@@ -284,9 +311,36 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    // TODO: needs to be covered with test once hard logout is validated to be used
+    fun doHardLogout(
+        clearUserData: (userId: UserId) -> Unit,
+        switchAccountActions: SwitchAccountActions
+    ) {
+        viewModelScope.launch {
+            coreLogic.getGlobalScope().session.currentSession().takeIf {
+                it is CurrentSessionResult.Success
+            }?.let {
+                val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
+                coreLogic.getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
+                clearUserData(currentUserId)
+            }
+            accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount).also {
+                if (it == SwitchAccountResult.NoOtherAccountToSwitch) {
+                    globalDataStore.clearAppLockPasscode()
+                }
+            }.callAction(switchAccountActions)
+        }
+    }
+
     fun dismissNewClientsDialog(userId: UserId) {
         globalAppState = globalAppState.copy(newClientDialog = null)
-        viewModelScope.launch { clearNewClientsForUser(userId) }
+        viewModelScope.launch {
+            doesValidSessionExist(userId).let {
+                if (it is DoesValidSessionExistResult.Success && it.doesValidSessionExist) {
+                    clearNewClientsForUser(userId)
+                }
+            }
+        }
     }
 
     fun switchAccount(userId: UserId, actions: SwitchAccountActions, onComplete: () -> Unit) {
@@ -379,6 +433,10 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun shouldLogIn(): Boolean = !hasValidCurrentSession()
+
+    fun blockedByE2EI(): Boolean {
+        return observeE2EIState.value == true
+    }
 
     private fun hasValidCurrentSession(): Boolean = runBlocking {
         // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
@@ -499,5 +557,5 @@ data class GlobalAppState(
 )
 
 enum class InitialAppState {
-    NOT_MIGRATED, NOT_LOGGED_IN, LOGGED_IN
+    NOT_MIGRATED, NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
 }

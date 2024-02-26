@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
-  ~ Copyright (C) 2023 Wire Swiss GmbH
+  ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
-  ~
-  ~
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -63,7 +61,11 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <!--  usesCleartextTraffic is true as we need to check Certificate Revocation List in HTTP.
+    The CRL itself is signed by the issuer so there is no security issue.
+    For all other calls, we use HTTPS, and this is enforced by OkHttp using ConnectionSpecs. -->
     <application
+            android:usesCleartextTraffic="true"
             android:name=".WireApplication"
             android:allowBackup="false"
             android:fullBackupContent="false"
@@ -231,16 +233,33 @@
             </intent-filter>
         </activity>
 
+        <!--
+        We make a custom Firebase init, because the app selects the Firebase project at a runtime,
+        so we need to remove default FirebaseInitProvider and create our custom FirebaseInitializer.
+        -->
+        <provider
+                android:name="com.google.firebase.provider.FirebaseInitProvider"
+                android:authorities="${applicationId}.firebaseinitprovider"
+                tools:node="remove" />
+
         <provider
                 android:name="androidx.startup.InitializationProvider"
                 android:authorities="${applicationId}.androidx-startup"
                 android:exported="false"
                 tools:node="merge">
 
+            <!--
+            We create custom WorkManager Configuration.Provider and initialize on-demand,
+            so we need to remove default WorkManagerInitializer.
+            -->
             <meta-data
                     android:name="androidx.work.WorkManagerInitializer"
                     android:value="androidx.startup"
                     tools:node="remove" />
+
+            <meta-data
+                    android:name="com.wire.android.initializer.FirebaseInitializer"
+                    android:value="androidx.startup" />
 
         </provider>
 
@@ -302,28 +321,6 @@
                 android:name=".services.OngoingCallService"
                 android:exported="false"
                 android:foregroundServiceType="phoneCall" />
-
-        <!-- If you want to disable android.startup completely. -->
-        <provider
-                android:name="androidx.startup.InitializationProvider"
-                android:authorities="${applicationId}.androidx-startup"
-                tools:node="remove" />
-
-        <provider
-                android:name="com.google.firebase.provider.FirebaseInitProvider"
-                android:authorities="${applicationId}.firebaseinitprovider"
-                tools:node="remove" />
-        <provider
-                android:name="androidx.startup.InitializationProvider"
-                android:authorities="${applicationId}.androidx-startup"
-                android:exported="false"
-                tools:node="merge">
-            <!-- If you are using androidx.startup to initialize other components -->
-            <meta-data
-                    android:name="androidx.work.WorkManagerInitializer"
-                    android:value="androidx.startup"
-                    tools:node="remove" />
-        </provider>
 
     </application>
 

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.settings.backup.dialog.create
@@ -30,6 +28,7 @@ import com.wire.android.R
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
 import com.wire.android.ui.home.settings.backup.BackupCreationProgress
 import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
+import com.wire.android.util.permission.PermissionDenialType
 
 @Composable
 fun CreateBackupDialogFlow(
@@ -38,7 +37,8 @@ fun CreateBackupDialogFlow(
     onCreateBackup: (String) -> Unit,
     onSaveBackup: (Uri) -> Unit,
     onShareBackup: () -> Unit,
-    onCancelCreateBackup: () -> Unit
+    onCancelCreateBackup: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     val backupDialogStateHolder = rememberBackUpDialogState()
 
@@ -63,7 +63,8 @@ fun CreateBackupDialogFlow(
                     backupDialogStateHolder = backupDialogStateHolder,
                     onSaveBackup = onSaveBackup,
                     onShareBackup = onShareBackup,
-                    onCancelCreateBackup = onCancelCreateBackup
+                    onCancelCreateBackup = onCancelCreateBackup,
+                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
                 )
             }
 
@@ -88,7 +89,8 @@ private fun CreateBackupStep(
     backupDialogStateHolder: CreateBackupDialogStateHolder,
     onSaveBackup: (Uri) -> Unit,
     onShareBackup: () -> Unit,
-    onCancelCreateBackup: () -> Unit
+    onCancelCreateBackup: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
 ) {
     with(backupDialogStateHolder) {
         LaunchedEffect(backUpAndRestoreState.backupCreationProgress) {
@@ -105,7 +107,8 @@ private fun CreateBackupStep(
             onSaveBackup = onSaveBackup,
             onShareBackup = onShareBackup,
             backupFileName = backupFileName,
-            onDismissDialog = onCancelCreateBackup
+            onDismissDialog = onCancelCreateBackup,
+            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
         )
     }
 }

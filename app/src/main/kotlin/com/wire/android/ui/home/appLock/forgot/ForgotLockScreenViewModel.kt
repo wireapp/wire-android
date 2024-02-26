@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -201,7 +201,6 @@ class ForgotLockScreenViewModel @Inject constructor(
     // TODO: we should have a dedicated manager to perform these required actions in AR after every LogoutUseCase call
     private suspend fun hardLogoutAccount(userId: UserId) {
         notificationManager.stopObservingOnLogout(userId)
-        notificationChannelsManager.deleteChannelGroup(userId)
         coreLogic.getSessionScope(userId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
         userDataStoreProvider.getOrCreate(userId).clear()
     }

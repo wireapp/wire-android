@@ -1,8 +1,26 @@
+/*
+ * Wire
+ * Copyright (C) 2024 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
 package com.wire.android.ui.home.sync
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.GetE2EICertificateUseCaseProvider
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.framework.TestUser
@@ -17,10 +35,10 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserver
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import com.wire.kalium.logic.feature.user.MarkEnablingE2EIAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCase
+import com.wire.kalium.logic.feature.user.e2ei.MarkNotifyForRevokedCertificateAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -50,7 +68,6 @@ class FeatureFlagNotificationViewModelTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Failure.SessionNotFound))
             .arrange()
-        viewModel.loadInitialSync()
         advanceUntilIdle()
 
         assertEquals(
@@ -65,7 +82,6 @@ class FeatureFlagNotificationViewModelTest {
             .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))))
             .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.Disabled, false)))
             .arrange()
-        viewModel.loadInitialSync()
         advanceUntilIdle()
 
         assertEquals(
@@ -80,7 +96,6 @@ class FeatureFlagNotificationViewModelTest {
             .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
             .withGuestRoomLinkFeatureFlag(flowOf(GuestRoomLinkStatus(true, false)))
             .arrange()
-        viewModel.loadInitialSync()
         advanceUntilIdle()
         viewModel.dismissGuestRoomLinkDialog()
         advanceUntilIdle()
@@ -98,7 +113,6 @@ class FeatureFlagNotificationViewModelTest {
             .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))))
             .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.EnabledAll, false)))
             .arrange()
-        viewModel.loadInitialSync()
         advanceUntilIdle()
 
         assertEquals(
@@ -112,7 +126,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
             .arrange()
-        viewModel.loadInitialSync()
         advanceUntilIdle()
         viewModel.dismissSelfDeletingMessagesDialog()
         advanceUntilIdle()
@@ -128,8 +141,6 @@ class FeatureFlagNotificationViewModelTest {
             .withIsAppLockSetup(false)
             .withTeamAppLockEnforce(AppLockTeamConfig(true, Duration.ZERO, false))
             .arrange()
-
-        viewModel.loadInitialSync()
         advanceUntilIdle()
 
         assertTrue(viewModel.featureFlagState.shouldShowTeamAppLockDialog)
@@ -137,10 +148,9 @@ class FeatureFlagNotificationViewModelTest {
 
     @Test
     fun givenE2EIRequired_thenShowDialog() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Create)
             .arrange()
-        viewModel.loadInitialSync()
         advanceUntilIdle()
 
         assertEquals(FeatureFlagState.E2EIRequired.NoGracePeriod.Create, viewModel.featureFlagState.e2EIRequired)
@@ -152,7 +162,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Create(gracePeriod))
             .arrange()
-        viewModel.loadInitialSync()
         advanceUntilIdle()
 
         viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Create(gracePeriod))
@@ -166,7 +175,7 @@ class FeatureFlagNotificationViewModelTest {
     @Test
     fun givenSnoozeE2EIRequiredDialogShown_whenDismissCalled_thenItSnoozedAndDialogHidden() = runTest {
         val gracePeriod = 1.days
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Create(gracePeriod))
             .arrange()
         viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Create(gracePeriod))
@@ -179,10 +188,9 @@ class FeatureFlagNotificationViewModelTest {
 
     @Test
     fun givenE2EIRenewRequired_thenShowDialog() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Renew)
             .arrange()
-        viewModel.loadInitialSync()
         advanceUntilIdle()
 
         assertEquals(FeatureFlagState.E2EIRequired.NoGracePeriod.Renew, viewModel.featureFlagState.e2EIRequired)
@@ -194,7 +202,6 @@ class FeatureFlagNotificationViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Renew(gracePeriod))
             .arrange()
-        viewModel.loadInitialSync()
         advanceUntilIdle()
 
         viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(gracePeriod))
@@ -208,7 +215,7 @@ class FeatureFlagNotificationViewModelTest {
     @Test
     fun givenSnoozeE2EIRenewDialogShown_whenDismissCalled_thenItSnoozedAndDialogHidden() = runTest {
         val gracePeriod = 1.days
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.WithGracePeriod.Renew(gracePeriod))
             .arrange()
         viewModel.snoozeE2EIdRequiredDialog(FeatureFlagState.E2EIRequired.WithGracePeriod.Renew(gracePeriod))
@@ -224,8 +231,6 @@ class FeatureFlagNotificationViewModelTest {
         val (_, viewModel) = Arrangement()
             .withEndCallDialog()
             .arrange()
-
-        viewModel.loadInitialSync()
         advanceUntilIdle()
 
         assertEquals(true, viewModel.featureFlagState.showCallEndedBecauseOfConversationDegraded)
@@ -238,7 +243,6 @@ class FeatureFlagNotificationViewModelTest {
             .withAppLockSource(AppLockSource.TeamEnforced)
             .withDisableAppLockUseCase()
             .arrange()
-        viewModel.loadInitialSync()
         advanceUntilIdle()
 
         viewModel.confirmAppLockNotEnforced()
@@ -253,7 +257,6 @@ class FeatureFlagNotificationViewModelTest {
             .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))))
             .withAppLockSource(AppLockSource.Manual)
             .arrange()
-        viewModel.loadInitialSync()
         advanceUntilIdle()
 
         viewModel.confirmAppLockNotEnforced()
@@ -265,11 +268,10 @@ class FeatureFlagNotificationViewModelTest {
     @Test
     fun givenE2EIRequired_whenUserLoggedOut_thenHideDialog() = runTest {
         val currentSessionsFlow = MutableSharedFlow<CurrentSessionResult>(1)
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withE2EIRequiredSettings(E2EIRequiredResult.NoGracePeriod.Create)
             .withCurrentSessionsFlow(currentSessionsFlow)
             .arrange()
-        viewModel.loadInitialSync()
 
         currentSessionsFlow.emit(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
         advanceUntilIdle()
@@ -284,17 +286,23 @@ class FeatureFlagNotificationViewModelTest {
         assertEquals(null, viewModel.featureFlagState.e2EIRequired)
     }
 
+    @Test
+    fun givenADisplayedDialog_whenDismissingIt_thenInvokeMarkFileSharingStatusAsNotifiedUseCaseOnce() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
+            .arrange()
+        coEvery { arrangement.markNotifyForRevokedCertificateAsNotified() } returns Unit
+
+        viewModel.dismissE2EICertificateRevokedDialog()
+
+        assertEquals(false, viewModel.featureFlagState.shouldShowE2eiCertificateRevokedDialog)
+        coVerify(exactly = 1) { arrangement.markNotifyForRevokedCertificateAsNotified() }
+    }
+
     private inner class Arrangement {
-        init {
-            MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))
-            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
-            coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
-            coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()
-        }
 
         @MockK
-        lateinit var currentSession: CurrentSessionUseCase
+        private lateinit var getE2EICertificateUseCaseProvider: GetE2EICertificateUseCaseProvider.Factory
 
         @MockK
         lateinit var currentSessionFlow: CurrentSessionFlowUseCase
@@ -320,16 +328,24 @@ class FeatureFlagNotificationViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
-        val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
-            coreLogic = coreLogic,
-            currentSessionUseCase = currentSession,
-            currentSessionFlow = currentSessionFlow,
-            globalDataStore = globalDataStore,
-            disableAppLockUseCase = disableAppLockUseCase,
-            dispatcherProvider = TestDispatcherProvider()
-        )
+        @MockK
+        lateinit var markNotifyForRevokedCertificateAsNotified: MarkNotifyForRevokedCertificateAsNotifiedUseCase
 
+        val viewModel: FeatureFlagNotificationViewModel by lazy {
+            FeatureFlagNotificationViewModel(
+                coreLogic = coreLogic,
+                currentSessionFlow = currentSessionFlow,
+                globalDataStore = globalDataStore,
+                disableAppLockUseCase = disableAppLockUseCase,
+                getE2EICertificateUseCaseProvider = getE2EICertificateUseCaseProvider,
+                dispatcherProvider = TestDispatcherProvider()
+            )
+        }
         init {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+            coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
+            coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()
             every { coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged } returns markGuestLinkFeatureFlagAsNotChanged
             every { coreLogic.getSessionScope(any()).markSelfDeletingMessagesAsNotified } returns markSelfDeletingStatusAsNotified
             every { coreLogic.getSessionScope(any()).markE2EIRequiredAsNotified } returns markE2EIRequiredAsNotified
@@ -338,11 +354,10 @@ class FeatureFlagNotificationViewModelTest {
             coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).observeShouldNotifyForRevokedCertificate() } returns flowOf()
+            every { coreLogic.getSessionScope(any()).markNotifyForRevokedCertificateAsNotified } returns
+                    markNotifyForRevokedCertificateAsNotified
             coEvery { ppLockTeamFeatureConfigObserver() } returns flowOf(null)
-        }
-
-        fun withCurrentSessions(result: CurrentSessionResult) = apply {
-            coEvery { currentSession() } returns result
         }
 
         fun withCurrentSessionsFlow(result: Flow<CurrentSessionResult>) = apply {

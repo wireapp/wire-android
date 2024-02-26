@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 @file:Suppress("MaximumLineLength")
@@ -28,6 +26,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
@@ -57,6 +56,8 @@ import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
@@ -517,13 +518,25 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `when dismissNewClientsDialog is called, then cleared NewClients for user`() = runTest {
+    fun `given session exists, when dismissNewClientsDialog is called, then cleared NewClients for user`() = runTest {
         val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
             .arrange()
 
         viewModel.dismissNewClientsDialog(USER_ID)
 
         coVerify(exactly = 1) { arrangement.clearNewClientsForUser(USER_ID) }
+    }
+
+    @Test
+    fun `given session does not exist, when dismissNewClientsDialog is called, then do nothing`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .arrange()
+
+        viewModel.dismissNewClientsDialog(USER_ID)
+
+        coVerify(exactly = 0) { arrangement.clearNewClientsForUser(USER_ID) }
     }
 
     @Test
@@ -576,6 +589,10 @@ class WireActivityViewModelTest {
     }
 
     private class Arrangement {
+
+        // TODO add tests for cases when observeIfE2EIIsRequiredDuringLogin emits semothing
+        private val observeIfE2EIIsRequiredDuringLogin = MutableSharedFlow<Boolean?>()
+
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -596,10 +613,15 @@ class WireActivityViewModelTest {
             coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
+            coEvery { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin() } returns
+                    observeIfE2EIIsRequiredDuringLogin
         }
 
         @MockK
         lateinit var currentSessionFlow: CurrentSessionFlowUseCase
+
+        @MockK
+        lateinit var doesValidSessionExist: DoesValidSessionExistUseCase
 
         @MockK
         lateinit var getServerConfigUseCase: GetServerConfigUseCase
@@ -649,6 +671,9 @@ class WireActivityViewModelTest {
         private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory
 
         @MockK
+        private lateinit var observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory
+
+        @MockK
         lateinit var globalDataStore: GlobalDataStore
 
         @MockK(relaxed = true)
@@ -662,6 +687,7 @@ class WireActivityViewModelTest {
                 coreLogic = coreLogic,
                 dispatchers = TestDispatcherProvider(),
                 currentSessionFlow = currentSessionFlow,
+                doesValidSessionExist = doesValidSessionExist,
                 getServerConfigUseCase = getServerConfigUseCase,
                 deepLinkProcessor = deepLinkProcessor,
                 authServerConfigProvider = authServerConfigProvider,
@@ -675,18 +701,21 @@ class WireActivityViewModelTest {
                 clearNewClientsForUser = clearNewClientsForUser,
                 currentScreenManager = currentScreenManager,
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
-                globalDataStore = globalDataStore
+                globalDataStore = globalDataStore,
+                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory
             )
         }
 
         fun withSomeCurrentSession(): Arrangement = apply {
             coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
             coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Success(TEST_ACCOUNT_INFO)
+            coEvery { doesValidSessionExist(any()) } returns DoesValidSessionExistResult.Success(true)
         }
 
         fun withNoCurrentSession(): Arrangement {
             coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Failure.SessionNotFound)
             coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Failure.SessionNotFound
+            coEvery { doesValidSessionExist(any()) } returns DoesValidSessionExistResult.Success(false)
             return this
         }
 

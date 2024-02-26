@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.details.participants
@@ -30,12 +28,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.LegalHoldIndicator
+import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.ProtocolLabel
 import com.wire.android.ui.common.RowItemTemplate
@@ -46,10 +45,12 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.uiReadReceiptDateTime
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
@@ -97,6 +98,7 @@ fun ConversationParticipantItem(
                     isDeleted = uiParticipant.isDeleted
                 )
 
+                if (uiParticipant.isMLSVerified) MLSVerifiedIcon()
                 if (uiParticipant.isProteusVerified) ProteusVerifiedIcon()
                 if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
                     uiParticipant.supportedProtocolList.map {
@@ -105,6 +107,9 @@ fun ConversationParticipantItem(
                             Modifier.padding(start = dimensions().spacing4x)
                         )
                     }
+                }
+                if (uiParticipant.isUnderLegalHold) {
+                    LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
                 }
             }
         },
@@ -134,20 +139,25 @@ fun ConversationParticipantItem(
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationParticipantItem() {
-    ConversationParticipantItem(
-        UIParticipant(
-            UserId("0", ""),
-            "name",
-            "handle",
-            false,
-            false,
-            UserAvatarData(),
-            Membership.Guest,
-            isProteusVerified = true,
-            supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS)),
-        clickable = Clickable(enabled = true) {}
-    )
+    WireTheme {
+        ConversationParticipantItem(
+            UIParticipant(
+                UserId("0", ""),
+                "name",
+                "handle",
+                false,
+                false,
+                UserAvatarData(),
+                Membership.Guest,
+                isMLSVerified = true,
+                isProteusVerified = true,
+                isUnderLegalHold = true,
+                supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS)
+            ),
+            clickable = Clickable(enabled = true) {}
+        )
+    }
 }

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 @file:Suppress("TooManyFunctions")
 
@@ -81,6 +79,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.markdownBold
 import com.wire.android.util.ui.markdownText
 import com.wire.android.util.ui.toUIText
+import com.wire.kalium.logic.data.conversation.Conversation
 import kotlin.math.roundToInt
 
 @Suppress("ComplexMethod")
@@ -98,9 +97,9 @@ fun SystemMessageItem(
         !message.isPending &&
         !message.sendingFailed
     ) {
-        startDeletionTimer(
+        selfDeletionTimerState.startDeletionTimer(
             message = message,
-            expirableTimer = selfDeletionTimerState,
+            assetTransferStatus = null,
             onStartMessageSelfDeletion = onSelfDeletingMessageRead
         )
     }
@@ -539,6 +538,54 @@ fun PreviewSystemMessageLegalHoldDisabledConversation() {
 fun PreviewSystemMessageLegalHoldEnabledConversation() {
     WireTheme {
         SystemMessageItem(message = mockMessageWithKnock.copy(messageContent = SystemMessage.LegalHold.Enabled.Conversation))
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageConversationVerifiedProteus() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.ConversationVerified(Conversation.Protocol.PROTEUS)
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageConversationVerifiedMLS() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.ConversationVerified(Conversation.Protocol.MLS)
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageConversationDegradedProteus() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.ConversationDegraded(Conversation.Protocol.PROTEUS)
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageConversationDegradedMLS() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.ConversationDegraded(Conversation.Protocol.MLS)
+            )
+        )
     }
 }
 

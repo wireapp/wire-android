@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.details.participants.usecase
@@ -23,13 +21,18 @@ package com.wire.android.ui.home.conversations.details.participants.usecase
 import com.wire.android.mapper.UIParticipantMapper
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.name
+import com.wire.android.ui.home.conversations.userId
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation.Member
+import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
+import com.wire.kalium.logic.feature.legalhold.MembersHavingLegalHoldClientUseCase
+import com.wire.kalium.logic.functional.getOrElse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -37,6 +40,8 @@ import javax.inject.Inject
 
 class ObserveParticipantsForConversationUseCase @Inject constructor(
     private val observeConversationMembers: ObserveConversationMembersUseCase,
+    private val getMembersE2EICertificateStatuses: GetMembersE2EICertificateStatusesUseCase,
+    private val membersHavingLegalHoldClientUseCase: MembersHavingLegalHoldClientUseCase,
     private val uiParticipantMapper: UIParticipantMapper,
     private val dispatchers: DispatcherProvider
 ) {
@@ -49,13 +54,25 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                     isAdmin && !isService
                 }
             }
-
             .map { sortedMemberList ->
                 val allAdminsWithoutServices = sortedMemberList.getOrDefault(true, listOf())
+                val visibleAdminsWithoutServices = allAdminsWithoutServices.limit(limit)
                 val allParticipants = sortedMemberList.getOrDefault(false, listOf())
+                val visibleParticipants = allParticipants.limit(limit)
+
+                val visibleUserIds = visibleParticipants.map { it.userId }
+                    .plus(visibleAdminsWithoutServices.map { it.userId })
+
+                val mlsVerificationMap = getMembersE2EICertificateStatuses(conversationId, visibleUserIds)
+                val legalHoldList = membersHavingLegalHoldClientUseCase(conversationId).getOrElse(emptyList())
+
+                fun List<MemberDetails>.toUIParticipants() = this.map {
+                    uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.userId], legalHoldList.contains(it.userId))
+                }
+
                 ConversationParticipantsData(
-                    admins = allAdminsWithoutServices.limit(limit).map { uiParticipantMapper.toUIParticipant(it.user) },
-                    participants = allParticipants.limit(limit).map { uiParticipantMapper.toUIParticipant(it.user) },
+                    admins = visibleAdminsWithoutServices.toUIParticipants(),
+                    participants = visibleParticipants.toUIParticipants(),
                     allAdminsCount = allAdminsWithoutServices.size,
                     allParticipantsCount = allParticipants.size,
                     isSelfAnAdmin = allAdminsWithoutServices.any { it.user is SelfUser }

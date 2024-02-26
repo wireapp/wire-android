@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.AppLockTeamConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserver
@@ -42,6 +43,22 @@ class ObserveAppLockConfigUseCaseTest {
     fun givenNoValidSession_whenObservingAppLock_thenSendDisabledStatus() = runTest {
         val (_, useCase) = Arrangement()
             .withNonValidSession()
+            .arrange()
+
+        val result = useCase.invoke()
+
+        result.test {
+            val appLockStatus = awaitItem()
+
+            assertEquals(AppLockConfig.Disabled(timeout), appLockStatus)
+            awaitComplete()
+        }
+    }
+
+    @Test
+    fun givenInvalidSession_whenObservingAppLock_thenSendDisabledStatus() = runTest {
+        val (_, useCase) = Arrangement()
+            .withInvalidSession()
             .arrange()
 
         val result = useCase.invoke()
@@ -142,6 +159,11 @@ class ObserveAppLockConfigUseCaseTest {
                     flowOf(CurrentSessionResult.Failure.SessionNotFound)
         }
 
+        fun withInvalidSession() = apply {
+            coEvery { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
+                    flowOf(CurrentSessionResult.Success(accountInfoInvalid))
+        }
+
         fun withValidSession() = apply {
             coEvery { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
                     flowOf(CurrentSessionResult.Success(accountInfo))
@@ -177,7 +199,9 @@ class ObserveAppLockConfigUseCaseTest {
     }
 
     companion object {
-        private val accountInfo = AccountInfo.Valid(UserId("userId", "domain"))
+        private val userId = UserId("userId", "domain")
+        private val accountInfo = AccountInfo.Valid(userId)
+        private val accountInfoInvalid = AccountInfo.Invalid(userId, LogoutReason.DELETED_ACCOUNT)
         private val timeout = 60.seconds
     }
 }

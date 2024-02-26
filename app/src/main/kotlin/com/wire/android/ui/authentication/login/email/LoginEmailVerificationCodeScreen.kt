@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package com.wire.android.ui.authentication.login.email
@@ -39,15 +38,17 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.verificationcode.VerificationCode
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.Logo
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.typography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
 @Composable
 fun LoginEmailVerificationCodeScreen(
-    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     viewModel: LoginEmailViewModel = hiltViewModel()
 ) = LoginEmailVerificationCodeContent(
     viewModel.secondFactorVerificationCodeState,
@@ -112,6 +113,7 @@ private fun MainContent(
 ) {
     Text(
         text = UIText.StringResource(R.string.second_factor_authentication_title).asString(),
+        color = colorsScheme().onBackground,
         style = typography().title01,
         textAlign = TextAlign.Start
     )
@@ -121,6 +123,7 @@ private fun MainContent(
             R.string.second_factor_authentication_instructions_label,
             codeState.emailUsed
         ).asString(),
+        color = colorsScheme().onBackground,
         style = typography().body01,
         textAlign = TextAlign.Start
     )
@@ -136,6 +139,7 @@ private fun MainContent(
 }
 
 @Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
 internal fun LoginEmailVerificationCodeScreenPreview() = LoginEmailVerificationCodeContent(
     VerificationCodeState(

@@ -1,6 +1,22 @@
+/*
+ * Wire
+ * Copyright (C) 2024 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
 package com.wire.android.ui.settings.devices
 
-import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -43,6 +59,7 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.common.CopyButton
+import com.wire.android.ui.common.MLSVerificationIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -114,14 +131,14 @@ fun DeviceDetailsContent(
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
     onErrorDialogDismiss: () -> Unit = {},
-    enrollE2eiCertificate: (Context) -> Unit = {},
+    enrollE2eiCertificate: () -> Unit = {},
     onUpdateClientVerification: (Boolean) -> Unit = {},
     onEnrollE2EIErrorDismiss: () -> Unit = {},
     onEnrollE2EISuccessDismiss: () -> Unit = {}
 ) {
     val screenState = rememberConversationScreenState()
     WireScaffold(
-        topBar = { DeviceDetailsTopBar(onNavigateBack, state.device, state.isCurrentDevice) },
+        topBar = { DeviceDetailsTopBar(onNavigateBack, state.device, state.isCurrentDevice, state.isE2EIEnabled) },
         bottomBar = {
             Column(
                 Modifier
@@ -155,7 +172,6 @@ fun DeviceDetailsContent(
             }
         }
     ) { internalPadding ->
-        val context = LocalContext.current
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -169,17 +185,19 @@ fun DeviceDetailsContent(
                     Divider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
-            item {
-                EndToEndIdentityCertificateItem(
-                    isE2eiCertificateActivated = state.isE2eiCertificateActivated,
-                    certificate = state.e2eiCertificate,
-                    isCurrentDevice = state.isCurrentDevice,
-                    isLoadingCertificate = state.isLoadingCertificate,
-                    enrollE2eiCertificate = { enrollE2eiCertificate(context) },
-                    updateE2eiCertificate = {},
-                    showCertificate = onNavigateToE2eiCertificateDetailsScreen
-                )
-                Divider(color = colorsScheme().background)
+
+            if (state.isE2EIEnabled) {
+                item {
+                    EndToEndIdentityCertificateItem(
+                        isE2eiCertificateActivated = state.isE2eiCertificateActivated,
+                        certificate = state.e2eiCertificate,
+                        isCurrentDevice = state.isCurrentDevice,
+                        isLoadingCertificate = state.isLoadingCertificate,
+                        enrollE2eiCertificate = { enrollE2eiCertificate() },
+                        showCertificate = onNavigateToE2eiCertificateDetailsScreen
+                    )
+                    Divider(color = colorsScheme().background)
+                }
             }
             item {
                 FolderHeader(
@@ -257,7 +275,7 @@ fun DeviceDetailsContent(
         if (state.isE2EICertificateEnrollError) {
             E2EIErrorWithDismissDialog(
                 isE2EILoading = state.isLoadingCertificate,
-                updateCertificate = { enrollE2eiCertificate(context) },
+                updateCertificate = { enrollE2eiCertificate() },
                 onDismiss = onEnrollE2EIErrorDismiss
             )
         }
@@ -275,7 +293,8 @@ fun DeviceDetailsContent(
 private fun DeviceDetailsTopBar(
     onNavigateBack: () -> Unit,
     device: Device,
-    isCurrentDevice: Boolean
+    isCurrentDevice: Boolean,
+    shouldShowE2EIInfo: Boolean
 ) {
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,
@@ -287,6 +306,11 @@ private fun DeviceDetailsTopBar(
                     style = MaterialTheme.wireTypography.title01,
                     maxLines = 2
                 )
+
+                if (shouldShowE2EIInfo) {
+                    MLSVerificationIcon(device.e2eiCertificateStatus)
+                }
+
                 if (!isCurrentDevice && device.isVerifiedProteus) {
                     ProteusVerifiedIcon(Modifier.align(Alignment.CenterVertically))
                 }

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.calling
@@ -33,6 +31,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import dagger.Lazy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,8 +40,8 @@ import javax.inject.Singleton
 @Singleton
 class ProximitySensorManager @Inject constructor(
     private val context: Context,
-    private val currentSession: CurrentSessionUseCase,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    private val currentSession: Lazy<CurrentSessionUseCase>,
+    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     @ApplicationScope private val appCoroutineScope: CoroutineScope
 ) {
 
@@ -71,11 +70,12 @@ class ProximitySensorManager @Inject constructor(
 
         override fun onSensorChanged(event: SensorEvent) {
             appCoroutineScope.launch {
-                coreLogic.globalScope {
-                    when (val currentSession = currentSession()) {
-                        is CurrentSessionResult.Success -> {
+                coreLogic.get().globalScope {
+                    val currentSession = currentSession.get().invoke()
+                    when {
+                        currentSession is CurrentSessionResult.Success && currentSession.accountInfo.isValid() -> {
                             val userId = currentSession.accountInfo.userId
-                            val isCallRunning = coreLogic.getSessionScope(userId).calls.isCallRunning()
+                            val isCallRunning = coreLogic.get().getSessionScope(userId).calls.isCallRunning()
                             val distance = event.values.first()
                             val shouldTurnOffScreen = distance == NEAR_DISTANCE && isCallRunning
                             appLogger.i(
@@ -93,8 +93,10 @@ class ProximitySensorManager @Inject constructor(
                             }
                         }
 
-                        else -> {
-                            // NO SESSION - Nothing to do
+                        else -> { // NO SESSION - just release in case it's still held
+                            if (wakeLock.isHeld) {
+                                wakeLock.release()
+                            }
                         }
                     }
                 }

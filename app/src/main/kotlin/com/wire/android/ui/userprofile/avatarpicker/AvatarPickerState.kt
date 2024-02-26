@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.userprofile.avatarpicker
@@ -33,6 +31,7 @@ import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.imagepreview.AvatarPickerFlow
 import com.wire.android.ui.common.imagepreview.rememberPickPictureState
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -43,13 +42,19 @@ fun rememberAvatarPickerState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     modalBottomSheetState: WireModalSheetState = rememberWireModalSheetState(),
     onImageSelected: (Uri) -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     onPictureTaken: () -> Unit,
     targetPictureFileUri: Uri
 ): AvatarPickerState {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
 
-    val avatarPickerFlow: AvatarPickerFlow = rememberPickPictureState(onImageSelected, onPictureTaken, targetPictureFileUri)
+    val avatarPickerFlow: AvatarPickerFlow = rememberPickPictureState(
+        onImageSelected,
+        onPictureTaken,
+        targetPictureFileUri,
+        onPermissionPermanentlyDenied
+    )
 
     return remember(avatarPickerFlow) {
         AvatarPickerState(

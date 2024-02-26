@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.calling.controlbuttons
@@ -37,6 +35,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.PermissionDenialType
 
 @Composable
 fun CallOptionsControls(
@@ -45,7 +44,8 @@ fun CallOptionsControls(
     isSpeakerOn: Boolean,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
-    toggleVideo: () -> Unit
+    toggleVideo: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -72,7 +72,7 @@ fun CallOptionsControls(
                     end.linkTo(speakerIcon.start)
                 },
             isCameraOn = isCameraOn,
-            onCameraPermissionDenied = { },
+            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
             onCameraButtonClicked = toggleVideo
         )
         CallControlLabel(stringResource(id = R.string.calling_button_label_camera), cameraText, cameraIcon)
@@ -119,6 +119,7 @@ fun PreviewCallOptionsControls() {
         isSpeakerOn = false,
         toggleSpeaker = { },
         toggleMute = { },
-        toggleVideo = { }
+        toggleVideo = { },
+        onPermissionPermanentlyDenied = {}
     )
 }

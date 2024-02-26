@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.mapper
@@ -35,7 +33,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
 import com.wire.kalium.logic.data.message.DeliveryStatus
-import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
@@ -100,8 +97,6 @@ class RegularMessageContentMapperTest {
             "image/xrz",
             AssetMetadata.Image(100, 100),
             TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id"),
-            Message.UploadStatus.NOT_UPLOADED,
-            Message.DownloadStatus.NOT_DOWNLOADED
         )
         val correctJPGImage = AssetContent(
             0L,
@@ -109,8 +104,6 @@ class RegularMessageContentMapperTest {
             "image/jpg",
             AssetMetadata.Image(100, 100),
             TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id2"),
-            Message.UploadStatus.NOT_UPLOADED,
-            Message.DownloadStatus.NOT_DOWNLOADED
         )
 
         val testMessage1 = buildAssetMessage(unknownImageMessageContent)
@@ -154,8 +147,6 @@ class RegularMessageContentMapperTest {
             "image/svg",
             AssetMetadata.Image(100, 100),
             TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id"),
-            Message.UploadStatus.NOT_UPLOADED,
-            Message.DownloadStatus.NOT_DOWNLOADED
         )
         val testMessage = buildAssetMessage(contentImage)
 
@@ -187,8 +178,6 @@ class RegularMessageContentMapperTest {
             "image/png",
             AssetMetadata.Image(0, 0),
             TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id"),
-            Message.UploadStatus.NOT_UPLOADED,
-            Message.DownloadStatus.NOT_DOWNLOADED
         )
         val contentImage2 = AssetContent(
             0L,
@@ -196,8 +185,6 @@ class RegularMessageContentMapperTest {
             "image/png",
             AssetMetadata.Image(100, 100),
             TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id2"),
-            Message.UploadStatus.NOT_UPLOADED,
-            Message.DownloadStatus.NOT_DOWNLOADED
         )
         val testMessage1 = buildAssetMessage(contentImage1)
         val testMessage2 = buildAssetMessage(contentImage2)

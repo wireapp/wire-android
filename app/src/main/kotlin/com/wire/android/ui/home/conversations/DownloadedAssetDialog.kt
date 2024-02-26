@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations
@@ -27,6 +25,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.conversations.messages.DownloadedAssetDialogVisibilityState
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 
 @Composable
@@ -34,7 +33,8 @@ fun DownloadedAssetDialog(
     downloadedAssetDialogState: DownloadedAssetDialogVisibilityState,
     onSaveFileToExternalStorage: (String) -> Unit,
     onOpenFileWithExternalApp: (String) -> Unit,
-    hideOnAssetDownloadedDialog: () -> Unit
+    hideOnAssetDownloadedDialog: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     if (downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed) {
         val assetName = downloadedAssetDialogState.assetData.fileName
@@ -42,7 +42,8 @@ fun DownloadedAssetDialog(
 
         val onSaveFileWriteStorageRequest = rememberWriteStorageRequestFlow(
             onGranted = { onSaveFileToExternalStorage(messageId) },
-            onDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ }
+            onPermissionDenied = { /** Nothing to do **/ },
+            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
         )
 
         WireDialog(
@@ -50,12 +51,12 @@ fun DownloadedAssetDialog(
             text = stringResource(R.string.asset_download_dialog_text),
             buttonsHorizontalAlignment = false,
             onDismiss = { hideOnAssetDownloadedDialog() },
-            optionButton2Properties = WireDialogButtonProperties(
+            optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_open_text),
                 type = WireDialogButtonType.Primary,
                 onClick = { onOpenFileWithExternalApp(messageId) }
             ),
-            optionButton1Properties = WireDialogButtonProperties(
+            optionButton2Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_save_text),
                 type = WireDialogButtonType.Primary,
                 onClick = onSaveFileWriteStorageRequest::launch

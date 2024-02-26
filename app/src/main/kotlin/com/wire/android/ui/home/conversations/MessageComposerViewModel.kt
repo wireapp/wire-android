@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations
@@ -47,6 +45,7 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -54,14 +53,16 @@ import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
@@ -70,11 +71,13 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
+import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -116,6 +119,7 @@ class MessageComposerViewModel @Inject constructor(
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase,
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
+    private val sendLocation: SendLocationUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
@@ -215,8 +219,11 @@ class MessageComposerViewModel @Inject constructor(
             when {
                 shouldInformAboutDegradedBeforeSendingMessage() ->
                     sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(messageBundle)
+
                 shouldInformAboutUnderLegalHoldBeforeSendingMessage() ->
-                    sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold(messageBundle)
+                    sureAboutMessagingDialogState =
+                        SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(messageBundle)
+
                 else -> sendMessage(messageBundle)
             }
         }
@@ -231,7 +238,7 @@ class MessageComposerViewModel @Inject constructor(
                         originalMessageId = originalMessageId,
                         text = newContent,
                         mentions = newMentions.map { it.intoMessageMention() },
-                    )
+                    ).handleLegalHoldFailureAfterSendingMessage()
                 }
                 sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
             }
@@ -256,12 +263,19 @@ class MessageComposerViewModel @Inject constructor(
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
                         quotedMessageId = quotedMessageId
-                    )
+                    ).handleLegalHoldFailureAfterSendingMessage()
                 }
                 sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
             }
 
-            Ping -> {
+            is ComposableMessageBundle.LocationBundle -> {
+                with(messageBundle) {
+                    sendLocation(conversationId, location.latitude.toFloat(), location.longitude.toFloat(), locationName, zoom)
+                        .handleLegalHoldFailureAfterSendingMessage()
+                }
+            }
+
+            is Ping -> {
                 pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
                 sendKnockUseCase(conversationId = conversationId, hotKnock = false)
             }
@@ -335,7 +349,7 @@ class MessageComposerViewModel @Inject constructor(
                                 assetDataSize = dataSize,
                                 assetMimeType = mimeType,
                                 audioLengthInMs = 0L
-                            )
+                            ).handleLegalHoldFailureAfterSendingMessage()
                         }
 
                         AttachmentType.VIDEO,
@@ -354,7 +368,7 @@ class MessageComposerViewModel @Inject constructor(
                                         dataPath = dataPath,
                                         mimeType = mimeType
                                     )
-                                )
+                                ).handleLegalHoldFailureAfterSendingMessage()
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
@@ -363,6 +377,21 @@ class MessageComposerViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    private fun CoreFailure.handleLegalHoldFailureAfterSendingMessage() = also {
+        if (this is LegalHoldEnabledForConversationFailure) {
+            sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(this.messageId)
+        }
+    }
+
+    private fun Either<CoreFailure, Unit>.handleLegalHoldFailureAfterSendingMessage() =
+        onFailure { it.handleLegalHoldFailureAfterSendingMessage() }
+
+    private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage() = also {
+        if (it is ScheduleNewAssetMessageResult.Failure) {
+            it.coreFailure.handleLegalHoldFailureAfterSendingMessage()
         }
     }
 
@@ -481,17 +510,22 @@ class MessageComposerViewModel @Inject constructor(
         (sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible)?.let {
             viewModelScope.launch {
                 it.markAsNotified()
-                trySendMessage(it.messageBundleToSend)
+                when (it) {
+                    is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
+                        trySendMessage(it.messageBundleToSend)
+
+                    is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending ->
+                        trySendMessage(it.messageBundleToSend)
+
+                    is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending ->
+                        retrySendingMessage(it.messageId)
+                }
             }
         }
     }
 
     fun dismissSureAboutSendingMessage() {
-        (sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible)?.let {
-            viewModelScope.launch {
-                it.markAsNotified()
-            }
-        }
+        sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }
 
     private suspend fun SureAboutMessagingDialogState.markAsNotified() {
@@ -502,7 +536,8 @@ class MessageComposerViewModel @Inject constructor(
             is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
                 setUserInformedAboutVerification(conversationId)
 
-            SureAboutMessagingDialogState.Hidden -> { /* do nothing */ }
+            SureAboutMessagingDialogState.Hidden -> { /* do nothing */
+            }
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }

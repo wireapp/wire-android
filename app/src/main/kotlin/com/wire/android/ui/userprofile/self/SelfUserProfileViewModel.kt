@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.userprofile.self
@@ -39,6 +37,7 @@ import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -55,19 +54,24 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
+import com.wire.kalium.logic.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -82,10 +86,11 @@ class SelfUserProfileViewModel @Inject constructor(
     @CurrentAccount private val selfUserId: UserId,
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
-    private val getSelfTeam: GetSelfTeamUseCase,
+    private val getSelfTeam: GetUpdatedSelfTeamUseCase,
     private val observeValidAccounts: ObserveValidAccountsUseCase,
     private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
     private val logout: LogoutUseCase,
+    private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val dispatchers: DispatcherProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val authServerConfigProvider: AuthServerConfigProvider,
@@ -111,6 +116,7 @@ class SelfUserProfileViewModel @Inject constructor(
             fetchSelfUser()
             observeEstablishedCall()
             fetchIsReadOnlyAccount()
+            observeLegalHoldStatus()
         }
     }
 
@@ -137,23 +143,19 @@ class SelfUserProfileViewModel @Inject constructor(
     private fun fetchSelfUser() {
         viewModelScope.launch {
             val self = getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
-            val selfTeam = getSelfTeam().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
+            val selfTeam = getSelfTeam().getOrNull()
             val validAccounts =
                 observeValidAccounts().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
-            combine(
-                self,
-                selfTeam,
-                validAccounts
-            ) { selfUser: SelfUser, team: Team?, list: List<Pair<SelfUser, Team?>> ->
-                Triple(
+
+            combine(self, validAccounts) { selfUser: SelfUser, list: List<Pair<SelfUser, Team?>> ->
+                Pair(
                     selfUser,
-                    team,
                     list.filter { it.first.id != selfUser.id }
                         .map { (selfUser, team) -> otherAccountMapper.toOtherAccount(selfUser, team) }
                 )
             }
                 .distinctUntilChanged()
-                .collect { (selfUser, selfTeam, otherAccounts) ->
+                .collect { (selfUser, otherAccounts) ->
                     with(selfUser) {
                         // Load user avatar raw image data
                         completePicture?.let { updateUserAvatar(it) }
@@ -170,6 +172,20 @@ class SelfUserProfileViewModel @Inject constructor(
                         )
                     }
                 }
+        }
+    }
+
+    private fun observeLegalHoldStatus() {
+        viewModelScope.launch {
+            observeLegalHoldStatusForSelfUser()
+                .map { legalHoldState ->
+                    when (legalHoldState) {
+                        is LegalHoldStateForSelfUser.Enabled -> LegalHoldUIState.Active
+                        is LegalHoldStateForSelfUser.PendingRequest -> LegalHoldUIState.Pending
+                        is LegalHoldStateForSelfUser.Disabled -> LegalHoldUIState.None
+                    }
+                }
+                .collectLatest { userProfileState = userProfileState.copy(legalHoldStatus = it) }
         }
     }
 
@@ -216,14 +232,13 @@ class SelfUserProfileViewModel @Inject constructor(
             }.join()
 
             val logoutReason = if (wipeData) LogoutReason.SELF_HARD_LOGOUT else LogoutReason.SELF_SOFT_LOGOUT
-            logout(logoutReason)
+            logout(logoutReason, waitUntilCompletes = true)
             if (wipeData) {
                 // TODO this should be moved to some service that will clear all the data in the app
                 dataStore.clear()
             }
 
             notificationManager.stopObservingOnLogout(selfUserId)
-            notificationChannelsManager.deleteChannelGroup(selfUserId)
             accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount).also {
                 if (it == SwitchAccountResult.NoOtherAccountToSwitch) {
                     globalDataStore.clearAppLockPasscode()

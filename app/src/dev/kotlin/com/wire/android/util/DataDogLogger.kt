@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@ object DataDogLogger : LogWriter() {
 
     private val logger = Logger.Builder()
         .setNetworkInfoEnabled(true)
-        .setLogcatLogsEnabled(true)
         .setLogcatLogsEnabled(false) // we already use platformLogWriter() along with DataDogLogger, don't need duplicates in LogCat
+        .setDatadogLogsEnabled(true)
         .setBundleWithTraceEnabled(true)
         .setLoggerName("DATADOG")
         .build()
@@ -42,6 +42,14 @@ object DataDogLogger : LogWriter() {
                 "clientId" to userClientData.clientId,
             )
         } ?: emptyMap<String, Any?>()
-        logger.log(severity.ordinal, message, throwable, attributes)
+
+        when (severity) {
+            Severity.Debug -> logger.d(message, throwable, attributes)
+            Severity.Info -> logger.i(message, throwable, attributes)
+            Severity.Warn -> logger.w(message, throwable, attributes)
+            Severity.Error -> logger.e(message, throwable, attributes)
+            Severity.Assert,
+            Severity.Verbose -> logger.v(message, throwable, attributes)
+        }
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.util.permission
@@ -30,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.util.extension.checkPermission
+import com.wire.android.util.extension.getActivity
 
 class WriteStorageRequestFlow(
     private val context: Context,
@@ -50,12 +49,30 @@ class WriteStorageRequestFlow(
 }
 
 @Composable
-fun rememberWriteStorageRequestFlow(onGranted: () -> Unit, onDenied: () -> Unit): WriteStorageRequestFlow {
+fun rememberWriteStorageRequestFlow(
+    onGranted: () -> Unit,
+    onPermissionDenied: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+): WriteStorageRequestFlow {
     val context = LocalContext.current
     val requestWriteStoragePermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) onGranted()
-            else onDenied()
+            else {
+                context.getActivity()?.let {
+                    it.checkWriteStoragePermission(onPermissionDenied) {
+                        onPermissionPermanentlyDenied(
+                            PermissionDenialType.WriteFile
+                        )
+                    }
+                }
+            }
         }
-    return remember { WriteStorageRequestFlow(context, onGranted, requestWriteStoragePermissionLauncher) }
+    return remember {
+        WriteStorageRequestFlow(
+            context,
+            onGranted,
+            requestWriteStoragePermissionLauncher
+        )
+    }
 }

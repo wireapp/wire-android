@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversationslist.common
@@ -33,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
@@ -51,7 +50,7 @@ fun ConversationList(
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onJoinCall: (ConversationId) -> Unit,
-    onPermanentPermissionDecline: () -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -93,7 +92,7 @@ fun ConversationList(
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
                     joinCall = onJoinCall,
-                    onPermanentPermissionDecline = onPermanentPermissionDecline
+                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
                 )
             }
         }

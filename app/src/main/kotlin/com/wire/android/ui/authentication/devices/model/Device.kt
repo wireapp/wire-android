@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.authentication.devices.model
@@ -28,6 +26,7 @@ import com.wire.android.R
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.util.inWholeWeeks
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import kotlinx.datetime.Clock
@@ -39,16 +38,32 @@ data class Device(
     val lastActiveInWholeWeeks: Int? = null,
     val isValid: Boolean = true,
     val isVerifiedProteus: Boolean = false,
-    val mlsPublicKeys: Map<String, String>? = null
+    val mlsPublicKeys: Map<String, String>? = null,
+    val e2eiCertificateStatus: CertificateStatus? = null
 ) {
-    constructor(client: Client) : this(
+    constructor(client: Client, e2eiCertificateStatus: CertificateStatus? = null) : this(
         name = client.displayName(),
         clientId = client.id,
         registrationTime = client.registrationTime?.toIsoDateTimeString(),
         lastActiveInWholeWeeks = client.lastActiveInWholeWeeks(),
         isValid = client.isValid,
         isVerifiedProteus = client.isVerified,
-        mlsPublicKeys = client.mlsPublicKeys
+        mlsPublicKeys = client.mlsPublicKeys,
+        e2eiCertificateStatus = e2eiCertificateStatus
+    )
+
+    fun updateFromClient(client: Client): Device = copy(
+        name = client.displayName(),
+        clientId = client.id,
+        registrationTime = client.registrationTime?.toIsoDateTimeString(),
+        lastActiveInWholeWeeks = client.lastActiveInWholeWeeks(),
+        isValid = client.isValid,
+        isVerifiedProteus = client.isVerified,
+        mlsPublicKeys = client.mlsPublicKeys,
+    )
+
+    fun updateE2EICertificateStatus(e2eiCertificateStatus: CertificateStatus): Device = copy(
+        e2eiCertificateStatus = e2eiCertificateStatus
     )
 }
 

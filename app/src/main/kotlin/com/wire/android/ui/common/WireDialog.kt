@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 @file:Suppress("MultiLineIfElse")
@@ -31,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -189,68 +188,95 @@ private fun WireDialogContent(
                 .padding(contentPadding),
             horizontalAlignment = if (centerContent) Alignment.CenterHorizontally else Alignment.Start
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.wireTypography.title02,
-                    modifier = Modifier.weight(1f)
-                )
-                if (titleLoading) {
-                    WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.onBackground)
-                }
-            }
-            text?.let {
-                ClickableText(
-                    text = text,
-                    style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier.padding(
+            // Title
+            TitleDialogSection(title, titleLoading)
+
+            // Dynamic sized body content
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .padding(
                         top = MaterialTheme.wireDimensions.dialogTextsSpacing,
-                        bottom = MaterialTheme.wireDimensions.dialogTextsSpacing,
-                    ),
-                    onClick = { offset ->
-                        text.getStringAnnotations(
-                            tag = MarkdownConstants.TAG_URL,
-                            start = offset,
-                            end = offset,
-                        ).firstOrNull()?.let { result -> uriHandler.openUri(result.item) }
+                        bottom = MaterialTheme.wireDimensions.dialogTextsSpacing
+                    )
+                    .fillMaxWidth()
+            ) {
+                text?.let {
+                    item {
+                        ClickableText(
+                            text = text,
+                            style = MaterialTheme.wireTypography.body01,
+                            modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
+                            onClick = { offset ->
+                                text.getStringAnnotations(
+                                    tag = MarkdownConstants.TAG_URL,
+                                    start = offset,
+                                    end = offset,
+                                ).firstOrNull()?.let { result -> uriHandler.openUri(result.item) }
+                            }
+                        )
                     }
-                )
-            }
-            content?.let {
-                Box {
-                    it.invoke()
+                }
+
+                content?.let {
+                    item {
+                        Box {
+                            it.invoke()
+                        }
+                    }
                 }
             }
 
-            val containsAnyButton = dismissButtonProperties != null || optionButton1Properties != null || optionButton2Properties != null
-            val dialogButtonsSpacing = if (containsAnyButton) dimensions().dialogButtonsSpacing else dimensions().spacing0x
-            if (buttonsHorizontalAlignment) {
-                Row(Modifier.padding(top = dialogButtonsSpacing)) {
-                    dismissButtonProperties.getButton(Modifier.weight(1f))
-                    if (dismissButtonProperties != null) {
-                        Spacer(Modifier.width(dialogButtonsSpacing))
-                    }
-                    optionButton1Properties.getButton(Modifier.weight(1f))
-                    if (optionButton2Properties != null) {
-                        Spacer(Modifier.width(dialogButtonsSpacing))
-                    }
-                    optionButton2Properties.getButton(Modifier.weight(1f))
-                }
-            } else {
-                Column(Modifier.padding(top = dialogButtonsSpacing)) {
-                    optionButton1Properties.getButton()
+            // Buttons actions
+            DialogButtonsSection(dismissButtonProperties, optionButton1Properties, optionButton2Properties, buttonsHorizontalAlignment)
+        }
+    }
+}
 
-                    if (optionButton2Properties != null) {
-                        Spacer(Modifier.height(dialogButtonsSpacing))
-                    }
-                    optionButton2Properties.getButton()
+@Composable
+private fun TitleDialogSection(title: String, titleLoading: Boolean) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(text = title, style = MaterialTheme.wireTypography.title02)
+        if (titleLoading) {
+            WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.onBackground)
+        }
+    }
+}
 
-                    if (dismissButtonProperties != null) {
-                        Spacer(Modifier.height(dialogButtonsSpacing))
-                    }
-                    dismissButtonProperties.getButton()
-                }
+@Composable
+private fun DialogButtonsSection(
+    dismissButtonProperties: WireDialogButtonProperties?,
+    optionButton1Properties: WireDialogButtonProperties?,
+    optionButton2Properties: WireDialogButtonProperties?,
+    buttonsHorizontalAlignment: Boolean
+) {
+    val containsAnyButton = dismissButtonProperties != null || optionButton1Properties != null || optionButton2Properties != null
+    val dialogButtonsSpacing = if (containsAnyButton) dimensions().dialogButtonsSpacing else dimensions().spacing0x
+    if (buttonsHorizontalAlignment) {
+        Row(Modifier.padding(top = dialogButtonsSpacing)) {
+            dismissButtonProperties.getButton(Modifier.weight(1f))
+            if (dismissButtonProperties != null) {
+                Spacer(Modifier.width(dialogButtonsSpacing))
             }
+            optionButton1Properties.getButton(Modifier.weight(1f))
+            if (optionButton2Properties != null) {
+                Spacer(Modifier.width(dialogButtonsSpacing))
+            }
+            optionButton2Properties.getButton(Modifier.weight(1f))
+        }
+    } else {
+        Column(Modifier.padding(top = dialogButtonsSpacing)) {
+            optionButton1Properties.getButton()
+
+            if (optionButton2Properties != null) {
+                Spacer(Modifier.height(dialogButtonsSpacing))
+            }
+            optionButton2Properties.getButton()
+
+            if (dismissButtonProperties != null) {
+                Spacer(Modifier.height(dialogButtonsSpacing))
+            }
+            dismissButtonProperties.getButton()
         }
     }
 }
@@ -360,6 +386,50 @@ fun PreviewWireDialogWith2OptionButtons() {
                     value = password,
                     onValueChange = { password = it },
                     autofill = true
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Preview(showBackground = true)
+@Composable
+fun PreviewWireDialogCentered() {
+    var password by remember { mutableStateOf(TextFieldValue("")) }
+    WireTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireDialogContent(
+                optionButton1Properties = WireDialogButtonProperties(
+                    text = "OK",
+                    onClick = { },
+                    type = WireDialogButtonType.Primary,
+                    state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
+                ),
+                dismissButtonProperties = WireDialogButtonProperties(
+                    text = "Cancel",
+                    onClick = { }
+                ),
+                centerContent = true,
+                title = "title",
+                text = buildAnnotatedString {
+                    val style = SpanStyle(
+                        color = colorsScheme().onBackground,
+                        fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                        fontSize = MaterialTheme.wireTypography.body01.fontSize,
+                        fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
+                        fontStyle = MaterialTheme.wireTypography.body01.fontStyle
+                    )
+                    withStyle(style) { append("text\nsecond line\nthirdLine\nfourth line\nfifth line\nsixth line\nseventh line") }
+                },
+            ) {
+                WirePasswordTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    autofill = false
                 )
             }
         }

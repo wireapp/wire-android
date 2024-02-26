@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.settings.devices
@@ -32,6 +30,8 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -42,11 +42,13 @@ class SelfDevicesViewModel @Inject constructor(
     @CurrentAccount val currentAccountId: UserId,
     private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
     private val observeClientList: ObserveClientsByUserIdUseCase,
-    private val currentClientIdUseCase: ObserveCurrentClientIdUseCase
+    private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
+    private val getUserE2eiCertificates: GetUserE2eiCertificatesUseCase,
+    isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : ViewModel() {
 
     var state: SelfDevicesState by mutableStateOf(
-        SelfDevicesState(deviceList = listOf(), isLoadingClientsList = true, currentDevice = null)
+        SelfDevicesState(deviceList = listOf(), isLoadingClientsList = true, currentDevice = null, isE2EIEnabled = isE2EIEnabledUseCase())
     )
         private set
 
@@ -63,13 +65,15 @@ class SelfDevicesViewModel @Inject constructor(
                     is ObserveClientsByUserIdUseCase.Result.Failure -> state.copy(isLoadingClientsList = false)
                     is ObserveClientsByUserIdUseCase.Result.Success -> {
                         val currentClientId = currentClientIdUseCase().firstOrNull()
+                        val e2eiCertificates = getUserE2eiCertificates(currentAccountId)
                         state.copy(
                             isLoadingClientsList = false,
                             currentDevice = result.clients
-                                .firstOrNull { it.id == currentClientId }?.let { Device(it) },
+                                .firstOrNull { it.id == currentClientId }
+                                ?.let { Device(it, e2eiCertificates[it.id.value]?.status) },
                             deviceList = result.clients
                                 .filter { it.id != currentClientId }
-                                .map { Device(it) }
+                                .map { Device(it, e2eiCertificates[it.id.value]?.status) }
                         )
                     }
                 }

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,24 +14,35 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android
 
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.LogoutCallback
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -45,7 +56,9 @@ class GlobalObserversManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val notificationManager: WireNotificationManager,
-    private val notificationChannelsManager: NotificationChannelsManager
+    private val notificationChannelsManager: NotificationChannelsManager,
+    private val userDataStoreProvider: UserDataStoreProvider,
+    private val currentScreenManager: CurrentScreenManager,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
 
@@ -58,6 +71,8 @@ class GlobalObserversManager @Inject constructor(
                 }
             }
         }
+        scope.handleLogouts()
+        scope.handleDeleteEphemeralMessageEndDate()
     }
 
     private suspend fun setUpNotifications() {
@@ -76,19 +91,63 @@ class GlobalObserversManager @Inject constructor(
             }
 
         coreLogic.getGlobalScope().observeValidAccounts()
+            .combine(persistentStatusesFlow) { list, persistentStatuses ->
+                val persistentStatusesMap = persistentStatuses.associate { it.userId to it.isPersistentWebSocketEnabled }
+                /*
+                  Intersect both lists as they can be slightly out of sync because both lists can be updated at slightly different times.
+                  When user is logged out, at this time one of them can still contain this invalid user - make sure that it's ignored.
+                  When user is logged in, at this time one of them can still not contain this new user - ignore for now,
+                  the user will be handled correctly in the next iteration when the second list becomes updated as well.
+                 */
+                list.map { (selfUser, _) -> selfUser }
+                    .filter { persistentStatusesMap.containsKey(it.id) }
+                    .map { it to persistentStatusesMap.getValue(it.id) }
+            }
             .distinctUntilChanged()
-            .combine(persistentStatusesFlow, ::Pair)
-            .collect { (list, persistentStatuses) ->
-                notificationChannelsManager.createUserNotificationChannels(list.map { it.first })
+            .collectLatest {
+                // create notification channels for all valid users
+                notificationChannelsManager.createUserNotificationChannels(it.map { it.first })
 
-                list.map { it.first.id }
-                    // do not observe notifications for users with PersistentWebSocketEnabled, it will be done in PersistentWebSocketService
-                    .filter { userId -> persistentStatuses.none { it.userId == userId && it.isPersistentWebSocketEnabled } }
+                // do not observe notifications for users with PersistentWebSocketEnabled, it will be done in PersistentWebSocketService
+                it.filter { (_, isPersistentWebSocketEnabled) -> !isPersistentWebSocketEnabled }
+                    .map { (selfUser, _) -> selfUser.id }
                     .run {
                         notificationManager.observeNotificationsAndCallsWhileRunning(this, scope)
                     }
                 // it would be nice to call all the notification observations in one place,
                 // but we can't start PersistentWebSocketService here, to avoid ForegroundServiceStartNotAllowedException
             }
+    }
+
+    private fun CoroutineScope.handleLogouts() {
+        callbackFlow<Unit> {
+            val callback: LogoutCallback = object : LogoutCallback {
+                override suspend fun invoke(userId: UserId, reason: LogoutReason) {
+                    notificationManager.stopObservingOnLogout(userId)
+                    if (reason != LogoutReason.SELF_SOFT_LOGOUT) {
+                        userDataStoreProvider.getOrCreate(userId).clear()
+                    }
+                }
+            }
+            coreLogic.getGlobalScope().logoutCallbackManager.register(callback)
+            awaitClose { coreLogic.getGlobalScope().logoutCallbackManager.unregister(callback) }
+        }.launchIn(this)
+    }
+
+    private fun CoroutineScope.handleDeleteEphemeralMessageEndDate() {
+        launch {
+            currentScreenManager.isAppVisibleFlow()
+                .flatMapLatest { isAppVisible ->
+                    if (isAppVisible) {
+                        coreLogic.getGlobalScope().session.currentSessionFlow()
+                            .distinctUntilChanged()
+                            .filter { it is CurrentSessionResult.Success && it.accountInfo.isValid() }
+                            .map { (it as CurrentSessionResult.Success).accountInfo.userId }
+                    } else {
+                        emptyFlow()
+                    }
+                }
+                .collect { userId -> coreLogic.getSessionScope(userId).messages.deleteEphemeralMessageEndDate() }
+        }
     }
 }

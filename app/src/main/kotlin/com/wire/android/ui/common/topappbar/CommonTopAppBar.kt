@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 @file:Suppress("TooManyFunctions")
@@ -47,8 +45,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.wire.android.R
-import com.wire.android.ui.legalhold.banner.LegalHoldStatusBar
-import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -60,16 +56,11 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun CommonTopAppBar(
     commonTopAppBarState: CommonTopAppBarState,
     onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit,
-    onPendingClicked: () -> Unit,
 ) {
     Column {
         ConnectivityStatusBar(
             connectivityInfo = commonTopAppBarState.connectivityState,
             onReturnToCallClick = onReturnToCallClick
-        )
-        LegalHoldStatusBar(
-            legalHoldState = commonTopAppBarState.legalHoldState,
-            onPendingClicked = onPendingClicked
         )
     }
 }
@@ -199,52 +190,23 @@ private fun clearStatusBarColor() {
 }
 
 @Composable
-private fun PreviewCommonTopAppBar(connectivityUIState: ConnectivityUIState, legalHoldUIState: LegalHoldUIState) {
+private fun PreviewCommonTopAppBar(connectivityUIState: ConnectivityUIState) {
     WireTheme {
-        CommonTopAppBar(CommonTopAppBarState(connectivityUIState, legalHoldUIState), {}, {})
+        CommonTopAppBar(CommonTopAppBarState(connectivityUIState), {})
     }
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewCommonTopAppBar_ConnectivityCallNotMuted_LegalHoldNone() =
-    PreviewCommonTopAppBar(ConnectivityUIState.EstablishedCall(ConversationId("what", "ever"), false), LegalHoldUIState.None)
+fun PreviewCommonTopAppBar_ConnectivityCallNotMuted() =
+    PreviewCommonTopAppBar(ConnectivityUIState.EstablishedCall(ConversationId("what", "ever"), false))
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewCommonTopAppBar_ConnectivityCallNotMuted_LegalHoldPending() =
-    PreviewCommonTopAppBar(ConnectivityUIState.EstablishedCall(ConversationId("what", "ever"), false), LegalHoldUIState.Pending)
+fun PreviewCommonTopAppBar_ConnectivityConnecting() =
+    PreviewCommonTopAppBar(ConnectivityUIState.Connecting)
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewCommonTopAppBar_ConnectivityCallNotMuted_LegalHoldActive() =
-    PreviewCommonTopAppBar(ConnectivityUIState.EstablishedCall(ConversationId("what", "ever"), false), LegalHoldUIState.Active)
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewCommonTopAppBar_ConnectivityConnecting_LegalHoldNone() =
-    PreviewCommonTopAppBar(ConnectivityUIState.Connecting, LegalHoldUIState.None)
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewCommonTopAppBar_ConnectivityConnecting_LegalHoldPending() =
-    PreviewCommonTopAppBar(ConnectivityUIState.Connecting, LegalHoldUIState.Pending)
-@PreviewMultipleThemes
-@Composable
-fun PreviewCommonTopAppBar_ConnectivityConnecting_LegalHoldActive() =
-    PreviewCommonTopAppBar(ConnectivityUIState.Connecting, LegalHoldUIState.Active)
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewCommonTopAppBar_ConnectivityNone_LegalHoldNone() =
-    PreviewCommonTopAppBar(ConnectivityUIState.None, LegalHoldUIState.None)
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewCommonTopAppBar_ConnectivityNone_LegalHoldPending() =
-    PreviewCommonTopAppBar(ConnectivityUIState.None, LegalHoldUIState.Pending)
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewCommonTopAppBar_ConnectivityNone_LegalHoldActive() =
-    PreviewCommonTopAppBar(ConnectivityUIState.None, LegalHoldUIState.Active)
+fun PreviewCommonTopAppBar_ConnectivityNone() =
+    PreviewCommonTopAppBar(ConnectivityUIState.None)

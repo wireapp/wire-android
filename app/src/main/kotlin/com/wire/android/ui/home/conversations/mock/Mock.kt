@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.mock
@@ -47,7 +45,6 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -268,7 +265,7 @@ val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
     }
 )
 
-fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage.Regular(
+fun mockAssetMessage() = UIMessage.Regular(
     userAvatarData = UserAvatarData(
         UserAvatarAsset(mockImageLoader, UserAssetId("a", "domain")),
         UserAvailabilityStatus.AVAILABLE
@@ -291,27 +288,22 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         assetName = "This is some test asset message that has a not so long title",
         assetExtension = "ZIP",
         assetId = UserAssetId("asset", "domain"),
-        assetSizeInBytes = 21957335,
-        uploadStatus = uploadStatus,
-        downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED
+        assetSizeInBytes = 21957335
     ),
     messageFooter = mockEmptyFooter,
     source = MessageSource.Self
 )
 
 @Suppress("MagicNumber")
-fun mockedImg(
-    uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED,
-    downloadStatus: Message.DownloadStatus = Message.DownloadStatus.SAVED_INTERNALLY
-) = UIMessageContent.ImageMessage(
+fun mockedImg() = UIMessageContent.ImageMessage(
     UserAssetId("a", "domain"),
     ImageAsset.PrivateAsset(mockImageLoader, ConversationId("id", "domain"), "messageId", true),
-    800, 600, uploadStatus = uploadStatus, downloadStatus = downloadStatus
+    800, 600
 )
 
 @Suppress("MagicNumber")
 fun mockedImageUIMessage(
-    uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED,
+    messageId: String = "messageId",
     messageStatus: MessageStatus = MessageStatus(
         flowStatus = MessageFlowStatus.Sent,
         expirationStatus = ExpirationStatus.NotExpirable
@@ -324,12 +316,12 @@ fun mockedImageUIMessage(
         isLegalHold = false,
         messageTime = MessageTime("12.23pm"),
         messageStatus = messageStatus,
-        messageId = "4",
+        messageId = messageId,
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
         isSenderUnavailable = false
     ),
-    messageContent = mockedImg(uploadStatus),
+    messageContent = mockedImg(),
     messageFooter = mockEmptyFooter,
     source = MessageSource.Self
 )

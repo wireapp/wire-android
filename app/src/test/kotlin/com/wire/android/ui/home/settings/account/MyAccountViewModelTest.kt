@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.settings.account
@@ -28,12 +26,13 @@ import com.wire.android.framework.TestUser
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.id.TeamId
-import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase.Result.Success
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
+import com.wire.kalium.logic.functional.Either
 import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -174,7 +173,7 @@ class MyAccountViewModelTest {
         lateinit var getSelfUserUseCase: GetSelfUserUseCase
 
         @MockK
-        lateinit var getSelfTeamUseCase: GetSelfTeamUseCase
+        lateinit var getSelfTeamUseCase: GetUpdatedSelfTeamUseCase
 
         @MockK
         lateinit var selfServerConfigUseCase: SelfServerConfigUseCase
@@ -203,7 +202,7 @@ class MyAccountViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { getSelfUserUseCase() } returns flowOf(TestUser.SELF_USER.copy(teamId = TeamId(TestTeam.TEAM.id)))
-            coEvery { getSelfTeamUseCase() } returns flowOf(TestTeam.TEAM)
+            coEvery { getSelfTeamUseCase() } returns Either.Right(TestTeam.TEAM)
             coEvery { selfServerConfigUseCase() } returns SelfServerConfigUseCase.Result.Success(newServerConfig(1))
         }
 

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 @file:Suppress("ParameterListWrapping")
@@ -68,7 +66,7 @@ data class WireColorScheme(
     val scrim: Color,
     val labelText: Color,
     val badge: Color, val onBadge: Color,
-    val highLight: Color,
+    val highlight: Color, val onHighlight: Color,
     val uncheckedColor: Color,
     val disabledCheckedColor: Color,
     val disabledIndeterminateColor: Color,
@@ -104,7 +102,6 @@ data class WireColorScheme(
     val onScrollToBottomButtonColor: Color,
     val validE2eiStatusColor: Color,
     val mlsVerificationTextColor: Color,
-    val selectedMessageHighlightColor: Color
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,
@@ -141,7 +138,7 @@ private val LightWireColorScheme = WireColorScheme(
     primaryVariant = WireColorPalette.LightBlue50, onPrimaryVariant = WireColorPalette.LightBlue500,
     error = WireColorPalette.LightRed500, onError = Color.White,
     errorOutline = WireColorPalette.LightRed200,
-    warning = WireColorPalette.LightYellow500, onWarning = Color.White,
+    warning = WireColorPalette.LightAmber500, onWarning = Color.White,
     positive = WireColorPalette.LightGreen500, onPositive = Color.White,
     background = WireColorPalette.Gray20, onBackground = Color.Black,
     backgroundVariant = WireColorPalette.Gray10, onBackgroundVariant = Color.Black,
@@ -174,7 +171,7 @@ private val LightWireColorScheme = WireColorScheme(
     scrim = WireColorPalette.BlackAlpha55,
     labelText = WireColorPalette.Gray80,
     badge = WireColorPalette.Gray90, onBadge = Color.White,
-    highLight = WireColorPalette.DarkYellow300,
+    highlight = WireColorPalette.DarkAmber200, onHighlight = Color.Black,
     uncheckedColor = WireColorPalette.Gray80,
     disabledCheckedColor = WireColorPalette.Gray80,
     disabledIndeterminateColor = WireColorPalette.Gray80,
@@ -199,9 +196,9 @@ private val LightWireColorScheme = WireColorScheme(
         WireColorPalette.LightPurple500,
         WireColorPalette.LightPurple700,
         // Yellow - Amber
-        WireColorPalette.LightYellow300,
-        WireColorPalette.LightYellow500,
-        WireColorPalette.LightYellow700,
+        WireColorPalette.LightAmber300,
+        WireColorPalette.LightAmber500,
+        WireColorPalette.LightAmber700,
         // Petrol
         WireColorPalette.LightPetrol300,
         WireColorPalette.LightPetrol500,
@@ -239,7 +236,6 @@ private val LightWireColorScheme = WireColorScheme(
     onScrollToBottomButtonColor = Color.White,
     validE2eiStatusColor = WireColorPalette.LightGreen550,
     mlsVerificationTextColor = WireColorPalette.DarkGreen700,
-    selectedMessageHighlightColor = WireColorPalette.DarkBlue50
 )
 
 // Dark WireColorScheme
@@ -250,7 +246,7 @@ private val DarkWireColorScheme = WireColorScheme(
     primaryVariant = WireColorPalette.DarkBlue800, onPrimaryVariant = WireColorPalette.DarkBlue300,
     error = WireColorPalette.DarkRed500, onError = Color.Black,
     errorOutline = WireColorPalette.DarkRed800,
-    warning = WireColorPalette.DarkYellow500, onWarning = Color.Black,
+    warning = WireColorPalette.DarkAmber500, onWarning = Color.Black,
     positive = WireColorPalette.DarkGreen500, onPositive = Color.Black,
     background = WireColorPalette.Gray100, onBackground = Color.White,
     backgroundVariant = WireColorPalette.Gray95, onBackgroundVariant = Color.White,
@@ -283,7 +279,7 @@ private val DarkWireColorScheme = WireColorScheme(
     scrim = WireColorPalette.BlackAlpha55,
     labelText = WireColorPalette.Gray30,
     badge = WireColorPalette.Gray10, onBadge = Color.Black,
-    highLight = WireColorPalette.DarkYellow300,
+    highlight = WireColorPalette.DarkAmber300, onHighlight = Color.Black,
     uncheckedColor = WireColorPalette.Gray60,
     disabledCheckedColor = WireColorPalette.Gray80,
     disabledIndeterminateColor = WireColorPalette.Gray80,
@@ -308,9 +304,9 @@ private val DarkWireColorScheme = WireColorScheme(
         WireColorPalette.DarkPurple500,
         WireColorPalette.DarkPurple700,
         // Yellow - Amber
-        WireColorPalette.DarkYellow300,
-        WireColorPalette.DarkYellow500,
-        WireColorPalette.DarkYellow700,
+        WireColorPalette.DarkAmber300,
+        WireColorPalette.DarkAmber500,
+        WireColorPalette.DarkAmber700,
         // Petrol
         WireColorPalette.DarkPetrol300,
         WireColorPalette.DarkPetrol500,
@@ -342,13 +338,12 @@ private val DarkWireColorScheme = WireColorScheme(
     classifiedBannerForegroundColor = WireColorPalette.DarkGreen500,
     unclassifiedBannerBackgroundColor = WireColorPalette.DarkRed500,
     unclassifiedBannerForegroundColor = Color.Black,
-    recordAudioStartColor = WireColorPalette.LightBlue500,
-    recordAudioStopColor = WireColorPalette.LightRed500,
+    recordAudioStartColor = WireColorPalette.DarkBlue500,
+    recordAudioStopColor = WireColorPalette.DarkRed500,
     scrollToBottomButtonColor = WireColorPalette.Gray60,
     onScrollToBottomButtonColor = Color.Black,
-    validE2eiStatusColor = WireColorPalette.DarkGreen550,
+    validE2eiStatusColor = WireColorPalette.DarkGreen500,
     mlsVerificationTextColor = WireColorPalette.DarkGreen700,
-    selectedMessageHighlightColor = WireColorPalette.DarkBlue50
 )
 
 @PackagePrivate

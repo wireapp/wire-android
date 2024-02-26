@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.userprofile.other
@@ -50,7 +48,9 @@ data class OtherUserProfileState(
     val conversationSheetContent: ConversationSheetContent? = null,
     val otherUserDevices: List<Device> = listOf(),
     val blockingState: BlockingState = BlockingState.CAN_NOT_BE_BLOCKED,
-    val isProteusVerified: Boolean = false
+    val isProteusVerified: Boolean = false,
+    val isMLSVerified: Boolean = false,
+    val isUnderLegalHold: Boolean = false,
 ) {
     fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
         return conversationSheetContent?.let {

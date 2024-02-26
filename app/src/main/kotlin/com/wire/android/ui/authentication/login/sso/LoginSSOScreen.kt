@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.authentication.login.sso
@@ -63,7 +61,7 @@ import kotlinx.coroutines.flow.onEach
 
 @Composable
 fun LoginSSOScreen(
-    onSuccess: (initialSyncCompleted: Boolean) -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     scrollState: ScrollState = rememberScrollState()
@@ -144,8 +142,7 @@ private fun LoginSSOContent(
 
     if (loginState.customServerDialogState != null) {
         CustomServerDialog(
-            serverLinksTitle = loginState.customServerDialogState.serverLinks.title,
-            serverLinksApi = loginState.customServerDialogState.serverLinks.api,
+            serverLinks = loginState.customServerDialogState.serverLinks,
             onDismiss = onCustomServerDialogDismiss,
             onConfirm = onCustomServerDialogConfirm
         )

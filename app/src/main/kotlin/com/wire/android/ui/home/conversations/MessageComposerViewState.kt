@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations
@@ -23,6 +21,7 @@ package com.wire.android.ui.home.conversations
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.asset.AttachmentType
+import com.wire.kalium.logic.data.id.MessageId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlin.time.Duration.Companion.ZERO
@@ -35,24 +34,32 @@ data class MessageComposerViewState(
 )
 
 sealed class AssetTooLargeDialogState {
-    object Hidden : AssetTooLargeDialogState()
+    data object Hidden : AssetTooLargeDialogState()
     data class Visible(val assetType: AttachmentType, val maxLimitInMB: Int, val savedToDevice: Boolean) : AssetTooLargeDialogState()
 }
 
 sealed class VisitLinkDialogState {
-    object Hidden : VisitLinkDialogState()
+    data object Hidden : VisitLinkDialogState()
     data class Visible(val link: String, val openLink: () -> Unit) : VisitLinkDialogState()
 }
 
 sealed class InvalidLinkDialogState {
-    object Hidden : InvalidLinkDialogState()
-    object Visible : InvalidLinkDialogState()
+    data object Hidden : InvalidLinkDialogState()
+    data object Visible : InvalidLinkDialogState()
 }
 
 sealed class SureAboutMessagingDialogState {
     data object Hidden : SureAboutMessagingDialogState()
-    sealed class Visible(open val messageBundleToSend: MessageBundle) : SureAboutMessagingDialogState() {
-        data class ConversationVerificationDegraded(override val messageBundleToSend: MessageBundle) : Visible(messageBundleToSend)
-        data class ConversationUnderLegalHold(override val messageBundleToSend: MessageBundle) : Visible(messageBundleToSend)
+    sealed class Visible : SureAboutMessagingDialogState() {
+        data class ConversationVerificationDegraded(val messageBundleToSend: MessageBundle) : Visible()
+        sealed class ConversationUnderLegalHold : Visible() {
+            data class BeforeSending(val messageBundleToSend: MessageBundle) : ConversationUnderLegalHold()
+            data class AfterSending(val messageId: MessageId) : ConversationUnderLegalHold()
+        }
     }
+}
+
+sealed class PermissionPermanentlyDeniedDialogState {
+    data object Hidden : PermissionPermanentlyDeniedDialogState()
+    data class Visible(val title: Int, val description: Int) : PermissionPermanentlyDeniedDialogState()
 }

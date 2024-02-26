@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.userprofile.self
@@ -47,7 +45,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -67,6 +64,7 @@ import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserStatusIndicator
+import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -74,6 +72,7 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.ProgressDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -83,8 +82,14 @@ import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.legalhold.banner.LegalHoldPendingBanner
+import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
+import com.wire.android.ui.legalhold.banner.LegalHoldUIState
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
+import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileSelfDialog
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
@@ -106,8 +111,11 @@ import com.wire.kalium.logic.data.user.UserId
 fun SelfUserProfileScreen(
     navigator: Navigator,
     viewModelSelf: SelfUserProfileViewModel = hiltViewModel(),
+    legalHoldRequestedViewModel: LegalHoldRequestedViewModel = hiltViewModel(),
     avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>
 ) {
+    val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
+
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
         onCloseClick = navigator::navigateBack,
@@ -120,7 +128,8 @@ fun SelfUserProfileScreen(
         onStatusChange = viewModelSelf::changeStatus,
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
         onMessageShown = viewModelSelf::clearErrorMessage,
-        onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
+        onLegalHoldAcceptClick = legalHoldRequestedViewModel::show,
+        onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
         onOtherAccountClick = { viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate)) },
         isUserInCall = viewModelSelf::isUserInCall
     )
@@ -140,6 +149,18 @@ fun SelfUserProfileScreen(
             }
         }
     }
+
+    if (legalHoldRequestedViewModel.state is LegalHoldRequestedState.Visible) {
+        LegalHoldRequestedDialog(
+            state = legalHoldRequestedViewModel.state as LegalHoldRequestedState.Visible,
+            passwordChanged = legalHoldRequestedViewModel::passwordChanged,
+            notNowClicked = legalHoldRequestedViewModel::notNowClicked,
+            acceptClicked = legalHoldRequestedViewModel::acceptClicked,
+        )
+    }
+    VisibilityState(legalHoldSubjectDialogState) {
+        LegalHoldSubjectProfileSelfDialog(legalHoldSubjectDialogState::dismiss)
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -156,7 +177,8 @@ private fun SelfUserProfileContent(
     onStatusChange: (UserAvailabilityStatus) -> Unit = {},
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
     onMessageShown: () -> Unit = {},
-    onMaxAccountReachedDialogDismissed: () -> Unit = {},
+    onLegalHoldAcceptClick: () -> Unit = {},
+    onLegalHoldLearnMoreClick: () -> Unit = {},
     onOtherAccountClick: (UserId) -> Unit = {},
     isUserInCall: () -> Boolean
 ) {
@@ -210,6 +232,20 @@ private fun SelfUserProfileContent(
                             editableState = if (state.isReadOnlyAccount) EditableState.NotEditable
                             else EditableState.IsEditable(onEditClick)
                         )
+                    }
+                    if (state.legalHoldStatus != LegalHoldUIState.None) {
+                        stickyHeader {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.fillMaxWidth().padding(top = dimensions().spacing8x)
+                            ) {
+                                when (state.legalHoldStatus) {
+                                    LegalHoldUIState.Active -> LegalHoldSubjectBanner(onLegalHoldLearnMoreClick)
+                                    LegalHoldUIState.Pending -> LegalHoldPendingBanner(onLegalHoldAcceptClick)
+                                    LegalHoldUIState.None -> { /* no banner */ }
+                                }
+                            }
+                        }
                     }
                     if (!state.teamName.isNullOrBlank()) {
                         stickyHeader {
@@ -418,32 +454,35 @@ private fun LoggingOutDialog(isLoggingOut: Boolean) {
     }
 }
 
-@Preview(widthDp = 400, heightDp = 800)
-@Preview(widthDp = 800)
+@PreviewMultipleThemes
 @Composable
 fun PreviewSelfUserProfileScreen() {
-    SelfUserProfileContent(
-        SelfUserProfileState(
-            userId = UserId("value", "domain"),
-            status = UserAvailabilityStatus.BUSY,
-            fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
-            userName = "userName_long_long_long_long_long_long_long_long_long_long",
-            teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
-            otherAccounts = listOf(
-                OtherAccount(id = UserId("id1", "domain"), fullName = "Other Name", teamName = "team A"),
-                OtherAccount(id = UserId("id2", "domain"), fullName = "New Name")
+    WireTheme {
+        SelfUserProfileContent(
+            SelfUserProfileState(
+                userId = UserId("value", "domain"),
+                status = UserAvailabilityStatus.BUSY,
+                fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
+                userName = "userName_long_long_long_long_long_long_long_long_long_long",
+                teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
+                otherAccounts = listOf(
+                    OtherAccount(id = UserId("id1", "domain"), fullName = "Other Name", teamName = "team A"),
+                    OtherAccount(id = UserId("id2", "domain"), fullName = "New Name")
+                ),
+                statusDialogData = null,
+                legalHoldStatus = LegalHoldUIState.Active,
             ),
-            statusDialogData = null
-        ),
-        isUserInCall = { false }
-    )
+            isUserInCall = { false }
+        )
+    }
 }
 
-@Preview(widthDp = 800)
-@Preview(widthDp = 400)
+@PreviewMultipleThemes
 @Composable
 fun PreviewCurrentSelfUserStatus() {
-    CurrentSelfUserStatus(UserAvailabilityStatus.AVAILABLE, onStatusClicked = {})
+    WireTheme {
+        CurrentSelfUserStatus(UserAvailabilityStatus.AVAILABLE, onStatusClicked = {})
+    }
 }
 
 @Composable

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversationslist.common
@@ -32,8 +30,6 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
-import com.wire.android.ui.common.MLSVerifiedIcon
-import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
@@ -46,6 +42,7 @@ import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -64,7 +61,7 @@ fun ConversationItemFactory(
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
     joinCall: (ConversationId) -> Unit,
-    onPermanentPermissionDecline: () -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit = { }
 ) {
     val onConversationItemClick = remember(conversation) {
         Clickable(
@@ -111,7 +108,7 @@ fun ConversationItemFactory(
         onJoinCallClick = {
             joinCall(conversation.conversationId)
         },
-        onPermanentPermissionDecline = onPermanentPermissionDecline
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
     )
 }
 
@@ -126,7 +123,7 @@ private fun GeneralConversationItem(
     subTitle: @Composable () -> Unit = {},
     onConversationItemClick: Clickable,
     onJoinCallClick: () -> Unit,
-    onPermanentPermissionDecline: () -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     when (conversation) {
         is ConversationItem.GroupConversation -> {
@@ -146,15 +143,7 @@ private fun GeneralConversationItem(
                         ConversationTitle(
                             name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
                             isLegalHold = conversation.isLegalHold,
-                            searchQuery = searchQuery,
-                            badges = {
-                                if (proteusVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
-                                    ProteusVerifiedIcon(contentDescriptionId = R.string.content_description_proteus_certificate_valid)
-                                }
-                                if (mlsVerificationStatus == Conversation.VerificationStatus.VERIFIED) {
-                                    MLSVerifiedIcon(contentDescriptionId = R.string.content_description_mls_certificate_valid)
-                                }
-                            }
+                            searchQuery = searchQuery
                         )
                     },
                     subTitle = subTitle,
@@ -164,7 +153,7 @@ private fun GeneralConversationItem(
                             if (hasOnGoingCall) {
                                 JoinButton(
                                     buttonClick = onJoinCallClick,
-                                    onPermanentPermissionDecline = onPermanentPermissionDecline
+                                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
                                 )
                             } else {
                                 Row(
@@ -376,6 +365,25 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadge() {
             lastMessageContent = null,
             badgeEventType = BadgeEventType.SentConnectRequest,
             conversationInfo = ConversationInfo("Name")
+        ),
+        searchQuery = "",
+        isSelectableItem = false,
+        isChecked = false,
+        {}, {}, {}, {}, {}, {}
+    )
+}
+
+@Preview
+@Composable
+fun PreviewConnectionConversationItemWithSentConnectRequestBadgeWithUnknownSender() {
+    ConversationItemFactory(
+        conversation = ConversationItem.ConnectionConversation(
+            userAvatarData = UserAvatarData(),
+            conversationId = QualifiedID("value", "domain"),
+            mutedStatus = MutedConversationStatus.OnlyMentionsAndRepliesAllowed,
+            lastMessageContent = null,
+            badgeEventType = BadgeEventType.SentConnectRequest,
+            conversationInfo = ConversationInfo("", isSenderUnavailable = true)
         ),
         searchQuery = "",
         isSelectableItem = false,

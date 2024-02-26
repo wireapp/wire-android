@@ -1,3 +1,20 @@
+/*
+ * Wire
+ * Copyright (C) 2024 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
 package com.wire.android.ui.sharing
 
 import android.content.Context
@@ -20,7 +37,7 @@ import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
+import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -93,7 +110,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     private val searchQueryFlow = mutableSearchQueryFlow
         .asStateFlow()
-        .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
+        .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -181,7 +198,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 groupName = conversation.name.orEmpty(),
                 conversationId = conversation.id,
                 mutedStatus = conversation.mutedStatus,
-                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+                isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
                 lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
                 badgeEventType = parseConversationEventType(
                     conversation.mutedStatus,
@@ -217,7 +234,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 ),
                 conversationId = conversation.id,
                 mutedStatus = conversation.mutedStatus,
-                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+                isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
                 lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
                 badgeEventType = parsePrivateConversationEventType(
                     otherUser.connectionStatus,
@@ -428,7 +445,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                     size = fileMetadata.sizeInBytes,
                     mimeType = mimeType,
                     dataPath = tempAssetPath,
-                    dataUri = uri,
                     key = assetKey,
                     width = imgWidth,
                     height = imgHeight,
@@ -443,7 +459,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                     size = fileMetadata.sizeInBytes,
                     mimeType = mimeType,
                     dataPath = tempAssetPath,
-                    dataUri = uri,
                     key = assetKey
                 )
             }

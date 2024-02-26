@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.mapper
@@ -27,15 +25,17 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.publicuser.model.UserSearchDetails
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.type.UserType
 import javax.inject.Inject
 
 class ContactMapper
 @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
 ) {
 
     fun fromOtherUser(otherUser: OtherUser): Contact {
@@ -68,6 +68,32 @@ class ContactMapper
                 membership = Membership.Service,
                 connectionState = ConnectionState.ACCEPTED
             )
+        }
+    }
+
+    fun fromSearchUserResult(user: UserSearchDetails): Contact {
+        with(user) {
+            return Contact(
+                id = id.value,
+                domain = id.domain,
+                name = name ?: String.EMPTY,
+                label = mapUserHandle(user),
+                avatarData = UserAvatarData(
+                    asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) }
+                ),
+                membership = userTypeMapper.toMembership(type),
+                connectionState = connectionStatus
+            )
+        }
+    }
+
+    /**
+     * Adds the fully qualified handle to the contact label in case of federated users.
+     */
+    private fun mapUserHandle(user: UserSearchDetails): String {
+        return when (user.type) {
+            UserType.FEDERATED -> "${user.handle}@${user.id.domain}"
+            else -> user.handle ?: String.EMPTY
         }
     }
 }

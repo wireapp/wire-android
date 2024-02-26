@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.calling.model
@@ -27,7 +25,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 data class UICallParticipant(
     val id: QualifiedID,
     val clientId: String,
-    val name: String = "",
+    val name: String? = null,
     val isMuted: Boolean,
     val isSpeaking: Boolean = false,
     val isCameraOn: Boolean,

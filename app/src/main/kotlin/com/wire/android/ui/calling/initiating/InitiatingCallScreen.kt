@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.calling.initiating
@@ -55,9 +53,13 @@ import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
 
 @RootNavGraph
@@ -72,6 +74,8 @@ fun InitiatingCallScreen(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel()
 ) {
+    val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
     LaunchedEffect(initiatingCallViewModel.state.flowState) {
         when (initiatingCallViewModel.state.flowState) {
             InitiatingCallState.FlowState.CallClosed -> navigator.navigateBack()
@@ -90,9 +94,24 @@ fun InitiatingCallScreen(
             toggleVideo = ::toggleVideo,
             onHangUpCall = initiatingCallViewModel::hangUpCall,
             onVideoPreviewCreated = ::setVideoPreview,
-            onSelfClearVideoPreview = ::clearVideoPreview
+            onSelfClearVideoPreview = ::clearVideoPreview,
+            onPermissionPermanentlyDenied = {
+                if (it is PermissionDenialType.CallingCamera) {
+                    permissionPermanentlyDeniedDialogState.show(
+                        PermissionPermanentlyDeniedDialogState.Visible(
+                            title = R.string.app_permission_dialog_title,
+                            description = R.string.camera_permission_dialog_description
+                        )
+                    )
+                }
+            }
         )
     }
+
+    PermissionPermanentlyDeniedDialog(
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,7 +123,8 @@ private fun InitiatingCallContent(
     toggleVideo: () -> Unit,
     onHangUpCall: () -> Unit,
     onVideoPreviewCreated: (view: View) -> Unit,
-    onSelfClearVideoPreview: () -> Unit
+    onSelfClearVideoPreview: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     BackHandler {
         // DO NOTHING
@@ -128,7 +148,8 @@ private fun InitiatingCallContent(
                     isSpeakerOn = callState.isSpeakerOn,
                     toggleSpeaker = toggleSpeaker,
                     toggleMute = toggleMute,
-                    toggleVideo = toggleVideo
+                    toggleVideo = toggleVideo,
+                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
                 )
                 Spacer(
                     modifier = Modifier
@@ -170,5 +191,5 @@ private fun InitiatingCallContent(
 @Preview
 @Composable
 fun PreviewInitiatingCallScreen() {
-    InitiatingCallContent(CallState(ConversationId("value", "domain")), {}, {}, {}, {}, {}, {})
+    InitiatingCallContent(CallState(ConversationId("value", "domain")), {}, {}, {}, {}, {}, {}, {})
 }

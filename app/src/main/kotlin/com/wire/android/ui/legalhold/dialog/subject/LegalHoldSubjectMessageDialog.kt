@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ fun LegalHoldSubjectMessageDialog(
     sendAnywayClicked: () -> Unit,
 ) {
     LegalHoldSubjectBaseDialog(
-        name = conversationName,
+        title = stringResource(id = R.string.legal_hold_subject_dialog_title, conversationName),
         customInfo = stringResource(id = R.string.legal_hold_subject_dialog_description_message),
         withDefaultInfo = false,
         cancelText = stringResource(id = R.string.label_cancel),

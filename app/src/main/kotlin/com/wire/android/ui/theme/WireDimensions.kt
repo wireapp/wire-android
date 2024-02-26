@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.theme
@@ -43,6 +41,7 @@ data class WireDimensions(
     val userAvatarBusyVerticalPadding: Dp,
     val userAvatarBusyHorizontalPadding: Dp,
     val avatarStatusBorderSize: Dp,
+    val avatarLegalHoldIndicatorBorderSize: Dp,
     val groupAvatarCornerRadius: Dp,
     val avatarConversationTopBarSize: Dp,
     val groupAvatarConversationTopBarCornerRadius: Dp,
@@ -194,7 +193,9 @@ data class WireDimensions(
     // Conversation options
     val conversationOptionsItemMinHeight: Dp,
     // Import media
-    val importedMediaAssetSize: Dp
+    val importedMediaAssetSize: Dp,
+    // legal hold banner
+    val legalHoldBannerMinHeight: Dp,
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -208,6 +209,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     avatarClickablePadding = 6.dp,
     userAvatarStatusSize = 16.dp,
     avatarStatusBorderSize = 2.dp,
+    avatarLegalHoldIndicatorBorderSize = 4.dp,
     userAvatarBusyVerticalPadding = 5.dp,
     userAvatarBusyHorizontalPadding = 3.dp,
     groupAvatarCornerRadius = 10.dp,
@@ -336,7 +338,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     ongoingCallLabelHeight = 28.dp,
     audioMessageHeight = 48.dp,
     importedMediaAssetSize = 120.dp,
-    typingIndicatorHeight = 24.dp
+    typingIndicatorHeight = 24.dp,
+    legalHoldBannerMinHeight = 26.dp,
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

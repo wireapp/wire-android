@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,6 +117,25 @@ class ConnectionActionButtonViewModelTest {
             // then
             val result = awaitItem() as UIText.StringResource
             assertEquals(UIText.StringResource(R.string.connection_request_sent_federation_denied_error, "").resId, result.resId)
+            coVerify(exactly = 1) { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
+        }
+    }
+
+    @Test
+    fun `given a legal hold failure, when sending a connection request, then edit the state properly`() = runTest {
+        // given
+        val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
+            .withSendConnectionRequest(SendConnectionRequestResult.Failure.MissingLegalHoldConsent)
+            .arrange()
+
+        viewModel.infoMessage.test {
+            // when
+            viewModel.onSendConnectionRequest()
+
+            // then
+            expectNoEvents() // we don't want  to show any info message like snackbar
+            assertEquals(viewModel.state.missingLegalHoldConsentDialogState, MissingLegalHoldConsentDialogState.Visible(TestUser.USER_ID))
             coVerify(exactly = 1) { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
             assertEquals(false, viewModel.actionableState().isPerformingAction)
         }

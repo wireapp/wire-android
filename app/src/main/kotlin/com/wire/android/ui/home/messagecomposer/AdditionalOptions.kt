@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.messagecomposer
@@ -31,12 +29,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
+import com.wire.android.ui.home.messagecomposer.location.LocationPickerComponent
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.RichTextMarkdown
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.permission.PermissionDenialType
 
 @Composable
 fun AdditionalOptionsMenu(
@@ -91,31 +92,44 @@ fun AdditionalOptionsMenu(
 @Composable
 fun AdditionalOptionSubMenu(
     isFileSharingEnabled: Boolean,
+    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onLocationPickerClicked: () -> Unit,
+    onCloseAdditionalAttachment: () -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
-    onCloseRecordAudio: () -> Unit,
     additionalOptionsState: AdditionalOptionSubMenuState,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
+    onLocationPicked: (GeoLocatedAddress) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     modifier: Modifier
 ) {
     Box(modifier = modifier) {
+        AttachmentOptionsComponent(
+            onAttachmentPicked = onAttachmentPicked,
+            tempWritableImageUri = tempWritableImageUri,
+            tempWritableVideoUri = tempWritableVideoUri,
+            isFileSharingEnabled = isFileSharingEnabled,
+            onRecordAudioMessageClicked = onRecordAudioMessageClicked,
+            onLocationPickerClicked = onLocationPickerClicked,
+            onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied
+        )
         when (additionalOptionsState) {
             AdditionalOptionSubMenuState.AttachFile -> {
-                AttachmentOptionsComponent(
-                    onAttachmentPicked = onAttachmentPicked,
-                    tempWritableImageUri = tempWritableImageUri,
-                    tempWritableVideoUri = tempWritableVideoUri,
-                    isFileSharingEnabled = isFileSharingEnabled,
-                    onRecordAudioMessageClicked = onRecordAudioMessageClicked
-                )
+                /* DO NOTHING, ALREADY DISPLAYED AS PARENT */
             }
 
             AdditionalOptionSubMenuState.RecordAudio -> {
                 RecordAudioComponent(
                     onAudioRecorded = onAudioRecorded,
-                    onCloseRecordAudio = onCloseRecordAudio
+                    onCloseRecordAudio = onCloseAdditionalAttachment
+                )
+            }
+
+            AdditionalOptionSubMenuState.Location -> {
+                LocationPickerComponent(
+                    onLocationPicked = onLocationPicked,
+                    onLocationClosed = onCloseAdditionalAttachment
                 )
             }
             // non functional for now

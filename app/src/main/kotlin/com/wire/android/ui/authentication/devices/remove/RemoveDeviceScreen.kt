@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.authentication.devices.remove
@@ -60,6 +58,7 @@ import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.util.dialogErrorStrings
@@ -75,9 +74,11 @@ fun RemoveDeviceScreen(navigator: Navigator) {
     val state: RemoveDeviceState = viewModel.state
     val clearSessionState: ClearSessionState = clearSessionViewModel.state
 
-    fun navigateAfterSuccess(initialSyncCompleted: Boolean) = navigator.navigate(
+    fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean) = navigator.navigate(
         NavigationCommand(
-            destination = if (initialSyncCompleted) HomeScreenDestination else InitialSyncScreenDestination,
+            destination = if (isE2EIRequired) E2EIEnrollmentScreenDestination
+            else if (initialSyncCompleted) HomeScreenDestination
+            else InitialSyncScreenDestination,
             backStackMode = BackStackMode.CLEAR_WHOLE
         )
     )
@@ -86,9 +87,9 @@ fun RemoveDeviceScreen(navigator: Navigator) {
     RemoveDeviceContent(
         state = state,
         clearSessionState = clearSessionState,
-        onItemClicked = { viewModel.onItemClicked(it) { navigateAfterSuccess(it) } },
+        onItemClicked = { viewModel.onItemClicked(it, ::navigateAfterSuccess) },
         onPasswordChange = viewModel::onPasswordChange,
-        onRemoveConfirm = { viewModel.onRemoveConfirmed { navigateAfterSuccess(it) } },
+        onRemoveConfirm = { viewModel.onRemoveConfirmed(::navigateAfterSuccess) },
         onDialogDismiss = viewModel::onDialogDismissed,
         onErrorDialogDismiss = viewModel::clearDeleteClientError,
         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
@@ -187,9 +188,9 @@ private fun RemoveDeviceItemsList(
                 DeviceItem(
                     device = device,
                     placeholder = placeholders,
-                    onRemoveDeviceClick = onItemClicked,
+                    onClickAction = onItemClicked,
                     shouldShowVerifyLabel = false,
-                    leadingIcon = {
+                    icon = {
                         Icon(
                             painterResource(id = R.drawable.ic_remove),
                             stringResource(R.string.content_description_remove_devices_screen_remove_icon)

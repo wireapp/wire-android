@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.userprofile.self.dialog
@@ -43,7 +41,8 @@ import com.wire.android.ui.common.visbility.VisibilityState
 @Composable
 fun LogoutOptionsDialog(
     dialogState: VisibilityState<LogoutOptionsDialogState>,
-    logout: (Boolean) -> Unit
+    logout: (Boolean) -> Unit,
+    checkboxEnabled: Boolean = true
 ) {
     VisibilityState(dialogState) { state ->
         WireDialog(
@@ -63,15 +62,16 @@ fun LogoutOptionsDialog(
             )
         ) {
             WireLabelledCheckbox(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = dimensions().spacing16x)
+                    .clip(RoundedCornerShape(size = dimensions().spacing4x)),
                 label = stringResource(R.string.dialog_logout_wipe_data_checkbox),
                 checked = state.shouldWipeData,
                 onCheckClicked = remember { { dialogState.show(state.copy(shouldWipeData = it)) } },
                 horizontalArrangement = Arrangement.Center,
                 contentPadding = PaddingValues(vertical = dimensions().spacing4x),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = dimensions().spacing16x)
-                    .clip(RoundedCornerShape(size = dimensions().spacing4x))
+                checkboxEnabled = checkboxEnabled
             )
         }
     }

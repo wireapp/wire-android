@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.common.bottomsheet.conversation
@@ -128,7 +126,8 @@ data class ConversationSheetContent(
     val isArchived: Boolean,
     val protocol: Conversation.ProtocolInfo,
     val mlsVerificationStatus: Conversation.VerificationStatus,
-    val proteusVerificationStatus: Conversation.VerificationStatus
+    val proteusVerificationStatus: Conversation.VerificationStatus,
+    val isUnderLegalHold: Boolean,
 ) {
 
     private val isSelfUserMember: Boolean get() = selfRole != null

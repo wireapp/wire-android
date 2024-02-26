@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,11 +34,13 @@ enum class AdditionalOptionSubMenuState {
     AttachFile,
     AttachImage,
     Emoji,
+    Location,
     Gif;
 }
 
 enum class AdditionalOptionSelectItem {
     RichTextEditing,
+
     // it's only used to show keyboard after self deleting bottom sheet collapses
     SelfDeleting,
     AttachFile,
@@ -70,7 +72,12 @@ class AdditionalOptionStateHolder {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.RecordAudio
     }
 
-    fun hideAudioRecording() {
+    fun toLocationPicker() {
+        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Location
+        additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
+    }
+
+    fun toInitialAttachmentOptionsMenu() {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.AttachFile
         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
     }

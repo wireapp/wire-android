@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
 import androidx.lifecycle.viewmodel.compose.saveable
-import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
+import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -71,7 +71,7 @@ class SearchConversationMessagesViewModel @Inject constructor(
                     isLoading = true
                 )
             }
-            .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
+            .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
             .flatMapLatest { searchTerm ->
                 getSearchMessagesForConversation(
                     searchTerm = searchTerm,
@@ -96,7 +96,7 @@ class SearchConversationMessagesViewModel @Inject constructor(
         )
         if (textQueryChanged && searchQuery.text.isNotBlank()) {
             viewModelScope.launch {
-                mutableSearchQueryFlow.emit(searchQuery.text.trim())
+                mutableSearchQueryFlow.emit(searchQuery.text)
             }
         }
     }

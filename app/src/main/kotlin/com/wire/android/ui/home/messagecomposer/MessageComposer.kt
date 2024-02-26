@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.messagecomposer
@@ -44,7 +42,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
@@ -54,14 +51,18 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AudioMessageBundle
+import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.LocationBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.ui.home.messagecomposer.state.Ping
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.PermissionDenialType
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.ConversationId
@@ -78,6 +79,7 @@ fun MessageComposer(
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
+    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     onTypingEvent: (TypingIndicatorMode) -> Unit
@@ -111,6 +113,18 @@ fun MessageComposer(
                 messageListContent = messageListContent
             )
 
+            InteractionAvailability.UNSUPPORTED_PROTOCOL -> DisabledInteractionMessageComposer(
+                conversationId = conversationId,
+                warningText = LocalContext.current.resources.stringWithStyledArgs(
+                    R.string.label_system_message_unsupported_protocol,
+                    MaterialTheme.wireTypography.body01,
+                    MaterialTheme.wireTypography.body02,
+                    colorsScheme().secondaryText,
+                    colorsScheme().onBackground,
+                ),
+                messageListContent = messageListContent
+            )
+
             InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> DisabledInteractionMessageComposer(
                 conversationId = conversationId,
                 warningText = null,
@@ -130,9 +144,11 @@ fun MessageComposer(
                     onPingOptionClicked = { onSendMessageBundle(Ping) },
                     onAttachmentPicked = { onSendMessageBundle(AttachmentPickedBundle(it)) },
                     onAudioRecorded = { onSendMessageBundle(AudioMessageBundle(it)) },
+                    onLocationPicked = { onSendMessageBundle(LocationBundle(it.getFormattedAddress(), it.location)) },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult,
+                    onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
                     tempWritableVideoUri = tempWritableVideoUri,
                     tempWritableImageUri = tempWritableImageUri,
                     onTypingEvent = onTypingEvent
@@ -197,10 +213,17 @@ private fun DisabledInteractionMessageComposer(
     }
 }
 
-@Preview
 @Composable
-fun MessageComposerPreview() {
-    val messageComposerViewState = remember { mutableStateOf(MessageComposerViewState()) }
+private fun BaseComposerPreview(
+    interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
+) = WireTheme {
+    val messageComposerViewState = remember {
+        mutableStateOf(
+            MessageComposerViewState(
+                interactionAvailability = interactionAvailability
+            )
+        )
+    }
     val messageComposition = remember { mutableStateOf(MessageComposition.DEFAULT) }
     val selfDeletionTimer = remember { mutableStateOf(SelfDeletionTimer.Enabled(Duration.ZERO)) }
 
@@ -222,9 +245,22 @@ fun MessageComposerPreview() {
         onChangeSelfDeletionClicked = { },
         onSearchMentionQueryChanged = { },
         onClearMentionSearchResult = { },
+        onCaptureVideoPermissionPermanentlyDenied = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
         onTypingEvent = { }
     )
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun UnsupportedProtocolComposerPreview() = WireTheme {
+    BaseComposerPreview(interactionAvailability = InteractionAvailability.UNSUPPORTED_PROTOCOL)
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun EnabledComposerPreview() = WireTheme {
+    BaseComposerPreview(interactionAvailability = InteractionAvailability.ENABLED)
 }

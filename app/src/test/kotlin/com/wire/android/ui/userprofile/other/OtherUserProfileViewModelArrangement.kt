@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.userprofile.other
@@ -32,8 +30,8 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
-import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
@@ -45,6 +43,12 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.CertificateStatus
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusResult
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.legalhold.LegalHoldState
+import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForUserUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
@@ -64,6 +68,9 @@ internal class OtherUserProfileViewModelArrangement {
 
     @MockK
     lateinit var observeUserInfo: ObserveUserInfoUseCase
+
+    @MockK
+    lateinit var observeLegalHoldStateForUser: ObserveLegalHoldStateForUserUseCase
 
     @MockK
     lateinit var wireSessionImageLoader: WireSessionImageLoader
@@ -96,13 +103,19 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var observeClientList: ObserveClientsByUserIdUseCase
 
     @MockK
-    lateinit var persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase
+    lateinit var fetchUsersClientsFromRemote: FetchUsersClientsFromRemoteUseCase
 
     @MockK
     lateinit var clearConversationContent: ClearConversationContentUseCase
 
     @MockK
     lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
+
+    @MockK
+    lateinit var getUserE2eiCertificateStatus: GetUserE2eiCertificateStatusUseCase
+
+    @MockK
+    lateinit var getUserE2eiCertificates: GetUserE2eiCertificatesUseCase
 
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
@@ -112,16 +125,19 @@ internal class OtherUserProfileViewModelArrangement {
             unblockUser,
             getOneToOneConversation,
             observeUserInfo,
+            observeLegalHoldStateForUser,
             userTypeMapper,
             wireSessionImageLoader,
             observeConversationRoleForUserUseCase,
             removeMemberFromConversationUseCase,
             updateConversationMemberRoleUseCase,
             observeClientList,
-            persistOtherUserClientsUseCase,
+            fetchUsersClientsFromRemote,
             clearConversationContent,
             updateConversationArchivedStatus,
-            savedStateHandle
+            getUserE2eiCertificateStatus,
+            getUserE2eiCertificates,
+            savedStateHandle,
         )
     }
 
@@ -149,6 +165,9 @@ internal class OtherUserProfileViewModelArrangement {
         coEvery { getOneToOneConversation(USER_ID) } returns flowOf(
             GetOneToOneConversationUseCase.Result.Success(OtherUserProfileScreenViewModelTest.CONVERSATION)
         )
+        coEvery { getUserE2eiCertificateStatus.invoke(any()) } returns GetUserE2eiCertificateStatusResult.Success(CertificateStatus.VALID)
+        coEvery { getUserE2eiCertificates.invoke(any()) } returns mapOf()
+        coEvery { observeLegalHoldStateForUser.invoke(any()) } returns flowOf(LegalHoldState.Disabled)
     }
 
     suspend fun withBlockUserResult(result: BlockUserResult) = apply {
@@ -172,6 +191,10 @@ internal class OtherUserProfileViewModelArrangement {
 
     suspend fun withUserInfo(result: GetUserInfoResult) = apply {
         coEvery { observeUserInfo(any()) } returns flowOf(result)
+    }
+
+    fun withLegalHoldState(result: LegalHoldState) = apply {
+        coEvery { observeLegalHoldStateForUser.invoke(any()) } returns flowOf(result)
     }
 
     fun arrange() = this to viewModel

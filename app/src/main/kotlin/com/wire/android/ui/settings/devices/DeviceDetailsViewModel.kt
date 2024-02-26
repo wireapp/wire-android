@@ -1,6 +1,22 @@
+/*
+ * Wire
+ * Copyright (C) 2024 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
 package com.wire.android.ui.settings.devices
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -31,6 +47,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCaseResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.functional.fold
@@ -51,14 +68,20 @@ class DeviceDetailsViewModel @Inject constructor(
     private val updateClientVerificationStatus: UpdateClientVerificationStatusUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val e2eiCertificate: GetE2eiCertificateUseCase,
-    private val enrolE2EICertificateUseCase: GetE2EICertificateUseCase
+    private val enrolE2EICertificateUseCase: GetE2EICertificateUseCase,
+    isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
     private val deviceId: ClientId = deviceDetailsNavArgs.clientId
     private val userId: UserId = deviceDetailsNavArgs.userId
 
-    var state: DeviceDetailsState by mutableStateOf(DeviceDetailsState(isSelfClient = isSelfClient))
+    var state: DeviceDetailsState by mutableStateOf(
+        DeviceDetailsState(
+            isSelfClient = isSelfClient,
+            isE2EIEnabled = isE2EIEnabledUseCase()
+        )
+    )
         private set
 
     init {
@@ -95,7 +118,8 @@ class DeviceDetailsViewModel @Inject constructor(
                 state.copy(
                     isE2eiCertificateActivated = true,
                     e2eiCertificate = certificate.certificate,
-                    isLoadingCertificate = false
+                    isLoadingCertificate = false,
+                    device = state.device.updateE2EICertificateStatus(certificate.certificate.status)
                 )
             } else {
                 state.copy(isE2eiCertificateActivated = false, isLoadingCertificate = false)
@@ -103,9 +127,9 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
-    fun enrollE2eiCertificate(context: Context) {
+    fun enrollE2eiCertificate() {
         state = state.copy(isLoadingCertificate = true)
-        enrolE2EICertificateUseCase(context) { result ->
+        enrolE2EICertificateUseCase(false) { result ->
             result.fold({
                 state = state.copy(
                     isLoadingCertificate = false,
@@ -145,7 +169,7 @@ class DeviceDetailsViewModel @Inject constructor(
 
                     is GetClientDetailsResult.Success -> {
                         state.copy(
-                            device = Device(result.client),
+                            device = state.device.updateFromClient(result.client),
                             isCurrentDevice = result.isCurrentClient,
                             removeDeviceDialogState = RemoveDeviceDialogState.Hidden,
                             canBeRemoved = !result.isCurrentClient && isSelfClient && result.client.type == ClientType.Permanent,

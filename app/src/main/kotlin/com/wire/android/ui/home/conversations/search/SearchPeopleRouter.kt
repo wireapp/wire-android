@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.search
@@ -31,13 +29,13 @@ import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +48,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.TabItem
@@ -62,24 +61,26 @@ import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsAlwaysEnabled
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.model.Contact
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.coroutines.launch
 
+@Suppress("ComplexMethod")
 @OptIn(
     ExperimentalComposeUiApi::class,
     ExperimentalFoundationApi::class
 )
 @Composable
-fun SearchPeopleScreen(
-    searchPeopleState: SearchPeopleState,
+fun SearchUsersAndServicesScreen(
+    searchState: SearchState,
     searchTitle: String,
     actionButtonTitle: String,
-    onSearchQueryChanged: (TextFieldValue) -> Unit,
+    userSearchSignal: State<String>,
+    serviceSearchSignal: State<String>,
+    selectedContacts: ImmutableSet<Contact>,
+    onServicesSearchQueryChanged: (TextFieldValue) -> Unit,
+    onUsersSearchQueryChanged: (TextFieldValue) -> Unit,
     onGroupSelectionSubmitAction: () -> Unit,
-    onAddContact: (Contact) -> Unit,
-    onAddContactToGroup: (Contact) -> Unit,
-    onRemoveContactFromGroup: (Contact) -> Unit,
+    onContactChecked: (Boolean, Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
     onServiceClicked: (Contact) -> Unit,
     onClose: () -> Unit,
@@ -87,139 +88,132 @@ fun SearchPeopleScreen(
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
-    val lazyListStates: List<LazyListState> = SearchPeopleTabItem.values().map { rememberLazyListState() }
     val initialPageIndex = SearchPeopleTabItem.PEOPLE.ordinal
-    val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { SearchPeopleTabItem.values().size })
+    val pagerState = rememberPagerState(
+        initialPage = initialPageIndex,
+        pageCount = { if (searchState.isServicesAllowed) SearchPeopleTabItem.entries.size else 1 })
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
 
-    with(searchPeopleState) {
-        CollapsingTopBarScaffold(
-            topBarHeader = { elevation ->
-                AnimatedVisibility(
-                    visible = !searchBarState.isSearchActive,
-                    enter = expandVertically(),
-                    exit = shrinkVertically(),
-                ) {
-                    Box(modifier = Modifier.wrapContentSize()) {
-                        WireCenterAlignedTopAppBar(
-                            elevation = elevation,
-                            title = searchTitle,
-                            navigationIconType = NavigationIconType.Close,
-                            onNavigationPressed = onClose
-                        )
-                    }
+    CollapsingTopBarScaffold(
+        topBarHeader = { elevation ->
+            AnimatedVisibility(
+                visible = !searchBarState.isSearchActive,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                Box(modifier = Modifier.wrapContentSize()) {
+                    WireCenterAlignedTopAppBar(
+                        elevation = elevation,
+                        title = searchTitle,
+                        navigationIconType = NavigationIconType.Close,
+                        onNavigationPressed = onClose
+                    )
                 }
-            },
-            topBarCollapsing = {
-                SearchTopBar(
-                    isSearchActive = searchBarState.isSearchActive,
-                    searchBarHint = stringResource(R.string.label_search_people),
-                    searchQuery = searchQuery,
-                    onSearchQueryChanged = onSearchQueryChanged,
-                    onActiveChanged = searchBarState::searchActiveChanged,
+            }
+        },
+        topBarCollapsing = {
+            val query = when (currentTabState) {
+                SearchPeopleTabItem.PEOPLE.ordinal -> searchState.userSearchQuery
+                SearchPeopleTabItem.SERVICES.ordinal -> searchState.serviceSearchQuery
+                else -> error("Unknown tab index $currentTabState")
+            }
+
+            val onQueryChanged: (TextFieldValue) -> Unit = when (currentTabState) {
+                SearchPeopleTabItem.PEOPLE.ordinal -> onUsersSearchQueryChanged
+                SearchPeopleTabItem.SERVICES.ordinal -> onServicesSearchQueryChanged
+                else -> error("Unknown tab index $currentTabState")
+            }
+
+            SearchTopBar(
+                isSearchActive = searchBarState.isSearchActive,
+                searchBarHint = stringResource(R.string.label_search_people),
+                searchQuery = query,
+                onSearchQueryChanged = onQueryChanged,
+                onActiveChanged = searchBarState::searchActiveChanged,
+            ) {
+                if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS
+                    && searchState.isServicesAllowed
                 ) {
-                    if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS
-                        && searchPeopleState.isServicesAllowed
-                    ) {
-                        WireTabRow(
-                            tabs = SearchPeopleTabItem.values().toList(),
-                            selectedTabIndex = currentTabState,
-                            onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                            divider = {} // no divider
-                        )
-                    }
+                    WireTabRow(
+                        tabs = SearchPeopleTabItem.entries,
+                        selectedTabIndex = currentTabState,
+                        onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                        divider = {} // no divider
+                    )
                 }
-            },
-            content = {
-                Crossfade(
-                    targetState = searchBarState.isSearchActive, label = ""
-                ) { isSearchActive ->
-                    var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
-                    val keyboardController = LocalSoftwareKeyboardController.current
-                    val focusManager = LocalFocusManager.current
+            }
+        },
+        content = {
+            Crossfade(
+                targetState = searchBarState.isSearchActive, label = ""
+            ) { isSearchActive ->
+                var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
+                val keyboardController = LocalSoftwareKeyboardController.current
+                val focusManager = LocalFocusManager.current
 
-                    if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS) {
-                        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-                            HorizontalPager(
-                                state = pagerState,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                            ) { pageIndex ->
-                                when (SearchPeopleTabItem.values()[pageIndex]) {
-                                    SearchPeopleTabItem.PEOPLE -> {
-                                        SearchAllPeopleOrContactsScreen(
-                                            isSearchActive = isSearchActive,
-                                            searchQuery = searchQuery.text,
-                                            noneSearchSucceed = noneSearchSucceed,
-                                            searchResult = searchResult,
-                                            contactsAddedToGroup = contactsAddedToGroup,
-                                            onAddContactToGroup = onAddContactToGroup,
-                                            onRemoveContactFromGroup = onRemoveContactFromGroup,
-                                            onOpenUserProfile = onOpenUserProfile,
-                                            onAddContact = onAddContact,
-                                            lazyListState = lazyListStates[pageIndex],
-                                            initialContacts = initialContacts
-                                        )
-                                    }
+                if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS) {
+                    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) { pageIndex ->
+                            when (SearchPeopleTabItem.entries[pageIndex]) {
+                                SearchPeopleTabItem.PEOPLE -> {
+                                    SearchAllPeopleOrContactsScreen(
+                                        searchQuery = userSearchSignal.value,
+                                        contactsAddedToGroup = selectedContacts,
+                                        onOpenUserProfile = onOpenUserProfile,
+                                        onContactChecked = onContactChecked,
+                                        isSearchActive = isSearchActive,
+                                        isLoading = false // TODO: update correctly
+                                    )
+                                }
 
-                                    SearchPeopleTabItem.SERVICES -> SearchAllServicesScreen(
-                                        searchQuery = searchQuery.text,
-                                        searchResult = servicesSearchResult,
-                                        initialServices = servicesInitialContacts,
+                                SearchPeopleTabItem.SERVICES -> {
+                                    SearchAllServicesScreen(
+                                        searchQuery = serviceSearchSignal.value,
                                         onServiceClicked = onServiceClicked,
-                                        lazyListState = lazyListStates[pageIndex]
                                     )
                                 }
                             }
-
-                            LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
-                                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                                    keyboardController?.hide()
-                                    focusManager.clearFocus()
-                                    focusedTabIndex = pagerState.currentPage
-                                }
-                            }
                         }
-                    } else {
-                        SearchAllPeopleOrContactsScreen(
-                            isSearchActive = isSearchActive,
-                            searchQuery = searchQuery.text,
-                            noneSearchSucceed = noneSearchSucceed,
-                            searchResult = searchResult,
-                            contactsAddedToGroup = contactsAddedToGroup,
-                            onAddContactToGroup = onAddContactToGroup,
-                            onRemoveContactFromGroup = onRemoveContactFromGroup,
-                            onOpenUserProfile = onOpenUserProfile,
-                            onAddContact = onAddContact,
-                            initialContacts = initialContacts
-                        )
                     }
+                } else {
+                    SearchAllPeopleOrContactsScreen(
+                        searchQuery = userSearchSignal.value,
+                        contactsAddedToGroup = selectedContacts,
+                        onContactChecked = onContactChecked,
+                        onOpenUserProfile = onOpenUserProfile,
+                        isSearchActive = isSearchActive,
+                        isLoading = false // TODO: update correctly
+                    )
                 }
-                BackHandler(enabled = searchBarState.isSearchActive) {
-                    searchBarState.closeSearch()
-                }
-            },
-            bottomBar = {
-                if (searchPeopleState.isGroupCreationContext) {
-                    SelectParticipantsButtonsAlwaysEnabled(
-                        count = contactsAddedToGroup.size,
+            }
+            BackHandler(enabled = searchBarState.isSearchActive) {
+                searchBarState.closeSearch()
+            }
+        },
+        bottomBar = {
+            if (searchState.isGroupCreationContext) {
+                SelectParticipantsButtonsAlwaysEnabled(
+                    count = selectedContacts.size,
+                    mainButtonText = actionButtonTitle,
+                    onMainButtonClick = onGroupSelectionSubmitAction
+                )
+            } else {
+                if (pagerState.currentPage != SearchPeopleTabItem.SERVICES.ordinal) {
+                    SelectParticipantsButtonsRow(
+                        selectedParticipantsCount = selectedContacts.size,
                         mainButtonText = actionButtonTitle,
                         onMainButtonClick = onGroupSelectionSubmitAction
                     )
-                } else {
-                    if (pagerState.currentPage != SearchPeopleTabItem.SERVICES.ordinal) {
-                        SelectParticipantsButtonsRow(
-                            selectedParticipantsCount = contactsAddedToGroup.size,
-                            mainButtonText = actionButtonTitle,
-                            onMainButtonClick = onGroupSelectionSubmitAction
-                        )
-                    }
                 }
-            },
-            snapOnFling = false,
-            keepElevationWhenCollapsed = true
-        )
-    }
+            }
+        },
+        snapOnFling = false,
+        keepElevationWhenCollapsed = true
+    )
 }
 
 enum class SearchPeopleTabItem(@StringRes override val titleResId: Int) : TabItem {
@@ -234,35 +228,30 @@ enum class SearchPeopleScreenType {
 
 @Composable
 private fun SearchAllPeopleOrContactsScreen(
-    isSearchActive: Boolean,
     searchQuery: String,
-    noneSearchSucceed: Boolean,
-    searchResult: ImmutableMap<SearchResultTitle, ContactSearchResult>,
-    contactsAddedToGroup: ImmutableList<Contact>,
-    onAddContactToGroup: (Contact) -> Unit,
-    onRemoveContactFromGroup: (Contact) -> Unit,
+    contactsAddedToGroup: ImmutableSet<Contact>,
+    isLoading: Boolean,
+    isSearchActive: Boolean,
     onOpenUserProfile: (Contact) -> Unit,
-    onAddContact: (Contact) -> Unit,
-    lazyListState: LazyListState = rememberLazyListState(),
-    initialContacts: SearchResultState
-) = if (isSearchActive) {
+    onContactChecked: (Boolean, Contact) -> Unit,
+    searchUserViewModel: SearchUserViewModel = hiltViewModel(),
+) {
+
+    LaunchedEffect(key1 = searchQuery) {
+        searchUserViewModel.search(searchQuery)
+    }
+
+    val lazyState = rememberLazyListState()
     SearchAllPeopleScreen(
         searchQuery = searchQuery,
-        noneSearchSucceed = noneSearchSucceed,
-        searchResult = searchResult,
+        noneSearchSucceed = searchUserViewModel.state.noneSearchSucceeded,
+        contactsSearchResult = searchUserViewModel.state.contactsResult,
+        publicSearchResult = searchUserViewModel.state.publicResult,
         contactsAddedToGroup = contactsAddedToGroup,
-        onAddToGroup = onAddContactToGroup,
-        onRemoveFromGroup = onRemoveContactFromGroup,
+        onChecked = onContactChecked,
         onOpenUserProfile = onOpenUserProfile,
-        onAddContactClicked = onAddContact,
-        lazyListState = lazyListState
-    )
-} else {
-    SearchContactsScreen(
-        allKnownContactResult = initialContacts,
-        contactsAddedToGroup = contactsAddedToGroup,
-        onAddToGroup = onAddContactToGroup,
-        onRemoveFromGroup = onRemoveContactFromGroup,
-        onOpenUserProfile = onOpenUserProfile
+        lazyListState = lazyState,
+        isSearchActive = isSearchActive,
+        isLoading = isLoading
     )
 }

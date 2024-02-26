@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Wire
-  ~ Copyright (C) 2023 Wire Swiss GmbH
+  ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -15,8 +15,6 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
-  ~
-  ~
   -->
 <resources>
     <string name="app_version">Versione dell\'app</string>
@@ -77,7 +75,7 @@
     <string name="label_value_copied">%s copiato</string>
     <string name="label_disable">Disabilita</string>
     <string name="folder_label_access">Accesso</string>
-    <string name="folder_label_protocol_details">Dettagli protocollo (beta)</string>
+    <string name="folder_label_protocol_details">Protocol details</string>
     <string name="folder_label_messaging">Messaggistica</string>
     <string name="label_user_blocked">Bloccato</string>
     <string name="label_and">e</string>
@@ -403,7 +401,9 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="asset_message_saved_externally_text">Salvato</string>
     <string name="asset_message_failed_download_text">File non disponibile</string>
     <string name="asset_message_failed_upload_text">Caricamento del file non riuscito</string>
-    <string name="asset_download_dialog_text">Vuoi aprire il file o salvarlo nella cartella dei download del tuo dispositivo?</string>
+    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
+        device\'s download folder?
+ </string>
     <string name="asset_download_dialog_open_text">Apri</string>
     <string name="asset_download_dialog_save_text">Salva</string>
     <string name="member_name_deleted_label">Account eliminato</string>
@@ -468,7 +468,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="attachment_take_photo">Scatta Foto</string>
     <string name="attachment_record_video">Registra un video</string>
     <string name="attachment_voice_message">Messaggio vocale</string>
-    <string name="attachment_share_location">Condividi posizione</string>
+    <string name="attachment_share_location">Location</string>
     <!-- User Profile -->
     <string name="user_profile_title">Profilo Utente</string>
     <string name="user_profile_close_description">Chiudi profilo utente</string>
@@ -577,10 +577,13 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_renamed_the_conversation">%1$s ha rinominato la conversazione
 %2$s</string>
     <plurals name="label_system_message_team_member_left">
-        <item quantity="one">%1$s was removed from the team</item>
-        <item quantity="other">%1$s were removed from the team</item>
+        <item quantity="one">%1$s è stato rimosso dal team</item>
+        <item quantity="other">%1$s sono stati rimossi dal team</item>
     </plurals>
     <string name="label_system_message_user_not_available">Questo utente non &#232; pi&#249; disponibile</string>
+    <string name="label_system_message_unsupported_protocol">La conversazione sta utilizzando un protocollo crittografico
+        non supportato da questo dispositivo. Alcuni dispositivi dal coinvolgimento degli utenti potrebbero necessitare dell\'aggiornamento.
+    </string>
     <string name="label_system_message_new_conversation_receipt_mode">Le ricevute di lettura sono %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s ha %2$s le ricevute di lettura per tutti</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s ha %2$s le ricevute di lettura per tutti</string>
@@ -591,12 +594,13 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s ha **disattivato** il timer per l\'autodistruzione dei messaggi per tutti</string>
     <string name="label_system_message_deactivated">disattivato</string>
     <string name="label_system_message_conversation_history_lost">Non hai usato questo dispositivo per un po\'. Alcuni messaggi potrebbero non essere visualizzati qui.</string>
-    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">La chiave del gruppo MLS è stata aggiornata a nostra insaputa. Ciò potrebbe verificarsi a causa di messaggi perduti tra i backend, o di un bug. Ci siamo riuniti automaticamente alla conversazione, ma potresti aver perso dei messaggi.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Non hai aggiornato questo dispositivo per un po\'. Nel mentre, il protocollo standard di messaggistica è cambiato da Proteus a Messaging Layer Security (MLS). A causa di questo cambiamento, alcuni messaggi potrebbero non apparire qui.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Non hai aggiornato la tua app in tempo. Alcuni messaggi potrebbero non apparire qui.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migrazione del protocollo crittografico annullata.</string>
-    <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
+    <string name="label_system_message_conversation_protocol_changed_during_a_call">A causa della migrazione a MLS, potresti riscontrare dei problemi con la tua chiamata corrente. In tal caso, riaggancia e richiama.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migrazione del protocollo crittografico avviata. Assicurati che tutti i tuoi client di Wire siano aggiornati.</string>
-    <string name="label_system_message_conversation_protocol_changed_mls">Migrazione del protocollo crittografico completata. I client di Wire che non sono stati aggiornati smetteranno di ricevere messaggi.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">Ora, questa conversazione utilizza il nuovo protocollo Messaging Layer Security (MLS). Per comunicare senza problemi, utilizza sempre la versione più recente di Wire sui tuoi dispositivi.</string>
+    <string name="label_system_message_learn_more_about_mls_link">https://support.wire.com/hc/en-us/articles/12434725011485-Messaging-Layer-Security-MLS-</string>
     <string name="label_system_message_receipt_mode_on">acceso</string>
     <string name="label_system_message_receipt_mode_off">spento</string>
     <string name="label_system_message_conversation_started_by_self">**Hai** avviato la conversazione</string>
@@ -605,8 +609,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_conversation_failed_add_members_summary">Impossibile aggiungere %1$s **partecipanti** al gruppo.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">Impossibile aggiungere %1$s al gruppo.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">Impossibile aggiungere %1$s al gruppo.</string>
-    <string name="label_system_message_conversation_degraded_mls">Questa conversazione non è più verificata, poiché alcuni utenti utilizzano almeno un dispositivo privo del certificato di identità end-to-end.</string>
-    <string name="label_system_message_conversation_degraded_proteus">Questa conversazione non è più verificata, poiché alcuni utenti utilizzano almeno un dispositivo privo del certificato di identità end-to-end.</string>
+    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
+    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
     <string name="label_system_message_conversation_verified_mls">Tutti i dispositivi sono verificati (identità end-to-end)</string>
     <string name="label_system_message_conversation_verified_proteus">Tutte le impronte digitali sono verificate (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">La comunicazione su Wire è sempre crittografata end-to-end. Tutto ciò che invii e ricevi in questa conversazione è accessibile soltanto a te e agli altri partecipanti del gruppo.\n**Ti preghiamo di prestare comunque attenzione a con chi condividi le informazioni sensibili.**</string>
@@ -631,8 +635,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="other">Hai rimosso %1$d partecipanti dalla conversazione</item>
     </plurals>
     <plurals name="last_message_team_member_removed">
-        <item quantity="one">1 person was removed form the team</item>
-        <item quantity="other">%1$d people were removed from the team</item>
+        <item quantity="one">1 persona è stata rimossa dal team</item>
+        <item quantity="other">%1$d persone sono state rimosse dal team</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">Sei stato rimosso dalla conversazione</string>
     <plurals name="last_message_other_removed_self_user_and_others">
@@ -706,7 +710,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_conversation_media">Multimedia</string>
     <string name="label_conversation_pictures">Immagini</string>
     <string name="label_conversation_files">File</string>
-    <string name="label_conversation_links">Link</string>
+    <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
+    <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTATTI</string>
     <string name="label_new_group">Nuovo Gruppo</string>
@@ -981,13 +986,14 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="max_account_reached_dialog_button_open_profile">Apri il profilo</string>
     <string name="cant_switch_account_in_call">Non puoi cambiare account durante una chiamata</string>
     <string name="custom_backend_dialog_title">Redirect verso un backend on-premises?</string>
-    <string name="custom_backend_dialog_body">Se procedi, il tuo client verr&#224; reindirizzato al seguente backend on-premises:
-
-Nome del backend:
- %1$s 
-
-URL del backend:
- %2$s</string>
+    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
+    <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
+    <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">blackListURL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">teamsURL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">accountsURL:</string>
+    <string name="custom_backend_dialog_body_backend_website">websiteURL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">backendWSURL:</string>
     <string name="label_fetching_your_messages">Ricezione nuovi messaggi in corso</string>
     <string name="label_text_copied">Testo copiato negli appunti</string>
     <string name="label_logs_option_title">Registri</string>
@@ -1228,11 +1234,11 @@ registrato. Sei pregato di riprovare.</string>
     <string name="delete_acount_dialog_title">Elimina il profilo</string>
     <string name="delete_acount_dialog_text">Se continui, invieremo un messaggio via email. Segui il link per eliminare permanentemente il tuo profilo.</string>
     <string name="end_to_end_identity_required_dialog_title">Certificato d\'identità end-to-end</string>
-    <string name="end_to_end_identity_required_dialog_text">Ad oggi, il tuo team utilizza l\'identità end-to-end per rendere l\'utilizzo di Wire più sicuro e praticabile. La verifica del dispositivo si verifica automaticamente utilizzando un certificato e sostituisce il precedente processo manuale. Così, comunichi con lo standard di sicurezza più elevato.\n\nInserisci le credenziali del tuo fornitore d\'identità nel prossimo passaggio per ottenere automaticamente un certificato di convalida per questo dispositivo.</string>
-    <string name="end_to_end_identity_required_dialog_text_no_snooze">Il tuo team, ora, utilizza l\'identità end-to-end per rendere l\'utilizzo di Wire più sicuro. La verifica del dispositivo avviene automaticamente utilizzando un certificato.\n\nInserisci le credenziali del tuo fornitore d\'identità nel prossimo passaggio per ottenere automaticamente un certificato di verifica per questo dispositivo.</string>
+    <string name="end_to_end_identity_required_dialog_text">Ad oggi, il tuo team utilizza l\'identità end-to-end per rendere l\'utilizzo di Wire più sicuro e praticabile.\n\nInserisci le credenziali del tuo fornitore di identità nel prossimo passaggio per ottenere automaticamente un certificato di verifica per questo dispositivo.</string>
+    <string name="end_to_end_identity_required_dialog_text_no_snooze">Ora, il tuo team utilizza l\'identità end-to-end per rendere l\'utilizzo di Wire più sicuro.\n\nInserisci le credenziali del tuo fornitore di identità nel prossimo passaggio, per ottenere automaticamente un certificato di verifica per questo dispositivo.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Ottieni il certificato</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Ricordamelo più tardi</string>
-    <string name="end_to_end_identity_snooze_dialog_text">Puoi ottenere il certificato nelle tue impostazioni di Wire durante il prossiimo %1$s. Apri Dispositivi e seleziona Ottieni certificato per il tuo dispositivo corrente.\nPer continuare a utilizzare Wire senza interruziioni, recuperalo in tempo: non ci vuole molto.</string>
+    <string name="end_to_end_identity_snooze_dialog_text">Puoi ottenere il certificato nelle tue Impostazioni di Wire durante il prossimo %1$s.\nApri Dispositivi e seleziona Ottieni Certificato per il tuo dispositivo corrente. </string>
     <string name="end_to_end_identity_renew_dialog_title">Aggiorna il certificato</string>
     <string name="end_to_end_identity_renew_dialog_text">Il certificato di identità end-to-end per questo dispositivo scadrà presto. Per mantenere sicura la tua comunicazione, aggiornalo ora.\n\nInserisci le credenziali del tuo forntore di identità nel prossimo passaggio per aggiornare il certificato automaticamente.</string>
     <string name="end_to_end_identity_renew_dialog_text_no_snooze">Il certificato di identità end-to-end per questo dispositivo è scaduto.\n\nInserisci le credenziali del fornitore della tua identità nel prossimo passaggio per aggiornare automaticamente il certificato.</string>
@@ -1305,7 +1311,7 @@ registrato. Sei pregato di riprovare.</string>
     <string name="legal_hold_subject_dialog_title">%1$s è soggetto alla sospensione legale</string>
     <string name="legal_hold_subject_dialog_description">Tutti i messaggi, le immagini e i documenti saranno conservati per l\'accesso futuro. Include i messaggi eliminati, modificati e a eliminazione automatica.</string>
     <string name="legal_hold_subject_dialog_description_group">Almeno una persona in questa conversazone è soggetta alla sospensione legale.</string>
-    <string name="legal_hold_subject_dialog_description_message">Do you still want to send your message?</string>
+    <string name="legal_hold_subject_dialog_description_message">Desideri comunque inviare il tuo messaggio?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Invia comunque</string>
     <string name="legal_hold_subject_to">Soggetto a %1$s.</string>
     <string name="legal_hold_label">sospensione legale</string>
@@ -1325,4 +1331,13 @@ registrato. Sei pregato di riprovare.</string>
     <string name="sure_about_calling_in_degraded_dialog_title">Conversazione non più verificata</string>
     <string name="sure_about_calling_in_degraded_dialog_body">Almeno un partecipante ha iniziato a utilizzare un nuovo dispositivo o ha un certificato non valido.\n\nDesideri comunque avviare la chiamata?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">Chiama comunque</string>
+    <!-- Go to app settings permissions dialog -->
+    <string name="app_permission_dialog_title">App permissions</string>
+    <string name="app_permission_dialog_settings_positive_button">Settings</string>
+    <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <!-- Share Location -->
+    <string name="location_attachment_share_title">Share Location</string>
+    <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
+    <string name="location_loading_label">Please wait...</string>
+    <string name="location_could_not_be_shared">Location could not be shared</string>
 </resources>

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ package com.wire.android.ui.home.conversations.model.messagetypes.asset
 import androidx.compose.runtime.Stable
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.message.Message
 import kotlinx.datetime.Instant
 import okio.Path
 
@@ -32,6 +31,5 @@ data class UIAssetMessage(
     val messageId: String,
     val conversationId: QualifiedID,
     val assetPath: Path?,
-    val downloadStatus: Message.DownloadStatus,
     val isSelfAsset: Boolean
 )

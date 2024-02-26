@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversationslist
@@ -35,7 +33,7 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetai
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
-import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
+import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
@@ -48,12 +46,12 @@ import com.wire.android.ui.home.conversationslist.model.SearchQuery
 import com.wire.android.ui.home.conversationslist.model.SearchQueryUpdate
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
-import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.id.ConversationId
@@ -145,7 +143,7 @@ class ConversationListViewModel @Inject constructor(
                 }
             }
         }
-        .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
+        .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
     var establishedCallConversationId: QualifiedID? = null
     private var conversationId: QualifiedID? = null
@@ -208,18 +206,6 @@ class ConversationListViewModel @Inject constructor(
                     conversationListState = it
                 }
         }
-    }
-
-    fun showCallingPermissionDialog() {
-        conversationListCallState = conversationListCallState.copy(
-            shouldShowCallingPermissionDialog = true
-        )
-    }
-
-    fun dismissCallingPermissionDialog() {
-        conversationListCallState = conversationListCallState.copy(
-            shouldShowCallingPermissionDialog = false
-        )
     }
 
     // Mateusz : First iteration, just filter stuff
@@ -535,7 +521,7 @@ class ConversationListViewModel @Inject constructor(
     }
 }
 
-fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
+fun Conversation.LegalHoldStatus.showLegalHoldIndicator() = this == Conversation.LegalHoldStatus.ENABLED
 
 @Suppress("LongMethod")
 private fun ConversationDetails.toConversationItem(
@@ -547,7 +533,7 @@ private fun ConversationDetails.toConversationItem(
             groupName = conversation.name.orEmpty(),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
-            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+            isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parseConversationEventType(
                 conversation.mutedStatus,
@@ -578,7 +564,7 @@ private fun ConversationDetails.toConversationItem(
             ),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
-            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+            isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parsePrivateConversationEventType(
                 otherUser.connectionStatus,
@@ -605,7 +591,8 @@ private fun ConversationDetails.toConversationItem(
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser?.name.orEmpty(),
-                membership = userTypeMapper.toMembership(userType)
+                membership = userTypeMapper.toMembership(userType),
+                isSenderUnavailable = otherUser?.isUnavailableUser ?: true
             ),
             lastMessageContent = UILastMessageContent.Connection(
                 connection.status,

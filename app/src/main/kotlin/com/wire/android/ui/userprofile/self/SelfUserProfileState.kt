@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.userprofile.self
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.ui.userprofile.self.model.OtherAccount
@@ -40,5 +39,6 @@ data class SelfUserProfileState constructor(
     val isAvatarLoading: Boolean = false,
     val maxAccountsReached: Boolean = false, // todo. cleanup unused code
     val isReadOnlyAccount: Boolean = true,
-    val isLoggingOut: Boolean = false
+    val isLoggingOut: Boolean = false,
+    val legalHoldStatus: LegalHoldUIState = LegalHoldUIState.None,
 )

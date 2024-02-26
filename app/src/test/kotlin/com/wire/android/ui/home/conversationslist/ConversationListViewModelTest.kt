@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 @file:Suppress("MaxLineLength", "MaximumLineLength")
 
@@ -310,26 +308,6 @@ class ConversationListViewModelTest {
         conversationListViewModel.joinAnyway(conversationId, onJoined)
 
         coVerify(exactly = 1) { endCall(any()) }
-    }
-
-    @Test
-    fun `given permission dialog default state is false, when calling showPermissionDialog, then update the state to true`() = runTest {
-        conversationListViewModel.conversationListCallState =
-            conversationListViewModel.conversationListCallState.copy(shouldShowCallingPermissionDialog = false)
-
-        conversationListViewModel.showCallingPermissionDialog()
-
-        assertEquals(true, conversationListViewModel.conversationListCallState.shouldShowCallingPermissionDialog)
-    }
-
-    @Test
-    fun `given default permission dialog state, when calling dismissPermissionDialog, then update the state to false`() = runTest {
-        conversationListViewModel.conversationListCallState =
-            conversationListViewModel.conversationListCallState.copy(shouldShowCallingPermissionDialog = true)
-
-        conversationListViewModel.dismissCallingPermissionDialog()
-
-        assertEquals(false, conversationListViewModel.conversationListCallState.shouldShowCallingPermissionDialog)
     }
 
     @Test

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.model
@@ -73,6 +71,7 @@ sealed interface UIMessage {
                 || messageContent is UIMessageContent.ImageMessage
                 || messageContent is UIMessageContent.AudioAssetMessage
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
+        val isLocation: Boolean = messageContent is UIMessageContent.Location
     }
 
     data class System(
@@ -243,8 +242,6 @@ sealed class UIMessageContent {
         val assetExtension: String,
         val assetId: AssetId,
         val assetSizeInBytes: Long,
-        val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular(), PartialDeliverable
 
@@ -253,8 +250,6 @@ sealed class UIMessageContent {
         val asset: ImageAsset.PrivateAsset?,
         val width: Int,
         val height: Int,
-        val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular(), PartialDeliverable
 
@@ -264,8 +259,6 @@ sealed class UIMessageContent {
         val assetExtension: String,
         val assetId: AssetId,
         val audioMessageDurationInMs: Long,
-        val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular(), PartialDeliverable
 
@@ -457,19 +450,26 @@ sealed class UIMessageContent {
 
         class MLSWrongEpochWarning : SystemMessage(
             iconResId = R.drawable.ic_info,
-            stringResId = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled
+            stringResId = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled,
+            learnMoreResId = R.string.label_system_message_learn_more_about_mls_link
         )
 
         data class ConversationProtocolChanged(
             val protocol: Conversation.Protocol
         ) : SystemMessage(
-            R.drawable.ic_info,
-            when (protocol) {
+            iconResId = R.drawable.ic_info,
+            stringResId = when (protocol) {
                 Conversation.Protocol.PROTEUS -> R.string.label_system_message_conversation_protocol_changed_proteus
                 Conversation.Protocol.MIXED -> R.string.label_system_message_conversation_protocol_changed_mixed
                 Conversation.Protocol.MLS -> R.string.label_system_message_conversation_protocol_changed_mls
+            },
+            learnMoreResId = when (protocol) {
+                Conversation.Protocol.PROTEUS -> null
+                Conversation.Protocol.MIXED -> null
+                Conversation.Protocol.MLS -> R.string.label_system_message_learn_more_about_mls_link
             }
         )
+
         data object ConversationProtocolChangedWithCallOngoing : SystemMessage(
             R.drawable.ic_info,
             R.string.label_system_message_conversation_protocol_changed_during_a_call
@@ -519,16 +519,16 @@ sealed class UIMessageContent {
         }
 
         data class ConversationDegraded(val protocol: Conversation.Protocol) : SystemMessage(
-            if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
+            iconResId = if (protocol == Conversation.Protocol.MLS) R.drawable.ic_conversation_degraded_mls
             else R.drawable.ic_shield_holo,
-            if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_degraded_mls
+            stringResId = if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_degraded_mls
             else R.string.label_system_message_conversation_degraded_proteus
         )
 
         data class ConversationVerified(val protocol: Conversation.Protocol) : SystemMessage(
-            if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls
+            iconResId = if (protocol == Conversation.Protocol.MLS) R.drawable.ic_certificate_valid_mls
             else R.drawable.ic_certificate_valid_proteus,
-            if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_verified_mls
+            stringResId = if (protocol == Conversation.Protocol.MLS) R.string.label_system_message_conversation_verified_mls
             else R.string.label_system_message_conversation_verified_proteus
         )
 

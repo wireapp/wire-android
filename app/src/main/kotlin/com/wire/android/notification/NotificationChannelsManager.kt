@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.notification
 
-import android.app.NotificationChannelGroup
 import android.content.ContentResolver
 import android.content.Context
 import android.media.AudioAttributes
@@ -28,9 +25,9 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationChannelGroupCompat
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.appLogger
-import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
@@ -55,7 +52,10 @@ class NotificationChannelsManager @Inject constructor(
         )
     }
 
-    // Creating user-specific NotificationChannels for each user, they will be grouped by User in App Settings.
+    /**
+     *  Creating user-specific NotificationChannels for each user, they will be grouped by User in App Settings.
+     *  And removing the ChannelGroups (with all the channels in it) that are not belongs to any user in a list (user logged out e.x.)
+     */
     fun createUserNotificationChannels(allUsers: List<SelfUser>) {
         appLogger.i("$TAG: creating all the notification channels for ${allUsers.size} users")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
@@ -70,15 +70,23 @@ class NotificationChannelsManager @Inject constructor(
 
         // OngoingCall is not user specific channel, but common for all users.
         createOngoingNotificationChannel()
+
+        deleteRedundantChannelGroups(allUsers)
     }
 
     /**
-     * Deletes NotificationChanelGroup (and all NotificationChannels that belongs to it) for a specific User.
-     * Use it on logout.
+     * Deletes NotificationChanelGroup (and all NotificationChannels that belongs to it)
+     * for the users that are not in [activeUsers] list.
      */
-    fun deleteChannelGroup(userId: UserId) {
-        appLogger.i("$TAG: deleting notification channels for ${userId.toString().obfuscateId()} user")
-        notificationManagerCompat.deleteNotificationChannelGroup(NotificationConstants.getChanelGroupIdForUser(userId))
+    private fun deleteRedundantChannelGroups(activeUsers: List<SelfUser>) {
+        val groupsToKeep = activeUsers.map { NotificationConstants.getChanelGroupIdForUser(it.id) }
+
+        notificationManagerCompat.notificationChannelGroups
+            .filter { group -> groupsToKeep.none { it == group.id } }
+            .forEach { group ->
+                appLogger.i("$TAG: deleting notification channels for ${group.name} group")
+                notificationManagerCompat.deleteNotificationChannelGroup(group.id)
+            }
     }
 
     /**
@@ -87,10 +95,9 @@ class NotificationChannelsManager @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannelGroup(userId: UserId, userName: String): String {
         val chanelGroupId = NotificationConstants.getChanelGroupIdForUser(userId)
-        val channelGroup = NotificationChannelGroup(
-            chanelGroupId,
-            getChanelGroupNameForUser(userName)
-        )
+        val channelGroup = NotificationChannelGroupCompat.Builder(chanelGroupId)
+            .setName(getChanelGroupNameForUser(userName))
+            .build()
         notificationManagerCompat.createNotificationChannelGroup(channelGroup)
         return chanelGroupId
     }

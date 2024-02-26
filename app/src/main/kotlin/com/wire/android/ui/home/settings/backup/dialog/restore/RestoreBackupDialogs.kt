@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.settings.backup.dialog.restore
@@ -48,14 +46,16 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.home.messagecomposer.FileBrowserFlow
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.permission.PermissionDenialType
 import kotlin.math.roundToInt
 
 @Composable
 fun PickRestoreFileDialog(
     onChooseBackupFile: (Uri) -> Unit,
-    onCancelBackupRestore: () -> Unit
+    onCancelBackupRestore: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
-    val fileFlow = FileBrowserFlow(onChooseBackupFile)
+    val fileFlow = FileBrowserFlow(onChooseBackupFile, onPermissionPermanentlyDenied)
 
     WireDialog(
         title = stringResource(R.string.backup_dialog_restore_backup_title),

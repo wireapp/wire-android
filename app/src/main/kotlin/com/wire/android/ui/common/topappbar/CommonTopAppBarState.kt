@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,6 @@
  */
 package com.wire.android.ui.common.topappbar
 
-import com.wire.android.ui.legalhold.banner.LegalHoldUIState
-
 data class CommonTopAppBarState(
     val connectivityState: ConnectivityUIState = ConnectivityUIState.None,
-    val legalHoldState: LegalHoldUIState = LegalHoldUIState.None,
 )

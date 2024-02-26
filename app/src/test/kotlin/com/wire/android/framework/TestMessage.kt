@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.framework
@@ -79,18 +77,14 @@ object TestMessage {
         "name",
         "image/jpg",
         AssetContent.AssetMetadata.Image(100, 100),
-        DUMMY_ASSET_REMOTE_DATA,
-        Message.UploadStatus.NOT_UPLOADED,
-        Message.DownloadStatus.NOT_DOWNLOADED
+        DUMMY_ASSET_REMOTE_DATA
     )
     val GENERIC_ASSET_CONTENT = AssetContent(
         0L,
         "name",
         "application/zip",
         null,
-        DUMMY_ASSET_REMOTE_DATA,
-        Message.UploadStatus.NOT_UPLOADED,
-        Message.DownloadStatus.NOT_DOWNLOADED
+        DUMMY_ASSET_REMOTE_DATA
     )
     val ASSET_MESSAGE = Message.Regular(
         id = "messageID",

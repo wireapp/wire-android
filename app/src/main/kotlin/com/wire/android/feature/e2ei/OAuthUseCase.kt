@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,14 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Base64
-import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import com.wire.android.appLogger
 import com.wire.android.util.deeplink.DeepLinkProcessor
+import com.wire.android.util.findParameterValue
+import com.wire.android.util.removeQueryParams
+import kotlinx.serialization.json.JsonObject
 import net.openid.appauth.AppAuthConfiguration
 import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationException
@@ -36,23 +38,18 @@ import net.openid.appauth.AuthorizationResponse
 import net.openid.appauth.AuthorizationService
 import net.openid.appauth.AuthorizationServiceConfiguration
 import net.openid.appauth.ClientAuthentication
-import net.openid.appauth.ClientSecretBasic
 import net.openid.appauth.ResponseTypeValues
-import net.openid.appauth.browser.BrowserAllowList
-import net.openid.appauth.browser.VersionedBrowserMatcher
-import net.openid.appauth.connectivity.ConnectionBuilder
-import java.net.HttpURLConnection
-import java.net.URL
+import org.json.JSONObject
+import java.net.URI
 import java.security.MessageDigest
 import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import javax.net.ssl.HostnameVerifier
-import javax.net.ssl.HttpsURLConnection
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
 
-class OAuthUseCase(context: Context, private val authUrl: String, oAuthState: String?) {
+class OAuthUseCase(
+    context: Context,
+    private val authUrl: String,
+    private val claims: JsonObject,
+    oAuthState: String?
+) {
     private var authState: AuthState = oAuthState?.let {
         AuthState.jsonDeserialize(it)
     } ?: AuthState()
@@ -60,73 +57,61 @@ class OAuthUseCase(context: Context, private val authUrl: String, oAuthState: St
     private var authorizationService: AuthorizationService
     private lateinit var authServiceConfig: AuthorizationServiceConfiguration
 
-    // todo: this is a temporary code to ignore ssl issues on the test environment, will be removed after the preparation of the environment
-    // region Ignore SSL for OAuth
-    val naiveTrustManager = object : X509TrustManager {
-        override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-        override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) = Unit
-        override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) = Unit
-    }
-    val insecureSocketFactory = SSLContext.getInstance("SSL").apply {
-        val trustAllCerts = arrayOf<TrustManager>(naiveTrustManager)
-        init(null, trustAllCerts, SecureRandom())
-    }.socketFactory
-
-    private var insecureConnection = ConnectionBuilder() { uri ->
-        val url = URL(uri.toString())
-        val connection = url.openConnection() as HttpURLConnection
-        if (connection is HttpsURLConnection) {
-            connection.hostnameVerifier = HostnameVerifier { _, _ -> true }
-            connection.sslSocketFactory = insecureSocketFactory
-        }
-        connection
-    }
-    // endregion
-
     private var appAuthConfiguration: AppAuthConfiguration = AppAuthConfiguration.Builder()
-        .setBrowserMatcher(
-            BrowserAllowList(
-                VersionedBrowserMatcher.CHROME_CUSTOM_TAB, VersionedBrowserMatcher.SAMSUNG_CUSTOM_TAB
-            )
-        )
-        .setConnectionBuilder(insecureConnection)
-        .setSkipIssuerHttpsCheck(true)
         .build()
 
     init {
         authorizationService = AuthorizationService(context, appAuthConfiguration)
     }
 
-    private fun getAuthorizationRequestIntent(): Intent = authorizationService.getAuthorizationRequestIntent(getAuthorizationRequest())
+    private fun getAuthorizationRequestIntent(clientId: String): Intent =
+        authorizationService.getAuthorizationRequestIntent(getAuthorizationRequest(clientId))
 
-    fun launch(activityResultRegistry: ActivityResultRegistry, resultHandler: (OAuthResult) -> Unit) {
+    fun launch(
+        activityResultRegistry: ActivityResultRegistry,
+        resultHandler: (OAuthResult) -> Unit
+    ) {
         authState.performActionWithFreshTokens(authorizationService) { _, idToken, exception ->
             if (exception != null) {
-                Log.e("OAuthTokenRefreshManager", "Error refreshing tokens, continue with login!", exception)
+                appLogger.e(
+                    message = "OAuthTokenRefreshManager: Error refreshing tokens, continue with login!",
+                    throwable = exception
+                )
                 launchLoginFlow(activityResultRegistry, resultHandler)
             } else {
-                resultHandler(OAuthResult.Success(idToken.toString(), authState.jsonSerializeString()))
+                resultHandler(
+                    OAuthResult.Success(
+                        idToken.toString(),
+                        authState.jsonSerializeString()
+                    )
+                )
             }
         }
     }
 
-    private fun launchLoginFlow(activityResultRegistry: ActivityResultRegistry, resultHandler: (OAuthResult) -> Unit) {
+    private fun launchLoginFlow(
+        activityResultRegistry: ActivityResultRegistry,
+        resultHandler: (OAuthResult) -> Unit
+    ) {
         val resultLauncher = activityResultRegistry.register(
             OAUTH_ACTIVITY_RESULT_KEY, ActivityResultContracts.StartActivityForResult()
         ) { result ->
             handleActivityResult(result, resultHandler)
         }
+        val clientId = URI(authUrl).findParameterValue(CLIENT_ID_QUERY_PARAM)
+
         AuthorizationServiceConfiguration.fetchFromUrl(
-            Uri.parse(authUrl.plus(IDP_CONFIGURATION_PATH)),
-            { configuration, ex ->
-                if (ex == null) {
-                    authServiceConfig = configuration!!
-                    resultLauncher.launch(getAuthorizationRequestIntent())
-                } else {
-                    resultHandler(OAuthResult.Failed.InvalidActivityResult("Fetching the configurations failed! $ex"))
+            Uri.parse(URI(authUrl).removeQueryParams().toString().plus(IDP_CONFIGURATION_PATH))
+        ) { configuration, ex ->
+            if (ex == null) {
+                authServiceConfig = configuration!!
+                clientId?.let {
+                    resultLauncher.launch(getAuthorizationRequestIntent(it))
                 }
-            }, insecureConnection
-        )
+            } else {
+                resultHandler(OAuthResult.Failed.InvalidActivityResult("Fetching the configurations failed! $ex"))
+            }
+        }
     }
 
     private fun handleActivityResult(result: ActivityResult, resultHandler: (OAuthResult) -> Unit) {
@@ -139,7 +124,7 @@ class OAuthUseCase(context: Context, private val authUrl: String, oAuthState: St
 
     private fun handleAuthorizationResponse(intent: Intent, resultHandler: (OAuthResult) -> Unit) {
         val authorizationResponse: AuthorizationResponse? = AuthorizationResponse.fromIntent(intent)
-        val clientAuth: ClientAuthentication = ClientSecretBasic(CLIENT_SECRET)
+        val clientAuth: ClientAuthentication = AuthState().clientAuthentication
 
         val error = AuthorizationException.fromIntent(intent)
 
@@ -170,14 +155,15 @@ class OAuthUseCase(context: Context, private val authUrl: String, oAuthState: St
         } ?: resultHandler(OAuthResult.Failed.Unknown)
     }
 
-    private fun getAuthorizationRequest() = AuthorizationRequest.Builder(
-        authServiceConfig, CLIENT_ID, ResponseTypeValues.CODE, URL_AUTH_REDIRECT
+    private fun getAuthorizationRequest(clientId: String) = AuthorizationRequest.Builder(
+        authServiceConfig, clientId, ResponseTypeValues.CODE, URL_AUTH_REDIRECT
     ).setCodeVerifier().setScopes(
         AuthorizationRequest.Scope.OPENID,
         AuthorizationRequest.Scope.EMAIL,
         AuthorizationRequest.Scope.PROFILE,
         AuthorizationRequest.Scope.OFFLINE_ACCESS
-    ).build()
+    ).setClaims(JSONObject(claims.toString()))
+        .build()
 
     private fun AuthorizationRequest.Builder.setCodeVerifier(): AuthorizationRequest.Builder {
         val codeVerifier = getCodeVerifier()
@@ -211,10 +197,7 @@ class OAuthUseCase(context: Context, private val authUrl: String, oAuthState: St
 
     companion object {
         const val OAUTH_ACTIVITY_RESULT_KEY = "OAuthActivityResult"
-
-        // todo: clientId and the clientSecret will be replaced with the values from the BE once the BE provides them
-        const val CLIENT_ID = "wireapp"
-        const val CLIENT_SECRET = "dUpVSGx2dVdFdGQ0dmsxWGhDalQ0SldU"
+        const val CLIENT_ID_QUERY_PARAM = "client_id"
         const val CODE_VERIFIER_CHALLENGE_METHOD = "S256"
         const val MESSAGE_DIGEST_ALGORITHM = "SHA-256"
         val MESSAGE_DIGEST = MessageDigest.getInstance(MESSAGE_DIGEST_ALGORITHM)

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.call
@@ -149,14 +147,6 @@ class ConversationCallViewModel @Inject constructor(
         }
     }
 
-    fun showCallingPermissionDialog() {
-        conversationCallViewState = conversationCallViewState.copy(shouldShowCallingPermissionDialog = true)
-    }
-
-    fun dismissCallingPermissionDialog() {
-        conversationCallViewState = conversationCallViewState.copy(shouldShowCallingPermissionDialog = false)
-    }
-
     private fun showJoinCallAnywayDialog() {
         conversationCallViewState = conversationCallViewState.copy(shouldShowJoinAnywayDialog = true)
     }
@@ -188,7 +178,7 @@ class ConversationCallViewModel @Inject constructor(
     suspend fun isConferenceCallingEnabled(conversationType: Conversation.Type): ConferenceCallingResult =
         isConferenceCallingEnabled.invoke(conversationId, conversationType)
 
-    fun onConversationDegradedDialogShown() {
+    fun onApplyConversationDegradation() {
         viewModelScope.launch {
             setUserInformedAboutVerification.invoke(conversationId)
         }

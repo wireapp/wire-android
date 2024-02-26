@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 @file:Suppress("TooManyFunctions")
@@ -26,6 +24,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.DialogProperties
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -220,8 +219,7 @@ fun CustomBackendDialog(
 ) {
     if (globalAppState.customBackendDialog != null) {
         CustomServerDialog(
-            serverLinksTitle = globalAppState.customBackendDialog.serverLinks.title,
-            serverLinksApi = globalAppState.customBackendDialog.serverLinks.api,
+            serverLinks = globalAppState.customBackendDialog.serverLinks,
             onDismiss = onDismiss,
             onConfirm = onConfirm
         )
@@ -296,6 +294,7 @@ private fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAwa
         title = stringResource(id = title),
         text = text,
         onDismiss = remember { { } },
+        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false),
         optionButton1Properties = WireDialogButtonProperties(
             text = stringResource(R.string.label_ok),
             onClick = navigateAway,

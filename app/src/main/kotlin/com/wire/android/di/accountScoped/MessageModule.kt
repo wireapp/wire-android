@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,13 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.asset.GetAssetMessagesForConversationUseCase
+import com.wire.kalium.logic.feature.asset.GetImageAssetMessagesForConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetMessageByConversationIdUseCase
+import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
+import com.wire.kalium.logic.feature.asset.ObservePaginatedAssetImageMessages
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
-import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
@@ -38,12 +41,15 @@ import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
+import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
+import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessageByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
+import com.wire.kalium.logic.feature.message.observePaginatedImageAssetMessageByConversationId
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.Module
 import dagger.Provides
@@ -90,8 +96,8 @@ class MessageModule {
 
     @ViewModelScoped
     @Provides
-    fun provideUpdateAssetMessageDownloadStatusUseCase(messageScope: MessageScope): UpdateAssetMessageDownloadStatusUseCase =
-        messageScope.updateAssetMessageDownloadStatus
+    fun provideUpdateAssetMessageTransferStatusUseCase(messageScope: MessageScope): UpdateAssetMessageTransferStatusUseCase =
+        messageScope.updateAssetMessageTransferStatus
 
     @ViewModelScoped
     @Provides
@@ -154,8 +160,22 @@ class MessageModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetAssetMessagesUseCase(messageScope: MessageScope): GetAssetMessagesForConversationUseCase =
-        messageScope.getAssetMessagesByConversation
+    fun provideGetImageAssetMessagesByConversationUseCase(messageScope: MessageScope): GetImageAssetMessagesForConversationUseCase =
+        messageScope.getImageAssetMessagesByConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetPaginatedFlowOfAssetMessageByConversationId(
+        messageScope: MessageScope
+    ): GetPaginatedFlowOfAssetMessageByConversationIdUseCase =
+        messageScope.getPaginatedFlowOfAssetMessageByConversationId
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetPaginatedFlowOfImageAssetMessageByConversationId(
+        messageScope: MessageScope
+    ): ObservePaginatedAssetImageMessages =
+        messageScope.observePaginatedImageAssetMessageByConversationId
 
     @ViewModelScoped
     @Provides
@@ -168,4 +188,14 @@ class MessageModule {
     @Provides
     fun provideGetSearchedConversationMessagePositionUseCase(messageScope: MessageScope): GetSearchedConversationMessagePositionUseCase =
         messageScope.getSearchedConversationMessagePosition
+
+    @ViewModelScoped
+    @Provides
+    fun provideSendLocationUseCase(messageScope: MessageScope): SendLocationUseCase =
+        messageScope.sendLocation
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveAssetStatusesUseCase(messageScope: MessageScope): ObserveAssetStatusesUseCase =
+        messageScope.observeAssetStatuses
 }

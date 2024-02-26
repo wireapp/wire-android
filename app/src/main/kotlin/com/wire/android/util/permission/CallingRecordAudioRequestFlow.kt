@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.util.permission
@@ -34,7 +32,7 @@ import com.wire.android.util.extension.getActivity
 fun rememberCallingRecordAudioRequestFlow(
     onAudioPermissionGranted: () -> Unit,
     onAudioPermissionDenied: () -> Unit,
-    onAudioPermissionPermanentlyDenied: () -> Unit,
+    onAudioPermissionPermanentlyDenied: () -> Unit
 ): CallingAudioRequestFlow {
     val context = LocalContext.current
 
@@ -66,10 +64,6 @@ class CallingAudioRequestFlow(
     fun launch() {
         val audioPermissionEnabled =
             context.checkPermission(android.Manifest.permission.RECORD_AUDIO)
-
-        val neededPermissions = mutableListOf(
-            android.Manifest.permission.RECORD_AUDIO
-        )
 
         if (audioPermissionEnabled) {
             permissionGranted()

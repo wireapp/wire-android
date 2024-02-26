@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 private object Dependencies {
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
     const val detektGradlePlugin = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.23.0"
+    const val koverGradlePlugin = "org.jetbrains.kotlinx:kover-gradle-plugin:0.7.5"
     const val junit = "junit:junit:4.13.2"
     const val kluent = "org.amshove.kluent:kluent:1.73"
     const val spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.1.2"
@@ -46,6 +45,7 @@ dependencies {
     implementation("com.android.tools.build:gradle:${klibs.versions.agp.get()}")
     implementation(Dependencies.kotlinGradlePlugin)
     implementation(Dependencies.detektGradlePlugin)
+    implementation(Dependencies.koverGradlePlugin)
     implementation(Dependencies.spotless)
     implementation(Dependencies.junit5)
 

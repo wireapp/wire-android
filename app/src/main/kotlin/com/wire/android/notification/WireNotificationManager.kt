@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.notification
 
+import androidx.annotation.VisibleForTesting
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
@@ -38,7 +37,9 @@ import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -53,6 +54,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -244,9 +246,8 @@ class WireNotificationManager @Inject constructor(
             return
         }
 
-        // start observing notifications only for new users
-        userIds
-            .filter { observingJobs.userJobs[it]?.isAllActive() != true }
+        // start observing notifications only for new users with valid session and without active jobs
+        newUsersWithValidSessionAndWithoutActiveJobs(userIds) { observingJobs.userJobs[it]?.isAllActive() == true }
             .forEach { userId ->
                 val jobs = UserObservingJobs(
                     currentScreenJob = scope.launch(dispatcherProvider.default()) {
@@ -270,6 +271,20 @@ class WireNotificationManager @Inject constructor(
             observingJobs.ongoingCallJob.set(job)
         }
     }
+
+    @VisibleForTesting
+    internal suspend fun newUsersWithValidSessionAndWithoutActiveJobs(
+        userIds: List<UserId>,
+        hasActiveJobs: (UserId) -> Boolean
+    ): List<UserId> = userIds
+        .filter { !hasActiveJobs(it) }
+        .filter {
+            // double check if the valid session for the given user still exists
+            when (val result = coreLogic.getGlobalScope().doesValidSessionExist(it)) {
+                is DoesValidSessionExistResult.Success -> result.doesValidSessionExist
+                else -> false
+            }
+        }
 
     private fun stopObservingForUser(userId: UserId, observingJobs: ObservingJobs) {
         messagesNotificationManager.hideAllNotificationsForUser(userId)
@@ -305,9 +320,17 @@ class WireNotificationManager @Inject constructor(
     ) {
         appLogger.d("$TAG observe incoming calls")
 
-        coreLogic.getSessionScope(userId)
-            .calls
-            .getIncomingCalls()
+        coreLogic.getSessionScope(userId).observeE2EIRequired()
+            .map { it is E2EIRequiredResult.NoGracePeriod }
+            .distinctUntilChanged()
+            .flatMapLatest { isBlockedByE2EIRequired ->
+                if (isBlockedByE2EIRequired) {
+                    appLogger.d("$TAG calls were blocked as E2EI is required")
+                    flowOf(listOf())
+                } else {
+                    coreLogic.getSessionScope(userId).calls.getIncomingCalls()
+                }
+            }
             .collect { calls ->
                 callNotificationManager.handleIncomingCallNotifications(calls, userId)
             }
@@ -331,33 +354,37 @@ class WireNotificationManager @Inject constructor(
             .distinctUntilChanged()
             .stateIn(scope)
 
+        val isBlockedByE2EIRequiredState = coreLogic.getSessionScope(userId).observeE2EIRequired()
+            .map { it is E2EIRequiredResult.NoGracePeriod }
+            .distinctUntilChanged()
+            .stateIn(scope)
+
         coreLogic.getSessionScope(userId)
             .messages
             .getNotifications()
             .cancellable()
-            .map { newNotifications ->
-                // we don't want to display notifications for the Conversation that user currently in.
-                val notificationsList = filterAccordingToScreenAndUpdateNotifyDate(
-                    currentScreenState.value,
-                    userId,
-                    newNotifications
-                )
-
+            .onEach { newNotifications ->
                 playPingSoundIfNeeded(
                     currentScreen = currentScreenState.value,
                     notifications = newNotifications
                 )
-                val userName = selfUserNameState.value
-
-                // combining all the data that is necessary for Notifications into small data class,
-                // just to make it more readable than
-                // Triple<List<LocalNotification>, QualifiedID, String>
-                MessagesNotificationsData(notificationsList, userId, userName)
+            }
+            .map { newNotifications ->
+                // we don't want to display notifications for the Conversation that user currently in.
+                filterAccordingToScreenAndUpdateNotifyDate(
+                    currentScreenState.value,
+                    userId,
+                    newNotifications
+                )
             }
             .cancellable()
-            .collect { (newNotifications, userId, userName) ->
+            .collect { newNotifications ->
                 appLogger.d("$TAG got ${newNotifications.size} notifications")
-                messagesNotificationManager.handleNotification(newNotifications, userId, userName)
+                if (isBlockedByE2EIRequiredState.value) {
+                    appLogger.d("$TAG notifications were skipped as E2EI is required")
+                } else {
+                    messagesNotificationManager.handleNotification(newNotifications, userId, selfUserNameState.value)
+                }
                 markMessagesAsNotified(userId)
                 markConnectionAsNotified(userId)
             }

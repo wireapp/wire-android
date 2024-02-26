@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.TeamScope
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import dagger.Module
@@ -43,8 +43,8 @@ class TeamModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetSelfTeamUseCase(teamScope: TeamScope): GetSelfTeamUseCase =
-        teamScope.getSelfTeamUseCase
+    fun provideGetUpdatedSelfTeamUseCase(teamScope: TeamScope): GetUpdatedSelfTeamUseCase =
+        teamScope.getUpdatedSelfTeamUseCase
 
     @ViewModelScoped
     @Provides

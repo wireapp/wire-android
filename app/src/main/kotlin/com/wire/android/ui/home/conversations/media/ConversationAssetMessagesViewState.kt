@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,18 +14,23 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.media
 
 import androidx.compose.runtime.Stable
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
+import androidx.paging.PagingData
+import com.wire.android.ui.home.conversations.usecase.UIImageAssetPagingItem
+import com.wire.android.ui.home.conversations.usecase.UIPagingItem
+import com.wire.kalium.logic.data.message.MessageAssetStatus
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 @Stable
 data class ConversationAssetMessagesViewState(
-    val messages: ImmutableList<UIAssetMessage> = persistentListOf()
+    val imageMessages: Flow<PagingData<UIImageAssetPagingItem>> = emptyFlow(),
+    val assetMessages: Flow<PagingData<UIPagingItem>> = emptyFlow(),
+    val assetStatuses: PersistentMap<String, MessageAssetStatus> = persistentMapOf()
 )

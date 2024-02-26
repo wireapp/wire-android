@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,14 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.model
 
 import android.net.Uri
-import androidx.core.net.toUri
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -30,6 +27,8 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import okio.Path
+import okio.Path.Companion.toPath
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.BeforeEach
@@ -48,21 +47,21 @@ class ImageAssetTest {
         every { Uri.parse(any()) } returns mockUri
     }
 
-    fun createUserAvatarAsset(userAssetId: UserAssetId) = ImageAsset.UserAvatarAsset(
+    private fun createUserAvatarAsset(userAssetId: UserAssetId) = ImageAsset.UserAvatarAsset(
         imageLoader, userAssetId
     )
 
-    fun createPrivateAsset(
+    private fun createPrivateAsset(
         conversationId: ConversationId,
         messageId: String,
         isSelfAsset: Boolean
     ) = ImageAsset.PrivateAsset(imageLoader, conversationId, messageId, isSelfAsset)
 
-    fun createLocalAsset(
-        dataUri: Uri,
+    private fun createLocalAsset(
+        dataPath: Path,
         imageKey: String
     ): ImageAsset.LocalImageAsset {
-        return ImageAsset.LocalImageAsset(imageLoader, dataUri, imageKey)
+        return ImageAsset.LocalImageAsset(imageLoader, dataPath, imageKey)
     }
 
     @Test
@@ -140,7 +139,7 @@ class ImageAssetTest {
     @Test
     fun givenEqualUriAndKeyLocalAssets_whenGettingUniqueKey_thenResultsShouldBeEqual() {
         val assetKey = "assetKey"
-        val localAssetUri = "local-uri".toUri()
+        val localAssetUri = "local-uri".toPath()
 
         val subject1 = createLocalAsset(
             localAssetUri,
@@ -156,7 +155,7 @@ class ImageAssetTest {
 
     @Test
     fun givenSameUriButDifferentKeyLocalAssets_whenGettingUniqueKey_thenResultsShouldBeDifferent() {
-        val assetUri = "assetUri".toUri()
+        val assetUri = "assetUri".toPath()
         val assetKey = "assetKey"
 
         val baseSubject = createLocalAsset(
@@ -173,8 +172,8 @@ class ImageAssetTest {
 
     @Test
     fun givenSameKeyButDifferentUriLocalAssets_whenGettingUniqueKey_thenResultsShouldBeTheSame() {
-        val assetUri1 = "assetUri1".toUri()
-        val assetUri2 = "assetUri2".toUri()
+        val assetUri1 = "assetUri1".toPath()
+        val assetUri2 = "assetUri2".toPath()
         val assetKey = "assetKey"
 
         val baseSubject = createLocalAsset(

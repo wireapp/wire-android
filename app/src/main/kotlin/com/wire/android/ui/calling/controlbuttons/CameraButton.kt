@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,16 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.calling.controlbuttons
 
-import android.content.Context
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
@@ -33,34 +27,31 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.dimensions
-import com.wire.android.util.extension.checkPermission
+import com.wire.android.util.permission.PermissionDenialType
+import com.wire.android.util.permission.rememberCallingCameraRequestFlow
 
 @Composable
 fun CameraButton(
     modifier: Modifier = Modifier.size(dimensions().defaultCallingControlsSize),
     isCameraOn: Boolean = false,
-    onCameraPermissionDenied: () -> Unit,
-    onCameraButtonClicked: () -> Unit
+    onCameraButtonClicked: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
-    val context = LocalContext.current
-
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            onCameraButtonClicked()
-        } else {
-            onCameraPermissionDenied()
+    val cameraPermissionCheck = CameraPermissionCheckFlow(
+        onPermissionGranted = onCameraButtonClicked,
+        onPermanentPermissionDecline = {
+            onPermissionPermanentlyDenied(
+                PermissionDenialType.CallingCamera
+            )
         }
-    }
+    )
 
     WireCallControlButton(
         isSelected = isCameraOn,
@@ -69,16 +60,15 @@ fun CameraButton(
         Icon(
             modifier = Modifier
                 .wrapContentSize()
-                .clickable(interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(bounded = false, radius = dimensions().defaultCallingControlsSize / 2),
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(
+                        bounded = false,
+                        radius = dimensions().defaultCallingControlsSize / 2
+                    ),
                     role = Role.Button,
-                    onClick = {
-                        verifyCameraPermission(
-                            context = context,
-                            cameraPermissionLauncher = cameraPermissionLauncher,
-                            onCameraButtonClicked = onCameraButtonClicked
-                        )
-                    }),
+                    onClick = cameraPermissionCheck::launch,
+                ),
             painter = painterResource(
                 id = if (isCameraOn) {
                     R.drawable.ic_camera_on
@@ -95,18 +85,21 @@ fun CameraButton(
     }
 }
 
-private fun verifyCameraPermission(
-    context: Context, cameraPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>, onCameraButtonClicked: () -> Unit
-) {
-    if (context.checkPermission(android.Manifest.permission.CAMERA).not()) {
-        cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
-    } else {
-        onCameraButtonClicked()
-    }
-}
+@Composable
+private fun CameraPermissionCheckFlow(
+    onPermissionGranted: () -> Unit,
+    onPermanentPermissionDecline: () -> Unit
+) = rememberCallingCameraRequestFlow(
+    onPermissionGranted = {
+        appLogger.d("Camera permission granted")
+        onPermissionGranted()
+    },
+    onPermissionDenied = { },
+    onPermissionPermanentlyDenied = onPermanentPermissionDecline
+)
 
 @Preview
 @Composable
 fun PreviewComposableCameraButton() {
-    CameraButton(onCameraPermissionDenied = { }, onCameraButtonClicked = { })
+    CameraButton(onCameraButtonClicked = { }, onPermissionPermanentlyDenied = { })
 }

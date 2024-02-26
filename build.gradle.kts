@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 buildscript {
@@ -27,7 +25,13 @@ buildscript {
     }
     dependencies {
         classpath(libs.hilt.gradlePlugin)
-        classpath(libs.googleGms.gradlePlugin)
+        var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
+	    if (fdroidBuild) {
+            println("Not including gms")
+        } else {
+            println("Including gms")
+            classpath(libs.googleGms.gradlePlugin)
+        }
         classpath(libs.aboutLibraries.gradlePlugin)
     }
 }
@@ -46,3 +50,4 @@ plugins {
     id(ScriptPlugins.infrastructure)
     alias(libs.plugins.ksp) apply false // https://github.com/google/dagger/issues/3965
 }
+

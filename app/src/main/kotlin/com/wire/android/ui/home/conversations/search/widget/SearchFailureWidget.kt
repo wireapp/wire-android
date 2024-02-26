@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.home.conversations.search.widget
@@ -30,12 +28,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun SearchFailureBox(@StringRes failureMessage: Int){
+fun SearchFailureBox(@StringRes failureMessage: Int) {
     Box(
         Modifier
             .fillMaxWidth()
@@ -47,4 +46,10 @@ fun SearchFailureBox(@StringRes failureMessage: Int){
             style = MaterialTheme.wireTypography.label04.copy(color = MaterialTheme.wireColorScheme.secondaryText)
         )
     }
+}
+
+@Preview
+@Composable
+fun SearchFailureBoxPreview() {
+    SearchFailureBox(failureMessage = com.wire.android.R.string.label_no_results_found)
 }

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 @file:Suppress("MaxLineLength")
@@ -118,7 +116,7 @@ class LoginEmailViewModelTest {
     private lateinit var authenticationScope: AuthenticationScope
 
     @MockK(relaxed = true)
-    private lateinit var onSuccess: (Boolean) -> Unit
+    private lateinit var onSuccess: (Boolean, Boolean) -> Unit
 
     private lateinit var loginViewModel: LoginEmailViewModel
 
@@ -212,7 +210,7 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
         coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { onSuccess(true) }
+        coVerify(exactly = 1) { onSuccess(true, false) }
     }
 
     @Test
@@ -235,7 +233,7 @@ class LoginEmailViewModelTest {
             advanceUntilIdle()
         coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { onSuccess(false) }
+        coVerify(exactly = 1) { onSuccess(false, false) }
     }
 
     @Test
@@ -442,7 +440,7 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
         coVerify(exactly = 1) { loginUseCase(email, any(), any(), any(), code) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { onSuccess(any()) }
+        coVerify(exactly = 1) { onSuccess(any(), any()) }
     }
 
     @Test

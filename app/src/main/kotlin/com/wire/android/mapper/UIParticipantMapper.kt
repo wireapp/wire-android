@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.mapper
@@ -31,13 +29,18 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import javax.inject.Inject
 
 class UIParticipantMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader
 ) {
-    fun toUIParticipant(user: User): UIParticipant = with(user) {
+    fun toUIParticipant(
+        user: User,
+        mlsCertificateStatus: CertificateStatus? = null,
+        isUnderLegalHold: Boolean = false,
+    ): UIParticipant = with(user) {
         val (userType, connectionState, unavailable) = when (this) {
             is OtherUser -> Triple(this.userType, this.connectionStatus, this.isUnavailableUser)
             // TODO(refactor): does self user need a type ? to false
@@ -57,7 +60,9 @@ class UIParticipantMapper @Inject constructor(
             botService = (user as? OtherUser)?.botService,
             isDefederated = (user is OtherUser && user.defederated),
             isProteusVerified = (user is OtherUser && user.isProteusVerified),
-            supportedProtocolList = supportedProtocols.orEmpty().toList()
+            isMLSVerified = mlsCertificateStatus == CertificateStatus.VALID,
+            supportedProtocolList = supportedProtocols.orEmpty().toList(),
+            isUnderLegalHold = isUnderLegalHold,
         )
     }
 

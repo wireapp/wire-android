@@ -23,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConversationUseCase
 import com.wire.android.ui.navArgs
@@ -51,7 +50,6 @@ class TypingIndicatorViewModel @Inject constructor(
     private fun observeUsersTypingState() {
         viewModelScope.launch {
             observeUsersTypingInConversation(conversationId).collect {
-                appLogger.d("Users typing: $it")
                 usersTypingViewState = usersTypingViewState.copy(usersTyping = it)
             }
         }

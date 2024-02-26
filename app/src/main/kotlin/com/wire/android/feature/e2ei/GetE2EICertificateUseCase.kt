@@ -20,13 +20,13 @@ package com.wire.android.feature.e2ei
 import android.content.Context
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.getActivity
-import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.kalium.logic.functional.left
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -45,20 +45,18 @@ class GetE2EICertificateUseCase @Inject constructor(
 
     operator fun invoke(
         isNewClient: Boolean,
-        enrollmentResultHandler: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit
+        enrollmentResultHandler: (Either<E2EIFailure, E2EIEnrollmentResult>) -> Unit
     ) {
         this.enrollmentResultHandler = enrollmentResultHandler
         scope.launch {
             enrollE2EI.initialEnrollment(isNewClientRegistration = isNewClient).fold({
                 enrollmentResultHandler(Either.Left(it))
             }, {
-                if (it is E2EIEnrollmentResult.Initialized) {
-                    initialEnrollmentResult = it
-                    OAuthUseCase(applicationContext, it.target, it.oAuthClaims, it.oAuthState).launch(
-                        applicationContext.getActivity()!!.activityResultRegistry,
-                        ::oAuthResultHandler
-                    )
-                } else enrollmentResultHandler(Either.Right(it))
+                initialEnrollmentResult = it
+                OAuthUseCase(applicationContext, it.target, it.oAuthClaims, it.oAuthState).launch(
+                    applicationContext.getActivity()!!.activityResultRegistry,
+                    ::oAuthResultHandler
+                )
             })
         }
     }
@@ -77,7 +75,7 @@ class GetE2EICertificateUseCase @Inject constructor(
                 }
 
                 is OAuthUseCase.OAuthResult.Failed -> {
-                    enrollmentResultHandler(Either.Left(E2EIFailure.FailedOAuth(oAuthResult.reason)))
+                    enrollmentResultHandler(E2EIFailure.OAuth(oAuthResult.reason).left())
                 }
             }
         }

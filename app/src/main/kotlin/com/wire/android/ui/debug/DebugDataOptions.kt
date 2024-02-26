@@ -135,7 +135,7 @@ class DebugDataOptionsViewModel
     fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {
         result.fold({
             state = state.copy(
-                certificate = (it as E2EIFailure.FailedOAuth).reason,
+                certificate = (it as E2EIFailure.OAuth).reason,
                 showCertificate = true,
                 startGettingE2EICertificate = false
             )
@@ -143,6 +143,12 @@ class DebugDataOptionsViewModel
             if (it is E2EIEnrollmentResult.Finalized) {
                 state = state.copy(
                     certificate = it.certificate,
+                    showCertificate = true,
+                    startGettingE2EICertificate = false
+                )
+            } else {
+                state.copy(
+                    certificate = it.toString(),
                     showCertificate = true,
                     startGettingE2EICertificate = false
                 )

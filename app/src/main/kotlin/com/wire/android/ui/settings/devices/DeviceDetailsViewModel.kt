@@ -142,7 +142,7 @@ class DeviceDetailsViewModel @Inject constructor(
             if (it is E2EIEnrollmentResult.Finalized) {
                 getE2eiCertificate()
                 state = state.copy(isE2EICertificateEnrollSuccess = true, startGettingE2EICertificate = false)
-            } else if (it is E2EIEnrollmentResult.Failed) {
+            } else {
                 state = state.copy(
                     isLoadingCertificate = false,
                     isE2EICertificateEnrollError = true,

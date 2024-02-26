@@ -898,7 +898,9 @@ fun MessageList(
         if (lazyPagingMessages.itemCount > prevItemCount.value) {
             prevItemCount.value = lazyPagingMessages.itemCount
 
-            if (lazyListState.firstVisibleItemIndex in 1..< MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS) {
+            if (lazyListState.firstVisibleItemIndex > 0
+                && lazyListState.firstVisibleItemIndex <= MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS
+            ) {
                 lazyListState.animateScrollToItem(0)
             }
         }

@@ -591,7 +591,8 @@ private fun ConversationDetails.toConversationItem(
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser?.name.orEmpty(),
-                membership = userTypeMapper.toMembership(userType)
+                membership = userTypeMapper.toMembership(userType),
+                isSenderUnavailable = otherUser?.isUnavailableUser ?: true
             ),
             lastMessageContent = UILastMessageContent.Connection(
                 connection.status,

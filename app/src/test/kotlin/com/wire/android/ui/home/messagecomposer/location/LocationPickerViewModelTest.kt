@@ -64,7 +64,7 @@ class LocationPickerViewModelTest {
 
     private class Arrangement {
 
-        val locationPickerHelper = mockk<LocationPickerHelper>()
+        val locationPickerHelper = mockk<LocationPickerHelperFlavor>()
 
         fun withGetGeoLocationSuccess() = apply {
             coEvery {

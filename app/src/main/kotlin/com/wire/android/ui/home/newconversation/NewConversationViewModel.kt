@@ -36,6 +36,7 @@ import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,13 +49,22 @@ import javax.inject.Inject
 class NewConversationViewModel @Inject constructor(
     private val createGroupConversation: CreateGroupConversationUseCase,
     private val isSelfATeamMember: IsSelfATeamMemberUseCase,
-    isMLSEnabled: IsMLSEnabledUseCase
+    isMLSEnabled: IsMLSEnabledUseCase,
+    getDefaultProtocol: GetDefaultProtocolUseCase
 ) : ViewModel() {
 
     var newGroupState: GroupMetadataState by mutableStateOf(
         GroupMetadataState(
-            mlsEnabled = isMLSEnabled(),
-        )
+            mlsEnabled = isMLSEnabled()
+        ).let {
+            val defaultProtocol = ConversationOptions
+                .Protocol
+                .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
+            it.copy(
+                defaultProtocol = defaultProtocol,
+                groupProtocol = defaultProtocol
+            )
+        }
     )
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())

@@ -99,6 +99,7 @@ fun SystemMessageItem(
     ) {
         selfDeletionTimerState.startDeletionTimer(
             message = message,
+            assetTransferStatus = null,
             onStartMessageSelfDeletion = onSelfDeletingMessageRead
         )
     }

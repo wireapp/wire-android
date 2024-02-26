@@ -53,7 +53,7 @@ class GetE2EICertificateViewModel @Inject constructor(
             when (oAuthResult) {
                 is OAuthUseCase.OAuthResult.Success -> finalizeEnrollment(oAuthResult, initialEnrollmentResult)
 
-                is OAuthUseCase.OAuthResult.Failed -> enrollmentResultFlow.emit(Either.Left(E2EIFailure.FailedOAuth(oAuthResult.reason)))
+                is OAuthUseCase.OAuthResult.Failed -> enrollmentResultFlow.emit(Either.Left(E2EIFailure.OAuth(oAuthResult.reason)))
             }
         }
     }

@@ -25,14 +25,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.GetE2EICertificateUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
@@ -60,8 +58,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val globalDataStore: GlobalDataStore,
     private val disableAppLockUseCase: DisableAppLockUseCase,
-    private val getE2EICertificateUseCaseProvider: GetE2EICertificateUseCaseProvider.Factory,
-    private val dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -323,42 +319,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             }
         })
     }
-
-//    fun getE2EICertificate(e2eiRequired: FeatureFlagState.E2EIRequired) {
-//        featureFlagState = featureFlagState.copy(isE2EILoading = true)
-//        currentUserId?.let { userId ->
-//            getE2EICertificateUseCaseProvider.create(
-//                userId = userId,
-//                dispatcherProvider = dispatcherProvider
-//            )
-//                .useCase
-//                .invoke(
-//                    isNewClient = false
-//                ) { result ->
-//                    result.fold({
-//                        featureFlagState = featureFlagState.copy(
-//                            isE2EILoading = false,
-//                            e2EIRequired = null,
-//                            e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)
-//                        )
-//                    }, {
-//                        if (it is E2EIEnrollmentResult.Finalized) {
-//                            featureFlagState = featureFlagState.copy(
-//                                isE2EILoading = false,
-//                                e2EIRequired = null,
-//                                e2EIResult = FeatureFlagState.E2EIResult.Success(it.certificate)
-//                            )
-//                        } else if (it is E2EIEnrollmentResult.Failed) {
-//                            featureFlagState = featureFlagState.copy(
-//                                isE2EILoading = false,
-//                                e2EIRequired = null,
-//                                e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)
-//                            )
-//                        }
-//                    })
-//                }
-//        }
-//    }
 
     fun snoozeE2EIdRequiredDialog(result: FeatureFlagState.E2EIRequired.WithGracePeriod) {
         featureFlagState = featureFlagState.copy(

@@ -37,7 +37,6 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
-import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
@@ -47,6 +46,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
@@ -55,12 +55,17 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.PreviewMultipleThemes
+<<<<<<< HEAD
+=======
+import com.wire.kalium.logic.CoreFailure
+>>>>>>> 1b35419e5 (fix: release: Enrolling E2EI crash [WPB-6788] (#2728))
 import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
+import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
@@ -81,7 +86,8 @@ data class DebugDataOptionsState(
     val debugId: String = "null",
     val commitish: String = "null",
     val certificate: String = "null",
-    val showCertificate: Boolean = false
+    val showCertificate: Boolean = false,
+    val startGettingE2EICertificate: Boolean = false
 )
 
 @Suppress("LongParameterList")
@@ -95,7 +101,6 @@ class DebugDataOptionsViewModel
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
     private val disableEventProcessingUseCase: DisableEventProcessingUseCase,
-    private val e2eiCertificateUseCase: GetE2EICertificateUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(
@@ -127,9 +132,20 @@ class DebugDataOptionsViewModel
     }
 
     fun enrollE2EICertificate() {
-        e2eiCertificateUseCase(false) { result ->
-            result.fold({
+        state = state.copy(startGettingE2EICertificate = true)
+    }
+
+    fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {
+        result.fold({
+            state = state.copy(
+                certificate = (it as E2EIFailure.OAuth).reason,
+                showCertificate = true,
+                startGettingE2EICertificate = false
+            )
+        }, {
+            if (it is E2EIEnrollmentResult.Finalized) {
                 state = state.copy(
+<<<<<<< HEAD
                     certificate = (it as E2EIFailure.FailedOAuth).reason, showCertificate = true
                 )
             }, {
@@ -140,6 +156,20 @@ class DebugDataOptionsViewModel
                 }
             })
         }
+=======
+                    certificate = it.certificate,
+                    showCertificate = true,
+                    startGettingE2EICertificate = false
+                )
+            } else {
+                state.copy(
+                    certificate = it.toString(),
+                    showCertificate = true,
+                    startGettingE2EICertificate = false
+                )
+            }
+        })
+>>>>>>> 1b35419e5 (fix: release: Enrolling E2EI crash [WPB-6788] (#2728))
     }
 
     fun dismissCertificateDialog() {
@@ -233,6 +263,7 @@ fun DebugDataOptions(
         onManualMigrationPressed = { onManualMigrationPressed(viewModel.currentAccount) },
         onDisableEventProcessingChange = viewModel::disableEventProcessing,
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
+        handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         dismissCertificateDialog = viewModel::dismissCertificateDialog
     )
 }
@@ -250,6 +281,7 @@ fun DebugDataOptionsContent(
     onForceUpdateApiVersions: () -> Unit,
     onManualMigrationPressed: () -> Unit,
     enrollE2EICertificate: () -> Unit,
+    handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
     dismissCertificateDialog: () -> Unit
 ) {
     Column {
@@ -344,6 +376,13 @@ fun DebugDataOptionsContent(
             FolderHeader("Other Debug Options")
             ManualMigrationOptions(
                 onManualMigrationClicked = onManualMigrationPressed
+            )
+        }
+
+        if (state.startGettingE2EICertificate) {
+            GetE2EICertificateUI(
+                enrollmentResultHandler = { handleE2EIEnrollmentResult(it) },
+                isNewClient = false
             )
         }
     }
@@ -600,6 +639,7 @@ fun PreviewOtherDebugOptions() {
         onRestartSlowSyncForRecovery = {},
         onManualMigrationPressed = {},
         enrollE2EICertificate = {},
+        handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
     )
 }

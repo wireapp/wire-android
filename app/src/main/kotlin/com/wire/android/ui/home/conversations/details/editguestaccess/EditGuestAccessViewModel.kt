@@ -48,8 +48,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -82,16 +85,23 @@ class EditGuestAccessViewModel @Inject constructor(
     )
 
     init {
-        updateConversationCode()
         observeConversationDetails()
         startObservingGuestRoomLink()
         observeGuestRoomLinkFeature()
         checkIfUserCanCreatePasswordProtectedLinks()
     }
 
-    private fun updateConversationCode() {
+    private val syncCodeMutex = Mutex()
+
+    private var isGuestCodeUpdated = false
+    private fun updateConversationCodeOnce() {
         viewModelScope.launch {
-            syncConversationCode(conversationId)
+            syncCodeMutex.withLock {
+                if (!isGuestCodeUpdated) {
+                    syncConversationCode(conversationId)
+                    isGuestCodeUpdated = true
+                }
+            }
         }
     }
 
@@ -132,6 +142,8 @@ class EditGuestAccessViewModel @Inject constructor(
                 conversationDetailsFlow,
                 isSelfAdminFlow
             ) { conversationDetails, isSelfAnAdmin ->
+                isSelfAnAdmin to conversationDetails
+            }.collect { (isSelfAnAdmin, conversationDetails) ->
 
                 val isGuestAllowed =
                     conversationDetails.conversation.isGuestAllowed() || conversationDetails.conversation.isNonTeamMemberAllowed()
@@ -141,6 +153,8 @@ class EditGuestAccessViewModel @Inject constructor(
                     isServicesAccessAllowed = conversationDetails.conversation.isServicesAllowed(),
                     isUpdatingGuestAccessAllowed = isSelfAnAdmin
                 )
+
+                if (isGuestAllowed) updateConversationCodeOnce()
             }
         }
     }

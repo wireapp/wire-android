@@ -24,12 +24,16 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.TestConversationDetails
+import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
@@ -44,7 +48,11 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -62,6 +70,7 @@ class EditGuestAccessViewModelTest {
             val (arrangement, editGuestAccessViewModel) = Arrangement()
                 .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success)
                 .arrange()
+            advanceUntilIdle()
 
             // when
             editGuestAccessViewModel.updateGuestAccess(true)
@@ -72,12 +81,13 @@ class EditGuestAccessViewModelTest {
         }
 
     @Test
-    fun `given a failure when running updateConversationAccessRole, when trying to enable guest access, then do not enable guest access`() {
+    fun `given a failure when running updateConversationAccessRole, when trying to enable guest access, then do not enable guest access`() = runTest {
         // given
         val (arrangement, editGuestAccessViewModel) = Arrangement()
             .withUpdateConversationAccessRoleResult(
                 UpdateConversationAccessRoleUseCase.Result.Failure(CoreFailure.MissingClientRegistration)
             ).arrange()
+        advanceUntilIdle()
 
         // when
         editGuestAccessViewModel.updateGuestAccess(true)
@@ -88,10 +98,12 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given guest access is activated, when trying to disable guest access, then display dialog before disabling guest access`() {
+    fun `given guest access is activated, when trying to disable guest access, then display dialog before disabling guest access`() = runTest {
         // given
         val (arrangement, editGuestAccessViewModel) = Arrangement()
-            .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success).arrange()
+            .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success)
+            .arrange()
+        advanceUntilIdle()
 
         // when
         editGuestAccessViewModel.updateGuestAccess(false)
@@ -107,6 +119,7 @@ class EditGuestAccessViewModelTest {
         val (arrangement, editGuestAccessViewModel) = Arrangement()
             .withGenerateGuestRoomResult(GenerateGuestRoomLinkResult.Success)
             .arrange()
+        advanceUntilIdle()
 
         // when
         editGuestAccessViewModel.onRequestGuestRoomLink()
@@ -123,6 +136,7 @@ class EditGuestAccessViewModelTest {
             .withGenerateGuestRoomResult(
                 GenerateGuestRoomLinkResult.Failure(NetworkFailure.NoNetworkConnection(RuntimeException("no network")))
             ).arrange()
+        advanceUntilIdle()
 
         // when
         editGuestAccessViewModel.onRequestGuestRoomLink()
@@ -138,6 +152,7 @@ class EditGuestAccessViewModelTest {
         val (arrangement, editGuestAccessViewModel) = Arrangement()
             .withRevokeGuestRoomLinkResult(RevokeGuestRoomLinkResult.Success)
             .arrange()
+        advanceUntilIdle()
 
         // when
         editGuestAccessViewModel.removeGuestLink()
@@ -153,6 +168,7 @@ class EditGuestAccessViewModelTest {
         val (arrangement, editGuestAccessViewModel) = Arrangement()
             .withRevokeGuestRoomLinkResult(RevokeGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration))
             .arrange()
+        advanceUntilIdle()
 
         // when
         editGuestAccessViewModel.removeGuestLink()
@@ -170,6 +186,7 @@ class EditGuestAccessViewModelTest {
             val (arrangement, editGuestAccessViewModel) = Arrangement()
                 .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success)
                 .arrange()
+            advanceUntilIdle()
 
             // when
             editGuestAccessViewModel.onGuestDialogConfirm()
@@ -188,6 +205,7 @@ class EditGuestAccessViewModelTest {
                     UpdateConversationAccessRoleUseCase.Result.Failure(CoreFailure.MissingClientRegistration)
                 )
                 .arrange()
+            advanceUntilIdle()
 
             // when
             editGuestAccessViewModel.onGuestDialogConfirm()
@@ -196,6 +214,33 @@ class EditGuestAccessViewModelTest {
             coVerify(exactly = 1) { arrangement.updateConversationAccessRole(any(), any(), any()) }
             assertEquals(true, editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed)
         }
+
+    @Test
+    fun `given conversation guest is enabled, when init, then sync conversation code`() = runTest {
+
+        val conversationDetailsResult = flowOf(
+            TestConversationDetails.GROUP.let {
+                it.copy(conversation = it.conversation.copy(accessRole = listOf(Conversation.AccessRole.GUEST, Conversation.AccessRole.NON_TEAM_MEMBER), name = "test")).let {
+                        ObserveConversationDetailsUseCase.Result.Success(it)
+                    }
+            }
+        )
+
+        val conversationMember = flow {
+            emit(ConversationParticipantsData(isSelfAnAdmin = true))
+        }
+        // given
+        val (arrangement, _) = Arrangement()
+            .withConversationDetails(conversationDetailsResult)
+            .withConversationMembers(conversationMember)
+            .withSyncConversationCodeSuccess()
+            .arrange()
+
+        advanceUntilIdle()
+
+        // then
+        coVerify(exactly = 1) { arrangement.syncConversationCodeUseCase(any()) }
+    }
 
     private class Arrangement {
         @MockK
@@ -228,6 +273,9 @@ class EditGuestAccessViewModelTest {
         @MockK
         lateinit var canCreatePasswordProtectedLinks: CanCreatePasswordProtectedLinksUseCase
 
+        @MockK
+        lateinit var syncConversationCodeUseCase: SyncConversationCodeUseCase
+
         val editGuestAccessViewModel: EditGuestAccessViewModel by lazy {
             EditGuestAccessViewModel(
                 savedStateHandle = savedStateHandle,
@@ -239,7 +287,8 @@ class EditGuestAccessViewModelTest {
                 revokeGuestRoomLink = revokeGuestRoomLink,
                 observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag,
                 canCreatePasswordProtectedLinks = canCreatePasswordProtectedLinks,
-                dispatcher = TestDispatcherProvider()
+                dispatcher = TestDispatcherProvider(),
+                syncConversationCode = syncConversationCodeUseCase
             )
         }
 
@@ -258,6 +307,18 @@ class EditGuestAccessViewModelTest {
             coEvery { observeGuestRoomLink(any()) } returns flowOf()
             coEvery { observeGuestRoomLinkFeatureFlag() } returns flowOf()
             coEvery { canCreatePasswordProtectedLinks() } returns true
+        }
+
+        fun withSyncConversationCodeSuccess() = apply {
+            coEvery { syncConversationCodeUseCase.invoke(any()) }
+        }
+
+        fun withConversationMembers(result: Flow<ConversationParticipantsData>) = apply {
+            coEvery { observeConversationMembers(any()) } returns result
+        }
+
+        fun withConversationDetails(result: Flow<ObserveConversationDetailsUseCase.Result>) = apply {
+            coEvery { observeConversationDetails(any()) } returns result
         }
 
         fun withRevokeGuestRoomLinkResult(result: RevokeGuestRoomLinkResult) = apply {

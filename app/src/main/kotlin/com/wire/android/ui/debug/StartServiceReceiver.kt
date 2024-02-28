@@ -23,15 +23,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.wire.android.appLogger
-import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.ShouldStartPersistentWebSocketServiceUseCase
 import com.wire.android.services.PersistentWebSocketService
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,8 +41,7 @@ class StartServiceReceiver : BroadcastReceiver() {
     lateinit var dispatcherProvider: DispatcherProvider
 
     @Inject
-    @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
+    lateinit var shouldStartPersistentWebSocketServiceUseCase: ShouldStartPersistentWebSocketServiceUseCase
 
     private val scope by lazy {
         CoroutineScope(SupervisorJob() + dispatcherProvider.io())
@@ -55,15 +51,13 @@ class StartServiceReceiver : BroadcastReceiver() {
         val persistentWebSocketServiceIntent = PersistentWebSocketService.newIntent(context)
         appLogger.i("$TAG: onReceive called with action ${intent?.action}")
         scope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
-                when (result) {
-                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
+            shouldStartPersistentWebSocketServiceUseCase().let {
+                when (it) {
+                    is ShouldStartPersistentWebSocketServiceUseCase.Result.Failure -> {
                         appLogger.e("$TAG: Failure while fetching persistent web socket status flow")
                     }
-
-                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        val statusList = result.persistentWebSocketStatusListFlow.firstOrNull()
-                        if (statusList != null && statusList.map { it.isPersistentWebSocketEnabled }.contains(true)) {
+                    is ShouldStartPersistentWebSocketServiceUseCase.Result.Success -> {
+                        if (it.shouldStartPersistentWebSocketService) {
                             if (!PersistentWebSocketService.isServiceStarted) {
                                 appLogger.i("$TAG: PersistentWebsocketService already started, not starting again")
                             } else {

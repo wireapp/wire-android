@@ -20,7 +20,6 @@ package com.wire.android.ui.home.conversations.model.messagetypes.asset
 import androidx.compose.runtime.Stable
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.message.Message
 import kotlinx.datetime.Instant
 import okio.Path
 
@@ -32,6 +31,5 @@ data class UIAssetMessage(
     val messageId: String,
     val conversationId: QualifiedID,
     val assetPath: Path?,
-    val downloadStatus: Message.DownloadStatus,
     val isSelfAsset: Boolean
 )

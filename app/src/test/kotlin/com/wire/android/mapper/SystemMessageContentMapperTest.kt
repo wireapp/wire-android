@@ -140,71 +140,57 @@ class SystemMessageContentMapperTest {
         val contentRemoved = MessageContent.MemberChange.Removed(listOf(userId2))
         val contentAdded = MessageContent.MemberChange.Added(listOf(userId2, userId3))
         val contentAddedSelf = MessageContent.MemberChange.Added(listOf(userId1))
-        val contentFederationRemoved = MessageContent.MemberChange.FederationRemoved(listOf(userId1, userId2))
-
-        val member1 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId1))
-        val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
-        val member3 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId3))
-
-        val resultContentLeft = mapper.mapMemberChangeMessage(contentLeft, userId1, listOf(member1.user))
-        val resultContentRemoved = mapper.mapMemberChangeMessage(contentRemoved, userId1, listOf(member1.user, member2.user))
-        val resultContentAdded = mapper.mapMemberChangeMessage(contentAdded, userId1, listOf(member1.user, member2.user, member3.user))
-        val resultContentAddedSelf = mapper.mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1.user))
-        val resultContentFederationRemoved = mapper.mapMemberChangeMessage(
-            contentFederationRemoved,
-            userId1,
-            listOf(member1.user, member2.user)
+        val contentFederationRemoved = MessageContent.MemberChange.FederationRemoved(listOf(userId2, userId3))
+        val contentCreationAdded = MessageContent.MemberChange.CreationAdded(listOf(userId2, userId3))
+        val contentFailedToAdd = MessageContent.MemberChange.FailedToAdd(
+            listOf(userId2, userId3), MessageContent.MemberChange.FailedToAdd.Type.Unknown
         )
 
-        assertTrue(
-            resultContentLeft is SystemMessage.MemberLeft &&
-                    resultContentLeft.author.asString(arrangement.resources) == member1.name
-        )
-        assertTrue(
-            resultContentRemoved is SystemMessage.MemberRemoved &&
-                    resultContentRemoved.author.asString(arrangement.resources) == member1.name &&
-                    resultContentRemoved.memberNames.size == 1 &&
-                    resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.name
+        val member1 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId1, name = "member1"))
+        val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2, name = "member2"))
+        val member3 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId3, name = "member3"))
+        val members = listOf(member1.user, member2.user, member3.user)
 
-        )
-        assertTrue(
-            resultContentAdded is SystemMessage.MemberAdded &&
-                    resultContentAdded.author.asString(arrangement.resources) == member1.name &&
-                    resultContentAdded.memberNames.size == 2 &&
-                    resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.name &&
-                    resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.name
-        )
-        assertTrue(
-            resultContentAddedSelf is SystemMessage.MemberJoined &&
-                    resultContentAddedSelf.author.asString(arrangement.resources) == member1.name
-        )
+        val resultContentLeft = mapper.mapMemberChangeMessage(contentLeft, userId1, members)
+        val resultContentRemoved = mapper.mapMemberChangeMessage(contentRemoved, userId1, members)
+        val resultContentAdded = mapper.mapMemberChangeMessage(contentAdded, userId1, members)
+        val resultContentAddedSelf = mapper.mapMemberChangeMessage(contentAddedSelf, userId1, members)
+        val resultContentFederationRemoved = mapper.mapMemberChangeMessage(contentFederationRemoved, userId1, members)
+        val resultContentCreationAdded = mapper.mapMemberChangeMessage(contentCreationAdded, userId1, members)
+        val resultContentFailedToAdd = mapper.mapMemberChangeMessage(contentFailedToAdd, userId1, members)
 
-        assertTrue(
-            resultContentFederationRemoved is SystemMessage.FederationMemberRemoved &&
-                    resultContentFederationRemoved.memberNames.size == 2 &&
-                    resultContentFederationRemoved.memberNames[0].asString(arrangement.resources) == member1.name
-        )
-
-        val resultStartedWith =
-            mapper.mapMemberChangeMessage(
-                MessageContent.MemberChange.CreationAdded(listOf(userId1, userId2)),
-                userId1,
-                listOf(member1.user, member2.user)
-            )
-
-        val resultStartedWithFailed =
-            mapper.mapMemberChangeMessage(
-                MessageContent.MemberChange.FailedToAdd(listOf(userId1, userId2)),
-                userId1,
-                listOf(member1.user, member2.user)
-            )
-
-        assertTrue(
-            resultStartedWith is SystemMessage.ConversationStartedWithMembers &&
-                    resultStartedWith.memberNames.size == 2 &&
-                    resultStartedWith.memberNames[0].asString(arrangement.resources) == member2.name &&
-                    resultStartedWith.memberNames[1].asString(arrangement.resources) == member3.name
-        )
+        assertInstanceOf(SystemMessage.MemberLeft::class.java, resultContentLeft).also {
+            assertEquals(it.author.asString(arrangement.resources), member1.name)
+        }
+        assertInstanceOf(SystemMessage.MemberRemoved::class.java, resultContentRemoved).also {
+            assertEquals(it.author.asString(arrangement.resources), member1.name)
+            assertEquals(it.memberNames.size, 1)
+            assertEquals(it.memberNames[0].asString(arrangement.resources), member2.name)
+        }
+        assertInstanceOf(SystemMessage.MemberAdded::class.java, resultContentAdded).also {
+            assertEquals(it.author.asString(arrangement.resources), member1.name)
+            assertEquals(it.memberNames.size, 2)
+            assertEquals(it.memberNames[0].asString(arrangement.resources), member2.name)
+            assertEquals(it.memberNames[1].asString(arrangement.resources), member3.name)
+        }
+        assertInstanceOf(SystemMessage.MemberJoined::class.java, resultContentAddedSelf).also {
+            assertEquals(it.author.asString(arrangement.resources), member1.name)
+        }
+        assertInstanceOf(SystemMessage.FederationMemberRemoved::class.java, resultContentFederationRemoved).also {
+            assertEquals(it.memberNames.size, 2)
+            assertEquals(it.memberNames[0].asString(arrangement.resources), member2.name)
+            assertEquals(it.memberNames[1].asString(arrangement.resources), member3.name)
+        }
+        assertInstanceOf(SystemMessage.ConversationStartedWithMembers::class.java, resultContentCreationAdded).also {
+            assertEquals(it.memberNames.size, 2)
+            assertEquals(it.memberNames[0].asString(arrangement.resources), member2.name)
+            assertEquals(it.memberNames[1].asString(arrangement.resources), member3.name)
+        }
+        assertInstanceOf(SystemMessage.MemberFailedToAdd::class.java, resultContentFailedToAdd).also {
+            assertEquals(it.memberNames.size, 2)
+            assertEquals(it.memberNames[0].asString(arrangement.resources), member2.name)
+            assertEquals(it.memberNames[1].asString(arrangement.resources), member3.name)
+        }
     }
 
     @Test

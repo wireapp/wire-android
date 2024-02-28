@@ -35,6 +35,7 @@ import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDesti
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.Destination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
+import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.IncomingCallScreenDestination
@@ -216,6 +217,7 @@ sealed class CurrentScreen {
                 is MigrationScreenDestination,
                 is InitialSyncScreenDestination,
                 is E2EIEnrollmentScreenDestination,
+                is E2eiCertificateDetailsScreenDestination,
                 is RegisterDeviceScreenDestination,
                 is RemoveDeviceScreenDestination -> AuthRelated
 

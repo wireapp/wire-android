@@ -23,11 +23,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.wire.android.appLogger
-import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.ShouldStartPersistentWebSocketServiceUseCase
 import com.wire.android.services.PersistentWebSocketService
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -43,8 +41,7 @@ class StartServiceReceiver : BroadcastReceiver() {
     lateinit var dispatcherProvider: DispatcherProvider
 
     @Inject
-    @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
+    lateinit var shouldStartPersistentWebSocketServiceUseCase: ShouldStartPersistentWebSocketServiceUseCase
 
     private val scope by lazy {
         CoroutineScope(SupervisorJob() + dispatcherProvider.io())
@@ -52,32 +49,36 @@ class StartServiceReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val persistentWebSocketServiceIntent = PersistentWebSocketService.newIntent(context)
-        appLogger.e("persistent web socket receiver")
+        appLogger.i("$TAG: onReceive called with action ${intent?.action}")
         scope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
-                when (result) {
-                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
-                        appLogger.e("Failure while fetching persistent web socket status flow from StartServiceReceiver")
+            shouldStartPersistentWebSocketServiceUseCase().let {
+                when (it) {
+                    is ShouldStartPersistentWebSocketServiceUseCase.Result.Failure -> {
+                        appLogger.e("$TAG: Failure while fetching persistent web socket status flow")
                     }
-
-                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        result.persistentWebSocketStatusListFlow.collect { status ->
-                            if (status.map { it.isPersistentWebSocketEnabled }.contains(true)) {
-                                appLogger.e("Starting PersistentWebsocket Service from StartServiceReceiver")
-                                if (!PersistentWebSocketService.isServiceStarted) {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                        context?.startForegroundService(persistentWebSocketServiceIntent)
-                                    } else {
-                                        context?.startService(persistentWebSocketServiceIntent)
-                                    }
-                                }
+                    is ShouldStartPersistentWebSocketServiceUseCase.Result.Success -> {
+                        if (it.shouldStartPersistentWebSocketService) {
+                            if (PersistentWebSocketService.isServiceStarted) {
+                                appLogger.i("$TAG: PersistentWebsocketService already started, not starting again")
                             } else {
-                                context?.stopService(persistentWebSocketServiceIntent)
+                                appLogger.i("$TAG: Starting PersistentWebsocketService")
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    context?.startForegroundService(persistentWebSocketServiceIntent)
+                                } else {
+                                    context?.startService(persistentWebSocketServiceIntent)
+                                }
                             }
+                        } else {
+                            appLogger.i("$TAG: Stopping PersistentWebsocketService, no user with persistent web socket enabled found")
+                            context?.stopService(persistentWebSocketServiceIntent)
                         }
                     }
                 }
             }
         }
+    }
+
+    companion object {
+        const val TAG = "StartServiceReceiver"
     }
 }

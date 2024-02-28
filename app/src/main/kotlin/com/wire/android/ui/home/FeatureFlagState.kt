@@ -37,7 +37,8 @@ data class FeatureFlagState(
     val e2EISnoozeInfo: E2EISnooze? = null,
     val e2EIResult: E2EIResult? = null,
     val isE2EILoading: Boolean = false,
-    val showCallEndedBecauseOfConversationDegraded: Boolean = false
+    val showCallEndedBecauseOfConversationDegraded: Boolean = false,
+    val startGettingE2EICertificate: Boolean = false
 ) {
     enum class SharingRestrictedState {
         NONE, NO_USER, RESTRICTED_IN_TEAM

@@ -73,6 +73,8 @@ fun DeviceItem(
     device: Device,
     placeholder: Boolean,
     shouldShowVerifyLabel: Boolean,
+    isCurrentClient: Boolean = false,
+    shouldShowE2EIInfo: Boolean = false,
     background: Color? = null,
     icon: @Composable (() -> Unit),
     isWholeItemClickable: Boolean = false,
@@ -85,7 +87,9 @@ fun DeviceItem(
         icon = icon,
         onClickAction = onClickAction,
         isWholeItemClickable = isWholeItemClickable,
-        shouldShowVerifyLabel = shouldShowVerifyLabel
+        shouldShowVerifyLabel = shouldShowVerifyLabel,
+        isCurrentClient = isCurrentClient,
+        shouldShowE2EIInfo = shouldShowE2EIInfo
     )
 }
 
@@ -97,7 +101,9 @@ private fun DeviceItemContent(
     icon: @Composable (() -> Unit),
     onClickAction: ((Device) -> Unit)?,
     isWholeItemClickable: Boolean,
-    shouldShowVerifyLabel: Boolean
+    shouldShowVerifyLabel: Boolean,
+    isCurrentClient: Boolean,
+    shouldShowE2EIInfo: Boolean
 ) {
     Row(
         verticalAlignment = Alignment.Top,
@@ -123,7 +129,7 @@ private fun DeviceItemContent(
                 modifier = Modifier
                     .padding(start = MaterialTheme.wireDimensions.removeDeviceItemPadding)
                     .weight(1f)
-            ) { DeviceItemTexts(device, placeholder, shouldShowVerifyLabel) }
+            ) { DeviceItemTexts(device, placeholder, shouldShowVerifyLabel, isCurrentClient, shouldShowE2EIInfo) }
         }
         if (!placeholder) {
             if (onClickAction != null && !isWholeItemClickable) {
@@ -154,6 +160,8 @@ private fun DeviceItemTexts(
     device: Device,
     placeholder: Boolean,
     shouldShowVerifyLabel: Boolean,
+    isCurrentClient: Boolean = false,
+    shouldShowE2EIInfo: Boolean = false,
     isDebug: Boolean = BuildConfig.DEBUG
 ) {
     val displayZombieIndicator = remember {
@@ -173,10 +181,12 @@ private fun DeviceItemTexts(
                 .wrapContentWidth()
                 .shimmerPlaceholder(visible = placeholder)
         )
-        MLSVerificationIcon(device.e2eiCertificateStatus)
         if (shouldShowVerifyLabel) {
+            if (shouldShowE2EIInfo) {
+                MLSVerificationIcon(device.e2eiCertificateStatus)
+            }
             Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing8x))
-            if (device.isVerifiedProteus) ProteusVerifiedIcon(
+            if (device.isVerifiedProteus && !isCurrentClient) ProteusVerifiedIcon(
                 Modifier
                     .wrapContentWidth()
                     .align(Alignment.CenterVertically))
@@ -251,6 +261,8 @@ fun PreviewDeviceItemWithActionIcon() {
             device = Device(name = UIText.DynamicString("name"), isVerifiedProteus = true),
             placeholder = false,
             shouldShowVerifyLabel = true,
+            isCurrentClient = true,
+            shouldShowE2EIInfo = true,
             background = null,
             { Icon(painter = painterResource(id = R.drawable.ic_remove), contentDescription = "") }
         ) {}

@@ -263,6 +263,16 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideGetDefaultProtocol(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).getDefaultProtocol
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsE2EIEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).isE2EIEnabled
+
+    @ViewModelScoped
+    @Provides
     fun provideIsFileSharingEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).isFileSharingEnabled
 

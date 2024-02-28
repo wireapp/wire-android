@@ -31,6 +31,7 @@ import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -43,10 +44,11 @@ class SelfDevicesViewModel @Inject constructor(
     private val observeClientList: ObserveClientsByUserIdUseCase,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     private val getUserE2eiCertificates: GetUserE2eiCertificatesUseCase,
+    isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : ViewModel() {
 
     var state: SelfDevicesState by mutableStateOf(
-        SelfDevicesState(deviceList = listOf(), isLoadingClientsList = true, currentDevice = null)
+        SelfDevicesState(deviceList = listOf(), isLoadingClientsList = true, currentDevice = null, isE2EIEnabled = isE2EIEnabledUseCase())
     )
         private set
 

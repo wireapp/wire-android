@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.settings.devices
 
-import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -75,6 +74,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
+import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EIErrorWithDismissDialog
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
@@ -88,7 +88,10 @@ import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.functional.Either
 
 @RootNavGraph
 @Destination(
@@ -110,7 +113,8 @@ fun DeviceDetailsScreen(
             onErrorDialogDismiss = viewModel::clearDeleteClientError,
             onNavigateBack = navigator::navigateBack,
             onUpdateClientVerification = viewModel::onUpdateVerificationStatus,
-            enrollE2eiCertificate = viewModel::enrollE2eiCertificate,
+            enrollE2eiCertificate = viewModel::enrollE2EICertificate,
+            handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
             onNavigateToE2eiCertificateDetailsScreen = {
                 navigator.navigate(
                     NavigationCommand(E2eiCertificateDetailsScreenDestination(it))
@@ -132,14 +136,15 @@ fun DeviceDetailsContent(
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
     onErrorDialogDismiss: () -> Unit = {},
-    enrollE2eiCertificate: (Context) -> Unit = {},
+    enrollE2eiCertificate: () -> Unit = {},
+    handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
     onUpdateClientVerification: (Boolean) -> Unit = {},
     onEnrollE2EIErrorDismiss: () -> Unit = {},
     onEnrollE2EISuccessDismiss: () -> Unit = {}
 ) {
     val screenState = rememberConversationScreenState()
     WireScaffold(
-        topBar = { DeviceDetailsTopBar(onNavigateBack, state.device, state.isCurrentDevice) },
+        topBar = { DeviceDetailsTopBar(onNavigateBack, state.device, state.isCurrentDevice, state.isE2EIEnabled) },
         bottomBar = {
             Column(
                 Modifier
@@ -173,7 +178,6 @@ fun DeviceDetailsContent(
             }
         }
     ) { internalPadding ->
-        val context = LocalContext.current
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -187,17 +191,19 @@ fun DeviceDetailsContent(
                     Divider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
-            item {
-                EndToEndIdentityCertificateItem(
-                    isE2eiCertificateActivated = state.isE2eiCertificateActivated,
-                    certificate = state.e2eiCertificate,
-                    isCurrentDevice = state.isCurrentDevice,
-                    isLoadingCertificate = state.isLoadingCertificate,
-                    enrollE2eiCertificate = { enrollE2eiCertificate(context) },
-                    updateE2eiCertificate = {},
-                    showCertificate = onNavigateToE2eiCertificateDetailsScreen
-                )
-                Divider(color = colorsScheme().background)
+
+            if (state.isE2EIEnabled) {
+                item {
+                    EndToEndIdentityCertificateItem(
+                        isE2eiCertificateActivated = state.isE2eiCertificateActivated,
+                        certificate = state.e2eiCertificate,
+                        isCurrentDevice = state.isCurrentDevice,
+                        isLoadingCertificate = state.isLoadingCertificate,
+                        enrollE2eiCertificate = { enrollE2eiCertificate() },
+                        showCertificate = onNavigateToE2eiCertificateDetailsScreen
+                    )
+                    Divider(color = colorsScheme().background)
+                }
             }
             item {
                 FolderHeader(
@@ -275,7 +281,7 @@ fun DeviceDetailsContent(
         if (state.isE2EICertificateEnrollError) {
             E2EIErrorWithDismissDialog(
                 isE2EILoading = state.isLoadingCertificate,
-                updateCertificate = { enrollE2eiCertificate(context) },
+                updateCertificate = { enrollE2eiCertificate() },
                 onDismiss = onEnrollE2EIErrorDismiss
             )
         }
@@ -286,6 +292,13 @@ fun DeviceDetailsContent(
                 dismissDialog = onEnrollE2EISuccessDismiss
             )
         }
+
+        if (state.startGettingE2EICertificate) {
+            GetE2EICertificateUI(
+                enrollmentResultHandler = { handleE2EIEnrollmentResult(it) },
+                isNewClient = false
+            )
+        }
     }
 }
 
@@ -293,7 +306,8 @@ fun DeviceDetailsContent(
 private fun DeviceDetailsTopBar(
     onNavigateBack: () -> Unit,
     device: Device,
-    isCurrentDevice: Boolean
+    isCurrentDevice: Boolean,
+    shouldShowE2EIInfo: Boolean
 ) {
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,
@@ -306,7 +320,9 @@ private fun DeviceDetailsTopBar(
                     maxLines = 2
                 )
 
-                MLSVerificationIcon(device.e2eiCertificateStatus)
+                if (shouldShowE2EIInfo) {
+                    MLSVerificationIcon(device.e2eiCertificateStatus)
+                }
 
                 if (!isCurrentDevice && device.isVerifiedProteus) {
                     ProteusVerifiedIcon(Modifier.align(Alignment.CenterVertically))
@@ -566,6 +582,7 @@ fun PreviewDeviceDetailsScreen() {
         ),
         onPasswordChange = { },
         enrollE2eiCertificate = { },
+        handleE2EIEnrollmentResult = {},
         onRemoveConfirm = { },
         onDialogDismiss = { },
         onErrorDialogDismiss = { }

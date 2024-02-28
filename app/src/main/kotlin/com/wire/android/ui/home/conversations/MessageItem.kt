@@ -87,6 +87,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.PersistentMap
 
 // TODO: a definite candidate for a refactor and cleanup
 @Suppress("ComplexMethod")
@@ -98,7 +99,7 @@ fun MessageItem(
     searchQuery: String = "",
     showAuthor: Boolean = true,
     useSmallBottomPadding: Boolean = false,
-    audioMessagesState: Map<String, AudioState>,
+    audioMessagesState: PersistentMap<String, AudioState>,
     onLongClicked: (UIMessage.Regular) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -146,7 +147,7 @@ fun MessageItem(
         }
 
         val colorAnimation = remember { Animatable(Color.Transparent) }
-        val highlightColor = colorsScheme().selectedMessageHighlightColor
+        val highlightColor = colorsScheme().primaryVariant
         val transparentColor = colorsScheme().primary.copy(alpha = 0F)
         LaunchedEffect(isSelectedMessage) {
             if (isSelectedMessage) {
@@ -171,7 +172,7 @@ fun MessageItem(
                 },
                     onLongClick = remember(message) {
                         {
-                            if (!isContentClickable) {
+                            if (!isContentClickable && !message.isDeleted) {
                                 onLongClicked(message)
                             }
                         }

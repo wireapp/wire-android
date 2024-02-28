@@ -55,25 +55,25 @@ class MessageMapper @Inject constructor(
 ) {
 
     fun memberIdList(messages: List<Message>): List<UserId> = messages.flatMap { message ->
-        listOf(message.senderUserId).plus(
-            when (message) {
-                is Message.Regular -> {
-                    when (val failureType = message.deliveryStatus) {
-                        is DeliveryStatus.CompleteDelivery -> listOf()
-                        is DeliveryStatus.PartialDelivery ->
-                            failureType.recipientsFailedDelivery + failureType.recipientsFailedWithNoClients
-                    }
+        when (message) {
+            is Message.Regular -> {
+                when (val failureType = message.deliveryStatus) {
+                    is DeliveryStatus.CompleteDelivery -> listOf()
+                    is DeliveryStatus.PartialDelivery ->
+                        failureType.recipientsFailedDelivery + failureType.recipientsFailedWithNoClients
                 }
-                is Message.System -> {
-                    when (val content = message.content) {
-                        is MessageContent.MemberChange -> content.members
-                        is MessageContent.LegalHold.ForMembers -> content.members
-                        else -> listOf()
-                    }
-                }
-                is Message.Signaling -> listOf()
             }
-        )
+
+            is Message.System -> {
+                when (val content = message.content) {
+                    is MessageContent.MemberChange -> content.members
+                    is MessageContent.LegalHold.ForMembers -> content.members
+                    else -> listOf()
+                }
+            }
+
+            is Message.Signaling -> listOf()
+        }
     }.distinct()
 
     @Suppress("LongMethod")
@@ -170,7 +170,7 @@ class MessageMapper @Inject constructor(
             when (val status = message.status) {
                 Message.Status.Pending -> MessageFlowStatus.Sending
                 Message.Status.Sent -> MessageFlowStatus.Sent
-               is Message.Status.Read -> MessageFlowStatus.Read(status.readCount)
+                is Message.Status.Read -> MessageFlowStatus.Read(status.readCount)
                 Message.Status.Failed -> MessageFlowStatus.Failure.Send.Locally(isMessageEdited)
                 Message.Status.FailedRemotely -> MessageFlowStatus.Failure.Send.Remotely(isMessageEdited, message.conversationId.domain)
                 Message.Status.Delivered -> MessageFlowStatus.Delivered

@@ -137,7 +137,7 @@ fun EditMessageMenuItems(
             onDeleteClick = onDeleteItemClick,
             onDetailsClick = onDetailsItemClick,
             onReactionClick = onReactionItemClick,
-            onEditClick = if (message.isMyMessage) onEditItemClick else null,
+            onEditClick = if (message.isMyMessage && !message.isDeleted) onEditItemClick else null,
             onCopyClick = onCopyItemClick,
             onReplyClick = onReplyItemClick
         )

@@ -144,6 +144,7 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -280,6 +281,7 @@ fun ConversationScreen(
         ConversationScreenDialogType.VERIFICATION_DEGRADED -> {
             SureAboutCallingInDegradedConversationDialog(
                 callAnyway = {
+                    conversationCallViewModel.onApplyConversationDegradation()
                     startCallIfPossible(
                         conversationCallViewModel,
                         showDialog,
@@ -292,7 +294,6 @@ fun ConversationScreen(
                 },
                 onDialogDismiss = { showDialog.value = ConversationScreenDialogType.NONE }
             )
-            conversationCallViewModel.onConversationDegradedDialogShown()
         }
 
         ConversationScreenDialogType.NONE -> {}
@@ -434,12 +435,12 @@ fun ConversationScreen(
     )
 
     (messageComposerViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
-            LegalHoldSubjectMessageDialog(
-                conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(),
-                dialogDismissed = messageComposerViewModel::dismissSureAboutSendingMessage,
-                sendAnywayClicked = messageComposerViewModel::acceptSureAboutSendingMessage,
-            )
-        }
+        LegalHoldSubjectMessageDialog(
+            conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(),
+            dialogDismissed = messageComposerViewModel::dismissSureAboutSendingMessage,
+            sendAnywayClicked = messageComposerViewModel::acceptSureAboutSendingMessage,
+        )
+    }
 
     groupDetailsScreenResultRecipient.onNavResult { result ->
         when (result) {
@@ -713,7 +714,7 @@ private fun ConversationScreenContent(
     conversationId: ConversationId,
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
-    audioMessagesState: Map<String, AudioState>,
+    audioMessagesState: PersistentMap<String, AudioState>,
     selectedMessageId: String?,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
@@ -820,7 +821,7 @@ fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
-    audioMessagesState: Map<String, AudioState>,
+    audioMessagesState: PersistentMap<String, AudioState>,
     onUpdateConversationReadDate: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,

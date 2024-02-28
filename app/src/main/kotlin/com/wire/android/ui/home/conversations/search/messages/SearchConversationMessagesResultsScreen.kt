@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
@@ -54,7 +55,7 @@ fun SearchConversationMessagesResultsScreen(
                         message = message,
                         conversationDetailsData = ConversationDetailsData.None,
                         searchQuery = searchQuery,
-                        audioMessagesState = mapOf(),
+                        audioMessagesState = persistentMapOf(),
                         onLongClicked = { },
                         onAssetMessageClicked = { },
                         onAudioClick = { },
@@ -64,11 +65,11 @@ fun SearchConversationMessagesResultsScreen(
                         onReactionClicked = { _, _ -> },
                         onResetSessionClicked = { _, _ -> },
                         onSelfDeletingMessageRead = { },
+                        isContentClickable = true,
+                        onMessageClick = onMessageClick,
                         defaultBackgroundColor = colorsScheme().backgroundVariant,
                         shouldDisplayMessageStatus = false,
-                        shouldDisplayFooter = false,
-                        isContentClickable = true,
-                        onMessageClick = onMessageClick
+                        shouldDisplayFooter = false
                     )
                 }
                 is UIMessage.System -> { }

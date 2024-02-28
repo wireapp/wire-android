@@ -52,29 +52,29 @@ import kotlin.time.Duration.Companion.seconds
 fun E2EIRequiredDialog(
     e2EIRequired: FeatureFlagState.E2EIRequired,
     isE2EILoading: Boolean,
-    getCertificate: (FeatureFlagState.E2EIRequired) -> Unit,
+    getCertificate: () -> Unit,
     snoozeDialog: (FeatureFlagState.E2EIRequired.WithGracePeriod) -> Unit,
 ) {
     when (e2EIRequired) {
         FeatureFlagState.E2EIRequired.NoGracePeriod.Create -> E2EIRequiredNoSnoozeDialog(
             isLoading = isE2EILoading,
-            getCertificate = { getCertificate(e2EIRequired) }
+            getCertificate = getCertificate
         )
 
         FeatureFlagState.E2EIRequired.NoGracePeriod.Renew -> E2EIRenewNoSnoozeDialog(
             isLoading = isE2EILoading,
-            updateCertificate = { getCertificate(e2EIRequired) }
+            updateCertificate = getCertificate
         )
 
         is FeatureFlagState.E2EIRequired.WithGracePeriod.Create -> E2EIRequiredWithSnoozeDialog(
             isLoading = isE2EILoading,
-            getCertificate = { getCertificate(e2EIRequired) },
+            getCertificate = getCertificate,
             snoozeDialog = { snoozeDialog(e2EIRequired) }
         )
 
         is FeatureFlagState.E2EIRequired.WithGracePeriod.Renew -> E2EIRenewWithSnoozeDialog(
             isLoading = isE2EILoading,
-            updateCertificate = { getCertificate(e2EIRequired) },
+            updateCertificate = getCertificate,
             snoozeDialog = { snoozeDialog(e2EIRequired) }
         )
     }
@@ -84,7 +84,7 @@ fun E2EIRequiredDialog(
 fun E2EIResultDialog(
     result: FeatureFlagState.E2EIResult,
     isE2EILoading: Boolean,
-    updateCertificate: (FeatureFlagState.E2EIRequired) -> Unit,
+    updateCertificate: () -> Unit,
     snoozeDialog: (FeatureFlagState.E2EIRequired.WithGracePeriod) -> Unit,
     openCertificateDetails: (String) -> Unit,
     dismissSuccessDialog: () -> Unit
@@ -93,7 +93,7 @@ fun E2EIResultDialog(
         is FeatureFlagState.E2EIResult.Failure -> E2EIRenewErrorDialog(
             e2EIRequired = result.e2EIRequired,
             isE2EILoading = isE2EILoading,
-            updateCertificate = { updateCertificate(result.e2EIRequired) },
+            updateCertificate = updateCertificate,
             snoozeDialog = snoozeDialog
         )
 

@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.sync
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,11 +28,10 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
-import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
-import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.message.TeamSelfDeleteTimer
@@ -43,6 +41,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
+import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.coroutineScope
@@ -59,7 +58,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val globalDataStore: GlobalDataStore,
     private val disableAppLockUseCase: DisableAppLockUseCase,
-    private val dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -92,12 +90,14 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                             fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER
                         )
                     }
+
                     currentSessionResult is CurrentSessionResult.Success && !currentSessionResult.accountInfo.isValid() -> {
                         appLogger.i("$TAG: Invalid current session")
                         featureFlagState = FeatureFlagState( // invalid session, clear feature flag state to default and set NO_USER
                             fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER
                         )
                     }
+
                     currentSessionResult is CurrentSessionResult.Success && currentSessionResult.accountInfo.isValid() -> {
                         featureFlagState = FeatureFlagState() // new session, clear feature flag state to default and wait until synced
                         currentSessionResult.accountInfo.userId.let { userId ->
@@ -152,35 +152,35 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     private suspend fun setGuestRoomLinkFeatureFlag(userId: UserId) {
-            coreLogic.getSessionScope(userId).observeGuestRoomLinkFeatureFlag()
-                .collect { guestRoomLinkStatus ->
-                    guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
-                        featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
-                    }
-                    guestRoomLinkStatus.isStatusChanged?.let {
-                        featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
-                    }
+        coreLogic.getSessionScope(userId).observeGuestRoomLinkFeatureFlag()
+            .collect { guestRoomLinkStatus ->
+                guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
+                    featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
                 }
-        }
+                guestRoomLinkStatus.isStatusChanged?.let {
+                    featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
+                }
+            }
+    }
 
     private suspend fun setTeamAppLockFeatureFlag(userId: UserId) {
-            coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver()
-                .distinctUntilChanged()
-                .collectLatest { appLockConfig ->
-                    appLockConfig?.isStatusChanged?.let { isStatusChanged ->
-                        val shouldBlockApp = if (isStatusChanged) {
-                            true
-                        } else {
-                            (!isUserAppLockSet() && appLockConfig.isEnforced)
-                        }
-
-                        featureFlagState = featureFlagState.copy(
-                            isTeamAppLockEnabled = appLockConfig.isEnforced,
-                            shouldShowTeamAppLockDialog = shouldBlockApp
-                        )
+        coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver()
+            .distinctUntilChanged()
+            .collectLatest { appLockConfig ->
+                appLockConfig?.isStatusChanged?.let { isStatusChanged ->
+                    val shouldBlockApp = if (isStatusChanged) {
+                        true
+                    } else {
+                        (!isUserAppLockSet() && appLockConfig.isEnforced)
                     }
+
+                    featureFlagState = featureFlagState.copy(
+                        isTeamAppLockEnabled = appLockConfig.isEnforced,
+                        shouldShowTeamAppLockDialog = shouldBlockApp
+                    )
                 }
-        }
+            }
+    }
 
     private suspend fun observeTeamSettingsSelfDeletionStatus(userId: UserId) {
         coreLogic.getSessionScope(userId).observeTeamSettingsSelfDeletionStatus()
@@ -288,36 +288,36 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun isUserAppLockSet() = globalDataStore.isAppLockPasscodeSet()
 
-    fun getE2EICertificate(e2eiRequired: FeatureFlagState.E2EIRequired, context: Context) {
-        featureFlagState = featureFlagState.copy(isE2EILoading = true)
-        currentUserId?.let { userId ->
-            GetE2EICertificateUseCase(coreLogic.getSessionScope(userId).enrollE2EI, dispatcherProvider).invoke(
-                context,
-                isNewClient = false
-            ) { result ->
-                result.fold({
-                    featureFlagState = featureFlagState.copy(
-                        isE2EILoading = false,
-                        e2EIRequired = null,
-                        e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)
-                    )
-                }, {
-                    if (it is E2EIEnrollmentResult.Finalized) {
-                        featureFlagState = featureFlagState.copy(
-                            isE2EILoading = false,
-                            e2EIRequired = null,
-                            e2EIResult = FeatureFlagState.E2EIResult.Success(it.certificate)
-                        )
-                    } else if (it is E2EIEnrollmentResult.Failed) {
-                        featureFlagState = featureFlagState.copy(
-                            isE2EILoading = false,
-                            e2EIRequired = null,
-                            e2EIResult = FeatureFlagState.E2EIResult.Failure(e2eiRequired)
-                        )
-                    }
-                })
+    fun enrollE2EICertificate() {
+        featureFlagState = featureFlagState.copy(isE2EILoading = true, startGettingE2EICertificate = true)
+    }
+
+    fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {
+        val e2eiRequired = featureFlagState.e2EIRequired
+        result.fold({
+            featureFlagState = featureFlagState.copy(
+                isE2EILoading = false,
+                startGettingE2EICertificate = false,
+                e2EIRequired = null,
+                e2EIResult = e2eiRequired?.let { FeatureFlagState.E2EIResult.Failure(e2eiRequired) }
+            )
+        }, {
+            featureFlagState = if (it is E2EIEnrollmentResult.Finalized) {
+                featureFlagState.copy(
+                    isE2EILoading = false,
+                    e2EIRequired = null,
+                    startGettingE2EICertificate = false,
+                    e2EIResult = FeatureFlagState.E2EIResult.Success(it.certificate)
+                )
+            } else {
+                featureFlagState.copy(
+                    isE2EILoading = false,
+                    e2EIRequired = null,
+                    startGettingE2EICertificate = false,
+                    e2EIResult = e2eiRequired?.let { FeatureFlagState.E2EIResult.Failure(e2eiRequired) }
+                )
             }
-        }
+        })
     }
 
     fun snoozeE2EIdRequiredDialog(result: FeatureFlagState.E2EIRequired.WithGracePeriod) {

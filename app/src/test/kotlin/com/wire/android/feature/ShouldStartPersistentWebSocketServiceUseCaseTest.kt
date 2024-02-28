@@ -25,7 +25,10 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
@@ -72,6 +75,38 @@ class ShouldStartPersistentWebSocketServiceUseCaseTest {
                 .arrange()
             // when
             val result = useCase.invoke()
+            // then
+            assertInstanceOf(ShouldStartPersistentWebSocketServiceUseCase.Result.Success::class.java, result).also {
+                assertEquals(false, it.shouldStartPersistentWebSocketService)
+            }
+        }
+
+    @Test
+    fun givenObservePersistentWebSocketStatusReturnsSuccessAndTheFlowIsEmpty_whenInvoking_shouldReturnSuccessFalse() =
+        runTest {
+            // given
+            val (_, useCase) = Arrangement()
+                .withObservePersistentWebSocketConnectionStatusSuccess(emptyFlow())
+                .arrange()
+            // when
+            val result = useCase.invoke()
+            // then
+            assertInstanceOf(ShouldStartPersistentWebSocketServiceUseCase.Result.Success::class.java, result).also {
+                assertEquals(false, it.shouldStartPersistentWebSocketService)
+            }
+        }
+
+    @Test
+    fun givenObservePersistentWebSocketStatusReturnsSuccessAndFlowTimesOut_whenInvoking_shouldReturnSuccessFalse() =
+        runTest {
+            // given
+            val sharedFlow = MutableSharedFlow<List<PersistentWebSocketStatus>>() // shared flow doesn't close so we can test the timeout
+            val (_, useCase) = Arrangement()
+                .withObservePersistentWebSocketConnectionStatusSuccess(sharedFlow)
+                .arrange()
+            // when
+            val result = useCase.invoke()
+            advanceTimeBy(ShouldStartPersistentWebSocketServiceUseCase.TIMEOUT + 1000L)
             // then
             assertInstanceOf(ShouldStartPersistentWebSocketServiceUseCase.Result.Success::class.java, result).also {
                 assertEquals(false, it.shouldStartPersistentWebSocketService)

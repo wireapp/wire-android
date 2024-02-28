@@ -29,14 +29,15 @@ import javax.inject.Singleton
 class ShouldStartPersistentWebSocketServiceUseCase @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic
 ) {
-    operator suspend fun invoke(): Result {
+    suspend operator fun invoke(): Result {
         return coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
             when (result) {
                 is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> Result.Failure
 
                 is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
                     val statusList = withTimeoutOrNull(TIMEOUT) {
-                        result.persistentWebSocketStatusListFlow.firstOrNull()
+                        val res = result.persistentWebSocketStatusListFlow.firstOrNull()
+                        res
                     }
                     if (statusList != null && statusList.map { it.isPersistentWebSocketEnabled }.contains(true)) Result.Success(true)
                     else Result.Success(false)
@@ -51,6 +52,6 @@ class ShouldStartPersistentWebSocketServiceUseCase @Inject constructor(
     }
 
     companion object {
-        private const val TIMEOUT = 10_000L
+        const val TIMEOUT = 10_000L
     }
 }

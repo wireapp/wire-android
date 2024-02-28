@@ -58,7 +58,7 @@ class StartServiceReceiver : BroadcastReceiver() {
                     }
                     is ShouldStartPersistentWebSocketServiceUseCase.Result.Success -> {
                         if (it.shouldStartPersistentWebSocketService) {
-                            if (!PersistentWebSocketService.isServiceStarted) {
+                            if (PersistentWebSocketService.isServiceStarted) {
                                 appLogger.i("$TAG: PersistentWebsocketService already started, not starting again")
                             } else {
                                 appLogger.i("$TAG: Starting PersistentWebsocketService")

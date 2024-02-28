@@ -198,7 +198,6 @@ fun PreviewEndToEndIdentityCertificateItem() {
         isE2eiCertificateActivated = true,
         isCurrentDevice = false,
         certificate = E2eiCertificate(
-            issuer = "Wire",
             status = CertificateStatus.VALID,
             serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
             certificateDetail = ""
@@ -216,7 +215,6 @@ fun PreviewEndToEndIdentityCertificateSelfItem() {
         isE2eiCertificateActivated = true,
         isCurrentDevice = true,
         certificate = E2eiCertificate(
-            issuer = "Wire",
             status = CertificateStatus.VALID,
             serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
             certificateDetail = ""

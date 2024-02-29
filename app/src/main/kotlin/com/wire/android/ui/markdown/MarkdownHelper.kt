@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("ComplexMethod")
 package com.wire.android.ui.markdown
 
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
@@ -45,7 +46,6 @@ import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
 
-@Suppress("ComplexMethod")
 fun <T : Node> T.toContent(isParentDocument: Boolean = false): MarkdownNode {
     return when (this) {
         is Document -> MarkdownNode.Document(convertChildren<MarkdownNode.Block>())
@@ -234,7 +234,6 @@ fun findContextEnd(inputString: String, matchEnd: Int, wordsAround: Int): Int {
     return index
 }
 
-
 private fun List<MarkdownNode>.anyContainsQuery(query: String): Boolean {
     return any { it.containsQuery(query) }
 }
@@ -270,7 +269,6 @@ private fun MarkdownNode.copy(children: List<MarkdownNode>): MarkdownNode {
         is MarkdownNode.TableCell -> this.copy(children = children.filterIsInstance<MarkdownNode.Inline>())
     }
 }
-
 
 fun printMarkdownNodeTree(node: MarkdownNode?, indentLevel: Int = 0) {
     node ?: return
@@ -314,4 +312,3 @@ fun printMarkdownNodeTree(node: MarkdownNode?, indentLevel: Int = 0) {
 
     node.children.forEach { printMarkdownNodeTree(it, indentLevel + 1) }
 }
-

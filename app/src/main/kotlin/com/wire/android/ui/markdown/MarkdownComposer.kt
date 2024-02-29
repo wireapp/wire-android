@@ -207,8 +207,16 @@ fun appendLinksAndMentions(
     // get mentions from text, remove mention marks and update position of mentions
     val mentionList: List<MessageMention> = if (stringBuilder.contains(MarkdownConstants.MENTION_MARK) && updatedMentions.isNotEmpty()) {
         nodeData.mentions.mapNotNull { displayMention ->
-            val markedMentionLength = (MarkdownConstants.MENTION_MARK + displayMention.mentionUserName + MarkdownConstants.MENTION_MARK).length
-            val startIndex = stringBuilder.indexOf(MarkdownConstants.MENTION_MARK + displayMention.mentionUserName + MarkdownConstants.MENTION_MARK)
+            val markedMentionLength = (
+                    MarkdownConstants.MENTION_MARK
+                            + displayMention.mentionUserName
+                            + MarkdownConstants.MENTION_MARK
+                    ).length
+            val startIndex = stringBuilder.indexOf(
+                MarkdownConstants.MENTION_MARK
+                        + displayMention.mentionUserName
+                        + MarkdownConstants.MENTION_MARK
+            )
             val endIndex = startIndex + markedMentionLength
 
             if (startIndex != -1) {

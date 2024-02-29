@@ -56,7 +56,6 @@ sealed class MarkdownNode {
                 val startNumber: Int,
                 val delimiter: Char,
             ) : ListBlock(children)
-
         }
 
         data class ListItem(
@@ -96,14 +95,12 @@ sealed class MarkdownNode {
                 override val children: List<TableRow>,
                 override val isParentDocument: Boolean = false
             ) : TableContent()
-
         }
 
         data class ThematicBreak(
             override val children: List<Inline> = listOf(),
             override val isParentDocument: Boolean
         ) : Block()
-
     }
 
     sealed class Inline(override val isParentDocument: Boolean = false) : MarkdownNode() {
@@ -133,7 +130,6 @@ sealed class MarkdownNode {
         }
 
         data class Break(override val children: List<Inline> = listOf()) : Inline()
-
     }
 
     data class TableRow(
@@ -145,5 +141,4 @@ sealed class MarkdownNode {
         override val children: List<Inline> = listOf(),
         override val isParentDocument: Boolean = false
     ) : MarkdownNode()
-
 }

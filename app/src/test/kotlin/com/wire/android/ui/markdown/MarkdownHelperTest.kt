@@ -24,8 +24,10 @@ import org.commonmark.node.Paragraph
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class MarkdownHelperTest {
@@ -261,7 +263,7 @@ class MarkdownHelperTest {
     fun `given text without query, filterNodesContainingQuery should return null`() {
         val textNode = Text("This is a sample text without the query.").toContent()
 
-        val result = textNode.filterNodesContainingQuery("query")
+        val result = textNode.filterNodesContainingQuery("longer query")
 
         assertNull(result)
     }
@@ -291,5 +293,45 @@ class MarkdownHelperTest {
         val result = textNode.filterNodesContainingQuery("query")
 
         assertNotNull(result)
+    }
+
+    @Test
+    fun `given text with query at the start, filterNodesContainingQuery should prepend ellipsis when necessary`() {
+        val textNode = Text("query present at the very start of the text.").toContent()
+
+        val result = textNode.filterNodesContainingQuery("query") as? MarkdownNode.Inline.Text
+
+        assertNotNull(result)
+        assertTrue(result!!.literal.startsWith("query"))
+    }
+
+    @Test
+    fun `given text with query at the end, filterNodesContainingQuery should append ellipsis when necessary`() {
+        val textNode = Text("Text ending with a query.").toContent()
+
+        val result = textNode.filterNodesContainingQuery("query") as? MarkdownNode.Inline.Text
+
+        assertNotNull(result)
+        assertTrue(result!!.literal.endsWith("query."))
+    }
+
+    @Test
+    fun `given text with multiple queries, filterNodesContainingQuery should include ellipsis between them`() {
+        val textNode = Text("First query, some intermediate long text, second query.").toContent()
+
+        val result = textNode.filterNodesContainingQuery("query") as? MarkdownNode.Inline.Text
+
+        assertNotNull(result)
+        assertTrue(result!!.literal.contains("..."))
+    }
+
+    @Test
+    fun `given text with closely positioned queries, filterNodesContainingQuery should not include unnecessary ellipsis`() {
+        val textNode = Text("First query and immediately second query.").toContent()
+
+        val result = textNode.filterNodesContainingQuery("query") as? MarkdownNode.Inline.Text
+
+        assertNotNull(result)
+        assertFalse(result!!.literal.contains("..."))
     }
 }

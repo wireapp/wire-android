@@ -24,44 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.wire.android.ui.common.dimensions
-import org.commonmark.node.Document
-import org.commonmark.node.Heading
-
-// TODO remove
-@Composable
-@Suppress("MagicNumber")
-fun MarkdownHeading(heading: Heading, nodeData: NodeData) {
-    val style: TextStyle? = when (heading.level) {
-        1 -> nodeData.typography.title01
-        2 -> nodeData.typography.title01
-        3 -> nodeData.typography.title01
-        4 -> nodeData.typography.title01
-        5 -> nodeData.typography.title01
-        6 -> nodeData.typography.title01
-        else -> null
-    }
-
-    if (style != null) {
-        val padding = if (heading.parent is Document) dimensions().spacing8x else dimensions().spacing0x
-        Box(modifier = Modifier.padding(bottom = padding)) {
-            val text = buildAnnotatedString {
-                inlineChildren(heading, this, nodeData)
-            }
-            MarkdownText(
-                annotatedString = text,
-                style = style,
-                onLongClick = nodeData.onLongClick,
-                onOpenProfile = nodeData.onOpenProfile
-            )
-        }
-    } else {
-        MarkdownBlockChildren(heading, nodeData)
-    }
-}
 
 @Composable
 @Suppress("MagicNumber")
-fun MarkdownNodeHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData) {
+fun MarkdownHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData) {
     val style: TextStyle = when (heading.level) {
         1 -> nodeData.typography.title01
         2 -> nodeData.typography.title01

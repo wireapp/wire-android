@@ -53,12 +53,11 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
-import com.wire.android.ui.markdown.MarkdownNode
 import com.wire.android.ui.markdown.DisplayMention
 import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
+import com.wire.android.ui.markdown.MarkdownNode
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.markdown.NodeDocument
-import com.wire.android.ui.markdown.printMarkdownNodeTree
 import com.wire.android.ui.markdown.toContent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -115,8 +114,8 @@ internal fun MessageBody(
     )
     text?.also {
         val document = (Parser.builder().extensions(extensions).build().parse(it) as Document).toContent() as MarkdownNode.Document
-        println("BEFORE FILTER")
-        printMarkdownNodeTree(document)
+//        println("BEFORE FILTER")
+//        printMarkdownNodeTree(document)
         NodeDocument(
             document,
             nodeData,

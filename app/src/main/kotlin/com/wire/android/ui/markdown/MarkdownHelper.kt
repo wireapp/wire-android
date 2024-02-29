@@ -174,7 +174,7 @@ private fun MarkdownNode.containsQuery(query: String): Boolean {
     }
 }
 
-private fun processLiteral(inputString: String, queryString: String, wordsAround: Int = 3): String? {
+private fun processLiteral(inputString: String, queryString: String, maxWordsAround: Int = 3): String? {
     val matches = queryString.toRegex(option = RegexOption.IGNORE_CASE).findAll(inputString).toList()
     if (matches.isEmpty()) return null
 
@@ -185,8 +185,8 @@ private fun processLiteral(inputString: String, queryString: String, wordsAround
         val matchStart = matchResult.range.first
         val matchEnd = matchResult.range.last + 1
 
-        val contextStart = maxOf(findContextStart(inputString, matchStart, wordsAround), lastEnd)
-        val contextEnd = findContextEnd(inputString, matchEnd, wordsAround)
+        val contextStart = maxOf(findContextStart(inputString, matchStart, maxWordsAround), lastEnd)
+        val contextEnd = findContextEnd(inputString, matchEnd, maxWordsAround)
 
         if (index == 0 && contextStart > 0) {
             result.append("...")

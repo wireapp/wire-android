@@ -62,7 +62,6 @@ import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentMap
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -79,7 +78,6 @@ import kotlin.time.Duration.Companion.seconds
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationMessagesViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
-    @ApplicationContext private val context: Context,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase,

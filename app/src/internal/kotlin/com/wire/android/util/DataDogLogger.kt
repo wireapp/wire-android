@@ -36,22 +36,22 @@ object DataDogLogger : LogWriter() {
         .build()
 
     override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
-        // TODO FIXME
+        val logInfo = KaliumLogger.LogAttributes.getInfoFromTagString(tag)
+        val userAccountData = mapOf(
+            "userId" to logInfo.userClientData?.userId,
+            "clientId" to logInfo.userClientData?.clientId,
+        )
+        val attributes = mapOf(
+            "wireAccount" to userAccountData,
+            "tag" to logInfo.textTag
+        )
+        when (severity) {
+            Severity.Debug -> logger.d(message, throwable, attributes)
+            Severity.Info -> logger.i(message, throwable, attributes)
+            Severity.Warn -> logger.w(message, throwable, attributes)
+            Severity.Error -> logger.e(message, throwable, attributes)
+            Severity.Assert,
+            Severity.Verbose -> logger.v(message, throwable, attributes)
+        }
     }
-//        val attributes = KaliumLogger.UserClientData.getFromTag(tag)?.let { userClientData ->
-//            mapOf(
-//                "userId" to userClientData.userId,
-//                "clientId" to userClientData.clientId,
-//            )
-//        } ?: emptyMap<String, Any?>()
-//
-//        when (severity) {
-//            Severity.Debug -> logger.d(message, throwable, attributes)
-//            Severity.Info -> logger.i(message, throwable, attributes)
-//            Severity.Warn -> logger.w(message, throwable, attributes)
-//            Severity.Error -> logger.e(message, throwable, attributes)
-//            Severity.Assert,
-//            Severity.Verbose -> logger.v(message, throwable, attributes)
-//        }
-//    }
 }

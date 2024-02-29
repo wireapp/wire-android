@@ -30,12 +30,9 @@ import androidx.compose.ui.text.font.FontFamily
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import org.commonmark.node.FencedCodeBlock
-import org.commonmark.node.IndentedCodeBlock
 
-// TODO remove
 @Composable
-fun MarkdownIndentedCodeBlock(indentedCodeBlock: IndentedCodeBlock, nodeData: NodeData) {
+fun MarkdownIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode, nodeData: NodeData) {
     Text(
         text = highlightText(nodeData, indentedCodeBlock.literal),
         style = MaterialTheme.wireTypography.body01,
@@ -53,43 +50,7 @@ fun MarkdownIndentedCodeBlock(indentedCodeBlock: IndentedCodeBlock, nodeData: No
 }
 
 @Composable
-fun MarkdownFencedCodeBlock(fencedCodeBlock: FencedCodeBlock, nodeData: NodeData) {
-    Text(
-        text = highlightText(nodeData, fencedCodeBlock.literal),
-        style = MaterialTheme.wireTypography.body01,
-        fontFamily = FontFamily.Monospace,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(dimensions().spacing4x)
-            .background(MaterialTheme.wireColorScheme.outlineVariant)
-            .border(
-                dimensions().spacing1x, MaterialTheme.wireColorScheme.outline,
-                shape = RoundedCornerShape(dimensions().spacing4x)
-            )
-            .padding(dimensions().spacing4x)
-    )
-}
-
-@Composable
-fun MarkdownNodeIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode, nodeData: NodeData) {
-    Text(
-        text = highlightText(nodeData, indentedCodeBlock.literal),
-        style = MaterialTheme.wireTypography.body01,
-        fontFamily = FontFamily.Monospace,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(dimensions().spacing4x)
-            .background(MaterialTheme.wireColorScheme.outlineVariant)
-            .border(
-                dimensions().spacing1x, MaterialTheme.wireColorScheme.outline,
-                shape = RoundedCornerShape(dimensions().spacing4x)
-            )
-            .padding(dimensions().spacing4x)
-    )
-}
-
-@Composable
-fun MarkdownNodeFencedCodeBlock(fencedCodeBlock: MarkdownNode.Block.FencedCode, nodeData: NodeData) {
+fun MarkdownFencedCodeBlock(fencedCodeBlock: MarkdownNode.Block.FencedCode, nodeData: NodeData) {
     Text(
         text = highlightText(nodeData, fencedCodeBlock.literal),
         style = MaterialTheme.wireTypography.body01,

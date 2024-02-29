@@ -55,10 +55,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.PreviewMultipleThemes
-<<<<<<< HEAD
-=======
 import com.wire.kalium.logic.CoreFailure
->>>>>>> 1b35419e5 (fix: release: Enrolling E2EI crash [WPB-6788] (#2728))
 import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
@@ -145,18 +142,6 @@ class DebugDataOptionsViewModel
         }, {
             if (it is E2EIEnrollmentResult.Finalized) {
                 state = state.copy(
-<<<<<<< HEAD
-                    certificate = (it as E2EIFailure.FailedOAuth).reason, showCertificate = true
-                )
-            }, {
-                if (it is E2EIEnrollmentResult.Finalized) {
-                    state = state.copy(
-                        certificate = it.certificate, showCertificate = true
-                    )
-                }
-            })
-        }
-=======
                     certificate = it.certificate,
                     showCertificate = true,
                     startGettingE2EICertificate = false
@@ -169,7 +154,6 @@ class DebugDataOptionsViewModel
                 )
             }
         })
->>>>>>> 1b35419e5 (fix: release: Enrolling E2EI crash [WPB-6788] (#2728))
     }
 
     fun dismissCertificateDialog() {

@@ -139,32 +139,20 @@ class DeviceDetailsViewModel @Inject constructor(
                 isE2EICertificateEnrollError = true,
             )
         }, {
-            if (it is E2EIEnrollmentResult.Finalized) {
+            state = if (it is E2EIEnrollmentResult.Finalized) {
                 getE2eiCertificate()
-                state = state.copy(isE2EICertificateEnrollSuccess = true, startGettingE2EICertificate = false)
+                state.copy(
+                    isE2EICertificateEnrollSuccess = true,
+                    startGettingE2EICertificate = false
+                )
             } else {
-                state = state.copy(
+                state.copy(
                     isLoadingCertificate = false,
                     isE2EICertificateEnrollError = true,
                     startGettingE2EICertificate = false,
                 )
-<<<<<<< HEAD
-            }, {
-                if (it is E2EIEnrollmentResult.Finalized) {
-                    getE2eiCertificate()
-                    state = state.copy(isE2EICertificateEnrollSuccess = true)
-                } else if (it is E2EIEnrollmentResult.Failed) {
-                    state = state.copy(
-                        isLoadingCertificate = false,
-                        isE2EICertificateEnrollError = true
-                    )
-                }
-            })
-        }
-=======
             }
         })
->>>>>>> 1b35419e5 (fix: release: Enrolling E2EI crash [WPB-6788] (#2728))
     }
 
     private fun getClientFingerPrint() {

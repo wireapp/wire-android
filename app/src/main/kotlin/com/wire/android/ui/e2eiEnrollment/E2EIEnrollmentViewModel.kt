@@ -109,8 +109,8 @@ class E2EIEnrollmentViewModel @Inject constructor(
                 startGettingE2EICertificate = false
             )
         }, {
-            if (it is E2EIEnrollmentResult.Finalized) {
-                state = state.copy(
+            state = if (it is E2EIEnrollmentResult.Finalized) {
+                state.copy(
                     certificate = it.certificate,
                     isCertificateEnrollSuccess = true,
                     isCertificateEnrollError = false,
@@ -118,27 +118,13 @@ class E2EIEnrollmentViewModel @Inject constructor(
                     startGettingE2EICertificate = false
                 )
             } else {
-                state = state.copy(
+                state.copy(
                     isLoading = false,
                     isCertificateEnrollError = true,
                     startGettingE2EICertificate = false
                 )
-<<<<<<< HEAD
-            }, {
-                if (it is E2EIEnrollmentResult.Finalized) {
-                    state = state.copy(
-                        certificate = it.certificate,
-                        isCertificateEnrollSuccess = true,
-                        isCertificateEnrollError = false,
-                        isLoading = false
-                    )
-                }
-            })
-        }
-=======
             }
         })
->>>>>>> 1b35419e5 (fix: release: Enrolling E2EI crash [WPB-6788] (#2728))
     }
 
     fun dismissErrorDialog() {

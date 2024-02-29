@@ -38,7 +38,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 @Composable
-fun NodeDocument(
+fun MarkdownDocument(
     document: MarkdownNode.Document,
     nodeData: NodeData,
     clickable: Boolean
@@ -48,9 +48,8 @@ fun NodeDocument(
     } else {
         document
     }
-    println("AFTER FILTER")
-
-    printMarkdownNodeTree(filteredDocument)
+//    println("AFTER FILTER")
+//    printMarkdownNodeTree(filteredDocument)
     if (filteredDocument != null) {
         MarkdownNodeBlockChildren(
             (filteredDocument as MarkdownNode.Document).children,

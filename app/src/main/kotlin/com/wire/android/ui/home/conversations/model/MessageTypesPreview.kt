@@ -35,6 +35,7 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownListAn
 import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTablesAndBlocks
 import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTextAndLinks
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
+import com.wire.android.ui.home.conversations.mock.mockMessageWithTextLoremIpsum
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -602,5 +603,94 @@ fun PreviewMessageWithMarkdownTablesAndBlocks() {
             onSelfDeletingMessageRead = {},
             onReplyClickable = null
         )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageWithMarkdownQuery() {
+    WireTheme {
+        Column {
+            MessageItem(
+                message = mockMessageWithTextLoremIpsum,
+                searchQuery = "ed",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+            MessageItem(
+                message = mockMessageWithMarkdownTextAndLinks,
+                searchQuery = "code",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+            MessageItem(
+                message = mockMessageWithMarkdownTextAndLinks,
+                searchQuery = ".com",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+            MessageItem(
+                message = mockMessageWithMarkdownListAndImages,
+                searchQuery = "can",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+            MessageItem(
+                message = mockMessageWithMarkdownTablesAndBlocks,
+                searchQuery = "Joh",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+        }
     }
 }

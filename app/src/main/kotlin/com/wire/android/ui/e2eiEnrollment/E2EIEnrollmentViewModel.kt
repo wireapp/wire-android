@@ -26,12 +26,13 @@ import com.wire.android.appLogger
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
-import com.wire.android.feature.e2ei.GetE2EICertificateUseCase
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
+import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -43,12 +44,12 @@ data class E2EIEnrollmentState(
     val isLoading: Boolean = false,
     val isCertificateEnrollError: Boolean = false,
     val isCertificateEnrollSuccess: Boolean = false,
-    val showCancelLoginDialog: Boolean = false
+    val showCancelLoginDialog: Boolean = false,
+    val startGettingE2EICertificate: Boolean = false
 )
 
 @HiltViewModel
 class E2EIEnrollmentViewModel @Inject constructor(
-    private val e2eiCertificateUseCase: GetE2EICertificateUseCase,
     private val finalizeMLSClientAfterE2EIEnrollment: FinalizeMLSClientAfterE2EIEnrollment,
     private val currentSession: CurrentSessionUseCase,
     private val deleteSession: DeleteSessionUseCase,
@@ -78,9 +79,11 @@ class E2EIEnrollmentViewModel @Inject constructor(
                     is CurrentSessionResult.Success -> {
                         deleteSession(it.accountInfo.userId)
                     }
+
                     is CurrentSessionResult.Failure.Generic -> {
                         appLogger.e("failed to delete session")
                     }
+
                     CurrentSessionResult.Failure.SessionNotFound -> {
                         appLogger.e("session not found")
                     }
@@ -93,30 +96,35 @@ class E2EIEnrollmentViewModel @Inject constructor(
             }
         }
     }
+
     fun enrollE2EICertificate() {
-        state = state.copy(isLoading = true)
-        e2eiCertificateUseCase(true) { result ->
-            result.fold({
-                state = state.copy(
+        state = state.copy(isLoading = true, startGettingE2EICertificate = true)
+    }
+
+    fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {
+        result.fold({
+            state = state.copy(
+                isLoading = false,
+                isCertificateEnrollError = true,
+                startGettingE2EICertificate = false
+            )
+        }, {
+            state = if (it is E2EIEnrollmentResult.Finalized) {
+                state.copy(
+                    certificate = it.certificate,
+                    isCertificateEnrollSuccess = true,
+                    isCertificateEnrollError = false,
                     isLoading = false,
-                    isCertificateEnrollError = true
+                    startGettingE2EICertificate = false
                 )
-            }, {
-                if (it is E2EIEnrollmentResult.Finalized) {
-                    state = state.copy(
-                        certificate = it.certificate,
-                        isCertificateEnrollSuccess = true,
-                        isCertificateEnrollError = false,
-                        isLoading = false
-                    )
-                } else {
-                    state = state.copy(
-                        isLoading = false,
-                        isCertificateEnrollError = true
-                    )
-                }
-            })
-        }
+            } else {
+                state.copy(
+                    isLoading = false,
+                    isCertificateEnrollError = true,
+                    startGettingE2EICertificate = false
+                )
+            }
+        })
     }
 
     fun dismissErrorDialog() {

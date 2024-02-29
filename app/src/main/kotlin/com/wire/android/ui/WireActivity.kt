@@ -80,6 +80,7 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
+import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EICertificateRevokedDialog
 import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EIResultDialog
@@ -168,8 +169,8 @@ class WireActivity : AppCompatActivity() {
                 InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
                 InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
                 InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
-            InitialAppState.LOGGED_IN -> HomeScreenDestination
-        }
+                InitialAppState.LOGGED_IN -> HomeScreenDestination
+            }
             appLogger.i("$TAG composable content")
             setComposableContent(startDestination) {
                 appLogger.i("$TAG splash hide")
@@ -372,7 +373,7 @@ class WireActivity : AppCompatActivity() {
                     E2EIRequiredDialog(
                         e2EIRequired = e2EIRequired,
                         isE2EILoading = isE2EILoading,
-                        getCertificate = { featureFlagNotificationViewModel.getE2EICertificate(it) },
+                        getCertificate = featureFlagNotificationViewModel::enrollE2EICertificate,
                         snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
                     )
                 }
@@ -387,7 +388,7 @@ class WireActivity : AppCompatActivity() {
                 e2EIResult?.let {
                     E2EIResultDialog(
                         result = e2EIResult,
-                        updateCertificate = { featureFlagNotificationViewModel.getE2EICertificate(it) },
+                        updateCertificate = featureFlagNotificationViewModel::enrollE2EICertificate,
                         snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog,
                         openCertificateDetails = { navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(it))) },
                         dismissSuccessDialog = featureFlagNotificationViewModel::dismissSuccessE2EIdDialog,
@@ -439,6 +440,13 @@ class WireActivity : AppCompatActivity() {
             if (showCallEndedBecauseOfConversationDegraded) {
                 GuestCallWasEndedBecauseOfVerificationDegradedDialog(
                     featureFlagNotificationViewModel::dismissCallEndedBecauseOfConversationDegraded
+                )
+            }
+
+            if (startGettingE2EICertificate) {
+                GetE2EICertificateUI(
+                    enrollmentResultHandler = { featureFlagNotificationViewModel.handleE2EIEnrollmentResult(it) },
+                    isNewClient = false
                 )
             }
         }

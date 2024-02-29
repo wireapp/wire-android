@@ -375,6 +375,25 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadge() {
 
 @Preview
 @Composable
+fun PreviewConnectionConversationItemWithSentConnectRequestBadgeWithUnknownSender() {
+    ConversationItemFactory(
+        conversation = ConversationItem.ConnectionConversation(
+            userAvatarData = UserAvatarData(),
+            conversationId = QualifiedID("value", "domain"),
+            mutedStatus = MutedConversationStatus.OnlyMentionsAndRepliesAllowed,
+            lastMessageContent = null,
+            badgeEventType = BadgeEventType.SentConnectRequest,
+            conversationInfo = ConversationInfo("", isSenderUnavailable = true)
+        ),
+        searchQuery = "",
+        isSelectableItem = false,
+        isChecked = false,
+        {}, {}, {}, {}, {}, {}
+    )
+}
+
+@Preview
+@Composable
 fun PreviewPrivateConversationItemWithBlockedBadge() {
     ConversationItemFactory(
         conversation = ConversationItem.PrivateConversation(

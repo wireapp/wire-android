@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -96,6 +98,7 @@ import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.dialogs.calling.SureAboutCallingInDegradedConversationDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
@@ -142,6 +145,7 @@ import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
@@ -411,7 +415,7 @@ fun ConversationScreen(
                     description = description
                 )
             )
-       },
+        },
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { link ->
@@ -709,6 +713,7 @@ private fun ConversationScreen(
                 ConversationScreenContent(
                     conversationId = conversationInfoViewState.conversationId,
                     audioMessagesState = conversationMessagesViewState.audioMessagesState,
+                    assetStatuses = conversationMessagesViewState.assetStatuses,
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                     unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
                     conversationDetailsData = conversationInfoViewState.conversationDetailsData,
@@ -757,6 +762,7 @@ private fun ConversationScreenContent(
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
     audioMessagesState: PersistentMap<String, AudioState>,
+    assetStatuses: PersistentMap<String, MessageAssetStatus>,
     selectedMessageId: String?,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
@@ -799,6 +805,7 @@ private fun ConversationScreenContent(
                 lazyListState = lazyListState,
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
                 audioMessagesState = audioMessagesState,
+                assetStatuses = assetStatuses,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
                 onAssetItemClicked = onAssetItemClicked,
                 onAudioItemClicked = onAudioItemClicked,
@@ -868,6 +875,7 @@ fun MessageList(
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
     audioMessagesState: PersistentMap<String, AudioState>,
+    assetStatuses: PersistentMap<String, MessageAssetStatus>,
     onUpdateConversationReadDate: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
@@ -885,12 +893,16 @@ fun MessageList(
     selectedMessageId: String?,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit
 ) {
-    val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
+    val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
+    LaunchedEffect(lazyPagingMessages.itemCount) {
+        if (lazyPagingMessages.itemCount > prevItemCount.value) {
+            prevItemCount.value = lazyPagingMessages.itemCount
 
-    LaunchedEffect(mostRecentMessage) {
-        // Most recent message changed, if the user didn't scroll up, we automatically scroll down to reveal the new message
-        if (lazyListState.firstVisibleItemIndex < MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS) {
-            lazyListState.animateScrollToItem(0)
+            if (lazyListState.firstVisibleItemIndex > 0
+                && lazyListState.firstVisibleItemIndex <= MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS
+            ) {
+                lazyListState.animateScrollToItem(0)
+            }
         }
     }
 
@@ -930,7 +942,17 @@ fun MessageList(
                     contentType = lazyPagingMessages.itemContentType { it }
                 ) { index ->
                     val message: UIMessage = lazyPagingMessages[index]
-                        ?: return@items // We can draw a placeholder here, as we fetch the next page of messages
+                        ?: return@items Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(dimensions().spacing56x),
+                        ) {
+                            WireCircularProgressIndicator(
+                                progressColor = MaterialTheme.wireColorScheme.secondaryText,
+                                size = dimensions().spacing24x
+                            )
+                        }
 
                     val showAuthor = rememberShouldShowHeader(index, message, lazyPagingMessages)
                     val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
@@ -943,6 +965,7 @@ fun MessageList(
                                 showAuthor = showAuthor,
                                 useSmallBottomPadding = useSmallBottomPadding,
                                 audioMessagesState = audioMessagesState,
+                                assetStatus = assetStatuses[message.header.messageId],
                                 onAudioClick = onAudioItemClicked,
                                 onChangeAudioPosition = onChangeAudioPosition,
                                 onLongClicked = onShowEditingOption,

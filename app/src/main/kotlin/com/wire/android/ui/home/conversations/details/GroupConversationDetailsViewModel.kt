@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -153,7 +154,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     isArchived = groupDetails.conversation.archived,
                     protocol = groupDetails.conversation.protocol,
                     mlsVerificationStatus = groupDetails.conversation.mlsVerificationStatus,
-                    proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus
+                    proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus,
+                    isUnderLegalHold = groupDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
                 )
                 val isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed()
                 val isUpdatingReadReceiptAllowed = if (selfTeam == null) {

@@ -263,6 +263,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideGetDefaultProtocol(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).getDefaultProtocol
+
+    @ViewModelScoped
+    @Provides
     fun provideIsE2EIEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).isE2EIEnabled
 
@@ -460,4 +465,9 @@ class UseCaseModule {
     @Provides
     fun provideObserveLegalHoldForUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).observeLegalHoldStateForUser
+
+    @ViewModelScoped
+    @Provides
+    fun provideMembersHavingLegalHoldClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).membersHavingLegalHoldClient
 }

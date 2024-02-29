@@ -21,7 +21,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -40,8 +39,11 @@ import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 
@@ -51,8 +53,10 @@ fun GroupConversationDetailsTopBarCollapsing(
     conversationId: ConversationId,
     totalParticipants: Int,
     isLoading: Boolean,
+    isUnderLegalHold: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
+    onLegalHoldLearnMoreClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -88,37 +92,35 @@ fun GroupConversationDetailsTopBarCollapsing(
                         end.linkTo(parent.end)
                     }
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                Text(
+                    text = title.ifBlank {
+                        if (isLoading) ""
+                        else UIText.StringResource(R.string.group_unavailable_label).asString()
+                    },
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    style = MaterialTheme.wireTypography.body02,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
                         .padding(
                             horizontal = dimensions().spacing16x,
                             vertical = dimensions().spacing4x
                         )
-                ) {
-                    Text(
-                        text = title.ifBlank {
-                            if (isLoading) ""
-                            else UIText.StringResource(R.string.group_unavailable_label).asString()
-                        },
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                        style = MaterialTheme.wireTypography.body02,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                )
+                Text(
+                    text = stringResource(
+                        id = R.string.conversation_details_participants_count,
+                        totalParticipants
+                    ),
+                    style = MaterialTheme.wireTypography.subline01,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
                     modifier = Modifier
                         .padding(horizontal = dimensions().spacing64x)
-                ) {
-                    Text(
-                        text = stringResource(
-                            id = R.string.conversation_details_participants_count,
-                            totalParticipants
-                        ),
-                        style = MaterialTheme.wireTypography.subline01,
-                        color = MaterialTheme.wireColorScheme.secondaryText
+                )
+                if (isUnderLegalHold) {
+                    LegalHoldSubjectBanner(
+                        onClick = onLegalHoldLearnMoreClick,
+                        modifier = Modifier.padding(vertical = dimensions().spacing8x)
                     )
                 }
             }
@@ -128,6 +130,23 @@ fun GroupConversationDetailsTopBarCollapsing(
         SearchAndMediaRow(
             onSearchConversationMessagesClick = onSearchConversationMessagesClick,
             onConversationMediaClick = onConversationMediaClick
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupConversationDetailsTopBarCollapsing() {
+    WireTheme {
+        GroupConversationDetailsTopBarCollapsing(
+            title = "Conversation Title",
+            conversationId = ConversationId("conversationId", "domain"),
+            totalParticipants = 10,
+            isUnderLegalHold = true,
+            isLoading = false,
+            onSearchConversationMessagesClick = {},
+            onConversationMediaClick = {},
+            onLegalHoldLearnMoreClick = {},
         )
     }
 }

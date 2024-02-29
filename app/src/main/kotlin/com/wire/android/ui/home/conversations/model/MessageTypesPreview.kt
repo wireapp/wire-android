@@ -40,8 +40,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.persistentMapOf
 
@@ -336,11 +334,7 @@ fun PreviewImageMessageUploaded() {
             message = mockedImageUIMessage(messageId = "assetMessageId"),
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
-            assetStatus = MessageAssetStatus(
-                "assetMessageId",
-                ConversationId("value", "domain"),
-                transferStatus = AssetTransferStatus.UPLOADED
-            ),
+            assetStatus = AssetTransferStatus.UPLOADED,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -363,11 +357,7 @@ fun PreviewImageMessageUploading() {
             message = mockedImageUIMessage("assetMessageId"),
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
-            assetStatus = MessageAssetStatus(
-                "assetMessageId",
-                ConversationId("value", "domain"),
-                transferStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS
-            ),
+            assetStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -396,11 +386,7 @@ fun PreviewImageMessageFailedUpload() {
             ),
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
-            assetStatus = MessageAssetStatus(
-                "assetMessageId",
-                ConversationId("value", "domain"),
-                transferStatus = AssetTransferStatus.FAILED_UPLOAD
-            ),
+            assetStatus = AssetTransferStatus.FAILED_UPLOAD,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},

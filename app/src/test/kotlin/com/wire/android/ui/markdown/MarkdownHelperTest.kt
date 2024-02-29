@@ -24,6 +24,8 @@ import org.commonmark.node.Paragraph
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 class MarkdownHelperTest {
@@ -253,5 +255,41 @@ class MarkdownHelperTest {
 
         assert(result is MarkdownNode.Inline.Strikethrough)
         assertEquals(1, result.children.size)
+    }
+
+    @Test
+    fun `given text without query, filterNodesContainingQuery should return null`() {
+        val textNode = Text("This is a sample text without the query.").toContent()
+
+        val result = textNode.filterNodesContainingQuery("query")
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `given text with query, filterNodesContainingQuery should return non-null result`() {
+        val textNode = Text("Sample text with query in the middle.").toContent()
+
+        val result = textNode.filterNodesContainingQuery("query")
+
+        assertNotNull(result)
+    }
+
+    @Test
+    fun `given text with multiple queries, filterNodesContainingQuery should return non-null result`() {
+        val textNode = Text("Query at the start and another query towards the end.").toContent()
+
+        val result = textNode.filterNodesContainingQuery("query")
+
+        assertNotNull(result)
+    }
+
+    @Test
+    fun `given text with query case insensitive, filterNodesContainingQuery should return non-null result`() {
+        val textNode = Text("Text with Query in mixed CASE.").toContent()
+
+        val result = textNode.filterNodesContainingQuery("query")
+
+        assertNotNull(result)
     }
 }

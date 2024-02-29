@@ -70,6 +70,7 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_FOUND
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOAD_IN_PROGRESS
+import kotlinx.collections.immutable.PersistentList
 import okio.Path
 import org.commonmark.Extension
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
@@ -87,7 +88,7 @@ internal fun MessageBody(
     searchQuery: String = "",
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
-    buttonList: List<MessageButton>?,
+    buttonList: PersistentList<MessageButton>?,
     onLinkClick: (String) -> Unit,
     clickable: Boolean = true
 ) {

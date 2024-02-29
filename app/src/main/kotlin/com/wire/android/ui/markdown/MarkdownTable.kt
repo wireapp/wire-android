@@ -24,6 +24,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
@@ -138,8 +141,9 @@ fun MarkdownNodeTable(tableBlock: MarkdownNode.Block.Table, nodeData: NodeData, 
         }
     }
 
-    val columnCount = tableData.firstOrNull()?.size ?: 0
-    println("KBX column count $columnCount")
+    val columnCount by remember {
+        mutableStateOf(tableData.firstOrNull()?.size ?: 0)
+    }
 
     // Create a table
     Column(modifier = Modifier.padding(bottom = dimensions().spacing8x)) {

@@ -127,29 +127,10 @@ fun MarkdownNode.filterNodesContainingQuery(query: String): MarkdownNode? {
             }
         }
 
-        is MarkdownNode.Block.IntendedCode -> if (literal.contains(query, ignoreCase = true)) {
-            this
-        } else {
-            null
-        }
-
-        is MarkdownNode.Block.FencedCode -> if (literal.contains(query, ignoreCase = true)) {
-            this
-        } else {
-            null
-        }
-
-        is MarkdownNode.Inline.Text -> if (literal.contains(query, ignoreCase = true)) {
-            this
-        } else {
-            null
-        }
-
-        is MarkdownNode.Inline.Code -> if (literal.contains(query, ignoreCase = true)) {
-            this
-        } else {
-            null
-        }
+        is MarkdownNode.Block.IntendedCode -> processLiteral(literal, query)?.let { this.copy(literal = it) }
+        is MarkdownNode.Block.FencedCode -> processLiteral(literal, query)?.let { this.copy(literal = it) }
+        is MarkdownNode.Inline.Text -> processLiteral(literal, query)?.let { this.copy(literal = it) }
+        is MarkdownNode.Inline.Code -> processLiteral(literal, query)?.let { this.copy(literal = it) }
 
         is MarkdownNode.Inline.Link,
         is MarkdownNode.Inline.StrongEmphasis,
@@ -172,10 +153,8 @@ fun MarkdownNode.filterNodesContainingQuery(query: String): MarkdownNode? {
             }
         }
 
-        is MarkdownNode.Inline.Image -> if (title?.contains(query, ignoreCase = true) == true || destination.contains(
-                query,
-                ignoreCase = true
-            )
+        is MarkdownNode.Inline.Image -> if (title?.contains(query, ignoreCase = true) == true
+            || destination.contains(query, ignoreCase = true)
         ) this else null
 
         is MarkdownNode.Block.ThematicBreak -> null
@@ -194,6 +173,67 @@ private fun MarkdownNode.containsQuery(query: String): Boolean {
         else -> children.anyContainsQuery(query)
     }
 }
+
+private fun processLiteral(inputString: String, queryString: String, wordsAround: Int = 3): String? {
+    val matches = queryString.toRegex(option = RegexOption.IGNORE_CASE).findAll(inputString).toList()
+    if (matches.isEmpty()) return null
+
+    val result = StringBuilder()
+    var lastEnd = 0
+
+    matches.forEachIndexed { index, matchResult ->
+        val matchStart = matchResult.range.first
+        val matchEnd = matchResult.range.last + 1
+
+        val contextStart = maxOf(findContextStart(inputString, matchStart, wordsAround), lastEnd)
+        val contextEnd = findContextEnd(inputString, matchEnd, wordsAround)
+
+        if (index == 0 && contextStart > 0) {
+            result.append("...")
+        }
+
+        if (index != 0 && contextStart - lastEnd > 1) {
+            result.append("...")
+        }
+
+        if (contextStart < contextEnd) {
+            if (lastEnd != 0 && contextStart <= lastEnd) {
+                result.append(inputString.substring(lastEnd, contextEnd))
+            } else {
+                result.append(inputString.substring(contextStart, contextEnd))
+            }
+        }
+
+        lastEnd = contextEnd
+    }
+
+    if (lastEnd < inputString.length) {
+        result.append("...")
+    }
+
+    return if (result.isEmpty()) null else result.toString()
+}
+
+fun findContextStart(inputString: String, matchStart: Int, wordsAround: Int): Int {
+    var spaceCount = 0
+    var index = matchStart - 1
+    while (index >= 0 && spaceCount < wordsAround) {
+        if (inputString[index].isWhitespace()) spaceCount++
+        index--
+    }
+    return index + 1
+}
+
+fun findContextEnd(inputString: String, matchEnd: Int, wordsAround: Int): Int {
+    var spaceCount = 0
+    var index = matchEnd
+    while (index < inputString.length && spaceCount < wordsAround) {
+        if (inputString[index].isWhitespace()) spaceCount++
+        index++
+    }
+    return index
+}
+
 
 private fun List<MarkdownNode>.anyContainsQuery(query: String): Boolean {
     return any { it.containsQuery(query) }

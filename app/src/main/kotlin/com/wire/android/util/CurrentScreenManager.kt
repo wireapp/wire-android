@@ -180,7 +180,6 @@ sealed class CurrentScreen {
     object InBackground : CurrentScreen()
 
     companion object {
-
         @Suppress("ComplexMethod")
         fun fromDestination(destination: Destination?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
             if (!isAppVisible) {

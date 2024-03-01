@@ -287,7 +287,7 @@ class RecordAudioViewModelTest {
         fun arrange() = this to viewModel
 
         companion object {
-            val ASSET_SIZE_LIMIT = 5L
+            const val ASSET_SIZE_LIMIT = 5L
             val DUMMY_CALL = Call(
                 conversationId = ConversationId(
                     value = "conversationId",

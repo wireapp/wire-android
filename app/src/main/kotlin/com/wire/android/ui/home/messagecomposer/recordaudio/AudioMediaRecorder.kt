@@ -24,7 +24,6 @@ import com.wire.android.appLogger
 import com.wire.android.util.audioFileDateTime
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
@@ -36,7 +35,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 @ViewModelScoped
 class AudioMediaRecorder @Inject constructor(

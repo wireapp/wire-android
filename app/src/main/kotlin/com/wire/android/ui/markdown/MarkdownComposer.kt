@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2023 Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -332,7 +332,8 @@ fun highlightText(nodeData: NodeData, text: String): AnnotatedString {
                 if (highLightIndex.endIndex <= length) {
                     addStyle(
                         style = SpanStyle(
-                            background = nodeData.colorScheme.highlight.copy(alpha = 0.5f),
+                            background = nodeData.colorScheme.highlight,
+                            color = nodeData.colorScheme.onHighlight,
                             fontFamily = nodeData.typography.body02.fontFamily,
                             fontWeight = FontWeight.Bold
                         ),

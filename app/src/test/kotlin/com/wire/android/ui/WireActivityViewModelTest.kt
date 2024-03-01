@@ -763,7 +763,7 @@ class WireActivityViewModelTest {
 
         fun withCurrentScreen(currentScreenFlow: StateFlow<CurrentScreen>) = apply {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns currentScreenFlow
-            coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).observeIfE2EIRequiredDuringLogin()} returns flowOf(false)
+            coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).observeIfE2EIRequiredDuringLogin() } returns flowOf(false)
         }
 
         suspend fun withScreenshotCensoringConfig(result: ObserveScreenshotCensoringConfigResult) = apply {

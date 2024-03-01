@@ -838,12 +838,16 @@ fun MessageList(
     onLinkClick: (String) -> Unit,
     selectedMessageId: String?
 ) {
-    val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
-
-    LaunchedEffect(mostRecentMessage) {
-        // Most recent message changed, if the user didn't scroll up, we automatically scroll down to reveal the new message
-        if (lazyListState.firstVisibleItemIndex < MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS) {
-            lazyListState.animateScrollToItem(0)
+    val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
+    LaunchedEffect(lazyPagingMessages.itemCount) {
+        if (lazyPagingMessages.itemCount > prevItemCount.value && selectedMessageId == null) {
+            if (prevItemCount.value > 0
+                && lazyListState.firstVisibleItemIndex > 0
+                && lazyListState.firstVisibleItemIndex <= MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS
+            ) {
+                lazyListState.animateScrollToItem(0)
+            }
+            prevItemCount.value = lazyPagingMessages.itemCount
         }
     }
 

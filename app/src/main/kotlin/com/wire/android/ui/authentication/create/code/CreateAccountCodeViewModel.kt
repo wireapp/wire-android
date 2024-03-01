@@ -70,7 +70,8 @@ class CreateAccountCodeViewModel @Inject constructor(
     fun resendCode() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)().let {
+            // create account does not support proxy yet
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)(null).let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -129,7 +130,8 @@ class CreateAccountCodeViewModel @Inject constructor(
     private fun onCodeContinue(onSuccess: () -> Unit) {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)().let {
+            // create account does not support proxy yet
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)(null).let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 

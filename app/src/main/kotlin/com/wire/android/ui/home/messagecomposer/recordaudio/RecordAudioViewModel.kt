@@ -31,6 +31,7 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,6 +48,7 @@ import kotlin.io.path.deleteIfExists
 class RecordAudioViewModel @Inject constructor(
     private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
+    private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val currentScreenManager: CurrentScreenManager,
     private val audioMediaRecorder: AudioMediaRecorder
 ) : ViewModel() {
@@ -130,7 +132,10 @@ class RecordAudioViewModel @Inject constructor(
                 infoMessage.emit(RecordAudioInfoMessageType.UnableToRecordAudioCall.uiText)
             }
         } else {
-            audioMediaRecorder.setUp()
+            viewModelScope.launch {
+                val assetSizeLimit = getAssetSizeLimit(false)
+                audioMediaRecorder.setUp(assetSizeLimit)
+            }
 
             state = state.copy(
                 outputFile = audioMediaRecorder.outputFile

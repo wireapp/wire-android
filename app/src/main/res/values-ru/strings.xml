@@ -212,6 +212,7 @@
     <string name="welcome_screen_carousel_item_message_5">Компания Wire прошла независимый аудит и соответствует требованиям ISO, CCPA, GDPR, SOX</string>
     <string name="welcome_button_create_team">Создать команду</string>
     <string name="server_details_dialog_body">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">Внутренний бэкэнд</string>
     <string name="welcome_migration_dialog_title">Добро пожаловать в наше новое приложение для Android 👋</string>
     <string name="welcome_migration_dialog_content">Мы переработали приложение, чтобы сделать его более удобным для всех.\n\nУзнайте больше об обновленном приложении Wire - новые возможности и улучшенная доступность при прежней надежной защите.</string>
@@ -483,7 +484,7 @@
     <string name="user_profile_status_away">Отошел</string>
     <string name="user_profile_status_none">Отключен</string>
     <string name="user_profile_new_account_text">Новая команда или аккаунт</string>
-    <string name="user_profile_details_tab">Детали</string>
+    <string name="user_profile_details_tab">Подробности</string>
     <string name="user_profile_devices_tab">Устройства</string>
     <string name="user_profile_group_tab">Группа</string>
     <string name="user_profile_group_member">Участник группы \"%s\"</string>
@@ -614,8 +615,8 @@
     <string name="label_system_message_conversation_failed_add_members_summary">Не удалось добавить в группу %1$s **участников**.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">Не удалось добавить %1$s в группу.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">Не удалось добавить %1$s в группу.</string>
-    <string name="label_system_message_conversation_degraded_mls">Эта беседа больше является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
-    <string name="label_system_message_conversation_degraded_proteus">Эта беседа больше является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
+    <string name="label_system_message_conversation_degraded_mls">Эта беседа больше не является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
+    <string name="label_system_message_conversation_degraded_proteus">Эта беседа больше не является верифицированной, поскольку по крайней мере один из участников начал использовать новое устройство или имеет недействительный сертификат.</string>
     <string name="label_system_message_conversation_verified_mls">Все устройства верифицированы (сквозная идентификация)</string>
     <string name="label_system_message_conversation_verified_proteus">Все отпечатки верифицированы (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">Общение в Wire всегда ведется с использованием сквозного шифрования. Все, что вы отправляете и получаете в этой беседе, доступно только вам и другим участникам группы.\n**Пожалуйста, будьте осторожны с теми, кому вы сообщаете конфиденциальную информацию.**</string>
@@ -853,6 +854,7 @@
     <string name="calling_confirm_start_call_title_dialog">Начать звонок</string>
     <string name="calling_confirm_start_call_description_dialog">Вы действительно хотите позвонить %1$s пользователям?</string>
     <string name="calling_confirm_start_call_action_dialog">Позвонить</string>
+    <string name="calling_participant_tile_default_user_name">Name not available</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
     <string name="connectivity_status_bar_connecting">Расшифровка сообщений</string>
@@ -942,7 +944,7 @@
     <string name="settings_manage_devices_label">Управление устройствами</string>
     <string name="settings_keep_connection_to_websocket">Поддерживать соединение с веб-сокетом</string>
     <string name="settings_keep_connection_to_websocket_description">Позволяет оптимизировать получение уведомлений, поддерживая постоянное соединение с %1$s. Эта опция заменит службу уведомлений, если Google Services недоступны на устройстве.</string>
-    <string name="settings_service_is_running">запущен</string>
+    <string name="settings_service_is_running">активен</string>
     <!--Settings, Appearance -->
     <string name="settings_appearance_label">Внешний вид</string>
     <string name="settings_appearance_theme_label">Тема</string>
@@ -992,7 +994,7 @@
     <string name="turn_app_lock_off_dialog_description">Теперь не потребуется разблокировать Wire с помощью пароля или биометрии.</string>
     <string name="label_turn_off">Отключить</string>
     <string name="team_app_lock_enabled">Блокировка приложения теперь обязательна. Wire блокируется спустя определенное время бездействия. Для разблокировки приложения необходимо ввести код доступа или использовать биометрическую аутентификацию.</string>
-    <string name="team_app_lock_disabled">Блокировка приложений больше не является обязательной. Wire больше не будет блокироваться после определенного времени бездействия.</string>
+    <string name="team_app_lock_disabled">Блокировка приложения больше не является обязательной. Wire больше не будет блокироваться сам по истечении определенного времени бездействия.</string>
     <string name="settings_forgot_lock_screen_title">Забыли код доступа к приложению?</string>
     <string name="settings_forgot_lock_screen_description">Доступ к данным, хранящимся на этом устройстве, возможен только с помощью кода доступа приложения. Если вы забудете свой код доступа, вы можете удалить это устройство.</string>
     <string name="settings_forgot_lock_screen_warning">При удалении устройства вы навсегда теряете все локальные данные и сообщения всех аккаунтов на этом устройстве.</string>
@@ -1027,11 +1029,13 @@
     <string name="custom_backend_dialog_body">При продолжении вы будете перенаправлены на следующий локальный бэкэнд:</string>
     <string name="custom_backend_dialog_body_backend_name">Название бэкэнда:</string>
     <string name="custom_backend_dialog_body_backend_api">URL бэкэнда:</string>
-    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
-    <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
-    <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
-    <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
-    <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">URL черного списка:</string>
+    <string name="custom_backend_dialog_body_backend_teams">URL команды:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">URL аккаунта:</string>
+    <string name="custom_backend_dialog_body_backend_website">URL веб-сайта:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">WSURL бэкэнда:</string>
     <string name="label_fetching_your_messages">Получение новых сообщений</string>
     <string name="label_text_copied">Текст скопирован в буфер обмена</string>
     <string name="label_logs_option_title">Журналы</string>
@@ -1072,7 +1076,7 @@
     <string name="backup_dialog_create_backup_set_password_title">Установить пароль</string>
     <string name="backup_dialog_create_backup_set_password_message">Резервная копия будет сжата и зашифрована паролем. Храните ее в надежном месте.</string>
     <string name="backup_dialog_create_backup_now">Создать резервную копию сейчас</string>
-    <string name="backup_dialog_create_backup_title">Создание резервной записи</string>
+    <string name="backup_dialog_create_backup_title">Создание резервной копии</string>
     <string name="backup_dialog_create_backup_subtitle">Сохранение бесед...</string>
     <string name="backup_dialog_create_error_title">Что-то пошло не так</string>
     <string name="backup_dialog_create_error_subtitle">Не удалось создать резервную копию. Пожалуйста, повторите попытку или обратитесь в службу поддержки Wire.</string>
@@ -1308,6 +1312,10 @@
     <string name="end_to_end_identity_renew_success_dialog_text">Сертификат обновлен, а устройство верифицировано.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Сведения о сертификате</string>
     <string name="end_to_end_identity_ceritifcate">Сведения о сертификате</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_title">Сертификат сквозной идентификации отозван</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Для снижения рисков безопасности следует осуществить выход. После авторизации получите новый сертификат и сбросьте пароль.\n\nЕсли вы продолжите использование этого устройства, ваши разговоры больше не будут являться верифицированными.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Выйти</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Продолжить использование этого устройства</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Начать запись</string>
     <string name="record_audio_recording_label">Запись аудио…</string>
@@ -1321,7 +1329,7 @@
     <string name="record_audio_max_file_size_reached_title">Запись остановлена</string>
     <string name="record_audio_max_file_size_reached_text">Размер файла аудиосообщения ограничен %1$d МБ.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Записать аудиосообщение во время звонка невозможно.</string>
-    <string name="call_permission_dialog_title">Разрешения приложения</string>
+    <string name="call_permission_dialog_title">App permission</string>
     <string name="call_permission_dialog_description">Чтобы позвонить, разрешите Wire доступ к микрофону в настройках устройства.</string>
     <string name="label_not_now">Не сейчас</string>
     <string name="last_message_composite_with_missing_text">отправил интерактивное сообщение</string>
@@ -1366,7 +1374,7 @@
     <string name="url_legal_hold_learn_more">https://support.wire.com/hc/articles/360002018278-What-is-legal-hold-</string>
     <string name="legal_hold_deactivated_dialog_title">Юридические ограничения деактивированы</string>
     <string name="legal_hold_deactivated_dialog_description">Будущие сообщения записываться не будут.</string>
-    <string name="legal_hold_subject_dialog_title">%1$s является субъектом юридических ограничением</string>
+    <string name="legal_hold_subject_dialog_title">%1$s является субъектом юридических ограничений</string>
     <string name="legal_hold_subject_dialog_description">Все сообщения, изображения и документы будут сохранены для последующего доступа. Сюда входят удаленные, отредактированные и самоудаляющиеся сообщения.</string>
     <string name="legal_hold_subject_dialog_description_group">По крайней мере, один из участников этой беседы находится под юридическим ограничением.</string>
     <string name="legal_hold_subject_dialog_description_message">Вы все еще хотите отправить ваше сообщение?</string>

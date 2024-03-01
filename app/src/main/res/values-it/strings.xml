@@ -214,6 +214,7 @@
 
 URL backend:
 %2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">Backend In Situ</string>
     <string name="welcome_migration_dialog_title">Benvenuto nella nuova app per Android &#128075;</string>
     <string name="welcome_migration_dialog_content">Abbiamo ricostruito l\'app per renderla pi&#249; adatta a tutti. 
@@ -823,6 +824,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="calling_confirm_start_call_title_dialog">Avvia una chiamata</string>
     <string name="calling_confirm_start_call_description_dialog">Sei sicuro di voler chiamare %1$s persone?</string>
     <string name="calling_confirm_start_call_action_dialog">Chiama</string>
+    <string name="calling_participant_tile_default_user_name">Name not available</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Ritorna alla chiamata</string>
     <string name="connectivity_status_bar_connecting">Decrittografando i messaggi</string>
@@ -989,6 +991,8 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
     <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
@@ -1250,6 +1254,10 @@ registrato. Sei pregato di riprovare.</string>
     <string name="end_to_end_identity_renew_success_dialog_text">Il certificato è aggiornato e il tuo dispositivo è verificato.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Dettagli del certificato</string>
     <string name="end_to_end_identity_ceritifcate">Dettagli del certificato</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Log out to reduce security risks. Then log in again, get a new certificate, and reset your password.\n\nIf you keep using this device, your conversations are no longer verified.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Log out</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Continue Using This Device</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Avvia la registrazione</string>
     <string name="record_audio_recording_label">Registrazione audio…</string>
@@ -1263,7 +1271,7 @@ registrato. Sei pregato di riprovare.</string>
     <string name="record_audio_max_file_size_reached_title">Registrazione arrestata</string>
     <string name="record_audio_max_file_size_reached_text">Le dimensioni dei file per i messaggi vocali sono limitate a %1$s MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Non puoi registrare un messaggio vocale durante una chiamata.</string>
-    <string name="call_permission_dialog_title">Autorizzazioni dell\'app</string>
+    <string name="call_permission_dialog_title">App permission</string>
     <string name="call_permission_dialog_description">Per effettuare una chiamata, consenti a Wire l\'accesso al tuo microfono nelle impostazioni del tuo dispositivo.</string>
     <string name="label_not_now">Non adesso</string>
     <string name="last_message_composite_with_missing_text">invia un messaggio interattivo</string>

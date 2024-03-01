@@ -218,6 +218,7 @@ Wybierz silne has&#322;o, aby chroni&#263; plik kopii zapasowej.</string>
 
 URL &#347;rodowiska:
 %2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">Lokalne &#347;rodowisko</string>
     <string name="welcome_migration_dialog_title">Witaj w naszej nowej aplikacji Android &#128075;</string>
     <string name="welcome_migration_dialog_content">Przebudowali&#347;my aplikacj&#281;, aby by&#322;a bardziej u&#380;yteczna dla ka&#380;dego.
@@ -858,6 +859,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="calling_confirm_start_call_title_dialog">Start a call</string>
     <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
     <string name="calling_confirm_start_call_action_dialog">Call</string>
+    <string name="calling_participant_tile_default_user_name">Name not available</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Powr&#243;t do rozmowy</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
@@ -1029,6 +1031,8 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
     <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
@@ -1310,6 +1314,10 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
     <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Log out to reduce security risks. Then log in again, get a new certificate, and reset your password.\n\nIf you keep using this device, your conversations are no longer verified.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Log out</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Continue Using This Device</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>

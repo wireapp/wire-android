@@ -75,7 +75,7 @@
     <string name="label_value_copied">%s පිටපත් විය</string>
     <string name="label_disable">අබල කරන්න</string>
     <string name="folder_label_access">ප්‍රවේශය</string>
-    <string name="folder_label_protocol_details">Protocol details</string>
+    <string name="folder_label_protocol_details">කෙටුම්පතෙහි විස්තර</string>
     <string name="folder_label_messaging">පණිවිඩ</string>
     <string name="label_user_blocked">අවහිර කර ඇත</string>
     <string name="label_and">සහ</string>
@@ -210,6 +210,7 @@
     <string name="welcome_screen_carousel_item_message_5">වයර් ස්වාධීනව විගණනය කර ඇත. ISO, CCPA, GDPR, SOX-අනුකූල වේ</string>
     <string name="welcome_button_create_team">කණ්ඩායමක් සාදන්න</string>
     <string name="server_details_dialog_body">සේවාදායකයේ නම:\n%1$s\n\nඒ.ස.නි.:\n%2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">පරිශ්‍රයක සේවාදායකයකි</string>
     <string name="welcome_migration_dialog_title">අපගේ නව ඇන්ඩ්‍රොයිඩ් යෙදුමට පිළිගනිමු 👋</string>
     <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
@@ -395,9 +396,7 @@
     <string name="asset_message_saved_externally_text">සුරැකිණි</string>
     <string name="asset_message_failed_download_text">ගොනුව නොතිබේ</string>
     <string name="asset_message_failed_upload_text">ගොනුව උඩුගත නොවිණි</string>
-    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
-        device\'s download folder?
- </string>
+    <string name="asset_download_dialog_text">ඔබට ගොනුව ඇරීමට හෝ එය ඔබගේ උපාංගයේ බාගැනීම් බහාලුමට සුරැකීමට වුවමනා ද?</string>
     <string name="asset_download_dialog_open_text">අරින්න</string>
     <string name="asset_download_dialog_save_text">සුරකින්න</string>
     <string name="member_name_deleted_label">මකාදැමූ ගිණුමකි</string>
@@ -461,7 +460,7 @@
     <string name="attachment_take_photo">රූගතය</string>
     <string name="attachment_record_video">දෘශ්‍යකය</string>
     <string name="attachment_voice_message">හඬ පණිවිඩය</string>
-    <string name="attachment_share_location">Location</string>
+    <string name="attachment_share_location">ස්ථානය</string>
     <!-- User Profile -->
     <string name="user_profile_title">පරිශ්‍රීලක පැතිකඩ</string>
     <string name="user_profile_close_description">පරිශ්‍රීලක පැතිකඩ වසන්න</string>
@@ -599,8 +598,8 @@
     <string name="label_system_message_conversation_failed_add_members_summary">**සහභාගීන්** %1$s ක් සමූහයට එක් කිරීමට නොහැකි විය.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s දෙනෙක් සමූහයට එක් කිරීමට නොහැකි විය.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s දෙනෙක් සමූහයට එක් කිරීමට නොහැකි විය.</string>
-    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
-    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
+    <string name="label_system_message_conversation_degraded_mls">අවම වශයෙන් එක් සහභාගියෙක් නව උපාංගයක් භාවිතා කරන නිසා හෝ වලංගු නොවන සහතිකයක් තිබෙන බැවින් සංවාදය තවදුරටත් සත්‍යාපිත නොවේ.</string>
+    <string name="label_system_message_conversation_degraded_proteus">අවම වශයෙන් එක් සහභාගියෙක් නව උපාංගයක් භාවිතා කරන නිසා හෝ වලංගු නොවන සහතිකයක් තිබෙන බැවින් සංවාදය තවදුරටත් සත්‍යාපිත නොවේ.</string>
     <string name="label_system_message_conversation_verified_mls">සියලු උපාංග සත්‍යාපිතයි (අන්ත අනන්‍යතාව)</string>
     <string name="label_system_message_conversation_verified_proteus">සියලු ඇඟිලි සටහන් සත්‍යාපිතයි (ප්‍රෝටියස්)</string>
     <string name="label_system_message_conversation_started_sensitive_information">වයර් සන්නිවේදනය සෑම විටම අන්ත සංකේතිතයි. මෙම සංවාදයේ ඔබ යවන සහ ලැබෙන සෑම දෙයක්ම ඔබට සහ වෙනත් සමූහ සහභාගීන්ට පමණක් ප්‍රවේශ වීමට හැකිය.\n**ඔබ සංවේදී තොරතුරු බෙදාගන්නේ කවුරුන් සමඟ දැයි තවදුරටත් සැලකිලිමත් වන්න.**</string>
@@ -700,8 +699,8 @@
     <string name="label_conversation_media">මාධ්‍ය</string>
     <string name="label_conversation_pictures">ඡායාරූප</string>
     <string name="label_conversation_files">ගොනු</string>
-    <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
-    <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
+    <string name="label_conversation_pictures_empty">කිසිවෙක් මෙම සංවාදයෙහි ඡායාරූප බෙදාගෙන නැත 🥲</string>
+    <string name="label_conversation_files_empty">කිසිවෙක් මෙම සංවාදයෙහි ගොනු බෙදාගෙන නැත 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">සබඳතා</string>
     <string name="label_new_group">නව සමූහයක්</string>
@@ -812,6 +811,7 @@
     <string name="calling_confirm_start_call_title_dialog">ඇමතුමක් අරඹන්න</string>
     <string name="calling_confirm_start_call_description_dialog">ඔබට %1$s දෙනෙකුට ඇමතීමට වුවමනාද?</string>
     <string name="calling_confirm_start_call_action_dialog">අමතන්න</string>
+    <string name="calling_participant_tile_default_user_name">Name not available</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">ඇමතුමට ආපසු</string>
     <string name="connectivity_status_bar_connecting">පණිවිඩ විසංකේතනය වෙමින්</string>
@@ -977,14 +977,16 @@
     <string name="max_account_reached_dialog_button_open_profile">පැතිකඩ අරින්න</string>
     <string name="cant_switch_account_in_call">ඇමතුමක් ඇත්නම් ගිණුම් අතර මාරු වීමට නොහැකිය</string>
     <string name="custom_backend_dialog_title">පරිශ්‍රයක සේවාදායකයකට හරවා යවන්නද?</string>
-    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
-    <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
-    <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
-    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
-    <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
-    <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
-    <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
-    <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
+    <string name="custom_backend_dialog_body">ඔබ ඉදිරියට ගියහොත්, ඔබගේ අනුග්‍රාහකය පහත පරිශ්‍රයේ සේවාදායකයට හරවා යවනු ලැබේ:</string>
+    <string name="custom_backend_dialog_body_backend_name">සේවාදායකයේ නම:</string>
+    <string name="custom_backend_dialog_body_backend_api">සේවාදායකයේ ඒ.ස.නි.:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">අපලේඛනයේ ඒ.ස.නි.:</string>
+    <string name="custom_backend_dialog_body_backend_teams">කණ්ඩායම්වල ඒ.ස.නි.:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">ගිණුම්වල ඒ.ස.නි.:</string>
+    <string name="custom_backend_dialog_body_backend_website">අඩවියේ ඒ.ස.නි.:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">සේවාදායකයේ WSURL:</string>
     <string name="label_fetching_your_messages">නව පණිවිඩ ලැබෙමින්</string>
     <string name="label_text_copied">පෙළ පසුරු පුවරුවට පිටපත් විය</string>
     <string name="label_logs_option_title">සටහන්</string>
@@ -1240,6 +1242,10 @@
     <string name="end_to_end_identity_renew_success_dialog_text">සහතිකය යාවත්කාලීනයි. ඔබගේ උපාංගය සත්‍යාපිතයි.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">සහතිකයේ විස්තර</string>
     <string name="end_to_end_identity_ceritifcate">සහතිකයේ විස්තර</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_title">අන්ත අනන්‍යතා සහතිකය අහෝසි කෙරිණි</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">ආරක්‍ෂණ අවදානම් අවම කිරීමට නික්මෙන්න. ඉන්පසු නැවත ඇතුළු වී නව සහතිකයක් ගෙන ඔබගේ මුරපදය යළි සකසන්න.\n\nඔබ මෙම උපාංගය දිගටම භාවිතා කරන්නේ නම්, ඔබගේ සංවාද තවදුරටත් සත්‍යාපිත නොවේ.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">නික්මෙන්න</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">උපාංගය දිගටම භාවිතා කරන්න</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">පටිගතය අරඹන්න</string>
     <string name="record_audio_recording_label">හඬ පටිගත වෙමින්…</string>
@@ -1253,7 +1259,7 @@
     <string name="record_audio_max_file_size_reached_title">පටිගතය නතර විය</string>
     <string name="record_audio_max_file_size_reached_text">හඬ පණිවිඩ ගොනුවක ප්‍රමාණය මෙ.බ. %1$d කට සීමා වේ.</string>
     <string name="record_audio_unable_due_to_ongoing_call">ඇමතුමක් අතරතුර හඬ පණිවිඩ පටිගත කිරීමට නොහැකිය.</string>
-    <string name="call_permission_dialog_title">යෙදුමේ අවසර</string>
+    <string name="call_permission_dialog_title">App permission</string>
     <string name="call_permission_dialog_description">ඇමතුමක් ගැනීමට වයර් වෙත ඔබගේ උපාංගයේ සැකසුම් හරහා ශබ්දවාහිනියට ප්‍රවේශ වීමට ඉඩ දෙන්න.</string>
     <string name="label_not_now">දැන් නොවේ</string>
     <string name="last_message_composite_with_missing_text">අන්‍යෝන්‍ය පණිවිඩයක් යවා ඇත</string>
@@ -1322,12 +1328,12 @@
     <string name="sure_about_calling_in_degraded_dialog_body">අවම වශයෙන් එක් සහභාගියෙක් නව උපාංගයක් භාවිතා කරයි හෝ වලංගු නොවන සහතිකයක් ඇත.\n\nඔබට තවමත් ඇමතීමට වුවමනා ද?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">කෙසේ වුවත් අමතන්න</string>
     <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">App permissions</string>
-    <string name="app_permission_dialog_settings_positive_button">Settings</string>
-    <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <string name="app_permission_dialog_title">යෙදුමේ අවසර</string>
+    <string name="app_permission_dialog_settings_positive_button">සැකසුම්</string>
+    <string name="app_permission_dialog_settings_negative_button">දැන් නොවේ</string>
     <!-- Share Location -->
-    <string name="location_attachment_share_title">Share Location</string>
-    <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
-    <string name="location_loading_label">Please wait...</string>
-    <string name="location_could_not_be_shared">Location could not be shared</string>
+    <string name="location_attachment_share_title">ස්ථානය බෙදාගන්න</string>
+    <string name="location_app_permission_dialog_body">ස්ථානය යැවීම සඳහා ඔබගේ උපාංගයෙහි ස්ථානය වෙත ප්‍රවේශයට ඉඩ දෙන්න.</string>
+    <string name="location_loading_label">කරුණාකර රැඳෙන්න...</string>
+    <string name="location_could_not_be_shared">ස්ථානය බෙදාගැනීමට නොහැකි විය</string>
 </resources>

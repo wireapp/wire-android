@@ -145,8 +145,12 @@ class WireActivityViewModel @Inject constructor(
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
-    private val _observeE2EIState: MutableStateFlow<Boolean?> = MutableStateFlow(null)
-    private val observeE2EIState: StateFlow<Boolean?> = _observeE2EIState
+    private val observeE2EIState = observeUserId
+        .flatMapLatest {
+            it?.let { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(it).observeIfE2EIIsRequiredDuringLogin() }
+                ?: flowOf(null)
+        }
+        .distinctUntilChanged()
 
     init {
         observeSyncState()
@@ -154,7 +158,6 @@ class WireActivityViewModel @Inject constructor(
         observeNewClientState()
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
-        observerE2EIState()
     }
 
     private fun observeAppThemeState() {
@@ -164,18 +167,6 @@ class WireActivityViewModel @Inject constructor(
                 .collect {
                     globalAppState = globalAppState.copy(themeOption = it)
                 }
-        }
-    }
-
-    fun observerE2EIState() {
-        viewModelScope.launch(dispatchers.io()) {
-            observeUserId
-                .flatMapLatest {
-                    it?.let { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(it).observeIfE2EIIsRequiredDuringLogin() }
-                        ?: flowOf(null)
-                }
-                .distinctUntilChanged()
-                .collect { _observeE2EIState.emit(it) }
         }
     }
 
@@ -434,8 +425,8 @@ class WireActivityViewModel @Inject constructor(
 
     fun shouldLogIn(): Boolean = !hasValidCurrentSession()
 
-    fun blockedByE2EI(): Boolean {
-        return observeE2EIState.value == true
+    private fun blockedByE2EI(): Boolean = runBlocking {
+        observeE2EIState.first() ?: false
     }
 
     private fun hasValidCurrentSession(): Boolean = runBlocking {

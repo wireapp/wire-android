@@ -48,8 +48,6 @@ fun MarkdownDocument(
     } else {
         document
     }
-//    println("AFTER FILTER")
-//    printMarkdownNodeTree(filteredDocument)
     if (filteredDocument != null) {
         MarkdownNodeBlockChildren(
             (filteredDocument as MarkdownNode.Document).children,

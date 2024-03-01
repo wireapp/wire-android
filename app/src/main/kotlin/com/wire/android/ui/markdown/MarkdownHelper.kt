@@ -270,6 +270,7 @@ private fun MarkdownNode.copy(children: List<MarkdownNode>): MarkdownNode {
     }
 }
 
+// use it to investigate when some of the markdown messages are not properly showed
 fun printMarkdownNodeTree(node: MarkdownNode?, indentLevel: Int = 0) {
     node ?: return
 

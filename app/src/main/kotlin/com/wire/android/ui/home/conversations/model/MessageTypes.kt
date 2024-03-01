@@ -114,8 +114,6 @@ internal fun MessageBody(
     )
     text?.also {
         val document = (Parser.builder().extensions(extensions).build().parse(it) as Document).toContent() as MarkdownNode.Document
-//        println("BEFORE FILTER")
-//        printMarkdownNodeTree(document)
         MarkdownDocument(
             document,
             nodeData,

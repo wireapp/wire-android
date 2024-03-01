@@ -74,6 +74,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
+import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EIErrorWithDismissDialog
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
@@ -87,7 +88,10 @@ import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.functional.Either
 
 @RootNavGraph
 @Destination(
@@ -109,7 +113,8 @@ fun DeviceDetailsScreen(
             onErrorDialogDismiss = viewModel::clearDeleteClientError,
             onNavigateBack = navigator::navigateBack,
             onUpdateClientVerification = viewModel::onUpdateVerificationStatus,
-            enrollE2eiCertificate = viewModel::enrollE2eiCertificate,
+            enrollE2eiCertificate = viewModel::enrollE2EICertificate,
+            handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
             onNavigateToE2eiCertificateDetailsScreen = {
                 navigator.navigate(
                     NavigationCommand(E2eiCertificateDetailsScreenDestination(it))
@@ -132,6 +137,7 @@ fun DeviceDetailsContent(
     onDialogDismiss: () -> Unit = {},
     onErrorDialogDismiss: () -> Unit = {},
     enrollE2eiCertificate: () -> Unit = {},
+    handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
     onUpdateClientVerification: (Boolean) -> Unit = {},
     onEnrollE2EIErrorDismiss: () -> Unit = {},
     onEnrollE2EISuccessDismiss: () -> Unit = {}
@@ -284,6 +290,13 @@ fun DeviceDetailsContent(
             E2EISuccessDialog(
                 openCertificateDetails = { onNavigateToE2eiCertificateDetailsScreen(state.e2eiCertificate.certificateDetail) },
                 dismissDialog = onEnrollE2EISuccessDismiss
+            )
+        }
+
+        if (state.startGettingE2EICertificate) {
+            GetE2EICertificateUI(
+                enrollmentResultHandler = { handleE2EIEnrollmentResult(it) },
+                isNewClient = false
             )
         }
     }
@@ -569,6 +582,7 @@ fun PreviewDeviceDetailsScreen() {
         ),
         onPasswordChange = { },
         enrollE2eiCertificate = { },
+        handleE2EIEnrollmentResult = {},
         onRemoveConfirm = { },
         onDialogDismiss = { },
         onErrorDialogDismiss = { }

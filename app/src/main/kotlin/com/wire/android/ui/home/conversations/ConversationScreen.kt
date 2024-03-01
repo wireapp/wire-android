@@ -895,24 +895,14 @@ fun MessageList(
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     LaunchedEffect(lazyPagingMessages.itemCount) {
-<<<<<<< HEAD
-        if (lazyPagingMessages.itemCount > prevItemCount.value) {
-            prevItemCount.value = lazyPagingMessages.itemCount
-
-            if (lazyListState.firstVisibleItemIndex > 0
-=======
         if (lazyPagingMessages.itemCount > prevItemCount.value && selectedMessageId == null) {
             if (prevItemCount.value > 0
                 && lazyListState.firstVisibleItemIndex > 0
->>>>>>> b5be8158e (fix: unexpected scrolling on selected message [WPB-6932] (#2753))
                 && lazyListState.firstVisibleItemIndex <= MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS
             ) {
                 lazyListState.animateScrollToItem(0)
             }
-<<<<<<< HEAD
-=======
             prevItemCount.value = lazyPagingMessages.itemCount
->>>>>>> b5be8158e (fix: unexpected scrolling on selected message [WPB-6932] (#2753))
         }
     }
 

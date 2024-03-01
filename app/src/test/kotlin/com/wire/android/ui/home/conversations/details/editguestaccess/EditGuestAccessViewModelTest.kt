@@ -48,7 +48,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -81,37 +80,39 @@ class EditGuestAccessViewModelTest {
         }
 
     @Test
-    fun `given a failure when running updateConversationAccessRole, when trying to enable guest access, then do not enable guest access`() = runTest {
-        // given
-        val (arrangement, editGuestAccessViewModel) = Arrangement()
-            .withUpdateConversationAccessRoleResult(
-                UpdateConversationAccessRoleUseCase.Result.Failure(CoreFailure.MissingClientRegistration)
-            ).arrange()
-        advanceUntilIdle()
+    fun `given a failure when running updateConversationAccessRole, when trying to enable guest access, then do not enable guest access`() =
+        runTest {
+            // given
+            val (arrangement, editGuestAccessViewModel) = Arrangement()
+                .withUpdateConversationAccessRoleResult(
+                    UpdateConversationAccessRoleUseCase.Result.Failure(CoreFailure.MissingClientRegistration)
+                ).arrange()
+            advanceUntilIdle()
 
-        // when
-        editGuestAccessViewModel.updateGuestAccess(true)
+            // when
+            editGuestAccessViewModel.updateGuestAccess(true)
 
-        // then
-        coVerify(exactly = 1) { arrangement.updateConversationAccessRole(any(), any(), any()) }
-        assertEquals(false, editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed)
-    }
+            // then
+            coVerify(exactly = 1) { arrangement.updateConversationAccessRole(any(), any(), any()) }
+            assertEquals(false, editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed)
+        }
 
     @Test
-    fun `given guest access is activated, when trying to disable guest access, then display dialog before disabling guest access`() = runTest {
-        // given
-        val (arrangement, editGuestAccessViewModel) = Arrangement()
-            .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success)
-            .arrange()
-        advanceUntilIdle()
+    fun `given guest access is activated, when trying to disable guest access, then display dialog before disabling guest access`() =
+        runTest {
+            // given
+            val (arrangement, editGuestAccessViewModel) = Arrangement()
+                .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success)
+                .arrange()
+            advanceUntilIdle()
 
-        // when
-        editGuestAccessViewModel.updateGuestAccess(false)
+            // when
+            editGuestAccessViewModel.updateGuestAccess(false)
 
-        // then
-        coVerify(inverse = true) { arrangement.updateConversationAccessRoleUseCase(any(), any(), any()) }
-        assertEquals(true, editGuestAccessViewModel.editGuestAccessState.shouldShowGuestAccessChangeConfirmationDialog)
-    }
+            // then
+            coVerify(inverse = true) { arrangement.updateConversationAccessRoleUseCase(any(), any(), any()) }
+            assertEquals(true, editGuestAccessViewModel.editGuestAccessState.shouldShowGuestAccessChangeConfirmationDialog)
+        }
 
     @Test
     fun `given useCase runs with success, when_generating guest link, then invoke it once`() = runTest {
@@ -220,9 +221,16 @@ class EditGuestAccessViewModelTest {
 
         val conversationDetailsResult = flowOf(
             TestConversationDetails.GROUP.let {
-                it.copy(conversation = it.conversation.copy(accessRole = listOf(Conversation.AccessRole.GUEST, Conversation.AccessRole.NON_TEAM_MEMBER), name = "test")).let {
-                        ObserveConversationDetailsUseCase.Result.Success(it)
-                    }
+                it.copy(
+                    conversation = it.conversation.copy(
+                        accessRole = listOf(
+                            Conversation.AccessRole.GUEST,
+                            Conversation.AccessRole.NON_TEAM_MEMBER
+                        ), name = "test"
+                    )
+                ).let {
+                    ObserveConversationDetailsUseCase.Result.Success(it)
+                }
             }
         )
 

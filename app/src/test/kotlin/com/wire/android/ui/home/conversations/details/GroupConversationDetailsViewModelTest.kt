@@ -420,7 +420,8 @@ class GroupConversationDetailsViewModelTest {
             isArchived = false,
             protocol = Conversation.ProtocolInfo.Proteus,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            isUnderLegalHold = true,
         )
         // When - Then
         assertEquals(expected, viewModel.conversationSheetContent)
@@ -592,7 +593,7 @@ class GroupConversationDetailsViewModelTest {
                 archivedDateTime = null,
                 mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
                 proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-                legalHoldStatus = Conversation.LegalHoldStatus.DISABLED
+                legalHoldStatus = Conversation.LegalHoldStatus.ENABLED
             ),
             hasOngoingCall = false,
             lastMessage = null,

@@ -42,8 +42,7 @@ import kotlin.properties.Delegates
 class AudioMediaRecorder @Inject constructor(
     private val context: Context,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val dispatcherProvider: DispatcherProvider,
-    private val getAssetSizeLimit: GetAssetSizeLimitUseCase
+    private val dispatcherProvider: DispatcherProvider
 ) {
 
     private val scope by lazy {
@@ -52,21 +51,13 @@ class AudioMediaRecorder @Inject constructor(
 
     private var mediaRecorder: MediaRecorder? = null
 
-    private var assetLimitInMegabyte by Delegates.notNull<Long>()
-
     var outputFile: File? = null
 
     private val _maxFileSizeReached = MutableSharedFlow<RecordAudioDialogState>()
     fun getMaxFileSizeReached(): Flow<RecordAudioDialogState> =
         _maxFileSizeReached.asSharedFlow()
 
-    init {
-        scope.launch {
-            assetLimitInMegabyte = getAssetSizeLimit(isImage = false)
-        }
-    }
-
-    fun setUp() {
+    fun setUp(assetLimitInMegabyte: Long) {
         if (mediaRecorder == null) {
             mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 MediaRecorder(context)
@@ -87,7 +78,7 @@ class AudioMediaRecorder @Inject constructor(
             mediaRecorder?.setMaxFileSize(assetLimitInMegabyte)
             mediaRecorder?.setOutputFile(outputFile)
 
-            observeAudioFileSize()
+            observeAudioFileSize(assetLimitInMegabyte)
         }
     }
 
@@ -112,7 +103,7 @@ class AudioMediaRecorder @Inject constructor(
         mediaRecorder?.release()
     }
 
-    private fun observeAudioFileSize() {
+    private fun observeAudioFileSize(assetLimitInMegabyte: Long) {
         mediaRecorder?.setOnInfoListener { _, what, _ ->
             if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
                 scope.launch {

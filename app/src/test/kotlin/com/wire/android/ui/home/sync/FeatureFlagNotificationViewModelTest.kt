@@ -18,9 +18,7 @@
 package com.wire.android.ui.home.sync
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.GetE2EICertificateUseCaseProvider
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.framework.TestUser
@@ -302,9 +300,6 @@ class FeatureFlagNotificationViewModelTest {
     private inner class Arrangement {
 
         @MockK
-        private lateinit var getE2EICertificateUseCaseProvider: GetE2EICertificateUseCaseProvider.Factory
-
-        @MockK
         lateinit var currentSessionFlow: CurrentSessionFlowUseCase
 
         @MockK
@@ -336,9 +331,7 @@ class FeatureFlagNotificationViewModelTest {
                 coreLogic = coreLogic,
                 currentSessionFlow = currentSessionFlow,
                 globalDataStore = globalDataStore,
-                disableAppLockUseCase = disableAppLockUseCase,
-                getE2EICertificateUseCaseProvider = getE2EICertificateUseCaseProvider,
-                dispatcherProvider = TestDispatcherProvider()
+                disableAppLockUseCase = disableAppLockUseCase
             )
         }
         init {

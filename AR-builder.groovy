@@ -125,7 +125,7 @@ pipeline {
                 stage('Keep builds forever if important') {
                     steps {
                         script {
-                            if (params.SOURCE_BRANCH == "develop" || params.SOURCE_BRANCH == "release/candidate" || params.SOURCE_BRANCH == "main" || params.SOURCE_BRANCH == "prod") {
+                            if (params.SOURCE_BRANCH.startsWith("release/") || params.SOURCE_BRANCH == "develop" || params.SOURCE_BRANCH == "main" || params.SOURCE_BRANCH == "prod") {
                                 currentBuild.keepLog = true
                             }
                         }

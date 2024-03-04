@@ -39,7 +39,6 @@ fun GetE2EICertificateUI(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    // FIXME issue happens when this UI is called from WireActivity: WebView is just canceled by itself
     LaunchedEffect(Unit) {
         viewModel.requestOAuthFlow.onEach {
             OAuthUseCase(context, it.target, it.oAuthClaims, it.oAuthState).launch(
@@ -51,6 +50,7 @@ fun GetE2EICertificateUI(
     LaunchedEffect(Unit) {
         viewModel.enrollmentResultFlow.onEach { enrollmentResultHandler(it) }.launchIn(coroutineScope)
     }
-
-    viewModel.getCertificate(isNewClient)
+    LaunchedEffect(Unit) {
+        viewModel.getCertificate(isNewClient)
+    }
 }

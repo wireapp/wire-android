@@ -121,7 +121,8 @@ fun MessageItem(
     shouldDisplayMessageStatus: Boolean = true,
     shouldDisplayFooter: Boolean = true,
     onReplyClickable: Clickable? = null,
-    isSelectedMessage: Boolean = false
+    isSelectedMessage: Boolean = false,
+    isInteractionAvailable: Boolean = true,
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
@@ -318,6 +319,7 @@ fun MessageItem(
                         if (message.sendingFailed) {
                             MessageSendFailureWarning(
                                 messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                                isInteractionAvailable = isInteractionAvailable,
                                 onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId) } },
                                 onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
                             )

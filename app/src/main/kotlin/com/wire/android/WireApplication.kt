@@ -68,11 +68,11 @@ class WireApplication : Application(), Configuration.Provider {
     @Inject
     @ApplicationScope
     lateinit var globalAppScope: CoroutineScope
-    override fun getWorkManagerConfiguration(): Configuration {
-        return Configuration.Builder()
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
             .setWorkerFactory(wireWorkerFactory.get())
             .build()
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -182,6 +182,7 @@ class WireApplication : Application(), Configuration.Provider {
                     values().firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
             }
         }
+
         private const val TAG = "WireApplication"
     }
 }

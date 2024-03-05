@@ -1,22 +1,22 @@
 [versions]
 # Gradle - Remind to change in `gradle-wrapper.properties` file as well!
-gradle = "8.1"
+gradle = "8.5"
 
 # Kotlin
-kotlin = "1.9.0"
+kotlin = "1.9.22"
 
 # KotlinX
-coroutines = "1.7.3"
-ktx-dateTime = "0.4.1"
+coroutines = "1.8.0"
+ktx-dateTime = "0.5.0"
 ktx-immutableCollections = "0.3.5"
 ktx-serialization = "1.5.1"
 
 # Android Core / Architecture
-google-gms = "4.4.0"
-gms-location = "21.0.1"
-android-gradlePlugin = "8.1.2"
+google-gms = "4.4.1"
+gms-location = "21.1.0"
+android-gradlePlugin = "8.2.0"
 desugaring = "2.0.4"
-firebaseBOM = "32.5.0"
+firebaseBOM = "32.7.3"
 fragment = "1.5.6"
 resaca = "2.4.6"
 bundlizer = "0.7.0"
@@ -26,22 +26,22 @@ visibilityModifiers = "1.1.0"
 androidx-appcompat = "1.6.1"
 androidx-core = "1.12.0"
 androidx-dataStore = "1.0.0"
-androidx-exif = "1.3.6"
+androidx-exif = "1.3.7"
 androidx-emoji = "1.4.0"
 androidx-jetpack = "1.1.0"
-androidx-lifecycle = "2.6.2"
+androidx-lifecycle = "2.7.0"
 androidx-paging3 = "3.2.1"
-androidx-paging3Compose = "3.3.0-alpha02"
+androidx-paging3Compose = "3.3.0-alpha03"
 androidx-splashscreen = "1.0.1"
-androidx-workManager = "2.8.1"
-androidx-browser = "1.5.0"
+androidx-workManager = "2.9.0"
+androidx-browser = "1.7.0"
 androidx-biometric = "1.1.0"
 androidx-startup = "1.1.1"
 
 # Compose
 composeBom = "2024.03.00" # TODO check if in new version [anchoredDraggable] is available
 compose-activity = "1.8.2"
-compose-compiler = "1.5.2"
+compose-compiler = "1.5.10"
 compose-constraint = "1.0.1"
 compose-navigation = "2.7.7" # adjusted to work with compose-destinations "1.9.54"
 compose-destinations = "1.10.2"
@@ -49,7 +49,7 @@ compose-destinations = "1.10.2"
 # Hilt
 hilt = "2.48.1"
 hilt-composeNavigation = "1.1.0"
-hilt-work = "1.1.0"
+hilt-work = "1.2.0"
 
 # Android UI
 accompanist = "0.32.0" # adjusted to work with compose-destinations "1.9.54"
@@ -69,10 +69,10 @@ openIdAppAuth = "0.11.1"
 # Other Tools
 aboutLibraries = "10.8.0"
 leakCanary = "2.7"
-ksp = "1.9.0-1.0.12"
+ksp = "1.9.22-1.0.17"
 
 # Benchmark
-benchmark-macro-junit4 = "1.2.0-beta05"
+benchmark-macro-junit4 = "1.2.3"
 profileinstaller = "1.3.1"
 
 # Testing
@@ -80,14 +80,14 @@ androidx-espresso = "3.5.1"
 androidx-test-core = "1.5.0"
 androidx-test-extensions = "1.1.5"
 androidx-test-orchestrator = "1.4.2"
-androidx-test-rules = "1.4.0"
+androidx-test-rules = "1.5.0"
 androidx-test-runner = "1.5.2"
-androidx-test-uiAutomator = "2.2.0"
-androidx-text-archCore = "2.1.0"
+androidx-test-uiAutomator = "2.3.0"
+androidx-text-archCore = "2.2.0"
 junit4 = "4.13.2"
 junit5 = "5.10.0"
 kluent = "1.73"
-mockk = "1.13.9"
+mockk = "1.13.10"
 okio = "3.6.0"
 turbine = "1.0.0"
 robolectric = "4.11.1"

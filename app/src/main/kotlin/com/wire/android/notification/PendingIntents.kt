@@ -187,7 +187,7 @@ fun openAppPendingIntent(context: Context): PendingIntent {
     )
 }
 
-fun relaunchPersistentWebsocketService(context: Context): PendingIntent {
+fun relaunchPersistentWebsocketServiceIntent(context: Context): PendingIntent {
     val restartServiceIntent = Intent(context, PersistentWebSocketService::class.java)
     return PendingIntent.getService(
         context,

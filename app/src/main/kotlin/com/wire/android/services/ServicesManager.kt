@@ -18,11 +18,13 @@
 
 package com.wire.android.services
 
+import android.app.AlarmManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.wire.android.appLogger
+import com.wire.android.notification.relaunchPersistentWebsocketService
 import com.wire.android.util.dispatchers.DispatcherProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -32,6 +34,8 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
+import java.time.Instant
+import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.KClass
@@ -86,6 +90,22 @@ class ServicesManager @Inject constructor(
         }
     }
 
+    fun scheduleAndStartPersistentWSS() = with(context) {
+        val alarmService = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmService.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            Calendar.getInstance().timeInMillis,
+            1 * 60 * 1000,
+            relaunchPersistentWebsocketService(context)
+        )
+    }
+
+    fun cancelScheduledAndStopPersistentWSS() = with(context) {
+        val alarmService = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmService.cancel(relaunchPersistentWebsocketService(applicationContext))
+        stopPersistentWebSocketService()
+    }
+
     // Ongoing call
     fun startOngoingCallService() {
         appLogger.i("ServicesManager: start OngoingCallService event")
@@ -129,5 +149,7 @@ class ServicesManager @Inject constructor(
     companion object {
         @VisibleForTesting
         internal const val DEBOUNCE_TIME = 200L
+        internal const val INTERVAL_RESTART_SERVICE_EVERY_DAY = 30 * 1000L
+        internal const val DELAY_BEFORE_RESTART_SERVICE = 2_000L
     }
 }

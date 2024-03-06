@@ -27,6 +27,7 @@ import android.net.Uri
 import com.wire.android.notification.broadcastreceivers.CallNotificationDismissReceiver
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
+import com.wire.android.services.PersistentWebSocketService
 import com.wire.android.ui.WireActivity
 import com.wire.android.util.deeplink.DeepLinkProcessor
 
@@ -186,12 +187,23 @@ fun openAppPendingIntent(context: Context): PendingIntent {
     )
 }
 
+fun relaunchPersistentWebsocketService(context: Context): PendingIntent {
+    val restartServiceIntent = Intent(context, PersistentWebSocketService::class.java)
+    return PendingIntent.getService(
+        context,
+        REOPEN_PERSISTENT_WSS_REQUEST_CODE,
+        restartServiceIntent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+}
+
 private const val MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE = 0
 private const val DECLINE_CALL_REQUEST_CODE = "decline_call_"
 private const val OPEN_INCOMING_CALL_REQUEST_CODE = 2
 private const val FULL_SCREEN_REQUEST_CODE = 3
 private const val OPEN_ONGOING_CALL_REQUEST_CODE = 4
 private const val OPEN_MIGRATION_LOGIN_REQUEST_CODE = 5
+private const val REOPEN_PERSISTENT_WSS_REQUEST_CODE = 6
 private const val END_ONGOING_CALL_REQUEST_CODE = "hang_up_call_"
 private const val OPEN_MESSAGE_REQUEST_CODE_PREFIX = "open_message_"
 private const val OPEN_OTHER_USER_PROFILE_CODE_PREFIX = "open_other_user_profile_"

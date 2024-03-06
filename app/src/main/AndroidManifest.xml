@@ -316,12 +316,14 @@
         <service
                 android:name=".services.PersistentWebSocketService"
                 android:foregroundServiceType="specialUse"
+                android:stopWithTask="false"
                 android:exported="false">
         </service>
 
         <service
                 android:name=".services.OngoingCallService"
                 android:exported="false"
+                android:stopWithTask="false"
                 android:foregroundServiceType="phoneCall" />
 
     </application>

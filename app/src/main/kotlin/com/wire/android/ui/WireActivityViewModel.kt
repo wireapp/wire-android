@@ -461,10 +461,12 @@ class WireActivityViewModel @Inject constructor(
 
                             if (statuses.any { it.isPersistentWebSocketEnabled }) {
                                 if (!servicesManager.isPersistentWebSocketServiceRunning()) {
-                                    servicesManager.startPersistentWebSocketService()
+                                    appLogger.i("Starting ws service from wire activity")
+                                    servicesManager.scheduleAndStartPersistentWSS()
                                 }
                             } else {
-                                servicesManager.stopPersistentWebSocketService()
+                                appLogger.i("Stopping ws service from wire activity")
+                                servicesManager.cancelScheduledAndStopPersistentWSS()
                             }
                         }
                     }

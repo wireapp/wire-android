@@ -74,6 +74,7 @@ fun NetworkSettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
+<<<<<<< HEAD
             if (!isWebsocketEnabledByDefault(LocalContext.current)) {
                 GroupConversationOptionsItem(
                     title = stringResource(R.string.settings_keep_connection_to_websocket),
@@ -86,6 +87,17 @@ fun NetworkSettingsScreenContent(
                         onCheckedChange = setWebSocketState
                     ),
                     arrowType = ArrowType.NONE
+=======
+            val appContext = LocalContext.current
+            val isWebSocketEnforcedByDefault = isWebsocketEnabledByDefault(appContext)
+
+            val switchState = if (isWebSocketEnforcedByDefault) {
+                SwitchState.TextOnly(true)
+            } else {
+                SwitchState.Enabled(
+                    value = isWebSocketEnabled,
+                    onCheckedChange = setWebSocketState
+>>>>>>> 0ac8117d9 (fix: persistent ws not reflected in UI (WPB-7020) (#2770))
                 )
             }
         }

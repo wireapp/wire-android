@@ -116,7 +116,7 @@ class RegularMessageMapper @Inject constructor(
                         text = it.text,
                         isSelected = it.isSelected
                     )
-                }
+                }.toPersistentList()
             )
         }
 

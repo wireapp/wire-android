@@ -135,17 +135,15 @@ class RecordAudioViewModel @Inject constructor(
             viewModelScope.launch {
                 val assetSizeLimit = getAssetSizeLimit(false)
                 audioMediaRecorder.setUp(assetSizeLimit)
+                if (audioMediaRecorder.startRecording()) {
+                    state = state.copy(
+                        outputFile = audioMediaRecorder.outputFile,
+                        buttonState = RecordAudioButtonState.RECORDING
+                    )
+                } else {
+                    infoMessage.emit(RecordAudioInfoMessageType.UnableToRecordAudioError.uiText)
+                }
             }
-
-            state = state.copy(
-                outputFile = audioMediaRecorder.outputFile
-            )
-
-            audioMediaRecorder.startRecording()
-
-            state = state.copy(
-                buttonState = RecordAudioButtonState.RECORDING
-            )
         }
     }
 

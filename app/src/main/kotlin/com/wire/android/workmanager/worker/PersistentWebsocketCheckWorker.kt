@@ -51,6 +51,7 @@ class PersistentWebsocketCheckWorker
     override suspend fun doWork(): Result = coroutineScope {
         appLogger.i("Periodic check for persistent websocket connection")
         val persistentWebSocketServiceIntent = PersistentWebSocketService.newIntent(appContext)
+        // todo, move this logic out, maybe to a separate use case and reuse in the boot broadcast receiver.
         shouldStartPersistentWebSocketService().let {
             when (it) {
                 is ShouldStartPersistentWebSocketServiceUseCase.Result.Failure -> {

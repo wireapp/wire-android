@@ -80,18 +80,19 @@ class AudioMediaRecorder @Inject constructor(
         }
     }
 
-    fun startRecording() {
-        try {
+    fun startRecording(): Boolean = try {
             mediaRecorder?.prepare()
             mediaRecorder?.start()
+            true
         } catch (e: IllegalStateException) {
             e.printStackTrace()
             appLogger.e("[RecordAudio] startRecording: IllegalStateException - ${e.message}")
+            false
         } catch (e: IOException) {
             e.printStackTrace()
             appLogger.e("[RecordAudio] startRecording: IOException - ${e.message}")
+            false
         }
-    }
 
     fun stop() {
         mediaRecorder?.stop()

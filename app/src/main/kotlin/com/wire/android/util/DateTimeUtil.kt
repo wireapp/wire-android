@@ -33,7 +33,9 @@ private val serverDateTimeFormat = SimpleDateFormat(
     Locale.getDefault()
 ).apply { timeZone = TimeZone.getTimeZone("UTC") }
 private val mediumDateTimeFormat = DateFormat
-    .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
+    .getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
+private val longDateShortTimeFormat = DateFormat
+    .getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
 private val mediumOnlyDateTimeFormat = DateFormat
     .getDateInstance(DateFormat.MEDIUM)
 private val messageTimeFormatter = DateFormat
@@ -57,6 +59,13 @@ private val fullDateShortTimeFormatter = DateFormat.getDateTimeInstance(DateForm
 fun String.formatMediumDateTime(): String? =
     try {
         this.serverDate()?.let { mediumDateTimeFormat.format(it) }
+    } catch (e: ParseException) {
+        null
+    }
+
+fun String.deviceDateTimeFormat(): String? =
+    try {
+        this.serverDate()?.let { longDateShortTimeFormat.format(it) }
     } catch (e: ParseException) {
         null
     }

@@ -18,6 +18,7 @@
 
 package com.wire.android.notification
 
+import android.os.Build
 import androidx.annotation.VisibleForTesting
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -399,7 +400,7 @@ class WireNotificationManager @Inject constructor(
     private suspend fun observeOngoingCalls(currentScreenState: StateFlow<CurrentScreen>) {
         currentScreenState
             .flatMapLatest { currentScreen ->
-                if (currentScreen !is CurrentScreen.InBackground) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE && currentScreen !is CurrentScreen.InBackground) {
                     flowOf(null)
                 } else {
                     coreLogic.getGlobalScope().session.currentSessionFlow()

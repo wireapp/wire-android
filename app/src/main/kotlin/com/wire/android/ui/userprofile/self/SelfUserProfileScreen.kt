@@ -205,8 +205,7 @@ private fun SelfUserProfileContent(
                             userName = userName,
                             teamName = teamName,
                             onUserProfileClick = onChangeUserProfilePicture,
-                            editableState = if (state.isReadOnlyAccount) EditableState.NotEditable
-                            else EditableState.IsEditable(onEditClick)
+                            editableState = EditableState.IsEditable(onEditClick)
                         )
                     }
                     if (!state.teamName.isNullOrBlank()) {

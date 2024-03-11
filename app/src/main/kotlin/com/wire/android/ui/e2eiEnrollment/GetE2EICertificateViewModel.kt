@@ -68,8 +68,7 @@ class GetE2EICertificateViewModel @Inject constructor(
                     .fold({
                         enrollmentResultFlow.emit(Either.Left(it))
                     }, {
-                        if (it is E2EIEnrollmentResult.Initialized) requestOAuthFlow.emit(it)
-                        else enrollmentResultFlow.emit(Either.Right(it))
+                        requestOAuthFlow.emit(it)
                     })
             }
         }

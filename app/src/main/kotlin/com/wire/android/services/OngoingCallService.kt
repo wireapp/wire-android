@@ -49,6 +49,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
+import androidx.core.app.ServiceCompat
 
 @AndroidEntryPoint
 class OngoingCallService : Service() {
@@ -144,15 +145,13 @@ class OngoingCallService : Service() {
             conversationId,
             userId
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(
-                CALL_ONGOING_NOTIFICATION_ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-            )
-        } else {
-            startForeground(CALL_ONGOING_NOTIFICATION_ID, notification)
-        }
+        ServiceCompat.startForeground(
+            this,
+            CALL_ONGOING_NOTIFICATION_ID,
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+        )
+
         appLogger.i("$TAG: started foreground with proper notification")
     }
 
@@ -160,15 +159,13 @@ class OngoingCallService : Service() {
         appLogger.i("$TAG: generating foregroundNotification placeholder...")
         val notification: Notification =
             callNotificationManager.builder.getOngoingCallPlaceholderNotification()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(
-                CALL_ONGOING_NOTIFICATION_ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-            )
-        } else {
-            startForeground(CALL_ONGOING_NOTIFICATION_ID, notification)
-        }
+        ServiceCompat.startForeground(
+            this,
+            CALL_ONGOING_NOTIFICATION_ID,
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+        )
+
         appLogger.i("$TAG: started foreground with placeholder notification")
     }
 

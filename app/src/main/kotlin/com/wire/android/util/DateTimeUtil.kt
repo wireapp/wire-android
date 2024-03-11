@@ -33,7 +33,7 @@ private val serverDateTimeFormat = SimpleDateFormat(
     Locale.getDefault()
 ).apply { timeZone = TimeZone.getTimeZone("UTC") }
 private val mediumDateTimeFormat = DateFormat
-    .getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
+    .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
 private val longDateShortTimeFormat = DateFormat
     .getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
 private val mediumOnlyDateTimeFormat = DateFormat

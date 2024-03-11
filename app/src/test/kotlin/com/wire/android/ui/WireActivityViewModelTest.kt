@@ -22,6 +22,7 @@ package com.wire.android.ui
 
 import android.content.Intent
 import androidx.work.WorkManager
+import androidx.work.impl.OperationImpl
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -613,6 +614,8 @@ class WireActivityViewModelTest {
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
             coEvery { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin() } returns
                     flowOf(false)
+            every { workManager.cancelAllWorkByTag(any()) } returns OperationImpl()
+            every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns OperationImpl()
         }
 
         @MockK

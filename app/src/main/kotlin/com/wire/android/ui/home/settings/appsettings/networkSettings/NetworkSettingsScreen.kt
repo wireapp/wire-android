@@ -21,7 +21,6 @@ package com.wire.android.ui.home.settings.appsettings.networkSettings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -33,6 +32,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
@@ -74,20 +74,6 @@ fun NetworkSettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-<<<<<<< HEAD
-            if (!isWebsocketEnabledByDefault(LocalContext.current)) {
-                GroupConversationOptionsItem(
-                    title = stringResource(R.string.settings_keep_connection_to_websocket),
-                    subtitle = stringResource(
-                        R.string.settings_keep_connection_to_websocket_description,
-                        backendName
-                    ),
-                    switchState = SwitchState.Enabled(
-                        value = isWebSocketEnabled,
-                        onCheckedChange = setWebSocketState
-                    ),
-                    arrowType = ArrowType.NONE
-=======
             val appContext = LocalContext.current
             val isWebSocketEnforcedByDefault = isWebsocketEnabledByDefault(appContext)
 
@@ -97,9 +83,18 @@ fun NetworkSettingsScreenContent(
                 SwitchState.Enabled(
                     value = isWebSocketEnabled,
                     onCheckedChange = setWebSocketState
->>>>>>> 0ac8117d9 (fix: persistent ws not reflected in UI (WPB-7020) (#2770))
                 )
             }
+
+            GroupConversationOptionsItem(
+                title = stringResource(R.string.settings_keep_connection_to_websocket),
+                subtitle = stringResource(
+                    R.string.settings_keep_connection_to_websocket_description,
+                    backendName
+                ),
+                switchState = switchState,
+                arrowType = ArrowType.NONE
+            )
         }
     }
 }

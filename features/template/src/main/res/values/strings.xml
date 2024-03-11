@@ -16,5 +16,5 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="module_name">Template module</string>
+    <string name="module_name">template module</string>
 </resources>

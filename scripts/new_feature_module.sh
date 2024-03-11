@@ -18,17 +18,23 @@
 # along with this program. If not, see http://www.gnu.org/licenses/.
 #
 
-echo "Please enter your module name: $newModule \c"
+echo "Please enter your module name: "
 read newModule
 
 cd ../features
-cp -r  newModule && cd newModule
+cp -r template $newModule && cd $newModule
 
 # change  in files
-git grep -rl  . | xargs sed -i '' 's##'"$newModule"'#g'
+git grep -rl template . | xargs sed -i '' 's#template#'"$newModule"'#g'
 
 # change  in package names and imports
-find src/ -type f -name '*.kt' | xargs sed -i '' 's##'"$newModule"'#g'
+find src/ -type f -name '*.kt' | xargs sed -i '' 's#template#'"$newModule"'#g'
+
+# change  in xml files
+find src/ -type f -name '*.xml' | xargs sed -i '' 's#template#'"$newModule"'#g'
+
+# change in build.gradle.kts
+find . -type f -name '*.kts' | xargs sed -i '' 's#template#'"$newModule"'#g'
 
 # change folder names
-find . -name "**" | awk '{a=$1; gsub(//,"'"$newModule"'"); printf "mv \"%s\" \"%s\"\n", a, $1}' | sh
+find . -name "*template*" | awk '{a=$1; gsub(/template/,"'"$newModule"'"); printf "mv \"%s\" \"%s\"\n", a, $1}' | sh

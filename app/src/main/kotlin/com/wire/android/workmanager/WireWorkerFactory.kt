@@ -23,7 +23,7 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.feature.ShouldStartPersistentWebSocketServiceUseCase
+import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.migration.MigrationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
@@ -40,7 +40,7 @@ class WireWorkerFactory @Inject constructor(
     private val wireNotificationManager: WireNotificationManager,
     private val notificationChannelsManager: NotificationChannelsManager,
     private val migrationManager: MigrationManager,
-    private val shouldStartPersistentWebSocketService: ShouldStartPersistentWebSocketServiceUseCase,
+    private val startPersistentWebsocketIfNecessary: StartPersistentWebsocketIfNecessaryUseCase,
     @KaliumCoreLogic
     private val coreLogic: CoreLogic
 ) : WorkerFactory() {
@@ -61,7 +61,7 @@ class WireWorkerFactory @Inject constructor(
                 SingleUserMigrationWorker(appContext, workerParameters, migrationManager, notificationChannelsManager)
 
             PersistentWebsocketCheckWorker::class.java.canonicalName ->
-                PersistentWebsocketCheckWorker(appContext, workerParameters, shouldStartPersistentWebSocketService)
+                PersistentWebsocketCheckWorker(appContext, workerParameters, startPersistentWebsocketIfNecessary)
 
             else -> null
         }

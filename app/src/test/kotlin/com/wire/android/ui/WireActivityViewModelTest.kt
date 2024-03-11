@@ -21,6 +21,7 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import androidx.work.WorkManager
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -673,6 +674,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
+        @MockK
+        lateinit var workManager: WorkManager
+
         @MockK(relaxed = true)
         lateinit var onDeepLinkResult: (DeepLinkResult) -> Unit
 
@@ -699,7 +703,8 @@ class WireActivityViewModelTest {
                 currentScreenManager = currentScreenManager,
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
                 globalDataStore = globalDataStore,
-                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory
+                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
+                workManager = workManager
             )
         }
 

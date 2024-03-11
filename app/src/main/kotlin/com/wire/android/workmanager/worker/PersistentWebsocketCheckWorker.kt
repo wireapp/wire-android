@@ -30,11 +30,11 @@ import com.wire.android.appLogger
 import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker.Companion.NAME
 import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker.Companion.TAG
+import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker.Companion.WORK_INTERVAL
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
 import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
 @HiltWorker
@@ -62,7 +62,7 @@ fun WorkManager.enqueuePeriodicPersistentWebsocketCheckWorker() {
     appLogger.i("${TAG}: Enqueueing periodic work for $TAG")
     enqueueUniquePeriodicWork(
         NAME, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
-        PeriodicWorkRequestBuilder<PersistentWebsocketCheckWorker>(5.minutes.toJavaDuration())
+        PeriodicWorkRequestBuilder<PersistentWebsocketCheckWorker>(WORK_INTERVAL)
             .addTag(TAG) // adds the tag so we can cancel later all related work.
             .build()
     )

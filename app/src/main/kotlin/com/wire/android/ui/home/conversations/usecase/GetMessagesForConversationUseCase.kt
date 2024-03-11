@@ -43,7 +43,8 @@ class GetMessagesForConversationUseCase @Inject constructor(
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
             prefetchDistance = PREFETCH_DISTANCE,
-            initialLoadSize = INITIAL_LOAD_SIZE
+            initialLoadSize = INITIAL_LOAD_SIZE,
+            enablePlaceholders = true,
         )
         return getMessages(
             conversationId,
@@ -59,7 +60,7 @@ class GetMessagesForConversationUseCase @Inject constructor(
 
     private companion object {
         const val PAGE_SIZE = 20
-        const val INITIAL_LOAD_SIZE = 50
+        const val INITIAL_LOAD_SIZE = 60
         const val PREFETCH_DISTANCE = 30
     }
 }

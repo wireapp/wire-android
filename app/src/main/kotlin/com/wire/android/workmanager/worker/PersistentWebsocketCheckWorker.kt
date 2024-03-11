@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("StringTemplate")
 
 package com.wire.android.workmanager.worker
 
@@ -71,4 +72,3 @@ fun WorkManager.cancelPeriodicPersistentWebsocketCheckWorker() {
     appLogger.i("${TAG}: Cancelling all periodic scheduled work for the tag $TAG")
     cancelAllWorkByTag(TAG)
 }
-

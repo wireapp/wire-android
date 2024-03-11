@@ -59,7 +59,6 @@ class StartPersistentWebsocketIfNecessaryUseCaseTest {
             verify(exactly = 0) { arrangement.applicationContext.startService(any()) }
         }
 
-
     inner class Arrangement {
 
         @MockK
@@ -67,7 +66,6 @@ class StartPersistentWebsocketIfNecessaryUseCaseTest {
 
         @MockK
         lateinit var applicationContext: Context
-
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -85,5 +83,4 @@ class StartPersistentWebsocketIfNecessaryUseCaseTest {
                     ShouldStartPersistentWebSocketServiceUseCase.Result.Success(shouldStart)
         }
     }
-
 }

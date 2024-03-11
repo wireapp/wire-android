@@ -183,6 +183,7 @@ compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-ui-viewbinding = { module = "androidx.compose.ui:ui-viewbinding" }
+compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 
 
 # Compose other

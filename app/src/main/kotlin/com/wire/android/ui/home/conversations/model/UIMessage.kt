@@ -41,6 +41,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
@@ -220,7 +221,7 @@ sealed class UIMessageContent {
 
     data class Composite(
         val messageBody: MessageBody?,
-        val buttonList: List<MessageButton>
+        val buttonList: PersistentList<MessageButton>
     ) : Regular(), Copyable {
         override fun textToCopy(resources: Resources): String? = messageBody?.message?.asString(resources)
     }

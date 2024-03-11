@@ -896,10 +896,10 @@ fun MessageList(
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     LaunchedEffect(lazyPagingMessages.itemCount) {
         if (lazyPagingMessages.itemCount > prevItemCount.value && selectedMessageId == null) {
-            if (prevItemCount.value > 0
-                && lazyListState.firstVisibleItemIndex > 0
-                && lazyListState.firstVisibleItemIndex <= MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS
-            ) {
+            val canScrollToLastMessage = prevItemCount.value > 0
+                    && lazyListState.firstVisibleItemIndex > 0
+                    && lazyListState.firstVisibleItemIndex <= MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS
+            if (canScrollToLastMessage) {
                 lazyListState.animateScrollToItem(0)
             }
             prevItemCount.value = lazyPagingMessages.itemCount
@@ -965,7 +965,7 @@ fun MessageList(
                                 showAuthor = showAuthor,
                                 useSmallBottomPadding = useSmallBottomPadding,
                                 audioMessagesState = audioMessagesState,
-                                assetStatus = assetStatuses[message.header.messageId],
+                                assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
                                 onAudioClick = onAudioItemClicked,
                                 onChangeAudioPosition = onChangeAudioPosition,
                                 onLongClicked = onShowEditingOption,

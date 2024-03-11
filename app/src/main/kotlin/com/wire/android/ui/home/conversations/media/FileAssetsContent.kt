@@ -120,7 +120,7 @@ private fun AssetMessagesListContent(
                                 message = message,
                                 conversationDetailsData = ConversationDetailsData.None,
                                 audioMessagesState = audioMessagesState,
-                                assetStatus = assetStatuses[message.header.messageId],
+                                assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
                                 onLongClicked = { },
                                 onAssetMessageClicked = onAssetItemClicked,
                                 onAudioClick = onAudioItemClicked,

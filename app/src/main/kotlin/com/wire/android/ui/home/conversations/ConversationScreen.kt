@@ -480,7 +480,6 @@ fun ConversationScreen(
 
     (messageComposerViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
         LegalHoldSubjectMessageDialog(
-            conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(),
             dialogDismissed = messageComposerViewModel::dismissSureAboutSendingMessage,
             sendAnywayClicked = messageComposerViewModel::acceptSureAboutSendingMessage,
         )

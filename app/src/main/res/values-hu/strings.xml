@@ -75,7 +75,7 @@
     <string name="label_value_copied">%s másolva</string>
     <string name="label_disable">Letiltás</string>
     <string name="folder_label_access">Hozzáférés</string>
-    <string name="folder_label_protocol_details">Protocol details</string>
+    <string name="folder_label_protocol_details">Protokoll részletei</string>
     <string name="folder_label_messaging">Üzenetküldés</string>
     <string name="label_user_blocked">Letiltva</string>
     <string name="label_and">és</string>
@@ -171,7 +171,7 @@
     <string name="content_description_mls_certificate_valid">Minden résztvevő összes készülékének van érvényes MLS tanúsítványa</string>
     <string name="content_description_proteus_certificate_valid">Minden résztvevő ellenőrzött (Proteus)</string>
     <string name="content_description_jump_to_last_message">Ugorjon a legutolsó üzenethez gomb</string>
-    <string name="content_description_location_icon">Location item</string>
+    <string name="content_description_location_icon">Hely elem</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Széf</string>
@@ -362,7 +362,7 @@
     <string name="create_account_username_label">FELHASZNÁLÓNÉV</string>
     <string name="create_account_username_text">Adja meg felhasználónevét. Ez segít másoknak megtalálni Önt a Wire-ön, és kapcsolatba lépni Önnel.</string>
     <string name="create_account_username_taken_error">Ez a Felhasználónév már foglalt. Kérjük, válasszon egy másikat.</string>
-    <string name="create_account_username_description">At least 2 characters, a-z, 0-9, “_”, “-” and “.”</string>
+    <string name="create_account_username_description">Legalább 2 karakter, a-z, 0-9, \"_\", \"-\" és \".\"</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">NEM FOGADOTT HÍVÁSOK</string>
     <string name="calls_label_calls_history">HÍVÁSNAPLÓ</string>
@@ -403,8 +403,8 @@
     <string name="asset_message_saved_externally_text">Mentve</string>
     <string name="asset_message_failed_download_text">A fájl nem elérhető</string>
     <string name="asset_message_failed_upload_text">A fájl feltöltése nem sikerült</string>
-    <string name="asset_download_dialog_text">Do you want to open the file, or save it to your
-        device\'s download folder?
+    <string name="asset_download_dialog_text">Megnyitja a fájlt, vagy menti
+        eszköze letöltési mappájába?
  </string>
     <string name="asset_download_dialog_open_text">Megnyitás</string>
     <string name="asset_download_dialog_save_text">Mentés</string>
@@ -469,7 +469,7 @@
     <string name="attachment_take_photo">Fotó készítése</string>
     <string name="attachment_record_video">Videó felvétele</string>
     <string name="attachment_voice_message">Hangüzenet</string>
-    <string name="attachment_share_location">Location</string>
+    <string name="attachment_share_location">Hely</string>
     <!-- User Profile -->
     <string name="user_profile_title">Felhasználói profil</string>
     <string name="user_profile_close_description">A felhasználói profil bezárása</string>
@@ -577,12 +577,12 @@
     <string name="label_system_message_blocked_user">%1$s letiltotta ezt a felhasználót</string>
     <string name="label_system_message_renamed_the_conversation">%1$s átnevezte a beszélgetést\n%2$s</string>
     <plurals name="label_system_message_team_member_left">
-        <item quantity="one">%1$s was removed from the team</item>
-        <item quantity="other">%1$s were removed from the team</item>
+        <item quantity="one">%1$s el lett távolítva a csapatból</item>
+        <item quantity="other">%1$s el lett távolítva a csapatból</item>
     </plurals>
     <string name="label_system_message_user_not_available">Ez a felhasználó már nem elérhető</string>
-    <string name="label_system_message_unsupported_protocol">The conversation is using an encryption protocol that is
-        not supported by this device. Some devices from the involve users might need updating.
+    <string name="label_system_message_unsupported_protocol">A beszélgetés olyan titkosítási eljárást használ, ami
+        nem támogatott ezen eszközön. A résztvevők egyes eszközei frissítést igényelhetnek.
     </string>
     <string name="label_system_message_new_conversation_receipt_mode">Tértivevények %1$s vannak kapcsolva</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s a tértivevényeket %2$skapcsolta mindenki számára</string>
@@ -594,12 +594,12 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s **ki**kapcsolta az önmegsemmisítő üzenetek időzítőjét mindenki számára</string>
     <string name="label_system_message_deactivated">deaktivált</string>
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
-    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">You haven’t updated this device for a while. In the meantime, the standard messaging protocol changed from Proteus to Messaging Layer Security (MLS). Due to this change, some messages may not appear here.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Régóta nem frissítette ezt az eszköz. Időközben a sztenderd üzenetprotokoll Proteus helyett Messaging Layer Security (MLS) lett. Ezen változás miatt néhány üzenet esetleg nem jelenik itt meg.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Ön nem frissítette idejében az applikációt. Néhány üzenet hiányozhat innen.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">A titkosítási eljárás megváltoztatása törölve.</string>
-    <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
+    <string name="label_system_message_conversation_protocol_changed_during_a_call">Az MLS-re átállás miatt gondok lehetnek a jelenlegi hívással. Ha ez áll fenn, fejezze be azt, majd indítson új hívást.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">A titkosítási eljárás megváltoztatása elkezdődött. Gondoskodjon összes Wire-kliense frissítéséről.</string>
-    <string name="label_system_message_conversation_protocol_changed_mls">This conversation now uses the new Messaging Layer Security (MLS) protocol. To communicate seamlessly, always use the latest version of Wire on your devices.</string>
+    <string name="label_system_message_conversation_protocol_changed_mls">Ez a beszélgetés immár az új Messaging Layer Security (MLS) protokollt használja. A zökkenőmentes kommunikációhoz mindig a Wire legfrissebb verzióját használja.</string>
     <string name="label_system_message_learn_more_about_mls_link">https://support.wire.com/hc/en-us/articles/12434725011485-Messaging-Layer-Security-MLS-</string>
     <string name="label_system_message_receipt_mode_on">be</string>
     <string name="label_system_message_receipt_mode_off">ki</string>
@@ -609,8 +609,8 @@
     <string name="label_system_message_conversation_failed_add_members_summary">%1$s **résztvevőket** nem sikerült hozzáadni a csoporthoz.</string>
     <string name="label_system_message_conversation_failed_add_many_members_details">%1$s nem sikerült hozzáadni a csoporthoz.</string>
     <string name="label_system_message_conversation_failed_add_one_member_details">%1$s nem sikerült hozzáadni a csoporthoz.</string>
-    <string name="label_system_message_conversation_degraded_mls">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
-    <string name="label_system_message_conversation_degraded_proteus">This conversation is no longer verified, as at least one participant started using a new device or has an invalid certificate.</string>
+    <string name="label_system_message_conversation_degraded_mls">Ez a beszélgetés nem ellenőrzött többé, mivel legalább egy résztvevő új eszközt kezdett használni, vagy érvénytelen tanúsítvánnyal rendelkezik.</string>
+    <string name="label_system_message_conversation_degraded_proteus">Ez a beszélgetés nem ellenőrzött többé, mivel legalább egy résztvevő új eszközt kezdett használni, vagy érvénytelen tanúsítvánnyal rendelkezik.</string>
     <string name="label_system_message_conversation_verified_mls">Minden eszköz ellenőrzött (végpontok közötti azonosítás)</string>
     <string name="label_system_message_conversation_verified_proteus">Minden ujjlenyomat ellenőrizve (Proteus)</string>
     <string name="label_system_message_conversation_started_sensitive_information">A Wire-ben a kommunikáció mindig titkos a végpontok között. Minden, amit küld és fogad ebben a beszélgetésben, csak az Ön és a csoport résztvevői számára hozzáférhető.\n**Továbbra is legyen körültekintő, kivel oszt meg érzékeny információkat.**</string>
@@ -635,8 +635,8 @@
         <item quantity="other">Eltávolított %1$d személyt a beszélgetésből</item>
     </plurals>
     <plurals name="last_message_team_member_removed">
-        <item quantity="one">1 person was removed form the team</item>
-        <item quantity="other">%1$d people were removed from the team</item>
+        <item quantity="one">1 személy el lett távolítva a csapatból</item>
+        <item quantity="other">%1$d személy el lett távolítva a csapatból</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">Ön el lett távolítva a beszélgetésből</string>
     <plurals name="last_message_other_removed_self_user_and_others">
@@ -655,8 +655,8 @@
     <string name="last_message_other_user_shared_video">megosztott egy videót.</string>
     <string name="last_message_self_user_shared_audio">megosztott egy hangüzenetet.</string>
     <string name="last_message_other_user_shared_audio">megosztott egy hangüzenetet.</string>
-    <string name="last_message_self_user_shared_location">shared a location.</string>
-    <string name="last_message_other_user_shared_location">shared a location.</string>
+    <string name="last_message_self_user_shared_location">megosztott egy helyet.</string>
+    <string name="last_message_other_user_shared_location">megosztott egy helyet.</string>
     <string name="last_message_self_user_knock">kopogott.</string>
     <string name="last_message_other_user_knock">kopogott.</string>
     <string name="last_message_call">hívta.</string>
@@ -707,11 +707,11 @@
     <string name="label_search_messages_no_results">Nincs találat.\nMódosítsa a keresőkifejezést, és próbálja meg újra.</string>
     <string name="label_search_button">Keresés</string>
     <!-- Conversation Media -->
-    <string name="label_conversation_media">Media</string>
-    <string name="label_conversation_pictures">Pictures</string>
-    <string name="label_conversation_files">Files</string>
-    <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
-    <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
+    <string name="label_conversation_media">Média</string>
+    <string name="label_conversation_pictures">Képek</string>
+    <string name="label_conversation_files">Fájlok</string>
+    <string name="label_conversation_pictures_empty">Ebben a beszélgetésben még senki nem osztott meg képet 🥲</string>
+    <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
     <!-- Search Contact-->
     <string name="label_contacts">NÉVJEGYEK</string>
     <string name="label_new_group">Új csoport</string>
@@ -763,15 +763,15 @@
     <string name="error_archiving_conversation">A beszélgetést nem sikerült archíválni</string>
     <string name="error_unarchiving_conversation">A beszélgetést nem sikerült elővenni az archívumból</string>
     <string name="dialog_archive_conversation_title">Archiválja a beszélgetést?</string>
-    <string name="dialog_archive_conversation_description">This conversation moves into your archive. You still get new messages, files, and calls, but no notifications. You can unarchive the conversation at any time.</string>
-    <string name="dialog_archive_conversation_option">Archive</string>
+    <string name="dialog_archive_conversation_description">Ez a beszélgetés az archívumba kerül. Továbbra is megkapja az új üzeneteket, fájlokat és hívásokat, azonban nem lesznek értesítések. Az archívumból bármikor előveheti a beszélgetést.</string>
+    <string name="dialog_archive_conversation_option">Archiválás</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Nyitott beszélgetés</string>
     <string name="email_label">E-mail</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
     <string name="notification_shared_picture">Megosztott egy képet</string>
-    <string name="notification_shared_location">Shared a location</string>
+    <string name="notification_shared_location">Megosztott egy helyet</string>
     <string name="notification_shared_file">Megosztott egy fájlt</string>
     <string name="notification_reacted">Hozzáadott egy reakciót</string>
     <string name="notification_missed_call">Nem fogadott hívás</string>
@@ -818,13 +818,14 @@
     <string name="calling_ongoing_double_tap_to_go_back">Visszalépéshez koppintson duplán</string>
     <string name="calling_feature_unavailable_title_alert">Ez a funkció nem érhető el</string>
     <string name="calling_feature_unavailable_message_alert">Konferenciahívás kezdeményezése lehetőség csak a Wire fizetős verziójában elérhető.</string>
-    <string name="calling_screen_connecting_until_call_established">Connecting…</string>
-    <string name="calling_confirm_start_call_title_dialog">Start a call</string>
-    <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
-    <string name="calling_confirm_start_call_action_dialog">Call</string>
+    <string name="calling_screen_connecting_until_call_established">Csatlakozás…</string>
+    <string name="calling_confirm_start_call_title_dialog">Hívás indítása</string>
+    <string name="calling_confirm_start_call_description_dialog">Biztosan hívni akarja ő(ke)t: %1$s?</string>
+    <string name="calling_confirm_start_call_action_dialog">Hívás</string>
+    <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Visszatérés a híváshoz</string>
-    <string name="connectivity_status_bar_connecting">Decrypting messages</string>
+    <string name="connectivity_status_bar_connecting">Üzenetek visszafejtése</string>
     <string name="connectivity_status_bar_waiting_for_network">Várakozás hálózatra</string>
     <!-- Connections -->
     <string name="connection_label_connect">Kapcsolódás</string>
@@ -846,8 +847,8 @@
     <string name="connection_label_accepting_request_description">Ha jóváhagyja a kérelmét, bekerül a partnerek közé, és közvetlenül tudnak kommunikálni egymással.</string>
     <string name="connection_label_accept">Elfogadás</string>
     <string name="connection_label_ignore">Elutasítás</string>
-    <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
-    <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <string name="connection_label_send_unverified_warning">Győződjön meg %s személyazonosságáról mielőtt csatlakozik.</string>
+    <string name="connection_label_received_unverified_warning">Ellenőrizze a személyazonosságot mielőtt elfogadja a kapcsolódási kérelmet.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Média galéria</string>
     <string name="media_gallery_on_image_downloaded">Mentve a Letöltések mappába</string>
@@ -913,12 +914,12 @@
     <string name="settings_keep_connection_to_websocket_description">Javítson az értesítések fogadásán a(z) %1$s szolgáltatáshoz való állandó kapcsolattal. Ez helyettesíti az értesítési szolgáltatásokat, ha a Google-szolgáltatások nem elérhetők az eszközén.</string>
     <string name="settings_service_is_running">szolgáltatás fut</string>
     <!--Settings, Appearance -->
-    <string name="settings_appearance_label">Appearance</string>
-    <string name="settings_appearance_theme_label">Theme</string>
-    <string name="settings_appearance_theme_option_system">Sync with system settings</string>
-    <string name="settings_appearance_theme_option_default_hint">(Default)</string>
-    <string name="settings_appearance_theme_option_light">Light mode</string>
-    <string name="settings_appearance_theme_option_dark">Dark mode</string>
+    <string name="settings_appearance_label">Megjelenés</string>
+    <string name="settings_appearance_theme_label">Téma</string>
+    <string name="settings_appearance_theme_option_system">Rendszerbeállítások használata</string>
+    <string name="settings_appearance_theme_option_default_hint">(Alapértelmezett)</string>
+    <string name="settings_appearance_theme_option_light">Világos mód</string>
+    <string name="settings_appearance_theme_option_dark">Sötét mód</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Fiók adatok</string>
     <string name="settings_myaccount_display_name">PROFILNÉV</string>
@@ -933,14 +934,14 @@
     <string name="settings_myaccount_display_name_error">Adja meg profilnevét</string>
     <string name="settings_myaccount_display_name_exceeded_limit_error">Legalább 1, legfeljebb 64 karakter</string>
     <string name="settings_myaccount_display_name_updated">Profilneve megváltozott</string>
-    <string name="settings_myaccount_handle_updated">Your username changed</string>
+    <string name="settings_myaccount_handle_updated">Profilneve megváltozott</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Olvasási visszaigazolás küldése</string>
     <string name="settings_send_read_receipts_description">Ha ez ki van kapcsolva, akkor nem fogja látni a másoktól származó olvasási visszaigazolásokat. Ez a beállítás nem vonatkozik a csoportos beszélgetésekre.</string>
-    <string name="settings_censor_screenshots">Censor screenshots</string>
-    <string name="settings_censor_screenshots_description">If this is ON, then the content of the messages will not be visible on the screenshot or screen recording.</string>
-    <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
-    <string name="settings_show_typing_indicator_title">Typing indicator</string>
+    <string name="settings_censor_screenshots">Képernyőmentések cenzúrázása</string>
+    <string name="settings_censor_screenshots_description">Ha ez aktív, az üzenetek tartalma nem lesz látható a képernyőmentésen vagy -rögzítésen.</string>
+    <string name="settings_censor_screenshots_enforced_by_team_description">Ezt az önmegsemmisítő üzenet csapatbeállítás kényszeríti ki, nem megváltoztatható.\nAz üzenetek tartalma nem lesz látható a képernyőmentésen vagy -rögzítésen.</string>
+    <string name="settings_show_typing_indicator_title">Gépelésjelző</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lock with passcode</string>
     <!--Privacy Settings, App lock -->
@@ -992,11 +993,11 @@
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
-    <string name="custom_backend_dialog_body_backend_blacklist">blackListURL:</string>
-    <string name="custom_backend_dialog_body_backend_teams">teamsURL:</string>
-    <string name="custom_backend_dialog_body_backend_accounts">accountsURL:</string>
-    <string name="custom_backend_dialog_body_backend_website">websiteURL:</string>
-    <string name="custom_backend_dialog_body_backend_websocket">backendWSURL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
+    <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
     <string name="label_fetching_your_messages">Új üzenetek lekérdezése</string>
     <string name="label_text_copied">Szöveg a vágólapra másolva</string>
     <string name="label_logs_option_title">Naplók</string>
@@ -1253,6 +1254,10 @@ Kérjük, próbálja meg újra.</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
     <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Log out to reduce security risks. Then log in again, get a new certificate, and reset your password.\n\nIf you keep using this device, your conversations are no longer verified.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Log out</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Continue Using This Device</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
@@ -1266,8 +1271,7 @@ Kérjük, próbálja meg újra.</string>
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
-    <string name="call_permission_dialog_title">App permission</string>
-    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone in your device settings.</string>
+    <string name="record_audio_unable_due_to_error">Something went wrong while trying to record audio message. Please try again.</string>
     <string name="label_not_now">Not Now</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
     <string name="join_conversation_dialog_password_label">Conversation Password</string>
@@ -1312,14 +1316,20 @@ Kérjük, próbálja meg újra.</string>
     <string name="legal_hold_deactivated_dialog_title">Legal hold deactivated</string>
     <string name="legal_hold_deactivated_dialog_description">Future messages will not be recorded.</string>
     <string name="legal_hold_subject_dialog_title">%1$s is subject to legal hold</string>
+    <string name="legal_hold_subject_conversation_dialog_title">Conversation is subject to legal hold</string>
+    <string name="legal_hold_subject_self_dialog_title">You are subject to legal hold</string>
     <string name="legal_hold_subject_dialog_description">All messages, pictures, and documents will be preserved for future access. It includes deleted, edited, and self-deleting messages.</string>
     <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
+    <string name="legal_hold_subject_dialog_message_title">The conversation is now subject to legal hold</string>
     <string name="legal_hold_subject_dialog_description_message">Do you still want to send your message?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
+    <string name="legal_hold_connection_failed_dialog_title">Connecting not possible</string>
+    <string name="legal_hold_connection_failed_dialog_description">You can not connect to this user due to legal hold.</string>
     <string name="legal_hold_subject_to">Subject to %1$s.</string>
     <string name="legal_hold_label">legal hold</string>
     <string name="legal_hold_is_active_label">Legal hold is active</string>
     <string name="legal_hold_is_pending_label">Legal hold is pending</string>
+    <string name="legal_hold_accept">Accept</string>
     <string name="legal_hold_system_message_enabled_self">You are now subject to legal hold.</string>
     <string name="legal_hold_system_message_enabled_others">Legal hold activated for %1$s.</string>
     <string name="legal_hold_system_message_disabled_self">You are no longer subject to legal hold.</string>
@@ -1338,6 +1348,15 @@ Kérjük, próbálja meg újra.</string>
     <string name="app_permission_dialog_title">App permissions</string>
     <string name="app_permission_dialog_settings_positive_button">Settings</string>
     <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone in your device settings.</string>
+    <string name="record_video_permission_dialog_description">To record a video, allow Wire to access your camera in your device settings.</string>
+    <string name="take_picture_permission_dialog_description">To take a picture, allow Wire to access your camera in your device settings.</string>
+    <string name="open_gallery_permission_dialog_description">To send a picture, allow Wire to access Photos in your device settings.</string>
+    <string name="attach_file_permission_dialog_description">To send a file, allow Wire to access your files in your device settings.</string>
+    <string name="save_permission_dialog_description">To save this file, allow Wire to access your Downloads folder in your device settings.</string>
+    <string name="save_backup_file_permission_dialog_description">To save this backup file, allow Wire to access your Downloads folder in your device settings.</string>
+    <string name="restore_backup_permission_dialog_description">To restore conversations, allow Wire to access your files in your device settings.</string>
+    <string name="camera_permission_dialog_description">To turn the camera on, allow Wire to access your camera in your device settings.</string>
     <!-- Share Location -->
     <string name="location_attachment_share_title">Share Location</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>

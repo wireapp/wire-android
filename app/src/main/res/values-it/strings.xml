@@ -823,6 +823,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="calling_confirm_start_call_title_dialog">Avvia una chiamata</string>
     <string name="calling_confirm_start_call_description_dialog">Sei sicuro di voler chiamare %1$s persone?</string>
     <string name="calling_confirm_start_call_action_dialog">Chiama</string>
+    <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Ritorna alla chiamata</string>
     <string name="connectivity_status_bar_connecting">Decrittografando i messaggi</string>
@@ -989,11 +990,11 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
-    <string name="custom_backend_dialog_body_backend_blacklist">blackListURL:</string>
-    <string name="custom_backend_dialog_body_backend_teams">teamsURL:</string>
-    <string name="custom_backend_dialog_body_backend_accounts">accountsURL:</string>
-    <string name="custom_backend_dialog_body_backend_website">websiteURL:</string>
-    <string name="custom_backend_dialog_body_backend_websocket">backendWSURL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
+    <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
     <string name="label_fetching_your_messages">Ricezione nuovi messaggi in corso</string>
     <string name="label_text_copied">Testo copiato negli appunti</string>
     <string name="label_logs_option_title">Registri</string>
@@ -1250,6 +1251,10 @@ registrato. Sei pregato di riprovare.</string>
     <string name="end_to_end_identity_renew_success_dialog_text">Il certificato è aggiornato e il tuo dispositivo è verificato.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Dettagli del certificato</string>
     <string name="end_to_end_identity_ceritifcate">Dettagli del certificato</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Log out to reduce security risks. Then log in again, get a new certificate, and reset your password.\n\nIf you keep using this device, your conversations are no longer verified.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Log out</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Continue Using This Device</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Avvia la registrazione</string>
     <string name="record_audio_recording_label">Registrazione audio…</string>
@@ -1263,8 +1268,7 @@ registrato. Sei pregato di riprovare.</string>
     <string name="record_audio_max_file_size_reached_title">Registrazione arrestata</string>
     <string name="record_audio_max_file_size_reached_text">Le dimensioni dei file per i messaggi vocali sono limitate a %1$s MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Non puoi registrare un messaggio vocale durante una chiamata.</string>
-    <string name="call_permission_dialog_title">Autorizzazioni dell\'app</string>
-    <string name="call_permission_dialog_description">Per effettuare una chiamata, consenti a Wire l\'accesso al tuo microfono nelle impostazioni del tuo dispositivo.</string>
+    <string name="record_audio_unable_due_to_error">Something went wrong while trying to record audio message. Please try again.</string>
     <string name="label_not_now">Non adesso</string>
     <string name="last_message_composite_with_missing_text">invia un messaggio interattivo</string>
     <string name="join_conversation_dialog_password_label">Password della conversazione</string>
@@ -1309,14 +1313,20 @@ registrato. Sei pregato di riprovare.</string>
     <string name="legal_hold_deactivated_dialog_title">Sospensione legale disattivata</string>
     <string name="legal_hold_deactivated_dialog_description">I messaggi futuri non saranno registrati.</string>
     <string name="legal_hold_subject_dialog_title">%1$s è soggetto alla sospensione legale</string>
+    <string name="legal_hold_subject_conversation_dialog_title">Conversation is subject to legal hold</string>
+    <string name="legal_hold_subject_self_dialog_title">You are subject to legal hold</string>
     <string name="legal_hold_subject_dialog_description">Tutti i messaggi, le immagini e i documenti saranno conservati per l\'accesso futuro. Include i messaggi eliminati, modificati e a eliminazione automatica.</string>
     <string name="legal_hold_subject_dialog_description_group">Almeno una persona in questa conversazone è soggetta alla sospensione legale.</string>
+    <string name="legal_hold_subject_dialog_message_title">The conversation is now subject to legal hold</string>
     <string name="legal_hold_subject_dialog_description_message">Desideri comunque inviare il tuo messaggio?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Invia comunque</string>
+    <string name="legal_hold_connection_failed_dialog_title">Connecting not possible</string>
+    <string name="legal_hold_connection_failed_dialog_description">You can not connect to this user due to legal hold.</string>
     <string name="legal_hold_subject_to">Soggetto a %1$s.</string>
     <string name="legal_hold_label">sospensione legale</string>
     <string name="legal_hold_is_active_label">Sospensione legale attiva</string>
     <string name="legal_hold_is_pending_label">Sospensione legale in sospeso</string>
+    <string name="legal_hold_accept">Accept</string>
     <string name="legal_hold_system_message_enabled_self">Sei ora soggetto a sospensione legale.</string>
     <string name="legal_hold_system_message_enabled_others">Sospensione legale attivata per %1$s.</string>
     <string name="legal_hold_system_message_disabled_self">Non sei più soggetto alla sospensione legale.</string>
@@ -1335,6 +1345,15 @@ registrato. Sei pregato di riprovare.</string>
     <string name="app_permission_dialog_title">App permissions</string>
     <string name="app_permission_dialog_settings_positive_button">Settings</string>
     <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <string name="call_permission_dialog_description">Per effettuare una chiamata, consenti a Wire l\'accesso al tuo microfono nelle impostazioni del tuo dispositivo.</string>
+    <string name="record_video_permission_dialog_description">To record a video, allow Wire to access your camera in your device settings.</string>
+    <string name="take_picture_permission_dialog_description">To take a picture, allow Wire to access your camera in your device settings.</string>
+    <string name="open_gallery_permission_dialog_description">To send a picture, allow Wire to access Photos in your device settings.</string>
+    <string name="attach_file_permission_dialog_description">To send a file, allow Wire to access your files in your device settings.</string>
+    <string name="save_permission_dialog_description">To save this file, allow Wire to access your Downloads folder in your device settings.</string>
+    <string name="save_backup_file_permission_dialog_description">To save this backup file, allow Wire to access your Downloads folder in your device settings.</string>
+    <string name="restore_backup_permission_dialog_description">To restore conversations, allow Wire to access your files in your device settings.</string>
+    <string name="camera_permission_dialog_description">To turn the camera on, allow Wire to access your camera in your device settings.</string>
     <!-- Share Location -->
     <string name="location_attachment_share_title">Share Location</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>

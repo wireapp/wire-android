@@ -820,7 +820,8 @@ private fun ConversationScreenContent(
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                 onLinkClick = onLinkClick,
                 selectedMessageId = selectedMessageId,
-                onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage
+                onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
+                interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -890,7 +891,8 @@ fun MessageList(
     onFailedMessageCancelClicked: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     selectedMessageId: String?,
-    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit
+    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
+    interactionAvailability: InteractionAvailability,
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     LaunchedEffect(lazyPagingMessages.itemCount) {
@@ -983,7 +985,8 @@ fun MessageList(
                                         onNavigateToReplyOriginalMessage(message)
                                     }
                                 ),
-                                isSelectedMessage = (message.header.messageId == selectedMessageId)
+                                isSelectedMessage = (message.header.messageId == selectedMessageId),
+                                isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
                             )
                         }
 
@@ -991,7 +994,8 @@ fun MessageList(
                             message = message,
                             onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                             onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                            onSelfDeletingMessageRead = onSelfDeletingMessageRead
+                            onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                            isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
                         )
                     }
                 }

@@ -64,7 +64,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
-import com.wire.android.util.formatMediumDateTime
+import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
@@ -227,14 +227,14 @@ private fun DeviceItemTexts(
             stringResource(
                 R.string.remove_device_id_and_time_label_active_label,
                 device.clientId.formatAsString(),
-                device.registrationTime.formatMediumDateTime() ?: "",
+                device.registrationTime.deviceDateTimeFormat() ?: "",
                 device.lastActiveDescription() ?: ""
             )
         } else {
             stringResource(
                 R.string.remove_device_id_and_time_label,
                 device.clientId.formatAsString(),
-                device.registrationTime.formatMediumDateTime() ?: ""
+                device.registrationTime.deviceDateTimeFormat() ?: ""
             )
         }
     } else {

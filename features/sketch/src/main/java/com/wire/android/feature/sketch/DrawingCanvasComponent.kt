@@ -24,10 +24,10 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -46,6 +46,7 @@ fun DrawingCanvasComponent(
 ) {
     val drawModifier = Modifier
         .fillMaxSize()
+        .clipToBounds()
         .background(MaterialTheme.colorScheme.background)
         .onSizeChanged {
             viewModel.canvasState.size = it.toSize()

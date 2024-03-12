@@ -19,6 +19,7 @@ package com.wire.android.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+@Suppress("MagicNumber")
 enum class Accent(val accentId: Int) {
     Amber(5),
     Blue(1),

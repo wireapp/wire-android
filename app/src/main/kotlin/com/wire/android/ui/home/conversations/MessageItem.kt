@@ -87,7 +87,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isSaved
-import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
 
@@ -102,7 +101,7 @@ fun MessageItem(
     showAuthor: Boolean = true,
     useSmallBottomPadding: Boolean = false,
     audioMessagesState: PersistentMap<String, AudioState>,
-    assetStatus: MessageAssetStatus? = null,
+    assetStatus: AssetTransferStatus? = null,
     onLongClicked: (UIMessage.Regular) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -132,7 +131,7 @@ fun MessageItem(
         ) {
             selfDeletionTimerState.startDeletionTimer(
                 message = message,
-                assetTransferStatus = assetStatus?.transferStatus,
+                assetTransferStatus = assetStatus,
                 onStartMessageSelfDeletion = onSelfDeletingMessageRead
             )
         }
@@ -231,7 +230,7 @@ fun MessageItem(
                         MessageAuthorRow(messageHeader = message.header)
                     }
                     if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
-                        MessageExpireLabel(messageContent, assetStatus?.transferStatus, selfDeletionTimerState.timeLeftFormatted)
+                        MessageExpireLabel(messageContent, assetStatus, selfDeletionTimerState.timeLeftFormatted)
 
                         // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
                         // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
@@ -507,8 +506,8 @@ private fun MessageContent(
     message: UIMessage.Regular,
     messageContent: UIMessageContent.Regular?,
     searchQuery: String,
-    audioMessagesState: Map<String, AudioState>,
-    assetStatus: MessageAssetStatus?,
+    audioMessagesState: PersistentMap<String, AudioState>,
+    assetStatus: AssetTransferStatus?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
     onAudioClick: (String) -> Unit,
@@ -525,7 +524,7 @@ private fun MessageContent(
                 MessageImage(
                     asset = messageContent.asset,
                     imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-                    transferStatus = assetStatus?.transferStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                     onImageClick = onImageClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
@@ -593,7 +592,7 @@ private fun MessageContent(
                     assetName = messageContent.assetName,
                     assetExtension = messageContent.assetExtension,
                     assetSizeInBytes = messageContent.assetSizeInBytes,
-                    assetTransferStatus = assetStatus?.transferStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
+                    assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                     onAssetClick = onAssetClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)

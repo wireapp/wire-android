@@ -25,31 +25,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.buildAnnotatedString
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
-import org.commonmark.node.Document
-import org.commonmark.node.Paragraph
 
 @Composable
 fun MarkdownParagraph(
-    paragraph: Paragraph,
+    paragraph: MarkdownNode.Block.Paragraph,
     nodeData: NodeData,
     clickable: Boolean,
     onMentionsUpdate: (List<DisplayMention>) -> Unit
 ) {
-        val padding = if (paragraph.parent is Document) dimensions().spacing4x else dimensions().spacing0x
-        Box(modifier = Modifier.padding(bottom = padding)) {
-            val annotatedString = buildAnnotatedString {
-                pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
-                val updatedMentions = inlineChildren(paragraph, this, nodeData)
-                onMentionsUpdate(updatedMentions)
-                pop()
-            }
-            MarkdownText(
-                annotatedString,
-                style = nodeData.style,
-                onLongClick = nodeData.onLongClick,
-                onOpenProfile = nodeData.onOpenProfile,
-                onClickLink = nodeData.onLinkClick,
-                clickable = clickable
-            )
+    val padding = if (paragraph.isParentDocument) dimensions().spacing4x else dimensions().spacing0x
+    Box(modifier = Modifier.padding(bottom = padding)) {
+        val annotatedString = buildAnnotatedString {
+            pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
+            val updatedMentions = inlineNodeChildren(paragraph.children, this, nodeData)
+            onMentionsUpdate(updatedMentions)
+            pop()
         }
+        MarkdownText(
+            annotatedString,
+            style = nodeData.style,
+            onLongClick = nodeData.onLongClick,
+            onOpenProfile = nodeData.onOpenProfile,
+            onClickLink = nodeData.onLinkClick,
+            clickable = clickable
+        )
+    }
 }

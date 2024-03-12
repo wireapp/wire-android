@@ -30,8 +30,14 @@ class DateTimeUtilKtTest {
     }
 
     @Test
-    fun `given a valid date, when performing a transformation, then return with medium format`() {
+    fun `given a valid date, when performing a transformation for device, then return with medium format`() {
         val result = "2022-03-24T18:02:30.360Z".deviceDateTimeFormat()
+        assertEquals("March 24, 2022. 8:02 PM", result)
+    }
+
+    @Test
+    fun `given a valid date, when performing a transformation, then return with medium format`() {
+        val result = "2022-03-24T18:02:30.360Z".formatMediumDateTime()
         assertEquals("Mar 24, 2022, 6:02:30 PM", result)
     }
 }

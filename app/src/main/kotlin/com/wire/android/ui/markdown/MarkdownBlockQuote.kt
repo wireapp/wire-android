@@ -32,6 +32,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import org.commonmark.node.BlockQuote
+import org.commonmark.node.BulletList
+import org.commonmark.node.OrderedList
 
 @Composable
 fun MarkdownBlockQuote(blockQuote: BlockQuote, nodeData: NodeData) {
@@ -52,6 +54,8 @@ fun MarkdownBlockQuote(blockQuote: BlockQuote, nodeData: NodeData) {
         while (child != null) {
             when (child) {
                 is BlockQuote -> MarkdownBlockQuote(child, nodeData)
+                is BulletList -> MarkdownBulletList(child, nodeData)
+                is OrderedList -> MarkdownOrderedList(child, nodeData)
                 else -> {
                     val text = buildAnnotatedString {
                         pushStyle(

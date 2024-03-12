@@ -41,7 +41,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.formatMediumDateTime
+import com.wire.android.util.deviceDateTimeFormat
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -63,7 +63,7 @@ fun RemoveDeviceDialog(
             stringResource(
                 R.string.remove_device_id_and_time_label,
                 state.device.clientId.value,
-                state.device.registrationTime?.formatMediumDateTime() ?: ""
+                state.device.registrationTime?.deviceDateTimeFormat() ?: ""
             ),
         onDismiss = onDialogDismissHideKeyboard,
         dismissButtonProperties = WireDialogButtonProperties(

@@ -224,6 +224,40 @@ class RecordAudioViewModelTest {
             }
         }
 
+    @Test
+    fun `given start recording succeeded, when recording audio, then recording screen is shown`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withStartRecordingSuccessful()
+                .arrange()
+
+            viewModel.getInfoMessage().test {
+                // when
+                viewModel.startRecording()
+                // then
+                assertEquals(RecordAudioButtonState.RECORDING, viewModel.getButtonState())
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun `given start recording failed, when recording audio, then info message is shown`() =
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withStartRecordingFailed()
+                .arrange()
+
+            viewModel.getInfoMessage().test {
+                // when
+                viewModel.startRecording()
+                // then
+                assertEquals(RecordAudioButtonState.ENABLED, viewModel.getButtonState())
+                assertEquals(RecordAudioInfoMessageType.UnableToRecordAudioError.uiText, awaitItem())
+            }
+        }
+
     private class Arrangement {
 
         val recordAudioMessagePlayer = mockk<RecordAudioMessagePlayer>()
@@ -249,7 +283,7 @@ class RecordAudioViewModelTest {
 
             coEvery { getAssetSizeLimit.invoke(false) } returns ASSET_SIZE_LIMIT
             every { audioMediaRecorder.setUp(ASSET_SIZE_LIMIT) } returns Unit
-            every { audioMediaRecorder.startRecording() } returns Unit
+            every { audioMediaRecorder.startRecording() } returns true
             every { audioMediaRecorder.stop() } returns Unit
             every { audioMediaRecorder.release() } returns Unit
             every { audioMediaRecorder.outputFile } returns fakeKaliumFileSystem
@@ -283,6 +317,9 @@ class RecordAudioViewModelTest {
                 )
             )
         }
+
+        fun withStartRecordingSuccessful() = apply { every { audioMediaRecorder.startRecording() } returns true }
+        fun withStartRecordingFailed() = apply { every { audioMediaRecorder.startRecording() } returns false }
 
         fun arrange() = this to viewModel
 

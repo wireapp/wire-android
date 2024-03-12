@@ -17,20 +17,9 @@
  */
 package com.wire.android.feature.sketch
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 
 class DrawingCanvasViewModel : ViewModel() {
-    var paths = mutableStateListOf<PathProperties>()
-    var pathsUndone = mutableStateListOf<PathProperties>()
-    var motionEvent by mutableStateOf(MotionEvent.Idle)
-    var currentPath by mutableStateOf(PathProperties())
-
-    var currentPosition by mutableStateOf(Offset.Unspecified)
 
     val canvasState = CanvasState()
 

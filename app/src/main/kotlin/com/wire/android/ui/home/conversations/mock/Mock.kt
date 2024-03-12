@@ -88,6 +88,27 @@ val mockMessageWithText = UIMessage.Regular(
     messageFooter = mockEmptyFooter
 )
 
+val mockMessageWithTextLoremIpsum = UIMessage.Regular(
+    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+    header = mockHeader,
+    messageContent = UIMessageContent.TextMessage(
+        messageBody = MessageBody(
+            UIText.DynamicString(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus volutpat lorem tortor, " +
+                        "nec porttitor sapien pulvinar eu. Nullam orci dolor, eleifend quis massa non, posuere bibendum risus. " +
+                        "Praesent velit ipsum, hendrerit et ante in, placerat pretium nunc. Sed orci velit, venenatis non vulputate non, " +
+                        "venenatis sit amet enim. Quisque vestibulum, ligula in interdum rhoncus, magna ante porta velit, " +
+                        "ut dignissim augue est et leo. Vestibulum in nunc eu velit elementum porttitor vitae eu nunc. " +
+                        "Aliquam consectetur orci sit amet turpis consectetur, ut tempus velit pulvinar. Pellentesque et lorem placerat, " +
+                        "aliquet odio non, consequat metus. Maecenas ultricies mauris quis lorem cursus dignissim. " +
+                        "Nullam lacinia, nisl et dapibus consequat, sapien dolor maximus erat, quis aliquet dolor elit tincidunt orci."
+            )
+        )
+    ),
+    source = MessageSource.Self,
+    messageFooter = mockEmptyFooter
+)
+
 val mockMessageWithMarkdownTextAndLinks = UIMessage.Regular(
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
     header = mockHeader,

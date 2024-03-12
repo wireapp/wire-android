@@ -30,6 +30,12 @@ import androidx.compose.ui.text.font.FontStyle
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+<<<<<<< HEAD
+=======
+import org.commonmark.node.BlockQuote
+import org.commonmark.node.BulletList
+import org.commonmark.node.OrderedList
+>>>>>>> 1ea94ca57 (fix: list in markdown quote [WPB-6622] (#2781))
 
 @Composable
 fun MarkdownBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: NodeData) {
@@ -48,8 +54,15 @@ fun MarkdownBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: Node
 
         blockQuote.children.map { child ->
             when (child) {
+<<<<<<< HEAD
                 is MarkdownNode.Block.BlockQuote -> MarkdownBlockQuote(child, nodeData)
                 is MarkdownNode.Block.Paragraph -> {
+=======
+                is BlockQuote -> MarkdownBlockQuote(child, nodeData)
+                is BulletList -> MarkdownBulletList(child, nodeData)
+                is OrderedList -> MarkdownOrderedList(child, nodeData)
+                else -> {
+>>>>>>> 1ea94ca57 (fix: list in markdown quote [WPB-6622] (#2781))
                     val text = buildAnnotatedString {
                         pushStyle(
                             MaterialTheme.wireTypography.body01.toSpanStyle()

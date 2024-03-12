@@ -95,6 +95,10 @@ class AdditionalOptionStateHolder {
         selectedOption = AdditionalOptionSelectItem.SelfDeleting
     }
 
+    fun toDrawingMode() {
+        selectedOption = AdditionalOptionSelectItem.DrawingMode
+    }
+
     companion object {
         fun saver(): Saver<AdditionalOptionStateHolder, *> = Saver(
             save = {

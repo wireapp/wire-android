@@ -55,6 +55,7 @@ fun AdditionalOptionsMenu(
     onRichEditingButtonClicked: () -> Unit,
     onCloseRichEditingButtonClicked: () -> Unit,
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
+    onDrawingModeClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier.background(colorsScheme().messageComposerBackgroundColor)) {
@@ -71,7 +72,8 @@ fun AdditionalOptionsMenu(
                     onGifButtonClicked = onGifOptionClicked ?: {},
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
                     onRichEditingButtonClicked = onRichEditingButtonClicked,
-                    onPingClicked = onPingOptionClicked
+                    onPingClicked = onPingOptionClicked,
+                    onDrawingModeClicked = onDrawingModeClicked
                 )
             }
 

@@ -27,6 +27,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -52,6 +56,10 @@ fun RecordAudioComponent(
     val viewModel: RecordAudioViewModel = hiltViewModelScoped<RecordAudioViewModel>()
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
+    var applyAudioFilterState by remember { mutableStateOf(false) }
+    val onApplyAudioFilterClick = {
+        applyAudioFilterState = !applyAudioFilterState
+    }
 
     val recordAudioFlow = RecordAudioFlow(
         startRecording = { viewModel.startRecording() },
@@ -102,20 +110,26 @@ fun RecordAudioComponent(
 
         val buttonModifier = Modifier
             .align(Alignment.BottomCenter)
-            .padding(bottom = dimensions().spacing80x)
+            .padding(bottom = dimensions().spacing20x)
 
         when (viewModel.getButtonState()) {
             RecordAudioButtonState.ENABLED -> RecordAudioButtonEnabled(
+                applyAudioFilterState = applyAudioFilterState,
+                applyAudioFilterClick = onApplyAudioFilterClick,
                 onClick = { recordAudioFlow.launch() },
                 modifier = buttonModifier
             )
 
             RecordAudioButtonState.RECORDING -> RecordAudioButtonRecording(
+                applyAudioFilterState = applyAudioFilterState,
+                applyAudioFilterClick = onApplyAudioFilterClick,
                 onClick = viewModel::stopRecording,
                 modifier = buttonModifier
             )
 
             RecordAudioButtonState.READY_TO_SEND -> RecordAudioButtonSend(
+                applyAudioFilterState = applyAudioFilterState,
+                applyAudioFilterClick = onApplyAudioFilterClick,
                 audioState = viewModel.getAudioState(),
                 onClick = {
                     viewModel.sendRecording(

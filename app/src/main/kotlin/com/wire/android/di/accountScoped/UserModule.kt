@@ -115,11 +115,6 @@ class UserModule {
 
     @ViewModelScoped
     @Provides
-    fun provideEnrollE2EIUseCase(userScope: UserScope): EnrollE2EIUseCase =
-        userScope.enrollE2EI
-
-    @ViewModelScoped
-    @Provides
     fun provideFinalizeMLSClientAfterE2EIEnrollmentUseCase(userScope: UserScope): FinalizeMLSClientAfterE2EIEnrollment =
         userScope.finalizeMLSClientAfterE2EIEnrollment
 

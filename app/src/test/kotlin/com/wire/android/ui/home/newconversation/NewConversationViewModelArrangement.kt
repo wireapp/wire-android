@@ -173,7 +173,6 @@ internal class NewConversationViewModelArrangement {
 
     fun arrange() = this to NewConversationViewModel(
         createGroupConversation = createGroupConversation,
-        isMLSEnabled = isMLSEnabledUseCase,
         isSelfATeamMember = isSelfTeamMember,
         getDefaultProtocol = getDefaultProtocol
     ).also {

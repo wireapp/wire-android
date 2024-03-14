@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -120,18 +121,23 @@ fun GroupNameScreen(
                             )
                         }
                     }
-                    if (mode == CREATION && mlsEnabled) {
-                        WireDropDown(
-                            items =
-                            ConversationOptions.Protocol.values().map { it.name },
-                            defaultItemIndex = defaultProtocol.ordinal,
-                            selectedItemIndex = groupProtocol.ordinal,
-                            label = stringResource(R.string.protocol),
+                    if (mode == CREATION) {
+                        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing16x))
+                        Text(
+                            text = stringResource(R.string.protocol),
+                            style = MaterialTheme.wireTypography.label01,
                             modifier = Modifier
-                                .padding(MaterialTheme.wireDimensions.spacing16x)
-                        ) { selectedIndex ->
-                            groupProtocol = ConversationOptions.Protocol.values()[selectedIndex]
-                        }
+                                .fillMaxWidth()
+                                .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+                                .padding(bottom = MaterialTheme.wireDimensions.spacing4x)
+                        )
+                        Text(
+                            text = groupProtocol.name,
+                            style = MaterialTheme.wireTypography.body02,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+                        )
                     }
 
                     Spacer(modifier = Modifier.weight(1f))

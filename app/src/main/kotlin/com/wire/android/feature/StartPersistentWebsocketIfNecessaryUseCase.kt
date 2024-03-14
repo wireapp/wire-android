@@ -20,6 +20,7 @@
 package com.wire.android.feature
 
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import com.wire.android.appLogger
 import com.wire.android.services.PersistentWebSocketService
@@ -32,7 +33,6 @@ class StartPersistentWebsocketIfNecessaryUseCase @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val shouldStartPersistentWebSocketService: ShouldStartPersistentWebSocketServiceUseCase
 ) {
-    @Suppress("NestedBlockDepth")
     suspend operator fun invoke() {
         val persistentWebSocketServiceIntent = PersistentWebSocketService.newIntent(appContext)
         shouldStartPersistentWebSocketService().let {
@@ -43,20 +43,28 @@ class StartPersistentWebsocketIfNecessaryUseCase @Inject constructor(
 
                 is ShouldStartPersistentWebSocketServiceUseCase.Result.Success -> {
                     if (it.shouldStartPersistentWebSocketService) {
-                        if (PersistentWebSocketService.isServiceStarted) {
-                            appLogger.i("${TAG}: PersistentWebsocketService already started, not starting again")
-                        } else {
-                            appLogger.i("${TAG}: Starting PersistentWebsocketService")
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                appContext.startForegroundService(persistentWebSocketServiceIntent)
-                            } else {
-                                appContext.startService(persistentWebSocketServiceIntent)
-                            }
-                        }
+                        startForegroundService(persistentWebSocketServiceIntent)
                     } else {
                         appLogger.i("${TAG}: Stopping PersistentWebsocketService, no user with persistent web socket enabled found")
                         appContext.stopService(persistentWebSocketServiceIntent)
                     }
+                }
+            }
+        }
+    }
+
+    private fun startForegroundService(persistentWebSocketServiceIntent: Intent) {
+        when {
+            PersistentWebSocketService.isServiceStarted -> {
+                appLogger.i("${TAG}: PersistentWebsocketService already started, not starting again")
+            }
+
+            else -> {
+                appLogger.i("${TAG}: Starting PersistentWebsocketService")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    appContext.startForegroundService(persistentWebSocketServiceIntent)
+                } else {
+                    appContext.startService(persistentWebSocketServiceIntent)
                 }
             }
         }

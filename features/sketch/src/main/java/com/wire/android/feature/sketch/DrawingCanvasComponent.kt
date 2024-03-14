@@ -43,6 +43,9 @@ fun DrawingCanvasComponent(
         mutableStateListOf<Line>()
     }
 
+    // todo(ym). save the lines to the viewmodel
+    // todo(ym). style from common components/theme (we need to bring the theme to the common module)
+    // todo(ym). add the undo action, remove from the list of lines
     Canvas(
         modifier = Modifier
             .fillMaxSize()
@@ -57,7 +60,7 @@ fun DrawingCanvasComponent(
                         end = change.position
                     )
 
-                    lines.add(line)
+                    lines.push(line)
                 }
             }
     ) {
@@ -81,3 +84,8 @@ data class Line(
     val color: Color = Color.Black,
     val strokeWidth: Dp = 10.dp
 )
+
+fun <T> MutableList<T>.push(item: T) = this.add(this.count(), item)
+fun <T> MutableList<T>.pop(): T? = if (this.isNotEmpty()) this.removeAt(this.count() - 1) else null
+fun <T> MutableList<T>.peek(): T? = if (this.isNotEmpty()) this[this.count() - 1] else null
+fun <T> MutableList<T>.hasMore() = this.isNotEmpty()

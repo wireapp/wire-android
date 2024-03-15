@@ -23,11 +23,13 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.migration.MigrationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.workmanager.worker.MigrationWorker
 import com.wire.android.workmanager.worker.NotificationFetchWorker
+import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker
 import com.wire.android.workmanager.worker.SingleUserMigrationWorker
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.sync.WrapperWorker
@@ -38,6 +40,7 @@ class WireWorkerFactory @Inject constructor(
     private val wireNotificationManager: WireNotificationManager,
     private val notificationChannelsManager: NotificationChannelsManager,
     private val migrationManager: MigrationManager,
+    private val startPersistentWebsocketIfNecessary: StartPersistentWebsocketIfNecessaryUseCase,
     @KaliumCoreLogic
     private val coreLogic: CoreLogic
 ) : WorkerFactory() {
@@ -47,12 +50,19 @@ class WireWorkerFactory @Inject constructor(
             WrapperWorker::class.java.canonicalName ->
                 WrapperWorkerFactory(coreLogic, WireForegroundNotificationDetailsProvider)
                     .createWorker(appContext, workerClassName, workerParameters)
+
             NotificationFetchWorker::class.java.canonicalName ->
                 NotificationFetchWorker(appContext, workerParameters, wireNotificationManager, notificationChannelsManager)
+
             MigrationWorker::class.java.canonicalName ->
                 MigrationWorker(appContext, workerParameters, migrationManager, notificationChannelsManager)
+
             SingleUserMigrationWorker::class.java.canonicalName ->
                 SingleUserMigrationWorker(appContext, workerParameters, migrationManager, notificationChannelsManager)
+
+            PersistentWebsocketCheckWorker::class.java.canonicalName ->
+                PersistentWebsocketCheckWorker(appContext, workerParameters, startPersistentWebsocketIfNecessary)
+
             else -> null
         }
     }

@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -74,16 +75,19 @@ fun NetworkSettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            val appContext = LocalContext.current
-            val isWebSocketEnforcedByDefault = isWebsocketEnabledByDefault(appContext)
-
-            val switchState = if (isWebSocketEnforcedByDefault) {
-                SwitchState.TextOnly(true)
-            } else {
-                SwitchState.Enabled(
-                    value = isWebSocketEnabled,
-                    onCheckedChange = setWebSocketState
-                )
+            val appContext = LocalContext.current.applicationContext
+            val isWebSocketEnforcedByDefault = remember {
+                isWebsocketEnabledByDefault(appContext)
+            }
+            val switchState = remember {
+                if (isWebSocketEnforcedByDefault) {
+                    SwitchState.TextOnly(true)
+                } else {
+                    SwitchState.Enabled(
+                        value = isWebSocketEnabled,
+                        onCheckedChange = setWebSocketState
+                    )
+                }
             }
 
             GroupConversationOptionsItem(

@@ -32,7 +32,6 @@ import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
 import com.wire.android.ui.home.conversations.search.SearchBarViewModel
-import com.wire.android.model.ItemActionType
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.QualifiedID

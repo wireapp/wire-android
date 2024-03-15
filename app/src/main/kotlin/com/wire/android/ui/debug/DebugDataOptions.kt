@@ -59,6 +59,7 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
+import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
@@ -98,6 +99,7 @@ class DebugDataOptionsViewModel
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
     private val disableEventProcessingUseCase: DisableEventProcessingUseCase,
+    private val checkCrlRevocationListUseCase: CheckCrlRevocationListUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(
@@ -112,6 +114,12 @@ class DebugDataOptionsViewModel
             debugId = context.getDeviceIdString() ?: "null",
             commitish = context.getGitBuildId()
         )
+    }
+
+    fun checkCrlRevocationList() {
+        viewModelScope.launch {
+            checkCrlRevocationListUseCase.execute()
+        }
     }
 
     fun enableEncryptedProteusStorage(enabled: Boolean) {
@@ -248,7 +256,8 @@ fun DebugDataOptions(
         onDisableEventProcessingChange = viewModel::disableEventProcessing,
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
-        dismissCertificateDialog = viewModel::dismissCertificateDialog
+        dismissCertificateDialog = viewModel::dismissCertificateDialog,
+        checkCrlRevocationList = viewModel::checkCrlRevocationList
     )
 }
 
@@ -266,7 +275,8 @@ fun DebugDataOptionsContent(
     onManualMigrationPressed: () -> Unit,
     enrollE2EICertificate: () -> Unit,
     handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
-    dismissCertificateDialog: () -> Unit
+    dismissCertificateDialog: () -> Unit,
+    checkCrlRevocationList: () -> Unit
 ) {
     Column {
 
@@ -302,6 +312,16 @@ fun DebugDataOptionsContent(
             )
         )
         if (BuildConfig.PRIVATE_BUILD) {
+
+            SettingsItem(
+                title = stringResource(R.string.debug_id),
+                text = state.debugId,
+                trailingIcon = R.drawable.ic_copy,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = {  }
+                )
+            )
 
             SettingsItem(
                 title = stringResource(R.string.debug_id),
@@ -625,5 +645,6 @@ fun PreviewOtherDebugOptions() {
         enrollE2EICertificate = {},
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
+        checkCrlRevocationList = {}
     )
 }

@@ -70,9 +70,9 @@ fun DebugScreen(navigator: Navigator) {
 private fun UserDebugContent(
     onNavigationPressed: () -> Unit,
     onManualMigrationPressed: (currentAccount: UserId) -> Unit,
-) {
+    userDebugViewModel: UserDebugViewModel = hiltViewModel(),
 
-    val userDebugViewModel: UserDebugViewModel = hiltViewModel()
+) {
     val debugContentState: DebugContentState = rememberDebugContentState(userDebugViewModel.logPath)
 
     WireScaffold(

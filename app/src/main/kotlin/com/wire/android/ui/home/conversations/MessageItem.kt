@@ -85,7 +85,9 @@ import com.wire.android.ui.home.conversations.model.messagetypes.location.Locati
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
-import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.asset.isSaved
+import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
 
@@ -100,6 +102,7 @@ fun MessageItem(
     showAuthor: Boolean = true,
     useSmallBottomPadding: Boolean = false,
     audioMessagesState: PersistentMap<String, AudioState>,
+    assetStatus: AssetTransferStatus? = null,
     onLongClicked: (UIMessage.Regular) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -118,7 +121,8 @@ fun MessageItem(
     shouldDisplayMessageStatus: Boolean = true,
     shouldDisplayFooter: Boolean = true,
     onReplyClickable: Clickable? = null,
-    isSelectedMessage: Boolean = false
+    isSelectedMessage: Boolean = false,
+    isInteractionAvailable: Boolean = true,
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
@@ -129,6 +133,7 @@ fun MessageItem(
         ) {
             selfDeletionTimerState.startDeletionTimer(
                 message = message,
+                assetTransferStatus = assetStatus,
                 onStartMessageSelfDeletion = onSelfDeletingMessageRead
             )
         }
@@ -227,7 +232,7 @@ fun MessageItem(
                         MessageAuthorRow(messageHeader = message.header)
                     }
                     if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
-                        MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted)
+                        MessageExpireLabel(messageContent, assetStatus, selfDeletionTimerState.timeLeftFormatted)
 
                         // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
                         // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
@@ -272,6 +277,7 @@ fun MessageItem(
                                         messageContent = messageContent,
                                         searchQuery = searchQuery,
                                         audioMessagesState = audioMessagesState,
+                                        assetStatus = assetStatus,
                                         onAudioClick = onAudioClick,
                                         onChangeAudioPosition = onChangeAudioPosition,
                                         onAssetClick = currentOnAssetClicked,
@@ -313,6 +319,7 @@ fun MessageItem(
                         if (message.sendingFailed) {
                             MessageSendFailureWarning(
                                 messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                                isInteractionAvailable = isInteractionAvailable,
                                 onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId) } },
                                 onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
                             )
@@ -347,7 +354,7 @@ fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData
 }
 
 @Composable
-fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
+fun MessageExpireLabel(messageContent: UIMessageContent?, assetTransferStatus: AssetTransferStatus?, timeLeft: String) {
     when (messageContent) {
         is UIMessageContent.Location,
         is UIMessageContent.TextMessage -> {
@@ -356,7 +363,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.AssetMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus.isSaved()) {
+                statusText = if (assetTransferStatus.isSaved()) {
                     stringResource(
                         R.string.self_deleting_message_time_left,
                         timeLeft
@@ -369,7 +376,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.AudioAssetMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus.isSaved()) {
+                statusText = if (assetTransferStatus.isSaved()) {
                     stringResource(
                         R.string.self_deleting_message_time_left,
                         timeLeft
@@ -382,7 +389,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.ImageMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus.isSaved()) {
+                statusText = if (assetTransferStatus.isSaved()) {
                     stringResource(
                         R.string.self_deleting_message_time_left,
                         timeLeft
@@ -422,6 +429,7 @@ private fun MessageAuthorRow(messageHeader: MessageHeader) {
             ) {
                 Username(
                     username.asString(),
+                    accent,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
                 UserBadge(
@@ -486,10 +494,11 @@ private fun MessageTimeLabel(
 }
 
 @Composable
-private fun Username(username: String, modifier: Modifier = Modifier) {
+private fun Username(username: String, accent: Accent, modifier: Modifier = Modifier) {
     Text(
         text = username,
         style = MaterialTheme.wireTypography.body02,
+        color = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(accent, MaterialTheme.wireColorScheme.onBackground),
         modifier = modifier,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
@@ -502,7 +511,8 @@ private fun MessageContent(
     message: UIMessage.Regular,
     messageContent: UIMessageContent.Regular?,
     searchQuery: String,
-    audioMessagesState: Map<String, AudioState>,
+    audioMessagesState: PersistentMap<String, AudioState>,
+    assetStatus: AssetTransferStatus?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
     onAudioClick: (String) -> Unit,
@@ -519,8 +529,7 @@ private fun MessageContent(
                 MessageImage(
                     asset = messageContent.asset,
                     imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-                    uploadStatus = messageContent.uploadStatus,
-                    downloadStatus = messageContent.downloadStatus,
+                    transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                     onImageClick = onImageClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
@@ -536,6 +545,7 @@ private fun MessageContent(
                             messageData = it,
                             clickable = onReplyClickable
                         )
+
                         UIQuotedMessage.UnavailableData -> QuotedUnavailable(style = QuotedMessageStyle.COMPLETE)
                     }
                     VerticalSpace.x4()
@@ -564,6 +574,7 @@ private fun MessageContent(
                             messageData = it,
                             clickable = onReplyClickable
                         )
+
                         UIQuotedMessage.UnavailableData -> QuotedUnavailable(style = QuotedMessageStyle.COMPLETE)
                     }
                     VerticalSpace.x4()
@@ -586,8 +597,7 @@ private fun MessageContent(
                     assetName = messageContent.assetName,
                     assetExtension = messageContent.assetExtension,
                     assetSizeInBytes = messageContent.assetSizeInBytes,
-                    assetUploadStatus = messageContent.uploadStatus,
-                    assetDownloadStatus = messageContent.downloadStatus,
+                    assetTransferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                     onAssetClick = onAssetClick
                 )
                 PartialDeliveryInformation(messageContent.deliveryStatus)
@@ -685,10 +695,6 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     messageStatus.badgeText?.let {
         StatusBox(it.asString())
     }
-}
-
-private fun Message.DownloadStatus.isSaved(): Boolean {
-    return this == Message.DownloadStatus.SAVED_EXTERNALLY || this == Message.DownloadStatus.SAVED_INTERNALLY
 }
 
 internal val DeliveryStatusContent.expandable

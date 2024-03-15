@@ -21,6 +21,8 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import androidx.work.WorkManager
+import androidx.work.impl.OperationImpl
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -590,9 +592,6 @@ class WireActivityViewModelTest {
 
     private class Arrangement {
 
-        // TODO add tests for cases when observeIfE2EIIsRequiredDuringLogin emits semothing
-        private val observeIfE2EIIsRequiredDuringLogin = MutableSharedFlow<Boolean?>()
-
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -614,7 +613,9 @@ class WireActivityViewModelTest {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
             coEvery { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin() } returns
-                    observeIfE2EIIsRequiredDuringLogin
+                    flowOf(false)
+            every { workManager.cancelAllWorkByTag(any()) } returns OperationImpl()
+            every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns OperationImpl()
         }
 
         @MockK
@@ -676,6 +677,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
+        @MockK
+        lateinit var workManager: WorkManager
+
         @MockK(relaxed = true)
         lateinit var onDeepLinkResult: (DeepLinkResult) -> Unit
 
@@ -702,7 +706,8 @@ class WireActivityViewModelTest {
                 currentScreenManager = currentScreenManager,
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
                 globalDataStore = globalDataStore,
-                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory
+                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
+                workManager = workManager
             )
         }
 
@@ -766,6 +771,7 @@ class WireActivityViewModelTest {
 
         fun withCurrentScreen(currentScreenFlow: StateFlow<CurrentScreen>) = apply {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns currentScreenFlow
+            coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).observeIfE2EIRequiredDuringLogin() } returns flowOf(false)
         }
 
         suspend fun withScreenshotCensoringConfig(result: ObserveScreenshotCensoringConfigResult) = apply {

@@ -19,7 +19,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         package="com.wire.android"
-        android:sharedUserId="${sharedUserId}">
+        android:sharedUserId="${sharedUserId}"
+        android:installLocation="internalOnly"
+        >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -39,6 +41,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
@@ -320,8 +323,7 @@
         <service
                 android:name=".services.OngoingCallService"
                 android:exported="false"
-                android:foregroundServiceType="phoneCall" />
-
+                android:foregroundServiceType="phoneCall|microphone" />
     </application>
 
 </manifest>

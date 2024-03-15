@@ -116,7 +116,7 @@ class RegularMessageMapper @Inject constructor(
                         text = it.text,
                         isSelected = it.isSelected
                     )
-                }
+                }.toPersistentList()
             )
         }
 
@@ -149,8 +149,6 @@ class RegularMessageMapper @Inject constructor(
                 assetExtension = mimeType,
                 assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                 audioMessageDurationInMs = metadata.durationMs ?: 0,
-                uploadStatus = uploadStatus,
-                downloadStatus = downloadStatus,
                 deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
             )
         }
@@ -236,7 +234,9 @@ class RegularMessageMapper @Inject constructor(
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
                 // If some of image data are still missing, we mark it as incomplete which won't be shown until we get missing data
-                assetMessageContentMetadata.isIncompleteImage() -> UIMessageContent.IncompleteAssetMessage
+                assetMessageContentMetadata.isIncompleteImage() -> {
+                    UIMessageContent.IncompleteAssetMessage
+                }
 
                 // If it's a displayable image with valid data, we delegate the download it right away to coil
                 assetMessageContentMetadata.isDisplayableImage() -> {
@@ -250,8 +250,6 @@ class RegularMessageMapper @Inject constructor(
                         ),
                         width = assetMessageContentMetadata.imgWidth,
                         height = assetMessageContentMetadata.imgHeight,
-                        uploadStatus = uploadStatus,
-                        downloadStatus = downloadStatus,
                         deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
                     )
                 }
@@ -263,8 +261,6 @@ class RegularMessageMapper @Inject constructor(
                         assetExtension = name?.split(".")?.last() ?: "",
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         assetSizeInBytes = sizeInBytes,
-                        uploadStatus = uploadStatus,
-                        downloadStatus = downloadStatus,
                         deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
                     )
                 }
@@ -305,11 +301,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
 
     // Sometimes client receives two events for the same asset, first one with only part of the data ("preview" type from web),
     // so such asset shouldn't be shown until all the required data is received.
-    fun isIncompleteImage(): Boolean = isDisplayableImage()
-            // we check only assets uploaded by other clients and they have upload status NOT_UPLOADED
-            && assetMessageContent.uploadStatus == Message.UploadStatus.NOT_UPLOADED
-            // sometimes we can receive two asset events, we want to show the image only after we get all required data
-            && !assetMessageContent.hasValidRemoteData()
+    fun isIncompleteImage(): Boolean = isDisplayableImage() && !assetMessageContent.hasValidRemoteData()
 }
 
 private fun String?.orUnknownName(): UIText = when {

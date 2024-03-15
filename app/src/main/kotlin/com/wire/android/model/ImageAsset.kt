@@ -20,6 +20,9 @@ package com.wire.android.model
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
+import com.wire.android.R
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -75,7 +78,10 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
     fun paint(
         fallbackData: Any? = null,
         withCrossfadeAnimation: Boolean = false
-    ) = imageLoader.paint(asset = this, fallbackData = fallbackData, withCrossfadeAnimation = withCrossfadeAnimation)
+    ) = when {
+        LocalInspectionMode.current -> painterResource(id = R.drawable.ic_welcome_1)
+        else -> imageLoader.paint(asset = this, fallbackData = fallbackData, withCrossfadeAnimation = withCrossfadeAnimation)
+    }
 }
 
 fun String.parseIntoPrivateImageAsset(

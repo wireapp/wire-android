@@ -59,6 +59,14 @@
             "logging_enabled": true,
             "application_is_private_build": true,
             "development_api_enabled": false
+        },
+        "fdroid": {
+            "application_id": "com.wire",
+            "developer_features_enabled": false,
+            "logging_enabled": false,
+            "application_is_private_build": false,
+            "development_api_enabled": false,
+            "mls_support_enabled": false
         }
     },
     "application_name": "Wire",
@@ -106,5 +114,6 @@
     "url_rss_release_notes": "https://medium.com/feed/wire-news/tagged/android",
     "team_app_lock": false,
     "team_app_lock_timeout": 60,
-    "max_remote_search_result_count": 30
+    "max_remote_search_result_count": 30,
+    "limit_team_members_fetch_during_slow_sync": 2000
 }

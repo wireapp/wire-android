@@ -24,9 +24,10 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetImageAssetMessagesForConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetMessageByConversationIdUseCase
+import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.ObservePaginatedAssetImageMessages
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
-import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
@@ -95,8 +96,8 @@ class MessageModule {
 
     @ViewModelScoped
     @Provides
-    fun provideUpdateAssetMessageDownloadStatusUseCase(messageScope: MessageScope): UpdateAssetMessageDownloadStatusUseCase =
-        messageScope.updateAssetMessageDownloadStatus
+    fun provideUpdateAssetMessageTransferStatusUseCase(messageScope: MessageScope): UpdateAssetMessageTransferStatusUseCase =
+        messageScope.updateAssetMessageTransferStatus
 
     @ViewModelScoped
     @Provides
@@ -192,4 +193,9 @@ class MessageModule {
     @Provides
     fun provideSendLocationUseCase(messageScope: MessageScope): SendLocationUseCase =
         messageScope.sendLocation
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveAssetStatusesUseCase(messageScope: MessageScope): ObserveAssetStatusesUseCase =
+        messageScope.observeAssetStatuses
 }

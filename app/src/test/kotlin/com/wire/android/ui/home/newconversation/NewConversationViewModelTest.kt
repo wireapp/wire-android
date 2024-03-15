@@ -24,11 +24,13 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.Test
@@ -143,4 +145,24 @@ class NewConversationViewModelTest {
                 )
             }
         }
+
+    @Test
+    fun `given team settings is MLS default protocol, when getting default protocol, then result is MLS`() = runTest {
+        // given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withDefaultProtocol(SupportedProtocol.MLS)
+            .withIsSelfTeamMember(true)
+            .withServicesEnabled(false)
+            .withGuestEnabled(true)
+            .arrange()
+
+        // when
+        val result = viewModel.newGroupState.defaultProtocol
+
+        // then
+        assertEquals(
+            ConversationOptions.Protocol.MLS,
+            result
+        )
+    }
 }

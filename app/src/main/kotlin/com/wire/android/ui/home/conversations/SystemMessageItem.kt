@@ -87,6 +87,7 @@ import kotlin.math.roundToInt
 fun SystemMessageItem(
     message: UIMessage.System,
     initiallyExpanded: Boolean = false,
+    isInteractionAvailable: Boolean = true,
     onFailedMessageRetryClicked: (String) -> Unit = {},
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onSelfDeletingMessageRead: (UIMessage) -> Unit = {}
@@ -99,6 +100,7 @@ fun SystemMessageItem(
     ) {
         selfDeletionTimerState.startDeletionTimer(
             message = message,
+            assetTransferStatus = null,
             onStartMessageSelfDeletion = onSelfDeletingMessageRead
         )
     }
@@ -178,9 +180,12 @@ fun SystemMessageItem(
                     addStringAnnotation(tag = TAG_LEARN_MORE, annotation = learnMoreLink, start = 0, end = learnMoreText.length)
                 }
             }
-            val fullAnnotatedString =
-                if (learnMoreAnnotatedString != null) annotatedString + AnnotatedString(" ") + learnMoreAnnotatedString
-                else annotatedString
+            val fullAnnotatedString = when {
+                learnMoreAnnotatedString == null -> annotatedString
+                message.messageContent.expandable && expanded -> annotatedString + AnnotatedString("\n") + learnMoreAnnotatedString
+                message.messageContent.expandable && !expanded -> annotatedString
+                else -> annotatedString + AnnotatedString(" ") + learnMoreAnnotatedString
+            }
 
             ClickableText(
                 modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
@@ -195,9 +200,6 @@ fun SystemMessageItem(
                 }
             )
 
-            if ((message.addingFailed && expanded) || message.singleUserAddFailed) {
-                OfflineBackendsLearnMoreLink()
-            }
             if (message.messageContent.expandable) {
                 VerticalSpace.x8()
                 WireSecondaryButton(
@@ -213,6 +215,7 @@ fun SystemMessageItem(
             if (message.sendingFailed) {
                 MessageSendFailureWarning(
                     messageStatus = message.header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                    isInteractionAvailable = isInteractionAvailable,
                     onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId) } },
                     onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
                 )
@@ -375,12 +378,13 @@ fun PreviewSystemMessageKnock() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewSystemMessageFailedToAddSingle() {
+fun PreviewSystemMessageFailedToAddFederationSingle() {
     WireTheme {
         SystemMessageItem(
             message = mockMessageWithKnock.copy(
                 messageContent = SystemMessage.MemberFailedToAdd(
-                    listOf(UIText.DynamicString("Barbara Cotolina"))
+                    listOf(UIText.DynamicString("Barbara Cotolina")),
+                    SystemMessage.MemberFailedToAdd.Type.Federation
                 )
             )
         )
@@ -389,7 +393,7 @@ fun PreviewSystemMessageFailedToAddSingle() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewSystemMessageFailedToAddMultiple() {
+fun PreviewSystemMessageFailedToAddFederationMultiple() {
     WireTheme {
         SystemMessageItem(
             message = mockMessageWithKnock.copy(
@@ -397,7 +401,8 @@ fun PreviewSystemMessageFailedToAddMultiple() {
                     listOf(
                         UIText.DynamicString("Barbara Cotolina"),
                         UIText.DynamicString("Albert Lewis")
-                    )
+                    ),
+                    SystemMessage.MemberFailedToAdd.Type.Federation
                 )
             )
         )
@@ -406,7 +411,7 @@ fun PreviewSystemMessageFailedToAddMultiple() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewSystemMessageFailedToAddMultipleExpanded() {
+fun PreviewSystemMessageFailedToAddFederationMultipleExpanded() {
     WireTheme {
         SystemMessageItem(
             message = mockMessageWithKnock.copy(
@@ -414,7 +419,60 @@ fun PreviewSystemMessageFailedToAddMultipleExpanded() {
                     listOf(
                         UIText.DynamicString("Barbara Cotolina"),
                         UIText.DynamicString("Albert Lewis")
-                    )
+                    ),
+                    SystemMessage.MemberFailedToAdd.Type.Federation
+                )
+            ),
+            initiallyExpanded = true,
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFailedToAddLegalHoldSingle() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberFailedToAdd(
+                    listOf(UIText.DynamicString("Barbara Cotolina")),
+                    SystemMessage.MemberFailedToAdd.Type.LegalHold
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFailedToAddLegalHoldMultiple() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberFailedToAdd(
+                    listOf(
+                        UIText.DynamicString("Barbara Cotolina"),
+                        UIText.DynamicString("Albert Lewis")
+                    ),
+                    SystemMessage.MemberFailedToAdd.Type.LegalHold
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageFailedToAddLegalHoldMultipleExpanded() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberFailedToAdd(
+                    listOf(
+                        UIText.DynamicString("Barbara Cotolina"),
+                        UIText.DynamicString("Albert Lewis")
+                    ),
+                    SystemMessage.MemberFailedToAdd.Type.LegalHold
                 )
             ),
             initiallyExpanded = true,

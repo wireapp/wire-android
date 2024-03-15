@@ -48,13 +48,13 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.MessageComposerViewState
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AudioMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.LocationBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
-import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.ui.home.messagecomposer.state.Ping
@@ -236,7 +236,8 @@ private fun BaseComposerPreview(
                 selfDeletionTimer = selfDeletionTimer
             ),
             messageCompositionHolder = MessageCompositionHolder(
-                context = LocalContext.current
+                messageComposition = messageComposition,
+                {}
             ),
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
             modalBottomSheetState = WireModalSheetState()

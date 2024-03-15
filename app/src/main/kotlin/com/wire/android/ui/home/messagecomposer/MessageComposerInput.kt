@@ -60,7 +60,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.messagecomposer.attachments.AdditionalOptionButton
-import com.wire.android.ui.home.messagecomposer.state.MessageComposition
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.MessageType
 import com.wire.android.ui.theme.wireColorScheme

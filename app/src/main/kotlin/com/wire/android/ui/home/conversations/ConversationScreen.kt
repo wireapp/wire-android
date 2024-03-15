@@ -124,6 +124,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
+import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -132,6 +133,7 @@ import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
 import com.wire.android.ui.home.messagecomposer.MessageComposer
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
@@ -187,6 +189,7 @@ fun ConversationScreen(
     conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
     messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
     conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
+    messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
     groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
@@ -199,7 +202,9 @@ fun ConversationScreen(
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
-        modalBottomSheetState = conversationScreenState.modalBottomSheetState
+        modalBottomSheetState = conversationScreenState.modalBottomSheetState,
+        messageComposition = messageDraftViewModel.state,
+        onSaveDraft = messageComposerViewModel::saveDraft
     )
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -1044,10 +1049,13 @@ private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
 @Composable
 fun PreviewConversationScreen() {
     val messageComposerViewState = remember { mutableStateOf(MessageComposerViewState()) }
+    val messageCompositionState = remember { mutableStateOf(MessageComposition.DEFAULT) }
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
-        modalBottomSheetState = conversationScreenState.modalBottomSheetState
+        modalBottomSheetState = conversationScreenState.modalBottomSheetState,
+        messageComposition = messageCompositionState,
+        onSaveDraft = {}
     )
     ConversationScreen(
         bannerMessage = null,

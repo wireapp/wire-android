@@ -45,6 +45,9 @@ import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.composite.SendButtonActionMessageUseCase
+import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessageByConversationId
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
@@ -198,4 +201,19 @@ class MessageModule {
     @Provides
     fun provideObserveAssetStatusesUseCase(messageScope: MessageScope): ObserveAssetStatusesUseCase =
         messageScope.observeAssetStatuses
+
+    @ViewModelScoped
+    @Provides
+    fun provideSaveMessageDraftUseCase(messageScope: MessageScope): SaveMessageDraftUseCase =
+        messageScope.saveMessageDraftUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetMessageDraftUseCase(messageScope: MessageScope): GetMessageDraftUseCase =
+        messageScope.getMessageDraftUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideRemoveMessageDraftUseCase(messageScope: MessageScope): RemoveMessageDraftUseCase =
+        messageScope.removeMessageDraftUseCase
 }

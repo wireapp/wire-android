@@ -577,41 +577,6 @@ data class MessageBody(
     val quotedMessage: UIQuotedMessage? = null
 )
 
-sealed class UIQuotedMessage {
-
-    object UnavailableData : UIQuotedMessage()
-
-    data class UIQuotedData(
-        val messageId: String,
-        val senderId: UserId,
-        val senderName: UIText,
-        val originalMessageDateDescription: UIText,
-        val editedTimeDescription: UIText?,
-        val quotedContent: Content
-    ) : UIQuotedMessage() {
-
-        sealed interface Content
-
-        data class Text(val value: String) : Content
-
-        data class GenericAsset(
-            val assetName: String?,
-            val assetMimeType: String
-        ) : Content
-
-        data class DisplayableImage(
-            val displayable: ImageAsset.PrivateAsset
-        ) : Content
-
-        data class Location(val locationName: String) : Content
-
-        object AudioMessage : Content
-
-        object Deleted : Content
-        object Invalid : Content
-    }
-}
-
 enum class MessageSource {
     Self, OtherUser
 }

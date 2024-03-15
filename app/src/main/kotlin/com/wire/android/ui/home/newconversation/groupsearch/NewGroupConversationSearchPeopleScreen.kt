@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.newconversation.search
+package com.wire.android.ui.home.newconversation.groupsearch
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -26,7 +26,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.collectAsStateLifecycleAware
-import com.wire.android.ui.destinations.NewGroupConversationSearchPeopleScreenDestination
+import com.wire.android.ui.destinations.NewGroupNameScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
@@ -36,12 +36,12 @@ import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.QualifiedID
 
-@NewConversationNavGraph(start = true)
+@NewConversationNavGraph()
 @Destination(
     style = PopUpNavigationAnimation::class
 )
 @Composable
-fun NewConversationSearchPeopleScreen(
+fun NewGroupConversationSearchPeopleScreen(
     navigator: Navigator,
     newConversationViewModel: NewConversationViewModel,
     searchBarViewModel: SearchBarViewModel = hiltViewModel()
@@ -52,8 +52,8 @@ fun NewConversationSearchPeopleScreen(
         searchState = searchBarViewModel.state,
         userSearchSignal = userSearchSignal,
         serviceSearchSignal = serviceSearchSignal,
-        searchTitle = stringResource(id = R.string.label_new_conversation),
-        actionButtonTitle = stringResource(id = R.string.label_new_group),
+        searchTitle = stringResource(id = R.string.label_new_group),
+        actionButtonTitle = stringResource(id = R.string.label_continue),
         onServicesSearchQueryChanged = searchBarViewModel::onServiceSearchQueryChanged,
         onUsersSearchQueryChanged = searchBarViewModel::onUserSearchQueryChanged,
         onOpenUserProfile = { contact ->
@@ -61,7 +61,7 @@ fun NewConversationSearchPeopleScreen(
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         onContactChecked = newConversationViewModel::updateSelectedContacts,
-        onGroupSelectionSubmitAction = { navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination)) },
+        onGroupSelectionSubmitAction = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = navigator::navigateBack,
         onServiceClicked = { },

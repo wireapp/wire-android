@@ -38,14 +38,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,6 +55,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.home.newconversation.common.CreateNewGroupButton
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsAlwaysEnabled
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -86,7 +83,7 @@ fun SearchUsersAndServicesScreen(
     onServiceClicked: (Contact) -> Unit,
     onClose: () -> Unit,
     screenType: SearchPeopleScreenType,
-    actionType: ItemActionType,
+    isGroupSubmitVisible: Boolean = true,
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
@@ -149,9 +146,11 @@ fun SearchUsersAndServicesScreen(
             Crossfade(
                 targetState = searchBarState.isSearchActive, label = ""
             ) { isSearchActive ->
-                var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
-                val keyboardController = LocalSoftwareKeyboardController.current
-                val focusManager = LocalFocusManager.current
+                val actionType = when (screenType) {
+                    SearchPeopleScreenType.NEW_CONVERSATION -> ItemActionType.CLICK
+                    SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> ItemActionType.CHECK
+                    SearchPeopleScreenType.CONVERSATION_DETAILS -> ItemActionType.CHECK
+                }
 
                 if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS) {
                     CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
@@ -199,20 +198,31 @@ fun SearchUsersAndServicesScreen(
             }
         },
         bottomBar = {
-            if (actionType.checkable) {
-                if (searchState.isGroupCreationContext) {
-                    SelectParticipantsButtonsAlwaysEnabled(
-                        count = selectedContacts.size,
-                        mainButtonText = actionButtonTitle,
-                        onMainButtonClick = onGroupSelectionSubmitAction
-                    )
-                } else {
-                    if (pagerState.currentPage != SearchPeopleTabItem.SERVICES.ordinal) {
-                        SelectParticipantsButtonsRow(
-                            selectedParticipantsCount = selectedContacts.size,
+            if (isGroupSubmitVisible) {
+                when (screenType) {
+                    SearchPeopleScreenType.NEW_CONVERSATION -> {
+                        CreateNewGroupButton(
+                                mainButtonText = actionButtonTitle,
+                                onMainButtonClick = onGroupSelectionSubmitAction
+                            )
+                        }
+
+                    SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> {
+                        SelectParticipantsButtonsAlwaysEnabled(
+                            count = selectedContacts.size,
                             mainButtonText = actionButtonTitle,
                             onMainButtonClick = onGroupSelectionSubmitAction
                         )
+                    }
+
+                    SearchPeopleScreenType.CONVERSATION_DETAILS -> {
+                        if (pagerState.currentPage != SearchPeopleTabItem.SERVICES.ordinal) {
+                            SelectParticipantsButtonsRow(
+                                selectedParticipantsCount = selectedContacts.size,
+                                mainButtonText = actionButtonTitle,
+                                onMainButtonClick = onGroupSelectionSubmitAction
+                            )
+                        }
                     }
                 }
             }
@@ -229,6 +239,7 @@ enum class SearchPeopleTabItem(@StringRes override val titleResId: Int) : TabIte
 
 enum class SearchPeopleScreenType {
     NEW_CONVERSATION,
+    NEW_GROUP_CONVERSATION,
     CONVERSATION_DETAILS
 }
 

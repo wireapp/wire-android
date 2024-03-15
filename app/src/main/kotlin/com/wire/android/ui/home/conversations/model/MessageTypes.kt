@@ -56,7 +56,9 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedI
 import com.wire.android.ui.markdown.DisplayMention
 import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
+import com.wire.android.ui.markdown.MarkdownNode
 import com.wire.android.ui.markdown.NodeData
+import com.wire.android.ui.markdown.toContent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -67,6 +69,7 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_FOUND
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOAD_IN_PROGRESS
+import kotlinx.collections.immutable.PersistentList
 import okio.Path
 import org.commonmark.Extension
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
@@ -84,7 +87,7 @@ internal fun MessageBody(
     searchQuery: String = "",
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
-    buttonList: List<MessageButton>?,
+    buttonList: PersistentList<MessageButton>?,
     onLinkClick: (String) -> Unit,
     clickable: Boolean = true
 ) {
@@ -110,8 +113,9 @@ internal fun MessageBody(
         TablesExtension.create()
     )
     text?.also {
+        val document = (Parser.builder().extensions(extensions).build().parse(it) as Document).toContent() as MarkdownNode.Document
         MarkdownDocument(
-            Parser.builder().extensions(extensions).build().parse(it) as Document,
+            document,
             nodeData,
             clickable
         )

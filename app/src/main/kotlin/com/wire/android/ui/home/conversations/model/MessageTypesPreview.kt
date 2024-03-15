@@ -35,13 +35,13 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownListAn
 import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTablesAndBlocks
 import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTextAndLinks
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
+import com.wire.android.ui.home.conversations.mock.mockMessageWithTextLoremIpsum
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.MessageAssetStatus
+import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.persistentMapOf
 
@@ -336,11 +336,7 @@ fun PreviewImageMessageUploaded() {
             message = mockedImageUIMessage(messageId = "assetMessageId"),
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
-            assetStatus = MessageAssetStatus(
-                "assetMessageId",
-                ConversationId("value", "domain"),
-                transferStatus = AssetTransferStatus.UPLOADED
-            ),
+            assetStatus = AssetTransferStatus.UPLOADED,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -363,11 +359,7 @@ fun PreviewImageMessageUploading() {
             message = mockedImageUIMessage("assetMessageId"),
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
-            assetStatus = MessageAssetStatus(
-                "assetMessageId",
-                ConversationId("value", "domain"),
-                transferStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS
-            ),
+            assetStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -396,11 +388,7 @@ fun PreviewImageMessageFailedUpload() {
             ),
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
-            assetStatus = MessageAssetStatus(
-                "assetMessageId",
-                ConversationId("value", "domain"),
-                transferStatus = AssetTransferStatus.FAILED_UPLOAD
-            ),
+            assetStatus = AssetTransferStatus.FAILED_UPLOAD,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -616,5 +604,120 @@ fun PreviewMessageWithMarkdownTablesAndBlocks() {
             onSelfDeletingMessageRead = {},
             onReplyClickable = null
         )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageWithMarkdownQuery() {
+    WireTheme {
+        Column {
+            MessageItem(
+                message = mockMessageWithTextLoremIpsum,
+                searchQuery = "ed",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+            MessageItem(
+                message = mockMessageWithMarkdownTextAndLinks,
+                searchQuery = "code",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+            MessageItem(
+                message = mockMessageWithMarkdownTextAndLinks,
+                searchQuery = ".com",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+            MessageItem(
+                message = mockMessageWithMarkdownListAndImages,
+                searchQuery = "can",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+            MessageItem(
+                message = mockMessageWithMarkdownTablesAndBlocks,
+                searchQuery = "Joh",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageWithAccents() = WireTheme {
+    Column {
+        Accent.entries.forEach {
+            MessageItem(
+                message = mockMessageWithText.copy(
+                    header = mockHeader.copy(username = UIText.DynamicString(it.name), accent = it),
+                    messageContent = UIMessageContent.TextMessage(MessageBody(UIText.DynamicString("Text")))
+                ),
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+            )
+        }
     }
 }

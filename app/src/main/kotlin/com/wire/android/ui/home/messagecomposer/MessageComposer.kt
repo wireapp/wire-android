@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,15 +27,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -42,7 +44,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
 import com.wire.android.R
+import com.wire.android.ui.common.TextWithLearnMore
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
@@ -68,6 +72,7 @@ import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import kotlin.math.roundToInt
 import kotlin.time.Duration
 
 @Composable
@@ -89,12 +94,8 @@ fun MessageComposer(
             InteractionAvailability.BLOCKED_USER -> {
                 DisabledInteractionMessageComposer(
                     conversationId = conversationId,
-                    warningText = LocalContext.current.resources.stringWithStyledArgs(
+                    warningText = warningTextWithStyledArgs(
                         R.string.label_system_message_blocked_user,
-                        MaterialTheme.wireTypography.body01,
-                        MaterialTheme.wireTypography.body02,
-                        colorsScheme().secondaryText,
-                        colorsScheme().onBackground,
                         stringResource(id = R.string.member_name_you_label_titlecase)
                     ),
                     messageListContent = messageListContent
@@ -103,25 +104,20 @@ fun MessageComposer(
 
             InteractionAvailability.DELETED_USER -> DisabledInteractionMessageComposer(
                 conversationId = conversationId,
-                warningText = LocalContext.current.resources.stringWithStyledArgs(
-                    R.string.label_system_message_user_not_available,
-                    MaterialTheme.wireTypography.body01,
-                    MaterialTheme.wireTypography.body02,
-                    colorsScheme().secondaryText,
-                    colorsScheme().onBackground,
-                ),
+                warningText = warningTextWithStyledArgs(R.string.label_system_message_user_not_available),
                 messageListContent = messageListContent
             )
 
             InteractionAvailability.UNSUPPORTED_PROTOCOL -> DisabledInteractionMessageComposer(
                 conversationId = conversationId,
-                warningText = LocalContext.current.resources.stringWithStyledArgs(
-                    R.string.label_system_message_unsupported_protocol,
-                    MaterialTheme.wireTypography.body01,
-                    MaterialTheme.wireTypography.body02,
-                    colorsScheme().secondaryText,
-                    colorsScheme().onBackground,
-                ),
+                warningText = warningTextWithStyledArgs(R.string.label_system_message_unsupported_protocol),
+                messageListContent = messageListContent
+            )
+
+            InteractionAvailability.LEGAL_HOLD -> DisabledInteractionMessageComposer(
+                conversationId = conversationId,
+                warningText = warningTextWithStyledArgs(R.string.legal_hold_system_message_interaction_disabled),
+                learnMoreLink = stringResource(id = R.string.url_legal_hold_learn_more),
                 messageListContent = messageListContent
             )
 
@@ -159,9 +155,21 @@ fun MessageComposer(
 }
 
 @Composable
+private fun warningTextWithStyledArgs(@StringRes stringResId: Int, vararg formatArgs: String) =
+    LocalContext.current.resources.stringWithStyledArgs(
+        stringResId = stringResId,
+        normalStyle = MaterialTheme.wireTypography.body01,
+        argsStyle = MaterialTheme.wireTypography.body02,
+        normalColor = colorsScheme().secondaryText,
+        argsColor = colorsScheme().onBackground,
+        formatArgs = formatArgs
+    )
+
+@Composable
 private fun DisabledInteractionMessageComposer(
     conversationId: ConversationId,
     warningText: AnnotatedString?,
+    learnMoreLink: String? = null,
     messageListContent: @Composable () -> Unit
 ) {
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
@@ -191,21 +199,36 @@ private fun DisabledInteractionMessageComposer(
                         .padding(dimensions().spacing16x)
                 ) {
                     Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_conversation),
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_info),
                         tint = MaterialTheme.colorScheme.onBackground,
                         contentDescription = "",
                         modifier = Modifier
                             .padding(start = dimensions().spacing8x)
-                            .size(dimensions().spacing12x)
+                            .alignBy { it.measuredHeight / 2 },
                     )
-                    Text(
-                        text = warningText,
-                        style = MaterialTheme.wireTypography.body01,
-                        maxLines = 1,
-                        modifier = Modifier
-                            .weight(weight = 1f, fill = false)
-                            .padding(start = dimensions().spacing16x)
-                    )
+                    val lineHeight = MaterialTheme.wireTypography.body01.lineHeight.value
+                    var centerOfFirstLine by remember { mutableStateOf(lineHeight / 2f) }
+                    val textModifier = Modifier
+                        .weight(weight = 1f, fill = false)
+                        .padding(start = dimensions().spacing16x)
+                        .alignBy { centerOfFirstLine.roundToInt() }
+                    val onTextLayout: (TextLayoutResult) -> Unit = {
+                        centerOfFirstLine = if (it.lineCount == 0) 0f else ((it.getLineTop(0) + it.getLineBottom(0)) / 2)
+                    }
+                    if (learnMoreLink.isNullOrEmpty()) {
+                        Text(
+                            text = warningText,
+                            modifier = textModifier,
+                            onTextLayout = onTextLayout
+                        )
+                    } else {
+                        TextWithLearnMore(
+                            textAnnotatedString = warningText,
+                            learnMoreLink = learnMoreLink,
+                            modifier = textModifier,
+                            onTextLayout = onTextLayout
+                        )
+                    }
                 }
             }
             SecurityClassificationBannerForConversation(conversationId = conversationId)
@@ -256,12 +279,30 @@ private fun BaseComposerPreview(
 
 @PreviewMultipleThemes
 @Composable
-private fun UnsupportedProtocolComposerPreview() = WireTheme {
+private fun PreviewMessageComposerDeletedUser() = WireTheme {
+    BaseComposerPreview(interactionAvailability = InteractionAvailability.DELETED_USER)
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewMessageComposerBlockedUser() = WireTheme {
+    BaseComposerPreview(interactionAvailability = InteractionAvailability.BLOCKED_USER)
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewMessageComposerUnsupportedProtocol() = WireTheme {
     BaseComposerPreview(interactionAvailability = InteractionAvailability.UNSUPPORTED_PROTOCOL)
 }
 
 @PreviewMultipleThemes
 @Composable
-private fun EnabledComposerPreview() = WireTheme {
+private fun PreviewMessageComposerLegalHold() = WireTheme {
+    BaseComposerPreview(interactionAvailability = InteractionAvailability.LEGAL_HOLD)
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewMessageComposerEnabled() = WireTheme {
     BaseComposerPreview(interactionAvailability = InteractionAvailability.ENABLED)
 }

@@ -36,10 +36,8 @@ import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.QualifiedID
 
-@NewConversationNavGraph()
-@Destination(
-    style = PopUpNavigationAnimation::class
-)
+@NewConversationNavGraph
+@Destination
 @Composable
 fun NewGroupConversationSearchPeopleScreen(
     navigator: Navigator,
@@ -65,7 +63,7 @@ fun NewGroupConversationSearchPeopleScreen(
         isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = navigator::navigateBack,
         onServiceClicked = { },
-        screenType = SearchPeopleScreenType.NEW_CONVERSATION,
+        screenType = SearchPeopleScreenType.NEW_GROUP_CONVERSATION,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
     )
 }

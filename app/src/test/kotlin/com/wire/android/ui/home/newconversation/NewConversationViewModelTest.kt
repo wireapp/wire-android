@@ -158,7 +158,7 @@ class NewConversationViewModelTest {
             .arrange()
 
         // when
-        val result = viewModel.newGroupState.defaultProtocol
+        val result = viewModel.newGroupState.groupProtocol
 
         // then
         assertEquals(

@@ -39,7 +39,6 @@ import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
-import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.first
@@ -51,21 +50,15 @@ import javax.inject.Inject
 class NewConversationViewModel @Inject constructor(
     private val createGroupConversation: CreateGroupConversationUseCase,
     private val getSelfUser: GetSelfUserUseCase,
-    isMLSEnabled: IsMLSEnabledUseCase,
     getDefaultProtocol: GetDefaultProtocolUseCase
 ) : ViewModel() {
 
     var newGroupState: GroupMetadataState by mutableStateOf(
-        GroupMetadataState(
-            mlsEnabled = isMLSEnabled()
-        ).let {
+        GroupMetadataState().let {
             val defaultProtocol = ConversationOptions
                 .Protocol
                 .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
-            it.copy(
-                defaultProtocol = defaultProtocol,
-                groupProtocol = defaultProtocol
-            )
+            it.copy(groupProtocol = defaultProtocol)
         }
     )
 

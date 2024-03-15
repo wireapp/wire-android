@@ -41,6 +41,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.ConnectPendingRequestBadge
 import com.wire.android.ui.home.conversationslist.common.ConnectRequestBadge
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
@@ -60,16 +62,18 @@ fun InternalContactSearchResultItem(
 ) {
     RowItemTemplate(
         leadingIcon = {
-            Row {
+            Row(verticalAlignment = CenterVertically) {
                 if (actionType.checkable) {
                     WireCheckbox(
                         checked = isAddedToGroup,
-                        onCheckedChange = onCheckChange
+                        onCheckedChange = null,  // null since we are handling the click on parent
+                        modifier = Modifier.padding(horizontal = dimensions().spacing8x)
                     )
                 }
                 UserProfileAvatar(avatarData)
             }
         },
+        titleStartPadding = dimensions().spacing0x,
         title = {
             Row(verticalAlignment = CenterVertically) {
                 HighlightName(
@@ -101,8 +105,11 @@ fun InternalContactSearchResultItem(
                 }
             }
         },
-        clickable = clickable.copy(enabled = actionType.clickable),
-        modifier = modifier
+        clickable =
+            if (actionType.clickable) clickable
+            else Clickable { onCheckChange(!isAddedToGroup) }
+        ,
+        modifier = modifier.padding(start = dimensions().spacing8x)
     )
 }
 
@@ -124,6 +131,7 @@ fun ExternalContactSearchResultItem(
                 UserProfileAvatar(avatarData)
             }
         },
+        titleStartPadding = dimensions().spacing0x,
         title = {
             Row(verticalAlignment = CenterVertically) {
                 HighlightName(
@@ -163,6 +171,54 @@ fun ExternalContactSearchResultItem(
             }
         },
         clickable = clickable,
-        modifier = modifier
+        modifier = Modifier.padding(start = dimensions().spacing8x)
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewInternalContactSearchResultItemCheckable() = WireTheme {
+    InternalContactSearchResultItem(
+        avatarData = UserAvatarData(),
+        name = "John Doe",
+        label = "label",
+        membership = Membership.None,
+        searchQuery = "",
+        connectionState = ConnectionState.ACCEPTED,
+        onCheckChange = {},
+        isAddedToGroup = false,
+        clickable = Clickable {},
+        actionType = ItemActionType.CHECK,
+    )
+}
+@PreviewMultipleThemes
+@Composable
+fun PreviewInternalContactSearchResultItemClickable() = WireTheme {
+    InternalContactSearchResultItem(
+        avatarData = UserAvatarData(),
+        name = "John Doe",
+        label = "label",
+        membership = Membership.None,
+        searchQuery = "",
+        connectionState = ConnectionState.ACCEPTED,
+        onCheckChange = {},
+        isAddedToGroup = false,
+        clickable = Clickable {},
+        actionType = ItemActionType.CLICK,
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewExternalContactSearchResultItem() = WireTheme {
+    ExternalContactSearchResultItem(
+        avatarData = UserAvatarData(),
+        userId = UserId("id", "domain"),
+        name = "John Doe",
+        label = "label",
+        membership = Membership.None,
+        searchQuery = "",
+        connectionState = ConnectionState.ACCEPTED,
+        clickable = Clickable {},
     )
 }

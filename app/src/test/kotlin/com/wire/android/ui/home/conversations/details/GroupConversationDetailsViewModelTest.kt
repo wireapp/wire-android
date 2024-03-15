@@ -322,7 +322,7 @@ class GroupConversationDetailsViewModelTest {
 
         val details = testGroup.copy(
             conversation = testGroup.conversation.copy(
-                accessRole =  Conversation.defaultGroupAccessRoles.toMutableList().apply {
+                accessRole = Conversation.defaultGroupAccessRoles.toMutableList().apply {
                     remove(Conversation.AccessRole.NON_TEAM_MEMBER)
                     remove(Conversation.AccessRole.GUEST)
                 },
@@ -368,7 +368,7 @@ class GroupConversationDetailsViewModelTest {
 
         val details = testGroup.copy(
             conversation = testGroup.conversation.copy(
-                accessRole =  Conversation.defaultGroupAccessRoles.toMutableList().apply {
+                accessRole = Conversation.defaultGroupAccessRoles.toMutableList().apply {
                     remove(Conversation.AccessRole.NON_TEAM_MEMBER)
                     remove(Conversation.AccessRole.GUEST)
                 },
@@ -504,7 +504,7 @@ class GroupConversationDetailsViewModelTest {
         selfUserType: UserType = UserType.INTERNAL,
         assertResult: (GroupConversationOptionsState) -> Unit
     ) = runTest {
-        val members = buildList { for (i in 1..5) { add(testUIParticipant(i)) }}
+        val members = buildList { for (i in 1..5) { add(testUIParticipant(i)) } }
         val conversationParticipantsData = ConversationParticipantsData(
             participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
             allParticipantsCount = members.size,

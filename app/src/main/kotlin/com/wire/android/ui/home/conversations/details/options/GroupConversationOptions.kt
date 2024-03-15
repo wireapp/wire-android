@@ -381,7 +381,7 @@ GroupConversationSettings(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewMemberTeamGroupConversationOptions()= WireTheme {
+fun PreviewMemberTeamGroupConversationOptions() = WireTheme {
 GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -402,7 +402,7 @@ GroupConversationSettings(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewNormalGroupConversationOptions()= WireTheme {
+fun PreviewNormalGroupConversationOptions() = WireTheme {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),

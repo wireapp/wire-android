@@ -15,17 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.model
 
-package com.wire.android.ui.home.conversations.details.participants.model
+enum class ItemActionType {
+    CHECK, CLICK, CHECK_AND_CLICK;
 
-data class ConversationParticipantsData(
-    val admins: List<UIParticipant> = listOf(),
-    val participants: List<UIParticipant> = listOf(),
-    val allAdminsCount: Int = 0,
-    val allParticipantsCount: Int = 0,
-    val isSelfAnAdmin: Boolean = false,
-    val isSelfExternalMember: Boolean = false,
-) {
-    val allCount: Int = allAdminsCount + allParticipantsCount
-    val allParticipants: List<UIParticipant> = participants + admins
+    val checkable: Boolean get() = this == CHECK || this == CHECK_AND_CLICK
+    val clickable: Boolean get() = this == CLICK || this == CHECK_AND_CLICK
 }

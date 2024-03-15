@@ -50,6 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.model.ItemActionType
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -84,7 +85,8 @@ fun SearchUsersAndServicesScreen(
     onOpenUserProfile: (Contact) -> Unit,
     onServiceClicked: (Contact) -> Unit,
     onClose: () -> Unit,
-    screenType: SearchPeopleScreenType
+    screenType: SearchPeopleScreenType,
+    actionType: ItemActionType,
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
@@ -166,7 +168,8 @@ fun SearchUsersAndServicesScreen(
                                         onOpenUserProfile = onOpenUserProfile,
                                         onContactChecked = onContactChecked,
                                         isSearchActive = isSearchActive,
-                                        isLoading = false // TODO: update correctly
+                                        isLoading = false, // TODO: update correctly
+                                        actionType = actionType,
                                     )
                                 }
 
@@ -186,7 +189,8 @@ fun SearchUsersAndServicesScreen(
                         onContactChecked = onContactChecked,
                         onOpenUserProfile = onOpenUserProfile,
                         isSearchActive = isSearchActive,
-                        isLoading = false // TODO: update correctly
+                        isLoading = false, // TODO: update correctly
+                        actionType = actionType,
                     )
                 }
             }
@@ -195,19 +199,21 @@ fun SearchUsersAndServicesScreen(
             }
         },
         bottomBar = {
-            if (searchState.isGroupCreationContext) {
-                SelectParticipantsButtonsAlwaysEnabled(
-                    count = selectedContacts.size,
-                    mainButtonText = actionButtonTitle,
-                    onMainButtonClick = onGroupSelectionSubmitAction
-                )
-            } else {
-                if (pagerState.currentPage != SearchPeopleTabItem.SERVICES.ordinal) {
-                    SelectParticipantsButtonsRow(
-                        selectedParticipantsCount = selectedContacts.size,
+            if (actionType.checkable) {
+                if (searchState.isGroupCreationContext) {
+                    SelectParticipantsButtonsAlwaysEnabled(
+                        count = selectedContacts.size,
                         mainButtonText = actionButtonTitle,
                         onMainButtonClick = onGroupSelectionSubmitAction
                     )
+                } else {
+                    if (pagerState.currentPage != SearchPeopleTabItem.SERVICES.ordinal) {
+                        SelectParticipantsButtonsRow(
+                            selectedParticipantsCount = selectedContacts.size,
+                            mainButtonText = actionButtonTitle,
+                            onMainButtonClick = onGroupSelectionSubmitAction
+                        )
+                    }
                 }
             }
         },
@@ -232,6 +238,7 @@ private fun SearchAllPeopleOrContactsScreen(
     contactsAddedToGroup: ImmutableSet<Contact>,
     isLoading: Boolean,
     isSearchActive: Boolean,
+    actionType: ItemActionType,
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
     searchUserViewModel: SearchUserViewModel = hiltViewModel(),
@@ -252,6 +259,7 @@ private fun SearchAllPeopleOrContactsScreen(
         onOpenUserProfile = onOpenUserProfile,
         lazyListState = lazyState,
         isSearchActive = isSearchActive,
-        isLoading = isLoading
+        isLoading = isLoading,
+        actionType = actionType,
     )
 }

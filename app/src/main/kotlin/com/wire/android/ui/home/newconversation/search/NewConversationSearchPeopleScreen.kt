@@ -31,6 +31,7 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
 import com.wire.android.ui.home.conversations.search.SearchBarViewModel
+import com.wire.android.model.ItemActionType
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.util.EMPTY
@@ -65,6 +66,10 @@ fun NewConversationSearchPeopleScreen(
         onClose = navigator::navigateBack,
         onServiceClicked = { },
         screenType = SearchPeopleScreenType.NEW_CONVERSATION,
-        selectedContacts = newConversationViewModel.newGroupState.selectedUsers
+        selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
+        actionType = when (newConversationViewModel.newGroupState.isGroupCreatingAllowed) {
+            true -> ItemActionType.CHECK_AND_CLICK
+            else -> ItemActionType.CLICK
+        }
     )
 }

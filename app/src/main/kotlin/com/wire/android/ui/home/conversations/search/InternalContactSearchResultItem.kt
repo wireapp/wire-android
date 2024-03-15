@@ -171,7 +171,7 @@ fun ExternalContactSearchResultItem(
             }
         },
         clickable = clickable,
-        modifier = Modifier.padding(start = dimensions().spacing8x)
+        modifier = modifier.padding(start = dimensions().spacing8x)
     )
 }
 

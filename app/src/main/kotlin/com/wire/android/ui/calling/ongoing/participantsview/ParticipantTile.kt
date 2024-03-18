@@ -230,7 +230,7 @@ private fun CameraPreview(
             }
         )
     } else {
-        if(isCameraStopped) return
+        if (isCameraStopped) return
         isCameraStopped = true
         onClearSelfUserVideoPreview()
     }

@@ -66,7 +66,7 @@ fun InternalContactSearchResultItem(
                 if (actionType.checkable) {
                     WireCheckbox(
                         checked = isAddedToGroup,
-                        onCheckedChange = null,  // null since we are handling the click on parent
+                        onCheckedChange = null, // null since we are handling the click on parent
                         modifier = Modifier.padding(horizontal = dimensions().spacing8x)
                     )
                 }
@@ -107,8 +107,7 @@ fun InternalContactSearchResultItem(
         },
         clickable =
             if (actionType.clickable) clickable
-            else Clickable { onCheckChange(!isAddedToGroup) }
-        ,
+            else Clickable { onCheckChange(!isAddedToGroup) },
         modifier = modifier.padding(start = dimensions().spacing8x)
     )
 }

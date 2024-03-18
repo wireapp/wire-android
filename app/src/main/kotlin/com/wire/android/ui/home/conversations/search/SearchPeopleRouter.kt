@@ -104,7 +104,7 @@ fun SearchUsersAndServicesScreen(
                     WireCenterAlignedTopAppBar(
                         elevation = elevation,
                         title = searchTitle,
-                        navigationIconType = when(screenType) {
+                        navigationIconType = when (screenType) {
                             SearchPeopleScreenType.CONVERSATION_DETAILS -> NavigationIconType.Close
                             SearchPeopleScreenType.NEW_CONVERSATION -> NavigationIconType.Close
                             SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> NavigationIconType.Back

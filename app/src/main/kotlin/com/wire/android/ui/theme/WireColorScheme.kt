@@ -102,6 +102,7 @@ data class WireColorScheme(
     val onScrollToBottomButtonColor: Color,
     val validE2eiStatusColor: Color,
     val mlsVerificationTextColor: Color,
+    val wireAccentColors: WireAccentColors,
     val checkboxTextDisabled: Color
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
@@ -237,6 +238,17 @@ private val LightWireColorScheme = WireColorScheme(
     onScrollToBottomButtonColor = Color.White,
     validE2eiStatusColor = WireColorPalette.LightGreen550,
     mlsVerificationTextColor = WireColorPalette.DarkGreen700,
+    wireAccentColors = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.LightAmber500
+            Accent.Blue -> WireColorPalette.LightBlue500
+            Accent.Green -> WireColorPalette.LightGreen500
+            Accent.Purple -> WireColorPalette.LightPurple500
+            Accent.Red -> WireColorPalette.LightRed500
+            Accent.Petrol -> WireColorPalette.LightPetrol500
+            Accent.Unknown -> WireColorPalette.LightBlue500
+        }
+    },
     checkboxTextDisabled = WireColorPalette.Gray70
 )
 
@@ -346,6 +358,17 @@ private val DarkWireColorScheme = WireColorScheme(
     onScrollToBottomButtonColor = Color.Black,
     validE2eiStatusColor = WireColorPalette.DarkGreen500,
     mlsVerificationTextColor = WireColorPalette.DarkGreen700,
+    wireAccentColors = WireAccentColors {
+        when (it) {
+            Accent.Amber -> WireColorPalette.DarkAmber500
+            Accent.Blue -> WireColorPalette.DarkBlue500
+            Accent.Green -> WireColorPalette.DarkGreen500
+            Accent.Purple -> WireColorPalette.DarkPurple500
+            Accent.Red -> WireColorPalette.DarkRed500
+            Accent.Petrol -> WireColorPalette.DarkPetrol500
+            Accent.Unknown -> WireColorPalette.DarkBlue500
+        }
+    },
     checkboxTextDisabled = WireColorPalette.Gray70
 )
 

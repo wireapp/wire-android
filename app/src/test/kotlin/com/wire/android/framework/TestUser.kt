@@ -46,7 +46,8 @@ object TestUser {
         previewPicture = UserAssetId("value", "domain"),
         completePicture = UserAssetId("value", "domain"),
         availabilityStatus = UserAvailabilityStatus.AVAILABLE,
-        supportedProtocols = setOf(SupportedProtocol.PROTEUS)
+        supportedProtocols = setOf(SupportedProtocol.PROTEUS),
+        userType = UserType.INTERNAL,
     )
     val OTHER_USER = OtherUser(
         USER_ID.copy(value = "otherValue"),

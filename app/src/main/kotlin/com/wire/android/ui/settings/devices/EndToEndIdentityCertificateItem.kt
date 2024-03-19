@@ -42,6 +42,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
+import kotlinx.datetime.Instant
 
 @Composable
 fun EndToEndIdentityCertificateItem(
@@ -200,7 +201,8 @@ fun PreviewEndToEndIdentityCertificateItem() {
         certificate = E2eiCertificate(
             status = CertificateStatus.VALID,
             serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
-            certificateDetail = ""
+            certificateDetail = "",
+            endAt = Instant.DISTANT_FUTURE
         ),
         isLoadingCertificate = false,
         enrollE2eiCertificate = {},
@@ -217,7 +219,8 @@ fun PreviewEndToEndIdentityCertificateSelfItem() {
         certificate = E2eiCertificate(
             status = CertificateStatus.VALID,
             serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
-            certificateDetail = ""
+            certificateDetail = "",
+            endAt = Instant.DISTANT_FUTURE
         ),
         isLoadingCertificate = false,
         enrollE2eiCertificate = {},

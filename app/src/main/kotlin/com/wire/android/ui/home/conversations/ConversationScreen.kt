@@ -480,7 +480,6 @@ fun ConversationScreen(
 
     (messageComposerViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
         LegalHoldSubjectMessageDialog(
-            conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(),
             dialogDismissed = messageComposerViewModel::dismissSureAboutSendingMessage,
             sendAnywayClicked = messageComposerViewModel::acceptSureAboutSendingMessage,
         )
@@ -821,7 +820,8 @@ private fun ConversationScreenContent(
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                 onLinkClick = onLinkClick,
                 selectedMessageId = selectedMessageId,
-                onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage
+                onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
+                interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -891,18 +891,19 @@ fun MessageList(
     onFailedMessageCancelClicked: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     selectedMessageId: String?,
-    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit
+    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
+    interactionAvailability: InteractionAvailability,
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     LaunchedEffect(lazyPagingMessages.itemCount) {
-        if (lazyPagingMessages.itemCount > prevItemCount.value) {
-            prevItemCount.value = lazyPagingMessages.itemCount
-
-            if (lazyListState.firstVisibleItemIndex > 0
-                && lazyListState.firstVisibleItemIndex <= MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS
-            ) {
+        if (lazyPagingMessages.itemCount > prevItemCount.value && selectedMessageId == null) {
+            val canScrollToLastMessage = prevItemCount.value > 0
+                    && lazyListState.firstVisibleItemIndex > 0
+                    && lazyListState.firstVisibleItemIndex <= MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS
+            if (canScrollToLastMessage) {
                 lazyListState.animateScrollToItem(0)
             }
+            prevItemCount.value = lazyPagingMessages.itemCount
         }
     }
 
@@ -965,7 +966,7 @@ fun MessageList(
                                 showAuthor = showAuthor,
                                 useSmallBottomPadding = useSmallBottomPadding,
                                 audioMessagesState = audioMessagesState,
-                                assetStatus = assetStatuses[message.header.messageId],
+                                assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
                                 onAudioClick = onAudioItemClicked,
                                 onChangeAudioPosition = onChangeAudioPosition,
                                 onLongClicked = onShowEditingOption,
@@ -984,7 +985,8 @@ fun MessageList(
                                         onNavigateToReplyOriginalMessage(message)
                                     }
                                 ),
-                                isSelectedMessage = (message.header.messageId == selectedMessageId)
+                                isSelectedMessage = (message.header.messageId == selectedMessageId),
+                                isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
                             )
                         }
 
@@ -992,7 +994,8 @@ fun MessageList(
                             message = message,
                             onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                             onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                            onSelfDeletingMessageRead = onSelfDeletingMessageRead
+                            onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                            isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
                         )
                     }
                 }

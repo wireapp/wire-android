@@ -69,22 +69,25 @@ class OAuthUseCase(
 
     fun launch(
         activityResultRegistry: ActivityResultRegistry,
-        resultHandler: (OAuthResult) -> Unit
+        forceLoginFlow: Boolean,
+        resultHandler: (OAuthResult) -> Unit,
     ) {
-        authState.performActionWithFreshTokens(authorizationService) { _, idToken, exception ->
-            if (exception != null) {
-                appLogger.e(
-                    message = "OAuthTokenRefreshManager: Error refreshing tokens, continue with login!",
-                    throwable = exception
-                )
-                launchLoginFlow(activityResultRegistry, resultHandler)
-            } else {
-                resultHandler(
-                    OAuthResult.Success(
-                        idToken.toString(),
-                        authState.jsonSerializeString()
+        if (forceLoginFlow) {
+            launchLoginFlow(activityResultRegistry, resultHandler)
+        } else {
+            authState.performActionWithFreshTokens(authorizationService) { _, idToken, exception ->
+                if (exception != null) {
+                    appLogger.e(
+                        message = "OAuthTokenRefreshManager: Error refreshing tokens, continue with login!", throwable = exception
                     )
-                )
+                    launchLoginFlow(activityResultRegistry, resultHandler)
+                } else {
+                    resultHandler(
+                        OAuthResult.Success(
+                            idToken.toString(), authState.jsonSerializeString()
+                        )
+                    )
+                }
             }
         }
     }
@@ -163,6 +166,7 @@ class OAuthUseCase(
         AuthorizationRequest.Scope.PROFILE,
         AuthorizationRequest.Scope.OFFLINE_ACCESS
     ).setClaims(JSONObject(claims.toString()))
+        .setPrompt(AuthorizationRequest.Prompt.LOGIN)
         .build()
 
     private fun AuthorizationRequest.Builder.setCodeVerifier(): AuthorizationRequest.Builder {

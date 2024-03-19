@@ -87,6 +87,7 @@ import kotlin.math.roundToInt
 fun SystemMessageItem(
     message: UIMessage.System,
     initiallyExpanded: Boolean = false,
+    isInteractionAvailable: Boolean = true,
     onFailedMessageRetryClicked: (String) -> Unit = {},
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onSelfDeletingMessageRead: (UIMessage) -> Unit = {}
@@ -214,6 +215,7 @@ fun SystemMessageItem(
             if (message.sendingFailed) {
                 MessageSendFailureWarning(
                     messageStatus = message.header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                    isInteractionAvailable = isInteractionAvailable,
                     onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId) } },
                     onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
                 )

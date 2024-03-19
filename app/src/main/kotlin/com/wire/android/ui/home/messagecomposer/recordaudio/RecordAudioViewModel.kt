@@ -17,12 +17,16 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.waz.audioeffect.AudioEffect
+import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -34,6 +38,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -46,6 +51,7 @@ import kotlin.io.path.deleteIfExists
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class RecordAudioViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
@@ -69,7 +75,7 @@ class RecordAudioViewModel @Inject constructor(
     fun getMaxFileSizeReachedDialogState(): RecordAudioDialogState =
         state.maxFileSizeReachedDialogState
 
-    fun getOutputFile(): File? = state.outputFile
+    fun getOutputFile(): File? = state.originalOutputFile
 
     fun getAudioState(): AudioState = state.audioState
 
@@ -137,7 +143,8 @@ class RecordAudioViewModel @Inject constructor(
                 audioMediaRecorder.setUp(assetSizeLimit)
                 if (audioMediaRecorder.startRecording()) {
                     state = state.copy(
-                        outputFile = audioMediaRecorder.outputFile,
+                        originalOutputFile = audioMediaRecorder.originalOutputFile,
+                        effectsOutputFile = audioMediaRecorder.effectsOutputFile,
                         buttonState = RecordAudioButtonState.RECORDING
                     )
                 } else {
@@ -155,7 +162,7 @@ class RecordAudioViewModel @Inject constructor(
                 buttonState = RecordAudioButtonState.READY_TO_SEND,
                 audioState = AudioState.DEFAULT.copy(
                     totalTimeInMs = AudioState.TotalTimeInMs.Known(
-                        state.outputFile?.let {
+                        state.originalOutputFile?.let {
                             getAudioLengthInMs(
                                 dataPath = it.path.toPath(),
                                 mimeType = AUDIO_MIME_TYPE
@@ -166,6 +173,21 @@ class RecordAudioViewModel @Inject constructor(
             )
         }
         audioMediaRecorder.release()
+
+        val result = AudioEffect(context)
+            .applyEffectM4A(
+                state.originalOutputFile!!.path,
+                state.effectsOutputFile!!.path,
+                AudioEffect.AVS_AUDIO_EFFECT_VOCODER_MED,
+                true
+            )
+
+        appLogger.d("AUDIO_EFFECTS_stopRecording -> Result is : $result")
+        if (result > -1) {
+            appLogger.d("AUDIO_EFFECTS_stopRecording -> Effects Audio File")
+        } else {
+            appLogger.d("AUDIO_EFFECTS_stopRecording -> NULL Audio File")
+        }
     }
 
     fun showDiscardRecordingDialog(onCloseRecordAudio: () -> Unit) {
@@ -206,40 +228,67 @@ class RecordAudioViewModel @Inject constructor(
 
     fun discardRecording(onCloseRecordAudio: () -> Unit) {
         viewModelScope.launch {
-            state.outputFile?.toPath()?.deleteIfExists()
+            state.originalOutputFile?.toPath()?.deleteIfExists()
             recordAudioMessagePlayer.stop()
             recordAudioMessagePlayer.close()
             state = state.copy(
                 buttonState = RecordAudioButtonState.ENABLED,
                 discardDialogState = RecordAudioDialogState.Hidden,
-                outputFile = null
+                originalOutputFile = null
             )
             onCloseRecordAudio()
         }
     }
 
     fun sendRecording(
+        shouldApplyEffects: Boolean,
         onAudioRecorded: (UriAsset) -> Unit,
         onComplete: () -> Unit
     ) {
         viewModelScope.launch {
             recordAudioMessagePlayer.stop()
             recordAudioMessagePlayer.close()
-            state.outputFile?.let {
-                onAudioRecorded(
-                    UriAsset(
-                        uri = it.toUri(),
-                        saveToDeviceIfInvalid = false
+            state.originalOutputFile?.let { originalFile ->
+                val resultFile: Uri? = if (shouldApplyEffects) {
+                    val result = AudioEffect(context)
+                        .applyEffectM4A(
+                            originalFile.path,
+                            state.effectsOutputFile!!.path,
+                            AudioEffect.AVS_AUDIO_EFFECT_VOCODER_MED,
+                            true
+                        )
+
+                    appLogger.d("AUDIO_EFFECTS -> Result is : $result")
+                    if (result > -1) {
+                        appLogger.d("AUDIO_EFFECTS -> Effects Audio File")
+                        state.effectsOutputFile!!.toUri()
+                    } else {
+                        appLogger.d("AUDIO_EFFECTS -> NULL Audio File")
+                        null
+                    }
+                } else {
+                    appLogger.d("AUDIO_EFFECTS -> Original Audio File")
+                    originalFile.toUri()
+                }
+
+                resultFile?.let { audioFileUri ->
+                    appLogger.d("AUDIO_EFFECTS -> Sending Audio File")
+                    onAudioRecorded(
+                        UriAsset(
+                            uri = audioFileUri,
+                            saveToDeviceIfInvalid = false
+                        )
                     )
-                )
-                onComplete()
+                    onComplete()
+                } ?: appLogger.d("AUDIO_EFFECTS -> Error on resultFile is null")
+
                 // TODO(RecordAudio): Question: Should we remove the file here as well?
             }
         }
     }
 
     fun onPlayAudio() {
-        state.outputFile?.let { audioFile ->
+        state.originalOutputFile?.let { audioFile ->
             viewModelScope.launch {
                 recordAudioMessagePlayer.playAudio(
                     audioFile = audioFile

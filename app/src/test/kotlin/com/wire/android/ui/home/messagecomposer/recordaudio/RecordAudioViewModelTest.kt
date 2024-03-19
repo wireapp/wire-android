@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
+import android.content.Context
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.FakeKaliumFileSystem
@@ -265,14 +266,16 @@ class RecordAudioViewModelTest {
         val observeEstablishedCalls = mockk<ObserveEstablishedCallsUseCase>()
         val currentScreenManager = mockk<CurrentScreenManager>()
         val getAssetSizeLimit = mockk<GetAssetSizeLimitUseCase>()
+        val context = mockk<Context>()
 
         val viewModel by lazy {
             RecordAudioViewModel(
+                context = context,
                 recordAudioMessagePlayer = recordAudioMessagePlayer,
                 observeEstablishedCalls = observeEstablishedCalls,
                 currentScreenManager = currentScreenManager,
                 audioMediaRecorder = audioMediaRecorder,
-                getAssetSizeLimit = getAssetSizeLimit,
+                getAssetSizeLimit = getAssetSizeLimit
             )
         }
 
@@ -286,7 +289,7 @@ class RecordAudioViewModelTest {
             every { audioMediaRecorder.startRecording() } returns true
             every { audioMediaRecorder.stop() } returns Unit
             every { audioMediaRecorder.release() } returns Unit
-            every { audioMediaRecorder.outputFile } returns fakeKaliumFileSystem
+            every { audioMediaRecorder.originalOutputFile } returns fakeKaliumFileSystem
                 .tempFilePath("temp_recording.mp3")
                 .toFile()
             coEvery { audioMediaRecorder.getMaxFileSizeReached() } returns flowOf(

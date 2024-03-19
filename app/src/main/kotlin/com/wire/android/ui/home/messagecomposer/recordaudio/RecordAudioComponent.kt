@@ -133,6 +133,7 @@ fun RecordAudioComponent(
                 audioState = viewModel.getAudioState(),
                 onClick = {
                     viewModel.sendRecording(
+                        shouldApplyEffects = applyAudioFilterState,
                         onAudioRecorded = onAudioRecorded,
                     ) {
                         onCloseRecordAudio()

@@ -160,6 +160,7 @@ fun LocalNotification.Conversation.intoNotificationConversation(): NotificationC
     )
 }
 
+@Suppress("LongMethod")
 fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
 
     val notificationMessageTime = time.toEpochMilliseconds()
@@ -227,7 +228,6 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
         )
 
         is LocalNotificationMessage.ConversationSeen -> NotificationMessage.ConversationSeen(messageId, notificationMessageTime)
-
     }
 }
 

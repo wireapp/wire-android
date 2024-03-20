@@ -100,17 +100,16 @@ class OngoingCallViewModelTest {
 
     @Test
     fun givenAnOngoingCall_WhenTurningOnCamera_ThenSetVideoSendStateToStarted() = runTest {
-
         ongoingCallViewModel.startSendingVideoFeed()
 
-        coVerify(exactly = 1) { setVideoSendState(any(), VideoState.STARTED) }
+        coVerify(exactly = 1) { setVideoSendState.invoke(any(), VideoState.STARTED) }
     }
 
     @Test
     fun givenAnOngoingCall_WhenTurningOffCamera_ThenSetVideoSendStateToStopped() = runTest {
         ongoingCallViewModel.stopSendingVideoFeed()
 
-        coVerify(exactly = 1) { setVideoSendState(any(), VideoState.STOPPED) }
+        coVerify { setVideoSendState.invoke(any(), VideoState.STOPPED) }
     }
 
     @Test

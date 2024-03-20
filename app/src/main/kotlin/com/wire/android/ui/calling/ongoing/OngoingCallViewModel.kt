@@ -85,7 +85,7 @@ class OngoingCallViewModel @Inject constructor(
     private fun initCameraState(calls: List<Call>) {
         val currentCall = calls.find { call -> call.conversationId == conversationId }
         currentCall?.let {
-            if(it.isCameraOn) {
+            if (it.isCameraOn) {
                 startSendingVideoFeed()
             } else {
                 stopSendingVideoFeed()

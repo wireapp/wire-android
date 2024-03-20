@@ -59,6 +59,7 @@ class MessageNotificationManager
 
         addNotifications(newNotifications, userId, userName)
         updateNotifications(newNotifications, userId)
+        removeSeenNotifications(newNotifications, userId)
 
         appLogger.i("$TAG: handled notifications: newNotifications size ${newNotifications.size}; ")
     }
@@ -90,7 +91,20 @@ class MessageNotificationManager
 
         removeSummaryIfNeeded(userId)
 
-        appLogger.i("$TAG: added notifications: newNotifications size ${notificationsToUpdate.size}; ")
+        appLogger.i("$TAG: updated notifications: newNotifications size ${notificationsToUpdate.size}; ")
+    }
+
+    private fun removeSeenNotifications(newNotifications: List<LocalNotification>, userId: QualifiedID) {
+        val notificationsToUpdate: List<LocalNotification.ConversationSeen> = newNotifications
+            .filterIsInstance(LocalNotification.ConversationSeen::class.java)
+
+        notificationsToUpdate.groupBy { it.conversationId }.forEach { (conversationId, _) ->
+            hideNotification(conversationId, userId)
+        }
+
+        removeSummaryIfNeeded(userId)
+
+        appLogger.i("$TAG: removed ${notificationsToUpdate.size} notifications, it was seen;")
     }
 
     fun hideNotification(conversationsId: ConversationId, userId: QualifiedID) {
@@ -227,6 +241,8 @@ class MessageNotificationManager
                                 setChannelId(NotificationConstants.getPingsChannelId(userId))
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
                             }
+
+                            is NotificationMessage.ConversationSeen -> {}
 
                             null -> {
                                 val isAppLocked = lockCodeTimeManager.isAppLocked()
@@ -409,6 +425,7 @@ class MessageNotificationManager
             is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
             is NotificationMessage.Knock -> italicTextFromResId(R.string.notification_knock)
+            is NotificationMessage.ConversationSeen,
             is NotificationMessage.ObfuscatedMessage,
             is NotificationMessage.ObfuscatedKnock -> italicTextFromResId(
                 R.string.notification_obfuscated_message_content

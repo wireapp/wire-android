@@ -118,7 +118,9 @@ class DebugDataOptionsViewModel
 
     fun checkCrlRevocationList() {
         viewModelScope.launch {
-            checkCrlRevocationListUseCase.execute()
+            checkCrlRevocationListUseCase(
+                forceUpdate = true
+            )
         }
     }
 

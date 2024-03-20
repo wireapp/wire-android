@@ -372,7 +372,8 @@ fun DebugDataOptionsContent(
                 isEventProcessingEnabled = state.isEventProcessingDisabled,
                 onDisableEventProcessingChange = onDisableEventProcessingChange,
                 onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
-                onForceUpdateApiVersions = onForceUpdateApiVersions
+                onForceUpdateApiVersions = onForceUpdateApiVersions,
+                checkCrlRevocationList = checkCrlRevocationList
             )
         }
 
@@ -540,7 +541,8 @@ private fun DebugToolsOptions(
     isEventProcessingEnabled: Boolean,
     onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
-    onForceUpdateApiVersions: () -> Unit
+    onForceUpdateApiVersions: () -> Unit,
+    checkCrlRevocationList: () -> Unit
 ) {
     FolderHeader(stringResource(R.string.label_debug_tools_title))
     Column {
@@ -568,6 +570,29 @@ private fun DebugToolsOptions(
                 )
             }
         )
+
+        // checkCrlRevocationList
+        RowItemTemplate(
+            modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = "CRL revocation check",
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            },
+            actions = {
+                WirePrimaryButton(
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    onClick = checkCrlRevocationList,
+                    text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
+                    fillMaxWidth = false
+                )
+            }
+        )
+
         RowItemTemplate(
             modifier = Modifier.wrapContentWidth(),
             title = {

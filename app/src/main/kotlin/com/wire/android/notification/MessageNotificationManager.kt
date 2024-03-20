@@ -242,8 +242,6 @@ class MessageNotificationManager
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
                             }
 
-                            is NotificationMessage.ConversationSeen -> {}
-
                             null -> {
                                 val isAppLocked = lockCodeTimeManager.isAppLocked()
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
@@ -425,7 +423,6 @@ class MessageNotificationManager
             is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
             is NotificationMessage.Knock -> italicTextFromResId(R.string.notification_knock)
-            is NotificationMessage.ConversationSeen,
             is NotificationMessage.ObfuscatedMessage,
             is NotificationMessage.ObfuscatedKnock -> italicTextFromResId(
                 R.string.notification_obfuscated_message_content

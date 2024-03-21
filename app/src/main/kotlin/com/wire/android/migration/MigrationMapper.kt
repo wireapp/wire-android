@@ -205,7 +205,8 @@ class MigrationMapper @Inject constructor() {
                 previewPicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain, selfuser) },
                 completePicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain, selfuser) },
                 availabilityStatus = mapUserAvailabilityStatus(scalaUserData.availability),
-                supportedProtocols = setOf(SupportedProtocol.PROTEUS)
+                supportedProtocols = setOf(SupportedProtocol.PROTEUS),
+                userType = UserType.INTERNAL,
             )
         } else {
             val botService =

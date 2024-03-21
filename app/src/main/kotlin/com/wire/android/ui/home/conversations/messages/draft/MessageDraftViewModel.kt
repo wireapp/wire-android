@@ -58,8 +58,10 @@ class MessageDraftViewModel @Inject constructor(
 
             draftResult?.let { draft ->
                 state.update { messageComposition ->
-                    messageComposition.copy(messageTextFieldValue = TextFieldValue(draft.text),
-                        selectedMentions = draft.selectedMentionList.map { it.toUiMention(draft.text) }
+                    messageComposition.copy(
+                        messageTextFieldValue = TextFieldValue(draft.text),
+                        selectedMentions = draft.selectedMentionList.mapNotNull { it.toUiMention(draft.text) },
+                        editMessageId = draft.editMessageId
                     )
                 }
             }

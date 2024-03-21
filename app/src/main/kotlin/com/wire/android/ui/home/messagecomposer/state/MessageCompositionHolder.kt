@@ -169,8 +169,12 @@ class MessageCompositionHolder(
             handler = String.MENTION_SYMBOL + contact.name
         )
 
-        messageComposition.update { it.copy(messageTextFieldValue = it.insertMentionIntoText(mention)) }
-        messageComposition.update { it.copy(selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }) }
+        messageComposition.update {
+            it.copy(
+                messageTextFieldValue = it.insertMentionIntoText(mention),
+                selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }
+            )
+        }
         onSaveDraft(messageComposition.value.toDraft())
     }
 
@@ -180,11 +184,11 @@ class MessageCompositionHolder(
                 messageTextFieldValue = (TextFieldValue(
                     text = editMessageText,
                     selection = TextRange(editMessageText.length)
-                ))
+                )),
+                selectedMentions = mentions.mapNotNull { it.toUiMention(editMessageText) },
+                editMessageId = messageId
             )
         }
-        messageComposition.update { it.copy(selectedMentions = mentions.map { it.toUiMention(editMessageText) }) }
-        messageComposition.update { it.copy(editMessageId = messageId) }
         onSaveDraft(messageComposition.value.toDraft())
     }
 

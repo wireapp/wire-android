@@ -29,9 +29,14 @@ data class UIMention(
     fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
 }
 
-fun MessageMention.toUiMention(originalText: String) = UIMention(
-    start = start,
-    length = length,
-    userId = userId,
-    handler = originalText.substring(start, start + length)
-)
+fun MessageMention.toUiMention(originalText: String): UIMention? =
+    if (start + length <= originalText.length && originalText.elementAt(start) == '@') {
+        UIMention(
+            start = start,
+            length = length,
+            userId = userId,
+            handler = originalText.substring(start, start + length)
+        )
+    } else {
+        null
+    }

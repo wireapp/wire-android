@@ -219,6 +219,17 @@ fun ConversationScreen(
         }
     }
 
+    // set message composer input to edit mode when editMessage is not null from MessageDraft
+    LaunchedEffect(messageDraftViewModel.state.value.editMessageId) {
+        val compositionState = messageDraftViewModel.state.value
+        if(compositionState.editMessageId != null) {
+            messageComposerStateHolder.toEdit(
+                messageId = compositionState.editMessageId,
+                editMessageText = compositionState.messageText,
+                mentions = compositionState.selectedMentions.map { it.intoMessageMention() })
+        }
+    }
+
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
         navigator.navigate(
             NavigationCommand(

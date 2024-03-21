@@ -238,7 +238,14 @@ class SystemMessageContentMapper @Inject constructor(
                 UIMessageContent.SystemMessage.ConversationStartedWithMembers(memberNames = memberNameList)
             }
 
-            is FailedToAdd -> UIMessageContent.SystemMessage.MemberFailedToAdd(memberNameList)
+            is FailedToAdd -> UIMessageContent.SystemMessage.MemberFailedToAdd(
+                memberNames = memberNameList,
+                type = when (content.type) {
+                    FailedToAdd.Type.Federation -> UIMessageContent.SystemMessage.MemberFailedToAdd.Type.Federation
+                    FailedToAdd.Type.LegalHold -> UIMessageContent.SystemMessage.MemberFailedToAdd.Type.LegalHold
+                    FailedToAdd.Type.Unknown -> UIMessageContent.SystemMessage.MemberFailedToAdd.Type.Unknown
+                }
+                )
 
             is MemberChange.FederationRemoved -> UIMessageContent.SystemMessage.FederationMemberRemoved(
                 memberNames = memberNameList

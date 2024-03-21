@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
@@ -48,6 +49,8 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
+import com.wire.android.workmanager.worker.cancelPeriodicPersistentWebsocketCheckWorker
+import com.wire.android.workmanager.worker.enqueuePeriodicPersistentWebsocketCheckWorker
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -112,7 +115,8 @@ class WireActivityViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: GlobalDataStore,
-    private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory
+    private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
+    private val workManager: WorkManager,
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -145,8 +149,12 @@ class WireActivityViewModel @Inject constructor(
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
-    private val _observeE2EIState: MutableStateFlow<Boolean?> = MutableStateFlow(null)
-    private val observeE2EIState: StateFlow<Boolean?> = _observeE2EIState
+    private val observeE2EIState = observeUserId
+        .flatMapLatest {
+            it?.let { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(it).observeIfE2EIIsRequiredDuringLogin() }
+                ?: flowOf(null)
+        }
+        .distinctUntilChanged()
 
     init {
         observeSyncState()
@@ -154,7 +162,6 @@ class WireActivityViewModel @Inject constructor(
         observeNewClientState()
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
-        observerE2EIState()
     }
 
     private fun observeAppThemeState() {
@@ -164,18 +171,6 @@ class WireActivityViewModel @Inject constructor(
                 .collect {
                     globalAppState = globalAppState.copy(themeOption = it)
                 }
-        }
-    }
-
-    fun observerE2EIState() {
-        viewModelScope.launch(dispatchers.io()) {
-            observeUserId
-                .flatMapLatest {
-                    it?.let { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(it).observeIfE2EIIsRequiredDuringLogin() }
-                        ?: flowOf(null)
-                }
-                .distinctUntilChanged()
-                .collect { _observeE2EIState.emit(it) }
         }
     }
 
@@ -191,7 +186,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun observeUpdateAppState() {
-        viewModelScope.launch(dispatchers.io()) {
+        viewModelScope.launch {
             observeIfAppUpdateRequired(BuildConfig.VERSION_CODE)
                 .distinctUntilChanged()
                 .collect {
@@ -434,8 +429,8 @@ class WireActivityViewModel @Inject constructor(
 
     fun shouldLogIn(): Boolean = !hasValidCurrentSession()
 
-    fun blockedByE2EI(): Boolean {
-        return observeE2EIState.value == true
+    private fun blockedByE2EI(): Boolean = runBlocking {
+        observeE2EIState.first() ?: false
     }
 
     private fun hasValidCurrentSession(): Boolean = runBlocking {
@@ -471,9 +466,11 @@ class WireActivityViewModel @Inject constructor(
                             if (statuses.any { it.isPersistentWebSocketEnabled }) {
                                 if (!servicesManager.isPersistentWebSocketServiceRunning()) {
                                     servicesManager.startPersistentWebSocketService()
+                                    workManager.enqueuePeriodicPersistentWebsocketCheckWorker()
                                 }
                             } else {
                                 servicesManager.stopPersistentWebSocketService()
+                                workManager.cancelPeriodicPersistentWebsocketCheckWorker()
                             }
                         }
                     }

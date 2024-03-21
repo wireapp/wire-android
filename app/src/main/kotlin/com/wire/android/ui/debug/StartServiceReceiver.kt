@@ -21,13 +21,9 @@ package com.wire.android.ui.debug
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import com.wire.android.appLogger
-import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.services.PersistentWebSocketService
+import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -43,41 +39,18 @@ class StartServiceReceiver : BroadcastReceiver() {
     lateinit var dispatcherProvider: DispatcherProvider
 
     @Inject
-    @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
+    lateinit var startPersistentWebSocketService: StartPersistentWebsocketIfNecessaryUseCase
 
     private val scope by lazy {
         CoroutineScope(SupervisorJob() + dispatcherProvider.io())
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        val persistentWebSocketServiceIntent = PersistentWebSocketService.newIntent(context)
-        appLogger.e("persistent web socket receiver")
-        scope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
-                when (result) {
-                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
-                        appLogger.e("Failure while fetching persistent web socket status flow from StartServiceReceiver")
-                    }
+        appLogger.i("$TAG: onReceive called with action ${intent?.action}")
+        scope.launch { startPersistentWebSocketService() }
+    }
 
-                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        result.persistentWebSocketStatusListFlow.collect { status ->
-                            if (status.map { it.isPersistentWebSocketEnabled }.contains(true)) {
-                                appLogger.e("Starting PersistentWebsocket Service from StartServiceReceiver")
-                                if (!PersistentWebSocketService.isServiceStarted) {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                        context?.startForegroundService(persistentWebSocketServiceIntent)
-                                    } else {
-                                        context?.startService(persistentWebSocketServiceIntent)
-                                    }
-                                }
-                            } else {
-                                context?.stopService(persistentWebSocketServiceIntent)
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    companion object {
+        const val TAG = "StartServiceReceiver"
     }
 }

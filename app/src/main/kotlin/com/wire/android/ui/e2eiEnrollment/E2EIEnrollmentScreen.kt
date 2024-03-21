@@ -64,6 +64,9 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
+import com.wire.kalium.logic.functional.Either
 
 @RootNavGraph
 @Destination(
@@ -83,7 +86,8 @@ fun E2EIEnrollmentScreen(
             viewModel.finalizeMLSClient()
         },
         dismissErrorDialog = viewModel::dismissErrorDialog,
-        enrollE2EICertificate = { viewModel.enrollE2EICertificate() },
+        enrollE2EICertificate = viewModel::enrollE2EICertificate,
+        handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         openCertificateDetails = {
             navigator.navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(state.certificate)))
         },
@@ -99,6 +103,7 @@ private fun E2EIEnrollmentScreenContent(
     dismissSuccess: () -> Unit,
     dismissErrorDialog: () -> Unit,
     enrollE2EICertificate: () -> Unit,
+    handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
     openCertificateDetails: () -> Unit,
     onBackButtonClicked: () -> Unit,
     onCancelEnrollmentClicked: () -> Unit,
@@ -201,6 +206,13 @@ private fun E2EIEnrollmentScreenContent(
                 dismissDialog = dismissSuccess
             )
         }
+
+        if (state.startGettingE2EICertificate) {
+            GetE2EICertificateUI(
+                enrollmentResultHandler = { handleE2EIEnrollmentResult(it) },
+                isNewClient = true
+            )
+        }
     }
 }
 
@@ -208,7 +220,7 @@ private fun E2EIEnrollmentScreenContent(
 @Composable
 fun previewE2EIEnrollmentScreenContent() {
     WireTheme {
-        E2EIEnrollmentScreenContent(E2EIEnrollmentState(), {}, {}, {}, {}, {}, {}) { }
+        E2EIEnrollmentScreenContent(E2EIEnrollmentState(), {}, {}, {}, {}, {}, {}, {}) { }
     }
 }
 
@@ -216,7 +228,7 @@ fun previewE2EIEnrollmentScreenContent() {
 @Composable
 fun previewE2EIEnrollmentScreenContentWithSuccess() {
     WireTheme {
-        E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollSuccess = true), {}, {}, {}, {}, {}, {}) { }
+        E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollSuccess = true), {}, {}, {}, {}, {}, {}, {}) { }
     }
 }
 
@@ -224,6 +236,6 @@ fun previewE2EIEnrollmentScreenContentWithSuccess() {
 @Composable
 fun previewE2EIEnrollmentScreenContentWithError() {
     WireTheme {
-        E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollError = true), {}, {}, {}, {}, {}, {}) { }
+        E2EIEnrollmentScreenContent(E2EIEnrollmentState(isCertificateEnrollError = true), {}, {}, {}, {}, {}, {}, {}) { }
     }
 }

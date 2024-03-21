@@ -321,7 +321,7 @@ fun DebugDataOptionsContent(
                 trailingIcon = R.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,
-                    onClick = {  }
+                    onClick = { }
                 )
             )
 

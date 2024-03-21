@@ -15,14 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.model
 
-package com.wire.android.ui
+enum class ItemActionType {
+    CHECK, CLICK, CHECK_AND_CLICK;
 
-sealed class
-WireActivityState {
-
-    data class NavigationGraph(val startNavigationRoute: String, val navigationArguments: List<Any>) : WireActivityState()
-    data class ClientUpdateRequired(val clientUpdateUrl: String) : WireActivityState()
-    object ServerVersionNotSupported : WireActivityState()
-    object Loading : WireActivityState()
+    val checkable: Boolean get() = this == CHECK || this == CHECK_AND_CLICK
+    val clickable: Boolean get() = this == CLICK || this == CHECK_AND_CLICK
 }

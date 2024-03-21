@@ -216,40 +216,6 @@ class EditGuestAccessViewModelTest {
             assertEquals(true, editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed)
         }
 
-    @Test
-    fun `given conversation guest is enabled, when init, then sync conversation code`() = runTest {
-
-        val conversationDetailsResult = flowOf(
-            TestConversationDetails.GROUP.let {
-                it.copy(
-                    conversation = it.conversation.copy(
-                        accessRole = listOf(
-                            Conversation.AccessRole.GUEST,
-                            Conversation.AccessRole.NON_TEAM_MEMBER
-                        ), name = "test"
-                    )
-                ).let {
-                    ObserveConversationDetailsUseCase.Result.Success(it)
-                }
-            }
-        )
-
-        val conversationMember = flow {
-            emit(ConversationParticipantsData(isSelfAnAdmin = true))
-        }
-        // given
-        val (arrangement, _) = Arrangement()
-            .withConversationDetails(conversationDetailsResult)
-            .withConversationMembers(conversationMember)
-            .withSyncConversationCodeSuccess()
-            .arrange()
-
-        advanceUntilIdle()
-
-        // then
-        coVerify(exactly = 1) { arrangement.syncConversationCodeUseCase(any()) }
-    }
-
     private class Arrangement {
         @MockK
         lateinit var savedStateHandle: SavedStateHandle

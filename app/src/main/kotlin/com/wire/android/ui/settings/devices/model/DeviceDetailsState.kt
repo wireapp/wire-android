@@ -22,6 +22,7 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
+import kotlinx.datetime.Instant
 
 data class DeviceDetailsState(
     val device: Device = Device(),
@@ -35,7 +36,8 @@ data class DeviceDetailsState(
     val e2eiCertificate: E2eiCertificate = E2eiCertificate(
         status = CertificateStatus.EXPIRED,
         serialNumber = "",
-        certificateDetail = ""
+        certificateDetail = "",
+        endAt = Instant.DISTANT_FUTURE
     ),
     val canBeRemoved: Boolean = false,
     val isLoadingCertificate: Boolean = false,

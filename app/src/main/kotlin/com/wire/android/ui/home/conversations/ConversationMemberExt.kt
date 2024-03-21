@@ -29,7 +29,6 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
 
 fun List<User>.findUser(userId: UserId): User? = firstOrNull { it.id == userId }
 fun List<MemberDetails>.findUser(userId: UserId): MemberDetails? = firstOrNull { it.user.id == userId }
@@ -60,12 +59,6 @@ fun User.avatar(wireSessionImageLoader: WireSessionImageLoader, connectionState:
         availabilityStatus = availabilityStatus,
         connectionState = connectionState
     )
-
-val MemberDetails.userType: UserType
-    get() = when (this.user) {
-        is OtherUser -> (user as OtherUser).userType
-        is SelfUser -> UserType.INTERNAL
-    }
 
 fun UserSummary.previewAsset(
     wireSessionImageLoader: WireSessionImageLoader

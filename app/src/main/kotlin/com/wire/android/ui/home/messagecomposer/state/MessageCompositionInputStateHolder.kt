@@ -37,6 +37,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.util.isPositiveNotNull

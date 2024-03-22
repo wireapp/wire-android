@@ -62,6 +62,7 @@ import kotlinx.collections.immutable.persistentMapOf
 @Composable
 internal fun MessageSendFailureWarning(
     messageStatus: MessageFlowStatus.Failure.Send,
+    isInteractionAvailable: Boolean,
     onRetryClick: () -> Unit,
     onCancelClick: () -> Unit
 ) {
@@ -78,22 +79,24 @@ internal fun MessageSendFailureWarning(
             if (messageStatus is MessageFlowStatus.Failure.Send.Remotely) {
                 OfflineBackendsLearnMoreLink()
             }
-            Row {
-                WireSecondaryButton(
-                    text = stringResource(R.string.label_retry),
-                    onClick = onRetryClick,
-                    minSize = dimensions().buttonSmallMinSize,
-                    minClickableSize = dimensions().buttonMinClickableSize,
-                    fillMaxWidth = false
-                )
-                HorizontalSpace.x8()
-                WireSecondaryButton(
-                    text = stringResource(R.string.label_cancel),
-                    onClick = onCancelClick,
-                    minSize = dimensions().buttonSmallMinSize,
-                    minClickableSize = dimensions().buttonMinClickableSize,
-                    fillMaxWidth = false
-                )
+            if (isInteractionAvailable) {
+                Row {
+                    WireSecondaryButton(
+                        text = stringResource(R.string.label_retry),
+                        onClick = onRetryClick,
+                        minSize = dimensions().buttonSmallMinSize,
+                        minClickableSize = dimensions().buttonMinClickableSize,
+                        fillMaxWidth = false
+                    )
+                    HorizontalSpace.x8()
+                    WireSecondaryButton(
+                        text = stringResource(R.string.label_cancel),
+                        onClick = onCancelClick,
+                        minSize = dimensions().buttonSmallMinSize,
+                        minClickableSize = dimensions().buttonMinClickableSize,
+                        fillMaxWidth = false
+                    )
+                }
             }
         }
     }
@@ -299,7 +302,15 @@ internal fun OfflineBackendsLearnMoreLink(context: Context = LocalContext.curren
 @Composable
 fun PreviewMessageSendFailureWarning() {
     WireTheme {
-        MessageSendFailureWarning(MessageFlowStatus.Failure.Send.Locally(false), {}, {})
+        MessageSendFailureWarning(MessageFlowStatus.Failure.Send.Locally(false), true, {}, {})
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageSendFailureWarningWithInteractionDisabled() {
+    WireTheme {
+        MessageSendFailureWarning(MessageFlowStatus.Failure.Send.Locally(false), false, {}, {})
     }
 }
 

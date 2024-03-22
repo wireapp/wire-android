@@ -69,13 +69,15 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                 fun List<MemberDetails>.toUIParticipants() = this.map {
                     uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.userId], legalHoldList.contains(it.userId))
                 }
+                val selfUser = (allParticipants + allAdminsWithoutServices).firstOrNull { it.user is SelfUser }
 
                 ConversationParticipantsData(
                     admins = visibleAdminsWithoutServices.toUIParticipants(),
                     participants = visibleParticipants.toUIParticipants(),
                     allAdminsCount = allAdminsWithoutServices.size,
                     allParticipantsCount = allParticipants.size,
-                    isSelfAnAdmin = allAdminsWithoutServices.any { it.user is SelfUser }
+                    isSelfAnAdmin = allAdminsWithoutServices.any { it.user is SelfUser },
+                    isSelfExternalMember = selfUser?.user?.userType == UserType.EXTERNAL,
                 )
             }
             .flowOn(dispatchers.io())

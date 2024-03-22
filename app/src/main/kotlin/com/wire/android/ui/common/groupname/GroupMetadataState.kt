@@ -28,15 +28,14 @@ data class GroupMetadataState(
     val originalGroupName: String = "",
     val selectedUsers: ImmutableSet<Contact> = persistentSetOf(),
     val groupName: TextFieldValue = TextFieldValue(""),
-    var groupProtocol: ConversationOptions.Protocol = ConversationOptions.Protocol.PROTEUS,
+    val groupProtocol: ConversationOptions.Protocol = ConversationOptions.Protocol.PROTEUS,
     val animatedGroupNameError: Boolean = false,
     val continueEnabled: Boolean = false,
-    val mlsEnabled: Boolean = true,
-    val defaultProtocol: ConversationOptions.Protocol = ConversationOptions.Protocol.PROTEUS,
     val isLoading: Boolean = false,
     val error: NewGroupError = NewGroupError.None,
     val mode: GroupNameMode = GroupNameMode.CREATION,
-    val isSelfTeamMember: Boolean? = null
+    val isSelfTeamMember: Boolean? = null,
+    val isGroupCreatingAllowed: Boolean? = null,
 ) {
     sealed interface NewGroupError {
         object None : NewGroupError

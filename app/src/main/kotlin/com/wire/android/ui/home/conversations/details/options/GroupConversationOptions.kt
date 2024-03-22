@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
@@ -46,7 +45,9 @@ import com.wire.android.ui.home.conversations.details.GroupConversationDetailsVi
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SwitchState
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -96,7 +97,7 @@ fun GroupConversationSettings(
         item {
             GroupNameItem(
                 groupName = state.groupName,
-                canBeChanged = state.isUpdatingAllowed,
+                canBeChanged = state.isUpdatingNameAllowed,
                 onClick = onEditGroupName,
             )
         }
@@ -108,14 +109,14 @@ fun GroupConversationSettings(
                     title = stringResource(id = R.string.conversation_options_guests_label),
                     subtitle = stringResource(id = R.string.conversation_details_guest_description),
                     switchState = SwitchState.TextOnly(value = state.isGuestAllowed),
-                    arrowType = if (state.isUpdatingAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
-                    clickable = Clickable(enabled = state.isUpdatingAllowed, onClick = onGuestItemClicked, onLongClick = {}),
+                    arrowType = if (state.isUpdatingGuestAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
+                    clickable = Clickable(enabled = state.isUpdatingGuestAllowed, onClick = onGuestItemClicked, onLongClick = {}),
                 )
             }
 
             item {
                 ServicesOption(
-                    isSwitchEnabledAndVisible = state.isUpdatingAllowed,
+                    isSwitchEnabledAndVisible = state.isUpdatingServicesAllowed,
                     switchState = state.isServicesAllowed,
                     isLoading = state.loadingServicesOption,
                     onCheckedChange = onServiceSwitchClicked
@@ -134,13 +135,13 @@ fun GroupConversationSettings(
                         null
                     },
                     switchState = SwitchState.TextOnly(value = state.selfDeletionTimer.isEnforced),
-                    arrowType = if (state.isUpdatingAllowed && !state.selfDeletionTimer.isEnforcedByTeam) {
+                    arrowType = if (state.isUpdatingSelfDeletingAllowed && !state.selfDeletionTimer.isEnforcedByTeam) {
                         ArrowType.TITLE_ALIGNED
                     } else {
                         ArrowType.NONE
                     },
                     clickable = Clickable(
-                        enabled = state.isUpdatingAllowed && !state.selfDeletionTimer.isEnforcedByTeam,
+                        enabled = state.isUpdatingSelfDeletingAllowed && !state.selfDeletionTimer.isEnforcedByTeam,
                         onClick = onSelfDeletingClicked,
                         onLongClick = {}
                     ),
@@ -315,60 +316,93 @@ fun DisableConformationDialog(@StringRes title: Int, @StringRes text: Int, onCon
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewAdminTeamGroupConversationOptions() {
+fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Team Group Conversation",
             areAccessOptionsAvailable = true,
-            isUpdatingAllowed = true,
+            isUpdatingNameAllowed = true,
+            isUpdatingGuestAllowed = true,
+            isUpdatingServicesAllowed = true,
+            isUpdatingSelfDeletingAllowed = true,
+            isUpdatingReadReceiptAllowed = true,
             isGuestAllowed = true,
             isServicesAllowed = true,
-            isUpdatingGuestAllowed = true
+            isReadReceiptAllowed = true,
         ),
         {}, {}, {}, {}, {}
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewGuestAdminTeamGroupConversationOptions() {
+fun PreviewGuestAdminTeamGroupConversationOptions() = WireTheme {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Team Group Conversation",
             areAccessOptionsAvailable = true,
-            isUpdatingAllowed = true,
+            isUpdatingNameAllowed = true,
+            isUpdatingGuestAllowed = false,
+            isUpdatingServicesAllowed = true,
+            isUpdatingSelfDeletingAllowed = true,
+            isUpdatingReadReceiptAllowed = true,
             isGuestAllowed = true,
             isServicesAllowed = true,
-            isUpdatingGuestAllowed = false
+            isReadReceiptAllowed = true,
         ),
         {}, {}, {}, {}, {}
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewMemberTeamGroupConversationOptions() {
-    GroupConversationSettings(
+fun PreviewExternalMemberAdminTeamGroupConversationOptions() = WireTheme {
+GroupConversationSettings(
+        GroupConversationOptionsState(
+            conversationId = ConversationId("someValue", "someDomain"),
+            groupName = "Team Group Conversation",
+            areAccessOptionsAvailable = true,
+            isUpdatingNameAllowed = false,
+            isUpdatingGuestAllowed = false,
+            isUpdatingServicesAllowed = true,
+            isUpdatingSelfDeletingAllowed = true,
+            isUpdatingReadReceiptAllowed = true,
+            isGuestAllowed = true,
+            isServicesAllowed = true,
+            isReadReceiptAllowed = true,
+        ),
+        {}, {}, {}, {}, {}
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMemberTeamGroupConversationOptions() = WireTheme {
+GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = true,
-            isUpdatingAllowed = false,
+            isUpdatingNameAllowed = false,
+            isUpdatingGuestAllowed = false,
+            isUpdatingServicesAllowed = false,
+            isUpdatingSelfDeletingAllowed = false,
+            isUpdatingReadReceiptAllowed = false,
             isGuestAllowed = true,
             isServicesAllowed = true,
-            isUpdatingGuestAllowed = false
+            isReadReceiptAllowed = true,
         ),
         {}, {}, {}, {}, {}
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewNormalGroupConversationOptions() {
+fun PreviewNormalGroupConversationOptions() = WireTheme {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),

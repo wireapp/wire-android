@@ -22,6 +22,7 @@ import android.app.Notification
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.IBinder
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
@@ -47,6 +48,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
+import androidx.core.app.ServiceCompat
 
 @AndroidEntryPoint
 class OngoingCallService : Service() {
@@ -131,17 +133,38 @@ class OngoingCallService : Service() {
         scope.cancel()
     }
 
-    private fun generateForegroundNotification(callName: String, conversationId: String, userId: UserId) {
+    private fun generateForegroundNotification(
+        callName: String,
+        conversationId: String,
+        userId: UserId
+    ) {
         appLogger.i("$TAG: generating foregroundNotification...")
-        val notification: Notification = callNotificationManager.builder.getOngoingCallNotification(callName, conversationId, userId)
-        startForeground(CALL_ONGOING_NOTIFICATION_ID, notification)
+        val notification: Notification = callNotificationManager.builder.getOngoingCallNotification(
+            callName,
+            conversationId,
+            userId
+        )
+        ServiceCompat.startForeground(
+            this,
+            CALL_ONGOING_NOTIFICATION_ID,
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+        )
+
         appLogger.i("$TAG: started foreground with proper notification")
     }
 
     private fun generatePlaceholderForegroundNotification() {
         appLogger.i("$TAG: generating foregroundNotification placeholder...")
-        val notification: Notification = callNotificationManager.builder.getOngoingCallPlaceholderNotification()
-        startForeground(CALL_ONGOING_NOTIFICATION_ID, notification)
+        val notification: Notification =
+            callNotificationManager.builder.getOngoingCallPlaceholderNotification()
+        ServiceCompat.startForeground(
+            this,
+            CALL_ONGOING_NOTIFICATION_ID,
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+        )
+
         appLogger.i("$TAG: started foreground with placeholder notification")
     }
 

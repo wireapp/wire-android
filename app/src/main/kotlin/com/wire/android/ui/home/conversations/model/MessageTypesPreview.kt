@@ -41,6 +41,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.persistentMapOf
 
@@ -690,6 +691,32 @@ fun PreviewMessageWithMarkdownQuery() {
                 onResetSessionClicked = { _, _ -> },
                 onSelfDeletingMessageRead = {},
                 onReplyClickable = null
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageWithAccents() = WireTheme {
+    Column {
+        Accent.entries.forEach {
+            MessageItem(
+                message = mockMessageWithText.copy(
+                    header = mockHeader.copy(username = UIText.DynamicString(it.name), accent = it),
+                    messageContent = UIMessageContent.TextMessage(MessageBody(UIText.DynamicString("Text")))
+                ),
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
             )
         }
     }

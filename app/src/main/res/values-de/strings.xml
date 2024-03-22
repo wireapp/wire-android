@@ -210,6 +210,7 @@
     <string name="welcome_screen_carousel_item_message_5">Wire wird unabhängig geprüft und ist ISO-, CCPA-, DSGVO- und SOX-konform</string>
     <string name="welcome_button_create_team">Team erstellen</string>
     <string name="server_details_dialog_body">Backend-Name:\n%1$s\n\nBackend-URL:\n%2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy-URL:\n%3$s\n\nProxy-Authentifizierung:\n%4$s</string>
     <string name="server_details_dialog_title">Lokales Backend</string>
     <string name="welcome_migration_dialog_title">Willkommen in unserer neuen App 👋</string>
     <string name="welcome_migration_dialog_content">Wir haben die App überarbeitet, um sie für alle benutzerfreundlicher zu machen.\n\nErfahren Sie mehr über die neu gestaltete App – zusätzliche Optionen und verbesserte Barrierefreiheit bei gleichbleibend hoher Sicherheit.</string>
@@ -823,6 +824,7 @@
     <string name="calling_confirm_start_call_title_dialog">Anruf starten</string>
     <string name="calling_confirm_start_call_description_dialog">Sind Sie sicher, dass Sie %1$s Personen anrufen möchten?</string>
     <string name="calling_confirm_start_call_action_dialog">Anrufen</string>
+    <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Zurück zum Anruf</string>
     <string name="connectivity_status_bar_connecting">Entschlüsseln von Nachrichten</string>
@@ -990,14 +992,14 @@
     <string name="max_account_reached_dialog_button_open_profile">Profil öffnen</string>
     <string name="cant_switch_account_in_call">Sie können während eines Anrufs nicht das Konto wechseln</string>
     <string name="custom_backend_dialog_title">Umleitung auf ein lokales Backend?</string>
-    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
-    <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
-    <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
-    <string name="custom_backend_dialog_body_backend_blacklist">blackListURL:</string>
-    <string name="custom_backend_dialog_body_backend_teams">teamsURL:</string>
-    <string name="custom_backend_dialog_body_backend_accounts">accountsURL:</string>
-    <string name="custom_backend_dialog_body_backend_website">websiteURL:</string>
-    <string name="custom_backend_dialog_body_backend_websocket">backendWSURL:</string>
+    <string name="custom_backend_dialog_body">Wenn Sie fortfahren, wird Ihr Client an das folgende lokale Backend weitergeleitet:</string>
+    <string name="custom_backend_dialog_body_backend_name">Backend-Name:</string>
+    <string name="custom_backend_dialog_body_backend_api">Backend-URL:</string>
+    <string name="custom_backend_dialog_body_backend_blacklist">Blacklist-URL:</string>
+    <string name="custom_backend_dialog_body_backend_teams">Teams-URL:</string>
+    <string name="custom_backend_dialog_body_backend_accounts">Accounts-URL:</string>
+    <string name="custom_backend_dialog_body_backend_website">Website-URL:</string>
+    <string name="custom_backend_dialog_body_backend_websocket">Backend-WSURL:</string>
     <string name="label_fetching_your_messages">Empfang von neuen Nachrichten</string>
     <string name="label_text_copied">Text in Zwischenablage kopiert</string>
     <string name="label_logs_option_title">Protokolle</string>
@@ -1239,7 +1241,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="delete_acount_dialog_text">Wenn Sie fortfahren, erhalten Sie eine E-Mail von Wire. Folgen Sie dem Link, um Ihr Konto dauerhaft zu löschen.</string>
     <string name="end_to_end_identity_required_dialog_title">Ende-zu-Ende-Identitätszertifikat</string>
     <string name="end_to_end_identity_required_dialog_text">Ihr Team verwendet von heute an Ende-zu-Ende-Identität, um die Nutzung von Wire sicherer und praktikabler zu machen.\n\nGeben Sie im nächsten Schritt die Anmeldedaten Ihres Identity-Providers ein, um automatisch ein Zertifikat für dieses Gerät zu erhalten.</string>
-    <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure.\n\nEnter your identity provider’s credentials in the next step to automatically get a verification certificate for this device.</string>
+    <string name="end_to_end_identity_required_dialog_text_no_snooze">Ihr Team verwendet jetzt Ende-zu-Ende-Identität, um die Nutzung von Wire sicherer zu machen.\n\nGeben Sie im nächsten Schritt die Anmeldedaten Ihres Identity-Providers ein, um automatisch ein Zertifikat für dieses Gerät zu erhalten.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Zertifikat erhalten</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Später erinnern</string>
     <string name="end_to_end_identity_snooze_dialog_text">Sie können das Zertifikat in Ihren Wire Einstellungen in der/den nächsten %1$s erhalten.\nÖffnen Sie Geräte und wählen Sie Zertifikat erhalten für Ihr aktuelles Gerät. </string>
@@ -1254,6 +1256,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="end_to_end_identity_renew_success_dialog_text">Zertifikat wurde aktualisiert und Ihr Gerät wurde überprüft.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Zertifikatsdetails</string>
     <string name="end_to_end_identity_ceritifcate">Zertifikatsdetails</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_title">Ende-zu-Ende-Identitätszertifikat widerrufen</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Melden Sie sich ab, um Sicherheitsrisiken zu verringern. Melden Sie sich dann erneut an, laden Sie ein neues Zertifikat herunter und setzen Sie Ihr Passwort zurück.\n\nWenn Sie dieses Gerät weiter verwenden, sind Ihre Unterhaltungen nicht mehr überprüft.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Abmelden</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Mit diesem Gerät fortfahren</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Aufnahme starten</string>
     <string name="record_audio_recording_label">Audio-Aufnahme…</string>
@@ -1267,11 +1273,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="record_audio_max_file_size_reached_title">Aufnahme wurde beendet</string>
     <string name="record_audio_max_file_size_reached_text">Die Dateigröße für Audionachrichten ist auf %1$d MB begrenzt.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Sie können während eines Anrufs keine Audionachricht aufnehmen.</string>
-    <string name="call_permission_dialog_title">App-Berechtigung</string>
-    <string name="call_permission_dialog_description">Um einen Anruf zu tätigen, erlauben Sie Wire den Zugriff auf Ihr Mikrofon in Ihren Geräteeinstellungen.</string>
+    <string name="record_audio_unable_due_to_error">Something went wrong while trying to record audio message. Please try again.</string>
     <string name="label_not_now">Nicht jetzt</string>
     <string name="last_message_composite_with_missing_text">hat eine interaktive Nachricht gesendet</string>
-    <string name="join_conversation_dialog_password_label">Conversation Password</string>
+    <string name="join_conversation_dialog_password_label">Passwort für die Unterhaltung</string>
     <string name="join_conversation_dialog_password_placeholder">Passwort eingeben</string>
     <string name="participant_tile_call_connecting_label">Verbinden…</string>
     <string name="create_guest_link">Gäste-Link erstellen</string>
@@ -1285,7 +1290,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Passwort eingeben</string>
     <string name="generate_password_button_text">Passwort generieren</string>
     <string name="password_protected_link_banner_description">Personen, die über den Gäste-Link an der Unterhaltung teilnehmen möchten, müssen zuerst dieses Passwort eingeben.\nPasswort vergessen? Widerrufen Sie den Link und erstellen Sie einen neuen.</string>
-    <string name="password_protected_link_banner_title">Link ist passwortgeschützt</string>
+    <string name="password_protected_link_banner_title">Link ist passwortgesichert</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Passwort in Zwischenablage kopiert</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Verwenden Sie mindestens 8 Zeichen mit einem Kleinbuchstaben, einem Großbuchstaben, einer Zahl und einem Sonderzeichen.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">Neues Passwort generiert</string>
@@ -1313,20 +1318,27 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="legal_hold_deactivated_dialog_title">Gesetzliche Aufbewahrung deaktiviert</string>
     <string name="legal_hold_deactivated_dialog_description">Künftige Nachrichten werden nicht aufgezeichnet.</string>
     <string name="legal_hold_subject_dialog_title">%1$s unterliegt der gesetzlichen Aufbewahrung</string>
+    <string name="legal_hold_subject_conversation_dialog_title">Unterhaltung unterliegt der gesetzlichen Aufbewahrung</string>
+    <string name="legal_hold_subject_self_dialog_title">Sie unterliegen der gesetzlichen Aufbewahrung</string>
     <string name="legal_hold_subject_dialog_description">Alle Nachrichten, Bilder und Dokumente werden für den späteren Zugriff aufbewahrt. Dies gilt auch für gelöschte, bearbeitete und selbstlöschende Nachrichten.</string>
     <string name="legal_hold_subject_dialog_description_group">Mindestens eine Person dieser Unterhaltung unterliegt der gesetzlichen Aufbewahrung.</string>
+    <string name="legal_hold_subject_dialog_message_title">Unterhaltung unterliegt jetzt der gesetzlichen Aufbewahrung</string>
     <string name="legal_hold_subject_dialog_description_message">Möchten Sie Ihre Nachricht trotzdem senden?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">Trotzdem senden</string>
+    <string name="legal_hold_connection_failed_dialog_title">Verbindung nicht möglich</string>
+    <string name="legal_hold_connection_failed_dialog_description">Sie können sich mit diesem Nutzer nicht verbinden, da die gesetzliche Aufbewahrung aktiviert ist.</string>
     <string name="legal_hold_subject_to">Unterliegt der %1$s.</string>
     <string name="legal_hold_label">gesetzlichen Aufbewahrung</string>
     <string name="legal_hold_is_active_label">Gesetzliche Aufbewahrung ist aktiv</string>
     <string name="legal_hold_is_pending_label">Gesetzliche Aufbewahrung ist ausstehend</string>
+    <string name="legal_hold_accept">Akzeptieren</string>
     <string name="legal_hold_system_message_enabled_self">Sie unterliegen jetzt der gesetzlichen Aufbewahrung.</string>
     <string name="legal_hold_system_message_enabled_others">Gesetzliche Aufbewahrung aktiviert für %1$s.</string>
     <string name="legal_hold_system_message_disabled_self">Sie unterliegen nicht mehr der gesetzlichen Aufbewahrung.</string>
     <string name="legal_hold_system_message_disabled_others">Gesetzliche Aufbewahrung deaktiviert für %1$s.</string>
     <string name="legal_hold_system_message_disabled_conversation">Gesetzlichen Aufbewahrung ist für diese Unterhaltung nicht mehr aktiv.</string>
     <string name="legal_hold_system_message_enabled_conversation">Gesetzlichen Aufbewahrung ist für diese Unterhaltung aktiv.</string>
+    <string name="legal_hold_system_message_interaction_disabled">You can’t write messages with this user, as they are not part of your team and one of you is subject to legal hold. Once legal hold is deactivated, you can write messages again.</string>
     <!-- Sure want to send message Dialog -->
     <string name="sure_about_messaging_dialog_title">Unterhaltung nicht mehr überprüft</string>
     <string name="sure_about_messaging_dialog_body">Mindestens ein Teilnehmer hat begonnen, ein neues Gerät zu verwenden oder hat ein ungültiges Zertifikat.\n\nMöchten Sie die Nachricht trotzdem senden?</string>
@@ -1339,6 +1351,15 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="app_permission_dialog_title">App-Berechtigungen</string>
     <string name="app_permission_dialog_settings_positive_button">Einstellungen</string>
     <string name="app_permission_dialog_settings_negative_button">Nicht jetzt</string>
+    <string name="call_permission_dialog_description">Um einen Anruf zu tätigen, erlauben Sie Wire den Zugriff auf Ihr Mikrofon in Ihren Geräteeinstellungen.</string>
+    <string name="record_video_permission_dialog_description">Um ein Video aufzunehmen, erlauben Sie Wire den Zugriff auf Ihre Kamera in Ihren Geräteeinstellungen.</string>
+    <string name="take_picture_permission_dialog_description">Um ein Bild aufzunehmen, erlauben Sie Wire den Zugriff auf Ihre Kamera in Ihren Geräteeinstellungen.</string>
+    <string name="open_gallery_permission_dialog_description">Um ein Bild zu senden, erlauben Sie Wire den Zugriff auf Fotos in Ihren Geräteeinstellungen.</string>
+    <string name="attach_file_permission_dialog_description">Um eine Datei zu senden, erlauben Sie Wire den Zugriff auf Ihre Dateien in den Geräteeinstellungen.</string>
+    <string name="save_permission_dialog_description">Um diese Datei zu speichern, erlauben Sie Wire den Zugriff auf Ihren Download-Ordner in Ihren Geräteeinstellungen.</string>
+    <string name="save_backup_file_permission_dialog_description">Um diese Backup-Datei zu speichern, erlauben Sie Wire den Zugriff auf Ihren Download-Ordner in Ihren Geräteeinstellungen.</string>
+    <string name="restore_backup_permission_dialog_description">Um Unterhaltungen wiederherzustellen, erlauben Sie Wire Zugriff auf Ihre Dateien in Ihren Geräteeinstellungen.</string>
+    <string name="camera_permission_dialog_description">Um die Kamera einzuschalten, erlauben Sie Wire den Zugriff auf Ihre Kamera in Ihren Geräteeinstellungen.</string>
     <!-- Share Location -->
     <string name="location_attachment_share_title">Standort teilen</string>
     <string name="location_app_permission_dialog_body">Erlauben Sie Wire den Zugriff auf Ihren Gerätestandort, um Ihren Standort zu senden.</string>

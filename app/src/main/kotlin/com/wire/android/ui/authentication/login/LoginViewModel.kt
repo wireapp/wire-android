@@ -40,7 +40,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
-import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -67,8 +66,6 @@ open class LoginViewModel @Inject constructor(
             }
         }
     }
-
-    protected suspend fun authScope(): AutoVersionAuthScopeUseCase.Result = coreLogic.versionedAuthenticationScope(serverConfig)()
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {

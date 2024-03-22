@@ -60,7 +60,7 @@ fun <R : ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateH
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 @Composable
 inline fun <reified T, reified S, reified R : ScopedArgs> hiltViewModelScoped(arguments: R): S where T : ViewModel, T : S = when {
-    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as S }
+    LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     else -> hiltViewModelScoped<T>(key = arguments.key, defaultArguments = Bundlizer.bundle(R::class.serializer(), arguments))
 }
 

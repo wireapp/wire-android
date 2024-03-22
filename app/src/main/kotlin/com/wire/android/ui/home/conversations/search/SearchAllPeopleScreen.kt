@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.model.ItemActionType
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -65,6 +66,7 @@ fun SearchAllPeopleScreen(
     contactsAddedToGroup: ImmutableSet<Contact>,
     isLoading: Boolean,
     isSearchActive: Boolean,
+    actionType: ItemActionType,
     onChecked: (Boolean, Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
     lazyListState: LazyListState = rememberLazyListState()
@@ -85,7 +87,8 @@ fun SearchAllPeopleScreen(
                     onOpenUserProfile = onOpenUserProfile,
                     lazyListState = lazyListState,
                     isSearchActive = isSearchActive,
-                    isLoading = isLoading
+                    isLoading = isLoading,
+                    actionType = actionType,
                 )
             }
         }
@@ -99,6 +102,7 @@ private fun SearchResult(
     publicSearchResult: ImmutableList<Contact>,
     isLoading: Boolean,
     isSearchActive: Boolean,
+    actionType: ItemActionType,
     contactsAddedToGroup: ImmutableSet<Contact>,
     onChecked: (Boolean, Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
@@ -125,6 +129,7 @@ private fun SearchResult(
                     showAllItems = !isSearchActive || searchPeopleScreenState.contactsAllResultsCollapsed,
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllContactsResult,
                     onOpenUserProfile = onOpenUserProfile,
+                    actionType = actionType,
                 )
             }
 
@@ -149,6 +154,7 @@ private fun LazyListScope.internalSearchResults(
     searchQuery: String,
     contactsAddedToGroup: ImmutableSet<Contact>,
     onChecked: (Boolean, Contact) -> Unit,
+    actionType: ItemActionType,
     isLoading: Boolean,
     contactSearchResult: ImmutableList<Contact>,
     showAllItems: Boolean,
@@ -169,7 +175,8 @@ private fun LazyListScope.internalSearchResults(
                 searchResult = contactSearchResult,
                 searchQuery = searchQuery,
                 onShowAllButtonClicked = onShowAllButtonClicked,
-                onOpenUserProfile = onOpenUserProfile
+                onOpenUserProfile = onOpenUserProfile,
+                actionType = actionType,
             )
         }
     }
@@ -207,6 +214,7 @@ private fun LazyListScope.externalSearchResults(
 private fun LazyListScope.internalSuccessItem(
     searchTitle: String,
     showAllItems: Boolean,
+    actionType: ItemActionType,
     contactsAddedToGroup: ImmutableSet<Contact>,
     onChecked: (Boolean, Contact) -> Unit,
     searchResult: ImmutableList<Contact>,
@@ -231,6 +239,7 @@ private fun LazyListScope.internalSuccessItem(
                     connectionState = connectionState,
                     isAddedToGroup = contactsAddedToGroup.contains(contact),
                     onCheckChange = onClick,
+                    actionType = actionType,
                     clickable = remember { Clickable(enabled = true) { onOpenUserProfile(contact) } }
                 )
             }

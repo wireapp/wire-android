@@ -87,6 +87,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isSaved
+import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
 
@@ -120,7 +121,8 @@ fun MessageItem(
     shouldDisplayMessageStatus: Boolean = true,
     shouldDisplayFooter: Boolean = true,
     onReplyClickable: Clickable? = null,
-    isSelectedMessage: Boolean = false
+    isSelectedMessage: Boolean = false,
+    isInteractionAvailable: Boolean = true,
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
@@ -317,6 +319,7 @@ fun MessageItem(
                         if (message.sendingFailed) {
                             MessageSendFailureWarning(
                                 messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                                isInteractionAvailable = isInteractionAvailable,
                                 onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId) } },
                                 onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
                             )
@@ -426,6 +429,7 @@ private fun MessageAuthorRow(messageHeader: MessageHeader) {
             ) {
                 Username(
                     username.asString(),
+                    accent,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
                 UserBadge(
@@ -490,10 +494,11 @@ private fun MessageTimeLabel(
 }
 
 @Composable
-private fun Username(username: String, modifier: Modifier = Modifier) {
+private fun Username(username: String, accent: Accent, modifier: Modifier = Modifier) {
     Text(
         text = username,
         style = MaterialTheme.wireTypography.body02,
+        color = MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(accent, MaterialTheme.wireColorScheme.onBackground),
         modifier = modifier,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis

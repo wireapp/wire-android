@@ -166,6 +166,7 @@ class OAuthUseCase(
         AuthorizationRequest.Scope.PROFILE,
         AuthorizationRequest.Scope.OFFLINE_ACCESS
     ).setClaims(JSONObject(claims.toString()))
+        .setPrompt(AuthorizationRequest.Prompt.LOGIN)
         .build()
 
     private fun AuthorizationRequest.Builder.setCodeVerifier(): AuthorizationRequest.Builder {

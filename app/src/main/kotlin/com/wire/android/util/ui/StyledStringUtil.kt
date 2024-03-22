@@ -108,7 +108,7 @@ fun Resources.stringWithBoldArgs(
     }
 }
 
-private fun toSpanStyle(textStyle: TextStyle, color: Color) = SpanStyle(
+fun toSpanStyle(textStyle: TextStyle, color: Color) = SpanStyle(
     color = color,
     fontWeight = textStyle.fontWeight,
     fontSize = textStyle.fontSize,

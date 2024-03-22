@@ -39,6 +39,7 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
@@ -157,7 +158,8 @@ class MessageMapper @Inject constructor(
             is OtherUser -> sender.isUnavailableUser
             is SelfUser, null -> false
         },
-        clientId = (message as? Message.Sendable)?.senderClientId
+        clientId = (message as? Message.Sendable)?.senderClientId,
+        accent = sender?.accentId?.let { Accent.fromAccentId(it) } ?: Accent.Unknown,
     )
 
     private fun getMessageStatus(message: Message.Standalone): MessageStatus {

@@ -86,7 +86,7 @@ fun GroupConversationParticipants(
                             groupParticipantsState.data.allCount.toString()
                         )
                     )
-                    if (groupParticipantsState.data.isSelfAnAdmin) {
+                    if (groupParticipantsState.addParticipantsEnabled) {
                         WirePrimaryButton(
                             text = stringResource(R.string.conversation_details_group_participants_add),
                             fillMaxWidth = true,

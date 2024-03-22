@@ -271,10 +271,14 @@ private fun OngoingCallContent(
                         hideDoubleTapToast()
                         FullScreenTile(
                             selectedParticipant = selectedParticipantForFullScreen,
-                            height = this@BoxWithConstraints.maxHeight - dimensions().spacing4x
-                        ) {
-                            shouldOpenFullScreen = !shouldOpenFullScreen
-                        }
+                            height = this@BoxWithConstraints.maxHeight - dimensions().spacing4x,
+                            closeFullScreen = {
+                                shouldOpenFullScreen = !shouldOpenFullScreen
+                            },
+                            onBackButtonClicked = {
+                                shouldOpenFullScreen = !shouldOpenFullScreen
+                            }
+                        )
                     } else {
                         VerticalCallingPager(
                             participants = participants,

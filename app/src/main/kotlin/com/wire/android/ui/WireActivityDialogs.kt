@@ -43,7 +43,7 @@ import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.formatMediumDateTime
+import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -319,7 +319,7 @@ fun NewClientDialog(
         val devicesList = data.clientsInfo.map {
             stringResource(
                 R.string.new_device_dialog_message_defice_info,
-                it.date.formatMediumDateTime() ?: "",
+                it.date.deviceDateTimeFormat() ?: "",
                 it.deviceInfo.asString()
             )
         }.joinToString("")

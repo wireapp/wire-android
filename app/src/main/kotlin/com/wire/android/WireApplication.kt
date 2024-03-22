@@ -71,6 +71,7 @@ class WireApplication : Application(), Configuration.Provider {
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder()
             .setWorkerFactory(wireWorkerFactory.get())
+            .setMinimumLoggingLevel(android.util.Log.DEBUG)
             .build()
     }
 

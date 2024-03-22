@@ -23,6 +23,19 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 
+/**
+ * State for the group conversation options screen.
+ *
+ * Fields related to updating should be set according to this table:
+ * | for given option to be allowed...          | ...user needs to be                                |
+ * |--------------------------------------------|----------------------------------------------------|
+ * | add participants to group allowed          | group admin & not external team member             |
+ * | group name change allowed                  | group admin & not external team member             |
+ * | group guests option change allowed         | group admin & team member of the group owner team  |
+ * | group services option change allowed       | group admin                                        |
+ * | self deleting option change allowed        | group admin                                        |
+ * | group read receipts option change allowed  | group admin & group created by a team member       |
+ */
 data class GroupConversationOptionsState(
     val conversationId: ConversationId,
     val groupName: String = "",
@@ -31,8 +44,10 @@ data class GroupConversationOptionsState(
     val isGuestAllowed: Boolean = false,
     val isServicesAllowed: Boolean = false,
     val isReadReceiptAllowed: Boolean = false,
-    val isUpdatingAllowed: Boolean = false,
+    val isUpdatingNameAllowed: Boolean = false,
     val isUpdatingGuestAllowed: Boolean = false,
+    val isUpdatingServicesAllowed: Boolean = false,
+    val isUpdatingSelfDeletingAllowed: Boolean = false,
     val isUpdatingReadReceiptAllowed: Boolean = false,
     val changeGuestOptionConfirmationRequired: Boolean = false,
     val changeServiceOptionConfirmationRequired: Boolean = false,

@@ -29,18 +29,20 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCaseImpl
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.flow.flowOf
 
 internal class NewConversationViewModelArrangement {
     init {
@@ -60,7 +62,7 @@ internal class NewConversationViewModelArrangement {
     lateinit var isMLSEnabledUseCase: IsMLSEnabledUseCase
 
     @MockK
-    lateinit var isSelfTeamMember: IsSelfATeamMemberUseCaseImpl
+    lateinit var getSelfUserUseCase: GetSelfUserUseCase
 
     @MockK(relaxed = true)
     lateinit var onGroupCreated: (ConversationId) -> Unit
@@ -137,6 +139,22 @@ internal class NewConversationViewModelArrangement {
             isProteusVerified = false,
             supportedProtocols = setOf(SupportedProtocol.PROTEUS)
         )
+
+        val SELF_USER = SelfUser(
+            TestUser.USER_ID,
+            name = "username",
+            handle = "handle",
+            email = "email",
+            phone = "phone",
+            accentId = 0,
+            teamId = TeamId("teamId"),
+            connectionStatus = ConnectionState.ACCEPTED,
+            previewPicture = UserAssetId("value", "domain"),
+            completePicture = UserAssetId("value", "domain"),
+            availabilityStatus = UserAvailabilityStatus.AVAILABLE,
+            userType = UserType.INTERNAL,
+            supportedProtocols = setOf(SupportedProtocol.PROTEUS),
+        )
     }
 
     fun withSyncFailureOnCreatingGroup() = apply {
@@ -155,8 +173,11 @@ internal class NewConversationViewModelArrangement {
         )
     }
 
-    fun withIsSelfTeamMember(result: Boolean) = apply {
-        coEvery { isSelfTeamMember() } returns result
+    fun withGetSelfUser(isTeamMember: Boolean, userType: UserType = UserType.INTERNAL) = apply {
+        coEvery { getSelfUserUseCase() } returns flowOf(SELF_USER.copy(
+            teamId = if (isTeamMember) TeamId("teamId") else null,
+            userType = userType,
+        ))
     }
 
     fun withGuestEnabled(isGuestModeEnabled: Boolean) = apply {
@@ -173,8 +194,7 @@ internal class NewConversationViewModelArrangement {
 
     fun arrange() = this to NewConversationViewModel(
         createGroupConversation = createGroupConversation,
-        isMLSEnabled = isMLSEnabledUseCase,
-        isSelfATeamMember = isSelfTeamMember,
+        getSelfUser = getSelfUserUseCase,
         getDefaultProtocol = getDefaultProtocol
     ).also {
         it.groupOptionsState = groupOptionsState

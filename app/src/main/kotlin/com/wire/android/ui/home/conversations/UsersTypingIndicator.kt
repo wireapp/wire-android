@@ -51,15 +51,18 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversations.typing.TypingIndicatorArgs
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModel
+import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModelImpl
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
@@ -71,9 +74,11 @@ private const val ANIMATION_SPEED_MILLIS = 1_500
 @Composable
 fun UsersTypingIndicatorForConversation(
     conversationId: ConversationId,
-    viewModel: TypingIndicatorViewModel = hiltViewModelScoped(conversationId),
+    viewModel: TypingIndicatorViewModel = hiltViewModelScoped<TypingIndicatorViewModelImpl, TypingIndicatorViewModel, TypingIndicatorArgs>(
+        TypingIndicatorArgs(conversationId)
+    )
 ) {
-    UsersTypingIndicator(usersTyping = viewModel.usersTypingViewState.usersTyping)
+    UsersTypingIndicator(usersTyping = viewModel.state().usersTyping)
 }
 
 @Composable
@@ -179,7 +184,7 @@ private fun HorizontalBouncingWritingPen(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewUsersTypingOne() {
+fun PreviewUsersTypingOne() = WireTheme {
     Column(
         modifier = Modifier
             .background(color = colorsScheme().background)
@@ -210,7 +215,7 @@ fun PreviewUsersTypingOne() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewUsersTypingMoreThanOne() {
+fun PreviewUsersTypingMoreThanOne() = WireTheme {
     Column(
         modifier = Modifier
             .background(color = colorsScheme().background)

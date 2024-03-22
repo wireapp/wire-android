@@ -49,18 +49,18 @@ fun LegalHoldSubjectBaseDialog(
         text = text,
         onDismiss = dialogDismissed,
         buttonsHorizontalAlignment = false,
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = dialogDismissed,
-            text = cancelText,
-            type = WireDialogButtonType.Secondary,
-        ),
-        optionButton2Properties = action?.let { (actionText, actionClicked) ->
+        optionButton1Properties = action?.let { (actionText, actionClicked) ->
             WireDialogButtonProperties(
                 onClick = actionClicked,
                 text = actionText,
                 type = WireDialogButtonType.Primary,
             )
         },
+        optionButton2Properties = WireDialogButtonProperties(
+            onClick = dialogDismissed,
+            text = cancelText,
+            type = WireDialogButtonType.Secondary,
+        ),
     ) {
         LearnMoreAboutLegalHoldButton(
             modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)

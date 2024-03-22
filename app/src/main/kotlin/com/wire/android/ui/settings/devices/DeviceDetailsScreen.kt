@@ -86,7 +86,7 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
-import com.wire.android.util.formatMediumDateTime
+import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -216,7 +216,7 @@ fun DeviceDetailsContent(
                 Divider(color = MaterialTheme.wireColorScheme.background)
             }
 
-            state.device.registrationTime?.formatMediumDateTime()?.let {
+            state.device.registrationTime?.deviceDateTimeFormat()?.let {
                 item {
                     DeviceDetailSectionContent(
                         stringResource(id = R.string.label_client_added_time),

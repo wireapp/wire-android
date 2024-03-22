@@ -36,6 +36,7 @@ import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -99,7 +100,8 @@ data class MessageHeader(
     val connectionState: ConnectionState?,
     val isSenderDeleted: Boolean,
     val isSenderUnavailable: Boolean,
-    val clientId: ClientId? = null
+    val clientId: ClientId? = null,
+    val accent: Accent = Accent.Unknown,
 )
 
 @Stable

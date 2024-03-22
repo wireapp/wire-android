@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.calling.ongoing.fullscreen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -50,9 +51,14 @@ fun FullScreenTile(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     selectedParticipant: SelectedParticipant,
     height: Dp,
-    onDoubleTap: (offset: Offset) -> Unit
+    closeFullScreen: (offset: Offset) -> Unit,
+    onBackButtonClicked: () -> Unit
 ) {
     var shouldShowDoubleTapToast by remember { mutableStateOf(false) }
+
+    BackHandler {
+        onBackButtonClicked()
+    }
 
     sharedCallingViewModel.callState.participants.find {
         it.id == selectedParticipant.userId && it.clientId == selectedParticipant.clientId
@@ -64,7 +70,7 @@ fun FullScreenTile(
                     .clipToBounds()
                     .pointerInput(Unit) {
                         detectTapGestures(
-                            onDoubleTap = onDoubleTap
+                            onDoubleTap = closeFullScreen
                         )
                     }
                     .height(height)
@@ -114,6 +120,7 @@ fun PreviewFullScreenVideoCall() {
     FullScreenTile(
         selectedParticipant = SelectedParticipant(),
         height = 100.dp,
-        onDoubleTap = { }
+        closeFullScreen = {},
+        onBackButtonClicked = {}
     )
 }

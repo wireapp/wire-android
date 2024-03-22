@@ -86,6 +86,17 @@ internal fun CustomServerDialog(
                     title = stringResource(id = R.string.custom_backend_dialog_body_backend_api),
                     value = serverLinks.api
                 )
+                if (serverLinks.apiProxy != null) {
+                    CustomServerPropertyInfo(
+                        title = stringResource(id = R.string.custom_backend_dialog_body_backend_proxy_url),
+                        value = serverLinks.apiProxy!!.host
+                    )
+
+                    CustomServerPropertyInfo(
+                        title = stringResource(id = R.string.custom_backend_dialog_body_backend_proxy_authentication),
+                        value = serverLinks.apiProxy!!.needsAuthentication.toString()
+                    )
+                }
                 if (showDetails) {
                     CustomServerPropertyInfo(
                         title = stringResource(id = R.string.custom_backend_dialog_body_backend_websocket),

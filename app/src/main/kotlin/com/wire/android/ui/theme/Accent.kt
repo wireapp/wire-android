@@ -15,14 +15,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.theme
 
-package com.wire.android.ui
+import androidx.compose.ui.graphics.Color
 
-sealed class
-WireActivityState {
+@Suppress("MagicNumber")
+enum class Accent(val accentId: Int) {
+    Amber(5),
+    Blue(1),
+    Green(2),
+    Purple(7),
+    Red(4),
+    Petrol(6),
+    Unknown(0);
 
-    data class NavigationGraph(val startNavigationRoute: String, val navigationArguments: List<Any>) : WireActivityState()
-    data class ClientUpdateRequired(val clientUpdateUrl: String) : WireActivityState()
-    object ServerVersionNotSupported : WireActivityState()
-    object Loading : WireActivityState()
+    companion object {
+        fun fromAccentId(accentId: Int) = entries.firstOrNull { it.accentId == accentId } ?: Unknown
+    }
+}
+
+class WireAccentColors(private val association: (Accent) -> Color) {
+    fun getOrDefault(accent: Accent, default: Color): Color = when (accent) {
+        Accent.Unknown -> default
+        else -> association(accent)
+    }
 }

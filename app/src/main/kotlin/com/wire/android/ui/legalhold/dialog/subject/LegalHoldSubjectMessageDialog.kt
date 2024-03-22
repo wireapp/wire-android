@@ -25,12 +25,11 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun LegalHoldSubjectMessageDialog(
-    conversationName: String,
     dialogDismissed: () -> Unit,
     sendAnywayClicked: () -> Unit,
 ) {
     LegalHoldSubjectBaseDialog(
-        title = stringResource(id = R.string.legal_hold_subject_dialog_title, conversationName),
+        title = stringResource(id = R.string.legal_hold_subject_dialog_message_title),
         customInfo = stringResource(id = R.string.legal_hold_subject_dialog_description_message),
         withDefaultInfo = false,
         cancelText = stringResource(id = R.string.label_cancel),
@@ -43,6 +42,6 @@ fun LegalHoldSubjectMessageDialog(
 @PreviewMultipleThemes
 fun PreviewLegalHoldSubjectMessageDialog() {
     WireTheme {
-        LegalHoldSubjectMessageDialog("conversation name", {}, {})
+        LegalHoldSubjectMessageDialog({}, {})
     }
 }

@@ -36,7 +36,6 @@ import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
@@ -137,29 +136,27 @@ class LoginEmailViewModel @Inject constructor(
 
     private suspend fun resolveCurrentAuthScope(): AuthenticationScope? =
         coreLogic.versionedAuthenticationScope(serverConfig).invoke(
-        AutoVersionAuthScopeUseCase.ProxyAuthentication.UsernameAndPassword(
-            ProxyCredentials(loginState.proxyIdentifier.text, loginState.proxyPassword.text)
-        )
-    ).let {
-        when (it) {
-            is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+            loginState.getProxyCredentials()
+        ).let {
+            when (it) {
+                is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
-            is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
-                updateEmailLoginError(LoginError.DialogError.ServerVersionNotSupported)
-                return null
-            }
+                is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                    updateEmailLoginError(LoginError.DialogError.ServerVersionNotSupported)
+                    return null
+                }
 
-            is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
-                updateEmailLoginError(LoginError.DialogError.ClientUpdateRequired)
-                return null
-            }
+                is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
+                    updateEmailLoginError(LoginError.DialogError.ClientUpdateRequired)
+                    return null
+                }
 
-            is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
-                updateEmailLoginError(LoginError.DialogError.GenericError(it.genericFailure))
-                return null
+                is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
+                    updateEmailLoginError(LoginError.DialogError.GenericError(it.genericFailure))
+                    return null
+                }
             }
         }
-    }
 
     private suspend fun handleAuthenticationFailure(it: AuthenticationResult.Failure, authScope: AuthenticationScope) {
         when (it) {

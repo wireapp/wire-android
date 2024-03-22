@@ -110,9 +110,8 @@ private fun ServerEnrollmentDialogContent(
     onDismiss: () -> Unit,
     onClick: () -> Unit,
 ) {
-    WireDialog(
-        title = stringResource(id = R.string.server_details_dialog_title),
-        text = LocalContext.current.resources.stringWithStyledArgs(
+    val text = if (serverLinks.apiProxy == null) {
+        LocalContext.current.resources.stringWithStyledArgs(
             R.string.server_details_dialog_body,
             MaterialTheme.wireTypography.body02,
             MaterialTheme.wireTypography.body02,
@@ -120,7 +119,23 @@ private fun ServerEnrollmentDialogContent(
             argsColor = colorsScheme().onBackground,
             serverLinks.title,
             serverLinks.api
-        ),
+        )
+    } else {
+        LocalContext.current.resources.stringWithStyledArgs(
+            R.string.server_details_dialog_body_with_proxy,
+            MaterialTheme.wireTypography.body02,
+            MaterialTheme.wireTypography.body02,
+            normalColor = colorsScheme().secondaryText,
+            argsColor = colorsScheme().onBackground,
+            serverLinks.title,
+            serverLinks.api,
+            serverLinks.apiProxy!!.host,
+            serverLinks.apiProxy!!.needsAuthentication.toString()
+        )
+    }
+    WireDialog(
+        title = stringResource(id = R.string.server_details_dialog_title),
+        text = text,
         onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
             stringResource(id = R.string.label_ok),

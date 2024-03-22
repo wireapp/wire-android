@@ -23,7 +23,6 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.home.conversations.handle
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.ui.home.conversations.userId
-import com.wire.android.ui.home.conversations.userType
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
@@ -106,7 +105,7 @@ class UIParticipantMapperTest {
                 && memberDetails.name == uiParticipant.name
                 && memberDetails.handle == uiParticipant.handle
                 && memberDetails.user.avatar(wireSessionImageLoader, connectionState) == uiParticipant.avatarData
-                && userTypeMapper.toMembership(memberDetails.userType) == uiParticipant.membership
+                && userTypeMapper.toMembership(memberDetails.user.userType) == uiParticipant.membership
                 && memberDetails.user is SelfUser == uiParticipant.isSelf)
     }
 
@@ -141,7 +140,8 @@ fun testSelfUser(i: Int): SelfUser = SelfUser(
     previewPicture = null,
     completePicture = null,
     availabilityStatus = UserAvailabilityStatus.NONE,
-    supportedProtocols = setOf(SupportedProtocol.PROTEUS)
+    supportedProtocols = setOf(SupportedProtocol.PROTEUS),
+    userType = UserType.INTERNAL,
 )
 
 fun testOtherUser(i: Int): OtherUser = OtherUser(

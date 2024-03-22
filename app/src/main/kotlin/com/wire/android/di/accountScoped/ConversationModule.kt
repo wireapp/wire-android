@@ -49,6 +49,7 @@ import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
+import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -288,4 +289,9 @@ class ConversationModule {
     fun provideObserveLegalHoldWithChangeNotifiedForConversationUseCase(
         conversationScope: ConversationScope,
     ): ObserveConversationUnderLegalHoldNotifiedUseCase = conversationScope.observeConversationUnderLegalHoldNotified
+
+    @ViewModelScoped
+    @Provides
+    fun provideSyncConversationCodeUseCase(conversationScope: ConversationScope): SyncConversationCodeUseCase =
+        conversationScope.syncConversationCode
 }

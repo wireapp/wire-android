@@ -30,17 +30,6 @@ import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.kalium.logic.data.message.mention.MessageMention
-import com.wire.kalium.logic.data.user.UserId
-
-data class UiMention(
-    val start: Int,
-    val length: Int,
-    val userId: UserId,
-    val handler: String // name that should be displayed in a message
-) {
-    fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
-}
 
 @Composable
 fun MembersMentionList(

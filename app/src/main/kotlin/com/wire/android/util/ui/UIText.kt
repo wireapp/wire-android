@@ -24,6 +24,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import com.wire.android.appLogger
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
 sealed class UIText {
@@ -45,17 +46,32 @@ sealed class UIText {
 
     @Suppress("SpreadOperator")
     @Composable
-    fun asString() = when (this) {
+    fun asString(): String = when (this) {
         is DynamicString -> value
         is StringResource -> stringResource(id = resId, *formatArgs)
         is PluralResource -> pluralStringResource(id = resId, count, *formatArgs)
     }
 
     @Suppress("SpreadOperator")
-    fun asString(resources: Resources) = when (this) {
+    fun asString(resources: Resources?): String = when (this) {
         is DynamicString -> value
-        is StringResource -> resources.getString(resId, *formatArgs)
-        is PluralResource -> resources.getQuantityString(resId, count, *formatArgs)
+        is StringResource -> resources?.getString(resId, *formatArgs).let {
+            if (it != null) {
+                it
+            } else {
+                appLogger.w("StringResource used with nullable Resources")
+                ""
+            }
+        }
+
+        is PluralResource -> resources?.getQuantityString(resId, count, *formatArgs).let {
+            if (it != null) {
+                it
+            } else {
+                appLogger.w("PluralResource used with nullable Resources")
+                ""
+            }
+        }
     }
 
     override fun equals(other: Any?): Boolean {

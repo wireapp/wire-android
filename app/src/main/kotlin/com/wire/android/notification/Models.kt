@@ -98,15 +98,13 @@ sealed class NotificationMessage(open val messageId: String, open val author: No
         override val author: NotificationMessageAuthor,
         override val time: Long,
         val authorId: String
-    ) :
-        NotificationMessage(messageId, author, time)
+    ) : NotificationMessage(messageId, author, time)
 
     data class ConversationDeleted(
         override val messageId: String,
         override val author: NotificationMessageAuthor,
         override val time: Long
-    ) :
-        NotificationMessage(messageId, author, time)
+    ) : NotificationMessage(messageId, author, time)
 }
 
 data class NotificationMessageAuthor(val name: String, val image: ByteArray?) {
@@ -157,6 +155,7 @@ fun LocalNotification.Conversation.intoNotificationConversation(): NotificationC
     )
 }
 
+@Suppress("LongMethod")
 fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
 
     val notificationMessageTime = time.toEpochMilliseconds()

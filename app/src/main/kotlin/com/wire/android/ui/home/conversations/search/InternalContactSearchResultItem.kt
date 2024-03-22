@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.wire.android.appLogger
 import com.wire.android.model.Clickable
+import com.wire.android.model.ItemActionType
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
@@ -54,15 +55,18 @@ fun InternalContactSearchResultItem(
     onCheckChange: (Boolean) -> Unit,
     isAddedToGroup: Boolean,
     clickable: Clickable,
+    actionType: ItemActionType,
     modifier: Modifier = Modifier
 ) {
     RowItemTemplate(
         leadingIcon = {
             Row {
-                WireCheckbox(
-                    checked = isAddedToGroup,
-                    onCheckedChange = onCheckChange
-                )
+                if (actionType.checkable) {
+                    WireCheckbox(
+                        checked = isAddedToGroup,
+                        onCheckedChange = onCheckChange
+                    )
+                }
                 UserProfileAvatar(avatarData)
             }
         },
@@ -87,15 +91,17 @@ fun InternalContactSearchResultItem(
             )
         },
         actions = {
-            Box(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(end = 8.dp)
-            ) {
-                ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+            if (actionType.clickable) {
+                Box(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(end = 8.dp)
+                ) {
+                    ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+                }
             }
         },
-        clickable = clickable,
+        clickable = clickable.copy(enabled = actionType.clickable),
         modifier = modifier
     )
 }

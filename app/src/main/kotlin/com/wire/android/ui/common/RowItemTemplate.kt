@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.theme.DEFAULT_WEIGHT
@@ -32,6 +33,7 @@ import com.wire.android.ui.theme.DEFAULT_WEIGHT
 fun RowItemTemplate(
     leadingIcon: @Composable () -> Unit = {},
     title: @Composable () -> Unit = {},
+    titleStartPadding: Dp = dimensions().spacing8x,
     subtitle: @Composable () -> Unit = {},
     actions: @Composable () -> Unit = {},
     clickable: Clickable = Clickable(false) {},
@@ -45,7 +47,7 @@ fun RowItemTemplate(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(start = dimensions().spacing8x)
+                .padding(start = titleStartPadding)
         ) {
             title()
             subtitle()

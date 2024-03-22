@@ -18,8 +18,12 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
+import com.wire.android.ui.home.messagecomposer.model.update
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.runTest
@@ -34,11 +38,14 @@ class MessageCompositionHolderTest {
 
     private lateinit var state: MessageCompositionHolder
 
+    private lateinit var messageComposition: MutableState<MessageComposition>
+
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this, relaxUnitFun = true)
 
-        state = MessageCompositionHolder(context = context)
+        messageComposition = mutableStateOf(MessageComposition())
+        state = MessageCompositionHolder(messageComposition = messageComposition, {})
     }
 
     @Test

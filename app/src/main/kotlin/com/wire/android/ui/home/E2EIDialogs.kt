@@ -202,18 +202,13 @@ fun E2EIErrorWithDismissDialog(
 ) {
     WireDialog(
         title = stringResource(id = R.string.end_to_end_identity_renew_error_dialog_title),
-        text = stringResource(id = R.string.end_to_end_identity_renew_error_dialog_text),
+        text = stringResource(id = R.string.end_to_end_identity_renew_error_dialog_text_no_snooze),
         onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = updateCertificate,
             text = stringResource(id = R.string.label_retry),
             type = WireDialogButtonType.Primary,
             loading = isE2EILoading
-        ),
-        optionButton2Properties = WireDialogButtonProperties(
-            onClick = onDismiss,
-            text = stringResource(id = R.string.label_cancel),
-            type = WireDialogButtonType.Secondary,
         ),
         buttonsHorizontalAlignment = false,
         properties = DialogProperties(usePlatformDefaultWidth = false)

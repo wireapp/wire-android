@@ -43,7 +43,7 @@ fun DrawingCanvasComponent(
     with(viewModel.state) {
         val drawModifier = Modifier
             .fillMaxSize()
-            .clipToBounds() // necessary to draw in the canvas.
+            .clipToBounds() // necessary to draw inside the canvas.
             .background(MaterialTheme.colorScheme.background)
             .pointerInput(Unit) {
                 awaitEachGesture {

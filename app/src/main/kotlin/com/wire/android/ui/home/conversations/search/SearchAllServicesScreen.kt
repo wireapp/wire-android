@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations.search
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -114,6 +115,7 @@ private fun SuccessServicesList(
                                     UserProfileAvatar(it.avatarData)
                                 }
                             },
+                            titleStartPadding = dimensions().spacing0x,
                             title = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     HighlightName(
@@ -129,7 +131,8 @@ private fun SuccessServicesList(
                                 }
                             },
                             actions = {},
-                            clickable = remember { Clickable(enabled = true) { onServiceClicked(it) } }
+                            clickable = remember { Clickable(enabled = true) { onServiceClicked(it) } },
+                            modifier = Modifier.padding(start = dimensions().spacing8x)
                         )
                     }
                 }

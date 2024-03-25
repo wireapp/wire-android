@@ -32,6 +32,7 @@ import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import io.mockk.coVerify
@@ -577,7 +578,7 @@ class MessageComposerViewModelTest {
         }
 
     @Test
-    fun `given that user sends a text message, when invoked, then send typing stopped event is called`() = runTest {
+    fun `given that user sends a text message, when invoked, then send typing stopped event and remove draft are called`() = runTest {
         // given
         val (arrangement, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
@@ -602,36 +603,49 @@ class MessageComposerViewModelTest {
                 eq(Conversation.TypingIndicatorMode.STOPPED)
             )
         }
+        coVerify(exactly = 1) {
+            arrangement.removeMessageDraftUseCase.invoke(any())
+        }
     }
 
     @Test
-    fun `given that user sends an edited text message, when invoked, then send typing stopped event is called`() = runTest {
-        // given
-        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withSuccessfulSendEditTextMessage()
-            .arrange()
+    fun `given that user sends an edited text message, when invoked, then send typing stopped event and remove draft are called`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSuccessfulSendEditTextMessage()
+                .arrange()
 
-        // when
-        viewModel.trySendMessage(ComposableMessageBundle.EditMessageBundle("mocked-text-message", "new-mocked-text-message", emptyList()))
+            // when
+            viewModel.trySendMessage(
+                ComposableMessageBundle.EditMessageBundle(
+                    "mocked-text-message",
+                    "new-mocked-text-message",
+                    emptyList()
+                )
+            )
 
-        // then
-        coVerify(exactly = 1) {
-            arrangement.sendEditTextMessage.invoke(
-                any(),
-                any(),
-                any(),
-                any(),
-                any()
-            )
+            // then
+            coVerify(exactly = 1) {
+                arrangement.sendEditTextMessage.invoke(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+            coVerify(exactly = 1) {
+                arrangement.sendTypingEvent.invoke(
+                    any(),
+                    eq(Conversation.TypingIndicatorMode.STOPPED)
+                )
+            }
+            coVerify(exactly = 1) {
+                arrangement.removeMessageDraftUseCase.invoke(any())
+            }
         }
-        coVerify(exactly = 1) {
-            arrangement.sendTypingEvent.invoke(
-                any(),
-                eq(Conversation.TypingIndicatorMode.STOPPED)
-            )
-        }
-    }
 
     @Test
     fun `given that user types a text message, when invoked typing invoked, then send typing event is called`() = runTest {
@@ -817,5 +831,28 @@ class MessageComposerViewModelTest {
             // then
             coVerify(exactly = 1) { arrangement.sendLocation.invoke(any(), any(), any(), any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
+        }
+
+    @Test
+    fun `given that user saves a draft message, then save draft use case is triggered`() =
+        runTest {
+            // given
+            val messageDraft = MessageDraft(
+                text = "hello",
+                editMessageId = null,
+                quotedMessageId = null,
+                selectedMentionList = listOf()
+            )
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSaveDraftMessage()
+                .arrange()
+
+            // when
+            viewModel.saveDraft(messageDraft)
+            advanceUntilIdle()
+
+            // then
+            coVerify(exactly = 1) { arrangement.saveMessageDraftUseCase.invoke(eq(viewModel.conversationId), eq(messageDraft)) }
         }
 }

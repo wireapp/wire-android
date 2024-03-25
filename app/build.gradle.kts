@@ -69,7 +69,11 @@ android {
         // For all other flavors use the "nonfree" sourceSets
         } else {
             getByName("main") {
+<<<<<<< HEAD
                 java.srcDirs("src/main/kotlin", "src/nonfree/kotlin")
+=======
+                java.srcDirs("src/nonfree/kotlin")
+>>>>>>> 846a05a97 (feat: adding fdroid flavor to build without GMS and Firebase (WPB-2799) (#2727) cherry pick (#2813))
                 println("Building with non-free sourceSets")
             }
         }

@@ -31,6 +31,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
@@ -49,6 +50,8 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -64,6 +67,7 @@ class EditGuestAccessViewModel @Inject constructor(
     private val observeGuestRoomLink: ObserveGuestRoomLinkUseCase,
     private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
     private val canCreatePasswordProtectedLinks: CanCreatePasswordProtectedLinksUseCase,
+    private val syncConversationCode: SyncConversationCodeUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -84,6 +88,20 @@ class EditGuestAccessViewModel @Inject constructor(
         startObservingGuestRoomLink()
         observeGuestRoomLinkFeature()
         checkIfUserCanCreatePasswordProtectedLinks()
+    }
+
+    private val syncCodeMutex = Mutex()
+
+    private var isGuestCodeUpdated = false
+    private fun updateConversationCodeOnce() {
+        viewModelScope.launch {
+            syncCodeMutex.withLock {
+                if (!isGuestCodeUpdated) {
+                    syncConversationCode(conversationId)
+                    isGuestCodeUpdated = true
+                }
+            }
+        }
     }
 
     private fun checkIfUserCanCreatePasswordProtectedLinks() {
@@ -123,6 +141,8 @@ class EditGuestAccessViewModel @Inject constructor(
                 conversationDetailsFlow,
                 isSelfAdminFlow
             ) { conversationDetails, isSelfAnAdmin ->
+                isSelfAnAdmin to conversationDetails
+            }.collect { (isSelfAnAdmin, conversationDetails) ->
 
                 val isGuestAllowed =
                     conversationDetails.conversation.isGuestAllowed() || conversationDetails.conversation.isNonTeamMemberAllowed()
@@ -132,6 +152,8 @@ class EditGuestAccessViewModel @Inject constructor(
                     isServicesAccessAllowed = conversationDetails.conversation.isServicesAllowed(),
                     isUpdatingGuestAccessAllowed = isSelfAnAdmin
                 )
+
+                if (isGuestAllowed) updateConversationCodeOnce()
             }
         }
     }

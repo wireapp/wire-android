@@ -55,12 +55,13 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.messagecomposer.attachments.AdditionalOptionButton
-import com.wire.android.ui.home.messagecomposer.state.MessageComposition
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.MessageType
 import com.wire.android.ui.theme.wireColorScheme
@@ -101,6 +102,7 @@ fun ActiveMessageComposerInput(
         }
 
         messageComposition.quotedMessage?.let { quotedMessage ->
+            VerticalSpace.x4()
             Box(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
                 QuotedMessagePreview(
                     quotedMessageData = quotedMessage,

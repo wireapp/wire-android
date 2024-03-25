@@ -85,11 +85,13 @@ fun WireLabelledCheckbox(
 @Composable
 fun WireCheckbox(
     checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)
+    onCheckedChange: ((Boolean) -> Unit)?,
+    modifier: Modifier = Modifier,
 ) {
     Checkbox(
         checked = checked,
         onCheckedChange = onCheckedChange,
-        colors = wireCheckBoxColors()
+        colors = wireCheckBoxColors(),
+        modifier = modifier,
     )
 }

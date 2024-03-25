@@ -18,8 +18,8 @@
 package com.wire.android.model
 
 enum class ItemActionType {
-    CHECK, CLICK, CHECK_AND_CLICK;
+    CHECK, CLICK;
 
-    val checkable: Boolean get() = this == CHECK || this == CHECK_AND_CLICK
-    val clickable: Boolean get() = this == CLICK || this == CHECK_AND_CLICK
+    val checkable: Boolean get() = this == CHECK
+    val clickable: Boolean get() = this == CLICK
 }

@@ -81,6 +81,16 @@ fun SelectParticipantsButtonsAlwaysEnabled(
 }
 
 @Composable
+fun CreateNewGroupButton(mainButtonText: String, onMainButtonClick: () -> Unit) {
+    SelectParticipantsButtonsRow(
+        showTotalSelectedItemsCount = false,
+        mainButtonText = mainButtonText,
+        shouldAllowNoSelectionContinue = true,
+        onMainButtonClick = onMainButtonClick,
+    )
+}
+
+@Composable
 fun SendContentButton(
     mainButtonText: String,
     count: Int,
@@ -270,4 +280,13 @@ fun PreviewSendContentWithSelfDeletionSelectedButton() {
             selfDeletionTimer = SelfDeletionTimer.Enabled(10.toDuration(DurationUnit.SECONDS))
         )
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCreateNewGroupButton() = WireTheme {
+    CreateNewGroupButton(
+        mainButtonText = "Create new group",
+        onMainButtonClick = {}
+    )
 }

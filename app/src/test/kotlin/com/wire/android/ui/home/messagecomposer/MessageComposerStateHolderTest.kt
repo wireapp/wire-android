@@ -26,11 +26,11 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
-import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
@@ -75,7 +75,8 @@ class MessageComposerStateHolderTest {
             selfDeletionTimer = mutableStateOf(SelfDeletionTimer.Disabled)
         )
         messageCompositionHolder = MessageCompositionHolder(
-            context = context
+            messageComposition = messageComposition,
+            {}
         )
         additionalOptionStateHolder = AdditionalOptionStateHolder()
         modalBottomSheetState = WireModalSheetState()

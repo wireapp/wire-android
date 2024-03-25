@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.newconversation.newgroup
+package com.wire.android.ui.home.newconversation.groupname
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview

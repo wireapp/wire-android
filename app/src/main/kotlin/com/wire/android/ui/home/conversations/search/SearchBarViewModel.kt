@@ -46,7 +46,6 @@ class SearchBarViewModel @Inject constructor(
 
     var state: SearchState by mutableStateOf(SearchState(
         isServicesAllowed = addMembersSearchNavArgs?.isServicesAllowed ?: false,
-        isGroupCreationContext = addMembersSearchNavArgs == null
     ))
         private set
 
@@ -77,5 +76,4 @@ data class SearchState(
     val serviceSearchQuery: TextFieldValue = TextFieldValue(),
     val userSearchQuery: TextFieldValue = TextFieldValue(),
     val isServicesAllowed: Boolean = false,
-    val isGroupCreationContext: Boolean = false
 )

@@ -74,6 +74,8 @@ import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
@@ -200,6 +202,12 @@ internal class MessageComposerViewModelArrangement {
     lateinit var observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase
 
     @MockK
+    lateinit var saveMessageDraftUseCase: SaveMessageDraftUseCase
+
+    @MockK
+    lateinit var removeMessageDraftUseCase: RemoveMessageDraftUseCase
+
+    @MockK
     lateinit var sendLocation: SendLocationUseCase
 
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
@@ -232,7 +240,9 @@ internal class MessageComposerViewModelArrangement {
             observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
             setNotifiedAboutConversationUnderLegalHold = setNotifiedAboutConversationUnderLegalHold,
             observeConversationUnderLegalHoldNotified = observeConversationUnderLegalHoldNotified,
-            sendLocation = sendLocation
+            sendLocation = sendLocation,
+            saveMessageDraft = saveMessageDraftUseCase,
+            removeMessageDraft = removeMessageDraftUseCase
         )
     }
 
@@ -361,6 +371,10 @@ internal class MessageComposerViewModelArrangement {
 
     fun withSuccessfulRetryFailedMessage() = apply {
         coEvery { retryFailedMessageUseCase(any(), any()) } returns Either.Right(Unit)
+    }
+
+    fun withSaveDraftMessage() = apply {
+        coEvery { saveMessageDraftUseCase(any(), any()) } returns Unit
     }
 
     fun arrange() = this to viewModel

@@ -51,7 +51,6 @@ class SearchBarViewModelTest {
             .arrange()
 
         assertFalse(viewModel.state.isServicesAllowed)
-        assertFalse(viewModel.state.isGroupCreationContext)
     }
 
     @Test
@@ -66,17 +65,6 @@ class SearchBarViewModelTest {
             .arrange()
 
         assertTrue(viewModel.state.isServicesAllowed)
-        assertFalse(viewModel.state.isGroupCreationContext)
-    }
-
-    @Test
-    fun `given addMemberSearchNavArgs is null, then state is updated correctly`() {
-        val (_, viewModel) = Arrangement()
-            .withAddMembersSearchNavArgsThatThrowsException()
-            .arrange()
-
-        assertFalse(viewModel.state.isServicesAllowed)
-        assertTrue(viewModel.state.isGroupCreationContext)
     }
 
     @Test

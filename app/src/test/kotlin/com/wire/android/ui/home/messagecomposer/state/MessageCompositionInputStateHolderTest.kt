@@ -21,6 +21,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBeEqualTo

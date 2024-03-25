@@ -71,6 +71,7 @@ fun ConversationParticipantItem(
                 )
             )
         },
+        titleStartPadding = dimensions().spacing0x,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 HighlightName(

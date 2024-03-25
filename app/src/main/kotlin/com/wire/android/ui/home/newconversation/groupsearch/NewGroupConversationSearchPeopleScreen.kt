@@ -15,66 +15,54 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations.search.adddembertoconversation
+package com.wire.android.ui.home.newconversation.groupsearch
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.collectAsStateLifecycleAware
+import com.wire.android.ui.destinations.NewGroupNameScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
-import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
 import com.wire.android.ui.home.conversations.search.SearchBarViewModel
-import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.BotService
 
-@RootNavGraph
-@Destination(
-    navArgsDelegate = AddMembersSearchNavArgs::class
-)
+@NewConversationNavGraph
+@Destination
 @Composable
-fun AddMembersSearchScreen(
+fun NewGroupConversationSearchPeopleScreen(
     navigator: Navigator,
-    navArgs: AddMembersSearchNavArgs,
-    addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel(),
+    newConversationViewModel: NewConversationViewModel,
     searchBarViewModel: SearchBarViewModel = hiltViewModel()
 ) {
     val userSearchSignal = searchBarViewModel.userSearchSignal.collectAsStateLifecycleAware(initial = String.EMPTY)
     val serviceSearchSignal = searchBarViewModel.serviceSearchSignal.collectAsStateLifecycleAware(initial = String.EMPTY)
     SearchUsersAndServicesScreen(
         searchState = searchBarViewModel.state,
-        searchTitle = stringResource(id = R.string.label_add_participants),
-        actionButtonTitle = stringResource(id = R.string.label_continue),
         userSearchSignal = userSearchSignal,
         serviceSearchSignal = serviceSearchSignal,
+        searchTitle = stringResource(id = R.string.label_new_group),
+        actionButtonTitle = stringResource(id = R.string.label_continue),
         onServicesSearchQueryChanged = searchBarViewModel::onServiceSearchQueryChanged,
         onUsersSearchQueryChanged = searchBarViewModel::onUserSearchQueryChanged,
-        onOpenUserProfile = { contact: Contact ->
+        onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
-        onContactChecked = addMembersToConversationViewModel::updateSelectedContacts,
-        onGroupSelectionSubmitAction = {
-            addMembersToConversationViewModel.addMembersToConversation(
-                onCompleted = navigator::navigateBack // TODO: move the navigation to the screen not view model
-            )
-        },
-        isGroupSubmitVisible = true,
+        onContactChecked = newConversationViewModel::updateSelectedContacts,
+        onGroupSelectionSubmitAction = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
+        isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = navigator::navigateBack,
-        onServiceClicked = { contact: Contact ->
-            ServiceDetailsScreenDestination(BotService(contact.id, contact.domain), navArgs.conversationId)
-                .let { navigator.navigate(NavigationCommand(it)) }
-        },
-        screenType = SearchPeopleScreenType.CONVERSATION_DETAILS,
-        selectedContacts = addMembersToConversationViewModel.newGroupState.selectedContacts,
+        onServiceClicked = { },
+        screenType = SearchPeopleScreenType.NEW_GROUP_CONVERSATION,
+        selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
     )
 }

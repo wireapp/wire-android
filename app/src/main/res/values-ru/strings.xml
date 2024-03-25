@@ -212,6 +212,7 @@
     <string name="welcome_screen_carousel_item_message_5">Компания Wire прошла независимый аудит и соответствует требованиям ISO, CCPA, GDPR, SOX</string>
     <string name="welcome_button_create_team">Создать команду</string>
     <string name="server_details_dialog_body">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s\n\nURL прокси:\n%3$s\n\nПрокси аутентификации:\n%4$s</string>
     <string name="server_details_dialog_title">Внутренний бэкэнд</string>
     <string name="welcome_migration_dialog_title">Добро пожаловать в наше новое приложение для Android 👋</string>
     <string name="welcome_migration_dialog_content">Мы переработали приложение, чтобы сделать его более удобным для всех.\n\nУзнайте больше об обновленном приложении Wire - новые возможности и улучшенная доступность при прежней надежной защите.</string>
@@ -1028,6 +1029,8 @@
     <string name="custom_backend_dialog_body">При продолжении вы будете перенаправлены на следующий локальный бэкэнд:</string>
     <string name="custom_backend_dialog_body_backend_name">Название бэкэнда:</string>
     <string name="custom_backend_dialog_body_backend_api">URL бэкэнда:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">URL прокси:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Прокси аутентификации:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">URL черного списка:</string>
     <string name="custom_backend_dialog_body_backend_teams">URL команды:</string>
     <string name="custom_backend_dialog_body_backend_accounts">URL аккаунта:</string>

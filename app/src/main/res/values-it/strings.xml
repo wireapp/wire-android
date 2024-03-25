@@ -214,6 +214,7 @@
 
 URL backend:
 %2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">Backend In Situ</string>
     <string name="welcome_migration_dialog_title">Benvenuto nella nuova app per Android &#128075;</string>
     <string name="welcome_migration_dialog_content">Abbiamo ricostruito l\'app per renderla pi&#249; adatta a tutti. 
@@ -988,6 +989,8 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="custom_backend_dialog_body">Se procedi, il tuo client sarà reindirizzato al seguente backend locale:</string>
     <string name="custom_backend_dialog_body_backend_name">Nome del backend:</string>
     <string name="custom_backend_dialog_body_backend_api">URL del backend:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">URL Blacklist:</string>
     <string name="custom_backend_dialog_body_backend_teams">URL Team:</string>
     <string name="custom_backend_dialog_body_backend_accounts">URL dei profili:</string>

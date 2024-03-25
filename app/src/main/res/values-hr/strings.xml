@@ -211,6 +211,7 @@
     <string name="welcome_screen_carousel_item_message_5">Wire je neovisno revidiran i usklađen je s ISO, CCPA, GDPR i SOX standardima</string>
     <string name="welcome_button_create_team">Stvorite tim</string>
     <string name="server_details_dialog_body">Backend ime:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">Lokalni Backend</string>
     <string name="welcome_migration_dialog_title">Dobro došli u našu novu Android aplikaciju 👋</string>
     <string name="welcome_migration_dialog_content">Obnovili smo aplikaciju kako bismo je učinili upotrebljivijom za sve.\n\nSaznajte više o redizajnu Wire-a—nove opcije s poboljšanom pristupačnosti, uz jednako jaku sigurnost.</string>
@@ -1005,6 +1006,8 @@
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
     <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>

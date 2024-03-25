@@ -216,6 +216,7 @@ Elige una contrase&#241;a segura para proteger el archivo de copia de seguridad.
 
 URL del backend:
 %2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">Backend local</string>
     <string name="welcome_migration_dialog_title">Bienvenido a nuestra nueva aplicaci&#243;n para Android &#128075;</string>
     <string name="welcome_migration_dialog_content">Reconstruimos la aplicaci&#243;n para que sea m&#225;s usable para todos. Conoce m&#225;s sobre la aplicaci&#243;n redise&#241;ada de Wire&#8212;nuevas opciones y mejor accesibilidad, con la misma seguridad s&#243;lida.</string>
@@ -990,6 +991,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="custom_backend_dialog_body">Si continúa, su cliente será redirigido al siguiente servidor local:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
     <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>

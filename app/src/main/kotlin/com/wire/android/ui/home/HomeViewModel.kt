@@ -29,8 +29,12 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
+<<<<<<< HEAD
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
+=======
+import com.wire.kalium.logic.feature.e2ei.CertificateRevocationListCheckWorker
+>>>>>>> 50cc7ec78 (fix: Some workers not running when persistent websocket is enabled (WPB-7213) (#2803))
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -47,7 +51,8 @@ class HomeViewModel @Inject constructor(
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
+    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
+    private val certificateRevocationListCheckWorker: CertificateRevocationListCheckWorker
 ) : SavedStateViewModel(savedStateHandle) {
 
     var homeState by mutableStateOf(HomeState())
@@ -55,6 +60,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         loadUserAvatar()
+<<<<<<< HEAD
         observeLegalHoldStatus()
     }
 
@@ -62,6 +68,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             observeLegalHoldStatusForSelfUser()
                 .collectLatest { homeState = homeState.copy(shouldDisplayLegalHoldIndicator = it != LegalHoldStateForSelfUser.Disabled) }
+=======
+        viewModelScope.launch {
+            certificateRevocationListCheckWorker.execute()
+>>>>>>> 50cc7ec78 (fix: Some workers not running when persistent websocket is enabled (WPB-7213) (#2803))
         }
     }
 

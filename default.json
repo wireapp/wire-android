@@ -15,6 +15,7 @@
             "application_is_private_build": true,
             "development_api_enabled": true,
             "ignore_ssl_certificates": true,
+            "mls_support_enabled": true,
             "firebase_push_sender_id": "723990470614",
             "firebase_app_id": "1:723990470614:android:10cf802bfcc7bb71d28e77",
             "google_api_key": "AIzaSyAGCoJGUtDBLJJiQPLxHQRrdkbyI0wlbo8",
@@ -34,6 +35,7 @@
             "logging_enabled": true,
             "application_is_private_build": true,
             "development_api_enabled": false,
+            "mls_support_enabled": true,
             "firebase_push_sender_id": "723990470614",
             "firebase_app_id": "1:723990470614:android:10cf802bfcc7bb71d28e77",
             "google_api_key": "AIzaSyAGCoJGUtDBLJJiQPLxHQRrdkbyI0wlbo8",
@@ -51,7 +53,8 @@
             "developer_features_enabled": true,
             "logging_enabled": true,
             "application_is_private_build": true,
-            "development_api_enabled": false
+            "development_api_enabled": false,
+            "mls_support_enabled": false
         },
         "internal": {
             "application_id": "com.wire.internal",

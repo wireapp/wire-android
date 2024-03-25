@@ -24,11 +24,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import androidx.core.location.LocationManagerCompat
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
 import com.wire.android.AppJsonStyledLogger
-import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.kalium.logger.KaliumLogLevel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject

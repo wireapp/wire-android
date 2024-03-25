@@ -248,6 +248,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideCheckCrlRevocationListUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).checkCrlRevocationList
+
+    @ViewModelScoped
+    @Provides
     fun provideIsMLSEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).isMLSEnabled
 

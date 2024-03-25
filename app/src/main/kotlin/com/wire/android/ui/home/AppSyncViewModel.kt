@@ -31,14 +31,18 @@ import javax.inject.Inject
 class AppSyncViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val certificateRevocationListCheckWorker: CertificateRevocationListCheckWorker,
-    private val bserveCertificateRevocationForSelfClient: ObserveCertificateRevocationForSelfClientUseCase,
+    private val observeCertificateRevocationForSelfClient: ObserveCertificateRevocationForSelfClientUseCase,
     private val featureFlagsSyncWorker: FeatureFlagsSyncWorker
 ) : SavedStateViewModel(savedStateHandle) {
 
     fun startSyncingAppConfig() {
         viewModelScope.launch {
             certificateRevocationListCheckWorker.execute()
-            bserveCertificateRevocationForSelfClient.invoke()
+        }
+        viewModelScope.launch {
+            observeCertificateRevocationForSelfClient.invoke()
+        }
+        viewModelScope.launch {
             featureFlagsSyncWorker.execute()
         }
     }

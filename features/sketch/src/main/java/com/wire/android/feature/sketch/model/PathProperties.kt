@@ -15,11 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.sketch
+package com.wire.android.feature.sketch.model
 
 import android.graphics.Bitmap
 import android.graphics.BitmapShader
-import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Shader
 import android.os.Build
@@ -110,26 +109,6 @@ class PathProperties(
                         join = StrokeJoin.Round
                     ),
                     blendMode = BlendMode.Clear
-                )
-            }
-
-            DrawMode.None -> {}
-        }
-    }
-
-    fun drawNative(canvas: Canvas) {
-        when (drawMode) {
-            DrawMode.Pen -> {
-                canvas.drawPath(
-                    androidPath,
-                    paint
-                )
-            }
-
-            DrawMode.Eraser -> {
-                canvas.drawPath(
-                    androidPath,
-                    paint
                 )
             }
 

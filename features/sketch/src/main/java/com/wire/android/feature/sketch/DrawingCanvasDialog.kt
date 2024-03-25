@@ -70,7 +70,7 @@ fun DrawingCanvas(
                         Icon(
                             Icons.Filled.Close,
                             contentDescription = stringResource(
-                                com.google.android.material.R.string.mtrl_chip_close_icon_content_description
+                                com.google.android.material.R.string.mtrl_picker_cancel
                             )
                         )
                     }
@@ -82,7 +82,7 @@ fun DrawingCanvas(
                         Icon(
                             Icons.Filled.Send,
                             contentDescription = stringResource(
-                                com.google.android.material.R.string.mtrl_chip_close_icon_content_description
+                                com.google.android.material.R.string.mtrl_picker_cancel
                             )
                         )
                     }

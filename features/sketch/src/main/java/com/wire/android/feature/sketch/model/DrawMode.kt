@@ -15,18 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.sketch
+package com.wire.android.feature.sketch.model
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-
-class CanvasState {
-    var scale by mutableFloatStateOf(1f)
-    var translation by mutableStateOf(Offset(0f, 0f))
-    var pivot by mutableStateOf(Offset(0f, 0f))
-    var size: Size? = null
+enum class DrawMode {
+    Pen, Eraser, None
 }

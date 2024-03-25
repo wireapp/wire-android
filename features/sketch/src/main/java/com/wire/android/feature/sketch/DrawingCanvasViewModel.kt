@@ -23,6 +23,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
+import com.wire.android.feature.sketch.model.CanvasState
+import com.wire.android.feature.sketch.model.MotionEvent
+import com.wire.android.feature.sketch.model.PathProperties
 
 class DrawingCanvasViewModel : ViewModel() {
     var paths = mutableStateListOf<PathProperties>()

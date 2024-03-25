@@ -40,15 +40,11 @@ class PathProperties(
             DrawMode.Pen -> {
                 if (bitmap != null) {
                     val brush = ShaderBrush(
-                        shader = BitmapShader(
-                            bitmap,
-                            Shader.TileMode.REPEAT,
-                            Shader.TileMode.REPEAT
-                        )
+                        shader = BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
                     )
                     scope.drawPath(
-                        path,
-                        brush,
+                        path = path,
+                        brush = brush,
                         style = Stroke(
                             width = strokeWidth,
                             cap = StrokeCap.Round,

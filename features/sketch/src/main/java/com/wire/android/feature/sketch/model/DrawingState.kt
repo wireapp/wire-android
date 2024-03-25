@@ -17,13 +17,12 @@
  */
 package com.wire.android.feature.sketch.model
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 
-class CanvasState {
-    var translation by mutableStateOf(Offset(0f, 0f))
-}
+data class DrawingState(
+    val paths: List<PathProperties> = listOf(),
+    val pathsUndone: List<PathProperties> = listOf(),
+    val motionEvent: MotionEvent = MotionEvent.Idle,
+    val currentPath: PathProperties = PathProperties(),
+    val currentPosition: Offset = Offset.Unspecified
+)

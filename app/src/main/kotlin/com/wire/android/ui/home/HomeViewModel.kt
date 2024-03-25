@@ -29,12 +29,8 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
-<<<<<<< HEAD
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
-=======
-import com.wire.kalium.logic.feature.e2ei.CertificateRevocationListCheckWorker
->>>>>>> 50cc7ec78 (fix: Some workers not running when persistent websocket is enabled (WPB-7213) (#2803))
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -51,8 +47,7 @@ class HomeViewModel @Inject constructor(
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
-    private val certificateRevocationListCheckWorker: CertificateRevocationListCheckWorker
+    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var homeState by mutableStateOf(HomeState())
@@ -60,18 +55,16 @@ class HomeViewModel @Inject constructor(
 
     init {
         loadUserAvatar()
-<<<<<<< HEAD
         observeLegalHoldStatus()
     }
 
     private fun observeLegalHoldStatus() {
         viewModelScope.launch {
             observeLegalHoldStatusForSelfUser()
-                .collectLatest { homeState = homeState.copy(shouldDisplayLegalHoldIndicator = it != LegalHoldStateForSelfUser.Disabled) }
-=======
-        viewModelScope.launch {
-            certificateRevocationListCheckWorker.execute()
->>>>>>> 50cc7ec78 (fix: Some workers not running when persistent websocket is enabled (WPB-7213) (#2803))
+                .collectLatest {
+                    homeState =
+                        homeState.copy(shouldDisplayLegalHoldIndicator = it != LegalHoldStateForSelfUser.Disabled)
+                }
         }
     }
 
@@ -81,10 +74,13 @@ class HomeViewModel @Inject constructor(
             when {
                 shouldTriggerMigrationForUser(userId) ->
                     onRequirement(HomeRequirement.Migration(userId))
+
                 needsToRegisterClient() -> // check if the client has been registered and open the proper screen if not
                     onRequirement(HomeRequirement.RegisterDevice)
+
                 getSelf().first().handle.isNullOrEmpty() -> // check if the user handle has been set and open the proper screen if not
                     onRequirement(HomeRequirement.CreateAccountUsername)
+
                 shouldDisplayWelcomeToARScreen() -> {
                     homeState = homeState.copy(shouldDisplayWelcomeMessage = true)
                 }
@@ -99,7 +95,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             getSelf().collect { selfUser ->
                 homeState = homeState.copy(
-                    avatarAsset = selfUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+                    avatarAsset = selfUser.previewPicture?.let {
+                        UserAvatarAsset(
+                            wireSessionImageLoader,
+                            it
+                        )
+                    },
                     status = selfUser.availabilityStatus
                 )
             }

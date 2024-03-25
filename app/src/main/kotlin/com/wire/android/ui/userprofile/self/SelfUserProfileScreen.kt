@@ -414,6 +414,7 @@ private fun OtherAccountItem(
 ) {
     RowItemTemplate(
         leadingIcon = { UserProfileAvatar(account.avatarData) },
+        titleStartPadding = dimensions().spacing0x,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 HighlightName(

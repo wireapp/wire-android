@@ -211,7 +211,10 @@ private fun CameraPreview(
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
+    var isCameraStopped by remember { mutableStateOf(isCameraOn) }
+
     if (isCameraOn) {
+        isCameraStopped = false
         val context = LocalContext.current
         val backgroundColor = colorsScheme().callingParticipantTileBackgroundColor.value.toInt()
         val videoPreview = remember {
@@ -227,6 +230,8 @@ private fun CameraPreview(
             }
         )
     } else {
+        if (isCameraStopped) return
+        isCameraStopped = true
         onClearSelfUserVideoPreview()
     }
 }

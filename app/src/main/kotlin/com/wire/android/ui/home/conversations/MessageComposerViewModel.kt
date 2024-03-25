@@ -52,6 +52,7 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
@@ -73,6 +74,8 @@ import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
@@ -120,6 +123,8 @@ class MessageComposerViewModel @Inject constructor(
     private val setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase,
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
     private val sendLocation: SendLocationUseCase,
+    private val saveMessageDraft: SaveMessageDraftUseCase,
+    private val removeMessageDraft: RemoveMessageDraftUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
@@ -240,6 +245,7 @@ class MessageComposerViewModel @Inject constructor(
                         mentions = newMentions.map { it.intoMessageMention() },
                     ).handleLegalHoldFailureAfterSendingMessage()
                 }
+                removeMessageDraft(conversationId)
                 sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
             }
 
@@ -265,6 +271,7 @@ class MessageComposerViewModel @Inject constructor(
                         quotedMessageId = quotedMessageId
                     ).handleLegalHoldFailureAfterSendingMessage()
                 }
+                removeMessageDraft(conversationId)
                 sendTypingEvent(conversationId, TypingIndicatorMode.STOPPED)
             }
 
@@ -503,6 +510,12 @@ class MessageComposerViewModel @Inject constructor(
     fun sendTypingEvent(typingIndicatorMode: TypingIndicatorMode) {
         viewModelScope.launch {
             sendTypingEvent(conversationId, typingIndicatorMode)
+        }
+    }
+
+    fun saveDraft(messageDraft: MessageDraft) {
+        viewModelScope.launch {
+            saveMessageDraft(conversationId, messageDraft)
         }
     }
 

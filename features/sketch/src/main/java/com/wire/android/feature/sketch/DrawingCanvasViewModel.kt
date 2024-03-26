@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.sketch.model.DrawingState
@@ -104,7 +105,7 @@ class DrawingCanvasViewModel : ViewModel() {
         state = state.copy(canvasSize = canvasSize)
     }
 
-    fun saveImage(tempWritableImageUri: Uri?) {
+    fun saveImage(tempWritableImageUri: Uri?): Uri {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 with(state) {
@@ -113,8 +114,6 @@ class DrawingCanvasViewModel : ViewModel() {
                     val bitmap = Bitmap.createBitmap(canvasSize!!.width.toInt(), canvasSize!!.height.toInt(), Bitmap.Config.ARGB_8888)
                     val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.WHITE }) }
                     val file = File(getImagePath(tempWritableImageUri))
-                    file.parentFile?.mkdirs()
-                    file.createNewFile()
                     val outputStream = FileOutputStream(file, false)
                     outputStream.use {
                         paths.forEach { path -> path.drawNative(canvas) }
@@ -126,10 +125,15 @@ class DrawingCanvasViewModel : ViewModel() {
                 }
             }
         }
+        return getImagePath(tempWritableImageUri).toUri()
     }
 
     private fun getImagePath(tempWritableImageUri: Uri?): String {
-        return tempWritableImageUri?.path ?: Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
+        return Environment.getDownloadCacheDirectory().path + "/$TEMP_IMG_ATTACHMENT_FILENAME"
+    }
+
+    companion object {
+        private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
     }
 
 }

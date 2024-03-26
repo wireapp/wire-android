@@ -48,7 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun DrawingCanvas(
     viewModel: DrawingCanvasViewModel = viewModel(),
     onDismissSketch: () -> Unit,
-    onSendSketch: () -> Unit,
+    onSendSketch: (Uri) -> Unit,
     tempWritableImageUri: Uri?,
 
     ) {
@@ -81,8 +81,7 @@ fun DrawingCanvas(
                     }
                     IconButton(
                         onClick = {
-                            viewModel.saveImage(tempWritableImageUri)
-                            onSendSketch()
+                            onSendSketch(viewModel.saveImage(tempWritableImageUri))
                         },
                     ) {
                         Icon(

@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.net.Uri
 import android.os.Environment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,7 +38,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.util.UUID
 
 class DrawingCanvasViewModel : ViewModel() {
 
@@ -104,7 +104,7 @@ class DrawingCanvasViewModel : ViewModel() {
         state = state.copy(canvasSize = canvasSize)
     }
 
-    fun saveImage() {
+    fun saveImage(tempWritableImageUri: Uri?) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 with(state) {
@@ -112,12 +112,10 @@ class DrawingCanvasViewModel : ViewModel() {
 
                     val bitmap = Bitmap.createBitmap(canvasSize!!.width.toInt(), canvasSize!!.height.toInt(), Bitmap.Config.ARGB_8888)
                     val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.WHITE }) }
-                    val outputStream = FileOutputStream(
-                        File(
-                            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                            "${UUID.randomUUID()}_sketch.png"
-                        )
-                    )
+                    val file = File(getImagePath(tempWritableImageUri))
+                    file.parentFile?.mkdirs()
+                    file.createNewFile()
+                    val outputStream = FileOutputStream(file, false)
                     outputStream.use {
                         paths.forEach { path -> path.drawNative(canvas) }
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
@@ -128,6 +126,10 @@ class DrawingCanvasViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    private fun getImagePath(tempWritableImageUri: Uri?): String {
+        return tempWritableImageUri?.path ?: Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
     }
 
 }

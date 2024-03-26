@@ -298,7 +298,8 @@ fun EnabledMessageComposer(
                                         additionalOptionStateHolder.additionalOptionsSubMenuState
                                     )
                                 },
-                                onSendSketch = onSendButtonClicked
+                                onSendSketch = onSendButtonClicked,
+                                tempWritableImageUri = tempWritableImageUri
                             )
                         }
                     }

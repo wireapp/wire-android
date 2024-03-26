@@ -38,6 +38,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -52,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
@@ -96,6 +98,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     navigator: Navigator,
     homeViewModel: HomeViewModel = hiltViewModel(),
+    appSyncViewModel: AppSyncViewModel = hiltViewModel(),
     homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
     conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?,
     groupDetailsScreenResultRecipient: ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,
@@ -105,6 +108,21 @@ fun HomeScreen(
     val homeScreenState = rememberHomeScreenState(navigator)
     val showNotificationsFlow = rememberRequestPushNotificationsPermissionFlow(
         onPermissionDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ })
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { source, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                appSyncViewModel.startSyncingAppConfig()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     LaunchedEffect(homeViewModel.savedStateHandle) {
         showNotificationsFlow.launch()
@@ -302,7 +320,10 @@ fun HomeContent(
                                         contentScale = ContentScale.FillBounds,
                                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
                                         modifier = Modifier
-                                            .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
+                                            .padding(
+                                                start = dimensions().spacing4x,
+                                                top = dimensions().spacing2x
+                                            )
                                             .size(dimensions().fabIconSize)
                                     )
                                 },

@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
@@ -41,6 +42,7 @@ import com.wire.kalium.logic.feature.asset.UpdateTransferStatusResult
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
@@ -106,6 +108,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var observeAssetStatuses: ObserveAssetStatusesUseCase
 
+    @MockK
+    lateinit var deleteMessage: DeleteMessageUseCase
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             savedStateHandle,
@@ -122,7 +127,8 @@ class ConversationMessagesViewModelArrangement {
             conversationAudioMessagePlayer,
             getConversationUnreadEventsCount,
             clearUsersTypingEvents,
-            getSearchedConversationMessagePosition
+            getSearchedConversationMessagePosition,
+            deleteMessage
         )
     }
 
@@ -143,6 +149,11 @@ class ConversationMessagesViewModelArrangement {
 
         coEvery { observeAssetStatuses(any()) } returns flowOf(mapOf())
     }
+
+    fun withSuccessfulViewModelInit() = apply {
+        coEvery { conversationAudioMessagePlayer.observableAudioMessagesState } returns flowOf()
+    }
+
 
     fun withSuccessfulOpenAssetMessage(
         assetMimeType: String,
@@ -200,6 +211,11 @@ class ConversationMessagesViewModelArrangement {
         coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
+    }
+
+    fun withFailureOnDeletingMessages() = apply {
+        coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
+        return this
     }
 
     fun arrange() = this to viewModel

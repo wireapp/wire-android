@@ -815,6 +815,7 @@ fun SnackBarMessage(
     }
 }
 
+@Suppress("ComplexMethod")
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MessageList(

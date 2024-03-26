@@ -57,7 +57,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
-import com.wire.android.ui.home.E2EIErrorWithDismissDialog
+import com.wire.android.ui.home.E2EIErrorNoSnoozeDialog
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
@@ -193,10 +193,12 @@ private fun E2EIEnrollmentScreenContent(
         }
 
         if (state.isCertificateEnrollError) {
-            E2EIErrorWithDismissDialog(
+            E2EIErrorNoSnoozeDialog(
                 isE2EILoading = state.isLoading,
-                updateCertificate = enrollE2EICertificate,
-                onDismiss = dismissErrorDialog
+                updateCertificate = {
+                    dismissErrorDialog()
+                    enrollE2EICertificate()
+                }
             )
         }
 

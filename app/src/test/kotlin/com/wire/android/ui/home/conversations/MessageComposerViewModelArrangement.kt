@@ -68,7 +68,6 @@ import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
-import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
@@ -128,9 +127,6 @@ internal class MessageComposerViewModelArrangement {
 
     @MockK
     lateinit var sendAssetMessage: ScheduleNewAssetMessageUseCase
-
-    @MockK
-    lateinit var deleteMessage: DeleteMessageUseCase
 
     @MockK
     lateinit var isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase
@@ -218,7 +214,6 @@ internal class MessageComposerViewModelArrangement {
             sendTextMessage = sendTextMessage,
             sendEditTextMessage = sendEditTextMessage,
             sendAssetMessage = sendAssetMessage,
-            deleteMessage = deleteMessage,
             dispatchers = TestDispatcherProvider(),
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             kaliumFileSystem = fakeKaliumFileSystem,
@@ -333,11 +328,6 @@ internal class MessageComposerViewModelArrangement {
                 any()
             )
         } returns Unit
-    }
-
-    fun withFailureOnDeletingMessages() = apply {
-        coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
-        return this
     }
 
     fun withGetAssetSizeLimitUseCase(isImage: Boolean, assetSizeLimit: Long) = apply {

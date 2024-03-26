@@ -154,7 +154,6 @@ class ConversationMessagesViewModelArrangement {
         coEvery { conversationAudioMessagePlayer.observableAudioMessagesState } returns flowOf()
     }
 
-
     fun withSuccessfulOpenAssetMessage(
         assetMimeType: String,
         assetName: String,

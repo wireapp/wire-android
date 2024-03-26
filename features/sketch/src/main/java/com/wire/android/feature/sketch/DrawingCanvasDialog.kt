@@ -40,12 +40,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawingCanvas(
     onDismissSketch: () -> Unit,
-    onSendSketch: () -> Unit
+    onSendSketch: () -> Unit,
+    viewModel: DrawingCanvasViewModel = viewModel()
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -76,6 +78,7 @@ fun DrawingCanvas(
                     }
                     IconButton(
                         onClick = {
+                            viewModel.saveImage()
                             onSendSketch()
                         },
                     ) {
@@ -95,7 +98,7 @@ fun DrawingCanvas(
                 onDismissSketch()
             }
         ) {
-            DrawingCanvasComponent()
+            DrawingCanvasComponent(viewModel)
         }
     }
 }

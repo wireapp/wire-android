@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.model.MotionEvent
 
@@ -45,6 +47,7 @@ fun DrawingCanvasComponent(
             .fillMaxSize()
             .clipToBounds() // necessary to draw inside the canvas.
             .background(MaterialTheme.colorScheme.background)
+            .onSizeChanged { viewModel.onSizeChanged(it.toSize()) }
             .pointerInput(Unit) {
                 awaitEachGesture {
                     handleGestures(

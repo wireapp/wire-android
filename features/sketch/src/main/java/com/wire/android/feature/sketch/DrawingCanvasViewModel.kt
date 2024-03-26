@@ -17,14 +17,27 @@
  */
 package com.wire.android.feature.sketch
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.os.Environment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.sketch.model.DrawingState
 import com.wire.android.feature.sketch.model.MotionEvent
 import com.wire.android.feature.sketch.model.PathProperties
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.util.UUID
 
 class DrawingCanvasViewModel : ViewModel() {
 
@@ -82,6 +95,47 @@ class DrawingCanvasViewModel : ViewModel() {
             currentPosition = Offset.Unspecified,
             motionEvent = MotionEvent.Idle
         )
+    }
+
+    /**
+     * Sets the canvas size or modifies it if zoom is implemented.
+     */
+    fun onSizeChanged(canvasSize: Size) {
+        state = state.copy(canvasSize = canvasSize)
+    }
+
+    fun saveImage() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                with(state) {
+                    if (canvasSize == null || state.paths.isEmpty()) return@withContext
+
+                    val bitmap =
+                        Bitmap.createBitmap(
+                            canvasSize!!.width.toInt(),
+                            canvasSize!!.height.toInt(),
+                            Bitmap.Config.ARGB_8888
+                        )
+                    val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.WHITE }) }
+                    val outputStream = FileOutputStream(
+                        File(
+                            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                            "${UUID.randomUUID()}_sketch.png"
+                        )
+                    )
+
+                    paths.forEach { path ->
+                        path.drawNative(canvas)
+                    }
+
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+
+                    outputStream.flush()
+                    outputStream.close()
+                }
+            }
+
+        }
     }
 
 }

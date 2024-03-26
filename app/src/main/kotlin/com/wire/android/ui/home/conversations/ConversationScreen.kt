@@ -865,6 +865,7 @@ fun MessageList(
     LaunchedEffect(lazyPagingMessages.itemCount) {
         if (!readLastMessageAtStartTriggered.value && lazyPagingMessages.itemSnapshotList.items.isNotEmpty()) {
             val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
+            readLastMessageAtStartTriggered.value = true
             updateLastReadMessage(lastVisibleMessage, lastUnreadMessageInstant, onUpdateConversationReadDate)
         }
     }

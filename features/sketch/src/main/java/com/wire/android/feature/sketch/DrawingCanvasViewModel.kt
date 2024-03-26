@@ -110,12 +110,7 @@ class DrawingCanvasViewModel : ViewModel() {
                 with(state) {
                     if (canvasSize == null || state.paths.isEmpty()) return@withContext
 
-                    val bitmap =
-                        Bitmap.createBitmap(
-                            canvasSize!!.width.toInt(),
-                            canvasSize!!.height.toInt(),
-                            Bitmap.Config.ARGB_8888
-                        )
+                    val bitmap = Bitmap.createBitmap(canvasSize!!.width.toInt(), canvasSize!!.height.toInt(), Bitmap.Config.ARGB_8888)
                     val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.WHITE }) }
                     val outputStream = FileOutputStream(
                         File(
@@ -123,18 +118,15 @@ class DrawingCanvasViewModel : ViewModel() {
                             "${UUID.randomUUID()}_sketch.png"
                         )
                     )
-
-                    paths.forEach { path ->
-                        path.drawNative(canvas)
+                    outputStream.use {
+                        paths.forEach { path -> path.drawNative(canvas) }
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
                     }
-
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
 
                     outputStream.flush()
                     outputStream.close()
                 }
             }
-
         }
     }
 

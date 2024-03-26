@@ -32,6 +32,9 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -55,11 +58,13 @@ import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCa
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
+import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.delay
@@ -91,7 +96,8 @@ class ConversationMessagesViewModel @Inject constructor(
     private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer,
     private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase,
     private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase,
-    private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase
+    private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
+    private val deleteMessage: DeleteMessageUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -104,6 +110,27 @@ class ConversationMessagesViewModel @Inject constructor(
         )
     )
         private set
+
+    var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
+        DeleteMessageDialogsState.States(
+            forYourself = DeleteMessageDialogActiveState.Hidden,
+            forEveryone = DeleteMessageDialogActiveState.Hidden
+        )
+    )
+        private set
+
+    val deleteMessageHelper = DeleteMessageDialogHelper(
+        viewModelScope,
+        conversationId,
+        ::updateDeleteDialogState
+    ) { messageId, deleteForEveryone, _ ->
+        deleteMessage(
+            conversationId = conversationId,
+            messageId = messageId,
+            deleteForEveryone = deleteForEveryone
+        )
+            .onFailure { onSnackbarMessage(ConversationSnackbarMessages.ErrorDeletingMessage) }
+    }
 
     private var lastImageMessageShownOnGallery: UIMessage.Regular? = null
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
@@ -335,6 +362,11 @@ class ConversationMessagesViewModel @Inject constructor(
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
     }
 
+    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
+        (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let {
+            deleteMessageDialogsState = newValue(it)
+        }
+
     fun audioClick(messageId: String) {
         viewModelScope.launch {
             conversationAudioMessagePlayer.playAudio(conversationId, messageId)
@@ -363,6 +395,27 @@ class ConversationMessagesViewModel @Inject constructor(
         }
         return null
     }
+
+    fun showDeleteMessageDialog(messageId: String, deleteForEveryone: Boolean) =
+        if (deleteForEveryone) {
+            updateDeleteDialogState {
+                it.copy(
+                    forEveryone = DeleteMessageDialogActiveState.Visible(
+                        messageId = messageId,
+                        conversationId = conversationId
+                    )
+                )
+            }
+        } else {
+            updateDeleteDialogState {
+                it.copy(
+                    forYourself = DeleteMessageDialogActiveState.Visible(
+                        messageId = messageId,
+                        conversationId = conversationId
+                    )
+                )
+            }
+        }
 
     override fun onCleared() {
         super.onCleared()

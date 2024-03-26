@@ -30,10 +30,6 @@ import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -68,7 +64,6 @@ import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
-import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
@@ -101,7 +96,6 @@ class MessageComposerViewModel @Inject constructor(
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
     private val retryFailedMessage: RetryFailedMessageUseCase,
-    private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
@@ -136,30 +130,8 @@ class MessageComposerViewModel @Inject constructor(
     var tempWritableImageUri: Uri? = null
         private set
 
-    // TODO: should be moved to ConversationMessagesViewModel?
-    var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
-        DeleteMessageDialogsState.States(
-            forYourself = DeleteMessageDialogActiveState.Hidden,
-            forEveryone = DeleteMessageDialogActiveState.Hidden
-        )
-    )
-        private set
-
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
-
-    val deleteMessageHelper = DeleteMessageDialogHelper(
-        viewModelScope,
-        conversationId,
-        ::updateDeleteDialogState
-    ) { messageId, deleteForEveryone, _ ->
-        deleteMessage(
-            conversationId = conversationId,
-            messageId = messageId,
-            deleteForEveryone = deleteForEveryone
-        )
-            .onFailure { onSnackbarMessage(ErrorDeletingMessage) }
-    }
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -451,32 +423,6 @@ class MessageComposerViewModel @Inject constructor(
             }
         }
     }
-
-    fun showDeleteMessageDialog(messageId: String, deleteForEveryone: Boolean) =
-        if (deleteForEveryone) {
-            updateDeleteDialogState {
-                it.copy(
-                    forEveryone = DeleteMessageDialogActiveState.Visible(
-                        messageId = messageId,
-                        conversationId = conversationId
-                    )
-                )
-            }
-        } else {
-            updateDeleteDialogState {
-                it.copy(
-                    forYourself = DeleteMessageDialogActiveState.Visible(
-                        messageId = messageId,
-                        conversationId = conversationId
-                    )
-                )
-            }
-        }
-
-    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
-        (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let {
-            deleteMessageDialogsState = newValue(it)
-        }
 
     fun updateConversationReadDate(utcISO: String) {
         viewModelScope.launch(dispatchers.io()) {

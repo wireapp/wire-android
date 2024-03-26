@@ -70,7 +70,8 @@ class MessageCompositionHolder(
             messageComposition.update {
                 it.copy(
                     quotedMessage = quotedMessage,
-                    quotedMessageId = message.header.messageId
+                    quotedMessageId = message.header.messageId,
+                    editMessageId = null
                 )
             }
         }

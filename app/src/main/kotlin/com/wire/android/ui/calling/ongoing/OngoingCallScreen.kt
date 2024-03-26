@@ -129,8 +129,14 @@ fun OngoingCallScreen(
             hangUpCall = { sharedCallingViewModel.hangUpCall(navigator::navigateBack) },
             toggleVideo = sharedCallingViewModel::toggleVideo,
             flipCamera = sharedCallingViewModel::flipCamera,
-            setVideoPreview = sharedCallingViewModel::setVideoPreview,
-            clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+            setVideoPreview = {
+                sharedCallingViewModel.setVideoPreview(it)
+                ongoingCallViewModel.startSendingVideoFeed()
+            },
+            clearVideoPreview = {
+                sharedCallingViewModel.clearVideoPreview()
+                ongoingCallViewModel.stopSendingVideoFeed()
+            },
             navigateBack = navigator::navigateBack,
             requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
             hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,

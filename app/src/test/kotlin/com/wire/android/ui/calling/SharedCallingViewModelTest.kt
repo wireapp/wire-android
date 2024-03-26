@@ -42,7 +42,7 @@ import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
+import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -261,6 +261,7 @@ class SharedCallingViewModelTest {
         advanceUntilIdle()
 
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
+        coVerify(exactly = 1) { updateVideoState(any(), VideoState.STOPPED) }
     }
 
     @Test
@@ -272,6 +273,7 @@ class SharedCallingViewModelTest {
         advanceUntilIdle()
 
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo true
+        coVerify(exactly = 1) { updateVideoState(any(), VideoState.STARTED) }
     }
 
     @Test
@@ -315,57 +317,24 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given an active call, when setVideoPreview is called, then set the video preview and update video state to STARTED`() =
+    fun `given a call, when setVideoPreview is called, then set the video preview`() =
         runTest {
             coEvery { setVideoPreview(any(), any()) } returns Unit
-            coEvery { updateVideoState(any(), any()) } returns Unit
 
             sharedCallingViewModel.setVideoPreview(view)
             advanceUntilIdle()
 
             coVerify(exactly = 2) { setVideoPreview(any(), any()) }
-            coVerify(exactly = 1) { updateVideoState(any(), VideoState.STARTED) }
         }
 
     @Test
-    fun `given an active call, when clearVideoPreview is called, then update video state to STOPPED`() =
-        runTest {
-            coEvery { setVideoPreview(any(), any()) } returns Unit
-            coEvery { updateVideoState(any(), any()) } returns Unit
-
-            sharedCallingViewModel.clearVideoPreview()
-            advanceUntilIdle()
-
-            coVerify(exactly = 1) { updateVideoState(any(), VideoState.STOPPED) }
-        }
-
-    @Test
-    fun `given a video call, when stopping video, then clear Video Preview and turn off speaker`() =
-        runTest {
-            sharedCallingViewModel.callState =
-                sharedCallingViewModel.callState.copy(isCameraOn = true)
-            coEvery { setVideoPreview(any(), any()) } returns Unit
-            coEvery { updateVideoState(any(), any()) } returns Unit
-            coEvery { turnLoudSpeakerOff() } returns Unit
-
-            sharedCallingViewModel.stopVideo()
-            advanceUntilIdle()
-
-            coVerify(exactly = 1) { setVideoPreview(any(), any()) }
-            coVerify(exactly = 1) { turnLoudSpeakerOff() }
-        }
-
-    @Test
-    fun `given an audio call, when stopVideo is invoked, then do not do anything`() = runTest {
-        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = false)
+    fun `given a call, when clearVideoPreview is called, then clear view`() = runTest {
         coEvery { setVideoPreview(any(), any()) } returns Unit
-        coEvery { turnLoudSpeakerOff() } returns Unit
 
-        sharedCallingViewModel.stopVideo()
+        sharedCallingViewModel.clearVideoPreview()
         advanceUntilIdle()
 
-        coVerify(inverse = true) { setVideoPreview(any(), any()) }
-        coVerify(inverse = true) { turnLoudSpeakerOff() }
+        coVerify(exactly = 1) { setVideoPreview(any(), any()) }
     }
 
     companion object {

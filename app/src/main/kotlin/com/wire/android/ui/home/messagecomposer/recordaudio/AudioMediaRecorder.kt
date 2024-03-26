@@ -51,6 +51,7 @@ class AudioMediaRecorder @Inject constructor(
 
     var originalOutputFile: File? = null
     var effectsOutputFile: File? = null
+    var dusanAudioPath: File? = null
 
     private val _maxFileSizeReached = MutableSharedFlow<RecordAudioDialogState>()
     fun getMaxFileSizeReached(): Flow<RecordAudioDialogState> =
@@ -63,6 +64,10 @@ class AudioMediaRecorder @Inject constructor(
             } else {
                 MediaRecorder()
             }
+
+            dusanAudioPath = kaliumFileSystem
+                .tempFilePath("audio_dusan.m4a")
+                .toFile()
 
             originalOutputFile = kaliumFileSystem
                 .tempFilePath(getRecordingAudioFileName())

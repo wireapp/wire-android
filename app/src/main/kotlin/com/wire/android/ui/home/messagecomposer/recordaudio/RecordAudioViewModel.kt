@@ -145,6 +145,7 @@ class RecordAudioViewModel @Inject constructor(
                     state = state.copy(
                         originalOutputFile = audioMediaRecorder.originalOutputFile,
                         effectsOutputFile = audioMediaRecorder.effectsOutputFile,
+                        dusanAudioFile = audioMediaRecorder.dusanAudioPath,
                         buttonState = RecordAudioButtonState.RECORDING
                     )
                 } else {
@@ -174,20 +175,20 @@ class RecordAudioViewModel @Inject constructor(
         }
         audioMediaRecorder.release()
 
-        val result = AudioEffect(context)
-            .applyEffectM4A(
-                state.originalOutputFile!!.path,
-                state.effectsOutputFile!!.path,
-                AudioEffect.AVS_AUDIO_EFFECT_VOCODER_MED,
-                true
-            )
-
-        appLogger.d("AUDIO_EFFECTS_stopRecording -> Result is : $result")
-        if (result > -1) {
-            appLogger.d("AUDIO_EFFECTS_stopRecording -> Effects Audio File")
-        } else {
-            appLogger.d("AUDIO_EFFECTS_stopRecording -> NULL Audio File")
-        }
+//        val result = AudioEffect(context)
+//            .applyEffectM4A(
+//                state.originalOutputFile!!.path,
+//                state.effectsOutputFile!!.path,
+//                AudioEffect.AVS_AUDIO_EFFECT_VOCODER_MED,
+//                true
+//            )
+//
+//        appLogger.d("AUDIO_EFFECTS_stopRecording -> Result is : $result")
+//        if (result > -1) {
+//            appLogger.d("AUDIO_EFFECTS_stopRecording -> Effects Audio File")
+//        } else {
+//            appLogger.d("AUDIO_EFFECTS_stopRecording -> NULL Audio File")
+//        }
     }
 
     fun showDiscardRecordingDialog(onCloseRecordAudio: () -> Unit) {
@@ -249,16 +250,19 @@ class RecordAudioViewModel @Inject constructor(
             recordAudioMessagePlayer.stop()
             recordAudioMessagePlayer.close()
             state.originalOutputFile?.let { originalFile ->
+                appLogger.d("DUSAN -> ${state.dusanAudioFile?.path}")
                 val resultFile: Uri? = if (shouldApplyEffects) {
                     val result = AudioEffect(context)
                         .applyEffectM4A(
-                            originalFile.path,
+                            state.dusanAudioFile!!.path, // originalFile.path,
                             state.effectsOutputFile!!.path,
                             AudioEffect.AVS_AUDIO_EFFECT_VOCODER_MED,
                             true
                         )
 
                     appLogger.d("AUDIO_EFFECTS -> Result is : $result")
+                    appLogger.d("AUDIO_EFFECTS -> File name is : ${state.effectsOutputFile?.name}")
+                    appLogger.d("AUDIO_EFFECTS -> File path is : ${state.effectsOutputFile?.path}")
                     if (result > -1) {
                         appLogger.d("AUDIO_EFFECTS -> Effects Audio File")
                         state.effectsOutputFile!!.toUri()
@@ -275,7 +279,7 @@ class RecordAudioViewModel @Inject constructor(
                     appLogger.d("AUDIO_EFFECTS -> Sending Audio File")
                     onAudioRecorded(
                         UriAsset(
-                            uri = audioFileUri,
+                            uri = originalFile.toUri(), // audioFileUri,
                             saveToDeviceIfInvalid = false
                         )
                     )

@@ -16,21 +16,22 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.conversations
+package com.wire.android.ui.home.conversations.sendmessage
 
 import android.location.Location
 import androidx.core.net.toUri
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
+import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
-import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import io.mockk.coVerify
@@ -40,24 +41,21 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.amshove.kluent.internal.assertEquals
-import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 @Suppress("LargeClass")
-class MessageComposerViewModelTest {
+class SendMessageViewModelTest {
 
     @Test
     fun `given the user sends an asset message, when invoked, then sendAssetMessageUseCase gets called`() =
         runTest {
             // Given
             val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendAttachmentMessage()
                 .withGetAssetSizeLimitUseCase(false, limit)
@@ -97,7 +95,7 @@ class MessageComposerViewModelTest {
             val assetContent = "some-dummy-image".toByteArray()
             val assetName = "mocked_image.jpeg"
             val assetSize = 1L
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withStoredAsset(assetPath, assetContent)
                 .withSuccessfulSendAttachmentMessage()
@@ -129,7 +127,7 @@ class MessageComposerViewModelTest {
     fun `given the user picks a null attachment, when invoking sendAttachmentMessage, no use case gets called`() =
         runTest {
             // Given
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendAttachmentMessage()
                 .arrange()
@@ -164,7 +162,7 @@ class MessageComposerViewModelTest {
                 "mocked_image.jpeg",
                 AttachmentType.IMAGE
             )
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendAttachmentMessage()
                 .withGetAssetSizeLimitUseCase(true, limit)
@@ -205,7 +203,7 @@ class MessageComposerViewModelTest {
                 "mocked_asset.zip",
                 AttachmentType.GENERIC_FILE
             )
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendAttachmentMessage()
                 .withGetAssetSizeLimitUseCase(false, limit)
@@ -246,7 +244,7 @@ class MessageComposerViewModelTest {
                 "mocked_asset.zip",
                 AttachmentType.GENERIC_FILE
             )
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendAttachmentMessage()
                 .withGetAssetSizeLimitUseCase(false, limit)
@@ -290,7 +288,7 @@ class MessageComposerViewModelTest {
         runTest {
             // Given
             val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendAttachmentMessage()
                 .withGetAssetSizeLimitUseCase(false, limit)
@@ -327,7 +325,7 @@ class MessageComposerViewModelTest {
         runTest {
             // Given
             val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendAttachmentMessage()
                 .withGetAssetSizeLimitUseCase(false, limit)
@@ -363,7 +361,7 @@ class MessageComposerViewModelTest {
     fun `given that a user sends an ping message, when invoked, then sendKnockUseCase and pingRinger are called`() =
         runTest {
             // Given
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .arrange()
 
@@ -378,55 +376,6 @@ class MessageComposerViewModelTest {
         }
 
     @Test
-    fun `given that a user updates the self-deleting message timer, when invoked, then the timer gets successfully updated`() =
-        runTest {
-            // Given
-            val expectedDuration = 1.toDuration(DurationUnit.HOURS)
-            val expectedTimer = SelfDeletionTimer.Enabled(expectedDuration)
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-                .withSuccessfulViewModelInit()
-                .withPersistSelfDeletionStatus()
-                .arrange()
-
-            // When
-            viewModel.updateSelfDeletingMessages(expectedTimer)
-
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.persistSelfDeletionStatus.invoke(
-                    arrangement.conversationId,
-                    expectedTimer
-                )
-            }
-            assertInstanceOf(SelfDeletionTimer.Enabled::class.java, viewModel.messageComposerViewState.value.selfDeletionTimer)
-            assertEquals(expectedDuration, viewModel.messageComposerViewState.value.selfDeletionTimer.duration)
-        }
-
-    @Test
-    fun `given a valid observed enforced self-deleting message timer, when invoked, then the timer gets successfully updated`() =
-        runTest {
-            // Given
-            val expectedDuration = 1.toDuration(DurationUnit.DAYS)
-            val expectedTimer = SelfDeletionTimer.Enabled(expectedDuration)
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-                .withSuccessfulViewModelInit()
-                .withObserveSelfDeletingStatus(expectedTimer)
-                .arrange()
-
-            // When
-
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.observeConversationSelfDeletionStatus.invoke(
-                    arrangement.conversationId,
-                    true
-                )
-            }
-            assertInstanceOf(SelfDeletionTimer.Enabled::class.java, viewModel.messageComposerViewState.value.selfDeletionTimer)
-            assertEquals(expectedDuration, viewModel.messageComposerViewState.value.selfDeletionTimer.duration)
-        }
-
-    @Test
     fun `given the user sends an audio message, when invoked, then sendAssetMessageUseCase gets called`() =
         runTest {
             // Given
@@ -435,7 +384,7 @@ class MessageComposerViewModelTest {
             val assetContent = "some-dummy-audio".toByteArray()
             val assetName = "mocked_audio.m4a"
             val assetSize = 1L
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withStoredAsset(assetPath, assetContent)
                 .withSuccessfulSendAttachmentMessage()
@@ -466,7 +415,7 @@ class MessageComposerViewModelTest {
     @Test
     fun `given that user sends a text message, when invoked, then send typing stopped event and remove draft are called`() = runTest {
         // given
-        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withSuccessfulSendTextMessage()
             .arrange()
@@ -498,7 +447,7 @@ class MessageComposerViewModelTest {
     fun `given that user sends an edited text message, when invoked, then send typing stopped event and remove draft are called`() =
         runTest {
             // given
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendEditTextMessage()
                 .arrange()
@@ -534,30 +483,11 @@ class MessageComposerViewModelTest {
         }
 
     @Test
-    fun `given that user types a text message, when invoked typing invoked, then send typing event is called`() = runTest {
-        // given
-        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .arrange()
-
-        // when
-        viewModel.sendTypingEvent(Conversation.TypingIndicatorMode.STARTED)
-
-        // then
-        coVerify(exactly = 1) {
-            arrangement.sendTypingEvent.invoke(
-                any(),
-                eq(Conversation.TypingIndicatorMode.STARTED)
-            )
-        }
-    }
-
-    @Test
     fun `given that user need to be informed about verification, when invoked sending, then message is not sent and dialog shown`() =
         runTest {
             // given
             val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withInformAboutVerificationBeforeMessagingFlag(false)
                 .arrange()
@@ -585,7 +515,7 @@ class MessageComposerViewModelTest {
         runTest {
             // given
             val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withObserveConversationUnderLegalHoldNotified(false)
                 .arrange()
@@ -604,7 +534,7 @@ class MessageComposerViewModelTest {
         runTest {
             // given
             val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withObserveConversationUnderLegalHoldNotified(false)
                 .arrange()
@@ -623,7 +553,7 @@ class MessageComposerViewModelTest {
         runTest {
             // given
             val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withObserveConversationUnderLegalHoldNotified(false)
                 .withSuccessfulSendTextMessage()
@@ -644,7 +574,7 @@ class MessageComposerViewModelTest {
             // given
             val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
             val messageId = "messageId"
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withFailedSendTextMessage(LegalHoldEnabledForConversationFailure(messageId))
                 .arrange()
@@ -664,7 +594,7 @@ class MessageComposerViewModelTest {
             // given
             val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
             val messageId = "messageId"
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withObserveConversationUnderLegalHoldNotified(true)
                 .withFailedSendTextMessage(LegalHoldEnabledForConversationFailure(messageId))
@@ -684,7 +614,7 @@ class MessageComposerViewModelTest {
             // given
             val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
             val messageId = "messageId"
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withFailedSendTextMessage(LegalHoldEnabledForConversationFailure(messageId))
                 .withSuccessfulRetryFailedMessage()
@@ -706,7 +636,7 @@ class MessageComposerViewModelTest {
                 "mocked-location-message",
                 Location("mocked-provider")
             )
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendLocationMessage()
                 .arrange()
@@ -717,28 +647,5 @@ class MessageComposerViewModelTest {
             // then
             coVerify(exactly = 1) { arrangement.sendLocation.invoke(any(), any(), any(), any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
-        }
-
-    @Test
-    fun `given that user saves a draft message, then save draft use case is triggered`() =
-        runTest {
-            // given
-            val messageDraft = MessageDraft(
-                text = "hello",
-                editMessageId = null,
-                quotedMessageId = null,
-                selectedMentionList = listOf()
-            )
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-                .withSuccessfulViewModelInit()
-                .withSaveDraftMessage()
-                .arrange()
-
-            // when
-            viewModel.saveDraft(messageDraft)
-            advanceUntilIdle()
-
-            // then
-            coVerify(exactly = 1) { arrangement.saveMessageDraftUseCase.invoke(eq(viewModel.conversationId), eq(messageDraft)) }
         }
 }

@@ -45,6 +45,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -60,7 +61,6 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.home.conversations.DownloadedAssetDialog
-import com.wire.android.ui.home.conversations.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.SnackBarMessage
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
@@ -70,6 +70,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -81,8 +83,7 @@ import kotlinx.coroutines.launch
 fun ConversationMediaScreen(
     navigator: Navigator,
     conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = hiltViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
-    messageComposerViewModel: MessageComposerViewModel = hiltViewModel()
+    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel()
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -130,8 +131,8 @@ fun ConversationMediaScreen(
     )
 
     SnackBarMessage(
-        messageComposerViewModel.infoMessage,
-        conversationMessagesViewModel.infoMessage
+        composerMessages = MutableSharedFlow<SnackBarMessage>().asSharedFlow(),
+        conversationMessages = conversationMessagesViewModel.infoMessage
     )
 }
 

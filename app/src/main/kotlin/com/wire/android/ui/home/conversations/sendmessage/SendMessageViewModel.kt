@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.conversations
+package com.wire.android.ui.home.conversations.sendmessage
 
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -26,12 +26,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
+import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
+import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
@@ -42,39 +44,25 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
-import com.wire.kalium.logic.data.message.draft.MessageDraft
-import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
-import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.SetNotifiedAboutConversationUnderLegalHoldUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
-import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
-import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
-import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
-import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -83,31 +71,22 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
-class MessageComposerViewModel @Inject constructor(
+class SendMessageViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
     private val retryFailedMessage: RetryFailedMessageUseCase,
     private val dispatchers: DispatcherProvider,
-    private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
-    private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val updateConversationReadDate: UpdateConversationReadDateUseCase,
-    private val contactMapper: ContactMapper,
-    private val membersToMention: MembersToMentionUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
-    private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
-    private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
-    private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
@@ -117,12 +96,8 @@ class MessageComposerViewModel @Inject constructor(
     private val setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase,
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
     private val sendLocation: SendLocationUseCase,
-    private val saveMessageDraft: SaveMessageDraftUseCase,
     private val removeMessageDraft: RemoveMessageDraftUseCase
 ) : SavedStateViewModel(savedStateHandle) {
-
-    var messageComposerViewState = mutableStateOf(MessageComposerViewState())
-        private set
 
     var tempWritableVideoUri: Uri? = null
         private set
@@ -140,14 +115,6 @@ class MessageComposerViewModel @Inject constructor(
         AssetTooLargeDialogState.Hidden
     )
 
-    var visitLinkDialogState: VisitLinkDialogState by mutableStateOf(
-        VisitLinkDialogState.Hidden
-    )
-
-    var invalidLinkDialogState: InvalidLinkDialogState by mutableStateOf(
-        InvalidLinkDialogState.Hidden
-    )
-
     var sureAboutMessagingDialogState: SureAboutMessagingDialogState by mutableStateOf(
         SureAboutMessagingDialogState.Hidden
     )
@@ -155,34 +122,10 @@ class MessageComposerViewModel @Inject constructor(
     init {
         initTempWritableVideoUri()
         initTempWritableImageUri()
-        observeIsTypingAvailable()
-        observeSelfDeletingMessagesStatus()
-        setFileSharingStatus()
     }
 
     private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
-    }
-
-    private fun observeIsTypingAvailable() = viewModelScope.launch {
-        observeConversationInteractionAvailability(conversationId).collect { result ->
-            messageComposerViewState.value = messageComposerViewState.value.copy(
-                interactionAvailability = when (result) {
-                    is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
-                    is IsInteractionAvailableResult.Success -> result.interactionAvailability
-                }
-            )
-        }
-    }
-
-    private fun observeSelfDeletingMessagesStatus() = viewModelScope.launch {
-        observeSelfDeletingMessages(
-            conversationId,
-            considerSelfUserSettings = true
-        ).collect { selfDeletingStatus ->
-            messageComposerViewState.value =
-                messageComposerViewState.value.copy(selfDeletionTimer = selfDeletingStatus)
-        }
     }
 
     private suspend fun shouldInformAboutDegradedBeforeSendingMessage(): Boolean =
@@ -394,75 +337,8 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun searchMembersToMention(searchQuery: String) {
-        viewModelScope.launch(dispatchers.io()) {
-            val members = membersToMention(conversationId, searchQuery).map {
-                contactMapper.fromOtherUser(it.user as OtherUser)
-            }
-
-            messageComposerViewState.value =
-                messageComposerViewState.value.copy(mentionSearchResult = members)
-        }
-    }
-
-    fun clearMentionSearchResult() {
-        messageComposerViewState.value =
-            messageComposerViewState.value.copy(mentionSearchResult = emptyList())
-    }
-
-    private fun setFileSharingStatus() {
-        // TODO: handle restriction when sending assets
-        viewModelScope.launch {
-            messageComposerViewState.value = when (isFileSharingEnabled().state) {
-                FileSharingStatus.Value.Disabled,
-                is FileSharingStatus.Value.EnabledSome ->
-                    messageComposerViewState.value.copy(isFileSharingEnabled = false)
-
-                FileSharingStatus.Value.EnabledAll ->
-                    messageComposerViewState.value.copy(isFileSharingEnabled = true)
-            }
-        }
-    }
-
-    fun updateConversationReadDate(utcISO: String) {
-        viewModelScope.launch(dispatchers.io()) {
-            updateConversationReadDate(conversationId, Instant.parse(utcISO))
-        }
-    }
-
-    fun startSelfDeletion(uiMessage: UIMessage) {
-        enqueueMessageSelfDeletion(conversationId, uiMessage.header.messageId)
-    }
-
-    fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) =
-        viewModelScope.launch {
-            messageComposerViewState.value =
-                messageComposerViewState.value.copy(selfDeletionTimer = newSelfDeletionTimer)
-            persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
-        }
-
     fun hideAssetTooLargeError() {
         assetTooLargeDialogState = AssetTooLargeDialogState.Hidden
-    }
-
-    fun hideVisitLinkDialog() {
-        visitLinkDialogState = VisitLinkDialogState.Hidden
-    }
-
-    fun hideInvalidLinkError() {
-        invalidLinkDialogState = InvalidLinkDialogState.Hidden
-    }
-
-    fun sendTypingEvent(typingIndicatorMode: TypingIndicatorMode) {
-        viewModelScope.launch {
-            sendTypingEvent(conversationId, typingIndicatorMode)
-        }
-    }
-
-    fun saveDraft(messageDraft: MessageDraft) {
-        viewModelScope.launch {
-            saveMessageDraft(conversationId, messageDraft)
-        }
     }
 
     fun acceptSureAboutSendingMessage() {

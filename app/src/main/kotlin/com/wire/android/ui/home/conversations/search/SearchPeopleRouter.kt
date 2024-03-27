@@ -146,6 +146,7 @@ fun SearchUsersAndServicesScreen(
                 }
             }
         },
+        isSwipeable = !searchBarState.isSearchActive,
         content = {
             Crossfade(
                 targetState = searchBarState.isSearchActive, label = ""

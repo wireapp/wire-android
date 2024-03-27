@@ -281,6 +281,7 @@ fun HomeContent(
                             )
                         }
                     },
+                    isSwipeable = !searchBarState.isSearchActive,
                     content = {
                         /**
                          * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.

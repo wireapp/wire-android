@@ -22,11 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
+import com.wire.android.feature.sketch.model.DrawingMotionEvent
+import com.wire.android.feature.sketch.model.DrawingPathProperties
 import com.wire.android.feature.sketch.model.DrawingState
-import com.wire.android.feature.sketch.model.MotionEvent
-import com.wire.android.feature.sketch.model.PathProperties
 
-class DrawingCanvasViewModel : ViewModel() {
+internal class DrawingCanvasViewModel : ViewModel() {
 
     var state: DrawingState by mutableStateOf(DrawingState())
         private set
@@ -35,21 +35,21 @@ class DrawingCanvasViewModel : ViewModel() {
      * Marks the start of the drawing.
      */
     fun onStartDrawing(offset: Offset) {
-        state = state.copy(currentPosition = offset, motionEvent = MotionEvent.Down)
+        state = state.copy(currentPosition = offset, drawingMotionEvent = DrawingMotionEvent.Down)
     }
 
     /**
      * Marks the drawing in progress.
      */
     fun onDraw(offset: Offset) {
-        state = state.copy(currentPosition = offset, motionEvent = MotionEvent.Move)
+        state = state.copy(currentPosition = offset, drawingMotionEvent = DrawingMotionEvent.Move)
     }
 
     /**
      * Marks the end of the drawing.
      */
     fun onStopDrawing() {
-        state = state.copy(motionEvent = MotionEvent.Up)
+        state = state.copy(drawingMotionEvent = DrawingMotionEvent.Up)
     }
 
     /**
@@ -74,13 +74,13 @@ class DrawingCanvasViewModel : ViewModel() {
     fun onStopDrawingEvent() {
         state.currentPath.path.lineTo(state.currentPosition.x, state.currentPosition.y)
         state = state.copy(
-            currentPath = PathProperties().apply {
+            currentPath = DrawingPathProperties().apply {
                 strokeWidth = state.currentPath.strokeWidth
                 color = state.currentPath.color
                 drawMode = state.currentPath.drawMode
             }, pathsUndone = emptyList(),
             currentPosition = Offset.Unspecified,
-            motionEvent = MotionEvent.Idle
+            drawingMotionEvent = DrawingMotionEvent.Idle
         )
     }
 

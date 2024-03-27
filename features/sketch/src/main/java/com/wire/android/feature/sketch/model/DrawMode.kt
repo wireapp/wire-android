@@ -17,6 +17,6 @@
  */
 package com.wire.android.feature.sketch.model
 
-enum class DrawMode {
+internal enum class DrawMode {
     Pen, Eraser, None
 }

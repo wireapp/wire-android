@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 
-class PathProperties(
+internal class DrawingPathProperties(
     var path: Path = Path(),
     var strokeWidth: Float = 10f,
     var color: Color = Color.Blue,

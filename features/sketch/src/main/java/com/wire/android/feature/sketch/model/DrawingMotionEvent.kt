@@ -17,6 +17,6 @@
  */
 package com.wire.android.feature.sketch.model
 
-enum class MotionEvent {
+internal enum class DrawingMotionEvent {
     Idle, Down, Move, Up
 }

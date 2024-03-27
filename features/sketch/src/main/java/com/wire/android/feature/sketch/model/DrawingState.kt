@@ -19,10 +19,10 @@ package com.wire.android.feature.sketch.model
 
 import androidx.compose.ui.geometry.Offset
 
-data class DrawingState(
-    val paths: List<PathProperties> = listOf(),
-    val pathsUndone: List<PathProperties> = listOf(),
-    val motionEvent: MotionEvent = MotionEvent.Idle,
-    val currentPath: PathProperties = PathProperties(),
+internal data class DrawingState(
+    val paths: List<DrawingPathProperties> = listOf(),
+    val pathsUndone: List<DrawingPathProperties> = listOf(),
+    val drawingMotionEvent: DrawingMotionEvent = DrawingMotionEvent.Idle,
+    val currentPath: DrawingPathProperties = DrawingPathProperties(),
     val currentPosition: Offset = Offset.Unspecified
 )

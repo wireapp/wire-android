@@ -652,7 +652,6 @@ private fun DebugToolsOptions(
                 )
             }
         )
-
     }
 }
 
@@ -695,30 +694,30 @@ private fun prettyPrintMap(map: ImmutableMap<String, String?>): String = StringB
 
 //endregion
 
-        @PreviewMultipleThemes
-        @Composable
-        fun PreviewOtherDebugOptions() {
-            DebugDataOptionsContent(
-                appVersion = "1.0.0",
-                buildVariant = "debug",
-                onCopyText = {},
-                state = DebugDataOptionsState(
-                    isEncryptedProteusStorageEnabled = true,
-                    keyPackagesCount = 10,
-                    mslClientId = "clientId",
-                    mlsErrorMessage = "error",
-                    isManualMigrationAllowed = true,
-                    debugId = "debugId",
-                    commitish = "commitish"
-                ),
-                onEnableEncryptedProteusStorageChange = {},
-                onForceUpdateApiVersions = {},
-                onDisableEventProcessingChange = {},
-                onRestartSlowSyncForRecovery = {},
-                onManualMigrationPressed = {},
-                enrollE2EICertificate = {},
-                handleE2EIEnrollmentResult = {},
-                dismissCertificateDialog = {},
-                checkCrlRevocationList = {}
-            )
-        }
+@PreviewMultipleThemes
+@Composable
+fun PreviewOtherDebugOptions() {
+    DebugDataOptionsContent(
+        appVersion = "1.0.0",
+        buildVariant = "debug",
+        onCopyText = {},
+        state = DebugDataOptionsState(
+            isEncryptedProteusStorageEnabled = true,
+            keyPackagesCount = 10,
+            mslClientId = "clientId",
+            mlsErrorMessage = "error",
+            isManualMigrationAllowed = true,
+            debugId = "debugId",
+            commitish = "commitish"
+        ),
+        onEnableEncryptedProteusStorageChange = {},
+        onForceUpdateApiVersions = {},
+        onDisableEventProcessingChange = {},
+        onRestartSlowSyncForRecovery = {},
+        onManualMigrationPressed = {},
+        enrollE2EICertificate = {},
+        handleE2EIEnrollmentResult = {},
+        dismissCertificateDialog = {},
+        checkCrlRevocationList = {}
+    )
+}

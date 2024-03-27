@@ -162,9 +162,10 @@ private fun E2EIEnrollmentScreenContent(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
-            modifier = Modifier.padding(PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding))
+            modifier = Modifier
+                .padding(internalPadding)
+                .padding(MaterialTheme.wireDimensions.spacing16x)
         ) {
-            Spacer(modifier = Modifier.height(internalPadding.calculateTopPadding()))
             val text = buildAnnotatedString {
                 val style = SpanStyle(
                     color = colorsScheme().onBackground,

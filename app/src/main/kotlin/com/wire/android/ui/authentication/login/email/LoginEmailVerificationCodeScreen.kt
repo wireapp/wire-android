@@ -21,6 +21,7 @@ package com.wire.android.ui.authentication.login.email
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,21 +29,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.verificationcode.VerificationCode
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
-import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.CodeFieldValue
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
@@ -65,36 +67,26 @@ private fun LoginEmailVerificationCodeContent(
     onCodeChange: (CodeFieldValue) -> Unit,
     onCodeResend: () -> Unit,
     onBackPressed: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     BackHandler { onBackPressed() }
-    ConstraintLayout(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(dimensions().spacing32x)
-    ) {
-        val (main, logo) = createRefs()
-        Logo(
-            modifier = Modifier
-                .height(dimensions().spacing24x)
-                .constrainAs(logo) {
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                }
-        )
+    WireScaffold(
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = 0.dp,
+                title = stringResource(id = R.string.second_factor_authentication_title),
+                navigationIconType = null,
+            )
+        }
+    ) { internalPadding ->
         MainContent(
             codeState = verificationCodeState,
             isLoading = isLoading,
             onCodeChange = onCodeChange,
             onResendCode = onCodeResend,
-            modifier = Modifier.constrainAs(main) {
-                top.linkTo(parent.top)
-                bottom.linkTo(logo.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                height = Dimension.fillToConstraints
-            }
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(internalPadding)
+                .padding(dimensions().spacing16x)
         )
     }
 }
@@ -107,17 +99,10 @@ private fun MainContent(
     onResendCode: () -> Unit,
     modifier: Modifier = Modifier
 ) = Column(
-    horizontalAlignment = Alignment.Start,
+    horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
     modifier = modifier
 ) {
-    Text(
-        text = UIText.StringResource(R.string.second_factor_authentication_title).asString(),
-        color = colorsScheme().onBackground,
-        style = typography().title01,
-        textAlign = TextAlign.Start
-    )
-    VerticalSpace.x24()
     Text(
         text = UIText.StringResource(
             R.string.second_factor_authentication_instructions_label,
@@ -127,7 +112,9 @@ private fun MainContent(
         style = typography().body01,
         textAlign = TextAlign.Start
     )
-    VerticalSpace.x32()
+    Spacer(modifier = Modifier
+        .height(dimensions().spacing8x)
+        .weight(1f))
     VerificationCode(
         codeLength = codeState.codeLength,
         currentCode = codeState.codeInput.text,
@@ -136,20 +123,24 @@ private fun MainContent(
         onCodeChange = onCodeChange,
         onResendCode = onResendCode,
     )
+    Spacer(modifier = Modifier
+        .height(dimensions().spacing8x)
+        .weight(1f))
 }
 
-@Preview(showBackground = true)
 @PreviewMultipleThemes
 @Composable
-internal fun LoginEmailVerificationCodeScreenPreview() = LoginEmailVerificationCodeContent(
-    VerificationCodeState(
-        codeLength = 6,
-        codeInput = CodeFieldValue(TextFieldValue("12"), false),
-        isCurrentCodeInvalid = false,
-        emailUsed = ""
-    ),
-    false,
-    {},
-    {},
-    {},
-)
+internal fun LoginEmailVerificationCodeScreenPreview() = WireTheme {
+    LoginEmailVerificationCodeContent(
+        VerificationCodeState(
+            codeLength = 6,
+            codeInput = CodeFieldValue(TextFieldValue("12"), false),
+            isCurrentCodeInvalid = false,
+            emailUsed = ""
+        ),
+        false,
+        {},
+        {},
+        {},
+    )
+}

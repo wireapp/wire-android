@@ -336,7 +336,7 @@ fun ConversationScreen(
             )
         },
         onSendMessage = messageComposerViewModel::trySendMessage,
-        onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
+        onDeleteMessage = conversationMessagesViewModel::showDeleteMessageDialog,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
             with(conversationMessagesViewModel) {
@@ -452,8 +452,8 @@ fun ConversationScreen(
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) }
     DeleteMessageDialog(
-        state = messageComposerViewModel.deleteMessageDialogsState,
-        actions = messageComposerViewModel.deleteMessageHelper
+        state = conversationMessagesViewModel.deleteMessageDialogsState,
+        actions = conversationMessagesViewModel.deleteMessageHelper
     )
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,

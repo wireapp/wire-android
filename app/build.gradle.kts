@@ -117,7 +117,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.liveData)
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.viewModelSavedState)
-    implementation("androidx.fragment:fragment-ktx:1.4.1")
 
     // Compose
     val composeBom = platform(libs.compose.bom)
@@ -134,7 +133,6 @@ dependencies {
     implementation(libs.compose.material.icons)
     implementation(libs.compose.material.ripple)
     implementation(libs.compose.ui.preview)
-    implementation(libs.compose.ui.viewbinding)
     implementation(libs.compose.activity)
     implementation(libs.compose.navigation)
     implementation(libs.compose.constraintLayout)

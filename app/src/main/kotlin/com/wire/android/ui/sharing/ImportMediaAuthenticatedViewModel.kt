@@ -275,7 +275,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     suspend fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
         val incomingIntent = ShareCompat.IntentReader(activity)
-        appLogger.e("Received data from sharing intent ${incomingIntent.streamCount}")
+        appLogger.i("Received data from sharing intent ${incomingIntent.streamCount}")
         importMediaState = importMediaState.copy(isImporting = true)
         if (incomingIntent.streamCount == 0) {
             handleSharedText(incomingIntent.text.toString())
@@ -313,11 +313,11 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             val fileUri = it.toString().toUri()
             handleImportedAsset(fileUri)
         } ?: listOf()
+
+        importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
+
         importedMediaAssets.firstOrNull { it.assetSizeExceeded != null }?.let {
             onSnackbarMessage(ImportMediaSnackbarMessages.MaxAssetSizeExceeded(it.assetSizeExceeded!!))
-        } ?: {
-            // in future show too large assets and filter them before sending
-            importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
         }
     }
 

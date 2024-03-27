@@ -25,6 +25,9 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.GENERIC_ASSET_CONTENT
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.mockUITextMessage
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.message.MessageContent
@@ -36,6 +39,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
+import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -185,4 +189,113 @@ class ConversationMessagesViewModelTest {
 
         coVerify(exactly = 1) { arrangement.resetSession(any(), any(), any()) }
     }
+
+    @Test
+    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for my message`() =
+        runTest {
+            // Given
+            val (_, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .arrange()
+
+            // When
+            viewModel.showDeleteMessageDialog("", true)
+
+            // Then
+            viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+                forYourself = DeleteMessageDialogActiveState.Hidden,
+                forEveryone = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId)
+            )
+        }
+
+    @Test
+    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for others message`() =
+        runTest {
+            // Given
+            val (_, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .arrange()
+
+            // When
+            viewModel.showDeleteMessageDialog("", false)
+
+            // Then
+            viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+                forYourself = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId),
+                forEveryone = DeleteMessageDialogActiveState.Hidden
+            )
+        }
+
+    @Test
+    fun `validate deleteMessageDialogsState states when deleteMessageForYourselfDialog is visible`() =
+        runTest {
+            // Given
+            val (_, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .arrange()
+
+            // When
+            viewModel.deleteMessageHelper.showDeleteMessageForYourselfDialog("")
+
+            // Then
+            viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+                forYourself = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId),
+                forEveryone = DeleteMessageDialogActiveState.Hidden
+            )
+        }
+
+    @Test
+    fun `validate deleteMessageDialogsState states when dialogs are dismissed`() {
+        // Given
+        val (_, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        // When
+        viewModel.deleteMessageHelper.onDeleteDialogDismissed()
+
+        // Then
+        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+            forYourself = DeleteMessageDialogActiveState.Hidden,
+            forEveryone = DeleteMessageDialogActiveState.Hidden
+        )
+    }
+
+    @Test
+    fun `given a failure, when deleting messages, then the error state is updated`() = runTest {
+        // Given
+        val (_, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withFailureOnDeletingMessages().arrange()
+
+        viewModel.infoMessage.test {
+
+            // when
+            expectNoEvents()
+            viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
+
+            // Then
+            assertEquals(ConversationSnackbarMessages.ErrorDeletingMessage, awaitItem())
+        }
+    }
+
+    @Test
+    fun `given a failure, when deleting messages, then the delete dialog state is closed`() =
+        runTest {
+            // Given
+            val (_, viewModel) = ConversationMessagesViewModelArrangement()
+                .withFailureOnDeletingMessages()
+                .withSuccessfulViewModelInit()
+                .arrange()
+
+            // When
+            viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
+
+            // Then
+            val expectedState = DeleteMessageDialogsState.States(
+                DeleteMessageDialogActiveState.Hidden,
+                DeleteMessageDialogActiveState.Hidden
+            )
+            assertEquals(expectedState, viewModel.deleteMessageDialogsState)
+        }
 }

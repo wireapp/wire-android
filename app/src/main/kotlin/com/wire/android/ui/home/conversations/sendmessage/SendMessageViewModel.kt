@@ -35,6 +35,7 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.Ping
@@ -85,7 +86,7 @@ class SendMessageViewModel @Inject constructor(
     private val retryFailedMessage: RetryFailedMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
+    private val handleUriAsset: HandleUriAssetUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
@@ -96,7 +97,7 @@ class SendMessageViewModel @Inject constructor(
     private val setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase,
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
     private val sendLocation: SendLocationUseCase,
-    private val removeMessageDraft: RemoveMessageDraftUseCase
+    private val removeMessageDraft: RemoveMessageDraftUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var tempWritableVideoUri: Uri? = null
@@ -208,47 +209,26 @@ class SendMessageViewModel @Inject constructor(
         attachmentUri: UriAsset,
         audioPath: Path? = null
     ) {
-        val tempCachePath = kaliumFileSystem.rootCachePath
-        val assetBundle = fileManager.getAssetBundleFromUri(
-            attachmentUri = attachmentUri.uri,
-            tempCachePath = tempCachePath,
+        when (val result = handleUriAsset.invoke(
+            uri = attachmentUri.uri,
+            saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
             audioPath = audioPath
-        )
-        if (assetBundle != null) {
-            // The max limit for sending assets changes between user and asset types.
-            // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
-            val maxSizeLimitInBytes =
-                getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
-            handleBundle(assetBundle, maxSizeLimitInBytes, attachmentUri)
-        } else {
-            onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
-        }
-    }
-
-    private suspend fun handleBundle(
-        assetBundle: AssetBundle,
-        maxSizeLimitInBytes: Long,
-        attachmentUri: UriAsset
-    ) {
-        if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-            sendAttachment(assetBundle)
-        } else {
-            if (attachmentUri.saveToDeviceIfInvalid) {
-                with(assetBundle) {
-                    fileManager.saveToExternalMediaStorage(
-                        fileName,
-                        dataPath,
-                        dataSize,
-                        mimeType,
-                        dispatchers
-                    )
-                }
+        )) {
+            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
+                assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
+                    assetType = result.assetBundle.assetType,
+                    maxLimitInMB = result.maxLimitInMB,
+                    savedToDevice = attachmentUri.saveToDeviceIfInvalid
+                )
             }
-            assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                assetType = assetBundle.assetType,
-                maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
-                savedToDevice = attachmentUri.saveToDeviceIfInvalid
-            )
+
+            HandleUriAssetUseCase.Result.Failure.Unknown -> {
+                onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
+            }
+
+            is HandleUriAssetUseCase.Result.Success -> {
+                sendAttachment(result.assetBundle)
+            }
         }
     }
 

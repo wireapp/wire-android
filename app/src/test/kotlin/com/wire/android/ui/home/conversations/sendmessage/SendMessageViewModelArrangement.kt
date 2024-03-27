@@ -26,13 +26,13 @@ import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.PingRinger
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -117,7 +117,7 @@ internal class SendMessageViewModelArrangement {
     private lateinit var imageUtil: ImageUtil
 
     @MockK
-    private lateinit var getAssetSizeLimitUseCase: GetAssetSizeLimitUseCase
+    private lateinit var handleUriAssetUseCase: HandleUriAssetUseCase
 
     @MockK
     lateinit var retryFailedMessageUseCase: RetryFailedMessageUseCase
@@ -153,7 +153,7 @@ internal class SendMessageViewModelArrangement {
             sendAssetMessage = sendAssetMessage,
             dispatchers = TestDispatcherProvider(),
             kaliumFileSystem = fakeKaliumFileSystem,
-            getAssetSizeLimit = getAssetSizeLimitUseCase,
+            handleUriAsset = handleUriAssetUseCase,
             imageUtil = imageUtil,
             pingRinger = pingRinger,
             sendKnockUseCase = sendKnockUseCase,
@@ -242,9 +242,8 @@ internal class SendMessageViewModelArrangement {
         } returns Either.Right(Unit)
     }
 
-    fun withGetAssetSizeLimitUseCase(isImage: Boolean, assetSizeLimit: Long) = apply {
-        coEvery { getAssetSizeLimitUseCase(eq(isImage)) } returns assetSizeLimit
-        return this
+    fun withHandleUriAsset(result: HandleUriAssetUseCase.Result) = apply {
+        coEvery { handleUriAssetUseCase.invoke(any(), any(), any()) } returns result
     }
 
     fun withGetAssetBundleFromUri(assetBundle: AssetBundle?) = apply {

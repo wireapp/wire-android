@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.sendmessage
 
-import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -35,11 +34,11 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.android.ui.navArgs
-import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
@@ -49,7 +48,6 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
@@ -85,25 +83,18 @@ class SendMessageViewModel @Inject constructor(
     private val retryFailedMessage: RetryFailedMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
+    private val handleUriAsset: HandleUriAssetUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
-    private val fileManager: FileManager,
     private val setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase,
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase,
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
     private val sendLocation: SendLocationUseCase,
-    private val removeMessageDraft: RemoveMessageDraftUseCase
+    private val removeMessageDraft: RemoveMessageDraftUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
-
-    var tempWritableVideoUri: Uri? = null
-        private set
-
-    var tempWritableImageUri: Uri? = null
-        private set
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
@@ -118,11 +109,6 @@ class SendMessageViewModel @Inject constructor(
     var sureAboutMessagingDialogState: SureAboutMessagingDialogState by mutableStateOf(
         SureAboutMessagingDialogState.Hidden
     )
-
-    init {
-        initTempWritableVideoUri()
-        initTempWritableImageUri()
-    }
 
     private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
@@ -208,47 +194,26 @@ class SendMessageViewModel @Inject constructor(
         attachmentUri: UriAsset,
         audioPath: Path? = null
     ) {
-        val tempCachePath = kaliumFileSystem.rootCachePath
-        val assetBundle = fileManager.getAssetBundleFromUri(
-            attachmentUri = attachmentUri.uri,
-            tempCachePath = tempCachePath,
+        when (val result = handleUriAsset.invoke(
+            uri = attachmentUri.uri,
+            saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
             audioPath = audioPath
-        )
-        if (assetBundle != null) {
-            // The max limit for sending assets changes between user and asset types.
-            // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
-            val maxSizeLimitInBytes =
-                getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
-            handleBundle(assetBundle, maxSizeLimitInBytes, attachmentUri)
-        } else {
-            onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
-        }
-    }
-
-    private suspend fun handleBundle(
-        assetBundle: AssetBundle,
-        maxSizeLimitInBytes: Long,
-        attachmentUri: UriAsset
-    ) {
-        if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-            sendAttachment(assetBundle)
-        } else {
-            if (attachmentUri.saveToDeviceIfInvalid) {
-                with(assetBundle) {
-                    fileManager.saveToExternalMediaStorage(
-                        fileName,
-                        dataPath,
-                        dataSize,
-                        mimeType,
-                        dispatchers
-                    )
-                }
+        )) {
+            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
+                assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
+                    assetType = result.assetBundle.assetType,
+                    maxLimitInMB = result.maxLimitInMB,
+                    savedToDevice = attachmentUri.saveToDeviceIfInvalid
+                )
             }
-            assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                assetType = assetBundle.assetType,
-                maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
-                savedToDevice = attachmentUri.saveToDeviceIfInvalid
-            )
+
+            HandleUriAssetUseCase.Result.Failure.Unknown -> {
+                onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
+            }
+
+            is HandleUriAssetUseCase.Result.Success -> {
+                sendAttachment(result.assetBundle)
+            }
         }
     }
 
@@ -320,20 +285,6 @@ class SendMessageViewModel @Inject constructor(
     fun retrySendingMessage(messageId: String) {
         viewModelScope.launch {
             retryFailedMessage(messageId = messageId, conversationId = conversationId)
-        }
-    }
-
-    private fun initTempWritableVideoUri() {
-        viewModelScope.launch {
-            tempWritableVideoUri =
-                fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
-        }
-    }
-
-    private fun initTempWritableImageUri() {
-        viewModelScope.launch {
-            tempWritableImageUri =
-                fileManager.getTempWritableImageUri(kaliumFileSystem.rootCachePath)
         }
     }
 

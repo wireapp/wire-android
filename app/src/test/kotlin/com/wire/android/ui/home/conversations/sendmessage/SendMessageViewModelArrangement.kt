@@ -18,21 +18,18 @@
 
 package com.wire.android.ui.home.conversations.sendmessage
 
-import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.PingRinger
 import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.navArgs
-import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -75,8 +72,6 @@ internal class SendMessageViewModelArrangement {
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
         every { pingRinger.ping(any(), any()) } returns Unit
         coEvery { sendKnockUseCase(any(), any()) } returns Either.Right(Unit)
-        coEvery { fileManager.getTempWritableVideoUri(any(), any()) } returns Uri.parse("video.mp4")
-        coEvery { fileManager.getTempWritableImageUri(any(), any()) } returns Uri.parse("image.jpg")
         coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
         coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
         coEvery { setNotifiedAboutConversationUnderLegalHold(any()) } returns Unit
@@ -105,9 +100,6 @@ internal class SendMessageViewModelArrangement {
     lateinit var sendKnockUseCase: SendKnockUseCase
 
     @MockK
-    lateinit var fileManager: FileManager
-
-    @MockK
     private lateinit var observeSyncState: ObserveSyncStateUseCase
 
     @MockK
@@ -117,7 +109,7 @@ internal class SendMessageViewModelArrangement {
     private lateinit var imageUtil: ImageUtil
 
     @MockK
-    private lateinit var getAssetSizeLimitUseCase: GetAssetSizeLimitUseCase
+    private lateinit var handleUriAssetUseCase: HandleUriAssetUseCase
 
     @MockK
     lateinit var retryFailedMessageUseCase: RetryFailedMessageUseCase
@@ -153,11 +145,10 @@ internal class SendMessageViewModelArrangement {
             sendAssetMessage = sendAssetMessage,
             dispatchers = TestDispatcherProvider(),
             kaliumFileSystem = fakeKaliumFileSystem,
-            getAssetSizeLimit = getAssetSizeLimitUseCase,
+            handleUriAsset = handleUriAssetUseCase,
             imageUtil = imageUtil,
             pingRinger = pingRinger,
             sendKnockUseCase = sendKnockUseCase,
-            fileManager = fileManager,
             retryFailedMessage = retryFailedMessageUseCase,
             sendTypingEvent = sendTypingEvent,
             setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
@@ -242,17 +233,8 @@ internal class SendMessageViewModelArrangement {
         } returns Either.Right(Unit)
     }
 
-    fun withGetAssetSizeLimitUseCase(isImage: Boolean, assetSizeLimit: Long) = apply {
-        coEvery { getAssetSizeLimitUseCase(eq(isImage)) } returns assetSizeLimit
-        return this
-    }
-
-    fun withGetAssetBundleFromUri(assetBundle: AssetBundle?) = apply {
-        coEvery { fileManager.getAssetBundleFromUri(any(), any(), any(), any()) } returns assetBundle
-    }
-
-    fun withSaveToExternalMediaStorage(resultFileName: String?) = apply {
-        coEvery { fileManager.saveToExternalMediaStorage(any(), any(), any(), any(), any()) } returns resultFileName
+    fun withHandleUriAsset(result: HandleUriAssetUseCase.Result) = apply {
+        coEvery { handleUriAssetUseCase.invoke(any(), any(), any()) } returns result
     }
 
     fun withInformAboutVerificationBeforeMessagingFlag(flag: Boolean) = apply {

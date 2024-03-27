@@ -16,27 +16,16 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package scripts
+fun Map<String, String?>.toJsonString (): String {
+    if (this.isEmpty()) return "{}"
 
-import DependenciesVersionTask
-import IncludeGitBuildTask
+    return StringBuilder().apply {
+        append("{")
+        this@toJsonString.forEach { (key, value) ->
+            append("\"$key\":\"$value\",")
+        }
+        deleteCharAt(length - 1)
+        append("}")
 
-plugins {
-    id("com.android.application") apply false
-}
-
-// TODO: Extract to a convention plugin
-project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {
-    println("> Registering Task :includeGitBuildIdentifier")
-}
-
-project.tasks.register("dependenciesVersionTask", DependenciesVersionTask::class) {
-    println("> Registering Task :dependenciesVersionTask")
-}
-
-project.afterEvaluate {
-    project.tasks.matching { it.name.startsWith("bundle") || it.name.startsWith("assemble") }.configureEach {
-        dependsOn("includeGitBuildIdentifier")
-        dependsOn("dependenciesVersionTask")
-    }
+    }.toString()
 }

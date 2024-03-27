@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -52,6 +53,7 @@ import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.getDependenciesVersion
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -69,6 +71,9 @@ import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -85,7 +90,8 @@ data class DebugDataOptionsState(
     val commitish: String = "null",
     val certificate: String = "null",
     val showCertificate: Boolean = false,
-    val startGettingE2EICertificate: Boolean = false
+    val startGettingE2EICertificate: Boolean = false,
+    val dependencies: ImmutableMap<String, String?> = persistentMapOf()
 )
 
 @Suppress("LongParameterList")
@@ -110,16 +116,34 @@ class DebugDataOptionsViewModel
         observeEncryptedProteusStorageState()
         observeMlsMetadata()
         checkIfCanTriggerManualMigration()
-        state = state.copy(
-            debugId = context.getDeviceIdString() ?: "null",
-            commitish = context.getGitBuildId()
-        )
+        checkDependenciesVersion()
+        setGitHashAndDeviceId()
+    }
+
+    private fun setGitHashAndDeviceId() {
+        viewModelScope.launch {
+            val deviceId = context.getDeviceIdString() ?: "null"
+            val gitBuildId = context.getGitBuildId()
+            state = state.copy(
+                debugId = deviceId,
+                commitish = gitBuildId
+            )
+        }
     }
 
     fun checkCrlRevocationList() {
         viewModelScope.launch {
             checkCrlRevocationListUseCase(
                 forceUpdate = true
+            )
+        }
+    }
+
+    fun checkDependenciesVersion() {
+        viewModelScope.launch {
+            val dependencies = context.getDependenciesVersion().toImmutableMap()
+            state = state.copy(
+                dependencies = dependencies
             )
         }
     }
@@ -375,7 +399,8 @@ fun DebugDataOptionsContent(
                 onDisableEventProcessingChange = onDisableEventProcessingChange,
                 onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
-                checkCrlRevocationList = checkCrlRevocationList
+                checkCrlRevocationList = checkCrlRevocationList,
+                dependenciesMap = state.dependencies
             )
         }
 
@@ -544,7 +569,8 @@ private fun DebugToolsOptions(
     onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
-    checkCrlRevocationList: () -> Unit
+    checkCrlRevocationList: () -> Unit,
+    dependenciesMap: ImmutableMap<String, String?>
 ) {
     FolderHeader(stringResource(R.string.label_debug_tools_title))
     Column {
@@ -615,6 +641,18 @@ private fun DebugToolsOptions(
                 )
             }
         )
+        RowItemTemplate(
+            modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = prettyPrintMap(dependenciesMap),
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            }
+        )
+
     }
 }
 
@@ -646,32 +684,41 @@ private fun DisableEventProcessingSwitch(
         }
     )
 }
+
+@Stable
+private fun prettyPrintMap(map: ImmutableMap<String, String?>): String = StringBuilder().apply {
+    append("Dependencies:\n")
+    map.forEach { (key, value) ->
+        append("$key: $value\n")
+    }
+}.toString()
+
 //endregion
 
-@PreviewMultipleThemes
-@Composable
-fun PreviewOtherDebugOptions() {
-    DebugDataOptionsContent(
-        appVersion = "1.0.0",
-        buildVariant = "debug",
-        onCopyText = {},
-        state = DebugDataOptionsState(
-            isEncryptedProteusStorageEnabled = true,
-            keyPackagesCount = 10,
-            mslClientId = "clientId",
-            mlsErrorMessage = "error",
-            isManualMigrationAllowed = true,
-            debugId = "debugId",
-            commitish = "commitish"
-        ),
-        onEnableEncryptedProteusStorageChange = {},
-        onForceUpdateApiVersions = {},
-        onDisableEventProcessingChange = {},
-        onRestartSlowSyncForRecovery = {},
-        onManualMigrationPressed = {},
-        enrollE2EICertificate = {},
-        handleE2EIEnrollmentResult = {},
-        dismissCertificateDialog = {},
-        checkCrlRevocationList = {}
-    )
-}
+        @PreviewMultipleThemes
+        @Composable
+        fun PreviewOtherDebugOptions() {
+            DebugDataOptionsContent(
+                appVersion = "1.0.0",
+                buildVariant = "debug",
+                onCopyText = {},
+                state = DebugDataOptionsState(
+                    isEncryptedProteusStorageEnabled = true,
+                    keyPackagesCount = 10,
+                    mslClientId = "clientId",
+                    mlsErrorMessage = "error",
+                    isManualMigrationAllowed = true,
+                    debugId = "debugId",
+                    commitish = "commitish"
+                ),
+                onEnableEncryptedProteusStorageChange = {},
+                onForceUpdateApiVersions = {},
+                onDisableEventProcessingChange = {},
+                onRestartSlowSyncForRecovery = {},
+                onManualMigrationPressed = {},
+                enrollE2EICertificate = {},
+                handleE2EIEnrollmentResult = {},
+                dismissCertificateDialog = {},
+                checkCrlRevocationList = {}
+            )
+        }

@@ -58,6 +58,7 @@ import com.wire.kalium.logic.util.buildFileName
 import com.wire.kalium.logic.util.splitFileExtensionAndCopyCounter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import okio.Path
 import java.io.File
 import java.io.FileNotFoundException
@@ -420,6 +421,13 @@ fun Context.getGitBuildId(): String = runCatching {
         inputStream.bufferedReader().use { it.readText() }
     }
 }.getOrDefault("")
+
+fun Context.getDependenciesVersion(): Map<String, String?> =
+    assets.open("dependencies_version.json").use { inputStream ->
+        inputStream.bufferedReader().use { it.readText() }
+    }.let {
+    Json.decodeFromString(it)
+}
 
 fun Context.getProviderAuthority() = "$packageName.provider"
 

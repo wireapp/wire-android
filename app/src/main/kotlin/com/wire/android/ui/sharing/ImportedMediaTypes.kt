@@ -19,15 +19,12 @@ package com.wire.android.ui.sharing
 
 import androidx.compose.runtime.Composable
 import com.wire.android.model.Clickable
-import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.util.fileExtension
 import com.wire.kalium.logic.util.splitFileExtension
-import okio.Path
 
 @Composable
 fun ImportedMediaItemView(item: ImportedMediaAsset, isMultipleImport: Boolean) {

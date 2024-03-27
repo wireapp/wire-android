@@ -39,7 +39,7 @@ class HandleUriAssetUseCase @Inject constructor(
         uri: Uri,
         saveToDeviceIfInvalid: Boolean = false,
         audioPath: Path? = null,
-        ): Result = withContext(dispatchers.io()) {
+    ): Result = withContext(dispatchers.io()) {
 
         val tempCachePath = kaliumFileSystem.rootCachePath
         val assetBundle = fileManager.getAssetBundleFromUri(
@@ -55,7 +55,7 @@ class HandleUriAssetUseCase @Inject constructor(
             if (assetBundle.dataSize <= maxSizeLimitInBytes) {
                 return@withContext Result.Success(assetBundle)
             } else {
-                if(saveToDeviceIfInvalid) {
+                if (saveToDeviceIfInvalid) {
                     with(assetBundle) {
                         fileManager.saveToExternalMediaStorage(
                             fileName,

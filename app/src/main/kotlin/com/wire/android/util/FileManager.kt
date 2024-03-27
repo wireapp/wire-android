@@ -105,6 +105,7 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
     }
 
     // TODO we should handle those errors more user friendly
+    @Suppress("TooGenericExceptionCaught")
     suspend fun getAssetBundleFromUri(
         attachmentUri: Uri,
         tempCachePath: Path,

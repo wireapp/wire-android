@@ -91,7 +91,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val handleUriAssetUseCase: HandleUriAssetUseCase,
+    private val handleUriAsset: HandleUriAssetUseCase,
     private val persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase,
     private val observeSelfDeletionSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
@@ -411,7 +411,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
 
     private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? = withContext(dispatchers.io()) {
-        when (val result = handleUriAssetUseCase.invoke(uri, saveToDeviceIfInvalid = false, audioPath = null)) {
+        when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false, audioPath = null)) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> mapToImportedAsset(result.assetBundle, result.maxLimitInMB)
 
             HandleUriAssetUseCase.Result.Failure.Unknown -> null

@@ -18,12 +18,9 @@
 package com.wire.android.feature.sketch
 
 import android.net.Uri
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Send
@@ -33,72 +30,60 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawingCanvasBottomSheet(
     viewModel: DrawingCanvasViewModel = viewModel(),
     onDismissSketch: () -> Unit,
-    onSendSketch: (Uri) -> Unit,
+    onSendSketch: (Uri) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showBottomSheet by remember { mutableStateOf(false) }
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .padding(top = 30.dp)
-        .clickable { showBottomSheet = true }
-    ) {
-        ModalBottomSheet(
-            dragHandle = {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.CenterEnd),
-                    horizontalArrangement = Arrangement.SpaceBetween
+    ModalBottomSheet(
+        dragHandle = {
+            Row(
+                Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val scope = rememberCoroutineScope()
+                IconButton(
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() }
+                    },
                 ) {
-                    IconButton(
-                        onClick = {
-                            onDismissSketch()
-                        },
-                    ) {
-                        Icon(
-                            Icons.Filled.Close,
-                            contentDescription = stringResource(
-                                com.google.android.material.R.string.mtrl_picker_cancel
-                            )
+                    Icon(
+                        Icons.Filled.Close,
+                        contentDescription = stringResource(
+                            com.google.android.material.R.string.mtrl_picker_cancel
                         )
-                    }
-                    IconButton(
-                        onClick = {
-                            onSendSketch(viewModel.saveImage(null))
-                        },
-                    ) {
-                        Icon(
-                            Icons.Filled.Send,
-                            contentDescription = stringResource(
-                                com.google.android.material.R.string.mtrl_picker_cancel
-                            )
-                        )
-                    }
-
+                    )
                 }
-            },
-            sheetState = sheetState,
-            onDismissRequest = {
-                showBottomSheet = false
-                onDismissSketch()
+                IconButton(
+                    onClick = {
+                        onSendSketch(viewModel.saveImage(null))
+                    },
+                ) {
+                    Icon(
+                        Icons.Filled.Send,
+                        contentDescription = stringResource(
+                            com.google.android.material.R.string.mtrl_picker_cancel
+                        )
+                    )
+                }
+
             }
-        ) {
-            DrawingCanvasComponent(viewModel)
+        },
+        sheetState = sheetState,
+        onDismissRequest = {
+            onDismissSketch()
         }
+    ) {
+        DrawingCanvasComponent(viewModel)
     }
 }

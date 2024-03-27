@@ -26,7 +26,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.InvalidLinkDialogState
 import com.wire.android.ui.home.conversations.MessageComposerViewState

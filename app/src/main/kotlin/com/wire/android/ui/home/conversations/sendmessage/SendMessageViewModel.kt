@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.sendmessage
 
-import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,7 +39,6 @@ import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.android.ui.navArgs
-import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
@@ -90,7 +88,6 @@ class SendMessageViewModel @Inject constructor(
     private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
-    private val fileManager: FileManager,
     private val setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase,
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase,
@@ -98,12 +95,6 @@ class SendMessageViewModel @Inject constructor(
     private val sendLocation: SendLocationUseCase,
     private val removeMessageDraft: RemoveMessageDraftUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
-
-    var tempWritableVideoUri: Uri? = null
-        private set
-
-    var tempWritableImageUri: Uri? = null
-        private set
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
@@ -118,11 +109,6 @@ class SendMessageViewModel @Inject constructor(
     var sureAboutMessagingDialogState: SureAboutMessagingDialogState by mutableStateOf(
         SureAboutMessagingDialogState.Hidden
     )
-
-    init {
-        initTempWritableVideoUri()
-        initTempWritableImageUri()
-    }
 
     private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
@@ -299,20 +285,6 @@ class SendMessageViewModel @Inject constructor(
     fun retrySendingMessage(messageId: String) {
         viewModelScope.launch {
             retryFailedMessage(messageId = messageId, conversationId = conversationId)
-        }
-    }
-
-    private fun initTempWritableVideoUri() {
-        viewModelScope.launch {
-            tempWritableVideoUri =
-                fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
-        }
-    }
-
-    private fun initTempWritableImageUri() {
-        viewModelScope.launch {
-            tempWritableImageUri =
-                fileManager.getTempWritableImageUri(kaliumFileSystem.rootCachePath)
         }
     }
 

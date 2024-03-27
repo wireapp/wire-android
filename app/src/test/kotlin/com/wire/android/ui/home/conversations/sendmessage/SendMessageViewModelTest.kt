@@ -34,7 +34,6 @@ import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -168,7 +167,6 @@ class SendMessageViewModelTest {
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendAttachmentMessage()
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.AssetTooLarge(mockedAttachment, 25))
-                .withGetAssetBundleFromUri(mockedAttachment)
                 .arrange()
             val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
                 attachmentUri = UriAsset("mocked_image.jpeg".toUri(), false)
@@ -210,7 +208,6 @@ class SendMessageViewModelTest {
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendAttachmentMessage()
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.AssetTooLarge(mockedAttachment, limit))
-                .withGetAssetBundleFromUri(mockedAttachment)
                 .arrange()
             val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
                 attachmentUri = UriAsset("mocked_image.jpeg".toUri(), false)
@@ -243,8 +240,6 @@ class SendMessageViewModelTest {
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendAttachmentMessage()
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.Unknown)
-                .withGetAssetBundleFromUri(null)
-                .withSaveToExternalMediaStorage("mocked_image.jpeg")
                 .arrange()
             val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
                 attachmentUri = UriAsset("mocked_image.jpeg".toUri(), false)
@@ -293,7 +288,6 @@ class SendMessageViewModelTest {
     fun `given the user sends an audio message, when invoked, then sendAssetMessageUseCase gets called`() =
         runTest {
             // Given
-            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val assetPath = "mocked-asset-data-path".toPath()
             val assetContent = "some-dummy-audio".toByteArray()
             val assetName = "mocked_audio.m4a"

@@ -34,7 +34,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 
-class PathProperties(
+internal class DrawingPathProperties(
     var path: Path = Path(),
     var strokeWidth: Float = 10f,
     var color: Color = Color.Blue,
@@ -113,9 +113,9 @@ class PathProperties(
         get() {
             return if (drawMode == DrawMode.Pen) {
                 Paint().apply {
-                    color = this@PathProperties.color.toArgb()
+                    color = this@DrawingPathProperties.color.toArgb()
                     style = Paint.Style.STROKE
-                    strokeWidth = this@PathProperties.strokeWidth
+                    strokeWidth = this@DrawingPathProperties.strokeWidth
                     strokeCap = Paint.Cap.ROUND
                     strokeJoin = Paint.Join.ROUND
                 }
@@ -123,7 +123,7 @@ class PathProperties(
                 Paint().apply {
                     color = Color.Transparent.toArgb()
                     style = Paint.Style.STROKE
-                    strokeWidth = this@PathProperties.strokeWidth
+                    strokeWidth = this@DrawingPathProperties.strokeWidth
                     strokeCap = Paint.Cap.ROUND
                     strokeJoin = Paint.Join.ROUND
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

@@ -45,13 +45,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DrawingCanvas(
+fun DrawingCanvasBottomSheet(
     viewModel: DrawingCanvasViewModel = viewModel(),
     onDismissSketch: () -> Unit,
     onSendSketch: (Uri) -> Unit,
-    tempWritableImageUri: Uri?,
-
-    ) {
+) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
     Box(modifier = Modifier
@@ -81,7 +79,7 @@ fun DrawingCanvas(
                     }
                     IconButton(
                         onClick = {
-                            onSendSketch(viewModel.saveImage(tempWritableImageUri))
+                            onSendSketch(viewModel.saveImage(null))
                         },
                     ) {
                         Icon(

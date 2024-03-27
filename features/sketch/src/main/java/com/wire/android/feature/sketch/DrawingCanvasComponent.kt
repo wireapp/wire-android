@@ -36,10 +36,10 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.wire.android.feature.sketch.model.MotionEvent
+import com.wire.android.feature.sketch.model.DrawingMotionEvent
 
 @Composable
-fun DrawingCanvasComponent(
+internal fun DrawingCanvasComponent(
     viewModel: DrawingCanvasViewModel = viewModel()
 ) {
     with(viewModel.state) {
@@ -60,10 +60,10 @@ fun DrawingCanvasComponent(
         Canvas(modifier = drawModifier) {
             with(drawContext.canvas.nativeCanvas) {
                 val checkPoint = saveLayer(null, null)
-                when (motionEvent) {
-                    MotionEvent.Idle -> Unit
-                    MotionEvent.Down -> viewModel.onStartDrawingEvent()
-                    MotionEvent.Move -> {
+                when (drawingMotionEvent) {
+                    DrawingMotionEvent.Idle -> Unit
+                    DrawingMotionEvent.Down -> viewModel.onStartDrawingEvent()
+                    DrawingMotionEvent.Move -> {
                         viewModel.onDrawEvent()
                         // todo: draw with selected properties, out of scope for this first ticket.
                         drawCircle(
@@ -74,7 +74,7 @@ fun DrawingCanvasComponent(
                         )
                     }
 
-                    MotionEvent.Up -> viewModel.onStopDrawingEvent()
+                    DrawingMotionEvent.Up -> viewModel.onStopDrawingEvent()
                 }
                 paths.forEach { path ->
                     path.draw(this@Canvas /*, bitmap*/)

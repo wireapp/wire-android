@@ -31,9 +31,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.sketch.model.DrawingMotionEvent
+import com.wire.android.feature.sketch.model.DrawingPathProperties
 import com.wire.android.feature.sketch.model.DrawingState
-import com.wire.android.feature.sketch.model.MotionEvent
-import com.wire.android.feature.sketch.model.PathProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -42,28 +42,28 @@ import java.io.FileOutputStream
 
 class DrawingCanvasViewModel : ViewModel() {
 
-    var state: DrawingState by mutableStateOf(DrawingState())
+    internal var state: DrawingState by mutableStateOf(DrawingState())
         private set
 
     /**
      * Marks the start of the drawing.
      */
     fun onStartDrawing(offset: Offset) {
-        state = state.copy(currentPosition = offset, motionEvent = MotionEvent.Down)
+        state = state.copy(currentPosition = offset, drawingMotionEvent = DrawingMotionEvent.Down)
     }
 
     /**
      * Marks the drawing in progress.
      */
     fun onDraw(offset: Offset) {
-        state = state.copy(currentPosition = offset, motionEvent = MotionEvent.Move)
+        state = state.copy(currentPosition = offset, drawingMotionEvent = DrawingMotionEvent.Move)
     }
 
     /**
      * Marks the end of the drawing.
      */
     fun onStopDrawing() {
-        state = state.copy(motionEvent = MotionEvent.Up)
+        state = state.copy(drawingMotionEvent = DrawingMotionEvent.Up)
     }
 
     /**
@@ -88,13 +88,13 @@ class DrawingCanvasViewModel : ViewModel() {
     fun onStopDrawingEvent() {
         state.currentPath.path.lineTo(state.currentPosition.x, state.currentPosition.y)
         state = state.copy(
-            currentPath = PathProperties().apply {
+            currentPath = DrawingPathProperties().apply {
                 strokeWidth = state.currentPath.strokeWidth
                 color = state.currentPath.color
                 drawMode = state.currentPath.drawMode
             }, pathsUndone = emptyList(),
             currentPosition = Offset.Unspecified,
-            motionEvent = MotionEvent.Idle
+            drawingMotionEvent = DrawingMotionEvent.Idle
         )
     }
 

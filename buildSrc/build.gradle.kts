@@ -53,5 +53,4 @@ dependencies {
     testImplementation(Dependencies.kluent)
     implementation(Dependencies.grgit)
     implementation(Dependencies.javapoet) // https://github.com/google/dagger/issues/3068
-    implementation("com.moandjiezana.toml:toml4j:0.7.2")
 }

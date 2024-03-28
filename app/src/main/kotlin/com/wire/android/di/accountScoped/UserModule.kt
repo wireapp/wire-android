@@ -26,11 +26,13 @@ import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIUseCase
+import com.wire.kalium.logic.feature.e2ei.CertificateRevocationListCheckWorker
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
+import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
@@ -112,11 +114,6 @@ class UserModule {
     @Provides
     fun providePersistReadReceiptsStatusConfig(userScope: UserScope): PersistReadReceiptsStatusConfigUseCase =
         userScope.persistReadReceiptsStatusConfig
-
-    @ViewModelScoped
-    @Provides
-    fun provideEnrollE2EIUseCase(userScope: UserScope): EnrollE2EIUseCase =
-        userScope.enrollE2EI
 
     @ViewModelScoped
     @Provides
@@ -232,4 +229,19 @@ class UserModule {
     @Provides
     fun provideGetUserE2eiCertificates(userScope: UserScope): GetUserE2eiCertificatesUseCase =
         userScope.getUserE2eiCertificates
+
+    @ViewModelScoped
+    @Provides
+    fun provideCertificateRevocationListCheckWorker(userScope: UserScope): CertificateRevocationListCheckWorker =
+        userScope.certificateRevocationListCheckWorker
+
+    @ViewModelScoped
+    @Provides
+    fun provideFeatureFlagsSyncWorker(userScope: UserScope): FeatureFlagsSyncWorker =
+        userScope.featureFlagsSyncWorker
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveCertificateRevocationForSelfClientUseCase(userScope: UserScope): ObserveCertificateRevocationForSelfClientUseCase =
+        userScope.observeCertificateRevocationForSelfClient
 }

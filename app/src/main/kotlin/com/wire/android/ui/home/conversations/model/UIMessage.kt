@@ -37,6 +37,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.android.ui.theme.Accent
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -49,6 +50,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Duration
 
 sealed interface UIMessage {
+    val conversationId: ConversationId
     val header: MessageHeader
     val source: MessageSource
     val messageContent: UIMessageContent?
@@ -57,6 +59,7 @@ sealed interface UIMessage {
     val isPending: Boolean
 
     data class Regular(
+        override val conversationId: ConversationId,
         override val header: MessageHeader,
         override val source: MessageSource,
         val userAvatarData: UserAvatarData,
@@ -77,6 +80,7 @@ sealed interface UIMessage {
     }
 
     data class System(
+        override val conversationId: ConversationId,
         override val header: MessageHeader,
         override val source: MessageSource,
         override val messageContent: UIMessageContent.SystemMessage
@@ -579,41 +583,6 @@ data class MessageBody(
     val message: UIText,
     val quotedMessage: UIQuotedMessage? = null
 )
-
-sealed class UIQuotedMessage {
-
-    object UnavailableData : UIQuotedMessage()
-
-    data class UIQuotedData(
-        val messageId: String,
-        val senderId: UserId,
-        val senderName: UIText,
-        val originalMessageDateDescription: UIText,
-        val editedTimeDescription: UIText?,
-        val quotedContent: Content
-    ) : UIQuotedMessage() {
-
-        sealed interface Content
-
-        data class Text(val value: String) : Content
-
-        data class GenericAsset(
-            val assetName: String?,
-            val assetMimeType: String
-        ) : Content
-
-        data class DisplayableImage(
-            val displayable: ImageAsset.PrivateAsset
-        ) : Content
-
-        data class Location(val locationName: String) : Content
-
-        object AudioMessage : Content
-
-        object Deleted : Content
-        object Invalid : Content
-    }
-}
 
 enum class MessageSource {
     Self, OtherUser

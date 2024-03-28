@@ -88,6 +88,7 @@ import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isSaved
 import com.wire.android.ui.theme.Accent
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
 
@@ -112,7 +113,7 @@ fun MessageItem(
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
-    onFailedMessageRetryClicked: (String) -> Unit = {},
+    onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onLinkClick: (String) -> Unit = {},
     isContentClickable: Boolean = false,
@@ -320,7 +321,7 @@ fun MessageItem(
                             MessageSendFailureWarning(
                                 messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
                                 isInteractionAvailable = isInteractionAvailable,
-                                onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId) } },
+                                onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId, message.conversationId) } },
                                 onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
                             )
                         }

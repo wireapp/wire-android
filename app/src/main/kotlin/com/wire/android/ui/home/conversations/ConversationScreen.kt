@@ -116,6 +116,7 @@ import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
+import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
@@ -124,15 +125,18 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
+import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
+import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
 import com.wire.android.ui.home.messagecomposer.MessageComposer
-import com.wire.android.ui.home.messagecomposer.state.MessageBundle
+import com.wire.android.ui.home.messagecomposer.model.MessageBundle
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
@@ -186,7 +190,9 @@ fun ConversationScreen(
     conversationCallViewModel: ConversationCallViewModel = hiltViewModel(),
     conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
     messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
+    sendMessageViewModel: SendMessageViewModel = hiltViewModel(),
     conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
+    messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
     groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
@@ -199,7 +205,9 @@ fun ConversationScreen(
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
-        modalBottomSheetState = conversationScreenState.modalBottomSheetState
+        modalBottomSheetState = conversationScreenState.modalBottomSheetState,
+        messageComposition = messageDraftViewModel.state,
+        onSaveDraft = messageComposerViewModel::saveDraft
     )
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -211,6 +219,17 @@ fun ConversationScreen(
     LaunchedEffect(alreadyDeletedByUser) {
         if (!alreadyDeletedByUser) {
             conversationInfoViewModel.observeConversationDetails(navigator::navigateBack)
+        }
+    }
+
+    // set message composer input to edit mode when editMessage is not null from MessageDraft
+    LaunchedEffect(messageDraftViewModel.state.value.editMessageId) {
+        val compositionState = messageDraftViewModel.state.value
+        if (compositionState.editMessageId != null) {
+            messageComposerStateHolder.toEdit(
+                messageId = compositionState.editMessageId,
+                editMessageText = compositionState.messageText,
+                mentions = compositionState.selectedMentions.map { it.intoMessageMention() })
         }
     }
 
@@ -319,8 +338,8 @@ fun ConversationScreen(
                 NavigationCommand(MessageDetailsScreenDestination(conversationInfoViewModel.conversationId, messageId, isSelfMessage))
             )
         },
-        onSendMessage = messageComposerViewModel::trySendMessage,
-        onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
+        onSendMessage = sendMessageViewModel::trySendMessage,
+        onDeleteMessage = conversationMessagesViewModel::showDeleteMessageDialog,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
             with(conversationMessagesViewModel) {
@@ -373,14 +392,14 @@ fun ConversationScreen(
             }
         },
         onBackButtonClick = { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) },
-        composerMessages = messageComposerViewModel.infoMessage,
+        composerMessages = sendMessageViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri,
-        onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage,
+        onFailedMessageRetryClicked = sendMessageViewModel::retrySendingMessage,
         requestMentions = messageComposerViewModel::searchMembersToMention,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
         onPermissionPermanentlyDenied = {
@@ -436,8 +455,8 @@ fun ConversationScreen(
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) }
     DeleteMessageDialog(
-        state = messageComposerViewModel.deleteMessageDialogsState,
-        actions = messageComposerViewModel.deleteMessageHelper
+        state = conversationMessagesViewModel.deleteMessageDialogsState,
+        actions = conversationMessagesViewModel.deleteMessageHelper
     )
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
@@ -454,8 +473,8 @@ fun ConversationScreen(
         }
     )
     AssetTooLargeDialog(
-        dialogState = messageComposerViewModel.assetTooLargeDialogState,
-        hideDialog = messageComposerViewModel::hideAssetTooLargeError
+        dialogState = sendMessageViewModel.assetTooLargeDialogState,
+        hideDialog = sendMessageViewModel::hideAssetTooLargeError
     )
     VisitLinkDialog(
         dialogState = messageComposerViewModel.visitLinkDialogState,
@@ -473,15 +492,15 @@ fun ConversationScreen(
     )
 
     SureAboutMessagingInDegradedConversationDialog(
-        dialogState = messageComposerViewModel.sureAboutMessagingDialogState,
-        sendAnyway = messageComposerViewModel::acceptSureAboutSendingMessage,
-        hideDialog = messageComposerViewModel::dismissSureAboutSendingMessage
+        dialogState = sendMessageViewModel.sureAboutMessagingDialogState,
+        sendAnyway = sendMessageViewModel::acceptSureAboutSendingMessage,
+        hideDialog = sendMessageViewModel::dismissSureAboutSendingMessage
     )
 
-    (messageComposerViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
+    (sendMessageViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
         LegalHoldSubjectMessageDialog(
-            dialogDismissed = messageComposerViewModel::dismissSureAboutSendingMessage,
-            sendAnywayClicked = messageComposerViewModel::acceptSureAboutSendingMessage,
+            dialogDismissed = sendMessageViewModel::dismissSureAboutSendingMessage,
+            sendAnywayClicked = sendMessageViewModel::acceptSureAboutSendingMessage,
         )
     }
 
@@ -624,7 +643,7 @@ private fun ConversationScreen(
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    onFailedMessageRetryClicked: (String) -> Unit,
+    onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
     requestMentions: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
@@ -777,7 +796,7 @@ private fun ConversationScreenContent(
     onShowEditingOptions: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
-    onFailedMessageRetryClicked: (String) -> Unit,
+    onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
@@ -836,7 +855,7 @@ private fun ConversationScreenContent(
 }
 
 @Composable
-fun SnackBarMessage(
+private fun SnackBarMessage(
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>
 ) {
@@ -887,7 +906,7 @@ fun MessageList(
     onShowEditingOption: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
-    onFailedMessageRetryClicked: (String) -> Unit,
+    onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     selectedMessageId: String?,
@@ -1047,10 +1066,13 @@ private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
 @Composable
 fun PreviewConversationScreen() {
     val messageComposerViewState = remember { mutableStateOf(MessageComposerViewState()) }
+    val messageCompositionState = remember { mutableStateOf(MessageComposition.DEFAULT) }
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
-        modalBottomSheetState = conversationScreenState.modalBottomSheetState
+        modalBottomSheetState = conversationScreenState.modalBottomSheetState,
+        messageComposition = messageCompositionState,
+        onSaveDraft = {}
     )
     ConversationScreen(
         bannerMessage = null,
@@ -1083,7 +1105,7 @@ fun PreviewConversationScreen() {
         onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,
         tempWritableVideoUri = null,
-        onFailedMessageRetryClicked = {},
+        onFailedMessageRetryClicked = { _, _ -> },
         requestMentions = {},
         onClearMentionSearchResult = {},
         onPermissionPermanentlyDenied = {},

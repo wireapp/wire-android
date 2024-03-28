@@ -37,6 +37,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.util.isPositiveNotNull
@@ -85,15 +86,7 @@ class MessageCompositionInputStateHolder(
         )
     )
 
-    fun handleIMEVisibility(isImeVisible: Boolean) {
-        if (isImeVisible) {
-            optionsVisible = true
-        } else if (!subOptionsVisible) {
-            optionsVisible = false
-        }
-    }
-
-    fun handleOffsetChange(offset: Dp, navBarHeight: Dp, source: Dp, target: Dp) {
+    fun handleImeOffsetChange(offset: Dp, navBarHeight: Dp, source: Dp, target: Dp) {
         val actualOffset = max(offset - navBarHeight, 0.dp)
 
         // this check secures that if some additional space will be added to keyboard
@@ -103,10 +96,16 @@ class MessageCompositionInputStateHolder(
         }
 
         if (previousOffset < actualOffset) {
-            optionsVisible = true
-            if (!subOptionsVisible || optionsHeight <= actualOffset) {
-                optionsHeight = actualOffset
-                subOptionsVisible = false
+
+            // only if the real goal of this ime offset increase is to really open the keyboard
+            // otherwise it can mean the keyboard is still in a process of hiding from the previous screen and ultimately won't be shown
+            // in this case we don't want to show and hide the options for a short time as it will only make unwanted blink effect
+            if (target > 0.dp) {
+                optionsVisible = true
+                if (!subOptionsVisible || optionsHeight <= actualOffset) {
+                    optionsHeight = actualOffset
+                    subOptionsVisible = false
+                }
             }
         } else if (previousOffset > actualOffset) {
             if (!subOptionsVisible) {

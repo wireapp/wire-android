@@ -33,13 +33,13 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.Accent
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
-import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
@@ -98,6 +98,7 @@ class MessageMapper @Inject constructor(
         return when (content) {
             is UIMessageContent.Regular ->
                 UIMessage.Regular(
+                    conversationId = message.conversationId,
                     messageContent = content,
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     header = provideMessageHeader(sender, message),
@@ -107,6 +108,7 @@ class MessageMapper @Inject constructor(
 
             is UIMessageContent.SystemMessage ->
                 UIMessage.System(
+                    conversationId = message.conversationId,
                     messageContent = content,
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     header = provideMessageHeader(sender, message),
@@ -145,7 +147,7 @@ class MessageMapper @Inject constructor(
             is SelfUser, null -> Membership.None
         },
         connectionState = getConnectionState(sender),
-        isLegalHold = false,
+        isLegalHold = sender?.isUnderLegalHold == true,
         messageTime = MessageTime(message.date),
         messageStatus = getMessageStatus(message),
         messageId = message.id,

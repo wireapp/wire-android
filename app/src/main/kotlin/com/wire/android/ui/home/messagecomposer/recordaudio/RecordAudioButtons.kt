@@ -84,7 +84,7 @@ fun RecordAudioButtonClose(
 @Composable
 fun RecordAudioButtonEnabled(
     applyAudioFilterState: Boolean,
-    applyAudioFilterClick: () -> Unit,
+    applyAudioFilterClick: (Boolean) -> Unit,
     onClick: () -> Unit,
     modifier: Modifier
 ) {
@@ -97,14 +97,14 @@ fun RecordAudioButtonEnabled(
         buttonColor = colorsScheme().recordAudioStartColor,
         bottomText = R.string.record_audio_start_label,
         applyAudioFilterState = applyAudioFilterState,
-        applyAudioFilterClick = applyAudioFilterClick
+        applyAudioFilterClick = applyAudioFilterClick,
+        isAudioFilterEnabled = true
     )
 }
 
 @Composable
 fun RecordAudioButtonRecording(
     applyAudioFilterState: Boolean,
-    applyAudioFilterClick: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier
 ) {
@@ -145,15 +145,13 @@ fun RecordAudioButtonRecording(
         bottomText = R.string.record_audio_recording_label,
         buttonState = if (seconds > 0) WireButtonState.Default else WireButtonState.Disabled,
         applyAudioFilterState = applyAudioFilterState,
-        applyAudioFilterClick = applyAudioFilterClick,
-        isAudioFilterEnabled = false
+        applyAudioFilterClick = { }
     )
 }
 
 @Composable
 fun RecordAudioButtonSend(
     applyAudioFilterState: Boolean,
-    applyAudioFilterClick: () -> Unit,
     audioState: AudioState,
     onClick: () -> Unit,
     modifier: Modifier,
@@ -182,7 +180,7 @@ fun RecordAudioButtonSend(
         buttonColor = colorsScheme().recordAudioStartColor,
         bottomText = R.string.record_audio_send_label,
         applyAudioFilterState = applyAudioFilterState,
-        applyAudioFilterClick = applyAudioFilterClick
+        applyAudioFilterClick = { }
     )
 }
 
@@ -197,8 +195,8 @@ private fun RecordAudioButton(
     @StringRes bottomText: Int,
     buttonState: WireButtonState = WireButtonState.Default,
     applyAudioFilterState: Boolean,
-    applyAudioFilterClick: () -> Unit,
-    isAudioFilterEnabled: Boolean = true
+    applyAudioFilterClick: (Boolean) -> Unit,
+    isAudioFilterEnabled: Boolean = false
 ) {
     Column(
         modifier = modifier,
@@ -239,7 +237,7 @@ private fun RecordAudioButton(
             Checkbox(
                 enabled = isAudioFilterEnabled,
                 checked = applyAudioFilterState,
-                onCheckedChange = { applyAudioFilterClick() }
+                onCheckedChange = applyAudioFilterClick
             )
             Text(
                 text = "Apply audio filter",//stringResource(id = bottomText),
@@ -278,8 +276,7 @@ fun PreviewRecordAudioButtonRecording() {
         RecordAudioButtonRecording(
             onClick = {},
             modifier = Modifier,
-            applyAudioFilterState = false,
-            applyAudioFilterClick = {}
+            applyAudioFilterState = false
         )
     }
 }
@@ -299,8 +296,7 @@ fun PreviewRecordAudioButtonSend() {
             outputFile = null,
             onPlayAudio = {},
             onSliderPositionChange = {},
-            applyAudioFilterState = false,
-            applyAudioFilterClick = {}
+            applyAudioFilterState = false
         )
     }
 }

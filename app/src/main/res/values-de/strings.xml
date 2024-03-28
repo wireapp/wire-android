@@ -210,7 +210,7 @@
     <string name="welcome_screen_carousel_item_message_5">Wire wird unabhängig geprüft und ist ISO-, CCPA-, DSGVO- und SOX-konform</string>
     <string name="welcome_button_create_team">Team erstellen</string>
     <string name="server_details_dialog_body">Backend-Name:\n%1$s\n\nBackend-URL:\n%2$s</string>
-    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy-URL:\n%3$s\n\nProxy-Authentifizierung:\n%4$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">Lokales Backend</string>
     <string name="welcome_migration_dialog_title">Willkommen in unserer neuen App 👋</string>
     <string name="welcome_migration_dialog_content">Wir haben die App überarbeitet, um sie für alle benutzerfreundlicher zu machen.\n\nErfahren Sie mehr über die neu gestaltete App – zusätzliche Optionen und verbesserte Barrierefreiheit bei gleichbleibend hoher Sicherheit.</string>
@@ -275,7 +275,7 @@
         wurde auch Ihr Gesprächsverlauf gelöscht.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Überprüfen Sie Ihr Benutzerkonto</string>
-    <string name="second_factor_authentication_instructions_label">Geben Sie den Bestätigungscode ein, der an die E-Mail-Adresse %1$s gesendet wurde</string>
+    <string name="second_factor_authentication_instructions_label">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="second_factor_code_error">Ungültiger Code oder maximale Versuche überschritten. Bitte versuchen Sie es erneut oder fordern Sie einen anderen Code an</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Bitte ein Gerät entfernen</string>
@@ -995,6 +995,8 @@
     <string name="custom_backend_dialog_body">Wenn Sie fortfahren, wird Ihr Client an das folgende lokale Backend weitergeleitet:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend-Name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend-URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">Blacklist-URL:</string>
     <string name="custom_backend_dialog_body_backend_teams">Teams-URL:</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts-URL:</string>
@@ -1264,6 +1266,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="record_audio_start_label">Aufnahme starten</string>
     <string name="record_audio_recording_label">Audio-Aufnahme…</string>
     <string name="record_audio_send_label">Audionachricht senden</string>
+    <string name="record_audio_apply_filter_label">Apply audio filter</string>
     <string name="record_audio_discard_dialog_title">Audionachricht verwerfen?</string>
     <string name="record_audio_discard_dialog_text">Die Audionachricht wird gelöscht und Sie können sie nicht versenden.</string>
     <string name="record_audio_discard_dialog_discard_button">Verwerfen</string>

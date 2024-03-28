@@ -218,6 +218,7 @@ Wybierz silne has&#322;o, aby chroni&#263; plik kopii zapasowej.</string>
 
 URL &#347;rodowiska:
 %2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">Lokalne &#347;rodowisko</string>
     <string name="welcome_migration_dialog_title">Witaj w naszej nowej aplikacji Android &#128075;</string>
     <string name="welcome_migration_dialog_content">Przebudowali&#347;my aplikacj&#281;, aby by&#322;a bardziej u&#380;yteczna dla ka&#380;dego.
@@ -273,7 +274,7 @@ Dowiedz si&#281; wi&#281;cej o przebudowanej aplikacji Wire - nowe opcje i uspra
     <string name="conversation_history_wipe_explanation">Zgodnie z ustawieniami bezpiecze&#324;stwa Twojego zespo&#322;u historia rozm&#243;w zosta&#322;a r&#243;wnie&#380; usuni&#281;ta.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Zweryfikuj swoje konto</string>
-    <string name="second_factor_authentication_instructions_label">Wpisz kod weryfikacyjny, kt&#243;ry zosta&#322; wys&#322;any na adres e-mail %1$s</string>
+    <string name="second_factor_authentication_instructions_label">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="second_factor_code_error">Nieprawid&#322;owy kod lub maksymalna liczba pr&#243;b wyczerpana. Spr&#243;buj ponownie lub popro&#347; o inny kod.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Usu&#324; urz&#261;dzenie</string>
@@ -1030,6 +1031,8 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
     <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
@@ -1319,6 +1322,7 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
     <string name="record_audio_send_label">Send Audio Message</string>
+    <string name="record_audio_apply_filter_label">Apply audio filter</string>
     <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
     <string name="record_audio_discard_dialog_text">The audio message will be deleted and can not be sent.</string>
     <string name="record_audio_discard_dialog_discard_button">Discard</string>

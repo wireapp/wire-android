@@ -214,6 +214,7 @@
 
 URL backend:
 %2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">Backend In Situ</string>
     <string name="welcome_migration_dialog_title">Benvenuto nella nuova app per Android &#128075;</string>
     <string name="welcome_migration_dialog_content">Abbiamo ricostruito l\'app per renderla pi&#249; adatta a tutti. 
@@ -269,7 +270,7 @@ Scopri di pi&#249; sulla nuova app Wire: nuove opzioni e miglior accessibilit&#2
     <string name="conversation_history_wipe_explanation">In base alle impostazioni di sicurezza del tuo team, anche la cronologia delle conversazioni &#232; stata eliminata.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verifica il tuo account</string>
-    <string name="second_factor_authentication_instructions_label">Inserisci il codice di verifica inviato all\'email %1$s</string>
+    <string name="second_factor_authentication_instructions_label">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="second_factor_code_error">Codice non valido o numero massimo di tentativi superato. Riprova o richiedi un altro codice.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Rimuovi un dispositivo</string>
@@ -988,6 +989,8 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="custom_backend_dialog_body">Se procedi, il tuo client sarà reindirizzato al seguente backend locale:</string>
     <string name="custom_backend_dialog_body_backend_name">Nome del backend:</string>
     <string name="custom_backend_dialog_body_backend_api">URL del backend:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">URL Blacklist:</string>
     <string name="custom_backend_dialog_body_backend_teams">URL Team:</string>
     <string name="custom_backend_dialog_body_backend_accounts">URL dei profili:</string>
@@ -1257,6 +1260,7 @@ registrato. Sei pregato di riprovare.</string>
     <string name="record_audio_start_label">Avvia la registrazione</string>
     <string name="record_audio_recording_label">Registrazione audio…</string>
     <string name="record_audio_send_label">Invia messaggio vocale</string>
+    <string name="record_audio_apply_filter_label">Apply audio filter</string>
     <string name="record_audio_discard_dialog_title">Scartare il messaggio vocale?</string>
     <string name="record_audio_discard_dialog_text">Il messaggio vocale sarà eliminato e non può essere inviato.</string>
     <string name="record_audio_discard_dialog_discard_button">Scarta</string>

@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.composer
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -34,6 +35,7 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.navArgs
+import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -86,6 +88,8 @@ internal class MessageComposerViewModelArrangement {
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
+        coEvery { fileManager.getTempWritableVideoUri(any(), any()) } returns Uri.parse("video.mp4")
+        coEvery { fileManager.getTempWritableImageUri(any(), any()) } returns Uri.parse("image.jpg")
     }
 
     @MockK
@@ -130,6 +134,9 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var saveMessageDraftUseCase: SaveMessageDraftUseCase
 
+    @MockK
+    lateinit var fileManager: FileManager
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -146,6 +153,8 @@ internal class MessageComposerViewModelArrangement {
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
             sendTypingEvent = sendTypingEvent,
             saveMessageDraft = saveMessageDraftUseCase,
+            kaliumFileSystem = fakeKaliumFileSystem,
+            fileManager = fileManager
         )
     }
 

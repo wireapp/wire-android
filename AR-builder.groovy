@@ -65,7 +65,7 @@ pipeline {
         string(name: 'SOURCE_BRANCH', description: 'Branch or PR name to')
         string(name: 'CHANGE_BRANCH', description: 'Change branch name to build only used to checkout the correct branch if  you need the branch name use SOURCE_BRANCH')
         choice(name: 'BUILD_TYPE', choices: ['Compatrelease', 'Debug', 'Release', 'Compat'], description: 'Build Type for the Client')
-        choice(name: 'FLAVOR', choices: ['Prod', 'Dev', 'Staging', 'Internal', 'Beta'], description: 'Product Flavor to build')
+        choice(name: 'FLAVOR', choices: ['Prod', 'Fdroid', 'Dev', 'Staging', 'Internal', 'Beta'], description: 'Product Flavor to build')
         booleanParam(name: 'UPLOAD_TO_S3', defaultValue: false, description: 'Boolean Flag to define if the build should be uploaded to S3')
         booleanParam(name: 'UPLOAD_TO_PLAYSTORE_ENABLED', defaultValue: false, description: 'Boolean Flag to define if the build should be uploaded to Playstore')
         booleanParam(name: 'RUN_UNIT_TEST', defaultValue: true, description: 'Boolean Flag to define if the unit tests should be run')

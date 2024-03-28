@@ -229,7 +229,7 @@ private fun RecordAudioButton(
             text = stringResource(id = bottomText),
             style = MaterialTheme.wireTypography.body02
         )
-        
+
         Spacer(modifier = Modifier.height(dimensions().spacing40x))
         Row(
             verticalAlignment = Alignment.CenterVertically

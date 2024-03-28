@@ -66,7 +66,7 @@ class RecordAudioViewModel @Inject constructor(
 
     private val infoMessage = MutableSharedFlow<UIText>()
 
-    private val TAG = "RecordAudioViewModel"
+    private val tag = "RecordAudioViewModel"
 
     fun getInfoMessage(): SharedFlow<UIText> = infoMessage.asSharedFlow()
 
@@ -166,9 +166,9 @@ class RecordAudioViewModel @Inject constructor(
                     )
 
                 if (result > -1) {
-                    appLogger.i("[$TAG] -> Audio file with effects generated successfully.")
+                    appLogger.i("[$tag] -> Audio file with effects generated successfully.")
                 } else {
-                    appLogger.w("[$TAG] -> There was an issue with generating audio file with effects.")
+                    appLogger.w("[$tag] -> There was an issue with generating audio file with effects.")
                 }
             }
 
@@ -252,14 +252,14 @@ class RecordAudioViewModel @Inject constructor(
                 try {
                     state.originalOutputFile?.toPath()?.deleteIfExists()
                 } catch (exception: IOException) {
-                    appLogger.e("[$TAG] -> Couldn't delete original audio file before sending audio file with effects.")
+                    appLogger.e("[$tag] -> Couldn't delete original audio file before sending audio file with effects.")
                 }
                 state.effectsOutputFile!!.toUri()
             } else {
                 try {
                     state.effectsOutputFile?.toPath()?.deleteIfExists()
                 } catch (exception: IOException) {
-                    appLogger.e("[$TAG] -> Couldn't delete audio file with effects before sending original audio file.")
+                    appLogger.e("[$tag] -> Couldn't delete audio file with effects before sending original audio file.")
                 }
                 state.originalOutputFile!!.toUri()
             }

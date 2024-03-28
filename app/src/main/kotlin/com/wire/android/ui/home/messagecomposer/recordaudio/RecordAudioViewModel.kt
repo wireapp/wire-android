@@ -155,22 +155,20 @@ class RecordAudioViewModel @Inject constructor(
         }
         audioMediaRecorder.release()
 
-        state.originalOutputFile?.let { originalFile ->
-            state.effectsOutputFile?.let { effectsFile ->
-                if (state.shouldApplyEffects) {
-                    val result = AudioEffect(context)
-                        .applyEffectM4A(
-                            originalFile.path,
-                            effectsFile.path,
-                            AudioEffect.AVS_AUDIO_EFFECT_VOCODER_MED,
-                            true
-                        )
+        if (state.originalOutputFile != null && state.effectsOutputFile != null) {
+            if (state.shouldApplyEffects) {
+                val result = AudioEffect(context)
+                    .applyEffectM4A(
+                        state.originalOutputFile!!.path,
+                        state.effectsOutputFile!!.path,
+                        AudioEffect.AVS_AUDIO_EFFECT_VOCODER_MED,
+                        true
+                    )
 
-                    if (result > -1) {
-                        appLogger.i("[$TAG] -> Audio file with effects generated successfully.")
-                    } else {
-                        appLogger.w("[$TAG] -> There was an issue with generating audio file with effects.")
-                    }
+                if (result > -1) {
+                    appLogger.i("[$TAG] -> Audio file with effects generated successfully.")
+                } else {
+                    appLogger.w("[$TAG] -> There was an issue with generating audio file with effects.")
                 }
             }
 

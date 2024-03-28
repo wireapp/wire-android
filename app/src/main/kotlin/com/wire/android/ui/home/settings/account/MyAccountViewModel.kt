@@ -30,6 +30,7 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -53,7 +54,8 @@ class MyAccountViewModel @Inject constructor(
     private val serverConfig: SelfServerConfigUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var myAccountState by mutableStateOf(MyAccountState())
@@ -64,6 +66,9 @@ class MyAccountViewModel @Inject constructor(
 
     @VisibleForTesting
     var managedByWire by Delegates.notNull<Boolean>()
+
+    @VisibleForTesting
+    var isE2EIEnabled by Delegates.notNull<Boolean>()
 
     init {
         runBlocking {
@@ -76,11 +81,12 @@ class MyAccountViewModel @Inject constructor(
 
             // is the account is read only it means it is not maneged by wire
             managedByWire = !isReadOnlyAccount()
+            isE2EIEnabled = isE2EIEnabledUseCase()
         }
         myAccountState = myAccountState.copy(
-            isReadOnlyAccount = !managedByWire,
             isEditEmailAllowed = isChangeEmailEnabledByBuild() && !hasSAMLCred && managedByWire,
-            isEditHandleAllowed = managedByWire
+            isEditNameAllowed = managedByWire && !isE2EIEnabled,
+            isEditHandleAllowed = managedByWire && !isE2EIEnabled
         )
         viewModelScope.launch {
             fetchSelfUser()

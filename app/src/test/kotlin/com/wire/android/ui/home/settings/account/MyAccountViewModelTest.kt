@@ -28,6 +28,7 @@ import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase.Result.Success
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
@@ -55,9 +56,10 @@ class MyAccountViewModelTest {
 
     @Test
     fun `when trying to compute if the user requires password fails, then hasSAMLCred is false`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(IsPasswordRequiredUseCase.Result.Failure(StorageFailure.DataNotFound))
             .withIsReadOnlyAccountResult(true)
+            .withE2EIEnabledResult(false)
             .arrange()
 
         assertFalse(viewModel.hasSAMLCred)
@@ -65,9 +67,10 @@ class MyAccountViewModelTest {
 
     @Test
     fun `when trying to compute if the user requires password return true, then hasSAMLCred is false`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(true))
             .withIsReadOnlyAccountResult(true)
+            .withE2EIEnabledResult(false)
             .arrange()
 
         assertFalse(viewModel.hasSAMLCred)
@@ -75,9 +78,10 @@ class MyAccountViewModelTest {
 
     @Test
     fun `when trying to compute if the user requires password return false, then hasSAMLCred is true`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(true)
+            .withE2EIEnabledResult(false)
             .arrange()
 
         assertTrue(viewModel.hasSAMLCred)
@@ -85,9 +89,10 @@ class MyAccountViewModelTest {
 
     @Test
     fun `when isAccountReadOnly return true, then managedByWire is false`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(true)
+            .withE2EIEnabledResult(false)
             .arrange()
 
         assertFalse(viewModel.managedByWire)
@@ -95,9 +100,10 @@ class MyAccountViewModelTest {
 
     @Test
     fun `when isAccountReadOnly return false, then managedByWire is true`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(false)
+            .withE2EIEnabledResult(false)
             .arrange()
 
         assertTrue(viewModel.managedByWire)
@@ -108,6 +114,7 @@ class MyAccountViewModelTest {
         val (arrangement, _) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(true)
+            .withE2EIEnabledResult(false)
             .arrange()
 
         verify {
@@ -120,6 +127,7 @@ class MyAccountViewModelTest {
         val (arrangement, _) = Arrangement()
             .withUserRequiresPasswordResult(Success(true))
             .withIsReadOnlyAccountResult(true)
+            .withE2EIEnabledResult(false)
             .arrange()
 
         coVerify(exactly = 1) { arrangement.selfServerConfigUseCase() }
@@ -130,6 +138,7 @@ class MyAccountViewModelTest {
         val (_, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(true))
             .withIsReadOnlyAccountResult(false)
+            .withE2EIEnabledResult(false)
             .arrange()
 
         assertTrue(viewModel.myAccountState.isEditHandleAllowed)
@@ -140,6 +149,7 @@ class MyAccountViewModelTest {
         val (_, viewModel) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
             .withIsReadOnlyAccountResult(true)
+            .withE2EIEnabledResult(false)
             .arrange()
 
         assertFalse(viewModel.myAccountState.isEditHandleAllowed)
@@ -151,6 +161,7 @@ class MyAccountViewModelTest {
             .withUserRequiresPasswordResult(Success(true))
             .withIsReadOnlyAccountResult(false)
             .withEmailStatusByBuild(emailEditEnabled = false)
+            .withE2EIEnabledResult(false)
             .arrange()
 
         assertFalse(viewModel.myAccountState.isEditEmailAllowed)
@@ -162,9 +173,32 @@ class MyAccountViewModelTest {
             .withUserRequiresPasswordResult(Success(true))
             .withIsReadOnlyAccountResult(false)
             .withEmailStatusByBuild(emailEditEnabled = true)
+            .withE2EIEnabledResult(false)
             .arrange()
 
         assertTrue(viewModel.myAccountState.isEditEmailAllowed)
+    }
+
+    @Test
+    fun `given e2ei is enabled, then edit name is NOT allowed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withUserRequiresPasswordResult(Success(true))
+            .withIsReadOnlyAccountResult(false)
+            .withE2EIEnabledResult(true)
+            .arrange()
+
+        assertFalse(viewModel.myAccountState.isEditNameAllowed)
+    }
+
+    @Test
+    fun `given e2ei is NOT enabled, then edit name IS allowed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withUserRequiresPasswordResult(Success(true))
+            .withIsReadOnlyAccountResult(false)
+            .withE2EIEnabledResult(false)
+            .arrange()
+
+        assertTrue(viewModel.myAccountState.isEditNameAllowed)
     }
 
     private class Arrangement {
@@ -187,6 +221,9 @@ class MyAccountViewModelTest {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
 
+        @MockK
+        lateinit var isE2EIEnabledUseCase: IsE2EIEnabledUseCase
+
         private val viewModel by lazy {
             MyAccountViewModel(
                 savedStateHandle,
@@ -195,7 +232,8 @@ class MyAccountViewModelTest {
                 selfServerConfigUseCase,
                 isPasswordRequiredUseCase,
                 isReadOnlyAccountUseCase,
-                TestDispatcherProvider()
+                TestDispatcherProvider(),
+                isE2EIEnabledUseCase
             )
         }
 
@@ -217,6 +255,10 @@ class MyAccountViewModelTest {
 
         fun withIsReadOnlyAccountResult(result: Boolean) = apply {
             coEvery { isReadOnlyAccountUseCase() } returns result
+        }
+
+        fun withE2EIEnabledResult(result: Boolean) = apply {
+            coEvery { isE2EIEnabledUseCase() } returns result
         }
 
         fun arrange() = this to viewModel

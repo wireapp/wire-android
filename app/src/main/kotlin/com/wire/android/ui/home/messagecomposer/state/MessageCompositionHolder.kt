@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.messagecomposer.state
 
-import android.location.Location
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -25,7 +24,6 @@ import androidx.compose.ui.text.input.getSelectedText
 import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
-import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.model.mapToQuotedContent
 import com.wire.android.ui.home.conversations.model.toUiMention
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
@@ -38,6 +36,7 @@ import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
@@ -260,7 +259,7 @@ class MessageCompositionHolder(
         onSaveDraft(messageComposition.value.toDraft())
     }
 
-    fun toMessageBundle() = messageComposition.value.toMessageBundle()
+    fun toMessageBundle(conversationId: ConversationId) = messageComposition.value.toMessageBundle(conversationId)
 }
 
 private fun TextFieldValue.currentMentionStartIndex(): Int {
@@ -277,38 +276,6 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
         else -> -1
     }
 }
-
-interface MessageBundle
-
-sealed class ComposableMessageBundle : MessageBundle {
-    data class EditMessageBundle(
-        val originalMessageId: String,
-        val newContent: String,
-        val newMentions: List<UIMention>
-    ) : ComposableMessageBundle()
-
-    data class SendTextMessageBundle(
-        val message: String,
-        val mentions: List<UIMention>,
-        val quotedMessageId: String? = null
-    ) : ComposableMessageBundle()
-
-    data class AttachmentPickedBundle(
-        val attachmentUri: UriAsset
-    ) : ComposableMessageBundle()
-
-    data class AudioMessageBundle(
-        val attachmentUri: UriAsset
-    ) : ComposableMessageBundle()
-
-    data class LocationBundle(
-        val locationName: String,
-        val location: Location,
-        val zoom: Int = 20
-    ) : ComposableMessageBundle()
-}
-
-object Ping : MessageBundle
 
 enum class RichTextMarkdown(val value: String) {
     Header("# "),

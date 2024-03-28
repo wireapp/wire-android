@@ -80,6 +80,7 @@ import com.wire.android.util.ui.markdownBold
 import com.wire.android.util.ui.markdownText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlin.math.roundToInt
 
 @Suppress("ComplexMethod")
@@ -88,7 +89,7 @@ fun SystemMessageItem(
     message: UIMessage.System,
     initiallyExpanded: Boolean = false,
     isInteractionAvailable: Boolean = true,
-    onFailedMessageRetryClicked: (String) -> Unit = {},
+    onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onSelfDeletingMessageRead: (UIMessage) -> Unit = {}
 ) {
@@ -216,7 +217,7 @@ fun SystemMessageItem(
                 MessageSendFailureWarning(
                     messageStatus = message.header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
                     isInteractionAvailable = isInteractionAvailable,
-                    onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId) } },
+                    onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId, message.conversationId) } },
                     onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
                 )
             }

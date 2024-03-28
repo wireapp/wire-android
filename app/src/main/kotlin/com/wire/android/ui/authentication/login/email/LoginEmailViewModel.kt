@@ -36,7 +36,6 @@ import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
@@ -72,7 +71,7 @@ class LoginEmailViewModel @Inject constructor(
     )
 
     @Suppress("LongMethod")
-    fun login(onSuccess: (initialSyncCompleted: Boolean) -> Unit) {
+    fun login(onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
             val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
@@ -123,7 +122,12 @@ class LoginEmailViewModel @Inject constructor(
                     }
 
                     is RegisterClientResult.Success -> {
-                        onSuccess(isInitialSyncCompleted(storedUserId))
+                        onSuccess(isInitialSyncCompleted(storedUserId), false)
+                    }
+
+                    is RegisterClientResult.E2EICertificateRequired -> {
+                        onSuccess(isInitialSyncCompleted(storedUserId), true)
+                        return@launch
                     }
                 }
             }
@@ -132,29 +136,27 @@ class LoginEmailViewModel @Inject constructor(
 
     private suspend fun resolveCurrentAuthScope(): AuthenticationScope? =
         coreLogic.versionedAuthenticationScope(serverConfig).invoke(
-        AutoVersionAuthScopeUseCase.ProxyAuthentication.UsernameAndPassword(
-            ProxyCredentials(loginState.proxyIdentifier.text, loginState.proxyPassword.text)
-        )
-    ).let {
-        when (it) {
-            is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+            loginState.getProxyCredentials()
+        ).let {
+            when (it) {
+                is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
-            is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
-                updateEmailLoginError(LoginError.DialogError.ServerVersionNotSupported)
-                return null
-            }
+                is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                    updateEmailLoginError(LoginError.DialogError.ServerVersionNotSupported)
+                    return null
+                }
 
-            is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
-                updateEmailLoginError(LoginError.DialogError.ClientUpdateRequired)
-                return null
-            }
+                is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
+                    updateEmailLoginError(LoginError.DialogError.ClientUpdateRequired)
+                    return null
+                }
 
-            is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
-                updateEmailLoginError(LoginError.DialogError.GenericError(it.genericFailure))
-                return null
+                is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
+                    updateEmailLoginError(LoginError.DialogError.GenericError(it.genericFailure))
+                    return null
+                }
             }
         }
-    }
 
     private suspend fun handleAuthenticationFailure(it: AuthenticationResult.Failure, authScope: AuthenticationScope) {
         when (it) {
@@ -215,7 +217,7 @@ class LoginEmailViewModel @Inject constructor(
         loginState = loginState.copy(proxyPassword = newText).updateEmailLoginEnabled()
     }
 
-    fun onCodeChange(newValue: CodeFieldValue, onSuccess: (initialSyncCompleted: Boolean) -> Unit) {
+    fun onCodeChange(newValue: CodeFieldValue, onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
         secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(codeInput = newValue, isCurrentCodeInvalid = false)
         if (newValue.isFullyFilled) {
             login(onSuccess)

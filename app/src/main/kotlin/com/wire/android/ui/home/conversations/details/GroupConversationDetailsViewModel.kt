@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -43,6 +44,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
@@ -134,6 +136,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 .distinctUntilChanged()
 
             val selfTeam = getSelfTeam().getOrNull()
+            val selfUser = observerSelfUser().first()
 
             combine(
                 groupDetailsFlow,
@@ -142,6 +145,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
             ) { groupDetails, isSelfAnAdmin, selfDeletionTimer ->
 
                 val isSelfInOwnerTeam = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
+                val isSelfExternalMember = selfUser.userType == UserType.EXTERNAL
 
                 conversationSheetContent = ConversationSheetContent(
                     title = groupDetails.conversation.name.orEmpty(),
@@ -153,27 +157,24 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     isArchived = groupDetails.conversation.archived,
                     protocol = groupDetails.conversation.protocol,
                     mlsVerificationStatus = groupDetails.conversation.mlsVerificationStatus,
-                    proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus
+                    proteusVerificationStatus = groupDetails.conversation.proteusVerificationStatus,
+                    isUnderLegalHold = groupDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
                 )
-                val isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed()
-                val isUpdatingReadReceiptAllowed = if (selfTeam == null) {
-                    if (groupDetails.conversation.teamId != null) isSelfAnAdmin else false
-                } else {
-                    isSelfAnAdmin
-                }
 
                 updateState(
                     groupOptionsState.value.copy(
                         groupName = groupDetails.conversation.name.orEmpty(),
                         protocolInfo = groupDetails.conversation.protocol,
                         areAccessOptionsAvailable = groupDetails.conversation.isTeamGroup(),
-                        isGuestAllowed = isGuestAllowed,
+                        isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed(),
                         isServicesAllowed = groupDetails.conversation.isServicesAllowed(),
-                        isUpdatingAllowed = isSelfAnAdmin,
+                        isUpdatingNameAllowed = isSelfAnAdmin && !isSelfExternalMember,
                         isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
+                        isUpdatingServicesAllowed = isSelfAnAdmin,
+                        isUpdatingReadReceiptAllowed = isSelfAnAdmin && groupDetails.conversation.isTeamGroup(),
+                        isUpdatingSelfDeletingAllowed = isSelfAnAdmin,
                         mlsEnabled = isMLSEnabled(),
                         isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
-                        isUpdatingReadReceiptAllowed = isUpdatingReadReceiptAllowed,
                         selfDeletionTimer = selfDeletionTimer
                     )
                 )
@@ -251,7 +252,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val result = withContext(dispatcher.io()) {
                 updateConversationAccess(
-                    enableGuestAndNonTeamMember = groupOptionsState.value.isGuestAllowed && groupOptionsState.value.isUpdatingGuestAllowed,
+                    enableGuestAndNonTeamMember = groupOptionsState.value.isGuestAllowed,
                     enableServices = enableServices,
                     conversationId = conversationId
                 )

@@ -121,6 +121,16 @@ pipeline {
                         }
                     }
                 }
+
+                stage('Keep builds forever if important') {
+                    steps {
+                        script {
+                            if (params.SOURCE_BRANCH.startsWith("release/") || params.SOURCE_BRANCH == "develop" || params.SOURCE_BRANCH == "main" || params.SOURCE_BRANCH == "prod") {
+                                currentBuild.keepLog = true
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -540,7 +550,6 @@ pipeline {
                 }
             }
 
-            sh './gradlew jacocoReport'
             wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${SOURCE_BRANCH}] - ✅ SUCCESS 🎉" + "\nLast 5 commits:\n```text\n$lastCommits\n```")
         }
 

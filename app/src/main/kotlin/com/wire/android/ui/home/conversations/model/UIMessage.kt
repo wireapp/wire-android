@@ -36,17 +36,21 @@ import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.android.ui.theme.Accent
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Duration
 
 sealed interface UIMessage {
+    val conversationId: ConversationId
     val header: MessageHeader
     val source: MessageSource
     val messageContent: UIMessageContent?
@@ -55,6 +59,7 @@ sealed interface UIMessage {
     val isPending: Boolean
 
     data class Regular(
+        override val conversationId: ConversationId,
         override val header: MessageHeader,
         override val source: MessageSource,
         val userAvatarData: UserAvatarData,
@@ -75,6 +80,7 @@ sealed interface UIMessage {
     }
 
     data class System(
+        override val conversationId: ConversationId,
         override val header: MessageHeader,
         override val source: MessageSource,
         override val messageContent: UIMessageContent.SystemMessage
@@ -83,8 +89,6 @@ sealed interface UIMessage {
         override val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
         override val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val addingFailed: Boolean = messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd
-        val singleUserAddFailed: Boolean =
-            messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd && messageContent.usersCount == 1
     }
 }
 
@@ -100,7 +104,8 @@ data class MessageHeader(
     val connectionState: ConnectionState?,
     val isSenderDeleted: Boolean,
     val isSenderUnavailable: Boolean,
-    val clientId: ClientId? = null
+    val clientId: ClientId? = null,
+    val accent: Accent = Accent.Unknown,
 )
 
 @Stable
@@ -222,7 +227,7 @@ sealed class UIMessageContent {
 
     data class Composite(
         val messageBody: MessageBody?,
-        val buttonList: List<MessageButton>
+        val buttonList: PersistentList<MessageButton>
     ) : Regular(), Copyable {
         override fun textToCopy(resources: Resources): String? = messageBody?.message?.asString(resources)
     }
@@ -242,8 +247,6 @@ sealed class UIMessageContent {
         val assetExtension: String,
         val assetId: AssetId,
         val assetSizeInBytes: Long,
-        val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular(), PartialDeliverable
 
@@ -252,8 +255,6 @@ sealed class UIMessageContent {
         val asset: ImageAsset.PrivateAsset?,
         val width: Int,
         val height: Int,
-        val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular(), PartialDeliverable
 
@@ -263,8 +264,6 @@ sealed class UIMessageContent {
         val assetExtension: String,
         val assetId: AssetId,
         val audioMessageDurationInMs: Long,
-        val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular(), PartialDeliverable
 
@@ -512,16 +511,25 @@ sealed class UIMessageContent {
         )
 
         data class MemberFailedToAdd(
-            val memberNames: List<UIText>
+            val memberNames: List<UIText>,
+            val type: Type,
         ) : SystemMessage(
             R.drawable.ic_info,
             if (memberNames.size > 1) {
                 R.string.label_system_message_conversation_failed_add_many_members_details
             } else {
                 R.string.label_system_message_conversation_failed_add_one_member_details
+            },
+            learnMoreResId = when (type) {
+                Type.Federation -> R.string.url_message_details_offline_backends_learn_more
+                Type.LegalHold -> R.string.url_legal_hold_learn_more
+                Type.Unknown -> null
             }
+
         ) {
             val usersCount = memberNames.size
+
+            enum class Type { Federation, LegalHold, Unknown; }
         }
 
         data class ConversationDegraded(val protocol: Conversation.Protocol) : SystemMessage(
@@ -575,41 +583,6 @@ data class MessageBody(
     val message: UIText,
     val quotedMessage: UIQuotedMessage? = null
 )
-
-sealed class UIQuotedMessage {
-
-    object UnavailableData : UIQuotedMessage()
-
-    data class UIQuotedData(
-        val messageId: String,
-        val senderId: UserId,
-        val senderName: UIText,
-        val originalMessageDateDescription: UIText,
-        val editedTimeDescription: UIText?,
-        val quotedContent: Content
-    ) : UIQuotedMessage() {
-
-        sealed interface Content
-
-        data class Text(val value: String) : Content
-
-        data class GenericAsset(
-            val assetName: String?,
-            val assetMimeType: String
-        ) : Content
-
-        data class DisplayableImage(
-            val displayable: ImageAsset.PrivateAsset
-        ) : Content
-
-        data class Location(val locationName: String) : Content
-
-        object AudioMessage : Content
-
-        object Deleted : Content
-        object Invalid : Content
-    }
-}
 
 enum class MessageSource {
     Self, OtherUser

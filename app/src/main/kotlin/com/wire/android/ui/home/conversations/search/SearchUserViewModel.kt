@@ -26,7 +26,10 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
+import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -39,8 +42,10 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchUserViewModel @Inject constructor(
     private val searchUserUseCase: SearchUsersUseCase,
+    private val searchByHandleUseCase: SearchByHandleUseCase,
     private val contactMapper: ContactMapper,
     private val federatedSearchParser: FederatedSearchParser,
+    private val validateUserHandle: ValidateUserHandleUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -61,7 +66,29 @@ class SearchUserViewModel @Inject constructor(
     @VisibleForTesting
     suspend fun safeSearch(query: String) {
         val (searchTerm, domain) = federatedSearchParser(query)
+        val isHandleSearch = validateUserHandle(searchTerm.removeQueryPrefix()) is ValidateUserHandleResult.Valid
 
+        if (isHandleSearch) {
+            searchByHandle(searchTerm, domain)
+        } else {
+            searchByName(searchTerm, domain)
+        }
+    }
+
+    private suspend fun searchByHandle(searchTerm: String, domain: String?) {
+        searchByHandleUseCase(
+            searchTerm,
+            excludingConversation = addMembersSearchNavArgs?.conversationId,
+            customDomain = domain
+        ).also { userSearchEntities ->
+            state = state.copy(
+                contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
+                publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList()
+            )
+        }
+    }
+
+    private suspend fun searchByName(searchTerm: String, domain: String?) {
         searchUserUseCase(
             searchTerm,
             excludingMembersOfConversation = addMembersSearchNavArgs?.conversationId,

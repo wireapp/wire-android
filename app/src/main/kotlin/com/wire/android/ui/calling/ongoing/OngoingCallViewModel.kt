@@ -33,11 +33,14 @@ import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
+import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
+import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -54,7 +57,8 @@ class OngoingCallViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val establishedCalls: ObserveEstablishedCallsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
-    private val currentScreenManager: CurrentScreenManager,
+    private val setVideoSendState: SetVideoSendStateUseCase,
+    private val currentScreenManager: CurrentScreenManager
 ) : ViewModel() {
 
     private val ongoingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
@@ -70,11 +74,34 @@ class OngoingCallViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             establishedCalls().first { it.isNotEmpty() }.run {
+                initCameraState(this)
                 // We start observing once we have an ongoing call
                 observeCurrentCall()
             }
         }
         showDoubleTapToast()
+    }
+
+    private fun initCameraState(calls: List<Call>) {
+        val currentCall = calls.find { call -> call.conversationId == conversationId }
+        currentCall?.let {
+            if (it.isCameraOn) {
+                startSendingVideoFeed()
+            } else {
+                stopSendingVideoFeed()
+            }
+        }
+    }
+
+    fun startSendingVideoFeed() {
+        viewModelScope.launch {
+            setVideoSendState(conversationId, VideoState.STARTED)
+        }
+    }
+    fun stopSendingVideoFeed() {
+        viewModelScope.launch {
+            setVideoSendState(conversationId, VideoState.STOPPED)
+        }
     }
 
     private suspend fun observeCurrentCall() {

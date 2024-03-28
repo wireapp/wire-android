@@ -21,11 +21,14 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import androidx.work.WorkManager
+import androidx.work.impl.OperationImpl
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
@@ -588,6 +591,7 @@ class WireActivityViewModelTest {
     }
 
     private class Arrangement {
+
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -608,6 +612,10 @@ class WireActivityViewModelTest {
             coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
+            coEvery { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin() } returns
+                    flowOf(false)
+            every { workManager.cancelAllWorkByTag(any()) } returns OperationImpl()
+            every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns OperationImpl()
         }
 
         @MockK
@@ -664,7 +672,13 @@ class WireActivityViewModelTest {
         private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory
 
         @MockK
+        private lateinit var observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory
+
+        @MockK
         lateinit var globalDataStore: GlobalDataStore
+
+        @MockK
+        lateinit var workManager: WorkManager
 
         @MockK(relaxed = true)
         lateinit var onDeepLinkResult: (DeepLinkResult) -> Unit
@@ -691,7 +705,9 @@ class WireActivityViewModelTest {
                 clearNewClientsForUser = clearNewClientsForUser,
                 currentScreenManager = currentScreenManager,
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
-                globalDataStore = globalDataStore
+                globalDataStore = globalDataStore,
+                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
+                workManager = workManager
             )
         }
 
@@ -755,6 +771,7 @@ class WireActivityViewModelTest {
 
         fun withCurrentScreen(currentScreenFlow: StateFlow<CurrentScreen>) = apply {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns currentScreenFlow
+            coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).observeIfE2EIRequiredDuringLogin() } returns flowOf(false)
         }
 
         suspend fun withScreenshotCensoringConfig(result: ObserveScreenshotCensoringConfigResult) = apply {

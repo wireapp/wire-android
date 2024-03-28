@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LocationPickerViewModel @Inject constructor(private val locationPickerHelper: LocationPickerHelper) : ViewModel() {
+class LocationPickerViewModel @Inject constructor(private val locationPickerHelper: LocationPickerHelperFlavor) : ViewModel() {
 
     var state: LocationPickerState by mutableStateOf(LocationPickerState())
         private set
@@ -40,7 +40,7 @@ class LocationPickerViewModel @Inject constructor(private val locationPickerHelp
         state = state.copy(showLocationSharingError = false)
     }
 
-    fun onPermissionsDenied() {
+    fun onPermissionPermanentlyDenied() {
         state = state.copy(showPermissionDeniedDialog = true)
     }
 

@@ -32,32 +32,41 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
+import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -77,7 +86,8 @@ class ConversationMessagesViewModel @Inject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
-    private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
+    private val updateAssetMessageDownloadStatus: UpdateAssetMessageTransferStatusUseCase,
+    private val observeAssetStatusesUseCase: ObserveAssetStatusesUseCase,
     private val fileManager: FileManager,
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
@@ -86,7 +96,8 @@ class ConversationMessagesViewModel @Inject constructor(
     private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer,
     private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase,
     private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase,
-    private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase
+    private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
+    private val deleteMessage: DeleteMessageUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -100,6 +111,27 @@ class ConversationMessagesViewModel @Inject constructor(
     )
         private set
 
+    var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
+        DeleteMessageDialogsState.States(
+            forYourself = DeleteMessageDialogActiveState.Hidden,
+            forEveryone = DeleteMessageDialogActiveState.Hidden
+        )
+    )
+        private set
+
+    val deleteMessageHelper = DeleteMessageDialogHelper(
+        viewModelScope,
+        conversationId,
+        ::updateDeleteDialogState
+    ) { messageId, deleteForEveryone, _ ->
+        deleteMessage(
+            conversationId = conversationId,
+            messageId = messageId,
+            deleteForEveryone = deleteForEveryone
+        )
+            .onFailure { onSnackbarMessage(ConversationSnackbarMessages.ErrorDeletingMessage) }
+    }
+
     private var lastImageMessageShownOnGallery: UIMessage.Regular? = null
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -109,6 +141,20 @@ class ConversationMessagesViewModel @Inject constructor(
         loadPaginatedMessages()
         loadLastMessageInstant()
         observeAudioPlayerState()
+        observeAssetStatuses()
+    }
+
+    fun navigateToReplyOriginalMessage(message: UIMessage) {
+        if (message.messageContent is UIMessageContent.TextMessage) {
+            val originalMessageId =
+                ((message.messageContent as UIMessageContent.TextMessage)
+                    .messageBody.quotedMessage as UIQuotedMessage.UIQuotedData)
+                    .messageId
+            conversationViewState = conversationViewState.copy(
+                searchedMessageId = originalMessageId
+            )
+            loadPaginatedMessages()
+        }
     }
 
     private fun clearOrphanedTypingEvents() {
@@ -119,7 +165,17 @@ class ConversationMessagesViewModel @Inject constructor(
         viewModelScope.launch {
             conversationAudioMessagePlayer.observableAudioMessagesState.collect {
                 conversationViewState = conversationViewState.copy(
-                    audioMessagesState = it
+                    audioMessagesState = it.toPersistentMap()
+                )
+            }
+        }
+    }
+
+    private fun observeAssetStatuses() {
+        viewModelScope.launch {
+            observeAssetStatusesUseCase(conversationId).collect {
+                conversationViewState = conversationViewState.copy(
+                    assetStatuses = it.toPersistentMap()
                 )
             }
         }
@@ -215,6 +271,7 @@ class ConversationMessagesViewModel @Inject constructor(
                 val assetContent = messageContent.value
                 assetDataPath(conversationId, messageId)?.let { (path, _) ->
                     messageId to AssetBundle(
+                        key = assetContent.remoteData.assetId,
                         dataPath = path,
                         fileName = assetContent.name ?: DEFAULT_ASSET_NAME,
                         dataSize = assetContent.sizeInBytes,
@@ -225,7 +282,7 @@ class ConversationMessagesViewModel @Inject constructor(
             } catch (e: OutOfMemoryError) {
                 appLogger.e("There was an OutOfMemory error while downloading the asset")
                 onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
-                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId)
+                updateAssetMessageDownloadStatus(AssetTransferStatus.FAILED_DOWNLOAD, conversationId, messageId)
                 null
             }
         }
@@ -244,7 +301,7 @@ class ConversationMessagesViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize) { savedFileName: String? ->
-                    updateAssetMessageDownloadStatus(Message.DownloadStatus.SAVED_EXTERNALLY, conversationId, messageId)
+                    updateAssetMessageDownloadStatus(AssetTransferStatus.SAVED_EXTERNALLY, conversationId, messageId)
                     onFileSavedToExternalStorage(savedFileName)
                     hideOnAssetDownloadedDialog()
                 }
@@ -306,6 +363,11 @@ class ConversationMessagesViewModel @Inject constructor(
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
     }
 
+    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
+        (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let {
+            deleteMessageDialogsState = newValue(it)
+        }
+
     fun audioClick(messageId: String) {
         viewModelScope.launch {
             conversationAudioMessagePlayer.playAudio(conversationId, messageId)
@@ -334,6 +396,27 @@ class ConversationMessagesViewModel @Inject constructor(
         }
         return null
     }
+
+    fun showDeleteMessageDialog(messageId: String, deleteForEveryone: Boolean) =
+        if (deleteForEveryone) {
+            updateDeleteDialogState {
+                it.copy(
+                    forEveryone = DeleteMessageDialogActiveState.Visible(
+                        messageId = messageId,
+                        conversationId = conversationId
+                    )
+                )
+            }
+        } else {
+            updateDeleteDialogState {
+                it.copy(
+                    forYourself = DeleteMessageDialogActiveState.Visible(
+                        messageId = messageId,
+                        conversationId = conversationId
+                    )
+                )
+            }
+        }
 
     override fun onCleared() {
         super.onCleared()

@@ -31,16 +31,19 @@ import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockFooter
 import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
-import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTextAndLinks
 import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownListAndImages
 import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTablesAndBlocks
+import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTextAndLinks
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
+import com.wire.android.ui.home.conversations.mock.mockMessageWithTextLoremIpsum
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.persistentMapOf
 
 private val previewUserId = UserId("value", "domain")
 
@@ -57,7 +60,8 @@ fun PreviewMessage() {
                     )
                 )
             ),
-            audioMessagesState = emptyMap(),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -67,7 +71,7 @@ fun PreviewMessage() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = {},
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -86,7 +90,8 @@ fun PreviewMessageWithReactions() {
                 ),
                 messageFooter = mockFooter
             ),
-            audioMessagesState = emptyMap(),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -96,7 +101,7 @@ fun PreviewMessageWithReactions() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = {},
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -126,7 +131,8 @@ fun PreviewMessageWithReply() {
                     )
                 )
             ),
-            audioMessagesState = emptyMap(),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -136,7 +142,7 @@ fun PreviewMessageWithReply() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = {},
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -156,7 +162,8 @@ fun PreviewDeletedMessage() {
                     )
                 )
             },
-            audioMessagesState = emptyMap(),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -166,7 +173,7 @@ fun PreviewDeletedMessage() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -187,7 +194,8 @@ fun PreviewFailedSendMessage() {
                     messageFooter = mockFooter.copy(reactions = emptyMap(), ownReactions = emptySet())
                 )
             },
-            audioMessagesState = emptyMap(),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -197,7 +205,7 @@ fun PreviewFailedSendMessage() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -218,7 +226,8 @@ fun PreviewFailedDecryptionMessage() {
                     messageFooter = mockFooter.copy(reactions = emptyMap(), ownReactions = emptySet())
                 )
             },
-            audioMessagesState = emptyMap(),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -228,7 +237,7 @@ fun PreviewFailedDecryptionMessage() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -239,7 +248,8 @@ fun PreviewAssetMessageWithReactions() {
     WireTheme {
         MessageItem(
             message = mockAssetMessage().copy(messageFooter = mockFooter),
-            audioMessagesState = emptyMap(),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -249,7 +259,7 @@ fun PreviewAssetMessageWithReactions() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -263,8 +273,7 @@ fun PreviewImportedMediaAssetMessageContent() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
-            assetDownloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
+            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
             shouldFillMaxWidth = false,
             isImportedMediaAsset = true
         )
@@ -280,8 +289,7 @@ fun PreviewWideImportedAssetMessageContent() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
-            assetDownloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
+            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
             shouldFillMaxWidth = true,
             isImportedMediaAsset = true
         )
@@ -297,8 +305,7 @@ fun PreviewLoadingAssetMessage() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
-            assetDownloadStatus = Message.DownloadStatus.DOWNLOAD_IN_PROGRESS,
+            assetTransferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
             shouldFillMaxWidth = true,
             isImportedMediaAsset = false
         )
@@ -314,8 +321,7 @@ fun PreviewFailedDownloadAssetMessage() {
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
-            assetDownloadStatus = Message.DownloadStatus.FAILED_DOWNLOAD,
+            assetTransferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
             shouldFillMaxWidth = true,
             isImportedMediaAsset = false
         )
@@ -327,8 +333,10 @@ fun PreviewFailedDownloadAssetMessage() {
 fun PreviewImageMessageUploaded() {
     WireTheme {
         MessageItem(
-            message = mockedImageUIMessage(Message.UploadStatus.UPLOADED),
-            audioMessagesState = emptyMap(),
+            message = mockedImageUIMessage(messageId = "assetMessageId"),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
+            assetStatus = AssetTransferStatus.UPLOADED,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -338,7 +346,7 @@ fun PreviewImageMessageUploaded() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -348,8 +356,10 @@ fun PreviewImageMessageUploaded() {
 fun PreviewImageMessageUploading() {
     WireTheme {
         MessageItem(
-            message = mockedImageUIMessage(Message.UploadStatus.UPLOAD_IN_PROGRESS),
-            audioMessagesState = emptyMap(),
+            message = mockedImageUIMessage("assetMessageId"),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
+            assetStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -359,7 +369,7 @@ fun PreviewImageMessageUploading() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -370,13 +380,15 @@ fun PreviewImageMessageFailedUpload() {
     WireTheme {
         MessageItem(
             message = mockedImageUIMessage(
-                uploadStatus = Message.UploadStatus.FAILED_UPLOAD,
+                messageId = "assetMessageId",
                 messageStatus = MessageStatus(
                     flowStatus = MessageFlowStatus.Failure.Send.Locally(false),
                     expirationStatus = ExpirationStatus.NotExpirable
                 )
             ),
-            audioMessagesState = emptyMap(),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
+            assetStatus = AssetTransferStatus.FAILED_UPLOAD,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -386,7 +398,7 @@ fun PreviewImageMessageFailedUpload() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = { },
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -398,7 +410,8 @@ fun PreviewMessageWithSystemMessage() {
         Column {
             MessageItem(
                 message = mockMessageWithText,
-                audioMessagesState = emptyMap(),
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -408,7 +421,7 @@ fun PreviewMessageWithSystemMessage() {
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
                 onSelfDeletingMessageRead = { },
-                conversationDetailsData = ConversationDetailsData.None
+                onReplyClickable = null
             )
             SystemMessageItem(
                 mockMessageWithKnock.copy(
@@ -442,7 +455,8 @@ fun PreviewMessagesWithUnavailableQuotedMessage() {
                     )
                 )
             ),
-            audioMessagesState = emptyMap(),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -452,7 +466,7 @@ fun PreviewMessagesWithUnavailableQuotedMessage() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = {},
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -464,7 +478,8 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
         Column {
             MessageItem(
                 message = mockMessageWithText,
-                audioMessagesState = emptyMap(),
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -474,7 +489,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
                 onSelfDeletingMessageRead = {},
-                conversationDetailsData = ConversationDetailsData.None
+                onReplyClickable = null
             )
             MessageItem(
                 message = mockMessageWithText.copy(
@@ -485,8 +500,9 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                         )
                     )
                 ),
+                conversationDetailsData = ConversationDetailsData.None,
                 showAuthor = false,
-                audioMessagesState = emptyMap(),
+                audioMessagesState = persistentMapOf(),
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -496,7 +512,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
                 onSelfDeletingMessageRead = {},
-                conversationDetailsData = ConversationDetailsData.None
+                onReplyClickable = null
             )
             MessageItem(
                 message = mockMessageWithText.copy(
@@ -507,8 +523,9 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                         )
                     )
                 ),
+                conversationDetailsData = ConversationDetailsData.None,
                 showAuthor = false,
-                audioMessagesState = emptyMap(),
+                audioMessagesState = persistentMapOf(),
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -518,7 +535,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
                 onSelfDeletingMessageRead = {},
-                conversationDetailsData = ConversationDetailsData.None
+                onReplyClickable = null
             )
         }
     }
@@ -530,7 +547,8 @@ fun PreviewMessageWithMarkdownTextAndLinks() {
     WireTheme {
         MessageItem(
             message = mockMessageWithMarkdownTextAndLinks,
-            audioMessagesState = emptyMap(),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -540,7 +558,7 @@ fun PreviewMessageWithMarkdownTextAndLinks() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = {},
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -551,7 +569,8 @@ fun PreviewMessageWithMarkdownListAndImages() {
     WireTheme {
         MessageItem(
             message = mockMessageWithMarkdownListAndImages,
-            audioMessagesState = emptyMap(),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -561,7 +580,7 @@ fun PreviewMessageWithMarkdownListAndImages() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = {},
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
     }
 }
@@ -572,7 +591,8 @@ fun PreviewMessageWithMarkdownTablesAndBlocks() {
     WireTheme {
         MessageItem(
             message = mockMessageWithMarkdownTablesAndBlocks,
-            audioMessagesState = emptyMap(),
+            conversationDetailsData = ConversationDetailsData.None,
+            audioMessagesState = persistentMapOf(),
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -582,7 +602,122 @@ fun PreviewMessageWithMarkdownTablesAndBlocks() {
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
             onSelfDeletingMessageRead = {},
-            conversationDetailsData = ConversationDetailsData.None
+            onReplyClickable = null
         )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageWithMarkdownQuery() {
+    WireTheme {
+        Column {
+            MessageItem(
+                message = mockMessageWithTextLoremIpsum,
+                searchQuery = "ed",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+            MessageItem(
+                message = mockMessageWithMarkdownTextAndLinks,
+                searchQuery = "code",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+            MessageItem(
+                message = mockMessageWithMarkdownTextAndLinks,
+                searchQuery = ".com",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+            MessageItem(
+                message = mockMessageWithMarkdownListAndImages,
+                searchQuery = "can",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+            MessageItem(
+                message = mockMessageWithMarkdownTablesAndBlocks,
+                searchQuery = "Joh",
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+                onReplyClickable = null
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageWithAccents() = WireTheme {
+    Column {
+        Accent.entries.forEach {
+            MessageItem(
+                message = mockMessageWithText.copy(
+                    header = mockHeader.copy(username = UIText.DynamicString(it.name), accent = it),
+                    messageContent = UIMessageContent.TextMessage(MessageBody(UIText.DynamicString("Text")))
+                ),
+                conversationDetailsData = ConversationDetailsData.None,
+                audioMessagesState = persistentMapOf(),
+                onLongClicked = {},
+                onAssetMessageClicked = {},
+                onAudioClick = {},
+                onChangeAudioPosition = { _, _ -> },
+                onImageMessageClicked = { _, _ -> },
+                onOpenProfile = { _ -> },
+                onReactionClicked = { _, _ -> },
+                onResetSessionClicked = { _, _ -> },
+                onSelfDeletingMessageRead = {},
+            )
+        }
     }
 }

@@ -25,7 +25,6 @@ import com.wire.android.mapper.UIAssetMapper
 import com.wire.android.util.time.TimeZoneProvider
 import com.wire.kalium.logic.data.asset.AssetMessage
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.asset.ObservePaginatedAssetImageMessages
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -112,7 +111,6 @@ class ObserveImageAssetMessagesFromConversationUseCaseTest {
             assetId = assetId,
             width = 640,
             height = 480,
-            downloadStatus = Message.DownloadStatus.SAVED_INTERNALLY,
             assetPath = "asset/path".toPath(),
             isSelfAsset = false
         )

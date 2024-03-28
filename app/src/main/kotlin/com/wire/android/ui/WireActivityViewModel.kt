@@ -24,11 +24,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
@@ -47,6 +49,8 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
+import com.wire.android.workmanager.worker.cancelPeriodicPersistentWebsocketCheckWorker
+import com.wire.android.workmanager.worker.enqueuePeriodicPersistentWebsocketCheckWorker
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -111,6 +115,8 @@ class WireActivityViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: GlobalDataStore,
+    private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
+    private val workManager: WorkManager,
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -143,6 +149,13 @@ class WireActivityViewModel @Inject constructor(
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
+    private val observeE2EIState = observeUserId
+        .flatMapLatest {
+            it?.let { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(it).observeIfE2EIIsRequiredDuringLogin() }
+                ?: flowOf(null)
+        }
+        .distinctUntilChanged()
+
     init {
         observeSyncState()
         observeUpdateAppState()
@@ -173,7 +186,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun observeUpdateAppState() {
-        viewModelScope.launch(dispatchers.io()) {
+        viewModelScope.launch {
             observeIfAppUpdateRequired(BuildConfig.VERSION_CODE)
                 .distinctUntilChanged()
                 .collect {
@@ -234,6 +247,7 @@ class WireActivityViewModel @Inject constructor(
         get() = when {
             shouldMigrate() -> InitialAppState.NOT_MIGRATED
             shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
+            blockedByE2EI() -> InitialAppState.ENROLL_E2EI
             else -> InitialAppState.LOGGED_IN
         }
 
@@ -264,8 +278,10 @@ class WireActivityViewModel @Inject constructor(
                     // to handle the deepLinks above user needs to be Logged in
                     // do nothing, already handled by initialAppState
                 }
+
                 result is DeepLinkResult.JoinConversation ->
                     onConversationInviteDeepLink(result.code, result.key, result.domain, onOpenConversation)
+
                 result != null -> onResult(result)
                 result is DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
             }
@@ -413,6 +429,10 @@ class WireActivityViewModel @Inject constructor(
 
     fun shouldLogIn(): Boolean = !hasValidCurrentSession()
 
+    private fun blockedByE2EI(): Boolean = runBlocking {
+        observeE2EIState.first() ?: false
+    }
+
     private fun hasValidCurrentSession(): Boolean = runBlocking {
         // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
         currentSessionFlow().first().let {
@@ -446,9 +466,11 @@ class WireActivityViewModel @Inject constructor(
                             if (statuses.any { it.isPersistentWebSocketEnabled }) {
                                 if (!servicesManager.isPersistentWebSocketServiceRunning()) {
                                     servicesManager.startPersistentWebSocketService()
+                                    workManager.enqueuePeriodicPersistentWebsocketCheckWorker()
                                 }
                             } else {
                                 servicesManager.stopPersistentWebSocketService()
+                                workManager.cancelPeriodicPersistentWebsocketCheckWorker()
                             }
                         }
                     }
@@ -532,5 +554,5 @@ data class GlobalAppState(
 )
 
 enum class InitialAppState {
-    NOT_MIGRATED, NOT_LOGGED_IN, LOGGED_IN
+    NOT_MIGRATED, NOT_LOGGED_IN, LOGGED_IN, ENROLL_E2EI
 }

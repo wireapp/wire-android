@@ -33,7 +33,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun LegalHoldSubjectBaseDialog(
-    name: String,
+    title: String,
     customInfo: String? = null,
     withDefaultInfo: Boolean,
     cancelText: String,
@@ -45,22 +45,22 @@ fun LegalHoldSubjectBaseDialog(
         if (withDefaultInfo) stringResource(id = R.string.legal_hold_subject_dialog_description) else null
     ).joinToString("\n\n")
     WireDialog(
-        title = stringResource(id = R.string.legal_hold_subject_dialog_title, name),
+        title = title,
         text = text,
         onDismiss = dialogDismissed,
         buttonsHorizontalAlignment = false,
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = dialogDismissed,
-            text = cancelText,
-            type = WireDialogButtonType.Secondary,
-        ),
-        optionButton2Properties = action?.let { (actionText, actionClicked) ->
+        optionButton1Properties = action?.let { (actionText, actionClicked) ->
             WireDialogButtonProperties(
                 onClick = actionClicked,
                 text = actionText,
                 type = WireDialogButtonType.Primary,
             )
         },
+        optionButton2Properties = WireDialogButtonProperties(
+            onClick = dialogDismissed,
+            text = cancelText,
+            type = WireDialogButtonType.Secondary,
+        ),
     ) {
         LearnMoreAboutLegalHoldButton(
             modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)

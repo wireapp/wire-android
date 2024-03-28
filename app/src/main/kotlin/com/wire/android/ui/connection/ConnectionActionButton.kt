@@ -39,6 +39,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.legalhold.dialog.connectionfailed.LegalHoldSubjectConnectionFailedDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
@@ -68,6 +69,12 @@ fun ConnectionActionButton(
 
     if (!viewModel.actionableState().isPerformingAction) {
         unblockUserDialogState.dismiss()
+    }
+
+    with(viewModel.actionableState()) {
+        if (missingLegalHoldConsentDialogState is MissingLegalHoldConsentDialogState.Visible) {
+            LegalHoldSubjectConnectionFailedDialog(viewModel::onMissingLegalHoldConsentDismissed)
+        }
     }
 
     when (connectionStatus) {

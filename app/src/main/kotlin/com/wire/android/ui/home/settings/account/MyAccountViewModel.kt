@@ -18,12 +18,12 @@
 
 package com.wire.android.ui.home.settings.account
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.common.util.VisibleForTesting
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.navigation.SavedStateViewModel

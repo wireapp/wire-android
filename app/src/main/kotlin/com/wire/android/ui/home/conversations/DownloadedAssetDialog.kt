@@ -25,6 +25,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.conversations.messages.DownloadedAssetDialogVisibilityState
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 
 @Composable
@@ -32,7 +33,8 @@ fun DownloadedAssetDialog(
     downloadedAssetDialogState: DownloadedAssetDialogVisibilityState,
     onSaveFileToExternalStorage: (String) -> Unit,
     onOpenFileWithExternalApp: (String) -> Unit,
-    hideOnAssetDownloadedDialog: () -> Unit
+    hideOnAssetDownloadedDialog: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     if (downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed) {
         val assetName = downloadedAssetDialogState.assetData.fileName
@@ -40,7 +42,8 @@ fun DownloadedAssetDialog(
 
         val onSaveFileWriteStorageRequest = rememberWriteStorageRequestFlow(
             onGranted = { onSaveFileToExternalStorage(messageId) },
-            onDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ }
+            onPermissionDenied = { /** Nothing to do **/ },
+            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
         )
 
         WireDialog(

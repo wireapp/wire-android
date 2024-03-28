@@ -38,18 +38,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.model.ItemActionType
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -58,6 +55,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.home.newconversation.common.CreateNewGroupButton
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsAlwaysEnabled
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -84,7 +82,8 @@ fun SearchUsersAndServicesScreen(
     onOpenUserProfile: (Contact) -> Unit,
     onServiceClicked: (Contact) -> Unit,
     onClose: () -> Unit,
-    screenType: SearchPeopleScreenType
+    screenType: SearchPeopleScreenType,
+    isGroupSubmitVisible: Boolean = true,
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
@@ -105,7 +104,11 @@ fun SearchUsersAndServicesScreen(
                     WireCenterAlignedTopAppBar(
                         elevation = elevation,
                         title = searchTitle,
-                        navigationIconType = NavigationIconType.Close,
+                        navigationIconType = when (screenType) {
+                            SearchPeopleScreenType.CONVERSATION_DETAILS -> NavigationIconType.Close
+                            SearchPeopleScreenType.NEW_CONVERSATION -> NavigationIconType.Close
+                            SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> NavigationIconType.Back
+                        },
                         onNavigationPressed = onClose
                     )
                 }
@@ -143,13 +146,16 @@ fun SearchUsersAndServicesScreen(
                 }
             }
         },
+        isSwipeable = !searchBarState.isSearchActive,
         content = {
             Crossfade(
                 targetState = searchBarState.isSearchActive, label = ""
             ) { isSearchActive ->
-                var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
-                val keyboardController = LocalSoftwareKeyboardController.current
-                val focusManager = LocalFocusManager.current
+                val actionType = when (screenType) {
+                    SearchPeopleScreenType.NEW_CONVERSATION -> ItemActionType.CLICK
+                    SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> ItemActionType.CHECK
+                    SearchPeopleScreenType.CONVERSATION_DETAILS -> ItemActionType.CHECK
+                }
 
                 if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS) {
                     CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
@@ -166,7 +172,8 @@ fun SearchUsersAndServicesScreen(
                                         onOpenUserProfile = onOpenUserProfile,
                                         onContactChecked = onContactChecked,
                                         isSearchActive = isSearchActive,
-                                        isLoading = false // TODO: update correctly
+                                        isLoading = false, // TODO: update correctly
+                                        actionType = actionType,
                                     )
                                 }
 
@@ -178,14 +185,6 @@ fun SearchUsersAndServicesScreen(
                                 }
                             }
                         }
-
-                        LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
-                            if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                                keyboardController?.hide()
-                                focusManager.clearFocus()
-                                focusedTabIndex = pagerState.currentPage
-                            }
-                        }
                     }
                 } else {
                     SearchAllPeopleOrContactsScreen(
@@ -194,7 +193,8 @@ fun SearchUsersAndServicesScreen(
                         onContactChecked = onContactChecked,
                         onOpenUserProfile = onOpenUserProfile,
                         isSearchActive = isSearchActive,
-                        isLoading = false // TODO: update correctly
+                        isLoading = false, // TODO: update correctly
+                        actionType = actionType,
                     )
                 }
             }
@@ -203,19 +203,32 @@ fun SearchUsersAndServicesScreen(
             }
         },
         bottomBar = {
-            if (searchState.isGroupCreationContext) {
-                SelectParticipantsButtonsAlwaysEnabled(
-                    count = selectedContacts.size,
-                    mainButtonText = actionButtonTitle,
-                    onMainButtonClick = onGroupSelectionSubmitAction
-                )
-            } else {
-                if (pagerState.currentPage != SearchPeopleTabItem.SERVICES.ordinal) {
-                    SelectParticipantsButtonsRow(
-                        selectedParticipantsCount = selectedContacts.size,
-                        mainButtonText = actionButtonTitle,
-                        onMainButtonClick = onGroupSelectionSubmitAction
-                    )
+            if (isGroupSubmitVisible) {
+                when (screenType) {
+                    SearchPeopleScreenType.NEW_CONVERSATION -> {
+                        CreateNewGroupButton(
+                                mainButtonText = actionButtonTitle,
+                                onMainButtonClick = onGroupSelectionSubmitAction
+                            )
+                        }
+
+                    SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> {
+                        SelectParticipantsButtonsAlwaysEnabled(
+                            count = selectedContacts.size,
+                            mainButtonText = actionButtonTitle,
+                            onMainButtonClick = onGroupSelectionSubmitAction
+                        )
+                    }
+
+                    SearchPeopleScreenType.CONVERSATION_DETAILS -> {
+                        if (pagerState.currentPage != SearchPeopleTabItem.SERVICES.ordinal) {
+                            SelectParticipantsButtonsRow(
+                                selectedParticipantsCount = selectedContacts.size,
+                                mainButtonText = actionButtonTitle,
+                                onMainButtonClick = onGroupSelectionSubmitAction
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -231,6 +244,7 @@ enum class SearchPeopleTabItem(@StringRes override val titleResId: Int) : TabIte
 
 enum class SearchPeopleScreenType {
     NEW_CONVERSATION,
+    NEW_GROUP_CONVERSATION,
     CONVERSATION_DETAILS
 }
 
@@ -240,6 +254,7 @@ private fun SearchAllPeopleOrContactsScreen(
     contactsAddedToGroup: ImmutableSet<Contact>,
     isLoading: Boolean,
     isSearchActive: Boolean,
+    actionType: ItemActionType,
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
     searchUserViewModel: SearchUserViewModel = hiltViewModel(),
@@ -260,6 +275,7 @@ private fun SearchAllPeopleOrContactsScreen(
         onOpenUserProfile = onOpenUserProfile,
         lazyListState = lazyState,
         isSearchActive = isSearchActive,
-        isLoading = isLoading
+        isLoading = isLoading,
+        actionType = actionType,
     )
 }

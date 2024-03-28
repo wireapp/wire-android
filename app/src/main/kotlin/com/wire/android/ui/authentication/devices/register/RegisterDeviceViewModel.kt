@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStore
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
@@ -79,12 +80,30 @@ class RegisterDeviceViewModel @Inject constructor(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 capabilities = null,
+                modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
             )
         )) {
             is RegisterClientResult.Failure.TooManyClients ->
                 updateFlowState(RegisterDeviceFlowState.TooManyDevices)
+
             is RegisterClientResult.Success ->
-                updateFlowState(RegisterDeviceFlowState.Success(userDataStore.initialSyncCompleted.first()))
+                updateFlowState(
+                    RegisterDeviceFlowState.Success(
+                        userDataStore.initialSyncCompleted.first(),
+                        false,
+                        registerDeviceResult.client.id
+                    )
+                )
+
+            is RegisterClientResult.E2EICertificateRequired ->
+                updateFlowState(
+                    RegisterDeviceFlowState.Success(
+                        userDataStore.initialSyncCompleted.first(),
+                        true,
+                        registerDeviceResult.client.id,
+                        registerDeviceResult.userId
+                    )
+                )
 
             is RegisterClientResult.Failure.Generic -> state = state.copy(
                 continueEnabled = true,
@@ -96,7 +115,8 @@ class RegisterDeviceViewModel @Inject constructor(
                 flowState = RegisterDeviceFlowState.Error.InvalidCredentialsError
             )
 
-            is RegisterClientResult.Failure.PasswordAuthRequired -> { /* app is already waiting for the user to enter the password */ }
+            is RegisterClientResult.Failure.PasswordAuthRequired -> { /* app is already waiting for the user to enter the password */
+            }
         }
     }
 

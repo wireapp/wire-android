@@ -61,3 +61,23 @@ fun sanitizeUrl(url: String): String {
         return url // Return the original URL if any errors occur
     }
 }
+
+fun URI.removeQueryParams(): URI {
+    val regex = Regex("[?&][^=]+=[^&]*")
+    return URI(this.toString().replace(regex, ""))
+}
+
+@Suppress("TooGenericExceptionCaught")
+fun URI.findParameterValue(parameterName: String): String? {
+    return try {
+        rawQuery.split('&').map {
+            val parts = it.split('=')
+            val name = parts.firstOrNull() ?: ""
+            val value = parts.drop(1).firstOrNull() ?: ""
+            Pair(name, value)
+        }.firstOrNull { it.first == parameterName }?.second
+    } catch (e: NullPointerException) {
+        appLogger.w("Error finding parameter value: $parameterName", e)
+        null
+    }
+}

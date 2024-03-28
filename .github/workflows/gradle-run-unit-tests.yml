@@ -32,7 +32,7 @@ jobs:
           cache: gradle
 
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
+        uses: gradle/wrapper-validation-action@699bb18358f12c5b78b37bb0111d3a0e2276e0e2
 
       - name: Test Build Logic
         run: |
@@ -64,19 +64,21 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: report
-          path: app/build/reports/jacoco
+          path: app/build/reports/kover
 
       - name: Download Test Reports Folder
         uses: actions/download-artifact@v4
         with:
           name: report
-          path: app/build/reports/jacoco
+          path: app/build/reports/kover
           merge-multiple: true
 
-      - name: Upload Test Report
-        uses: codecov/codecov-action@v3
+      - name: Upload code coverage to codecov
+        uses: codecov/codecov-action@v4
+        env:
+            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          files: "app/build/reports/jacoco/jacocoReport/jacocoReport.xml"
+          files: "app/build/reports/kover/report.xml"
 
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.

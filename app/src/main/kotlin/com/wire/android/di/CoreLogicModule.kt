@@ -208,16 +208,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideFetchApiVersionUserCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().fetchApiVersion
-
-    @ViewModelScoped
-    @Provides
-    fun provideObserveServerConfigUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().observeServerConfig
-
-    @ViewModelScoped
-    @Provides
     fun provideUpdateApiVersionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().updateApiVersions
 
@@ -260,6 +250,16 @@ class UseCaseModule {
     @Provides
     fun provideIsMLSEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).isMLSEnabled
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetDefaultProtocol(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).getDefaultProtocol
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsE2EIEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).isE2EIEnabled
 
     @ViewModelScoped
     @Provides
@@ -440,4 +440,24 @@ class UseCaseModule {
     fun provideObserveIsAppLockEditableUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic
     ): ObserveIsAppLockEditableUseCase = coreLogic.getGlobalScope().observeIsAppLockEditableUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveLegalHoldRequestUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).observeLegalHoldRequest
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveLegalHoldForSelfUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).observeLegalHoldForSelfUser
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveLegalHoldForUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).observeLegalHoldStateForUser
+
+    @ViewModelScoped
+    @Provides
+    fun provideMembersHavingLegalHoldClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).membersHavingLegalHoldClient
 }

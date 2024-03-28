@@ -134,25 +134,25 @@ object WireColorPalette {
     val LightRed900 = Color(0xFF3A0006)
 
     @Stable
-    val LightYellow50 = Color(0xFFF3F0ED)
+    val LightAmber50 = Color(0xFFF3F0ED)
     @Stable
-    val LightYellow100 = Color(0xFFE5E0DA)
+    val LightAmber100 = Color(0xFFE5E0DA)
     @Stable
-    val LightYellow200 = Color(0xFFCCC1B5)
+    val LightAmber200 = Color(0xFFCCC1B5)
     @Stable
-    val LightYellow300 = Color(0xFFB2A38F)
+    val LightAmber300 = Color(0xFFB2A38F)
     @Stable
-    val LightYellow400 = Color(0xFF99846A)
+    val LightAmber400 = Color(0xFF99846A)
     @Stable
-    val LightYellow500 = Color(0xFF7F6545)
+    val LightAmber500 = Color(0xFF7F6545)
     @Stable
-    val LightYellow600 = Color(0xFF665137)
+    val LightAmber600 = Color(0xFF665137)
     @Stable
-    val LightYellow700 = Color(0xFF4C3D29)
+    val LightAmber700 = Color(0xFF4C3D29)
     @Stable
-    val LightYellow800 = Color(0xFF4C3D29)
+    val LightAmber800 = Color(0xFF4C3D29)
     @Stable
-    val LightYellow900 = Color(0xFF261E15)
+    val LightAmber900 = Color(0xFF261E15)
 
     @Stable
     val DarkBlue50 = Color(0xFFEEF7FF)
@@ -261,25 +261,25 @@ object WireColorPalette {
     val DarkRed900 = Color(0xFF4D2422)
 
     @Stable
-    val DarkYellow50 = Color(0xFFFFFBEA)
+    val DarkAmber50 = Color(0xFFFFFBEA)
     @Stable
-    val DarkYellow100 = Color(0xFFFFF6D4)
+    val DarkAmber100 = Color(0xFFFFF6D4)
     @Stable
-    val DarkYellow200 = Color(0xFFFFEEA8)
+    val DarkAmber200 = Color(0xFFFFEEA8)
     @Stable
-    val DarkYellow300 = Color(0xFFFFE57D)
+    val DarkAmber300 = Color(0xFFFFE57D)
     @Stable
-    val DarkYellow400 = Color(0xFFFFDD51)
+    val DarkAmber400 = Color(0xFFFFDD51)
     @Stable
-    val DarkYellow500 = Color(0xFFFFD426)
+    val DarkAmber500 = Color(0xFFFFD426)
     @Stable
-    val DarkYellow600 = Color(0xFFCCAA1E)
+    val DarkAmber600 = Color(0xFFCCAA1E)
     @Stable
-    val DarkYellow700 = Color(0xFF997F17)
+    val DarkAmber700 = Color(0xFF997F17)
     @Stable
-    val DarkYellow800 = Color(0xFF66550F)
+    val DarkAmber800 = Color(0xFF66550F)
     @Stable
-    val DarkYellow900 = Color(0xFF4D400B)
+    val DarkAmber900 = Color(0xFF4D400B)
 
     @Stable
     val Gray10 = Color(0xFFFAFAFA)

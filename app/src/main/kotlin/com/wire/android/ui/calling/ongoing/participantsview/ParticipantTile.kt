@@ -94,6 +94,7 @@ fun ParticipantTile(
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
+    val defaultUserName = stringResource(id = R.string.calling_participant_tile_default_user_name)
     val alpha =
         if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
     Surface(
@@ -154,7 +155,7 @@ fun ParticipantTile(
                         end.linkTo((parent.end))
                     }
                     .widthIn(max = onGoingCallTileUsernameMaxWidth),
-                name = participantTitleState.name,
+                name = participantTitleState.name ?: defaultUserName,
                 isSpeaking = participantTitleState.isSpeaking,
                 hasEstablishedAudio = participantTitleState.hasEstablishedAudio
             )
@@ -210,7 +211,10 @@ private fun CameraPreview(
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
+    var isCameraStopped by remember { mutableStateOf(isCameraOn) }
+
     if (isCameraOn) {
+        isCameraStopped = false
         val context = LocalContext.current
         val backgroundColor = colorsScheme().callingParticipantTileBackgroundColor.value.toInt()
         val videoPreview = remember {
@@ -226,6 +230,8 @@ private fun CameraPreview(
             }
         )
     } else {
+        if (isCameraStopped) return
+        isCameraStopped = true
         onClearSelfUserVideoPreview()
     }
 }

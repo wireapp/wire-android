@@ -126,7 +126,8 @@ data class ConversationSheetContent(
     val isArchived: Boolean,
     val protocol: Conversation.ProtocolInfo,
     val mlsVerificationStatus: Conversation.VerificationStatus,
-    val proteusVerificationStatus: Conversation.VerificationStatus
+    val proteusVerificationStatus: Conversation.VerificationStatus,
+    val isUnderLegalHold: Boolean,
 ) {
 
     private val isSelfUserMember: Boolean get() = selfRole != null

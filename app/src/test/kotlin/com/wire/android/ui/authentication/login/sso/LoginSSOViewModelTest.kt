@@ -121,7 +121,7 @@ class LoginSSOViewModelTest {
     private lateinit var fetchSSOSettings: FetchSSOSettingsUseCase
 
     @MockK(relaxed = true)
-    private lateinit var onSuccess: (Boolean) -> Unit
+    private lateinit var onSuccess: (Boolean, Boolean) -> Unit
 
     private lateinit var loginViewModel: LoginSSOViewModel
 
@@ -139,7 +139,7 @@ class LoginSSOViewModelTest {
         authServerConfigProvider.updateAuthServer(newServerConfig(1).links)
 
         coEvery {
-            autoVersionAuthScopeUseCase()
+            autoVersionAuthScopeUseCase(null)
         } returns AutoVersionAuthScopeUseCase.Result.Success(
             authenticationScope
         )
@@ -262,7 +262,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-        coVerify(exactly = 1) { onSuccess(false) }
+        coVerify(exactly = 1) { onSuccess(false, false) }
     }
 
     @Test
@@ -288,7 +288,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-        coVerify(exactly = 1) { onSuccess(true) }
+        coVerify(exactly = 1) { onSuccess(true, false) }
     }
 
     @Test
@@ -312,7 +312,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
         coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-        verify(exactly = 0) { onSuccess(any()) }
+        verify(exactly = 0) { onSuccess(any(), any()) }
     }
 
     @Test
@@ -353,7 +353,7 @@ class LoginSSOViewModelTest {
             loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", ""), onSuccess)
             advanceUntilIdle()
 
-            verify(exactly = 1) { onSuccess(any()) }
+            verify(exactly = 1) { onSuccess(any(), any()) }
         }
 
     @Test
@@ -376,7 +376,7 @@ class LoginSSOViewModelTest {
             coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
             coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
             coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-            verify(exactly = 0) { onSuccess(any()) }
+            verify(exactly = 0) { onSuccess(any(), any()) }
         }
 
     @Test
@@ -405,7 +405,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-        verify(exactly = 0) { onSuccess(any()) }
+        verify(exactly = 0) { onSuccess(any(), any()) }
     }
 
     @Test

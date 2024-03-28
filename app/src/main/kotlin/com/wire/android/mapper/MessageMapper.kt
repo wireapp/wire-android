@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.Accent
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -55,25 +56,25 @@ class MessageMapper @Inject constructor(
 ) {
 
     fun memberIdList(messages: List<Message>): List<UserId> = messages.flatMap { message ->
-        listOf(message.senderUserId).plus(
-            when (message) {
-                is Message.Regular -> {
-                    when (val failureType = message.deliveryStatus) {
-                        is DeliveryStatus.CompleteDelivery -> listOf()
-                        is DeliveryStatus.PartialDelivery ->
-                            failureType.recipientsFailedDelivery + failureType.recipientsFailedWithNoClients
-                    }
+        when (message) {
+            is Message.Regular -> {
+                when (val failureType = message.deliveryStatus) {
+                    is DeliveryStatus.CompleteDelivery -> listOf()
+                    is DeliveryStatus.PartialDelivery ->
+                        failureType.recipientsFailedDelivery + failureType.recipientsFailedWithNoClients
                 }
-                is Message.System -> {
-                    when (val content = message.content) {
-                        is MessageContent.MemberChange -> content.members
-                        is MessageContent.LegalHold.ForMembers -> content.members
-                        else -> listOf()
-                    }
-                }
-                is Message.Signaling -> listOf()
             }
-        )
+
+            is Message.System -> {
+                when (val content = message.content) {
+                    is MessageContent.MemberChange -> content.members
+                    is MessageContent.LegalHold.ForMembers -> content.members
+                    else -> listOf()
+                }
+            }
+
+            is Message.Signaling -> listOf()
+        }
     }.distinct()
 
     @Suppress("LongMethod")
@@ -97,6 +98,7 @@ class MessageMapper @Inject constructor(
         return when (content) {
             is UIMessageContent.Regular ->
                 UIMessage.Regular(
+                    conversationId = message.conversationId,
                     messageContent = content,
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     header = provideMessageHeader(sender, message),
@@ -106,6 +108,7 @@ class MessageMapper @Inject constructor(
 
             is UIMessageContent.SystemMessage ->
                 UIMessage.System(
+                    conversationId = message.conversationId,
                     messageContent = content,
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     header = provideMessageHeader(sender, message),
@@ -144,7 +147,7 @@ class MessageMapper @Inject constructor(
             is SelfUser, null -> Membership.None
         },
         connectionState = getConnectionState(sender),
-        isLegalHold = false,
+        isLegalHold = sender?.isUnderLegalHold == true,
         messageTime = MessageTime(message.date),
         messageStatus = getMessageStatus(message),
         messageId = message.id,
@@ -157,7 +160,8 @@ class MessageMapper @Inject constructor(
             is OtherUser -> sender.isUnavailableUser
             is SelfUser, null -> false
         },
-        clientId = (message as? Message.Sendable)?.senderClientId
+        clientId = (message as? Message.Sendable)?.senderClientId,
+        accent = sender?.accentId?.let { Accent.fromAccentId(it) } ?: Accent.Unknown,
     )
 
     private fun getMessageStatus(message: Message.Standalone): MessageStatus {
@@ -170,7 +174,7 @@ class MessageMapper @Inject constructor(
             when (val status = message.status) {
                 Message.Status.Pending -> MessageFlowStatus.Sending
                 Message.Status.Sent -> MessageFlowStatus.Sent
-               is Message.Status.Read -> MessageFlowStatus.Read(status.readCount)
+                is Message.Status.Read -> MessageFlowStatus.Read(status.readCount)
                 Message.Status.Failed -> MessageFlowStatus.Failure.Send.Locally(isMessageEdited)
                 Message.Status.FailedRemotely -> MessageFlowStatus.Failure.Send.Remotely(isMessageEdited, message.conversationId.domain)
                 Message.Status.Delivered -> MessageFlowStatus.Delivered

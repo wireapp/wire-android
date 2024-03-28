@@ -56,7 +56,28 @@ android {
         jniLibs.pickFirsts.add("**/libsodium.so")
     }
     android.buildFeatures.buildConfig = true
+
+    var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
+    sourceSets {
+        // Add the "foss" sourceSets for the fdroid flavor
+        if(fdroidBuild) {
+            getByName("main") {
+                java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
+                resources.srcDirs("src/prod/res")
+                println("Building with FOSS sourceSets")
+            }
+        // For all other flavors use the "nonfree" sourceSets
+        } else {
+            getByName("main") {
+                java.srcDirs("src/main/kotlin", "src/nonfree/kotlin")
+                println("Building with non-free sourceSets")
+            }
+        }
+    }
 }
+
+
+
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
@@ -164,6 +185,8 @@ dependencies {
     testImplementation(libs.kluent.core)
     testImplementation(libs.turbine)
     testImplementation(libs.okio.fakeFileSystem)
+    testImplementation(libs.robolectric)
+    testRuntimeOnly(libs.junit5.vintage.engine)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.androidx.paging.testing)
 

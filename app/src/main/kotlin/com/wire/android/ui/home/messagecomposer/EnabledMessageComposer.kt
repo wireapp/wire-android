@@ -19,7 +19,8 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,7 +44,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -57,11 +57,12 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Suppress("ComplexMethod")
 @Composable
 fun EnabledMessageComposer(
@@ -75,6 +76,7 @@ fun EnabledMessageComposer(
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onLocationPicked: (GeoLocatedAddress) -> Unit,
+    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
@@ -93,17 +95,13 @@ fun EnabledMessageComposer(
 
         LaunchedEffect(offsetY) {
             with(density) {
-                inputStateHolder.handleOffsetChange(
+                inputStateHolder.handleImeOffsetChange(
                     offsetY.toDp(),
                     navBarHeight,
                     imeAnimationSource.toDp(),
                     imeAnimationTarget.toDp()
                 )
             }
-        }
-
-        LaunchedEffect(isImeVisible) {
-            inputStateHolder.handleIMEVisibility(isImeVisible)
         }
 
         LaunchedEffect(modalBottomSheetState.isVisible) {
@@ -261,30 +259,35 @@ fun EnabledMessageComposer(
                                 onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
                             )
                         }
-
-                        AdditionalOptionSubMenu(
-                            isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
-                            additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
-                            onRecordAudioMessageClicked = ::toAudioRecording,
-                            onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
-                            onLocationPickerClicked = ::toLocationPicker,
-                            onAttachmentPicked = onAttachmentPicked,
-                            onAudioRecorded = onAudioRecorded,
-                            onLocationPicked = onLocationPicked,
-                            tempWritableImageUri = tempWritableImageUri,
-                            tempWritableVideoUri = tempWritableVideoUri,
+                        Box(
                             modifier = Modifier
                                 .height(
-                                    inputStateHolder.calculateOptionsMenuHeight(
-                                        additionalOptionStateHolder.additionalOptionsSubMenuState
-                                    )
+                                    inputStateHolder.calculateOptionsMenuHeight(additionalOptionStateHolder.additionalOptionsSubMenuState)
                                 )
                                 .fillMaxWidth()
-                                .background(
-                                    colorsScheme().messageComposerBackgroundColor
+                                .background(colorsScheme().messageComposerBackgroundColor)
+                        ) {
+                            androidx.compose.animation.AnimatedVisibility(
+                                visible = inputStateHolder.subOptionsVisible,
+                                enter = fadeIn(),
+                                exit = fadeOut(),
+                            ) {
+                                AdditionalOptionSubMenu(
+                                    isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
+                                    additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
+                                    onRecordAudioMessageClicked = ::toAudioRecording,
+                                    onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
+                                    onLocationPickerClicked = ::toLocationPicker,
+                                    onAttachmentPicked = onAttachmentPicked,
+                                    onAudioRecorded = onAudioRecorded,
+                                    onLocationPicked = onLocationPicked,
+                                    onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
+                                    tempWritableImageUri = tempWritableImageUri,
+                                    tempWritableVideoUri = tempWritableVideoUri,
+                                    modifier = Modifier.fillMaxSize()
                                 )
-                                .animateContentSize()
-                        )
+                            }
+                        }
                     }
                 }
             }

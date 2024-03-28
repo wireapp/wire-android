@@ -59,6 +59,7 @@ class MessageNotificationManager
 
         addNotifications(newNotifications, userId, userName)
         updateNotifications(newNotifications, userId)
+        removeSeenNotifications(newNotifications, userId)
 
         appLogger.i("$TAG: handled notifications: newNotifications size ${newNotifications.size}; ")
     }
@@ -90,7 +91,20 @@ class MessageNotificationManager
 
         removeSummaryIfNeeded(userId)
 
-        appLogger.i("$TAG: added notifications: newNotifications size ${notificationsToUpdate.size}; ")
+        appLogger.i("$TAG: updated notifications: newNotifications size ${notificationsToUpdate.size}; ")
+    }
+
+    private fun removeSeenNotifications(newNotifications: List<LocalNotification>, userId: QualifiedID) {
+        val notificationsToUpdate: List<LocalNotification.ConversationSeen> = newNotifications
+            .filterIsInstance(LocalNotification.ConversationSeen::class.java)
+
+        notificationsToUpdate.groupBy { it.conversationId }.forEach { (conversationId, _) ->
+            hideNotification(conversationId, userId)
+        }
+
+        removeSummaryIfNeeded(userId)
+
+        appLogger.i("$TAG: removed ${notificationsToUpdate.size} notifications, it was seen;")
     }
 
     fun hideNotification(conversationsId: ConversationId, userId: QualifiedID) {

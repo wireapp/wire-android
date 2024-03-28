@@ -24,11 +24,14 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.Test
@@ -41,7 +44,7 @@ class NewConversationViewModelTest {
     @Test
     fun `given sync failure, when creating group, then should update options state with connectivity error`() = runTest {
         val (arrangement, viewModel) = NewConversationViewModelArrangement()
-            .withIsSelfTeamMember(true)
+            .withGetSelfUser(isTeamMember = true)
             .withSyncFailureOnCreatingGroup()
             .arrange()
 
@@ -54,7 +57,7 @@ class NewConversationViewModelTest {
     @Test
     fun `given unknown failure, when creating group, then should update options state with unknown error`() = runTest {
         val (arrangement, viewModel) = NewConversationViewModelArrangement()
-            .withIsSelfTeamMember(true)
+            .withGetSelfUser(isTeamMember = true)
             .withUnknownFailureOnCreatingGroup()
             .arrange()
 
@@ -67,7 +70,7 @@ class NewConversationViewModelTest {
     @Test
     fun `given no failure, when creating group, then options state should have no error`() = runTest {
         val (arrangement, viewModel) = NewConversationViewModelArrangement()
-            .withIsSelfTeamMember(true)
+            .withGetSelfUser(isTeamMember = true)
             .arrange()
 
         viewModel.createGroup(arrangement.onGroupCreated)
@@ -80,7 +83,7 @@ class NewConversationViewModelTest {
     fun `given create group conflicted backends error, when clicked on dismiss, then error should be cleaned`() =
         runTest {
             val (_, viewModel) = NewConversationViewModelArrangement()
-                .withIsSelfTeamMember(true)
+                .withGetSelfUser(isTeamMember = true)
                 .withConflictingBackendsFailure()
                 .arrange()
 
@@ -92,7 +95,7 @@ class NewConversationViewModelTest {
     @Test
     fun `given self is not a team member, when creating group, then the group is created with the correct values`() = runTest {
         val (arrangement, viewModel) = NewConversationViewModelArrangement()
-            .withIsSelfTeamMember(false)
+            .withGetSelfUser(isTeamMember = false)
             .arrange()
 
         viewModel.createGroup(arrangement.onGroupCreated)
@@ -119,7 +122,7 @@ class NewConversationViewModelTest {
     fun `given self is team member and guests are enabled, when creating group, then the group is created with the correct values`() =
         runTest {
             val (arrangement, viewModel) = NewConversationViewModelArrangement()
-                .withIsSelfTeamMember(true)
+                .withGetSelfUser(isTeamMember = true)
                 .withServicesEnabled(false)
                 .withGuestEnabled(true)
                 .arrange()
@@ -143,4 +146,49 @@ class NewConversationViewModelTest {
                 )
             }
         }
+
+    @Test
+    fun `given team settings is MLS default protocol, when getting default protocol, then result is MLS`() = runTest {
+        // given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withDefaultProtocol(SupportedProtocol.MLS)
+            .withGetSelfUser(isTeamMember = true)
+            .withServicesEnabled(false)
+            .withGuestEnabled(true)
+            .arrange()
+
+        // when
+        val result = viewModel.newGroupState.groupProtocol
+
+        // then
+        assertEquals(
+            ConversationOptions.Protocol.MLS,
+            result
+        )
+    }
+
+    @Test
+    fun `given self is external team member, when creating group, then creating group should not be allowed`() = runTest {
+            // given
+            val (_, viewModel) = NewConversationViewModelArrangement()
+                .withGetSelfUser(isTeamMember = true, userType = UserType.EXTERNAL)
+                .arrange()
+            advanceUntilIdle()
+            // when
+            val result = viewModel.newGroupState.isGroupCreatingAllowed
+            // then
+            assertEquals(false, result)
+        }
+    @Test
+    fun `given self is internal team member, when creating group, then creating group should be allowed`() = runTest {
+        // given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true, userType = UserType.INTERNAL)
+            .arrange()
+        advanceUntilIdle()
+        // when
+        val result = viewModel.newGroupState.isGroupCreatingAllowed
+        // then
+        assertEquals(true, result)
+    }
 }

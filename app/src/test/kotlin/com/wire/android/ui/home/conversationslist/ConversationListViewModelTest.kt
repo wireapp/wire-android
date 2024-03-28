@@ -311,26 +311,6 @@ class ConversationListViewModelTest {
     }
 
     @Test
-    fun `given permission dialog default state is false, when calling showPermissionDialog, then update the state to true`() = runTest {
-        conversationListViewModel.conversationListCallState =
-            conversationListViewModel.conversationListCallState.copy(shouldShowCallingPermissionDialog = false)
-
-        conversationListViewModel.showCallingPermissionDialog()
-
-        assertEquals(true, conversationListViewModel.conversationListCallState.shouldShowCallingPermissionDialog)
-    }
-
-    @Test
-    fun `given default permission dialog state, when calling dismissPermissionDialog, then update the state to false`() = runTest {
-        conversationListViewModel.conversationListCallState =
-            conversationListViewModel.conversationListCallState.copy(shouldShowCallingPermissionDialog = true)
-
-        conversationListViewModel.dismissCallingPermissionDialog()
-
-        assertEquals(false, conversationListViewModel.conversationListCallState.shouldShowCallingPermissionDialog)
-    }
-
-    @Test
     fun `given a valid conversation state, when archiving it correctly, then the right success message is shown`() = runTest {
         val isArchiving = true
         val dialogState = DialogState(

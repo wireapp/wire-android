@@ -27,10 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -56,10 +52,6 @@ fun RecordAudioComponent(
     val viewModel: RecordAudioViewModel = hiltViewModelScoped<RecordAudioViewModel>()
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
-    var applyAudioFilterState by remember { mutableStateOf(false) }
-    val onApplyAudioFilterClick = {
-        applyAudioFilterState = !applyAudioFilterState
-    }
 
     val recordAudioFlow = RecordAudioFlow(
         startRecording = { viewModel.startRecording() },
@@ -78,7 +70,7 @@ fun RecordAudioComponent(
         // for sending analytics events
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP &&
-                viewModel.getButtonState() != RecordAudioButtonState.ENABLED
+                viewModel.state.buttonState != RecordAudioButtonState.ENABLED
             ) {
                 viewModel.stopRecording()
             }
@@ -112,35 +104,30 @@ fun RecordAudioComponent(
             .align(Alignment.BottomCenter)
             .padding(bottom = dimensions().spacing20x)
 
-        when (viewModel.getButtonState()) {
+        when (viewModel.state.buttonState) {
             RecordAudioButtonState.ENABLED -> RecordAudioButtonEnabled(
-                applyAudioFilterState = applyAudioFilterState,
-                applyAudioFilterClick = onApplyAudioFilterClick,
+                applyAudioFilterState = viewModel.state.shouldApplyEffects,
+                applyAudioFilterClick = viewModel::setShouldApplyEffects,
                 onClick = { recordAudioFlow.launch() },
                 modifier = buttonModifier
             )
 
             RecordAudioButtonState.RECORDING -> RecordAudioButtonRecording(
-                applyAudioFilterState = applyAudioFilterState,
-                applyAudioFilterClick = onApplyAudioFilterClick,
+                applyAudioFilterState = viewModel.state.shouldApplyEffects,
                 onClick = viewModel::stopRecording,
                 modifier = buttonModifier
             )
 
             RecordAudioButtonState.READY_TO_SEND -> RecordAudioButtonSend(
-                applyAudioFilterState = applyAudioFilterState,
-                applyAudioFilterClick = onApplyAudioFilterClick,
-                audioState = viewModel.getAudioState(),
+                applyAudioFilterState = viewModel.state.shouldApplyEffects,
+                audioState = viewModel.state.audioState,
                 onClick = {
-                    viewModel.sendRecording(
-                        shouldApplyEffects = applyAudioFilterState,
-                        onAudioRecorded = onAudioRecorded,
-                    ) {
+                    viewModel.sendRecording(onAudioRecorded = onAudioRecorded) {
                         onCloseRecordAudio()
                     }
                 },
                 modifier = buttonModifier,
-                outputFile = viewModel.getOutputFile(),
+                outputFile = viewModel.getPlayableAudioFile(),
                 onPlayAudio = viewModel::onPlayAudio,
                 onSliderPositionChange = viewModel::onSliderPositionChange
             )
@@ -148,13 +135,13 @@ fun RecordAudioComponent(
     }
 
     DiscardRecordedAudioDialog(
-        dialogState = viewModel.getDiscardDialogState(),
+        dialogState = viewModel.state.discardDialogState,
         onDismiss = viewModel::onDismissDiscardDialog,
         onDiscard = { viewModel.discardRecording(onCloseRecordAudio) }
     )
 
     MicrophonePermissionsDeniedDialog(
-        dialogState = viewModel.getPermissionsDeniedDialogState(),
+        dialogState = viewModel.state.permissionsDeniedDialogState,
         onDismiss = viewModel::onDismissPermissionsDeniedDialog,
         onOpenSettings = {
             context.openAppInfoScreen()
@@ -162,7 +149,7 @@ fun RecordAudioComponent(
     )
 
     RecordedAudioMaxFileSizeReachedDialog(
-        dialogState = viewModel.getMaxFileSizeReachedDialogState(),
+        dialogState = viewModel.state.maxFileSizeReachedDialogState,
         onDismiss = viewModel::onDismissMaxFileSizeReachedDialog
     )
 }

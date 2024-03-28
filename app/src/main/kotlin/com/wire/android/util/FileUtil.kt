@@ -422,11 +422,12 @@ fun Context.getGitBuildId(): String = runCatching {
     }
 }.getOrDefault("")
 
-fun Context.getDependenciesVersion(): Map<String, String?> =
+suspend fun Context.getDependenciesVersion(): Map<String, String?> = withContext(Dispatchers.IO) {
     assets.open("dependencies_version.json").use { inputStream ->
         inputStream.bufferedReader().use { it.readText() }
     }.let {
-    Json.decodeFromString(it)
+        Json.decodeFromString(it)
+    }
 }
 
 fun Context.getProviderAuthority() = "$packageName.provider"

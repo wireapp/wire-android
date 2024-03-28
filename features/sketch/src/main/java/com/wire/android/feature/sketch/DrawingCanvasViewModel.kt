@@ -130,7 +130,7 @@ class DrawingCanvasViewModel : ViewModel() {
                 }
             }
         }
-        return tempWritableImageUri!!
+        return tempWritableImageUri!! //todo check copyToPath from FileManager
     }
 
     companion object {

@@ -61,7 +61,10 @@ class HomeViewModel @Inject constructor(
     private fun observeLegalHoldStatus() {
         viewModelScope.launch {
             observeLegalHoldStatusForSelfUser()
-                .collectLatest { homeState = homeState.copy(shouldDisplayLegalHoldIndicator = it != LegalHoldStateForSelfUser.Disabled) }
+                .collectLatest {
+                    homeState =
+                        homeState.copy(shouldDisplayLegalHoldIndicator = it != LegalHoldStateForSelfUser.Disabled)
+                }
         }
     }
 
@@ -71,10 +74,13 @@ class HomeViewModel @Inject constructor(
             when {
                 shouldTriggerMigrationForUser(userId) ->
                     onRequirement(HomeRequirement.Migration(userId))
+
                 needsToRegisterClient() -> // check if the client has been registered and open the proper screen if not
                     onRequirement(HomeRequirement.RegisterDevice)
+
                 getSelf().first().handle.isNullOrEmpty() -> // check if the user handle has been set and open the proper screen if not
                     onRequirement(HomeRequirement.CreateAccountUsername)
+
                 shouldDisplayWelcomeToARScreen() -> {
                     homeState = homeState.copy(shouldDisplayWelcomeMessage = true)
                 }
@@ -89,7 +95,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             getSelf().collect { selfUser ->
                 homeState = homeState.copy(
-                    avatarAsset = selfUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+                    avatarAsset = selfUser.previewPicture?.let {
+                        UserAvatarAsset(
+                            wireSessionImageLoader,
+                            it
+                        )
+                    },
                     status = selfUser.availabilityStatus
                 )
             }

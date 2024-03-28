@@ -292,6 +292,9 @@ class RecordAudioViewModelTest {
             every { audioMediaRecorder.originalOutputFile } returns fakeKaliumFileSystem
                 .tempFilePath("temp_recording.mp3")
                 .toFile()
+            every { audioMediaRecorder.effectsOutputFile } returns fakeKaliumFileSystem
+                .tempFilePath("temp_recording_effects.mp3")
+                .toFile()
             coEvery { audioMediaRecorder.getMaxFileSizeReached() } returns flowOf(
                 RecordAudioDialogState.MaxFileSizeReached(
                     maxSize = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES

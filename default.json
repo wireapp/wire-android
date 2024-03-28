@@ -27,7 +27,8 @@
             "default_backend_url_blacklist": "https://clientblacklist.wire.com/staging",
             "default_backend_url_website": "https://wire.com",
             "default_backend_title": "wire-staging",
-            "is_password_protected_guest_link_enabled": true
+            "is_password_protected_guest_link_enabled": true,
+            "encrypt_proteus_storage": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -46,7 +47,8 @@
             "default_backend_url_teams": "https://wire-teams-staging.zinfra.io",
             "default_backend_url_blacklist": "https://clientblacklist.wire.com/staging",
             "default_backend_url_website": "https://wire.com",
-            "default_backend_title": "wire-staging"
+            "default_backend_title": "wire-staging",
+            "encrypt_proteus_storage": true
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -54,14 +56,16 @@
             "logging_enabled": true,
             "application_is_private_build": true,
             "development_api_enabled": false,
-            "mls_support_enabled": false
+            "mls_support_enabled": false,
+            "encrypt_proteus_storage": true
         },
         "internal": {
             "application_id": "com.wire.internal",
             "developer_features_enabled": true,
             "logging_enabled": true,
             "application_is_private_build": true,
-            "development_api_enabled": false
+            "development_api_enabled": false,
+            "encrypt_proteus_storage": true
         },
         "fdroid": {
             "application_id": "com.wire",

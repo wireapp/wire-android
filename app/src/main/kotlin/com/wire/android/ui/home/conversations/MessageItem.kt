@@ -113,7 +113,7 @@ fun MessageItem(
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
-    onFailedMessageRetryClicked: (String, ConversationId) -> Unit = {_, _ -> },
+    onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onLinkClick: (String) -> Unit = {},
     isContentClickable: Boolean = false,

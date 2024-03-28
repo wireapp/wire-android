@@ -23,12 +23,9 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.PingRinger
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.wire.android.ui.navArgs
 import com.wire.android.util.ImageUtil
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase

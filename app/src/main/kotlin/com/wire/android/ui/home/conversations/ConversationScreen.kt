@@ -1105,7 +1105,7 @@ fun PreviewConversationScreen() {
         onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,
         tempWritableVideoUri = null,
-        onFailedMessageRetryClicked = {_, _ -> },
+        onFailedMessageRetryClicked = { _, _ -> },
         requestMentions = {},
         onClearMentionSearchResult = {},
         onPermissionPermanentlyDenied = {},

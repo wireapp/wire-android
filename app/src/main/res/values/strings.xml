@@ -292,7 +292,7 @@
         settings, your conversation history has also been deleted.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verify your account</string>
-    <string name="second_factor_authentication_instructions_label">Enter the verification code sent to the email %1$s</string>
+    <string name="second_factor_authentication_instructions_label">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>

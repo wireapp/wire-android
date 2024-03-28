@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.search.messages
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -31,8 +32,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -50,9 +51,8 @@ fun SearchConversationMessagesScreen(
     searchConversationMessagesViewModel: SearchConversationMessagesViewModel = hiltViewModel()
 ) {
     with(searchConversationMessagesViewModel.searchConversationMessagesState) {
-        CollapsingTopBarScaffold(
-            topBarHeader = { },
-            topBarCollapsing = {
+        WireScaffold(
+            topBar = {
                 SearchTopBar(
                     isSearchActive = true, // we want the search to be always active and back arrow visible on this particular screen
                     searchBarHint = stringResource(id = R.string.label_search_messages),
@@ -63,28 +63,27 @@ fun SearchConversationMessagesScreen(
                     isLoading = isLoading
                 )
             },
-            content = {
-                SearchConversationMessagesResultContent(
-                    searchQuery = searchQuery.text,
-                    searchResult = searchResult,
-                    onMessageClick = { messageId ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                ConversationScreenDestination(
-                                    navArgs = ConversationNavArgs(
-                                        conversationId = conversationId,
-                                        searchedMessageId = messageId
-                                    )
-                                ),
-                                BackStackMode.UPDATE_EXISTED
+            content = { internalPadding ->
+                Column(modifier = Modifier.padding(internalPadding)) {
+                    SearchConversationMessagesResultContent(
+                        searchQuery = searchQuery.text,
+                        searchResult = searchResult,
+                        onMessageClick = { messageId ->
+                            navigator.navigate(
+                                NavigationCommand(
+                                    ConversationScreenDestination(
+                                        navArgs = ConversationNavArgs(
+                                            conversationId = conversationId,
+                                            searchedMessageId = messageId
+                                        )
+                                    ),
+                                    BackStackMode.UPDATE_EXISTED
+                                )
                             )
-                        )
-                    }
-                )
-            },
-            bottomBar = { },
-            snapOnFling = false,
-            keepElevationWhenCollapsed = true
+                        }
+                    )
+                }
+            }
         )
     }
 }

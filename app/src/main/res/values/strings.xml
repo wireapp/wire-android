@@ -1286,6 +1286,7 @@
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
     <string name="record_audio_send_label">Send Audio Message</string>
+    <string name="record_audio_apply_filter_label">Apply audio filter</string>
     <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
     <string name="record_audio_discard_dialog_text">The audio message will be deleted and can not be sent.</string>
     <string name="record_audio_discard_dialog_discard_button">Discard</string>

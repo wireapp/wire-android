@@ -240,7 +240,7 @@ private fun RecordAudioButton(
                 onCheckedChange = applyAudioFilterClick
             )
             Text(
-                text = "Apply audio filter",//stringResource(id = bottomText),
+                text = stringResource(id = R.string.record_audio_apply_filter_label),
                 style = MaterialTheme.wireTypography.body01,
                 color = if (isAudioFilterEnabled) Color.Unspecified else colorsScheme().checkboxTextDisabled
             )

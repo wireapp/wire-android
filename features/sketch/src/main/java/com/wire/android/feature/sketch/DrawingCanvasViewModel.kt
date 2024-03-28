@@ -116,7 +116,7 @@ class DrawingCanvasViewModel : ViewModel() {
                         Bitmap.Config.ARGB_8888
                     )
                     val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.WHITE }) }
-                    context.contentResolver.openFileDescriptor(tempWritableImageUri!!, "tw")?.use { fileDescriptor ->
+                    context.contentResolver.openFileDescriptor(tempWritableImageUri!!, "w")?.use { fileDescriptor ->
                         FileOutputStream(fileDescriptor.fileDescriptor).use { fileOutputStream ->
                             fileOutputStream.channel.truncate(0) // clear the file
                             paths.forEach { path -> path.drawNative(canvas) }

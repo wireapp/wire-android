@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.util.DateTimeUtil
@@ -336,11 +337,13 @@ class AuthorHeaderHelperTest {
     companion object {
         private val SELF_USER_ID = UserId("self", "domain")
         private val OTHER_USER_ID = UserId("other", "domain")
+        private val CONVERSATION_ID = ConversationId("value", "domain")
 
         private fun testSystemMessage(
             userId: UserId? = null,
             timestamp: String = "2021-01-01T00:00:00.000Z"
         ) = UIMessage.System(
+            conversationId = CONVERSATION_ID,
             header = TestMessage.UI_MESSAGE_HEADER.copy(
                 messageTime = TestMessage.UI_MESSAGE_HEADER.messageTime.copy(
                     utcISO = timestamp
@@ -356,6 +359,7 @@ class AuthorHeaderHelperTest {
             userId: UserId? = null,
             timestamp: String = "2021-01-01T00:00:00.000Z"
         ) = UIMessage.System(
+            conversationId = CONVERSATION_ID,
             header = TestMessage.UI_MESSAGE_HEADER.copy(
                 messageTime = TestMessage.UI_MESSAGE_HEADER.messageTime.copy(
                     utcISO = timestamp
@@ -371,6 +375,7 @@ class AuthorHeaderHelperTest {
             userId: UserId? = null,
             timestamp: String = "2021-01-01T00:00:00.000Z"
         ) = UIMessage.Regular(
+            conversationId = CONVERSATION_ID,
             userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),
             source = if (userId == SELF_USER_ID) MessageSource.Self else MessageSource.OtherUser,
             header = TestMessage.UI_MESSAGE_HEADER.copy(

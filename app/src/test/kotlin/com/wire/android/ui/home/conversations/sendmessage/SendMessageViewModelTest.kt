@@ -29,10 +29,11 @@ import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
-import com.wire.android.ui.home.messagecomposer.state.Ping
+import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
+import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import io.mockk.coVerify
 import io.mockk.verify
@@ -69,7 +70,7 @@ class SendMessageViewModelTest {
                 .arrange()
 
             // When
-            viewModel.sendAttachment(mockedAttachment)
+            viewModel.sendAttachment(mockedAttachment, conversationId)
 
             // Then
             coVerify(exactly = 1) {
@@ -106,7 +107,7 @@ class SendMessageViewModelTest {
                 .arrange()
 
             // When
-            viewModel.sendAttachment(mockedAttachment)
+            viewModel.sendAttachment(mockedAttachment, conversationId)
 
             // Then
             coVerify(exactly = 1) {
@@ -134,7 +135,7 @@ class SendMessageViewModelTest {
             val mockedAttachment = null
 
             // When
-            viewModel.sendAttachment(mockedAttachment)
+            viewModel.sendAttachment(mockedAttachment, conversationId)
 
             coVerify(inverse = true) {
                 arrangement.sendAssetMessage.invoke(
@@ -169,6 +170,7 @@ class SendMessageViewModelTest {
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.AssetTooLarge(mockedAttachment, 25))
                 .arrange()
             val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
+                conversationId = conversationId,
                 attachmentUri = UriAsset("mocked_image.jpeg".toUri(), false)
             )
 
@@ -210,6 +212,7 @@ class SendMessageViewModelTest {
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.AssetTooLarge(mockedAttachment, limit))
                 .arrange()
             val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
+                conversationId = conversationId,
                 attachmentUri = UriAsset("mocked_image.jpeg".toUri(), false)
             )
 
@@ -242,6 +245,7 @@ class SendMessageViewModelTest {
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.Unknown)
                 .arrange()
             val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
+                conversationId = conversationId,
                 attachmentUri = UriAsset("mocked_image.jpeg".toUri(), false)
             )
 
@@ -276,7 +280,7 @@ class SendMessageViewModelTest {
 
             // When
             viewModel.trySendMessage(
-                messageBundle = Ping
+                messageBundle = Ping(conversationId)
             )
 
             // Then
@@ -304,7 +308,7 @@ class SendMessageViewModelTest {
                 .arrange()
 
             // When
-            viewModel.sendAttachment(mockedAttachment)
+            viewModel.sendAttachment(mockedAttachment, conversationId)
 
             // Then
             coVerify(exactly = 1) {
@@ -330,7 +334,7 @@ class SendMessageViewModelTest {
             .arrange()
 
         // when
-        viewModel.trySendMessage(ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList()))
+        viewModel.trySendMessage(ComposableMessageBundle.SendTextMessageBundle(conversationId, "mocked-text-message", emptyList()))
 
         // then
         coVerify(exactly = 1) {
@@ -364,6 +368,7 @@ class SendMessageViewModelTest {
             // when
             viewModel.trySendMessage(
                 ComposableMessageBundle.EditMessageBundle(
+                    conversationId,
                     "mocked-text-message",
                     "new-mocked-text-message",
                     emptyList()
@@ -395,7 +400,7 @@ class SendMessageViewModelTest {
     fun `given that user need to be informed about verification, when invoked sending, then message is not sent and dialog shown`() =
         runTest {
             // given
-            val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
+            val messageBundle = ComposableMessageBundle.SendTextMessageBundle(conversationId, "mocked-text-message", emptyList())
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withInformAboutVerificationBeforeMessagingFlag(false)
@@ -423,7 +428,7 @@ class SendMessageViewModelTest {
     fun `given that user needs to be informed about enabled legal hold when sending, then message is not sent and dialog shown`() =
         runTest {
             // given
-            val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
+            val messageBundle = ComposableMessageBundle.SendTextMessageBundle(conversationId, "mocked-text-message", emptyList())
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withObserveConversationUnderLegalHoldNotified(false)
@@ -442,7 +447,7 @@ class SendMessageViewModelTest {
     fun `given that user chose to dismiss when enabled legal hold before sending, then message is not sent and dialog hidden`() =
         runTest {
             // given
-            val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
+            val messageBundle = ComposableMessageBundle.SendTextMessageBundle(conversationId, "mocked-text-message", emptyList())
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withObserveConversationUnderLegalHoldNotified(false)
@@ -461,7 +466,7 @@ class SendMessageViewModelTest {
     fun `given that user chose to send anyway when enabled legal hold before sending, then message is sent and dialog hidden`() =
         runTest {
             // given
-            val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
+            val messageBundle = ComposableMessageBundle.SendTextMessageBundle(conversationId, "mocked-text-message", emptyList())
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withObserveConversationUnderLegalHoldNotified(false)
@@ -481,7 +486,7 @@ class SendMessageViewModelTest {
     fun `given that user needs to be informed about enabled legal hold when sending fails, then message is not resent and dialog shown`() =
         runTest {
             // given
-            val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
+            val messageBundle = ComposableMessageBundle.SendTextMessageBundle(conversationId, "mocked-text-message", emptyList())
             val messageId = "messageId"
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
@@ -492,7 +497,7 @@ class SendMessageViewModelTest {
             // then
             coVerify(exactly = 0) { arrangement.retryFailedMessageUseCase.invoke(eq(messageId), any()) }
             assertEquals(
-                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(messageId),
+                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(messageId, conversationId),
                 viewModel.sureAboutMessagingDialogState
             )
         }
@@ -501,7 +506,7 @@ class SendMessageViewModelTest {
     fun `given that user chose to dismiss when enabled legal hold when sending fails, then message is not resent and dialog hidden`() =
         runTest {
             // given
-            val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
+            val messageBundle = ComposableMessageBundle.SendTextMessageBundle(conversationId, "mocked-text-message", emptyList())
             val messageId = "messageId"
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
@@ -521,7 +526,7 @@ class SendMessageViewModelTest {
     fun `given that user chose to send anyway when enabled legal hold when sending fails, then message is resent and dialog hidden`() =
         runTest {
             // given
-            val messageBundle = ComposableMessageBundle.SendTextMessageBundle("mocked-text-message", emptyList())
+            val messageBundle = ComposableMessageBundle.SendTextMessageBundle(conversationId, "mocked-text-message", emptyList())
             val messageId = "messageId"
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
@@ -542,6 +547,7 @@ class SendMessageViewModelTest {
         runTest {
             // given
             val messageBundle = ComposableMessageBundle.LocationBundle(
+                conversationId,
                 "mocked-location-message",
                 Location("mocked-provider")
             )
@@ -557,4 +563,8 @@ class SendMessageViewModelTest {
             coVerify(exactly = 1) { arrangement.sendLocation.invoke(any(), any(), any(), any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
         }
+
+    companion object {
+        val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+    }
 }

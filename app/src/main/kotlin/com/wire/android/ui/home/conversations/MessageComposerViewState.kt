@@ -18,9 +18,10 @@
 
 package com.wire.android.ui.home.conversations
 
-import com.wire.android.ui.home.messagecomposer.state.MessageBundle
+import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.asset.AttachmentType
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MessageId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
@@ -50,11 +51,16 @@ sealed class InvalidLinkDialogState {
 
 sealed class SureAboutMessagingDialogState {
     data object Hidden : SureAboutMessagingDialogState()
-    sealed class Visible : SureAboutMessagingDialogState() {
-        data class ConversationVerificationDegraded(val messageBundleToSend: MessageBundle) : Visible()
-        sealed class ConversationUnderLegalHold : Visible() {
-            data class BeforeSending(val messageBundleToSend: MessageBundle) : ConversationUnderLegalHold()
-            data class AfterSending(val messageId: MessageId) : ConversationUnderLegalHold()
+    sealed class Visible(open val conversationId: ConversationId) : SureAboutMessagingDialogState() {
+        data class ConversationVerificationDegraded(val messageBundleToSend: MessageBundle) : Visible(messageBundleToSend.conversationId)
+
+        sealed class ConversationUnderLegalHold(override val conversationId: ConversationId) : Visible(conversationId) {
+            data class BeforeSending(
+                val messageBundleToSend: MessageBundle
+            ) : ConversationUnderLegalHold(messageBundleToSend.conversationId)
+
+            data class AfterSending(val messageId: MessageId, override val conversationId: ConversationId) :
+                ConversationUnderLegalHold(conversationId)
         }
     }
 }

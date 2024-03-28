@@ -22,11 +22,11 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
-import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.util.EMPTY
 import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 
 data class MessageComposition(
@@ -126,15 +126,17 @@ data class MessageComposition(
         return result.toList()
     }
 
-    fun toMessageBundle(): ComposableMessageBundle {
+    fun toMessageBundle(conversationId: ConversationId): ComposableMessageBundle {
         return if (editMessageId != null) {
             ComposableMessageBundle.EditMessageBundle(
+                conversationId = conversationId,
                 originalMessageId = editMessageId,
                 newContent = messageTextFieldValue.text,
                 newMentions = selectedMentions
             )
         } else {
             ComposableMessageBundle.SendTextMessageBundle(
+                conversationId = conversationId,
                 message = messageTextFieldValue.text,
                 mentions = selectedMentions,
                 quotedMessageId = quotedMessageId

@@ -31,7 +31,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -130,7 +129,7 @@ private fun E2EIEnrollmentScreenContent(
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = 0.dp,
+                elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackButtonClicked

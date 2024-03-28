@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.waz.audioeffect.AudioEffect
 import com.wire.android.appLogger
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -56,7 +57,8 @@ class RecordAudioViewModel @Inject constructor(
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val currentScreenManager: CurrentScreenManager,
-    private val audioMediaRecorder: AudioMediaRecorder
+    private val audioMediaRecorder: AudioMediaRecorder,
+    private val globalDataStore: GlobalDataStore
 ) : ViewModel() {
 
     var state: RecordAudioState by mutableStateOf(RecordAudioState())
@@ -78,6 +80,7 @@ class RecordAudioViewModel @Inject constructor(
 
     init {
         observeAudioPlayerState()
+        observeEffectsCheckbox()
 
         viewModelScope.launch {
             launch {
@@ -123,6 +126,14 @@ class RecordAudioViewModel @Inject constructor(
                 state = state.copy(
                     audioState = it
                 )
+            }
+        }
+    }
+
+    private fun observeEffectsCheckbox() {
+        viewModelScope.launch {
+            globalDataStore.isRecordAudioEffectsCheckboxEnabled().collect {
+                state = state.copy(shouldApplyEffects = it)
             }
         }
     }
@@ -293,6 +304,9 @@ class RecordAudioViewModel @Inject constructor(
     }
 
     fun setShouldApplyEffects(enabled: Boolean) {
+        viewModelScope.launch {
+            globalDataStore.setRecordAudioEffectsCheckboxEnabled(enabled)
+        }
         state = state.copy(
             shouldApplyEffects = enabled
         )

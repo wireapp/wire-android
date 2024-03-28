@@ -17,18 +17,18 @@
  */
 package com.wire.android.feature.sketch
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.net.Uri
-import android.os.Environment
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
@@ -37,7 +37,6 @@ import com.wire.android.feature.sketch.model.DrawingState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.io.FileOutputStream
 
 class DrawingCanvasViewModel : ViewModel() {
@@ -105,35 +104,37 @@ class DrawingCanvasViewModel : ViewModel() {
         state = state.copy(canvasSize = canvasSize)
     }
 
-    fun saveImage(tempWritableImageUri: Uri?): Uri {
+    fun saveImage(context: Context, tempWritableImageUri: Uri?): Uri {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 with(state) {
                     if (canvasSize == null || state.paths.isEmpty()) return@withContext
 
-                    val bitmap = Bitmap.createBitmap(canvasSize!!.width.toInt(), canvasSize!!.height.toInt(), Bitmap.Config.ARGB_8888)
+                    val bitmap = Bitmap.createBitmap(
+                        canvasSize!!.width.toInt(),
+                        canvasSize!!.height.toInt(),
+                        Bitmap.Config.ARGB_8888
+                    )
                     val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.WHITE }) }
-                    val file = File(getImagePath(tempWritableImageUri))
-                    val outputStream = FileOutputStream(file, false)
-                    outputStream.use {
-                        paths.forEach { path -> path.drawNative(canvas) }
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                    context.contentResolver.openFileDescriptor(tempWritableImageUri!!, "tw")?.use { fileDescriptor ->
+                        FileOutputStream(fileDescriptor.fileDescriptor).use { fileOutputStream ->
+                            fileOutputStream.channel.truncate(0) // clear the file
+                            paths.forEach { path -> path.drawNative(canvas) }
+                            Log.d("DrawingCanvasViewModel", "Saving paths: ${paths.size}")
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY, fileOutputStream)
+                            fileOutputStream.flush()
+                        }.also {
+                            Log.d("DrawingCanvasViewModel", "Image written to: $tempWritableImageUri")
+                        }
                     }
-
-                    outputStream.flush()
-                    outputStream.close()
                 }
             }
         }
-        return getImagePath(tempWritableImageUri).toUri()
-    }
-
-    private fun getImagePath(tempWritableImageUri: Uri?): String {
-        return Environment.getDownloadCacheDirectory().path + "/$TEMP_IMG_ATTACHMENT_FILENAME"
+        return tempWritableImageUri!!
     }
 
     companion object {
-        private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
+        private const val QUALITY = 50
     }
 
 }

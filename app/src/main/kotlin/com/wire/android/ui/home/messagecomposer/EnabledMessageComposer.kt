@@ -299,9 +299,8 @@ fun EnabledMessageComposer(
                                         additionalOptionStateHolder.additionalOptionsSubMenuState
                                     )
                                 },
-                                onSendSketch = {
-                                    onAttachmentPicked(UriAsset(it))
-                                }
+                                onSendSketch = { onAttachmentPicked(UriAsset(it)) },
+                                tempWritableImageUri = tempWritableImageUri
                             )
                         }
                     }

@@ -32,6 +32,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
@@ -41,8 +42,10 @@ import kotlinx.coroutines.launch
 fun DrawingCanvasBottomSheet(
     viewModel: DrawingCanvasViewModel = viewModel(),
     onDismissSketch: () -> Unit,
-    onSendSketch: (Uri) -> Unit
+    onSendSketch: (Uri) -> Unit,
+    tempWritableImageUri: Uri?
 ) {
+    val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
         dragHandle = {
@@ -66,7 +69,7 @@ fun DrawingCanvasBottomSheet(
                 }
                 IconButton(
                     onClick = {
-                        onSendSketch(viewModel.saveImage(null))
+                        onSendSketch(viewModel.saveImage(context, tempWritableImageUri))
                     },
                 ) {
                     Icon(

@@ -83,7 +83,7 @@ class RecordAudioViewModelTest {
             // then
             assertEquals(
                 RecordAudioButtonState.RECORDING,
-                viewModel.getButtonState()
+                viewModel.state.buttonState
             )
             coVerify(exactly = 1) { arrangement.getAssetSizeLimit(false) }
             verify(exactly = 1) { arrangement.audioMediaRecorder.setUp(ASSET_SIZE_LIMIT) }
@@ -106,7 +106,7 @@ class RecordAudioViewModelTest {
             // then
             assertEquals(
                 RecordAudioButtonState.READY_TO_SEND,
-                viewModel.getButtonState()
+                viewModel.state.buttonState
             )
         }
 
@@ -122,7 +122,7 @@ class RecordAudioViewModelTest {
                 // then
                 assertEquals(
                     RecordAudioDialogState.Hidden,
-                    viewModel.getDiscardDialogState()
+                    viewModel.state.discardDialogState
                 )
             }
         }
@@ -141,7 +141,7 @@ class RecordAudioViewModelTest {
                 // then
                 assertEquals(
                     RecordAudioDialogState.Shown,
-                    viewModel.getDiscardDialogState()
+                    viewModel.state.discardDialogState
                 )
             }
         }
@@ -159,7 +159,7 @@ class RecordAudioViewModelTest {
             // then
             assertEquals(
                 RecordAudioDialogState.Hidden,
-                viewModel.getDiscardDialogState()
+                viewModel.state.discardDialogState
             )
         }
 
@@ -176,7 +176,7 @@ class RecordAudioViewModelTest {
             // then
             assertEquals(
                 RecordAudioDialogState.Shown,
-                viewModel.getPermissionsDeniedDialogState()
+                viewModel.state.permissionsDeniedDialogState
             )
         }
 
@@ -193,7 +193,7 @@ class RecordAudioViewModelTest {
             // then
             assertEquals(
                 RecordAudioDialogState.Hidden,
-                viewModel.getPermissionsDeniedDialogState()
+                viewModel.state.permissionsDeniedDialogState
             )
         }
 
@@ -212,15 +212,15 @@ class RecordAudioViewModelTest {
                 // then
                 assertEquals(
                     RecordAudioButtonState.ENABLED,
-                    viewModel.getButtonState()
+                    viewModel.state.buttonState
                 )
                 assertEquals(
                     RecordAudioDialogState.Hidden,
-                    viewModel.getDiscardDialogState()
+                    viewModel.state.discardDialogState
                 )
                 assertEquals(
                     null,
-                    viewModel.getOutputFile()
+                    viewModel.state.originalOutputFile
                 )
             }
         }
@@ -237,7 +237,7 @@ class RecordAudioViewModelTest {
                 // when
                 viewModel.startRecording()
                 // then
-                assertEquals(RecordAudioButtonState.RECORDING, viewModel.getButtonState())
+                assertEquals(RecordAudioButtonState.RECORDING, viewModel.state.buttonState)
                 expectNoEvents()
             }
         }
@@ -254,7 +254,7 @@ class RecordAudioViewModelTest {
                 // when
                 viewModel.startRecording()
                 // then
-                assertEquals(RecordAudioButtonState.ENABLED, viewModel.getButtonState())
+                assertEquals(RecordAudioButtonState.ENABLED, viewModel.state.buttonState)
                 assertEquals(RecordAudioInfoMessageType.UnableToRecordAudioError.uiText, awaitItem())
             }
         }

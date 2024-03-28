@@ -20,6 +20,7 @@ package com.wire.android.ui.home.messagecomposer.recordaudio
 import android.content.Context
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
@@ -266,6 +267,7 @@ class RecordAudioViewModelTest {
         val observeEstablishedCalls = mockk<ObserveEstablishedCallsUseCase>()
         val currentScreenManager = mockk<CurrentScreenManager>()
         val getAssetSizeLimit = mockk<GetAssetSizeLimitUseCase>()
+        val globalDataStore = mockk<GlobalDataStore>()
         val context = mockk<Context>()
 
         val viewModel by lazy {
@@ -275,7 +277,8 @@ class RecordAudioViewModelTest {
                 observeEstablishedCalls = observeEstablishedCalls,
                 currentScreenManager = currentScreenManager,
                 audioMediaRecorder = audioMediaRecorder,
-                getAssetSizeLimit = getAssetSizeLimit
+                getAssetSizeLimit = getAssetSizeLimit,
+                globalDataStore = globalDataStore
             )
         }
 
@@ -289,6 +292,7 @@ class RecordAudioViewModelTest {
             every { audioMediaRecorder.startRecording() } returns true
             every { audioMediaRecorder.stop() } returns Unit
             every { audioMediaRecorder.release() } returns Unit
+            every { globalDataStore.isRecordAudioEffectsCheckboxEnabled() } returns flowOf(false)
             every { audioMediaRecorder.originalOutputFile } returns fakeKaliumFileSystem
                 .tempFilePath("temp_recording.mp3")
                 .toFile()

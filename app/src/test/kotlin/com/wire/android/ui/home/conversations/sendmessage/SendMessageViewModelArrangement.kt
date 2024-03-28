@@ -58,13 +58,10 @@ import okio.buffer
 
 internal class SendMessageViewModelArrangement {
 
-    val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-
     init {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
 
         // Default empty values
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
@@ -139,7 +136,6 @@ internal class SendMessageViewModelArrangement {
 
     private val viewModel by lazy {
         SendMessageViewModel(
-            savedStateHandle = savedStateHandle,
             sendTextMessage = sendTextMessage,
             sendEditTextMessage = sendEditTextMessage,
             sendAssetMessage = sendAssetMessage,

@@ -156,6 +156,7 @@ class GetConversationMessagesFromSearchUseCaseTest {
 
         fun withMappedMessage(user: User, message: Message.Standalone) = apply {
             every { messageMapper.toUIMessage(any(), message) } returns UIMessage.Regular(
+                conversationId = conversationId,
                 userAvatarData = UserAvatarData(
                     asset = null,
                     availabilityStatus = UserAvailabilityStatus.NONE
@@ -198,6 +199,7 @@ class GetConversationMessagesFromSearchUseCaseTest {
                 senderUserId = user2.id
             )
             val messages = listOf(message1, message2)
+            val conversationId = ConversationId("value", "domain")
         }
     }
 }

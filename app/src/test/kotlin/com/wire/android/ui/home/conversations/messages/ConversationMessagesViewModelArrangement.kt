@@ -161,7 +161,8 @@ class ConversationMessagesViewModelArrangement {
         assetSize: Long,
         messageId: String
     ) = apply {
-        val assetBundle = AssetBundle(assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType))
+        val assetBundle =
+            AssetBundle("key", assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType))
         viewModel.showOnAssetDownloadedDialog(assetBundle, messageId)
         every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
@@ -205,7 +206,10 @@ class ConversationMessagesViewModelArrangement {
         assetSize: Long,
         messageId: String
     ) = apply {
-        val assetBundle = AssetBundle(assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType))
+        val assetBundle = AssetBundle(
+            "key",
+            assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType)
+        )
         viewModel.showOnAssetDownloadedDialog(assetBundle, messageId)
         coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()

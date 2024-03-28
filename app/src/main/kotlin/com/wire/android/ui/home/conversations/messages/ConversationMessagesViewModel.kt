@@ -271,6 +271,7 @@ class ConversationMessagesViewModel @Inject constructor(
                 val assetContent = messageContent.value
                 assetDataPath(conversationId, messageId)?.let { (path, _) ->
                     messageId to AssetBundle(
+                        key = assetContent.remoteData.assetId,
                         dataPath = path,
                         fileName = assetContent.name ?: DEFAULT_ASSET_NAME,
                         dataSize = assetContent.sizeInBytes,

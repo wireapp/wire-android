@@ -104,6 +104,8 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         return@withContext getTempWritableAttachmentUri(context, tempImagePath)
     }
 
+    // TODO we should handle those errors more user friendly
+    @Suppress("TooGenericExceptionCaught")
     suspend fun getAssetBundleFromUri(
         attachmentUri: Uri,
         tempCachePath: Path,
@@ -111,6 +113,7 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     ): AssetBundle? = withContext(dispatcher.io()) {
         try {
+            val assetKey = UUID.randomUUID().toString()
             val assetFileName = context.getFileName(attachmentUri)
                 ?: throw IOException("The selected asset has an invalid name")
             val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
@@ -126,9 +129,12 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
                 //  of video assets hitting the max limit.
                 copyToPath(attachmentUri, fullTempAssetPath)
             }
-            AssetBundle(mimeType, assetPath, assetSize, assetFileName, attachmentType)
+            AssetBundle(assetKey, mimeType, assetPath, assetSize, assetFileName, attachmentType)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)
+            null
+        } catch (e: Exception) {
+            appLogger.e("There was an error while handling file from disk", e)
             null
         }
     }

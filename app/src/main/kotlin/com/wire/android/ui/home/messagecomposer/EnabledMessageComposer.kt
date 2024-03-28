@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.wire.android.feature.sketch.DrawingCanvasBottomSheet
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
@@ -257,6 +258,7 @@ fun EnabledMessageComposer(
                                     additionalOptionStateHolder.toRichTextEditing()
                                 },
                                 onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
+                                onDrawingModeClicked = additionalOptionStateHolder::toDrawingMode
                             )
                         }
                         Box(
@@ -287,6 +289,18 @@ fun EnabledMessageComposer(
                                     modifier = Modifier.fillMaxSize()
                                 )
                             }
+                        }
+
+                        if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.DrawingMode) {
+                            DrawingCanvasBottomSheet(
+                                onDismissSketch = {
+                                    inputStateHolder.handleBackPressed(
+                                        isImeVisible,
+                                        additionalOptionStateHolder.additionalOptionsSubMenuState
+                                    )
+                                },
+                                onSendSketch = onSendButtonClicked
+                            )
                         }
                     }
                 }

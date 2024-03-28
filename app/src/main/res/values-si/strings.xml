@@ -210,6 +210,7 @@
     <string name="welcome_screen_carousel_item_message_5">වයර් ස්වාධීනව විගණනය කර ඇත. ISO, CCPA, GDPR, SOX-අනුකූල වේ</string>
     <string name="welcome_button_create_team">කණ්ඩායමක් සාදන්න</string>
     <string name="server_details_dialog_body">සේවාදායකයේ නම:\n%1$s\n\nඒ.ස.නි.:\n%2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">පරිශ්‍රයක සේවාදායකයකි</string>
     <string name="welcome_migration_dialog_title">අපගේ නව ඇන්ඩ්‍රොයිඩ් යෙදුමට පිළිගනිමු 👋</string>
     <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
@@ -269,7 +270,7 @@
     <string name="conversation_history_wipe_explanation">ඔබගේ කණ්ඩායමේ ආරක්‍ෂණ සැකසුම් වලට අනුව, ඔබගේ සංවාද ඉතිහාසය ද මකා ඇත.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">ගිණුම සත්‍යාපනය කරන්න</string>
-    <string name="second_factor_authentication_instructions_label">වි-තැපෑල වෙත එවූ සත්‍යාපන කේතය යොදන්න. %1$s</string>
+    <string name="second_factor_authentication_instructions_label">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="second_factor_code_error">වලංගු නොවන කේතයකි හෝ උපරිම තැත් කිරීම් ඉක්මවා ඇත. නැවත උත්සාහ කරන්න හෝ වෙනත් කේතයක් ඉල්ලන්න</string>
     <!-- Remove Device -->
     <string name="remove_device_title">උපාංගයක් ඉවත් කරන්න</string>
@@ -979,6 +980,8 @@
     <string name="custom_backend_dialog_body">ඔබ ඉදිරියට ගියහොත්, ඔබගේ අනුග්‍රාහකය පහත පරිශ්‍රයේ සේවාදායකයට හරවා යවනු ලැබේ:</string>
     <string name="custom_backend_dialog_body_backend_name">සේවාදායකයේ නම:</string>
     <string name="custom_backend_dialog_body_backend_api">සේවාදායකයේ ඒ.ස.නි.:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">අපලේඛනයේ ඒ.ස.නි.:</string>
     <string name="custom_backend_dialog_body_backend_teams">කණ්ඩායම්වල ඒ.ස.නි.:</string>
     <string name="custom_backend_dialog_body_backend_accounts">ගිණුම්වල ඒ.ස.නි.:</string>
@@ -1247,6 +1250,7 @@
     <string name="record_audio_start_label">පටිගතය අරඹන්න</string>
     <string name="record_audio_recording_label">හඬ පටිගත වෙමින්…</string>
     <string name="record_audio_send_label">හඬ පණිවිඩය යවන්න</string>
+    <string name="record_audio_apply_filter_label">Apply audio filter</string>
     <string name="record_audio_discard_dialog_title">හඬ පණිවිඩය ඉවතලන්නද?</string>
     <string name="record_audio_discard_dialog_text">හඬ පණිවිඩය මැකෙන අතර යැවීමට නොහැකි වනු ඇත.</string>
     <string name="record_audio_discard_dialog_discard_button">ඉවතලන්න</string>

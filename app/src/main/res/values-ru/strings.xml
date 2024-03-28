@@ -212,6 +212,7 @@
     <string name="welcome_screen_carousel_item_message_5">Компания Wire прошла независимый аудит и соответствует требованиям ISO, CCPA, GDPR, SOX</string>
     <string name="welcome_button_create_team">Создать команду</string>
     <string name="server_details_dialog_body">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s\n\nURL прокси:\n%3$s\n\nПрокси аутентификации:\n%4$s</string>
     <string name="server_details_dialog_title">Внутренний бэкэнд</string>
     <string name="welcome_migration_dialog_title">Добро пожаловать в наше новое приложение для Android 👋</string>
     <string name="welcome_migration_dialog_content">Мы переработали приложение, чтобы сделать его более удобным для всех.\n\nУзнайте больше об обновленном приложении Wire - новые возможности и улучшенная доступность при прежней надежной защите.</string>
@@ -276,7 +277,7 @@
         вашей команды история бесед также была удалена.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Подтвердите учетную запись</string>
-    <string name="second_factor_authentication_instructions_label">Введите код подтверждения, отправленный на email %1$s</string>
+    <string name="second_factor_authentication_instructions_label">Пожалуйста, введите ниже код проверки, отправленный на ваш email %1$s.</string>
     <string name="second_factor_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Удалить устройство</string>
@@ -1028,6 +1029,8 @@
     <string name="custom_backend_dialog_body">При продолжении вы будете перенаправлены на следующий локальный бэкэнд:</string>
     <string name="custom_backend_dialog_body_backend_name">Название бэкэнда:</string>
     <string name="custom_backend_dialog_body_backend_api">URL бэкэнда:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">URL прокси:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Прокси аутентификации:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">URL черного списка:</string>
     <string name="custom_backend_dialog_body_backend_teams">URL команды:</string>
     <string name="custom_backend_dialog_body_backend_accounts">URL аккаунта:</string>
@@ -1317,6 +1320,7 @@
     <string name="record_audio_start_label">Начать запись</string>
     <string name="record_audio_recording_label">Запись аудио…</string>
     <string name="record_audio_send_label">Отправить аудиосообщение</string>
+    <string name="record_audio_apply_filter_label">Применить аудиофильтр</string>
     <string name="record_audio_discard_dialog_title">Отменить аудиосообщение?</string>
     <string name="record_audio_discard_dialog_text">Аудиосообщение будет удалено и не будет отправлено.</string>
     <string name="record_audio_discard_dialog_discard_button">Отменить</string>

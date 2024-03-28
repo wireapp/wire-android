@@ -27,7 +27,7 @@ data class RecordAudioState(
     val maxFileSizeReachedDialogState: RecordAudioDialogState = RecordAudioDialogState.Hidden,
     val originalOutputFile: File? = null,
     val effectsOutputFile: File? = null,
-    val dusanAudioFile: File? = null,
+    val shouldApplyEffects: Boolean = false,
     val audioState: AudioState = AudioState.DEFAULT
 )
 

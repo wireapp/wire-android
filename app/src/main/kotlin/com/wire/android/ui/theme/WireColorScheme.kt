@@ -103,6 +103,7 @@ data class WireColorScheme(
     val validE2eiStatusColor: Color,
     val mlsVerificationTextColor: Color,
     val wireAccentColors: WireAccentColors,
+    val checkboxTextDisabled: Color
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,
@@ -247,7 +248,8 @@ private val LightWireColorScheme = WireColorScheme(
             Accent.Petrol -> WireColorPalette.LightPetrol500
             Accent.Unknown -> WireColorPalette.LightBlue500
         }
-    }
+    },
+    checkboxTextDisabled = WireColorPalette.Gray70
 )
 
 // Dark WireColorScheme
@@ -366,7 +368,8 @@ private val DarkWireColorScheme = WireColorScheme(
             Accent.Petrol -> WireColorPalette.DarkPetrol500
             Accent.Unknown -> WireColorPalette.DarkBlue500
         }
-    }
+    },
+    checkboxTextDisabled = WireColorPalette.Gray70
 )
 
 @PackagePrivate

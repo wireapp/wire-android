@@ -166,9 +166,9 @@ dependencies {
 	if (fdroidBuild) {
         implementation(platform(libs.firebase.bom))
         implementation(libs.firebase.fcm)
-        implementation(libs.androidx.work)
         implementation(libs.googleGms.location)
     }
+    implementation(libs.androidx.work)
 
     // commonMark
     implementation(libs.commonmark.core)

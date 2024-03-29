@@ -16,14 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.conversations
+package com.wire.android.ui.home.conversations.messages.item
 
-import androidx.compose.animation.Animatable
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,20 +25,14 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,12 +42,11 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
-import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
@@ -82,26 +69,24 @@ import com.wire.android.ui.home.conversations.model.messagetypes.asset.Restricte
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isSaved
-import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
 
 // TODO: a definite candidate for a refactor and cleanup
 @Suppress("ComplexMethod")
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MessageItem(
+fun RegularMessageItem(
     message: UIMessage.Regular,
     conversationDetailsData: ConversationDetailsData,
     searchQuery: String = "",
     showAuthor: Boolean = true,
-    useSmallBottomPadding: Boolean = false,
     audioMessagesState: PersistentMap<String, AudioState>,
     assetStatus: AssetTransferStatus? = null,
     onLongClicked: (UIMessage.Regular) -> Unit,
@@ -112,220 +97,114 @@ fun MessageItem(
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onSelfDeletingMessageRead: (UIMessage) -> Unit,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onLinkClick: (String) -> Unit = {},
     isContentClickable: Boolean = false,
-    onMessageClick: (messageId: String) -> Unit = {},
-    defaultBackgroundColor: Color = Color.Transparent,
     shouldDisplayMessageStatus: Boolean = true,
     shouldDisplayFooter: Boolean = true,
     onReplyClickable: Clickable? = null,
-    isSelectedMessage: Boolean = false,
     isInteractionAvailable: Boolean = true,
+    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable
 ) {
     with(message) {
-        val selfDeletionTimerState = rememberSelfDeletionTimer(header.messageStatus.expirationStatus)
-        if (
-            selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable &&
-            !message.isPending &&
-            !message.sendingFailed
-        ) {
-            selfDeletionTimerState.startDeletionTimer(
-                message = message,
-                assetTransferStatus = assetStatus,
-                onStartMessageSelfDeletion = onSelfDeletingMessageRead
-            )
-        }
-
-        var backgroundColorModifier = if (message.sendingFailed || message.decryptionFailed) {
-            Modifier.background(colorsScheme().messageErrorBackgroundColor)
-        } else if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable && !message.isDeleted) {
-            val color by animateColorAsState(
-                colorsScheme().primaryVariant.copy(selfDeletionTimerState.alphaBackgroundColor()),
-                tween(),
-                label = "message background color"
-            )
-
-            Modifier.background(color)
-        } else {
-            Modifier.background(defaultBackgroundColor)
-        }
-
-        val colorAnimation = remember { Animatable(Color.Transparent) }
-        val highlightColor = colorsScheme().primaryVariant
-        val transparentColor = colorsScheme().primary.copy(alpha = 0F)
-        LaunchedEffect(isSelectedMessage) {
-            if (isSelectedMessage) {
-                colorAnimation.snapTo(highlightColor)
-                colorAnimation.animateTo(
-                    transparentColor,
-                    tween(SELECTED_MESSAGE_ANIMATION_DURATION)
-                )
+        Column {
+            if (showAuthor) {
+                Spacer(modifier = Modifier.height(dimensions().avatarClickablePadding))
+                MessageAuthorRow(messageHeader = message.header)
             }
-        }
+            if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
+                MessageExpireLabel(messageContent, assetStatus, selfDeletionTimerState.timeLeftFormatted)
 
-        if (isSelectedMessage) {
-            backgroundColorModifier = Modifier.drawBehind { drawRect(colorAnimation.value) }
-        }
-
-        Box(
-            backgroundColorModifier
-                .combinedClickable(enabled = true, onClick = {
-                    if (isContentClickable) {
-                        onMessageClick(message.header.messageId)
-                    }
-                },
-                    onLongClick = remember(message) {
-                        {
-                            if (!isContentClickable && !message.isDeleted) {
-                                onLongClicked(message)
-                            }
-                        }
-                    }
-                )
-        ) {
-            // padding needed to have same top padding for avatar and rest composables in message item
-            val fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        end = dimensions().messageItemHorizontalPadding,
-                        top = if (showAuthor) dimensions().spacing0x else dimensions().spacing4x,
-                        bottom = if (useSmallBottomPadding) dimensions().spacing2x else dimensions().messageItemBottomPadding
-                    )
-            ) {
-                val isProfileRedirectEnabled =
-                    header.userId != null &&
-                            !(header.isSenderDeleted || header.isSenderUnavailable)
-
-                Box(
-                    contentAlignment = Alignment.TopStart
-                ) {
-                    if (showAuthor) {
-                        val avatarClickable = remember {
-                            Clickable(enabled = isProfileRedirectEnabled) {
-                                onOpenProfile(header.userId!!.toString())
-                            }
-                        }
-                        // because avatar takes start padding we don't need to add padding to message item
-                        UserProfileAvatar(
-                            avatarData = message.userAvatarData,
-                            clickable = if (isContentClickable) null else avatarClickable
-                        )
-                    } else {
-                        // imitating width of space that avatar takes
-                        Spacer(
-                            Modifier.width(
-                                dimensions().avatarDefaultSize
-                                        + (dimensions().avatarStatusBorderSize * 2)
-                                        + (dimensions().avatarClickablePadding * 2)
-                            )
-                        )
-                    }
+                // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
+                // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
+                // timer to expire to permanently delete the message, in the meantime we show the EphemeralMessageExpiredLabel
+                if (isDeleted) {
+                    EphemeralMessageExpiredLabel(message.isMyMessage, conversationDetailsData)
                 }
-                Spacer(Modifier.width(dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
-                Column {
-                    if (showAuthor) {
-                        Spacer(modifier = Modifier.height(dimensions().avatarClickablePadding))
-                        MessageAuthorRow(messageHeader = message.header)
+            } else {
+                MessageStatusLabel(messageStatus = message.header.messageStatus)
+            }
+            if (!isDeleted) {
+                if (!decryptionFailed) {
+                    val currentOnAssetClicked = remember(message) {
+                        Clickable(enabled = isAvailable, onClick = {
+                            onAssetMessageClicked(header.messageId)
+                        }, onLongClick = {
+                            onLongClicked(message)
+                        })
                     }
-                    if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
-                        MessageExpireLabel(messageContent, assetStatus, selfDeletionTimerState.timeLeftFormatted)
 
-                        // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
-                        // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
-                        // timer to expire to permanently delete the message, in the meantime we show the EphemeralMessageExpiredLabel
-                        if (isDeleted) {
-                            EphemeralMessageExpiredLabel(message.isMyMessage, conversationDetailsData)
-                        }
-                    } else {
-                        MessageStatusLabel(messageStatus = message.header.messageStatus)
+                    val currentOnImageClick = remember(message) {
+                        Clickable(enabled = isAvailable && !isContentClickable, onClick = {
+                            onImageMessageClicked(
+                                message,
+                                source == MessageSource.Self
+                            )
+                        }, onLongClick = {
+                            onLongClicked(message)
+                        })
                     }
-                    if (!isDeleted) {
-                        if (!decryptionFailed) {
-                            val currentOnAssetClicked = remember(message) {
-                                Clickable(enabled = isAvailable, onClick = {
-                                    onAssetMessageClicked(header.messageId)
-                                }, onLongClick = {
-                                    onLongClicked(message)
-                                })
-                            }
-
-                            val currentOnImageClick = remember(message) {
-                                Clickable(enabled = isAvailable && !isContentClickable, onClick = {
-                                    onImageMessageClicked(
-                                        message,
-                                        source == MessageSource.Self
-                                    )
-                                }, onLongClick = {
-                                    onLongClicked(message)
-                                })
-                            }
-                            val onLongClick: (() -> Unit)? = if (isContentClickable) null else remember(message) {
-                                if (isAvailable) {
-                                    { onLongClicked(message) }
-                                } else {
-                                    null
-                                }
-                            }
-                            Row {
-                                Box(modifier = Modifier.weight(1F)) {
-                                    MessageContent(
-                                        message = message,
-                                        messageContent = messageContent,
-                                        searchQuery = searchQuery,
-                                        audioMessagesState = audioMessagesState,
-                                        assetStatus = assetStatus,
-                                        onAudioClick = onAudioClick,
-                                        onChangeAudioPosition = onChangeAudioPosition,
-                                        onAssetClick = currentOnAssetClicked,
-                                        onImageClick = currentOnImageClick,
-                                        onLongClick = onLongClick,
-                                        onOpenProfile = onOpenProfile,
-                                        onLinkClick = onLinkClick,
-                                        clickable = !isContentClickable,
-                                        onReplyClickable = onReplyClickable
-                                    )
-                                }
-                                if (isMyMessage && shouldDisplayMessageStatus) {
-                                    MessageStatusIndicator(
-                                        status = message.header.messageStatus.flowStatus,
-                                        isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
-                                        modifier = Modifier.padding(
-                                            top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
-                                            start = dimensions().spacing8x
-                                        )
-                                    )
-                                } else {
-                                    HorizontalSpace.x24()
-                                }
-                            }
-                            if (shouldDisplayFooter) {
-                                VerticalSpace.x4()
-                                MessageFooter(
-                                    messageFooter = messageFooter,
-                                    onReactionClicked = onReactionClicked
-                                )
-                            }
+                    val onLongClick: (() -> Unit)? = if (isContentClickable) null else remember(message) {
+                        if (isAvailable) {
+                            { onLongClicked(message) }
                         } else {
-                            MessageDecryptionFailure(
-                                messageHeader = header,
-                                decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
-                                onResetSessionClicked = onResetSessionClicked
-                            )
-                        }
-                        if (message.sendingFailed) {
-                            MessageSendFailureWarning(
-                                messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
-                                isInteractionAvailable = isInteractionAvailable,
-                                onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId, message.conversationId) } },
-                                onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
-                            )
+                            null
                         }
                     }
+                    Row {
+                        Box(modifier = Modifier.weight(1F)) {
+                            MessageContent(
+                                message = message,
+                                messageContent = messageContent,
+                                searchQuery = searchQuery,
+                                audioMessagesState = audioMessagesState,
+                                assetStatus = assetStatus,
+                                onAudioClick = onAudioClick,
+                                onChangeAudioPosition = onChangeAudioPosition,
+                                onAssetClick = currentOnAssetClicked,
+                                onImageClick = currentOnImageClick,
+                                onLongClick = onLongClick,
+                                onOpenProfile = onOpenProfile,
+                                onLinkClick = onLinkClick,
+                                clickable = !isContentClickable,
+                                onReplyClickable = onReplyClickable
+                            )
+                        }
+                        if (isMyMessage && shouldDisplayMessageStatus) {
+                            MessageStatusIndicator(
+                                status = message.header.messageStatus.flowStatus,
+                                isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
+                                modifier = Modifier.padding(
+                                    top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
+                                    start = dimensions().spacing8x
+                                )
+                            )
+                        } else {
+                            HorizontalSpace.x24()
+                        }
+                    }
+                    if (shouldDisplayFooter) {
+                        VerticalSpace.x4()
+                        MessageFooter(
+                            messageFooter = messageFooter,
+                            onReactionClicked = onReactionClicked
+                        )
+                    }
+                } else {
+                    MessageDecryptionFailure(
+                        messageHeader = header,
+                        decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
+                        onResetSessionClicked = onResetSessionClicked
+                    )
+                }
+                if (message.sendingFailed) {
+                    MessageSendFailureWarning(
+                        messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                        isInteractionAvailable = isInteractionAvailable,
+                        onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId, message.conversationId) } },
+                        onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
+                    )
                 }
             }
         }

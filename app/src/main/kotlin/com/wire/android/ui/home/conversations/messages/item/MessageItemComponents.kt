@@ -15,10 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.conversations
+package com.wire.android.ui.home.conversations.messages.item
 
 import android.content.Context
 import android.content.res.Resources
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -35,6 +37,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -42,9 +46,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
@@ -274,14 +280,37 @@ internal fun MessageDecryptionFailure(
 
 @Composable
 internal fun Modifier.customizeMessageBackground(
+    defaultBackgroundColor: Color,
     sendingFailed: Boolean,
-    receivingFailed: Boolean
-) = run {
-    if (sendingFailed || receivingFailed) {
-        background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
-    } else {
-        this
-    }
+    receivingFailed: Boolean,
+    isDeleted: Boolean,
+    isSelectedMessage: Boolean,
+    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
+    colorAnimation: Color
+): Modifier {
+
+    return this
+        .then(if (isSelectedMessage) drawBehind { drawRect(colorAnimation) } else this)
+        .then(
+            when {
+                sendingFailed || receivingFailed -> {
+                    background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
+                }
+
+                selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable && !isDeleted -> {
+                    val color by animateColorAsState(
+                        targetValue = colorsScheme().primaryVariant.copy(alpha = selfDeletionTimerState.alphaBackgroundColor()),
+                        animationSpec = tween(),
+                        label = "message background color"
+                    )
+                    background(color)
+                }
+
+                else -> {
+                    background(defaultBackgroundColor)
+                }
+            }
+        )
 }
 
 @Composable

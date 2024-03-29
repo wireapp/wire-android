@@ -126,6 +126,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
+import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -977,46 +978,34 @@ fun MessageList(
                     val showAuthor = rememberShouldShowHeader(index, message, lazyPagingMessages)
                     val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
 
-                    when (message) {
-                        is UIMessage.Regular -> {
-                            MessageItem(
-                                message = message,
-                                conversationDetailsData = conversationDetailsData,
-                                showAuthor = showAuthor,
-                                useSmallBottomPadding = useSmallBottomPadding,
-                                audioMessagesState = audioMessagesState,
-                                assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
-                                onAudioClick = onAudioItemClicked,
-                                onChangeAudioPosition = onChangeAudioPosition,
-                                onLongClicked = onShowEditingOption,
-                                onAssetMessageClicked = onAssetItemClicked,
-                                onImageMessageClicked = onImageFullScreenMode,
-                                onOpenProfile = onOpenProfile,
-                                onReactionClicked = onReactionClicked,
-                                onResetSessionClicked = onResetSessionClicked,
-                                onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                                onLinkClick = onLinkClick,
-                                onReplyClickable = Clickable(
-                                    enabled = true,
-                                    onClick = {
-                                        onNavigateToReplyOriginalMessage(message)
-                                    }
-                                ),
-                                isSelectedMessage = (message.header.messageId == selectedMessageId),
-                                isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
-                            )
-                        }
-
-                        is UIMessage.System -> SystemMessageItem(
-                            message = message,
-                            onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                            onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                            onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                            isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
-                        )
-                    }
+                    MessageContainerItem(
+                        message = message,
+                        conversationDetailsData = conversationDetailsData,
+                        showAuthor = showAuthor,
+                        useSmallBottomPadding = useSmallBottomPadding,
+                        audioMessagesState = audioMessagesState,
+                        assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
+                        onAudioClick = onAudioItemClicked,
+                        onChangeAudioPosition = onChangeAudioPosition,
+                        onLongClicked = onShowEditingOption,
+                        onAssetMessageClicked = onAssetItemClicked,
+                        onImageMessageClicked = onImageFullScreenMode,
+                        onOpenProfile = onOpenProfile,
+                        onReactionClicked = onReactionClicked,
+                        onResetSessionClicked = onResetSessionClicked,
+                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                        onLinkClick = onLinkClick,
+                        onReplyClickable = Clickable(
+                            enabled = true,
+                            onClick = {
+                                onNavigateToReplyOriginalMessage(message)
+                            }
+                        ),
+                        isSelectedMessage = (message.header.messageId == selectedMessageId),
+                        isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
+                    )
                 }
             }
             JumpToLastMessageButton(lazyListState = lazyListState)

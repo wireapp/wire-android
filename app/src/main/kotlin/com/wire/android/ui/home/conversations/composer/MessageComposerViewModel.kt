@@ -1,0 +1,208 @@
+/*
+ * Wire
+ * Copyright (C) 2024 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+
+package com.wire.android.ui.home.conversations.composer
+
+import android.net.Uri
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
+import com.wire.android.mapper.ContactMapper
+import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.InvalidLinkDialogState
+import com.wire.android.ui.home.conversations.MessageComposerViewState
+import com.wire.android.ui.home.conversations.VisitLinkDialogState
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.navArgs
+import com.wire.android.util.FileManager
+import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.configuration.FileSharingStatus
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.draft.MessageDraft
+import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
+import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
+import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
+import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
+import javax.inject.Inject
+
+@Suppress("LongParameterList", "TooManyFunctions")
+@HiltViewModel
+class MessageComposerViewModel @Inject constructor(
+    override val savedStateHandle: SavedStateHandle,
+    private val dispatchers: DispatcherProvider,
+    private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
+    private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
+    private val updateConversationReadDate: UpdateConversationReadDateUseCase,
+    private val contactMapper: ContactMapper,
+    private val membersToMention: MembersToMentionUseCase,
+    private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
+    private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
+    private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
+    private val sendTypingEvent: SendTypingEventUseCase,
+    private val saveMessageDraft: SaveMessageDraftUseCase,
+    private val fileManager: FileManager,
+    private val kaliumFileSystem: KaliumFileSystem,
+) : SavedStateViewModel(savedStateHandle) {
+
+    var messageComposerViewState = mutableStateOf(MessageComposerViewState())
+        private set
+
+    var tempWritableVideoUri: Uri? = null
+        private set
+
+    var tempWritableImageUri: Uri? = null
+        private set
+
+    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = conversationNavArgs.conversationId
+
+    var visitLinkDialogState: VisitLinkDialogState by mutableStateOf(
+        VisitLinkDialogState.Hidden
+    )
+
+    var invalidLinkDialogState: InvalidLinkDialogState by mutableStateOf(
+        InvalidLinkDialogState.Hidden
+    )
+
+    init {
+        initTempWritableVideoUri()
+        initTempWritableImageUri()
+        observeIsTypingAvailable()
+        observeSelfDeletingMessagesStatus()
+        setFileSharingStatus()
+    }
+
+    private fun initTempWritableVideoUri() {
+        viewModelScope.launch {
+            tempWritableVideoUri =
+                fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
+        }
+    }
+
+    private fun initTempWritableImageUri() {
+        viewModelScope.launch {
+            tempWritableImageUri =
+                fileManager.getTempWritableImageUri(kaliumFileSystem.rootCachePath)
+        }
+    }
+
+    private fun observeIsTypingAvailable() = viewModelScope.launch {
+        observeConversationInteractionAvailability(conversationId).collect { result ->
+            messageComposerViewState.value = messageComposerViewState.value.copy(
+                interactionAvailability = when (result) {
+                    is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
+                    is IsInteractionAvailableResult.Success -> result.interactionAvailability
+                }
+            )
+        }
+    }
+
+    private fun observeSelfDeletingMessagesStatus() = viewModelScope.launch {
+        observeSelfDeletingMessages(
+            conversationId,
+            considerSelfUserSettings = true
+        ).collect { selfDeletingStatus ->
+            messageComposerViewState.value =
+                messageComposerViewState.value.copy(selfDeletionTimer = selfDeletingStatus)
+        }
+    }
+
+    fun searchMembersToMention(searchQuery: String) {
+        viewModelScope.launch(dispatchers.io()) {
+            val members = membersToMention(conversationId, searchQuery).map {
+                contactMapper.fromOtherUser(it.user as OtherUser)
+            }
+
+            messageComposerViewState.value =
+                messageComposerViewState.value.copy(mentionSearchResult = members)
+        }
+    }
+
+    fun clearMentionSearchResult() {
+        messageComposerViewState.value =
+            messageComposerViewState.value.copy(mentionSearchResult = emptyList())
+    }
+
+    private fun setFileSharingStatus() {
+        // TODO: handle restriction when sending assets
+        viewModelScope.launch {
+            messageComposerViewState.value = when (isFileSharingEnabled().state) {
+                FileSharingStatus.Value.Disabled,
+                is FileSharingStatus.Value.EnabledSome ->
+                    messageComposerViewState.value.copy(isFileSharingEnabled = false)
+
+                FileSharingStatus.Value.EnabledAll ->
+                    messageComposerViewState.value.copy(isFileSharingEnabled = true)
+            }
+        }
+    }
+
+    fun updateConversationReadDate(utcISO: String) {
+        viewModelScope.launch(dispatchers.io()) {
+            updateConversationReadDate(conversationId, Instant.parse(utcISO))
+        }
+    }
+
+    fun startSelfDeletion(uiMessage: UIMessage) {
+        enqueueMessageSelfDeletion(conversationId, uiMessage.header.messageId)
+    }
+
+    fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) =
+        viewModelScope.launch {
+            messageComposerViewState.value =
+                messageComposerViewState.value.copy(selfDeletionTimer = newSelfDeletionTimer)
+            persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
+        }
+
+    fun hideVisitLinkDialog() {
+        visitLinkDialogState = VisitLinkDialogState.Hidden
+    }
+
+    fun hideInvalidLinkError() {
+        invalidLinkDialogState = InvalidLinkDialogState.Hidden
+    }
+
+    fun sendTypingEvent(typingIndicatorMode: TypingIndicatorMode) {
+        viewModelScope.launch {
+            sendTypingEvent(conversationId, typingIndicatorMode)
+        }
+    }
+
+    fun saveDraft(messageDraft: MessageDraft) {
+        viewModelScope.launch {
+            saveMessageDraft(conversationId, messageDraft)
+        }
+    }
+}

@@ -39,13 +39,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
-import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
-import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.rememberSelfDeletionTimer
@@ -163,7 +160,7 @@ fun MessageContainerItem(
                         onOpenProfile = onOpenProfile
                     )
 
-                    is UIMessage.System -> SystemMessageLeading(
+                    is UIMessage.System -> SystemMessageItemLeading(
                         modifier = Modifier.padding(end = fullAvatarOuterPadding),
                         messageContent = message.messageContent
                     )
@@ -221,29 +218,6 @@ fun MessageContainerItem(
                 text = (message.messageContent as UIMessageContent.SystemMessage.ConversationMessageCreated).date
             )
         }
-    }
-}
-
-@Composable
-fun RegularMessageItemLeading(
-    header: MessageHeader, showAuthor: Boolean,
-    userAvatarData: UserAvatarData,
-    isContentClickable: Boolean,
-    onOpenProfile: (String) -> Unit
-) {
-    val isProfileRedirectEnabled =
-        header.userId != null && !(header.isSenderDeleted || header.isSenderUnavailable)
-    if (showAuthor) {
-        val avatarClickable = remember {
-            Clickable(enabled = isProfileRedirectEnabled) {
-                onOpenProfile(header.userId!!.toString())
-            }
-        }
-        // because avatar takes start padding we don't need to add padding to message item
-        UserProfileAvatar(
-            avatarData = userAvatarData,
-            clickable = if (isContentClickable) null else avatarClickable
-        )
     }
 }
 

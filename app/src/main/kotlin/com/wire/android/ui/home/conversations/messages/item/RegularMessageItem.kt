@@ -112,6 +112,7 @@ fun RegularMessageItem(
             if (showAuthor) {
                 Spacer(modifier = Modifier.height(dimensions().avatarClickablePadding))
                 MessageAuthorRow(messageHeader = message.header)
+                Spacer(modifier = Modifier.height(dimensions().spacing4x))
             }
             if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
                 MessageExpireLabel(messageContent, assetStatus, selfDeletionTimerState.timeLeftFormatted)

@@ -24,11 +24,9 @@ import androidx.annotation.PluralsRes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
@@ -39,10 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -51,7 +46,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
@@ -85,7 +79,6 @@ fun SystemMessageItem(
                     stiffness = Spring.StiffnessMediumLow
                 )
             )
-//            .alignBy { centerOfFirstLine.roundToInt() } // TODO
     ) {
         val context = LocalContext.current
         var expanded: Boolean by remember { mutableStateOf(initiallyExpanded) }
@@ -157,60 +150,6 @@ fun SystemMessageItem(
         }
     }
 }
-
-@Composable
-fun SystemMessageLeading(messageContent: SystemMessage, modifier: Modifier = Modifier) {
-    if (messageContent.iconResId != null) {
-        Image(
-            painter = painterResource(id = messageContent.iconResId),
-            contentDescription = null,
-            colorFilter = getColorFilter(messageContent),
-            modifier = modifier.size(
-                if (messageContent.isSmallIcon) dimensions().systemMessageIconSize
-                else dimensions().systemMessageIconLargeSize
-            ),
-            contentScale = ContentScale.Crop
-        )
-    }
-}
-
-@Suppress("ComplexMethod")
-@Composable
-private fun getColorFilter(message: SystemMessage): ColorFilter? {
-    return when (message) {
-        is SystemMessage.MissedCall.OtherCalled -> null
-        is SystemMessage.MissedCall.YouCalled -> null
-        is SystemMessage.ConversationDegraded -> null
-        is SystemMessage.ConversationVerified -> null
-        is SystemMessage.Knock -> ColorFilter.tint(colorsScheme().primary)
-        is SystemMessage.LegalHold,
-        is SystemMessage.MemberFailedToAdd -> ColorFilter.tint(colorsScheme().error)
-
-        is SystemMessage.MemberAdded,
-        is SystemMessage.MemberJoined,
-        is SystemMessage.MemberLeft,
-        is SystemMessage.MemberRemoved,
-        is SystemMessage.CryptoSessionReset,
-        is SystemMessage.RenamedConversation,
-        is SystemMessage.TeamMemberRemoved_Legacy,
-        is SystemMessage.ConversationReceiptModeChanged,
-        is SystemMessage.HistoryLost,
-        is SystemMessage.HistoryLostProtocolChanged,
-        is SystemMessage.NewConversationReceiptMode,
-        is SystemMessage.ConversationProtocolChanged,
-        is SystemMessage.ConversationProtocolChangedWithCallOngoing,
-        is SystemMessage.ConversationMessageTimerActivated,
-        is SystemMessage.ConversationMessageCreated,
-        is SystemMessage.ConversationStartedWithMembers,
-        is SystemMessage.ConversationMessageTimerDeactivated,
-        is SystemMessage.FederationMemberRemoved,
-        is SystemMessage.FederationStopped,
-        is SystemMessage.ConversationMessageCreatedUnverifiedWarning,
-        is SystemMessage.TeamMemberRemoved,
-        is SystemMessage.MLSWrongEpochWarning -> ColorFilter.tint(colorsScheme().onBackground)
-    }
-}
-
 
 private val SystemMessage.expandable
     get() = when (this) {

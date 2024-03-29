@@ -59,6 +59,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val APP_LOCK_SOURCE = intPreferencesKey("app_lock_source")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
+        val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
+
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
 
         private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> =
@@ -93,6 +95,13 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun setLoggingEnabled(enabled: Boolean) {
         context.dataStore.edit { it[IS_LOGGING_ENABLED] = enabled }
+    }
+
+    fun isRecordAudioEffectsCheckboxEnabled(): Flow<Boolean> =
+        getBooleanPreference(RECORD_AUDIO_EFFECTS_CHECKBOX, false)
+
+    suspend fun setRecordAudioEffectsCheckboxEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[RECORD_AUDIO_EFFECTS_CHECKBOX] = enabled }
     }
 
     fun isEncryptedProteusStorageEnabled(): Flow<Boolean> =

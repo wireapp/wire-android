@@ -33,6 +33,10 @@ object NotificationConstants {
 
     private const val MESSAGE_CHANNEL_ID = "com.wire.android.notification_channel"
     const val MESSAGE_CHANNEL_NAME = "Messages"
+
+    private const val SELF_MESSAGE_CHANNEL_ID = "com.wire.android.notification_self_channel"
+    const val SELF_MESSAGE_CHANNEL_NAME = "Self Messages"
+
     private const val PING_CHANNEL_ID = "com.wire.android.notification_ping_channel"
     const val PING_CHANNEL_NAME = "Pings"
     private const val MESSAGE_GROUP_KEY_PREFIX = "wire_reloaded_notification_group_"
@@ -63,6 +67,7 @@ object NotificationConstants {
     fun getMessagesSummaryId(userId: UserId): Int = "$MESSAGE_SUMMARY_ID_STRING$userId".hashCode()
     fun getChanelGroupIdForUser(userId: UserId): String = "$CHANNEL_GROUP_ID_PREFIX.$userId"
     fun getMessagesChannelId(userId: UserId): String = getChanelIdForUser(userId, MESSAGE_CHANNEL_ID)
+    fun getSelfMessagesChannelId(userId: UserId): String = getChanelIdForUser(userId, SELF_MESSAGE_CHANNEL_ID)
     fun getPingsChannelId(userId: UserId): String = getChanelIdForUser(userId, PING_CHANNEL_ID)
     fun getIncomingChannelId(userId: UserId): String = getChanelIdForUser(userId, INCOMING_CALL_CHANNEL_ID)
 

@@ -486,7 +486,7 @@ class MessageNotificationManager
                 messagesStyle.addMessage(replyMessage)
             }
 
-            val notification = setUpNotificationBuilder(context, userId).apply {
+            val notification = setUpNotificationBuilder(context, userId, true).apply {
                 setContentIntent(messagePendingIntent(context, conversationId, userIdString))
                 addAction(getActionReply(context, conversationId, userIdString, false))
 
@@ -506,10 +506,20 @@ class MessageNotificationManager
 
         /**
          * Create NotificationBuilder and set all the parameters that are common for any MessageNotification
+         * use [isSelfNotification] to disable sound and vibrations when notification is self reply
          * @return resulted [NotificationCompat.Builder] so we can set other specific parameters and build it.
          */
-        private fun setUpNotificationBuilder(context: Context, userId: QualifiedID): NotificationCompat.Builder {
-            val channelId = NotificationConstants.getMessagesChannelId(userId)
+        private fun setUpNotificationBuilder(
+            context: Context,
+            userId: QualifiedID,
+            isSelfNotification: Boolean = false
+        ): NotificationCompat.Builder {
+            val channelId = if (isSelfNotification) {
+                NotificationConstants.getSelfMessagesChannelId(userId)
+            } else {
+                NotificationConstants.getMessagesChannelId(userId)
+            }
+
             return NotificationCompat.Builder(context, channelId).apply {
                 setDefaults(NotificationCompat.DEFAULT_ALL)
 

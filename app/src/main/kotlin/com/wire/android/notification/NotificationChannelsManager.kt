@@ -66,6 +66,7 @@ class NotificationChannelsManager @Inject constructor(
             createIncomingCallsChannel(groupId, user.id)
             createMessagesNotificationChannel(user.id, groupId)
             createPingNotificationChannel(user.id, groupId)
+            createSelfMessagesNotificationChannel(user.id, groupId)
         }
 
         // OngoingCall is not user specific channel, but common for all users.
@@ -139,6 +140,19 @@ class NotificationChannelsManager @Inject constructor(
         val notificationChannel = NotificationChannelCompat
             .Builder(NotificationConstants.getMessagesChannelId(userId), NotificationManagerCompat.IMPORTANCE_HIGH)
             .setName(NotificationConstants.MESSAGE_CHANNEL_NAME)
+            .setGroup(channelGroupId)
+            .build()
+
+        notificationManagerCompat.createNotificationChannel(notificationChannel)
+    }
+
+    private fun createSelfMessagesNotificationChannel(userId: UserId, channelGroupId: String) {
+        val notificationChannel = NotificationChannelCompat
+            .Builder(NotificationConstants.getSelfMessagesChannelId(userId), NotificationManagerCompat.IMPORTANCE_HIGH)
+            .setName(NotificationConstants.SELF_MESSAGE_CHANNEL_NAME)
+            .setSound(null, null)
+            .setLightsEnabled(false)
+            .setVibrationEnabled(false)
             .setGroup(channelGroupId)
             .build()
 

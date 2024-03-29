@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.runtime.Composable
@@ -348,7 +350,11 @@ fun PreviewSystemMessageLegalHoldDisabledOthers() {
 @Composable
 fun PreviewSystemMessageLegalHoldDisabledConversation() {
     WireTheme {
-        SystemMessageItem(message = mockMessageWithKnock.copy(messageContent = UIMessageContent.SystemMessage.LegalHold.Disabled.Conversation))
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = UIMessageContent.SystemMessage.LegalHold.Disabled.Conversation
+            )
+        )
     }
 }
 
@@ -356,7 +362,11 @@ fun PreviewSystemMessageLegalHoldDisabledConversation() {
 @Composable
 fun PreviewSystemMessageLegalHoldEnabledConversation() {
     WireTheme {
-        SystemMessageItem(message = mockMessageWithKnock.copy(messageContent = UIMessageContent.SystemMessage.LegalHold.Enabled.Conversation))
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = UIMessageContent.SystemMessage.LegalHold.Enabled.Conversation
+            )
+        )
     }
 }
 

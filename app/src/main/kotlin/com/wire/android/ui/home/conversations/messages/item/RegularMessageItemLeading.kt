@@ -26,7 +26,8 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 
 @Composable
 fun RegularMessageItemLeading(
-    header: MessageHeader, showAuthor: Boolean,
+    header: MessageHeader,
+    showAuthor: Boolean,
     userAvatarData: UserAvatarData,
     isContentClickable: Boolean,
     onOpenProfile: (String) -> Unit

@@ -53,6 +53,7 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
 
 @OptIn(ExperimentalFoundationApi::class)
+@Suppress("ComplexMethod")
 @Composable
 fun MessageContainerItem(
     message: UIMessage,

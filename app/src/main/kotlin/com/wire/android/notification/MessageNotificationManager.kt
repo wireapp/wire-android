@@ -506,23 +506,19 @@ class MessageNotificationManager
 
         /**
          * Create NotificationBuilder and set all the parameters that are common for any MessageNotification
-         * use [isSelfNotification] to disable sound and vibrations when notification is self reply
+         * use [setOnlyAlertOnce] to trigger only once sound and vibrations for notification updates
          * @return resulted [NotificationCompat.Builder] so we can set other specific parameters and build it.
          */
         private fun setUpNotificationBuilder(
             context: Context,
             userId: QualifiedID,
-            isSelfNotification: Boolean = false
+            setOnlyAlertOnce: Boolean = false
         ): NotificationCompat.Builder {
-            val channelId = if (isSelfNotification) {
-                NotificationConstants.getSelfMessagesChannelId(userId)
-            } else {
-                NotificationConstants.getMessagesChannelId(userId)
-            }
+            val channelId = NotificationConstants.getMessagesChannelId(userId)
 
             return NotificationCompat.Builder(context, channelId).apply {
                 setDefaults(NotificationCompat.DEFAULT_ALL)
-
+                setOnlyAlertOnce(setOnlyAlertOnce)
                 priority = NotificationCompat.PRIORITY_MAX
                 setCategory(NotificationCompat.CATEGORY_MESSAGE)
 

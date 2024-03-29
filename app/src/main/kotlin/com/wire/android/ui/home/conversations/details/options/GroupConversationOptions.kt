@@ -41,6 +41,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.collectAsStateLifecycleAware
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
@@ -115,7 +116,7 @@ fun GroupConversationSettings(
                 )
             }
 
-            item { WireDivider() }
+            item { WireDivider(color = colorsScheme().outline) }
 
             item {
                 ServicesOption(
@@ -151,7 +152,7 @@ fun GroupConversationSettings(
                 )
             }
         }
-        item { WireDivider() }
+        item { WireDivider(color = colorsScheme().outline) }
         item {
             ReadReceiptOption(
                 isSwitchEnabled = state.isUpdatingReadReceiptAllowed,

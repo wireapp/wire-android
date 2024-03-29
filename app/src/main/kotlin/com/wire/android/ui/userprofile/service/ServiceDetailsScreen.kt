@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -190,7 +191,7 @@ private fun ServiceDetailsAddOrRemoveButton(
             color = MaterialTheme.wireColorScheme.background,
             shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
         ) {
-            Divider(color = colorsScheme().outline)
+            HorizontalDivider(color = colorsScheme().outline)
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically

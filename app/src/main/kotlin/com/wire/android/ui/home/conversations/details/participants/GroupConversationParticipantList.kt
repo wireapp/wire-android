@@ -20,14 +20,11 @@ package com.wire.android.ui.home.conversations.details.participants
 
 import android.content.Context
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.folderWithElements
 
 fun LazyListScope.participantsFoldersWithElements(
@@ -62,10 +59,5 @@ fun LazyListScope.folderWithElements(
             showRightArrow = showRightArrow
         )
     },
-    divider = {
-        Divider(
-            color = MaterialTheme.wireColorScheme.background,
-            thickness = Dp.Hairline
-        )
-    }
+    divider = { WireDivider() }
 )

@@ -33,7 +33,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -405,7 +405,7 @@ private fun ImportMediaContent(
                 }
             }
         }
-        Divider(
+        HorizontalDivider(
             color = colorsScheme().outline,
             thickness = 1.dp,
             modifier = Modifier.padding(top = dimensions().spacing12x)

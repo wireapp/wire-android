@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -37,6 +36,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.theme.wireColorScheme
@@ -92,7 +92,7 @@ fun RecordAudioComponent(
             .fillMaxHeight()
             .background(colorsScheme().background)
     ) {
-        Divider(color = MaterialTheme.wireColorScheme.outline)
+        WireDivider(color = MaterialTheme.wireColorScheme.outline)
         RecordAudioButtonClose(
             onClick = { viewModel.showDiscardRecordingDialog(onCloseRecordAudio) },
             modifier = Modifier
@@ -120,6 +120,7 @@ fun RecordAudioComponent(
 
             RecordAudioButtonState.READY_TO_SEND -> RecordAudioButtonSend(
                 applyAudioFilterState = viewModel.state.shouldApplyEffects,
+                applyAudioFilterClick = viewModel::setApplyEffectsAndPlayAudio,
                 audioState = viewModel.state.audioState,
                 onClick = {
                     viewModel.sendRecording(onAudioRecorded = onAudioRecorded) {

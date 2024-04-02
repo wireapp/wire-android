@@ -104,7 +104,7 @@ class DrawingCanvasViewModel : ViewModel() {
         state = state.copy(canvasSize = canvasSize)
     }
 
-    fun saveImage(context: Context, tempWritableImageUri: Uri?): Uri {
+    suspend fun saveImage(context: Context, tempWritableImageUri: Uri?): Uri {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 with(state) {
@@ -116,11 +116,9 @@ class DrawingCanvasViewModel : ViewModel() {
                         Bitmap.Config.ARGB_8888
                     )
                     val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.WHITE }) }
-                    context.contentResolver.openFileDescriptor(tempWritableImageUri!!, "w")?.use { fileDescriptor ->
+                    context.contentResolver.openFileDescriptor(tempWritableImageUri!!, "rw")?.use { fileDescriptor ->
                         FileOutputStream(fileDescriptor.fileDescriptor).use { fileOutputStream ->
-                            fileOutputStream.channel.truncate(0) // clear the file
                             paths.forEach { path -> path.drawNative(canvas) }
-                            Log.d("DrawingCanvasViewModel", "Saving paths: ${paths.size}")
                             bitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY, fileOutputStream)
                             fileOutputStream.flush()
                         }.also {
@@ -129,8 +127,8 @@ class DrawingCanvasViewModel : ViewModel() {
                     }
                 }
             }
-        }
-        return tempWritableImageUri!! //todo check copyToPath from FileManager
+        }.join()
+        return tempWritableImageUri!!
     }
 
     companion object {

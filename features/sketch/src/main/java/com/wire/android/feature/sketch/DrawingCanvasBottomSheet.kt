@@ -69,7 +69,7 @@ fun DrawingCanvasBottomSheet(
                 }
                 IconButton(
                     onClick = {
-                        onSendSketch(viewModel.saveImage(context, tempWritableImageUri))
+                        scope.launch { onSendSketch(viewModel.saveImage(context, tempWritableImageUri)) }
                     },
                 ) {
                     Icon(

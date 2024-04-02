@@ -83,9 +83,7 @@ fun DrawingCanvasBottomSheet(
             }
         },
         sheetState = sheetState,
-        onDismissRequest = {
-            onDismissSketch()
-        }
+        onDismissRequest = onDismissSketch
     ) {
         DrawingCanvasComponent(viewModel)
     }

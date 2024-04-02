@@ -152,7 +152,6 @@ fun MessageContainerItem(
                 selfDeletionTimerState = selfDeletionTimerState,
                 useSmallBottomPadding = useSmallBottomPadding
             )
-
         }
     }
     if (message.messageContent is UIMessageContent.SystemMessage.ConversationMessageCreated) {

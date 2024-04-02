@@ -227,7 +227,6 @@ fun RegularMessageItem(
             }
         )
     }
-
 }
 
 @Composable

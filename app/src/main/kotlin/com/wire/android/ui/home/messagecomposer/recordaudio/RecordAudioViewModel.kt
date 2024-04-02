@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.waz.audioeffect.AudioEffect
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
@@ -57,6 +56,7 @@ class RecordAudioViewModel @Inject constructor(
     private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
+    private val generateAudioFileWithEffects: GenerateAudioFileWithEffectsUseCase,
     private val currentScreenManager: CurrentScreenManager,
     private val audioMediaRecorder: AudioMediaRecorder,
     private val globalDataStore: GlobalDataStore
@@ -175,19 +175,11 @@ class RecordAudioViewModel @Inject constructor(
         audioMediaRecorder.release()
 
         if (state.originalOutputFile != null && state.effectsOutputFile != null) {
-            val audioEffectsResult = AudioEffect(context)
-                .applyEffectM4A(
-                    state.originalOutputFile!!.path,
-                    state.effectsOutputFile!!.path,
-                    AudioEffect.AVS_AUDIO_EFFECT_VOCODER_MED,
-                    true
-                )
-
-            if (audioEffectsResult > -1) {
-                appLogger.i("[$tag] -> Audio file with effects generated successfully.")
-            } else {
-                appLogger.w("[$tag] -> There was an issue with generating audio file with effects.")
-            }
+            generateAudioFileWithEffects(
+                context = context,
+                originalFilePath = state.originalOutputFile!!.path,
+                effectsFilePath = state.effectsOutputFile!!.path
+            )
 
             state = state.copy(
                 buttonState = RecordAudioButtonState.READY_TO_SEND,

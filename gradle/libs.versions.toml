@@ -3,7 +3,7 @@
 gradle = "8.5"
 
 # Kotlin
-kotlin = "1.9.22"
+kotlin = "1.9.23"
 
 # KotlinX
 coroutines = "1.8.0"
@@ -41,7 +41,7 @@ androidx-startup = "1.1.1"
 # Compose
 composeBom = "2024.03.00" # TODO check if in new version [anchoredDraggable] is available
 compose-activity = "1.8.2"
-compose-compiler = "1.5.10"
+compose-compiler = "1.5.11"
 compose-constraint = "1.0.1"
 compose-navigation = "2.7.7" # adjusted to work with compose-destinations "1.9.54"
 compose-destinations = "1.10.2"
@@ -69,7 +69,7 @@ openIdAppAuth = "0.11.1"
 # Other Tools
 aboutLibraries = "10.8.0"
 leakCanary = "2.7"
-ksp = "1.9.22-1.0.17"
+ksp = "1.9.23-1.0.19"
 
 # Benchmark
 benchmark-macro-junit4 = "1.2.3"

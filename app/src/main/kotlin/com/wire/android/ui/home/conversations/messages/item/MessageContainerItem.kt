@@ -17,22 +17,16 @@
  */
 package com.wire.android.ui.home.conversations.messages.item
 
-import androidx.compose.animation.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -96,22 +90,6 @@ fun MessageContainerItem(
             onStartMessageSelfDeletion = onSelfDeletingMessageRead
         )
     }
-    // padding needed to have same top padding for avatar and rest composables in message item
-    val fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize
-
-    val colorAnimation = remember { Animatable(Color.Transparent) }
-    val highlightColor = colorsScheme().primaryVariant
-    val transparentColor = colorsScheme().primary.copy(alpha = 0F)
-    LaunchedEffect(isSelectedMessage) {
-        if (isSelectedMessage) {
-            colorAnimation.snapTo(highlightColor)
-            colorAnimation.animateTo(
-                transparentColor,
-                tween(SELECTED_MESSAGE_ANIMATION_DURATION)
-            )
-        }
-    }
-
     Row(
         Modifier
             .customizeMessageBackground(
@@ -119,8 +97,7 @@ fun MessageContainerItem(
                 message.sendingFailed, message.decryptionFailed,
                 message.header.messageStatus.isDeleted,
                 isSelectedMessage,
-                selfDeletionTimerState,
-                colorAnimation.value
+                selfDeletionTimerState
             )
             .then(
                 when (message) {
@@ -142,66 +119,40 @@ fun MessageContainerItem(
                 }
             )
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    end = dimensions().messageItemHorizontalPadding,
-                    top = if (showAuthor) dimensions().spacing0x else dimensions().spacing4x,
-                    bottom = if (useSmallBottomPadding) dimensions().spacing2x else dimensions().messageItemBottomPadding
-                )
-        ) {
-            Box(Modifier.width(dimensions().spacing56x), contentAlignment = Alignment.TopEnd) {
-                when (message) {
-                    is UIMessage.Regular -> RegularMessageItemLeading(
-                        header = message.header,
-                        showAuthor = showAuthor,
-                        userAvatarData = message.userAvatarData,
-                        isContentClickable = isContentClickable,
-                        onOpenProfile = onOpenProfile
-                    )
+        when (message) {
+            is UIMessage.System -> SystemMessageItem(
+                message = message,
+                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                isInteractionAvailable = isInteractionAvailable,
+            )
 
-                    is UIMessage.System -> SystemMessageItemLeading(
-                        modifier = Modifier.padding(end = fullAvatarOuterPadding),
-                        messageContent = message.messageContent
-                    )
-                }
-            }
-            Spacer(Modifier.width(dimensions().messageItemHorizontalPadding - fullAvatarOuterPadding))
-            Box(Modifier.weight(1F)) {
-                when (message) {
-                    is UIMessage.Regular -> RegularMessageItem(
-                        message = message,
-                        conversationDetailsData = conversationDetailsData,
-                        showAuthor = showAuthor,
-                        audioMessagesState = audioMessagesState,
-                        assetStatus = assetStatus,
-                        onAudioClick = onAudioClick,
-                        onChangeAudioPosition = onChangeAudioPosition,
-                        onLongClicked = onLongClicked,
-                        onAssetMessageClicked = onAssetMessageClicked,
-                        onImageMessageClicked = onImageMessageClicked,
-                        onOpenProfile = onOpenProfile,
-                        onReactionClicked = onReactionClicked,
-                        onResetSessionClicked = onResetSessionClicked,
-                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                        onLinkClick = onLinkClick,
-                        onReplyClickable = onReplyClickable,
-                        isInteractionAvailable = isInteractionAvailable,
-                        searchQuery = searchQuery,
-                        shouldDisplayMessageStatus = shouldDisplayMessageStatus,
-                        shouldDisplayFooter = shouldDisplayFooter
-                    )
+            is UIMessage.Regular -> RegularMessageItem(
+                message = message,
+                conversationDetailsData = conversationDetailsData,
+                showAuthor = showAuthor,
+                audioMessagesState = audioMessagesState,
+                assetStatus = assetStatus,
+                onAudioClick = onAudioClick,
+                onChangeAudioPosition = onChangeAudioPosition,
+                onLongClicked = onLongClicked,
+                onAssetMessageClicked = onAssetMessageClicked,
+                onImageMessageClicked = onImageMessageClicked,
+                onOpenProfile = onOpenProfile,
+                onReactionClicked = onReactionClicked,
+                onResetSessionClicked = onResetSessionClicked,
+                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                onLinkClick = onLinkClick,
+                onReplyClickable = onReplyClickable,
+                isInteractionAvailable = isInteractionAvailable,
+                searchQuery = searchQuery,
+                shouldDisplayMessageStatus = shouldDisplayMessageStatus,
+                shouldDisplayFooter = shouldDisplayFooter,
+                selfDeletionTimerState = selfDeletionTimerState,
+                useSmallBottomPadding = useSmallBottomPadding
+            )
 
-                    is UIMessage.System -> SystemMessageItem(
-                        message = message,
-                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                        isInteractionAvailable = isInteractionAvailable,
-                    )
-                }
-            }
         }
     }
     if (message.messageContent is UIMessageContent.SystemMessage.ConversationMessageCreated) {
@@ -221,5 +172,3 @@ fun MessageContainerItem(
         }
     }
 }
-
-private const val SELECTED_MESSAGE_ANIMATION_DURATION = 2000

@@ -27,6 +27,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
@@ -69,86 +70,98 @@ fun SystemMessageItem(
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
 ) {
-    val lineHeight = MaterialTheme.wireTypography.body02.lineHeight.value
-    var centerOfFirstLine by remember { mutableStateOf(lineHeight / 2f) }
-    Column(
-        Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessMediumLow
+    MessageItemTemplate(
+        showAuthor = true,
+        useSmallBottomPadding = false,
+        fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize,
+        leading = {
+            SystemMessageItemLeading(
+                modifier = Modifier.padding(end = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize),
+                messageContent = message.messageContent
+            )
+        },
+        content = {
+            val lineHeight = MaterialTheme.wireTypography.body02.lineHeight.value
+            var centerOfFirstLine by remember { mutableStateOf(lineHeight / 2f) }
+            Column(
+                Modifier
+                    .animateContentSize(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
+                    )
+            ) {
+                val context = LocalContext.current
+                var expanded: Boolean by remember { mutableStateOf(initiallyExpanded) }
+                val annotatedString = message.messageContent.annotatedString(
+                    res = context.resources,
+                    expanded = expanded,
+                    normalStyle = MaterialTheme.wireTypography.body01,
+                    boldStyle = MaterialTheme.wireTypography.body02,
+                    normalColor = MaterialTheme.wireColorScheme.secondaryText,
+                    boldColor = MaterialTheme.wireColorScheme.onBackground,
+                    errorColor = MaterialTheme.wireColorScheme.error,
+                    isErrorString = message.addingFailed,
                 )
-            )
-    ) {
-        val context = LocalContext.current
-        var expanded: Boolean by remember { mutableStateOf(initiallyExpanded) }
-        val annotatedString = message.messageContent.annotatedString(
-            res = context.resources,
-            expanded = expanded,
-            normalStyle = MaterialTheme.wireTypography.body01,
-            boldStyle = MaterialTheme.wireTypography.body02,
-            normalColor = MaterialTheme.wireColorScheme.secondaryText,
-            boldColor = MaterialTheme.wireColorScheme.onBackground,
-            errorColor = MaterialTheme.wireColorScheme.error,
-            isErrorString = message.addingFailed,
-        )
-        val learnMoreAnnotatedString = message.messageContent.learnMoreResId?.let {
-            val learnMoreLink = stringResource(id = message.messageContent.learnMoreResId)
-            val learnMoreText = stringResource(id = R.string.label_learn_more)
-            buildAnnotatedString {
-                append(learnMoreText)
-                addStyle(
-                    style = SpanStyle(
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline
-                    ),
-                    start = 0,
-                    end = learnMoreText.length
+                val learnMoreAnnotatedString = message.messageContent.learnMoreResId?.let {
+                    val learnMoreLink = stringResource(id = message.messageContent.learnMoreResId)
+                    val learnMoreText = stringResource(id = R.string.label_learn_more)
+                    buildAnnotatedString {
+                        append(learnMoreText)
+                        addStyle(
+                            style = SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                textDecoration = TextDecoration.Underline
+                            ),
+                            start = 0,
+                            end = learnMoreText.length
+                        )
+                        addStringAnnotation(tag = TAG_LEARN_MORE, annotation = learnMoreLink, start = 0, end = learnMoreText.length)
+                    }
+                }
+                val fullAnnotatedString = when {
+                    learnMoreAnnotatedString == null -> annotatedString
+                    message.messageContent.expandable && expanded -> annotatedString + AnnotatedString("\n") + learnMoreAnnotatedString
+                    message.messageContent.expandable && !expanded -> annotatedString
+                    else -> annotatedString + AnnotatedString(" ") + learnMoreAnnotatedString
+                }
+
+                ClickableText(
+                    modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
+                    text = fullAnnotatedString,
+                    onClick = { offset ->
+                        fullAnnotatedString.getStringAnnotations(TAG_LEARN_MORE, offset, offset)
+                            .firstOrNull()?.let { result -> CustomTabsHelper.launchUrl(context, result.item) }
+                    },
+                    style = MaterialTheme.wireTypography.body02,
+                    onTextLayout = {
+                        centerOfFirstLine = if (it.lineCount == 0) 0f else ((it.getLineTop(0) + it.getLineBottom(0)) / 2)
+                    }
                 )
-                addStringAnnotation(tag = TAG_LEARN_MORE, annotation = learnMoreLink, start = 0, end = learnMoreText.length)
-            }
-        }
-        val fullAnnotatedString = when {
-            learnMoreAnnotatedString == null -> annotatedString
-            message.messageContent.expandable && expanded -> annotatedString + AnnotatedString("\n") + learnMoreAnnotatedString
-            message.messageContent.expandable && !expanded -> annotatedString
-            else -> annotatedString + AnnotatedString(" ") + learnMoreAnnotatedString
-        }
 
-        ClickableText(
-            modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
-            text = fullAnnotatedString,
-            onClick = { offset ->
-                fullAnnotatedString.getStringAnnotations(TAG_LEARN_MORE, offset, offset)
-                    .firstOrNull()?.let { result -> CustomTabsHelper.launchUrl(context, result.item) }
-            },
-            style = MaterialTheme.wireTypography.body02,
-            onTextLayout = {
-                centerOfFirstLine = if (it.lineCount == 0) 0f else ((it.getLineTop(0) + it.getLineBottom(0)) / 2)
+                if (message.messageContent.expandable) {
+                    VerticalSpace.x8()
+                    WireSecondaryButton(
+                        onClick = { expanded = !expanded },
+                        text = stringResource(if (expanded) R.string.label_show_less else R.string.label_show_all),
+                        fillMaxWidth = false,
+                        minSize = dimensions().buttonSmallMinSize,
+                        minClickableSize = dimensions().buttonSmallMinSize,
+                        shape = RoundedCornerShape(size = dimensions().corner12x),
+                        contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
+                    )
+                }
+                if (message.sendingFailed) {
+                    MessageSendFailureWarning(
+                        messageStatus = message.header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                        isInteractionAvailable = isInteractionAvailable,
+                        onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId, message.conversationId) } },
+                        onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
+                    )
+                }
             }
-        )
-
-        if (message.messageContent.expandable) {
-            VerticalSpace.x8()
-            WireSecondaryButton(
-                onClick = { expanded = !expanded },
-                text = stringResource(if (expanded) R.string.label_show_less else R.string.label_show_all),
-                fillMaxWidth = false,
-                minSize = dimensions().buttonSmallMinSize,
-                minClickableSize = dimensions().buttonSmallMinSize,
-                shape = RoundedCornerShape(size = dimensions().corner12x),
-                contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
-            )
-        }
-        if (message.sendingFailed) {
-            MessageSendFailureWarning(
-                messageStatus = message.header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
-                isInteractionAvailable = isInteractionAvailable,
-                onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId, message.conversationId) } },
-                onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
-            )
-        }
-    }
+        })
 }
 
 private val SystemMessage.expandable

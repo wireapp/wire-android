@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.messages.item
 
 import android.content.Context
 import android.content.res.Resources
+import androidx.compose.animation.Animatable
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -32,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -286,11 +288,23 @@ internal fun Modifier.customizeMessageBackground(
     isDeleted: Boolean,
     isSelectedMessage: Boolean,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
-    colorAnimation: Color
 ): Modifier {
 
+    val selectedColorAnimation = remember { Animatable(Color.Transparent) }
+    val highlightColor = colorsScheme().primaryVariant
+    val transparentColor = colorsScheme().primary.copy(alpha = 0F)
+    LaunchedEffect(isSelectedMessage) {
+        if (isSelectedMessage) {
+            selectedColorAnimation.snapTo(highlightColor)
+            selectedColorAnimation.animateTo(
+                transparentColor,
+                tween(SELECTED_MESSAGE_ANIMATION_DURATION)
+            )
+        }
+    }
+
     return this
-        .then(if (isSelectedMessage) drawBehind { drawRect(colorAnimation) } else this)
+        .then(if (isSelectedMessage) drawBehind { drawRect(selectedColorAnimation.value) } else this)
         .then(
             when {
                 sendingFailed || receivingFailed -> {
@@ -298,12 +312,13 @@ internal fun Modifier.customizeMessageBackground(
                 }
 
                 selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable && !isDeleted -> {
-                    val color by animateColorAsState(
+                    val deletionColor by animateColorAsState(
                         targetValue = colorsScheme().primaryVariant.copy(alpha = selfDeletionTimerState.alphaBackgroundColor()),
                         animationSpec = tween(),
                         label = "message background color"
                     )
-                    background(color)
+
+                    drawBehind { drawRect(deletionColor) }
                 }
 
                 else -> {
@@ -367,3 +382,5 @@ fun PreviewMultiUserDeliveryFailure() {
         )
     }
 }
+
+private const val SELECTED_MESSAGE_ANIMATION_DURATION = 2000

@@ -12,6 +12,7 @@ ktx-immutableCollections = "0.3.5"
 ktx-serialization = "1.5.1"
 
 # Android Core / Architecture
+detekt = "1.23.6"
 google-gms = "4.4.1"
 gms-location = "21.1.0"
 android-gradlePlugin = "8.2.0"

@@ -1,11 +1,5 @@
 plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
-    id("org.jetbrains.kotlin.android")
-    alias(libs.plugins.ksp)
-}
-
-android {
-    namespace = "com.wire.android.feature.sketch"
 }
 
 dependencies {

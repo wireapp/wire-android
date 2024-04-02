@@ -30,6 +30,7 @@ import com.datadog.android.rum.tracking.ComponentPredicate
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.WireActivity
 import com.wire.android.util.getDeviceIdString
+import com.wire.android.util.getGitBuildId
 import com.wire.android.util.sha256
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -73,7 +74,8 @@ object ExternalLoggerManager {
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         val extraInfo = mapOf(
-            "encrypted_proteus_storage_enabled" to runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() }
+            "encrypted_proteus_storage_enabled" to runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() },
+            "git_commit_hash" to context.getGitBuildId()
         )
 
         Datadog.initialize(context, credentials, configuration, TrackingConsent.GRANTED)

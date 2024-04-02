@@ -223,6 +223,9 @@ formatting:
     AnnotationOnSeparateLine:
         active: false
         autoCorrect: true
+    ArgumentListWrapping:
+        active: true
+        maxLineLength: 140
     ChainWrapping:
         active: false
         autoCorrect: true
@@ -245,7 +248,6 @@ formatting:
         active: false
         autoCorrect: true
         indentSize: 4
-        continuationIndentSize: 4
     MaximumLineLength:
         active: true
         maxLineLength: 140
@@ -297,6 +299,7 @@ formatting:
         active: true
         autoCorrect: true
         indentSize: 4
+        maxLineLength: 140
     SpacingAroundColon:
         active: true
         autoCorrect: true
@@ -440,7 +443,7 @@ potential-bugs:
     LateinitUsage:
         active: false
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
-        excludeAnnotatedProperties: [ ]
+        ignoreAnnotated: [ ]
         ignoreOnClassesPattern: ''
     MapGetWithNotNullAssertionOperator:
         active: false
@@ -504,7 +507,7 @@ style:
         active: true
         ignoreOverridableFunction: true
         excludedFunctions: ['describeContents', 'empty']
-        excludeAnnotatedFunction: [ 'dagger.Provides' ]
+        ignoreAnnotated: [ 'dagger.Provides' ]
     LoopWithTooManyJumpStatements:
         active: true
         maxJumpCount: 1
@@ -572,10 +575,10 @@ style:
         active: false
     UnderscoresInNumericLiterals:
         active: false
-        acceptableDecimalLength: 5
+        acceptableLength: 5
     UnnecessaryAbstractClass:
         active: true
-        excludeAnnotatedClasses: [ 'dagger.Module' ]
+        ignoreAnnotated: [ 'dagger.Module' ]
     UnnecessaryAnnotationUseSiteTarget:
         active: false
     UnnecessaryApply:
@@ -601,7 +604,7 @@ style:
         active: false
     UseDataClass:
         active: false
-        excludeAnnotatedClasses: [ ]
+        ignoreAnnotated: [ ]
         allowVars: false
     UseIfInsteadOfWhen:
         active: false

@@ -24,7 +24,7 @@ import javax.inject.Singleton
 import javax.inject.Inject
 
 @Singleton
-class GenerateAudioFileWithEffectsUseCase @Inject constructor()  {
+class GenerateAudioFileWithEffectsUseCase @Inject constructor() {
     /**
      * Note: This UseCase can't be tested as we cannot mock `AudioEffect` from AVS.
      * Generates audio file with effects on received path from the original file path.

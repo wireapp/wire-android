@@ -41,6 +41,8 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.collectAsStateLifecycleAware
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
@@ -114,6 +116,8 @@ fun GroupConversationSettings(
                 )
             }
 
+            item { WireDivider(color = colorsScheme().outline) }
+
             item {
                 ServicesOption(
                     isSwitchEnabledAndVisible = state.isUpdatingServicesAllowed,
@@ -148,6 +152,7 @@ fun GroupConversationSettings(
                 )
             }
         }
+        item { WireDivider(color = colorsScheme().outline) }
         item {
             ReadReceiptOption(
                 isSwitchEnabled = state.isUpdatingReadReceiptAllowed,
@@ -361,7 +366,7 @@ fun PreviewGuestAdminTeamGroupConversationOptions() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewExternalMemberAdminTeamGroupConversationOptions() = WireTheme {
-GroupConversationSettings(
+    GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Team Group Conversation",
@@ -382,7 +387,7 @@ GroupConversationSettings(
 @PreviewMultipleThemes
 @Composable
 fun PreviewMemberTeamGroupConversationOptions() = WireTheme {
-GroupConversationSettings(
+    GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Normal Group Conversation",

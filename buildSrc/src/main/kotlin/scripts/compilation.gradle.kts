@@ -42,7 +42,7 @@ val dependenciesVersionTask = project.tasks.register("dependenciesVersionTask", 
 }
 
 project.afterEvaluate {
-    project.tasks.matching { it.name.startsWith("bundle") || it.name.startsWith("assemble") }.configureEach {
+    project.tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Assets") }.configureEach {
         dependsOn(gitIdTask)
         dependsOn(dependenciesVersionTask)
     }

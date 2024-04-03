@@ -38,5 +38,4 @@ class ImagesPreviewViewModel @Inject constructor(
         )
     )
         private set
-
 }

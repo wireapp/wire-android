@@ -136,6 +136,7 @@ class SendMessageViewModel @Inject constructor(
         }
     }
 
+    @Suppress("LongMethod")
     private suspend fun sendMessage(messageBundle: MessageBundle) {
         when (messageBundle) {
             is ComposableMessageBundle.EditMessageBundle -> {
@@ -152,7 +153,6 @@ class SendMessageViewModel @Inject constructor(
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleAfterMessageResult()
                 }
-
             }
 
             is ComposableMessageBundle.AttachmentPickedBundle -> {
@@ -277,7 +277,6 @@ class SendMessageViewModel @Inject constructor(
                                 )
                                     .handleLegalHoldFailureAfterSendingMessage(conversationId)
                                     .handleAfterMessageResult()
-
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)

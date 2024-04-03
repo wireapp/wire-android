@@ -141,7 +141,8 @@ private fun Content(
                 Row(
                     modifier = Modifier
                         .weight(1F)
-                        .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     HorizontalSpace.x16()
                     WireSecondaryButton(
@@ -169,14 +170,16 @@ private fun Content(
                                     UriAsset(previewState.assetUri)
                                 )
                             )
-                        })
+                        }
+                    )
                     HorizontalSpace.x16()
                 }
             }
         }
     ) { padding ->
         Box(
-            contentAlignment = Alignment.Center, modifier = Modifier
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
                 .padding(padding)
                 .fillMaxHeight()
                 .fillMaxWidth()

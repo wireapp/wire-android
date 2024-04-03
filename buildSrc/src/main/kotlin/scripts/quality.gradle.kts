@@ -18,6 +18,7 @@
 
 package scripts
 
+import findVersion
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
@@ -28,10 +29,11 @@ plugins {
 }
 
 dependencies {
-    val detektVersion = "1.19.0"
+    val detektVersion = findVersion("detekt").requiredVersion
     detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
-    detektPlugins("com.wire:detekt-rules:1.0.0-SNAPSHOT") {
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-libraries:$detektVersion")
+    detektPlugins("com.wire:detekt-rules:1.0.0-1.23.6") {
         isChanging = true
     }
 }

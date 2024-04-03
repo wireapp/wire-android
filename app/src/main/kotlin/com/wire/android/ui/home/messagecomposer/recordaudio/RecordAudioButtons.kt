@@ -97,8 +97,7 @@ fun RecordAudioButtonEnabled(
         buttonColor = colorsScheme().recordAudioStartColor,
         bottomText = R.string.record_audio_start_label,
         applyAudioFilterState = applyAudioFilterState,
-        applyAudioFilterClick = applyAudioFilterClick,
-        isAudioFilterEnabled = true
+        applyAudioFilterClick = applyAudioFilterClick
     )
 }
 
@@ -144,6 +143,7 @@ fun RecordAudioButtonRecording(
         buttonColor = colorsScheme().recordAudioStopColor,
         bottomText = R.string.record_audio_recording_label,
         buttonState = if (seconds > 0) WireButtonState.Default else WireButtonState.Disabled,
+        isAudioFilterEnabled = false,
         applyAudioFilterState = applyAudioFilterState,
         applyAudioFilterClick = { }
     )
@@ -157,7 +157,8 @@ fun RecordAudioButtonSend(
     modifier: Modifier,
     outputFile: File?,
     onPlayAudio: () -> Unit,
-    onSliderPositionChange: (Int) -> Unit
+    onSliderPositionChange: (Int) -> Unit,
+    applyAudioFilterClick: (Boolean) -> Unit
 ) {
     RecordAudioButton(
         onClick = onClick,
@@ -180,7 +181,7 @@ fun RecordAudioButtonSend(
         buttonColor = colorsScheme().recordAudioStartColor,
         bottomText = R.string.record_audio_send_label,
         applyAudioFilterState = applyAudioFilterState,
-        applyAudioFilterClick = { }
+        applyAudioFilterClick = applyAudioFilterClick
     )
 }
 
@@ -196,7 +197,7 @@ private fun RecordAudioButton(
     buttonState: WireButtonState = WireButtonState.Default,
     applyAudioFilterState: Boolean,
     applyAudioFilterClick: (Boolean) -> Unit,
-    isAudioFilterEnabled: Boolean = false
+    isAudioFilterEnabled: Boolean = true
 ) {
     Column(
         modifier = modifier,
@@ -296,7 +297,8 @@ fun PreviewRecordAudioButtonSend() {
             outputFile = null,
             onPlayAudio = {},
             onSliderPositionChange = {},
-            applyAudioFilterState = false
+            applyAudioFilterState = false,
+            applyAudioFilterClick = {}
         )
     }
 }

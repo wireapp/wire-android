@@ -36,17 +36,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.config.DrawingViewModelFactory
-import com.wire.android.feature.sketch.tools.DrawingPalette
+import com.wire.android.feature.sketch.tools.DrawingToolsConfig
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawingCanvasBottomSheet(
-    drawingPalette: DrawingPalette,
+    drawingToolsConfig: DrawingToolsConfig,
     onDismissSketch: () -> Unit,
     onSendSketch: (Uri) -> Unit,
     tempWritableImageUri: Uri?,
-    viewModel: DrawingCanvasViewModel = viewModel(factory = DrawingViewModelFactory(drawingPalette)),
+    viewModel: DrawingCanvasViewModel = viewModel(factory = DrawingViewModelFactory(drawingToolsConfig)),
 ) {
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)

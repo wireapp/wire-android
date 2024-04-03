@@ -19,10 +19,10 @@ package com.wire.android.feature.sketch.config
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.wire.android.feature.sketch.tools.DrawingPalette
+import com.wire.android.feature.sketch.tools.DrawingToolsConfig
 
-internal class DrawingViewModelFactory(private val palette: DrawingPalette) : ViewModelProvider.Factory {
+internal class DrawingViewModelFactory(private val palette: DrawingToolsConfig) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T =
-        modelClass.getConstructor(DrawingPalette::class.java)
+        modelClass.getConstructor(DrawingToolsConfig::class.java)
             .newInstance(palette)
 }

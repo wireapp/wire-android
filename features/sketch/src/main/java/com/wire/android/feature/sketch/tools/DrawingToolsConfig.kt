@@ -24,7 +24,7 @@ import kotlinx.collections.immutable.persistentListOf
 /**
  * Configuration for the drawing palette picker, for first iteration only first color will be picked.
  */
-data class DrawingPalette(
+data class DrawingToolsConfig(
     val colors: ImmutableList<Color> = persistentListOf(Color.Blue),
     // todo. later add more configurations, like stroke width, etc.
 )

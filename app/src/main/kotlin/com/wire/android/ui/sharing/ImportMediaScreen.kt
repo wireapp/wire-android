@@ -373,10 +373,15 @@ private fun ImportMediaContent(
         val itemWidth =
             if (isMultipleImport) dimensions().importedMediaAssetSize + horizontalPadding.times(2)
             else screenWidth - (horizontalPadding * 2)
-        val contentPadding = PaddingValues(
-            start = horizontalPadding,
-            end = (screenWidth - itemWidth + horizontalPadding)
-        )
+        val contentPadding = if (isMultipleImport) {
+            PaddingValues(
+                start = horizontalPadding,
+                end = (screenWidth - itemWidth + horizontalPadding)
+            )
+        } else {
+            val totalPadding = screenWidth - itemWidth
+            PaddingValues(start = totalPadding / 2, end = totalPadding / 2)
+        }
         val lazyListState = rememberLazyListState()
         if (state.isImporting) {
             Box(

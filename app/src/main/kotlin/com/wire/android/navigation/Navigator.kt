@@ -18,6 +18,7 @@
 package com.wire.android.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
@@ -60,3 +61,5 @@ fun rememberNavigator(finish: () -> Unit): Navigator {
     }
     return remember(finish, navController) { Navigator(finish, navController) }
 }
+
+val LocalNavigator = compositionLocalOf<Navigator> { error("No Navigator provided") }

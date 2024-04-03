@@ -58,6 +58,7 @@ import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LocalNavigator
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
@@ -219,10 +220,12 @@ class WireActivity : AppCompatActivity() {
                                 navigator.navigate(NavigationCommand(OngoingCallScreenDestination(establishedCall.conversationId)))
                             },
                         )
-                        NavigationGraph(
-                            navigator = navigator,
-                            startDestination = startDestination
-                        )
+                        CompositionLocalProvider(LocalNavigator provides navigator) {
+                            NavigationGraph(
+                                navigator = navigator,
+                                startDestination = startDestination
+                            )
+                        }
 
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.

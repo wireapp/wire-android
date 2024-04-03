@@ -161,11 +161,15 @@ fun RegularMessageItem(
                                     onLongClicked(message)
                                 })
                             }
-                            val onLongClick: (() -> Unit)? = if (isContentClickable) null else remember(message) {
-                                if (isAvailable) {
-                                    { onLongClicked(message) }
-                                } else {
-                                    null
+                            val onLongClick: (() -> Unit)? = if (isContentClickable) {
+                                null
+                            } else {
+                                remember(message) {
+                                    if (isAvailable) {
+                                        { onLongClicked(message) }
+                                    } else {
+                                        null
+                                    }
                                 }
                             }
                             Row {

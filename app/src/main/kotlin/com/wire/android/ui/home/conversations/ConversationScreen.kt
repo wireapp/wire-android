@@ -1015,7 +1015,8 @@ fun MessageList(
                 }
             }
             JumpToLastMessageButton(lazyListState = lazyListState)
-        })
+        }
+    )
 }
 
 private fun updateLastReadMessage(

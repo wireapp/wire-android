@@ -94,18 +94,21 @@ fun MessageContainerItem(
         Modifier
             .customizeMessageBackground(
                 defaultBackgroundColor,
-                message.sendingFailed, message.decryptionFailed,
+                message.sendingFailed,
+                message.decryptionFailed,
                 message.header.messageStatus.isDeleted,
                 isSelectedMessage,
                 selfDeletionTimerState
             )
             .then(
                 when (message) {
-                    is UIMessage.Regular -> Modifier.combinedClickable(enabled = true, onClick = {
-                        if (isContentClickable) {
-                            onMessageClick(message.header.messageId)
-                        }
-                    },
+                    is UIMessage.Regular -> Modifier.combinedClickable(
+                        enabled = true,
+                        onClick = {
+                            if (isContentClickable) {
+                                onMessageClick(message.header.messageId)
+                            }
+                        },
                         onLongClick = remember(message) {
                             {
                                 if (!isContentClickable && !message.header.messageStatus.isDeleted) {

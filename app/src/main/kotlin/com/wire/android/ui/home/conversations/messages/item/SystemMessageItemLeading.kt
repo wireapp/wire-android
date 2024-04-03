@@ -36,8 +36,11 @@ fun SystemMessageItemLeading(messageContent: SystemMessage, modifier: Modifier =
             contentDescription = null,
             colorFilter = getColorFilter(messageContent),
             modifier = modifier.size(
-                if (messageContent.isSmallIcon) dimensions().systemMessageIconSize
-                else dimensions().systemMessageIconLargeSize
+                if (messageContent.isSmallIcon) {
+                    dimensions().systemMessageIconSize
+                } else {
+                    dimensions().systemMessageIconLargeSize
+                }
             ),
             contentScale = ContentScale.Crop
         )

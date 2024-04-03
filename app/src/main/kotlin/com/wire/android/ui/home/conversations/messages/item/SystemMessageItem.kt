@@ -161,7 +161,8 @@ fun SystemMessageItem(
                     )
                 }
             }
-        })
+        }
+    )
 }
 
 private val SystemMessage.expandable

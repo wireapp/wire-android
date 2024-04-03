@@ -35,15 +35,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.wire.android.feature.sketch.config.DrawingViewModelFactory
+import com.wire.android.feature.sketch.tools.DrawingPalette
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawingCanvasBottomSheet(
-    viewModel: DrawingCanvasViewModel = viewModel(),
+    drawingPalette: DrawingPalette,
     onDismissSketch: () -> Unit,
     onSendSketch: (Uri) -> Unit,
-    tempWritableImageUri: Uri?
+    tempWritableImageUri: Uri?,
+    viewModel: DrawingCanvasViewModel = viewModel(factory = DrawingViewModelFactory(drawingPalette)),
 ) {
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -85,6 +88,15 @@ fun DrawingCanvasBottomSheet(
         sheetState = sheetState,
         onDismissRequest = onDismissSketch
     ) {
-        DrawingCanvasComponent(viewModel)
+        DrawingCanvasComponent(
+            state = viewModel.state,
+            onStartDrawingEvent = viewModel::onStartDrawingEvent,
+            onDrawEvent = viewModel::onDrawEvent,
+            onStopDrawingEvent = viewModel::onStopDrawingEvent,
+            onSizeChanged = viewModel::onSizeChanged,
+            onStartDrawing = viewModel::onStartDrawing,
+            onDraw = viewModel::onDraw,
+            onStopDrawing = viewModel::onStopDrawing
+        )
     }
 }

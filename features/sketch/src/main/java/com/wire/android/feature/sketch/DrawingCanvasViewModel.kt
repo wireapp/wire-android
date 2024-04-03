@@ -34,14 +34,17 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
 import com.wire.android.feature.sketch.model.DrawingPathProperties
 import com.wire.android.feature.sketch.model.DrawingState
+import com.wire.android.feature.sketch.tools.DrawingPalette
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.FileOutputStream
 
-class DrawingCanvasViewModel : ViewModel() {
+class DrawingCanvasViewModel(drawingPalette: DrawingPalette) : ViewModel() {
 
-    internal var state: DrawingState by mutableStateOf(DrawingState())
+    internal var state: DrawingState by mutableStateOf(
+        DrawingState(currentPath = DrawingPathProperties(color = drawingPalette.colors.random()))
+    )
         private set
 
     /**

@@ -6,6 +6,7 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.ktx.immutableCollections)
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

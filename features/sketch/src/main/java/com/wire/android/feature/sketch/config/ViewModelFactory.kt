@@ -15,30 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.theme
+package com.wire.android.feature.sketch.config
 
-import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.wire.android.feature.sketch.tools.DrawingPalette
 
-@Suppress("MagicNumber")
-enum class Accent(val accentId: Int) {
-    Amber(5),
-    Blue(1),
-    Green(2),
-    Purple(7),
-    Red(4),
-    Petrol(6),
-    Unknown(0);
-
-    companion object {
-        fun fromAccentId(accentId: Int) = entries.firstOrNull { it.accentId == accentId } ?: Unknown
-    }
-}
-
-class WireAccentColors(private val association: (Accent) -> Color) {
-    fun getOrDefault(accent: Accent, default: Color): Color = when (accent) {
-        Accent.Unknown -> default
-        else -> association(accent)
-    }
-
-    fun getAllColors(): List<Color> = Accent.entries.map { association(it) }
+internal class DrawingViewModelFactory(private val palette: DrawingPalette) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T =
+        modelClass.getConstructor(DrawingPalette::class.java)
+            .newInstance(palette)
 }

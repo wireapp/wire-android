@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
@@ -35,26 +36,29 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.toSize
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
+import com.wire.android.feature.sketch.model.DrawingState
 
 @Composable
 internal fun DrawingCanvasComponent(
-    viewModel: DrawingCanvasViewModel = viewModel()
+    state: DrawingState,
+    onStartDrawingEvent: () -> Unit,
+    onDrawEvent: () -> Unit,
+    onStopDrawingEvent: () -> Unit,
+    onSizeChanged: (Size) -> Unit,
+    onStartDrawing: (Offset) -> Unit,
+    onDraw: (Offset) -> Unit,
+    onStopDrawing: () -> Unit
 ) {
-    with(viewModel.state) {
+    with(state) {
         val drawModifier = Modifier
             .fillMaxSize()
             .clipToBounds() // necessary to draw inside the canvas.
             .background(MaterialTheme.colorScheme.background)
-            .onSizeChanged { viewModel.onSizeChanged(it.toSize()) }
+            .onSizeChanged { onSizeChanged(it.toSize()) }
             .pointerInput(Unit) {
                 awaitEachGesture {
-                    handleGestures(
-                        viewModel::onStartDrawing,
-                        viewModel::onDraw,
-                        viewModel::onStopDrawing
-                    )
+                    handleGestures(onStartDrawing, onDraw, onStopDrawing)
                 }
             }
         Canvas(modifier = drawModifier) {
@@ -62,9 +66,9 @@ internal fun DrawingCanvasComponent(
                 val checkPoint = saveLayer(null, null)
                 when (drawingMotionEvent) {
                     DrawingMotionEvent.Idle -> Unit
-                    DrawingMotionEvent.Down -> viewModel.onStartDrawingEvent()
+                    DrawingMotionEvent.Down -> onStartDrawingEvent()
                     DrawingMotionEvent.Move -> {
-                        viewModel.onDrawEvent()
+                        onDrawEvent()
                         // todo: draw with selected properties, out of scope for this first ticket.
                         drawCircle(
                             center = currentPosition,
@@ -74,7 +78,7 @@ internal fun DrawingCanvasComponent(
                         )
                     }
 
-                    DrawingMotionEvent.Up -> viewModel.onStopDrawingEvent()
+                    DrawingMotionEvent.Up -> onStopDrawingEvent()
                 }
                 paths.forEach { path ->
                     path.draw(this@Canvas /*, bitmap*/)

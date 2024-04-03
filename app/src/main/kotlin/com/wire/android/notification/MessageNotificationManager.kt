@@ -486,7 +486,7 @@ class MessageNotificationManager
                 messagesStyle.addMessage(replyMessage)
             }
 
-            val notification = setUpNotificationBuilder(context, userId).apply {
+            val notification = setUpNotificationBuilder(context, userId, true).apply {
                 setContentIntent(messagePendingIntent(context, conversationId, userIdString))
                 addAction(getActionReply(context, conversationId, userIdString, false))
 
@@ -506,13 +506,19 @@ class MessageNotificationManager
 
         /**
          * Create NotificationBuilder and set all the parameters that are common for any MessageNotification
+         * use [setOnlyAlertOnce] to trigger only once sound and vibrations for notification updates
          * @return resulted [NotificationCompat.Builder] so we can set other specific parameters and build it.
          */
-        private fun setUpNotificationBuilder(context: Context, userId: QualifiedID): NotificationCompat.Builder {
+        private fun setUpNotificationBuilder(
+            context: Context,
+            userId: QualifiedID,
+            setOnlyAlertOnce: Boolean = false
+        ): NotificationCompat.Builder {
             val channelId = NotificationConstants.getMessagesChannelId(userId)
+
             return NotificationCompat.Builder(context, channelId).apply {
                 setDefaults(NotificationCompat.DEFAULT_ALL)
-
+                setOnlyAlertOnce(setOnlyAlertOnce)
                 priority = NotificationCompat.PRIORITY_MAX
                 setCategory(NotificationCompat.CATEGORY_MESSAGE)
 

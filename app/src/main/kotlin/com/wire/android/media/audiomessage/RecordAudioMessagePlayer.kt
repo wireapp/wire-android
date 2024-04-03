@@ -118,7 +118,7 @@ class RecordAudioMessagePlayer @Inject constructor(
     suspend fun playAudio(
         audioFile: File
     ) {
-        if (currentAudioFile != null) {
+        if (currentAudioFile != null && audioFile.name == currentAudioFile?.name) {
             resumeOrPauseAudio()
         } else {
             stopCurrentlyPlayingAudioMessage()

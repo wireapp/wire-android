@@ -56,11 +56,7 @@ internal fun DrawingCanvasComponent(
             .clipToBounds() // necessary to draw inside the canvas.
             .background(MaterialTheme.colorScheme.background)
             .onSizeChanged { onSizeChanged(it.toSize()) }
-            .pointerInput(Unit) {
-                awaitEachGesture {
-                    handleGestures(onStartDrawing, onDraw, onStopDrawing)
-                }
-            }
+            .pointerInput(Unit) { awaitEachGesture { handleGestures(onStartDrawing, onDraw, onStopDrawing) } }
         Canvas(modifier = drawModifier) {
             with(drawContext.canvas.nativeCanvas) {
                 val checkPoint = saveLayer(null, null)
@@ -105,13 +101,9 @@ private suspend fun AwaitPointerEventScope.handleGestures(
     do {
         val event = awaitPointerEvent()
         onDraw(event.changes.first().position)
-        val hasNewLineDraw = event.changes
-            .first()
-            .positionChange() != Offset.Zero
+        val hasNewLineDraw = event.changes.first().positionChange() != Offset.Zero
         if (hasNewLineDraw) {
-            event.changes
-                .first()
-                .consume()
+            event.changes.first().consume()
         }
     } while (event.changes.any { it.pressed })
     onStopDrawing()

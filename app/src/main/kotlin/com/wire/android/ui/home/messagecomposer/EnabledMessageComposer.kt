@@ -301,7 +301,13 @@ fun EnabledMessageComposer(
                                         additionalOptionStateHolder.additionalOptionsSubMenuState
                                     )
                                 },
-                                onSendSketch = { onAttachmentPicked(UriAsset(it)) },
+                                onSendSketch = {
+                                    inputStateHolder.handleBackPressed(
+                                        isImeVisible,
+                                        additionalOptionStateHolder.additionalOptionsSubMenuState
+                                    )
+                                    onAttachmentPicked(UriAsset(it))
+                                },
                                 drawingToolsConfig = DrawingToolsConfig(colorsScheme().wireAccentColors.getAllColors().toImmutableList()),
                                 tempWritableImageUri = tempWritableImageUri
                             )

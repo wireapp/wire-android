@@ -22,8 +22,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -65,21 +65,18 @@ fun DrawingCanvasBottomSheet(
                 ) {
                     Icon(
                         Icons.Filled.Close,
-                        contentDescription = stringResource(
-                            com.google.android.material.R.string.mtrl_picker_cancel
-                        )
+                        contentDescription = stringResource(com.google.android.material.R.string.mtrl_picker_cancel)
                     )
                 }
                 IconButton(
                     onClick = {
                         scope.launch { onSendSketch(viewModel.saveImage(context, tempWritableImageUri)) }
+                            .invokeOnCompletion { scope.launch { sheetState.hide() } }
                     },
                 ) {
                     Icon(
-                        Icons.Filled.Send,
-                        contentDescription = stringResource(
-                            com.google.android.material.R.string.mtrl_picker_cancel
-                        )
+                        Icons.AutoMirrored.Filled.Send,
+                        contentDescription = stringResource(com.google.android.material.R.string.mtrl_picker_confirm)
                     )
                 }
 

@@ -40,12 +40,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.FileOutputStream
 
-class DrawingCanvasViewModel(drawingToolsConfig: DrawingToolsConfig) : ViewModel() {
+class DrawingCanvasViewModel(private val drawingToolsConfig: DrawingToolsConfig) : ViewModel() {
 
-    internal var state: DrawingState by mutableStateOf(
-        DrawingState(currentPath = DrawingPathProperties(color = drawingToolsConfig.colors.random()))
-    )
+    internal var state: DrawingState by mutableStateOf(DrawingState())
         private set
+
+    init {
+        initializeCanvas()
+    }
+
+    private fun initializeCanvas() {
+        state = DrawingState(currentPath = DrawingPathProperties(color = drawingToolsConfig.colors.random()))
+    }
 
     /**
      * Marks the start of the drawing.
@@ -107,6 +113,14 @@ class DrawingCanvasViewModel(drawingToolsConfig: DrawingToolsConfig) : ViewModel
         state = state.copy(canvasSize = canvasSize)
     }
 
+    /**
+     * Saves the image to the provided URI and resets the canvas.
+     *
+     * @param context The context to use to open the file descriptor.
+     * @param tempWritableImageUri The URI to save the image to.
+     *
+     * @return The [Uri] of the saved image.
+     */
     suspend fun saveImage(context: Context, tempWritableImageUri: Uri?): Uri {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -131,6 +145,7 @@ class DrawingCanvasViewModel(drawingToolsConfig: DrawingToolsConfig) : ViewModel
                 }
             }
         }.join()
+        initializeCanvas()
         return tempWritableImageUri!!
     }
 

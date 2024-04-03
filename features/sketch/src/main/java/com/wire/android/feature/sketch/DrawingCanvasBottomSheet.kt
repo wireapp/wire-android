@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.sketch
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -32,12 +33,16 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.config.DrawingViewModelFactory
 import com.wire.android.feature.sketch.tools.DrawingToolsConfig
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,9 +58,10 @@ fun DrawingCanvasBottomSheet(
     ModalBottomSheet(
         dragHandle = {
             Row(
-                Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .disableDrag(),
             ) {
                 val scope = rememberCoroutineScope()
                 IconButton(
@@ -95,5 +101,19 @@ fun DrawingCanvasBottomSheet(
             onDraw = viewModel::onDraw,
             onStopDrawing = viewModel::onStopDrawing
         )
+    }
+}
+
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
+private fun Modifier.disableDrag() = pointerInput(Unit) {
+    awaitPointerEventScope {
+        while (true) {
+            awaitPointerEvent(pass = PointerEventPass.Initial).changes.forEach {
+                val offset = it.positionChange()
+                if (abs(offset.y) > 0f) {
+                    it.consume()
+                }
+            }
+        }
     }
 }

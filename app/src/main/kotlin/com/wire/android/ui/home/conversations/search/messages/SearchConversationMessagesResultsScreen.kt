@@ -25,8 +25,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.WireTheme
@@ -51,7 +51,7 @@ fun SearchConversationMessagesResultsScreen(
 
             when (message) {
                 is UIMessage.Regular -> {
-                    MessageItem(
+                    MessageContainerItem(
                         message = message,
                         conversationDetailsData = ConversationDetailsData.None,
                         searchQuery = searchQuery,
@@ -73,7 +73,8 @@ fun SearchConversationMessagesResultsScreen(
                         onReplyClickable = null,
                     )
                 }
-                is UIMessage.System -> { }
+
+                is UIMessage.System -> {}
             }
         }
     }

@@ -18,14 +18,12 @@
 
 @file:Suppress("TooManyFunctions")
 
-package com.wire.android.ui.home.conversations.model
+package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.home.conversations.MessageItem
-import com.wire.android.ui.home.conversations.SystemMessageItem
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockFooter
@@ -37,6 +35,13 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithMarkdownTextAn
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockMessageWithTextLoremIpsum
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
+import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
+import com.wire.android.ui.home.conversations.model.MessageGenericAsset
+import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -51,7 +56,7 @@ private val previewUserId = UserId("value", "domain")
 @Composable
 fun PreviewMessage() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockMessageWithText.copy(
                 header = mockMessageWithText.header.copy(
                     username = UIText.DynamicString(
@@ -70,7 +75,6 @@ fun PreviewMessage() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {},
             onReplyClickable = null
         )
     }
@@ -80,7 +84,7 @@ fun PreviewMessage() {
 @Composable
 fun PreviewMessageWithReactions() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockMessageWithText.copy(
                 header = mockMessageWithText.header.copy(
                     username = UIText.DynamicString(
@@ -100,7 +104,6 @@ fun PreviewMessageWithReactions() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {},
             onReplyClickable = null
         )
     }
@@ -110,7 +113,7 @@ fun PreviewMessageWithReactions() {
 @Composable
 fun PreviewMessageWithReply() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockMessageWithText.copy(
                 header = mockMessageWithText.header.copy(
                     username = UIText.DynamicString(
@@ -141,7 +144,6 @@ fun PreviewMessageWithReply() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {},
             onReplyClickable = null
         )
     }
@@ -151,7 +153,7 @@ fun PreviewMessageWithReply() {
 @Composable
 fun PreviewDeletedMessage() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockMessageWithText.let {
                 it.copy(
                     header = it.header.copy(
@@ -172,7 +174,6 @@ fun PreviewDeletedMessage() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { },
             onReplyClickable = null
         )
     }
@@ -182,7 +183,7 @@ fun PreviewDeletedMessage() {
 @Composable
 fun PreviewFailedSendMessage() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockMessageWithText.let {
                 it.copy(
                     header = it.header.copy(
@@ -204,7 +205,6 @@ fun PreviewFailedSendMessage() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { },
             onReplyClickable = null
         )
     }
@@ -214,7 +214,7 @@ fun PreviewFailedSendMessage() {
 @Composable
 fun PreviewFailedDecryptionMessage() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockMessageWithText.let {
                 it.copy(
                     header = it.header.copy(
@@ -236,7 +236,6 @@ fun PreviewFailedDecryptionMessage() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { },
             onReplyClickable = null
         )
     }
@@ -246,7 +245,7 @@ fun PreviewFailedDecryptionMessage() {
 @Composable
 fun PreviewAssetMessageWithReactions() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockAssetMessage().copy(messageFooter = mockFooter),
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
@@ -258,7 +257,6 @@ fun PreviewAssetMessageWithReactions() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { },
             onReplyClickable = null
         )
     }
@@ -332,7 +330,7 @@ fun PreviewFailedDownloadAssetMessage() {
 @Composable
 fun PreviewImageMessageUploaded() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockedImageUIMessage(messageId = "assetMessageId"),
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
@@ -345,7 +343,6 @@ fun PreviewImageMessageUploaded() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { },
             onReplyClickable = null
         )
     }
@@ -355,7 +352,7 @@ fun PreviewImageMessageUploaded() {
 @Composable
 fun PreviewImageMessageUploading() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockedImageUIMessage("assetMessageId"),
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
@@ -368,7 +365,6 @@ fun PreviewImageMessageUploading() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { },
             onReplyClickable = null
         )
     }
@@ -378,7 +374,7 @@ fun PreviewImageMessageUploading() {
 @Composable
 fun PreviewImageMessageFailedUpload() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockedImageUIMessage(
                 messageId = "assetMessageId",
                 messageStatus = MessageStatus(
@@ -397,7 +393,6 @@ fun PreviewImageMessageFailedUpload() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = { },
             onReplyClickable = null
         )
     }
@@ -408,7 +403,7 @@ fun PreviewImageMessageFailedUpload() {
 fun PreviewMessageWithSystemMessage() {
     WireTheme {
         Column {
-            MessageItem(
+            RegularMessageItem(
                 message = mockMessageWithText,
                 conversationDetailsData = ConversationDetailsData.None,
                 audioMessagesState = persistentMapOf(),
@@ -420,7 +415,6 @@ fun PreviewMessageWithSystemMessage() {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = { },
                 onReplyClickable = null
             )
             SystemMessageItem(
@@ -446,7 +440,7 @@ fun PreviewMessageWithSystemMessage() {
 @Composable
 fun PreviewMessagesWithUnavailableQuotedMessage() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockMessageWithText.copy(
                 messageContent = UIMessageContent.TextMessage(
                     MessageBody(
@@ -465,7 +459,6 @@ fun PreviewMessagesWithUnavailableQuotedMessage() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {},
             onReplyClickable = null
         )
     }
@@ -476,7 +469,7 @@ fun PreviewMessagesWithUnavailableQuotedMessage() {
 fun PreviewAggregatedMessagesWithErrorMessage() {
     WireTheme {
         Column {
-            MessageItem(
+            RegularMessageItem(
                 message = mockMessageWithText,
                 conversationDetailsData = ConversationDetailsData.None,
                 audioMessagesState = persistentMapOf(),
@@ -488,10 +481,9 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = {},
                 onReplyClickable = null
             )
-            MessageItem(
+            RegularMessageItem(
                 message = mockMessageWithText.copy(
                     messageContent = UIMessageContent.TextMessage(
                         MessageBody(
@@ -511,10 +503,9 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = {},
                 onReplyClickable = null
             )
-            MessageItem(
+            RegularMessageItem(
                 message = mockMessageWithText.copy(
                     header = mockHeader.copy(
                         messageStatus = MessageStatus(
@@ -534,7 +525,6 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = {},
                 onReplyClickable = null
             )
         }
@@ -545,7 +535,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
 @Composable
 fun PreviewMessageWithMarkdownTextAndLinks() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockMessageWithMarkdownTextAndLinks,
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
@@ -557,7 +547,6 @@ fun PreviewMessageWithMarkdownTextAndLinks() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {},
             onReplyClickable = null
         )
     }
@@ -567,7 +556,7 @@ fun PreviewMessageWithMarkdownTextAndLinks() {
 @Composable
 fun PreviewMessageWithMarkdownListAndImages() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockMessageWithMarkdownListAndImages,
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
@@ -579,7 +568,6 @@ fun PreviewMessageWithMarkdownListAndImages() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {},
             onReplyClickable = null
         )
     }
@@ -589,7 +577,7 @@ fun PreviewMessageWithMarkdownListAndImages() {
 @Composable
 fun PreviewMessageWithMarkdownTablesAndBlocks() {
     WireTheme {
-        MessageItem(
+        RegularMessageItem(
             message = mockMessageWithMarkdownTablesAndBlocks,
             conversationDetailsData = ConversationDetailsData.None,
             audioMessagesState = persistentMapOf(),
@@ -601,7 +589,6 @@ fun PreviewMessageWithMarkdownTablesAndBlocks() {
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onSelfDeletingMessageRead = {},
             onReplyClickable = null
         )
     }
@@ -612,7 +599,7 @@ fun PreviewMessageWithMarkdownTablesAndBlocks() {
 fun PreviewMessageWithMarkdownQuery() {
     WireTheme {
         Column {
-            MessageItem(
+            RegularMessageItem(
                 message = mockMessageWithTextLoremIpsum,
                 searchQuery = "ed",
                 conversationDetailsData = ConversationDetailsData.None,
@@ -625,10 +612,9 @@ fun PreviewMessageWithMarkdownQuery() {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = {},
                 onReplyClickable = null
             )
-            MessageItem(
+            RegularMessageItem(
                 message = mockMessageWithMarkdownTextAndLinks,
                 searchQuery = "code",
                 conversationDetailsData = ConversationDetailsData.None,
@@ -641,10 +627,9 @@ fun PreviewMessageWithMarkdownQuery() {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = {},
                 onReplyClickable = null
             )
-            MessageItem(
+            RegularMessageItem(
                 message = mockMessageWithMarkdownTextAndLinks,
                 searchQuery = ".com",
                 conversationDetailsData = ConversationDetailsData.None,
@@ -657,10 +642,9 @@ fun PreviewMessageWithMarkdownQuery() {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = {},
                 onReplyClickable = null
             )
-            MessageItem(
+            RegularMessageItem(
                 message = mockMessageWithMarkdownListAndImages,
                 searchQuery = "can",
                 conversationDetailsData = ConversationDetailsData.None,
@@ -673,10 +657,9 @@ fun PreviewMessageWithMarkdownQuery() {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = {},
                 onReplyClickable = null
             )
-            MessageItem(
+            RegularMessageItem(
                 message = mockMessageWithMarkdownTablesAndBlocks,
                 searchQuery = "Joh",
                 conversationDetailsData = ConversationDetailsData.None,
@@ -689,7 +672,6 @@ fun PreviewMessageWithMarkdownQuery() {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = {},
                 onReplyClickable = null
             )
         }
@@ -701,7 +683,7 @@ fun PreviewMessageWithMarkdownQuery() {
 fun PreviewMessageWithAccents() = WireTheme {
     Column {
         Accent.entries.forEach {
-            MessageItem(
+            RegularMessageItem(
                 message = mockMessageWithText.copy(
                     header = mockHeader.copy(username = UIText.DynamicString(it.name), accent = it),
                     messageContent = UIMessageContent.TextMessage(MessageBody(UIText.DynamicString("Text")))
@@ -716,7 +698,6 @@ fun PreviewMessageWithAccents() = WireTheme {
                 onOpenProfile = { _ -> },
                 onReactionClicked = { _, _ -> },
                 onResetSessionClicked = { _, _ -> },
-                onSelfDeletingMessageRead = {},
             )
         }
     }

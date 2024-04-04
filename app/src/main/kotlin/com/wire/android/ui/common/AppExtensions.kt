@@ -57,6 +57,8 @@ import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
+// todo try to move as much as we can to common
+
 @Composable
 fun Modifier.selectableBackground(isSelected: Boolean, onClick: () -> Unit): Modifier =
     this.selectable(

@@ -245,7 +245,11 @@ class RecordAudioViewModelTest {
                 // when
                 viewModel.startRecording()
                 // then
+<<<<<<< HEAD
                 assertEquals(RecordAudioButtonState.RECORDING, viewModel.state.buttonState)
+=======
+                assertEquals(RecordAudioButtonState.RECORDING, viewModel.getButtonState())
+>>>>>>> 0ae13d386 (fix: crash when checking audio file size limit (WPB-5961) (#2757) (#2852))
                 expectNoEvents()
             }
         }
@@ -262,7 +266,11 @@ class RecordAudioViewModelTest {
                 // when
                 viewModel.startRecording()
                 // then
+<<<<<<< HEAD
                 assertEquals(RecordAudioButtonState.ENABLED, viewModel.state.buttonState)
+=======
+                assertEquals(RecordAudioButtonState.ENABLED, viewModel.getButtonState())
+>>>>>>> 0ae13d386 (fix: crash when checking audio file size limit (WPB-5961) (#2757) (#2852))
                 assertEquals(RecordAudioInfoMessageType.UnableToRecordAudioError.uiText, awaitItem())
             }
         }
@@ -274,9 +282,12 @@ class RecordAudioViewModelTest {
         val observeEstablishedCalls = mockk<ObserveEstablishedCallsUseCase>()
         val currentScreenManager = mockk<CurrentScreenManager>()
         val getAssetSizeLimit = mockk<GetAssetSizeLimitUseCase>()
+<<<<<<< HEAD
         val globalDataStore = mockk<GlobalDataStore>()
         val generateAudioFileWithEffects = mockk<GenerateAudioFileWithEffectsUseCase>()
         val context = mockk<Context>()
+=======
+>>>>>>> 0ae13d386 (fix: crash when checking audio file size limit (WPB-5961) (#2757) (#2852))
 
         val viewModel by lazy {
             RecordAudioViewModel(
@@ -286,8 +297,11 @@ class RecordAudioViewModelTest {
                 currentScreenManager = currentScreenManager,
                 audioMediaRecorder = audioMediaRecorder,
                 getAssetSizeLimit = getAssetSizeLimit,
+<<<<<<< HEAD
                 generateAudioFileWithEffects = generateAudioFileWithEffects,
                 globalDataStore = globalDataStore
+=======
+>>>>>>> 0ae13d386 (fix: crash when checking audio file size limit (WPB-5961) (#2757) (#2852))
             )
         }
 

@@ -56,7 +56,10 @@ class RecordAudioViewModel @Inject constructor(
     private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
+<<<<<<< HEAD
     private val generateAudioFileWithEffects: GenerateAudioFileWithEffectsUseCase,
+=======
+>>>>>>> 0ae13d386 (fix: crash when checking audio file size limit (WPB-5961) (#2757) (#2852))
     private val currentScreenManager: CurrentScreenManager,
     private val audioMediaRecorder: AudioMediaRecorder,
     private val globalDataStore: GlobalDataStore
@@ -157,8 +160,12 @@ class RecordAudioViewModel @Inject constructor(
                 audioMediaRecorder.setUp(assetSizeLimit)
                 if (audioMediaRecorder.startRecording()) {
                     state = state.copy(
+<<<<<<< HEAD
                         originalOutputFile = audioMediaRecorder.originalOutputFile,
                         effectsOutputFile = audioMediaRecorder.effectsOutputFile,
+=======
+                        outputFile = audioMediaRecorder.outputFile,
+>>>>>>> 0ae13d386 (fix: crash when checking audio file size limit (WPB-5961) (#2757) (#2852))
                         buttonState = RecordAudioButtonState.RECORDING
                     )
                 } else {

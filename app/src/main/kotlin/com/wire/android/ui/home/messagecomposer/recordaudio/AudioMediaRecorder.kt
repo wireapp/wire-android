@@ -49,8 +49,12 @@ class AudioMediaRecorder @Inject constructor(
 
     private var mediaRecorder: MediaRecorder? = null
 
+<<<<<<< HEAD
     var originalOutputFile: File? = null
     var effectsOutputFile: File? = null
+=======
+    var outputFile: File? = null
+>>>>>>> 0ae13d386 (fix: crash when checking audio file size limit (WPB-5961) (#2757) (#2852))
 
     private val _maxFileSizeReached = MutableSharedFlow<RecordAudioDialogState>()
     fun getMaxFileSizeReached(): Flow<RecordAudioDialogState> =

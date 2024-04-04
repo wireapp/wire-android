@@ -49,11 +49,10 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.createPemFile
-import com.wire.android.util.saveFileToDownloadsFolder
+import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okio.Path.Companion.toOkioPath
 
 @RootNavGraph
 @Destination(
@@ -67,7 +66,26 @@ fun E2eiCertificateDetailsScreen(
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+    val downloadedString = stringResource(id = R.string.media_gallery_on_image_downloaded)
+    val errorDownloadedString = stringResource(id = R.string.certificate_download_error)
+
+    val downloadCertificateRequestFlow = rememberWriteStorageRequestFlow(
+        onGranted = {
+            scope.launch {
+                withContext(Dispatchers.IO) {
+                    createPemFile(
+                        pathname = e2eiCertificateDetailsViewModel.getCertificateName(),
+                        content = e2eiCertificateDetailsViewModel.getCertificate()
+                    )
+                }
+                e2eiCertificateDetailsViewModel.state.wireModalSheetState.hide()
+                snackbarHostState.showSnackbar(downloadedString)
+            }
+        }, onDenied = {
+            scope.launch {
+                snackbarHostState.showSnackbar(errorDownloadedString)
+            }
+        })
 
     WireScaffold(
         topBar = {
@@ -92,7 +110,6 @@ fun E2eiCertificateDetailsScreen(
         with(e2eiCertificateDetailsViewModel) {
             val copiedToClipboardString =
                 stringResource(id = R.string.e2ei_certificate_details_certificate_copied_to_clipboard)
-            val downloadedString = stringResource(id = R.string.media_gallery_on_image_downloaded)
 
             E2eiCertificateDetailsContent(
                 padding = it,
@@ -107,22 +124,7 @@ fun E2eiCertificateDetailsScreen(
                         snackbarHostState.showSnackbar(copiedToClipboardString)
                     }
                 },
-                onDownload = {
-                    scope.launch {
-                        withContext(Dispatchers.IO) {
-                            createPemFile(CERTIFICATE_FILE_NAME, getCertificate()).also {
-                                saveFileToDownloadsFolder(
-                                    context = context,
-                                    assetName = CERTIFICATE_FILE_NAME,
-                                    assetDataPath = it.toPath().toOkioPath(),
-                                    assetDataSize = it.length()
-                                )
-                            }
-                        }
-                        state.wireModalSheetState.hide()
-                        snackbarHostState.showSnackbar(downloadedString)
-                    }
-                }
+                onDownload = downloadCertificateRequestFlow::launch
             )
         }
     }
@@ -153,5 +155,3 @@ fun E2eiCertificateDetailsContent(
         style = textStyle
     )
 }
-
-const val CERTIFICATE_FILE_NAME = "certificate.txt"

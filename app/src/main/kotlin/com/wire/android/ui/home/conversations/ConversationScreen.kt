@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.home.conversations
 
-import SwipeableSnackbar
+import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.BackHandler

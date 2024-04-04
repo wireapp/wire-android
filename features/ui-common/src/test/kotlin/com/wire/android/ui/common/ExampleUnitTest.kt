@@ -15,25 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.common.snackbar
+package com.wire.android.ui.common
 
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
-import com.wire.android.util.ui.UIText
-import kotlinx.coroutines.flow.SharedFlow
+import org.junit.Test
 
-// TODO: moved to commons, when deciding about [UIText]
-@Composable
-fun SnackbarHostState.collectAndShowSnackbar(
-    snackbarFlow: SharedFlow<UIText>
-) {
-    val localContext = LocalContext.current
+import org.junit.Assert.*
 
-    LaunchedEffect(snackbarFlow) {
-        snackbarFlow.collect {
-            showSnackbar(it.asString(localContext.resources))
-        }
+/**
+ * Example local unit test, which will execute on the development machine (host).
+ *
+ * See [testing documentation](http://d.android.com/tools/testing).
+ */
+class ExampleUnitTest {
+    @Test
+    fun addition_isCorrect() {
+        assertEquals(4, 2 + 2)
     }
 }

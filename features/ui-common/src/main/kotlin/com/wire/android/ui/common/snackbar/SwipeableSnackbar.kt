@@ -1,4 +1,4 @@
-/*
+package com.wire.android.ui.common.snackbar/*
  * Wire
  * Copyright (C) 2024 Wire Swiss GmbH
  *

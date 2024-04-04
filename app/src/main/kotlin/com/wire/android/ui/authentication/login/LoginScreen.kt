@@ -83,6 +83,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
+import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -344,9 +345,10 @@ data class LoginDialogErrorData(
     val dismissOnClickOutside: Boolean = true
 )
 
-enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
+enum class LoginTabItem(@StringRes val titleResId: Int) : TabItem {
     EMAIL(R.string.login_tab_email),
     SSO(R.string.login_tab_sso);
+    override val title: UIText = UIText.StringResource(titleResId)
 }
 
 @Preview

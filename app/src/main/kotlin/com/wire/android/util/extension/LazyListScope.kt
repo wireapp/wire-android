@@ -32,32 +32,31 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 inline fun <T, K : Any> LazyListScope.folderWithElements(
     header: String? = null,
     items: Map<K, T>,
+    animateItemPlacement: Boolean = true,
     crossinline divider: @Composable () -> Unit = {},
     crossinline factory: @Composable (T) -> Unit
 ) {
     val list = items.entries.toList()
 
     if (items.isNotEmpty()) {
-        if (header != null) {
-            item(key = "header:$header") {
-                if (header.isNotEmpty()) {
-                    FolderHeader(
-                        name = header,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .animateItemPlacement()
-                    )
-                }
+        if (!header.isNullOrEmpty()) {
+            item(key ="header:${header}") {
+                FolderHeader(
+                    name = header,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .let { if (animateItemPlacement) it.animateItemPlacement() else it }
+                )
             }
         }
         itemsIndexed(
             items = list,
-            key = { _: Int, item: Map.Entry<K, T> -> "$header:${item.key}" }
+            key = { _: Int, item: Map.Entry<K, T> -> "$item:${item.key}" }
         ) { index: Int, item: Map.Entry<K, T> ->
             Box(
                 modifier = Modifier
                     .wrapContentSize()
-                    .animateItemPlacement()
+                    .let { if (animateItemPlacement) it.animateItemPlacement() else it }
             ) {
                 factory(item.value)
                 if (index <= list.lastIndex) {

@@ -68,6 +68,7 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewM
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
@@ -219,9 +220,10 @@ private fun SnackBarMessage(infoMessages: SharedFlow<SnackBarMessage>) {
     }
 }
 
-enum class ConversationMediaScreenTabItem(@StringRes override val titleResId: Int) : TabItem {
+enum class ConversationMediaScreenTabItem(@StringRes val titleResId: Int) : TabItem {
     PICTURES(R.string.label_conversation_pictures),
     FILES(R.string.label_conversation_files);
+    override val title: UIText = UIText.StringResource(titleResId)
 }
 
 @PreviewMultipleThemes

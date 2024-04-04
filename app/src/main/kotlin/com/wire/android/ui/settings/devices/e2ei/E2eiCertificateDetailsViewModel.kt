@@ -22,14 +22,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.navArgs
+import com.wire.android.util.fileDateTime
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class E2eiCertificateDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    private val observerSelfUser: GetSelfUserUseCase,
 ) : ViewModel() {
 
     var state: E2eiCertificateDetailsState by mutableStateOf(E2eiCertificateDetailsState())
@@ -38,7 +45,24 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
     private val e2eiCertificateDetailsScreenNavArgs: E2eiCertificateDetailsScreenNavArgs =
         savedStateHandle.navArgs()
 
+    private var selfUserHandle: String? = null
+
+    init {
+        getSelfUserId()
+    }
+
+    private fun getSelfUserId() {
+        viewModelScope.launch {
+            selfUserHandle = observerSelfUser().first().handle
+        }
+    }
+
     fun getCertificate() = e2eiCertificateDetailsScreenNavArgs.certificateString
+
+    fun getCertificateName(): String {
+        val date = DateTimeUtil.currentInstant().fileDateTime()
+        return "wire-certificate-${selfUserHandle}-${date}.txt"
+    }
 }
 
 data class E2eiCertificateDetailsState(

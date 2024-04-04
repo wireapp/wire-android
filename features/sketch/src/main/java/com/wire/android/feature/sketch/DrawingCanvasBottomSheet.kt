@@ -19,25 +19,33 @@ package com.wire.android.feature.sketch
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.config.DrawingViewModelFactory
 import com.wire.android.feature.sketch.tools.DrawingToolsConfig
@@ -54,8 +62,10 @@ fun DrawingCanvasBottomSheet(
     viewModel: DrawingCanvasViewModel = viewModel(factory = DrawingViewModelFactory(drawingToolsConfig)),
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
+        containerColor = MaterialTheme.colorScheme.background,
         dragHandle = {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -63,47 +73,77 @@ fun DrawingCanvasBottomSheet(
                     .fillMaxWidth()
                     .disableDrag(),
             ) {
-                val scope = rememberCoroutineScope()
                 IconButton(
                     onClick = {
                         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() }
                     },
                 ) {
-                    Icon(
-                        Icons.Filled.Close,
-                        contentDescription = stringResource(com.google.android.material.R.string.mtrl_picker_cancel)
-                    )
+                    Icon(Icons.Default.Close, null)
                 }
                 IconButton(
-                    onClick = {
-                        scope.launch { onSendSketch(viewModel.saveImage(context, tempWritableImageUri)) }
-                            .invokeOnCompletion { scope.launch { sheetState.hide() } }
-                    },
+                    onClick = {},
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.Send,
-                        contentDescription = stringResource(com.google.android.material.R.string.mtrl_picker_confirm)
-                    )
+                    Icon(Icons.AutoMirrored.Default.Undo, null)
                 }
-
             }
         },
         sheetState = sheetState,
         onDismissRequest = onDismissSketch
     ) {
-        DrawingCanvasComponent(
-            state = viewModel.state,
-            onStartDrawingEvent = viewModel::onStartDrawingEvent,
-            onDrawEvent = viewModel::onDrawEvent,
-            onStopDrawingEvent = viewModel::onStopDrawingEvent,
-            onSizeChanged = viewModel::onSizeChanged,
-            onStartDrawing = viewModel::onStartDrawing,
-            onDraw = viewModel::onDraw,
-            onStopDrawing = viewModel::onStopDrawing
-        )
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(Modifier.weight(weight = 1f, fill = true)) {
+                DrawingCanvasComponent(
+                    state = viewModel.state,
+                    onStartDrawingEvent = viewModel::onStartDrawingEvent,
+                    onDrawEvent = viewModel::onDrawEvent,
+                    onStopDrawingEvent = viewModel::onStopDrawingEvent,
+                    onSizeChanged = viewModel::onSizeChanged,
+                    onStartDrawing = viewModel::onStartDrawing,
+                    onDraw = viewModel::onDraw,
+                    onStopDrawing = viewModel::onStopDrawing
+                )
+            }
+            Row(
+                Modifier
+                    .height(80.dp) // todo extract dimens
+                    .fillMaxWidth()
+            ) {
+                DrawingToolbar(
+                    onSendSketch = {
+                        scope.launch { onSendSketch(viewModel.saveImage(context, tempWritableImageUri)) }
+                            .invokeOnCompletion { scope.launch { sheetState.hide() } }
+                    }
+                )
+            }
+        }
     }
 }
 
+@Composable
+private fun DrawingToolbar(
+    onSendSketch: () -> Unit = {},
+) {
+    Row(
+        Modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        IconButton(onClick = {}) {
+            Icon(Icons.Default.Circle, null)
+        }
+        IconButton(onClick = onSendSketch) {
+            Icon(Icons.AutoMirrored.Default.Send, null)
+        }
+    }
+}
+
+/**
+ * Disables the drag gesture on the bottom sheet.
+ * This is a compromise made for the first iteration of the feature.
+ *
+ * TODO: The final implementation should be a full screen drawing experience.
+ */
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
 private fun Modifier.disableDrag() = pointerInput(Unit) {
     awaitPointerEventScope {

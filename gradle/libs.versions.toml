@@ -58,7 +58,7 @@ hilt-work = "1.2.0"
 
 # Android UI
 accompanist = "0.32.0" # adjusted to work with compose-destinations "1.9.54"
-material = "1.10.0"
+material = "1.11.0"
 coil = "2.5.0"
 commonmark = "0.21.0"
 

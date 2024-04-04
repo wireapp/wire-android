@@ -24,9 +24,16 @@ import com.wire.android.util.ui.UIText
 sealed class RecordAudioInfoMessageType(override val uiText: UIText) : SnackBarMessage {
 
     // Unable to Record Audio due to being in a call
-    object UnableToRecordAudioCall : RecordAudioInfoMessageType(
+    data object UnableToRecordAudioCall : RecordAudioInfoMessageType(
         UIText.StringResource(
             R.string.record_audio_unable_due_to_ongoing_call
+        )
+    )
+
+    // Unable to Record Audio due to error
+    data object UnableToRecordAudioError : RecordAudioInfoMessageType(
+        UIText.StringResource(
+            R.string.record_audio_unable_due_to_error
         )
     )
 }

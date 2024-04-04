@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.compose.navigation)
     implementation(libs.compose.material.icons)
     implementation(libs.compose.ui.preview)
+    debugImplementation(libs.compose.ui.tooling)
 
     implementation(libs.accompanist.systemUI)
     implementation(libs.visibilityModifiers)

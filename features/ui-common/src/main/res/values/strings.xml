@@ -16,5 +16,7 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="module_name">ui module</string>
+    <string name="module_name" translatable="false">ui commons</string>
+    <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
+    <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
 </resources>

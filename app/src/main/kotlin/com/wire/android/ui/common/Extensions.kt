@@ -25,17 +25,14 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.Role
@@ -76,15 +73,6 @@ fun Modifier.selectableBackground(isSelected: Boolean, onClick: () -> Unit): Mod
     )
 
 @Composable
-fun Tint(contentColor: Color, content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalContentColor provides contentColor, content = content)
-}
-
-@Composable
-fun ImageVector.Icon(modifier: Modifier = Modifier): @Composable (() -> Unit) =
-    { androidx.compose.material3.Icon(imageVector = this, contentDescription = "", modifier = modifier) }
-
-@Composable
 fun Modifier.shimmerPlaceholder(
     visible: Boolean,
     color: Color = MaterialTheme.wireColorScheme.background,
@@ -110,23 +98,6 @@ fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
         onLongClick = onLongClick
     )
 } ?: this
-
-@Composable
-fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: () -> Unit): () -> Unit {
-    val syncStateObserver = LocalSyncStateObserver.current
-    val context = LocalContext.current
-    return remember(clickBlockParams, syncStateObserver, clickAction) {
-        {
-            when {
-                clickBlockParams.blockWhenConnecting && syncStateObserver.isConnecting ->
-                    Toast.makeText(context, context.getString(R.string.label_wait_until_connected), Toast.LENGTH_SHORT).show()
-                clickBlockParams.blockWhenSyncing && syncStateObserver.isSyncing ->
-                    Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
-                else -> clickAction()
-            }
-        }
-    }
-}
 
 @Composable
 fun <T> rememberFlow(

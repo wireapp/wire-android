@@ -18,8 +18,8 @@
 
 package scripts
 
-import IncludeGitBuildTask
 import WriteKeyValuesToFileTask
+import IncludeGitBuildTask
 
 plugins {
     id("com.android.application") apply false

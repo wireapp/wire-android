@@ -28,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalInspectionMode
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.wire.android.navigation.LocalNavigator
+import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 
 @Composable
@@ -46,7 +48,9 @@ fun WireTheme(
         LocalWireDimensions provides wireDimensions,
         // we need to provide our default content color dependent on the current colorScheme, otherwise it's Color.Black
         LocalContentColor provides wireColorScheme.onBackground,
-        *if (isPreview) arrayOf(LocalSnackbarHostState provides remember { SnackbarHostState() }) else emptyArray(),
+        *if (isPreview) arrayOf(
+            LocalSnackbarHostState provides remember { SnackbarHostState() },
+            LocalNavigator provides rememberNavigator {}) else emptyArray(),
     ) {
         MaterialTheme(
             colorScheme = wireColorScheme.toColorScheme(),

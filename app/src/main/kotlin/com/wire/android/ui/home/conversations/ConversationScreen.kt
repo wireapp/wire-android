@@ -126,6 +126,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
+import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -887,6 +888,7 @@ private fun SnackBarMessage(
     }
 }
 
+@Suppress("ComplexMethod")
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MessageList(
@@ -914,6 +916,8 @@ fun MessageList(
     interactionAvailability: InteractionAvailability,
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
+    val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
+
     LaunchedEffect(lazyPagingMessages.itemCount) {
         if (lazyPagingMessages.itemCount > prevItemCount.value && selectedMessageId == null) {
             val canScrollToLastMessage = prevItemCount.value > 0
@@ -926,17 +930,20 @@ fun MessageList(
         }
     }
 
+    // update last read message when scroll ends
     LaunchedEffect(lazyListState.isScrollInProgress) {
         if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
             val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
+            updateLastReadMessage(lastVisibleMessage, lastUnreadMessageInstant, onUpdateConversationReadDate)
+        }
+    }
 
-            val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.header.messageTime.utcISO)
-
-            // TODO: This IF condition should be in the UseCase
-            //       If there are no unread messages, then use distant future and don't update read date
-            if (lastVisibleMessageInstant > (lastUnreadMessageInstant ?: Instant.DISTANT_FUTURE)) {
-                onUpdateConversationReadDate(lastVisibleMessage.header.messageTime.utcISO)
-            }
+    // update last read message on start
+    LaunchedEffect(lazyPagingMessages.itemCount) {
+        if (!readLastMessageAtStartTriggered.value && lazyPagingMessages.itemSnapshotList.items.isNotEmpty()) {
+            val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
+            readLastMessageAtStartTriggered.value = true
+            updateLastReadMessage(lastVisibleMessage, lastUnreadMessageInstant, onUpdateConversationReadDate)
         }
     }
 
@@ -977,50 +984,53 @@ fun MessageList(
                     val showAuthor = rememberShouldShowHeader(index, message, lazyPagingMessages)
                     val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
 
-                    when (message) {
-                        is UIMessage.Regular -> {
-                            MessageItem(
-                                message = message,
-                                conversationDetailsData = conversationDetailsData,
-                                showAuthor = showAuthor,
-                                useSmallBottomPadding = useSmallBottomPadding,
-                                audioMessagesState = audioMessagesState,
-                                assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
-                                onAudioClick = onAudioItemClicked,
-                                onChangeAudioPosition = onChangeAudioPosition,
-                                onLongClicked = onShowEditingOption,
-                                onAssetMessageClicked = onAssetItemClicked,
-                                onImageMessageClicked = onImageFullScreenMode,
-                                onOpenProfile = onOpenProfile,
-                                onReactionClicked = onReactionClicked,
-                                onResetSessionClicked = onResetSessionClicked,
-                                onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                                onLinkClick = onLinkClick,
-                                onReplyClickable = Clickable(
-                                    enabled = true,
-                                    onClick = {
-                                        onNavigateToReplyOriginalMessage(message)
-                                    }
-                                ),
-                                isSelectedMessage = (message.header.messageId == selectedMessageId),
-                                isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
-                            )
-                        }
-
-                        is UIMessage.System -> SystemMessageItem(
-                            message = message,
-                            onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                            onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                            onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                            isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
-                        )
-                    }
+                    MessageContainerItem(
+                        message = message,
+                        conversationDetailsData = conversationDetailsData,
+                        showAuthor = showAuthor,
+                        useSmallBottomPadding = useSmallBottomPadding,
+                        audioMessagesState = audioMessagesState,
+                        assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
+                        onAudioClick = onAudioItemClicked,
+                        onChangeAudioPosition = onChangeAudioPosition,
+                        onLongClicked = onShowEditingOption,
+                        onAssetMessageClicked = onAssetItemClicked,
+                        onImageMessageClicked = onImageFullScreenMode,
+                        onOpenProfile = onOpenProfile,
+                        onReactionClicked = onReactionClicked,
+                        onResetSessionClicked = onResetSessionClicked,
+                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                        onLinkClick = onLinkClick,
+                        onReplyClickable = Clickable(
+                            enabled = true,
+                            onClick = {
+                                onNavigateToReplyOriginalMessage(message)
+                            }
+                        ),
+                        isSelectedMessage = (message.header.messageId == selectedMessageId),
+                        isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
+                    )
                 }
             }
             JumpToLastMessageButton(lazyListState = lazyListState)
-        })
+        }
+    )
+}
+
+private fun updateLastReadMessage(
+    lastVisibleMessage: UIMessage,
+    lastUnreadMessageInstant: Instant?,
+    onUpdateConversationReadDate: (String) -> Unit
+) {
+    val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.header.messageTime.utcISO)
+
+    // TODO: This IF condition should be in the UseCase
+    //       If there are no unread messages, then use distant future and don't update read date
+    if (lastVisibleMessageInstant > (lastUnreadMessageInstant ?: Instant.DISTANT_FUTURE)) {
+        onUpdateConversationReadDate(lastVisibleMessage.header.messageTime.utcISO)
+    }
 }
 
 @Composable

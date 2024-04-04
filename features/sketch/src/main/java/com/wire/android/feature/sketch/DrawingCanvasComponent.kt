@@ -54,7 +54,7 @@ internal fun DrawingCanvasComponent(
         val drawModifier = Modifier
             .fillMaxSize()
             .clipToBounds() // necessary to draw inside the canvas.
-            .background(MaterialTheme.colorScheme.surface)
+            .background(Color.White)
             .onSizeChanged { onSizeChanged(it.toSize()) }
             .pointerInput(Unit) { awaitEachGesture { handleGestures(onStartDrawing, onDraw, onStopDrawing) } }
         Canvas(modifier = drawModifier) {

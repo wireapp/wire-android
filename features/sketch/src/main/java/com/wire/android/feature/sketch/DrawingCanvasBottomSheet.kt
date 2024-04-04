@@ -19,10 +19,10 @@ package com.wire.android.feature.sketch
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -125,6 +125,8 @@ private fun DrawingToolbar(
 ) {
     Row(
         Modifier
+            .disableDrag()
+            .fillMaxHeight()
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween

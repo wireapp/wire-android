@@ -1,5 +1,6 @@
 plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
+    id(libs.plugins.wire.kover.get().pluginId)
 }
 
 dependencies {
@@ -9,6 +10,8 @@ dependencies {
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.foundation)
 
     testImplementation(libs.junit4)
     androidTestImplementation(libs.androidx.test.extJunit)

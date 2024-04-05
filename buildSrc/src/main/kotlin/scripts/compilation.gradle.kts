@@ -30,7 +30,18 @@ project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) 
 }
 
 project.afterEvaluate {
+<<<<<<< HEAD
     project.tasks.matching { it.name.startsWith("bundle") || it.name.startsWith("assemble") }.configureEach {
         dependsOn("includeGitBuildIdentifier")
+=======
+    project.tasks.matching {
+        it.name.startsWith("merge") &&
+                it.name.endsWith("Assets") ||
+                it.name.startsWith("lintVitalAnalyze")
+>>>>>>> 37ce2d8d6 (fix: lintVitalAnalyze failing because of dependenciesVersionTask (#2858))
     }
+        .configureEach {
+            dependsOn(gitIdTask)
+            dependsOn(dependenciesVersionTask)
+        }
 }

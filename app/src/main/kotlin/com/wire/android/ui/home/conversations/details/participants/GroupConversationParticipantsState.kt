@@ -27,6 +27,7 @@ data class GroupConversationParticipantsState(
     val data: ConversationParticipantsData = ConversationParticipantsData()
 ) {
     val showAllVisible: Boolean get() = data.allParticipantsCount > data.participants.size || data.allAdminsCount > data.admins.size
+    val addParticipantsEnabled: Boolean get() = data.isSelfAnAdmin && !data.isSelfExternalMember
 
     companion object {
         val PREVIEW = GroupConversationParticipantsState(

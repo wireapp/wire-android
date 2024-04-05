@@ -33,6 +33,8 @@ import com.wire.android.R
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.asset.isSaved
 import com.wire.kalium.logic.data.message.Message
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
@@ -97,10 +99,10 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
         selfDeletionStatus: Message.ExpirationData.SelfDeletionStatus?,
         expireAfter: Duration,
     ) =
-        if (selfDeletionStatus is Message.ExpirationData.SelfDeletionStatus.Started) selfDeletionStatus.selfDeletionStartDate + expireAfter
-        else {
-            val currentTime = currentTime()
-            currentTime + expireAfter
+        if (selfDeletionStatus is Message.ExpirationData.SelfDeletionStatus.Started) {
+            selfDeletionStatus.selfDeletionEndDate
+        } else {
+            currentTime() + expireAfter
         }
 
     sealed class SelfDeletionTimerState {
@@ -131,6 +133,7 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
 
             var timeLeft by mutableStateOf(calculateTimeLeft())
                 private set
+
             @Suppress("MagicNumber", "ComplexMethod")
             val timeLeftFormatted: String by derivedStateOf {
                 when {
@@ -204,7 +207,9 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
             private fun calculateTimeLeft(): Duration = (expireAt - currentTime()).let { if (it.isNegative()) ZERO else it }
 
             @VisibleForTesting
-            internal fun recalculateTimeLeft() { timeLeft = calculateTimeLeft() }
+            internal fun recalculateTimeLeft() {
+                timeLeft = calculateTimeLeft()
+            }
 
             /**
              * if the time elapsed ratio is between 0.50 and 0.75
@@ -245,40 +250,44 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
             }
 
             @Composable
-            fun startDeletionTimer(message: UIMessage, onStartMessageSelfDeletion: (UIMessage) -> Unit) {
-                when (val messageContent = message.messageContent) {
-                    is UIMessageContent.AssetMessage -> startAssetDeletion(
-                        onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-                        downloadStatus = messageContent.downloadStatus
-                    )
+            fun startDeletionTimer(
+                message: UIMessage,
+                assetTransferStatus: AssetTransferStatus?,
+                onStartMessageSelfDeletion: (UIMessage) -> Unit
+            ) {
+                if (assetTransferStatus != null) {
+                    when (message.messageContent) {
+                        is UIMessageContent.AssetMessage -> startAssetDeletion(
+                            onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
+                            transferStatus = assetTransferStatus
+                        )
 
-                    is UIMessageContent.AudioAssetMessage -> startAssetDeletion(
-                        onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-                        downloadStatus = messageContent.downloadStatus
-                    )
+                        is UIMessageContent.AudioAssetMessage -> startAssetDeletion(
+                            onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
+                            transferStatus = assetTransferStatus
+                        )
 
-                    is UIMessageContent.ImageMessage -> startAssetDeletion(
-                        onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-                        downloadStatus = messageContent.downloadStatus
-                    )
+                        is UIMessageContent.ImageMessage -> startAssetDeletion(
+                            onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
+                            transferStatus = assetTransferStatus
+                        )
 
-                    else -> startRegularDeletion(message = message, onStartMessageSelfDeletion = onStartMessageSelfDeletion)
+                        else -> startRegularDeletion(message = message, onStartMessageSelfDeletion = onStartMessageSelfDeletion)
+                    }
+                } else {
+                    startRegularDeletion(message = message, onStartMessageSelfDeletion = onStartMessageSelfDeletion)
                 }
             }
 
             @Composable
-            private fun startAssetDeletion(onSelfDeletingMessageRead: () -> Unit, downloadStatus: Message.DownloadStatus) {
-                LaunchedEffect(downloadStatus) {
-                    if (downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY
-                        || downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY
-                    ) {
+            private fun startAssetDeletion(onSelfDeletingMessageRead: () -> Unit, transferStatus: AssetTransferStatus) {
+                LaunchedEffect(transferStatus) {
+                    if (transferStatus.isSaved()) {
                         onSelfDeletingMessageRead()
                     }
                 }
-                LaunchedEffect(key1 = timeLeft, key2 = downloadStatus) {
-                    if (downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY
-                        || downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY
-                    ) {
+                LaunchedEffect(key1 = timeLeft, key2 = transferStatus) {
+                    if (transferStatus.isSaved()) {
                         if (timeLeft != ZERO) {
                             delay(updateInterval())
                             recalculateTimeLeft()
@@ -318,6 +327,7 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
 }
 
 typealias CurrentTimeProvider = () -> Instant
+
 enum class StringResourceType { WEEKS, DAYS, HOURS, MINUTES, SECONDS; }
 interface StringResourceProvider {
     fun quantityString(type: StringResourceType, quantity: Int): String

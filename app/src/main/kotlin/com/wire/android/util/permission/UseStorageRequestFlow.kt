@@ -23,6 +23,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.appcompat.app.AppCompatActivity
 import com.wire.android.util.extension.checkPermission
 
 class UseStorageRequestFlow(
@@ -41,5 +42,18 @@ class UseStorageRequestFlow(
         } else {
             browseStorageActivityLauncher.launch(mimeType)
         }
+    }
+}
+
+fun AppCompatActivity.checkStoragePermission(
+    onPermissionDenied: () -> Unit,
+    onPermissionPermanentlyDenied: () -> Unit
+) {
+    if ((Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) &&
+        shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE)
+    ) {
+        onPermissionDenied()
+    } else {
+        onPermissionPermanentlyDenied()
     }
 }

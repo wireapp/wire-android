@@ -23,26 +23,29 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
 @Suppress("LongParameterList")
 @Composable
 fun rememberMessageComposerStateHolder(
     messageComposerViewState: MutableState<MessageComposerViewState>,
-    modalBottomSheetState: WireModalSheetState
+    modalBottomSheetState: WireModalSheetState,
+    messageComposition: MutableState<MessageComposition>,
+    onSaveDraft: (MessageDraft) -> Unit,
 ): MessageComposerStateHolder {
-    val context = LocalContext.current
     val density = LocalDensity.current
 
     val messageCompositionHolder = remember {
         MessageCompositionHolder(
-            context = context
+            messageComposition = messageComposition,
+            onSaveDraft = onSaveDraft
         )
     }
 
@@ -56,13 +59,13 @@ fun rememberMessageComposerStateHolder(
 
     val messageCompositionInputStateHolder = rememberSaveable(
         saver = MessageCompositionInputStateHolder.saver(
-            messageComposition = messageCompositionHolder.messageComposition,
+            messageComposition = messageComposition,
             selfDeletionTimer = selfDeletionTimer,
             density = density
         )
     ) {
         MessageCompositionInputStateHolder(
-            messageComposition = messageCompositionHolder.messageComposition,
+            messageComposition = messageComposition,
             selfDeletionTimer = selfDeletionTimer
         )
     }
@@ -106,6 +109,7 @@ class MessageComposerStateHolder(
     }
 
     fun toReply(message: UIMessage.Regular) {
+        messageCompositionHolder.clearMessage()
         messageCompositionHolder.setReply(message)
         messageCompositionInputStateHolder.toComposing()
     }

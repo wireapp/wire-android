@@ -39,12 +39,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -52,14 +54,16 @@ import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.home.conversations.DownloadedAssetDialog
-import com.wire.android.ui.home.conversations.MessageComposerViewModel
-import com.wire.android.ui.home.conversations.SnackBarMessage
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -67,6 +71,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -78,9 +83,11 @@ import kotlinx.coroutines.launch
 fun ConversationMediaScreen(
     navigator: Navigator,
     conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = hiltViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
-    messageComposerViewModel: MessageComposerViewModel = hiltViewModel()
+    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel()
 ) {
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
     val state: ConversationAssetMessagesViewState = conversationAssetMessagesViewModel.viewState
 
     Content(
@@ -107,13 +114,23 @@ fun ConversationMediaScreen(
         downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
         onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
         onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
-        hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog
+        hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog,
+        onPermissionPermanentlyDenied = {
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = R.string.app_permission_dialog_title,
+                    description = R.string.save_permission_dialog_description
+                )
+            )
+        }
     )
 
-    SnackBarMessage(
-        messageComposerViewModel.infoMessage,
-        conversationMessagesViewModel.infoMessage
+    PermissionPermanentlyDeniedDialog(
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
+
+    SnackBarMessage(conversationMessagesViewModel.infoMessage)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -165,11 +182,14 @@ private fun Content(
                 when (ConversationMediaScreenTabItem.entries[pageIndex]) {
                     ConversationMediaScreenTabItem.PICTURES -> ImageAssetsContent(
                         imageMessageList = state.imageMessages,
+                        assetStatuses = state.assetStatuses,
                         onImageFullScreenMode = onImageFullScreenMode
                     )
+
                     ConversationMediaScreenTabItem.FILES -> FileAssetsContent(
                         groupedAssetMessageList = state.assetMessages,
                         audioMessagesState = audioMessagesState,
+                        assetStatuses = state.assetStatuses,
                         onAudioItemClicked = onAudioItemClicked,
                         onAssetItemClicked = onAssetItemClicked
                     )
@@ -181,6 +201,20 @@ private fun Content(
                     focusedTabIndex = pagerState.currentPage
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun SnackBarMessage(infoMessages: SharedFlow<SnackBarMessage>) {
+    val context = LocalContext.current
+    val snackbarHostState = LocalSnackbarHostState.current
+
+    LaunchedEffect(Unit) {
+        infoMessages.collect {
+            snackbarHostState.showSnackbar(
+                message = it.uiText.asString(context.resources)
+            )
         }
     }
 }

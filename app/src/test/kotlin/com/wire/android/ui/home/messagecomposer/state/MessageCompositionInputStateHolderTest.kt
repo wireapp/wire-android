@@ -21,6 +21,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.shouldBeEqualTo
@@ -46,47 +47,9 @@ class MessageCompositionInputStateHolderTest {
     }
 
     @Test
-    fun `when IME is visible, showOptions should be set to true`() {
-        // Given
-        val isImeVisible = true
-
-        // When
-        state.handleIMEVisibility(isImeVisible)
-
-        // Then
-        state.optionsVisible shouldBeEqualTo true
-    }
-
-    @Test
-    fun `when IME is hidden and showSubOptions is true, showOptions remains unchanged`() {
-        // Given
-        val isImeVisible = false
-        state.updateValuesForTesting(showSubOptions = true, showOptions = false)
-
-        // When
-        state.handleIMEVisibility(isImeVisible)
-
-        // Then
-        state.optionsVisible shouldBeEqualTo false
-    }
-
-    @Test
-    fun `when IME is hidden and showSubOptions is false, showOptions should be set to false`() {
-        // Given
-        val isImeVisible = false
-        state.updateValuesForTesting(showSubOptions = false)
-
-        // When
-        state.handleIMEVisibility(isImeVisible)
-
-        // Then
-        state.optionsVisible shouldBeEqualTo false
-    }
-
-    @Test
     fun `when offset increases and is bigger than previous and options height, options height is updated`() {
         // When
-        state.handleOffsetChange(
+        state.handleImeOffsetChange(
             50.dp,
             NAVIGATION_BAR_HEIGHT,
             SOURCE,
@@ -104,7 +67,7 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(previousOffset = 50.dp)
 
         // When
-        state.handleOffsetChange(
+        state.handleImeOffsetChange(
             20.dp,
             NAVIGATION_BAR_HEIGHT,
             SOURCE,
@@ -121,7 +84,7 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(previousOffset = 50.dp)
 
         // When
-        state.handleOffsetChange(
+        state.handleImeOffsetChange(
             0.dp,
             NAVIGATION_BAR_HEIGHT,
             SOURCE,
@@ -139,7 +102,7 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(keyboardHeight = 30.dp)
 
         // When
-        state.handleOffsetChange(
+        state.handleImeOffsetChange(
             30.dp,
             NAVIGATION_BAR_HEIGHT,
             SOURCE,
@@ -156,7 +119,7 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(keyboardHeight = 20.dp)
 
         // When
-        state.handleOffsetChange(
+        state.handleImeOffsetChange(
             30.dp,
             NAVIGATION_BAR_HEIGHT,
             SOURCE,
@@ -173,7 +136,7 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(previousOffset = 50.dp, keyboardHeight = 20.dp)
 
         // When
-        state.handleOffsetChange(
+        state.handleImeOffsetChange(
             30.dp,
             NAVIGATION_BAR_HEIGHT,
             SOURCE,
@@ -196,7 +159,7 @@ class MessageCompositionInputStateHolderTest {
         )
 
         // When
-        state.handleOffsetChange(
+        state.handleImeOffsetChange(
             30.dp,
             NAVIGATION_BAR_HEIGHT,
             SOURCE,
@@ -218,7 +181,7 @@ class MessageCompositionInputStateHolderTest {
         )
 
         // When
-        state.handleOffsetChange(
+        state.handleImeOffsetChange(
             30.dp,
             NAVIGATION_BAR_HEIGHT,
             SOURCE,
@@ -235,7 +198,7 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(previousOffset = 40.dp, keyboardHeight = 20.dp)
 
         // When
-        state.handleOffsetChange(
+        state.handleImeOffsetChange(
             40.dp,
             NAVIGATION_BAR_HEIGHT,
             SOURCE,
@@ -254,7 +217,7 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(initialKeyboardHeight = 0.dp)
 
         // When
-        state.handleOffsetChange(20.dp, NAVIGATION_BAR_HEIGHT, source = imeValue, target = imeValue)
+        state.handleImeOffsetChange(20.dp, NAVIGATION_BAR_HEIGHT, source = imeValue, target = imeValue)
 
         // Then
         state.initialKeyboardHeight shouldBeEqualTo imeValue
@@ -268,7 +231,7 @@ class MessageCompositionInputStateHolderTest {
 
         // When
         state.showOptions()
-        state.handleOffsetChange(0.dp, NAVIGATION_BAR_HEIGHT, source = TARGET, target = SOURCE)
+        state.handleImeOffsetChange(0.dp, NAVIGATION_BAR_HEIGHT, source = TARGET, target = SOURCE)
 
         // Then
         state.keyboardHeight shouldBeEqualTo 20.dp
@@ -281,7 +244,7 @@ class MessageCompositionInputStateHolderTest {
         state.updateValuesForTesting(previousOffset = 50.dp)
 
         // When
-        state.handleOffsetChange(
+        state.handleImeOffsetChange(
             10.dp,
             NAVIGATION_BAR_HEIGHT,
             SOURCE,
@@ -290,6 +253,25 @@ class MessageCompositionInputStateHolderTest {
 
         // Then
         state.optionsHeight shouldBeEqualTo 10.dp
+        state.optionsVisible shouldBeEqualTo false
+        state.isTextExpanded shouldBeEqualTo false
+    }
+
+    @Test
+    fun `when keyboard is still in a process of hiding from the previous screen after navigating, options should not be visible`() {
+        // Given
+        state.updateValuesForTesting(previousOffset = 0.dp)
+
+        // When
+        state.handleImeOffsetChange(
+            offset = 40.dp,
+            navBarHeight = NAVIGATION_BAR_HEIGHT,
+            source = 50.dp,
+            target = 0.dp
+        )
+
+        // Then
+        state.optionsHeight shouldBeEqualTo 0.dp
         state.optionsVisible shouldBeEqualTo false
         state.isTextExpanded shouldBeEqualTo false
     }

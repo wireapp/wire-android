@@ -30,16 +30,19 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
-import com.wire.kalium.logic.feature.asset.UpdateDownloadStatusResult
+import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
+import com.wire.kalium.logic.feature.asset.UpdateTransferStatusResult
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
@@ -82,7 +85,7 @@ class ConversationMessagesViewModelArrangement {
     lateinit var getMessageAsset: GetMessageAssetUseCase
 
     @MockK
-    lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
+    lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageTransferStatusUseCase
 
     @MockK
     lateinit var toggleReaction: ToggleReactionUseCase
@@ -102,6 +105,12 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase
 
+    @MockK
+    lateinit var observeAssetStatuses: ObserveAssetStatusesUseCase
+
+    @MockK
+    lateinit var deleteMessage: DeleteMessageUseCase
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             savedStateHandle,
@@ -109,6 +118,7 @@ class ConversationMessagesViewModelArrangement {
             getMessageAsset,
             getMessageById,
             updateAssetMessageDownloadStatus,
+            observeAssetStatuses,
             fileManager,
             TestDispatcherProvider(),
             getMessagesForConversationUseCase,
@@ -117,7 +127,8 @@ class ConversationMessagesViewModelArrangement {
             conversationAudioMessagePlayer,
             getConversationUnreadEventsCount,
             clearUsersTypingEvents,
-            getSearchedConversationMessagePosition
+            getSearchedConversationMessagePosition,
+            deleteMessage
         )
     }
 
@@ -130,11 +141,17 @@ class ConversationMessagesViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesChannel.consumeAsFlow()
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
-        coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateDownloadStatusResult.Success
+        coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateTransferStatusResult.Success
         coEvery { clearUsersTypingEvents() } returns Unit
         coEvery {
             getSearchedConversationMessagePosition(any(), any())
         } returns GetSearchedConversationMessagePositionUseCase.Result.Success(position = 0)
+
+        coEvery { observeAssetStatuses(any()) } returns flowOf(mapOf())
+    }
+
+    fun withSuccessfulViewModelInit() = apply {
+        coEvery { conversationAudioMessagePlayer.observableAudioMessagesState } returns flowOf()
     }
 
     fun withSuccessfulOpenAssetMessage(
@@ -144,7 +161,8 @@ class ConversationMessagesViewModelArrangement {
         assetSize: Long,
         messageId: String
     ) = apply {
-        val assetBundle = AssetBundle(assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType))
+        val assetBundle =
+            AssetBundle("key", assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType))
         viewModel.showOnAssetDownloadedDialog(assetBundle, messageId)
         every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
@@ -188,11 +206,19 @@ class ConversationMessagesViewModelArrangement {
         assetSize: Long,
         messageId: String
     ) = apply {
-        val assetBundle = AssetBundle(assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType))
+        val assetBundle = AssetBundle(
+            "key",
+            assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType)
+        )
         viewModel.showOnAssetDownloadedDialog(assetBundle, messageId)
         coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
+    }
+
+    fun withFailureOnDeletingMessages() = apply {
+        coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
+        return this
     }
 
     fun arrange() = this to viewModel

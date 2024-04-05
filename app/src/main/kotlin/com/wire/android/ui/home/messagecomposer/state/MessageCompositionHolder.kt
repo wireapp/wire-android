@@ -17,19 +17,18 @@
  */
 package com.wire.android.ui.home.messagecomposer.state
 
-import android.content.Context
-import android.location.Location
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.getSelectedText
-import com.wire.android.appLogger
+import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
-import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.messagecomposer.UiMention
+import com.wire.android.ui.home.conversations.model.mapToQuotedContent
+import com.wire.android.ui.home.conversations.model.toUiMention
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
+import com.wire.android.ui.home.messagecomposer.model.toDraft
+import com.wire.android.ui.home.messagecomposer.model.update
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
 import com.wire.android.util.MENTION_SYMBOL
@@ -37,6 +36,8 @@ import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 
@@ -45,17 +46,17 @@ import com.wire.kalium.logic.data.user.UserId
  *  A single entry point to update the state of the message.
  */
 class MessageCompositionHolder(
-    private val context: Context
+    val messageComposition: MutableState<MessageComposition>,
+    private val onSaveDraft: (MessageDraft) -> Unit,
 ) {
     private companion object {
         const val RICH_TEXT_MARKDOWN_MULTIPLIER = 2
     }
 
-    val messageComposition: MutableState<MessageComposition> = mutableStateOf(MessageComposition.DEFAULT)
     fun setReply(message: UIMessage.Regular) {
         val senderId = message.header.userId ?: return
 
-        mapToQuotedContent(message)?.let { quotedContent ->
+        message.mapToQuotedContent()?.let { quotedContent ->
             val quotedMessage = UIQuotedMessage.UIQuotedData(
                 messageId = message.header.messageId,
                 senderId = senderId,
@@ -68,45 +69,13 @@ class MessageCompositionHolder(
             messageComposition.update {
                 it.copy(
                     quotedMessage = quotedMessage,
-                    quotedMessageId = message.header.messageId
+                    quotedMessageId = message.header.messageId,
+                    editMessageId = null
                 )
             }
         }
+        onSaveDraft(messageComposition.value.toDraft())
     }
-
-    private fun mapToQuotedContent(message: UIMessage.Regular) =
-        when (val messageContent = message.messageContent) {
-            is UIMessageContent.AssetMessage -> UIQuotedMessage.UIQuotedData.GenericAsset(
-                assetName = messageContent.assetName,
-                assetMimeType = messageContent.assetExtension
-            )
-
-            is UIMessageContent.RestrictedAsset -> UIQuotedMessage.UIQuotedData.GenericAsset(
-                assetName = messageContent.assetName,
-                assetMimeType = messageContent.mimeType
-            )
-
-            is UIMessageContent.TextMessage -> UIQuotedMessage.UIQuotedData.Text(
-                value = messageContent.messageBody.message.asString(context.resources)
-            )
-
-            is UIMessageContent.AudioAssetMessage -> UIQuotedMessage.UIQuotedData.AudioMessage
-
-            is UIMessageContent.ImageMessage -> messageContent.asset?.let {
-                UIQuotedMessage.UIQuotedData.DisplayableImage(
-                    displayable = messageContent.asset
-                )
-            }
-
-            is UIMessageContent.Location -> with(messageContent) {
-                UIQuotedMessage.UIQuotedData.Location(locationName = name)
-            }
-
-            else -> {
-                appLogger.w("Attempting to reply to an unsupported message type of content = $messageContent")
-                null
-            }
-        }
 
     fun clearReply() {
         messageComposition.update {
@@ -115,6 +84,7 @@ class MessageCompositionHolder(
                 quotedMessageId = null
             )
         }
+        onSaveDraft(messageComposition.value.toDraft())
     }
 
     fun setMessageText(
@@ -134,6 +104,7 @@ class MessageCompositionHolder(
         messageComposition.update {
             it.copy(messageTextFieldValue = messageTextFieldValue)
         }
+        onSaveDraft(messageComposition.value.toDraft())
     }
 
     private fun updateTypingEvent(messageTextFieldValue: TextFieldValue, onTypingEvent: (TypingIndicatorMode) -> Unit) {
@@ -191,15 +162,20 @@ class MessageCompositionHolder(
     }
 
     fun addMention(contact: Contact) {
-        val mention = UiMention(
+        val mention = UIMention(
             start = messageComposition.value.messageTextFieldValue.currentMentionStartIndex(),
             length = contact.name.length + 1, // +1 cause there is an "@" before it
             userId = UserId(contact.id, contact.domain),
             handler = String.MENTION_SYMBOL + contact.name
         )
 
-        messageComposition.update { it.copy(messageTextFieldValue = it.insertMentionIntoText(mention)) }
-        messageComposition.update { it.copy(selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }) }
+        messageComposition.update {
+            it.copy(
+                messageTextFieldValue = it.insertMentionIntoText(mention),
+                selectedMentions = it.selectedMentions.plus(mention).sortedBy { it.start }
+            )
+        }
+        onSaveDraft(messageComposition.value.toDraft())
     }
 
     fun setEditText(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
@@ -208,11 +184,12 @@ class MessageCompositionHolder(
                 messageTextFieldValue = (TextFieldValue(
                     text = editMessageText,
                     selection = TextRange(editMessageText.length)
-                ))
+                )),
+                selectedMentions = mentions.mapNotNull { it.toUiMention(editMessageText) },
+                editMessageId = messageId
             )
         }
-        messageComposition.update { it.copy(selectedMentions = mentions.map { it.toUiMention(editMessageText) }) }
-        messageComposition.update { it.copy(editMessageId = messageId) }
+        onSaveDraft(messageComposition.value.toDraft())
     }
 
     fun addOrRemoveMessageMarkdown(
@@ -267,6 +244,7 @@ class MessageCompositionHolder(
                 )
             )
         }
+        onSaveDraft(messageComposition.value.toDraft())
     }
 
     fun clearMessage() {
@@ -278,135 +256,10 @@ class MessageCompositionHolder(
                 editMessageId = null
             )
         }
+        onSaveDraft(messageComposition.value.toDraft())
     }
 
-    fun toMessageBundle() = messageComposition.value.toMessageBundle()
-}
-
-private fun MessageMention.toUiMention(originalText: String) = UiMention(
-    start = start,
-    length = length,
-    userId = userId,
-    handler = originalText.substring(start, start + length)
-)
-
-data class MessageComposition(
-    val messageTextFieldValue: TextFieldValue = TextFieldValue(""),
-    val editMessageId: String? = null,
-    val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
-    val quotedMessageId: String? = null,
-    val selectedMentions: List<UiMention> = emptyList(),
-) {
-    companion object {
-        val DEFAULT = MessageComposition(
-            messageTextFieldValue = TextFieldValue(text = ""),
-            quotedMessage = null,
-            selectedMentions = emptyList()
-        )
-    }
-
-    val messageText: String
-        get() = messageTextFieldValue.text
-
-    fun mentionSelection(): TextFieldValue {
-        val beforeSelection = messageTextFieldValue.text
-            .subSequence(0, messageTextFieldValue.selection.min)
-            .run {
-                if (endsWith(String.WHITE_SPACE) || endsWith(String.NEW_LINE_SYMBOL) || this == String.EMPTY) {
-                    this.toString()
-                } else {
-                    StringBuilder(this)
-                        .append(String.WHITE_SPACE)
-                        .toString()
-                }
-            }
-
-        val afterSelection = messageTextFieldValue.text
-            .subSequence(
-                messageTextFieldValue.selection.max,
-                messageTextFieldValue.text.length
-            )
-
-        val resultText = StringBuilder(beforeSelection)
-            .append(String.MENTION_SYMBOL)
-            .append(afterSelection)
-            .toString()
-
-        val newSelection = TextRange(beforeSelection.length + 1)
-
-        return TextFieldValue(resultText, newSelection)
-    }
-
-    fun insertMentionIntoText(mention: UiMention): TextFieldValue {
-        val beforeMentionText = messageTextFieldValue.text
-            .subSequence(0, mention.start)
-
-        val afterMentionText = messageTextFieldValue.text
-            .subSequence(
-                messageTextFieldValue.selection.max,
-                messageTextFieldValue.text.length
-            )
-
-        val resultText = StringBuilder()
-            .append(beforeMentionText)
-            .append(mention.handler)
-            .apply {
-                if (!afterMentionText.startsWith(String.WHITE_SPACE)) append(String.WHITE_SPACE)
-            }
-            .append(afterMentionText)
-            .toString()
-
-        // + 1 cause we add space after mention and move selector there
-        val newSelection = TextRange(beforeMentionText.length + mention.handler.length + 1)
-
-        return TextFieldValue(resultText, newSelection)
-    }
-
-    fun getSelectedMentions(newMessageText: TextFieldValue): List<UiMention> {
-        val result = mutableSetOf<UiMention>()
-
-        selectedMentions.forEach { mention ->
-            if (newMessageText.text.length >= mention.start + mention.length) {
-                val substringInMentionPlace = newMessageText.text.substring(
-                    mention.start,
-                    mention.start + mention.length
-                )
-                if (substringInMentionPlace == mention.handler) {
-                    result.add(mention)
-                    return@forEach
-                }
-            }
-
-            val prevMentionEnd = result.lastOrNull()?.let { it.start + it.length } ?: 0
-            val newIndexOfMention = newMessageText.text.indexOf(mention.handler, prevMentionEnd)
-            if (newIndexOfMention >= 0) {
-                result.add(mention.copy(start = newIndexOfMention))
-            }
-        }
-
-        return result.toList()
-    }
-
-    fun toMessageBundle(): ComposableMessageBundle {
-        return if (editMessageId != null) {
-            ComposableMessageBundle.EditMessageBundle(
-                originalMessageId = editMessageId,
-                newContent = messageTextFieldValue.text,
-                newMentions = selectedMentions
-            )
-        } else {
-            ComposableMessageBundle.SendTextMessageBundle(
-                message = messageTextFieldValue.text,
-                mentions = selectedMentions,
-                quotedMessageId = quotedMessageId
-            )
-        }
-    }
-}
-
-fun MutableState<MessageComposition>.update(block: (MessageComposition) -> MessageComposition) {
-    val currentValue = value
-    value = block(currentValue)
+    fun toMessageBundle(conversationId: ConversationId) = messageComposition.value.toMessageBundle(conversationId)
 }
 
 private fun TextFieldValue.currentMentionStartIndex(): Int {
@@ -423,38 +276,6 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
         else -> -1
     }
 }
-
-interface MessageBundle
-
-sealed class ComposableMessageBundle : MessageBundle {
-    data class EditMessageBundle(
-        val originalMessageId: String,
-        val newContent: String,
-        val newMentions: List<UiMention>
-    ) : ComposableMessageBundle()
-
-    data class SendTextMessageBundle(
-        val message: String,
-        val mentions: List<UiMention>,
-        val quotedMessageId: String? = null
-    ) : ComposableMessageBundle()
-
-    data class AttachmentPickedBundle(
-        val attachmentUri: UriAsset
-    ) : ComposableMessageBundle()
-
-    data class AudioMessageBundle(
-        val attachmentUri: UriAsset
-    ) : ComposableMessageBundle()
-
-    data class LocationBundle(
-        val locationName: String,
-        val location: Location,
-        val zoom: Int = 20
-    ) : ComposableMessageBundle()
-}
-
-object Ping : MessageBundle
 
 enum class RichTextMarkdown(val value: String) {
     Header("# "),

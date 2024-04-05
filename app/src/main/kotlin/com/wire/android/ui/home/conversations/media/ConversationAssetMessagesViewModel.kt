@@ -29,7 +29,9 @@ import com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConver
 import com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesFromConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -39,6 +41,7 @@ class ConversationAssetMessagesViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val getImageMessages: ObserveImageAssetMessagesFromConversationUseCase,
     private val getAssetMessages: GetAssetMessagesFromConversationUseCase,
+    private val observeAssetStatuses: ObserveAssetStatusesUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -50,6 +53,7 @@ class ConversationAssetMessagesViewModel @Inject constructor(
     init {
         loadImages()
         loadAssets()
+        observeAssetStatuses()
     }
 
     private fun loadAssets() = viewModelScope.launch {
@@ -72,5 +76,15 @@ class ConversationAssetMessagesViewModel @Inject constructor(
         viewState = viewState.copy(
             imageMessages = imageAssetsResult
         )
+    }
+
+    private fun observeAssetStatuses() {
+        viewModelScope.launch {
+            observeAssetStatuses(conversationId).collect {
+                viewState = viewState.copy(
+                    assetStatuses = it.toPersistentMap()
+                )
+            }
+        }
     }
 }

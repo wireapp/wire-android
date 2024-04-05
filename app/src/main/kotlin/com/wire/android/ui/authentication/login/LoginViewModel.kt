@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
@@ -39,7 +40,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
-import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -67,8 +67,6 @@ open class LoginViewModel @Inject constructor(
         }
     }
 
-    protected suspend fun authScope(): AutoVersionAuthScopeUseCase.Result = coreLogic.versionedAuthenticationScope(serverConfig)()
-
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
         if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
@@ -84,8 +82,8 @@ open class LoginViewModel @Inject constructor(
             userIdentifierEnabled = preFilledUserIdentifier is PreFilledUserIdentifierType.None,
             password = TextFieldValue(String.EMPTY),
             isProxyAuthRequired =
-                if (serverConfig.apiProxy?.needsAuthentication != null) serverConfig.apiProxy?.needsAuthentication!!
-                else false,
+            if (serverConfig.apiProxy?.needsAuthentication != null) serverConfig.apiProxy?.needsAuthentication!!
+            else false,
             isProxyEnabled = serverConfig.apiProxy != null
         )
     )
@@ -136,7 +134,8 @@ open class LoginViewModel @Inject constructor(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 capabilities = capabilities,
-                secondFactorVerificationCode = secondFactorVerificationCode
+                secondFactorVerificationCode = secondFactorVerificationCode,
+                modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
             )
         )
     }

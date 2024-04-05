@@ -35,6 +35,7 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.DialogState
+import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
@@ -72,15 +73,12 @@ import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
-import com.wire.kalium.logic.feature.legalhold.LegalHoldState
-import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -99,7 +97,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val unblockUser: UnblockUserUseCase,
     private val observeOneToOneConversation: GetOneToOneConversationUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
-    private val observeLegalHoldStateForUser: ObserveLegalHoldStateForUserUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
@@ -138,14 +135,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         observeUserInfoAndUpdateViewState()
         persistClients()
         getMLSVerificationStatus()
-        observeLegalHoldStatus()
-    }
-
-    private fun observeLegalHoldStatus() {
-        viewModelScope.launch {
-            observeLegalHoldStateForUser(userId)
-                .collectLatest { state = state.copy(isUnderLegalHold = it is LegalHoldState.Enabled) }
-        }
     }
 
     private fun getMLSVerificationStatus() {
@@ -400,6 +389,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             botService = otherUser.botService,
             blockingState = otherUser.BlockState,
             isProteusVerified = otherUser.isProteusVerified,
+            isUnderLegalHold = otherUser.isUnderLegalHold,
             conversationSheetContent = conversation?.let {
                 ConversationSheetContent(
                     title = otherUser.name.orEmpty(),
@@ -415,7 +405,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     isArchived = conversation.archived,
                     protocol = conversation.protocol,
                     mlsVerificationStatus = conversation.mlsVerificationStatus,
-                    proteusVerificationStatus = conversation.proteusVerificationStatus
+                    proteusVerificationStatus = conversation.proteusVerificationStatus,
+                    isUnderLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
                 )
             }
         )

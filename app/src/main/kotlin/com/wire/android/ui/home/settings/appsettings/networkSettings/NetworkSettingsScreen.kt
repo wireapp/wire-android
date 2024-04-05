@@ -21,8 +21,8 @@ package com.wire.android.ui.home.settings.appsettings.networkSettings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -33,6 +33,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
@@ -74,20 +75,30 @@ fun NetworkSettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            if (!isWebsocketEnabledByDefault(LocalContext.current)) {
-                GroupConversationOptionsItem(
-                    title = stringResource(R.string.settings_keep_connection_to_websocket),
-                    subtitle = stringResource(
-                        R.string.settings_keep_connection_to_websocket_description,
-                        backendName
-                    ),
-                    switchState = SwitchState.Enabled(
+            val appContext = LocalContext.current.applicationContext
+            val isWebSocketEnforcedByDefault = remember {
+                isWebsocketEnabledByDefault(appContext)
+            }
+            val switchState = remember {
+                if (isWebSocketEnforcedByDefault) {
+                    SwitchState.TextOnly(true)
+                } else {
+                    SwitchState.Enabled(
                         value = isWebSocketEnabled,
                         onCheckedChange = setWebSocketState
-                    ),
-                    arrowType = ArrowType.NONE
-                )
+                    )
+                }
             }
+
+            GroupConversationOptionsItem(
+                title = stringResource(R.string.settings_keep_connection_to_websocket),
+                subtitle = stringResource(
+                    R.string.settings_keep_connection_to_websocket_description,
+                    backendName
+                ),
+                switchState = switchState,
+                arrowType = ArrowType.NONE
+            )
         }
     }
 }

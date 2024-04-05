@@ -22,11 +22,15 @@ import androidx.compose.runtime.Stable
 import androidx.paging.PagingData
 import com.wire.android.ui.home.conversations.usecase.UIImageAssetPagingItem
 import com.wire.android.ui.home.conversations.usecase.UIPagingItem
+import com.wire.kalium.logic.data.message.MessageAssetStatus
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
 @Stable
 data class ConversationAssetMessagesViewState(
     val imageMessages: Flow<PagingData<UIImageAssetPagingItem>> = emptyFlow(),
-    val assetMessages: Flow<PagingData<UIPagingItem>> = emptyFlow()
+    val assetMessages: Flow<PagingData<UIPagingItem>> = emptyFlow(),
+    val assetStatuses: PersistentMap<String, MessageAssetStatus> = persistentMapOf()
 )

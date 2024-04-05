@@ -30,13 +30,11 @@ import androidx.compose.ui.text.font.FontFamily
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import org.commonmark.node.FencedCodeBlock
-import org.commonmark.node.IndentedCodeBlock
 
 @Composable
-fun MarkdownIndentedCodeBlock(indentedCodeBlock: IndentedCodeBlock) {
+fun MarkdownIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode, nodeData: NodeData) {
     Text(
-        text = indentedCodeBlock.literal,
+        text = highlightText(nodeData, indentedCodeBlock.literal),
         style = MaterialTheme.wireTypography.body01,
         fontFamily = FontFamily.Monospace,
         modifier = Modifier
@@ -52,9 +50,9 @@ fun MarkdownIndentedCodeBlock(indentedCodeBlock: IndentedCodeBlock) {
 }
 
 @Composable
-fun MarkdownFencedCodeBlock(fencedCodeBlock: FencedCodeBlock) {
+fun MarkdownFencedCodeBlock(fencedCodeBlock: MarkdownNode.Block.FencedCode, nodeData: NodeData) {
     Text(
-        text = fencedCodeBlock.literal,
+        text = highlightText(nodeData, fencedCodeBlock.literal),
         style = MaterialTheme.wireTypography.body01,
         fontFamily = FontFamily.Monospace,
         modifier = Modifier

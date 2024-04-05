@@ -33,6 +33,7 @@ import com.wire.android.ui.home.settings.backup.BackupRestoreProgress
 import com.wire.android.ui.home.settings.backup.PasswordValidation
 import com.wire.android.ui.home.settings.backup.RestoreFileValidation
 import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
+import com.wire.android.util.permission.PermissionDenialType
 
 @Composable
 fun RestoreBackupDialogFlow(
@@ -40,7 +41,8 @@ fun RestoreBackupDialogFlow(
     onChooseBackupFile: (Uri) -> Unit,
     onRestoreBackup: (String) -> Unit,
     onOpenConversations: () -> Unit,
-    onCancelBackupRestore: () -> Unit
+    onCancelBackupRestore: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     val restoreDialogStateHolder = rememberRestoreDialogState()
 
@@ -51,7 +53,8 @@ fun RestoreBackupDialogFlow(
                     backUpAndRestoreState = backUpAndRestoreState,
                     restoreDialogStateHolder = restoreDialogStateHolder,
                     onChooseBackupFile = onChooseBackupFile,
-                    onCancelBackupRestore = onCancelBackupRestore
+                    onCancelBackupRestore = onCancelBackupRestore,
+                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
                 )
             }
 
@@ -93,7 +96,8 @@ private fun ChooseBackupFileStep(
     backUpAndRestoreState: BackupAndRestoreState,
     restoreDialogStateHolder: RestoreDialogStateHolder,
     onChooseBackupFile: (Uri) -> Unit,
-    onCancelBackupRestore: () -> Unit
+    onCancelBackupRestore: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     LaunchedEffect(backUpAndRestoreState.restoreFileValidation) {
         when (backUpAndRestoreState.restoreFileValidation) {
@@ -121,7 +125,8 @@ private fun ChooseBackupFileStep(
 
     PickRestoreFileDialog(
         onChooseBackupFile = onChooseBackupFile,
-        onCancelBackupRestore = onCancelBackupRestore
+        onCancelBackupRestore = onCancelBackupRestore,
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
     )
 }
 

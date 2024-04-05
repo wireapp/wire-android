@@ -229,8 +229,7 @@ private fun SelfUserProfileContent(
                             userName = userName,
                             teamName = teamName,
                             onUserProfileClick = onChangeUserProfilePicture,
-                            editableState = if (state.isReadOnlyAccount) EditableState.NotEditable
-                            else EditableState.IsEditable(onEditClick)
+                            editableState = EditableState.IsEditable(onEditClick)
                         )
                     }
                     if (state.legalHoldStatus != LegalHoldUIState.None) {
@@ -415,6 +414,7 @@ private fun OtherAccountItem(
 ) {
     RowItemTemplate(
         leadingIcon = { UserProfileAvatar(account.avatarData) },
+        titleStartPadding = dimensions().spacing0x,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 HighlightName(

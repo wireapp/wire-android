@@ -58,6 +58,7 @@ import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LocalNavigator
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
@@ -80,6 +81,7 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
+import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EICertificateRevokedDialog
 import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EIResultDialog
@@ -168,8 +170,8 @@ class WireActivity : AppCompatActivity() {
                 InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
                 InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
                 InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
-            InitialAppState.LOGGED_IN -> HomeScreenDestination
-        }
+                InitialAppState.LOGGED_IN -> HomeScreenDestination
+            }
             appLogger.i("$TAG composable content")
             setComposableContent(startDestination) {
                 appLogger.i("$TAG splash hide")
@@ -218,10 +220,12 @@ class WireActivity : AppCompatActivity() {
                                 navigator.navigate(NavigationCommand(OngoingCallScreenDestination(establishedCall.conversationId)))
                             },
                         )
-                        NavigationGraph(
-                            navigator = navigator,
-                            startDestination = startDestination
-                        )
+                        CompositionLocalProvider(LocalNavigator provides navigator) {
+                            NavigationGraph(
+                                navigator = navigator,
+                                startDestination = startDestination
+                            )
+                        }
 
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
@@ -372,7 +376,7 @@ class WireActivity : AppCompatActivity() {
                     E2EIRequiredDialog(
                         e2EIRequired = e2EIRequired,
                         isE2EILoading = isE2EILoading,
-                        getCertificate = { featureFlagNotificationViewModel.getE2EICertificate(it, context) },
+                        getCertificate = featureFlagNotificationViewModel::enrollE2EICertificate,
                         snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog
                     )
                 }
@@ -387,7 +391,7 @@ class WireActivity : AppCompatActivity() {
                 e2EIResult?.let {
                     E2EIResultDialog(
                         result = e2EIResult,
-                        updateCertificate = { featureFlagNotificationViewModel.getE2EICertificate(it, context) },
+                        updateCertificate = featureFlagNotificationViewModel::enrollE2EICertificate,
                         snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog,
                         openCertificateDetails = { navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(it))) },
                         dismissSuccessDialog = featureFlagNotificationViewModel::dismissSuccessE2EIdDialog,
@@ -439,6 +443,13 @@ class WireActivity : AppCompatActivity() {
             if (showCallEndedBecauseOfConversationDegraded) {
                 GuestCallWasEndedBecauseOfVerificationDegradedDialog(
                     featureFlagNotificationViewModel::dismissCallEndedBecauseOfConversationDegraded
+                )
+            }
+
+            if (startGettingE2EICertificate) {
+                GetE2EICertificateUI(
+                    enrollmentResultHandler = { featureFlagNotificationViewModel.handleE2EIEnrollmentResult(it) },
+                    isNewClient = false
                 )
             }
         }

@@ -147,14 +147,6 @@ class ConversationCallViewModel @Inject constructor(
         }
     }
 
-    fun showCallingPermissionDialog() {
-        conversationCallViewState = conversationCallViewState.copy(shouldShowCallingPermissionDialog = true)
-    }
-
-    fun dismissCallingPermissionDialog() {
-        conversationCallViewState = conversationCallViewState.copy(shouldShowCallingPermissionDialog = false)
-    }
-
     private fun showJoinCallAnywayDialog() {
         conversationCallViewState = conversationCallViewState.copy(shouldShowJoinAnywayDialog = true)
     }
@@ -186,7 +178,7 @@ class ConversationCallViewModel @Inject constructor(
     suspend fun isConferenceCallingEnabled(conversationType: Conversation.Type): ConferenceCallingResult =
         isConferenceCallingEnabled.invoke(conversationId, conversationType)
 
-    fun onConversationDegradedDialogShown() {
+    fun onApplyConversationDegradation() {
         viewModelScope.launch {
             setUserInformedAboutVerification.invoke(conversationId)
         }

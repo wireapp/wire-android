@@ -48,7 +48,6 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.createPemFile
-import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

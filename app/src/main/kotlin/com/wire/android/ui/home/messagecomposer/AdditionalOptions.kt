@@ -55,6 +55,7 @@ fun AdditionalOptionsMenu(
     onRichEditingButtonClicked: () -> Unit,
     onCloseRichEditingButtonClicked: () -> Unit,
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
+    onDrawingModeClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier.background(colorsScheme().messageComposerBackgroundColor)) {
@@ -71,7 +72,8 @@ fun AdditionalOptionsMenu(
                     onGifButtonClicked = onGifOptionClicked ?: {},
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
                     onRichEditingButtonClicked = onRichEditingButtonClicked,
-                    onPingClicked = onPingOptionClicked
+                    onPingClicked = onPingOptionClicked,
+                    onDrawingModeClicked = onDrawingModeClicked
                 )
             }
 
@@ -153,6 +155,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     isSelfDeletingActive: Boolean,
     onGifButtonClicked: () -> Unit = {},
     onRichEditingButtonClicked: () -> Unit = {},
+    onDrawingModeClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(modifier.wrapContentSize()) {
@@ -168,7 +171,8 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
             isSelfDeletingActive = isSelfDeletingActive,
             onGifButtonClicked = onGifButtonClicked,
-            onRichEditingButtonClicked = onRichEditingButtonClicked
+            onRichEditingButtonClicked = onRichEditingButtonClicked,
+            onDrawingModeClicked = onDrawingModeClicked
         )
     }
 }

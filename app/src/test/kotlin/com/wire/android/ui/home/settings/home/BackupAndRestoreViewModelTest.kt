@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.net.toUri
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
@@ -177,6 +178,7 @@ class BackupAndRestoreViewModelTest {
         val storedBackup = BackupAndRestoreState.CreatedBackup("backupFilePath".toPath(), "backupName.zip", 100L, true)
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
             .withPreviouslyCreatedBackup(storedBackup)
+            .withUpdateLastBackupData()
             .arrange()
 
         // When
@@ -193,6 +195,9 @@ class BackupAndRestoreViewModelTest {
                 any()
             )
         }
+        coVerify {
+            arrangement.userDataStore.setLastBackupDateSeconds(any())
+        }
     }
 
     @Test
@@ -201,6 +206,7 @@ class BackupAndRestoreViewModelTest {
         val storedBackup = BackupAndRestoreState.CreatedBackup("backupFilePath".toPath(), "backupName.zip", 100L, true)
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
             .withPreviouslyCreatedBackup(storedBackup)
+            .withUpdateLastBackupData()
             .arrange()
         val backupUri = "some-backup".toUri()
 
@@ -217,6 +223,9 @@ class BackupAndRestoreViewModelTest {
                 backupUri,
                 any()
             )
+        }
+        coVerify(exactly = 1) {
+            arrangement.userDataStore.setLastBackupDateSeconds(any())
         }
     }
 
@@ -469,6 +478,9 @@ class BackupAndRestoreViewModelTest {
         @MockK
         lateinit var fileManager: FileManager
 
+        @MockK
+        lateinit var userDataStore: UserDataStore
+
         val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
         private val viewModel = BackupAndRestoreViewModel(
@@ -478,7 +490,8 @@ class BackupAndRestoreViewModelTest {
             kaliumFileSystem = fakeKaliumFileSystem,
             dispatcher = dispatcher,
             fileManager = fileManager,
-            validatePassword = validatePassword
+            validatePassword = validatePassword,
+            userDataStore = userDataStore
         )
 
         fun withSuccessfulCreation(password: String) = apply {
@@ -552,6 +565,10 @@ class BackupAndRestoreViewModelTest {
 
         fun withInvalidPassword() = apply {
             every { validatePassword(any()) } returns ValidatePasswordResult.Invalid()
+        }
+
+        fun withUpdateLastBackupData() = apply {
+            coEvery { userDataStore.setLastBackupDateSeconds(any()) } returns Unit
         }
 
         fun arrange() = this to viewModel

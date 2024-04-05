@@ -28,6 +28,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -44,6 +45,7 @@ import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFai
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
 import com.wire.kalium.logic.feature.backup.VerifyBackupResult
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
+import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -61,7 +63,8 @@ class BackupAndRestoreViewModel
     private val validatePassword: ValidatePasswordUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val fileManager: FileManager,
-    private val dispatcher: DispatcherProvider,
+    private val userDataStore: UserDataStore,
+    private val dispatcher: DispatcherProvider
 ) : ViewModel() {
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
@@ -72,7 +75,18 @@ class BackupAndRestoreViewModel
     @VisibleForTesting
     internal lateinit var latestImportedBackupTempPath: Path
 
-    fun createBackup(password: String) = viewModelScope.launch(dispatcher.main()) {
+    init {
+        observeLastBackupDate()
+    }
+    private fun observeLastBackupDate() {
+        viewModelScope.launch {
+            userDataStore.lastBackupDateSeconds().collect {
+                state = state.copy(lastBackupData = it)
+            }
+        }
+    }
+
+    fun createBackup(password: String) = viewModelScope.launch {
         // TODO: Find a way to update the creation progress more faithfully. For now we will just show this small delays to mimic the
         //  progress also for small backups
         updateCreationProgress(PROGRESS_25)
@@ -98,21 +112,39 @@ class BackupAndRestoreViewModel
         }
     }
 
-    fun shareBackup() = viewModelScope.launch(dispatcher.main()) {
+    private suspend fun updateLastBackupDate() {
+        DateTimeUtil.currentInstant().epochSeconds.also { currentTime ->
+            userDataStore.setLastBackupDateSeconds(currentTime)
+        }
+    }
+    fun shareBackup() = viewModelScope.launch {
+        updateLastBackupDate()
         latestCreatedBackup?.let { backupData ->
             withContext(dispatcher.io()) {
                 fileManager.shareWithExternalApp(backupData.path, backupData.assetName) {}
             }
         }
-        state = BackupAndRestoreState.INITIAL_STATE
+        state = state.copy(
+            backupRestoreProgress = BackupRestoreProgress.InProgress(),
+            restoreFileValidation = RestoreFileValidation.Initial,
+            backupCreationProgress = BackupCreationProgress.InProgress(),
+            restorePasswordValidation = PasswordValidation.NotVerified,
+            passwordValidation = ValidatePasswordResult.Valid,
+        )
     }
 
-    fun saveBackup(uri: Uri) = viewModelScope.launch(dispatcher.main()) {
+    fun saveBackup(uri: Uri) = viewModelScope.launch {
+        updateLastBackupDate()
         latestCreatedBackup?.let { backupData ->
             fileManager.copyToUri(backupData.path, uri, dispatcher)
         }
-        state = BackupAndRestoreState.INITIAL_STATE
-    }
+        state = state.copy(
+            backupRestoreProgress = BackupRestoreProgress.InProgress(),
+            restoreFileValidation = RestoreFileValidation.Initial,
+            backupCreationProgress = BackupCreationProgress.InProgress(),
+            restorePasswordValidation = PasswordValidation.NotVerified,
+            passwordValidation = ValidatePasswordResult.Valid,
+        )    }
 
     fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
         latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)

@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.common.snackbar
 
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -106,8 +107,7 @@ fun SwipeableSnackbar(
             .anchoredDraggable(
                 state = state,
                 orientation = Orientation.Horizontal
-            )
-            .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
+            ).offset { IntOffset(state.requireOffset().roundToInt(), 0) }
     )
 }
 

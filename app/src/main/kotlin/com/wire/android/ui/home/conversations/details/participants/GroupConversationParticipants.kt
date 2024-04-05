@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.BuildConfig
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -62,13 +63,13 @@ fun GroupConversationParticipants(
             modifier = Modifier.fillMaxSize()
         ) {
             item(key = "participants_list_header") {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.wireColorScheme.surface)
-                        .padding(MaterialTheme.wireDimensions.spacing16x)
-                ) {
-                    if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.wireColorScheme.surface)
+                            .padding(MaterialTheme.wireDimensions.spacing16x)
+                    ) {
                         val groupParticipants = groupParticipantsState.data.allParticipants
                         MLSProgressIndicator(
                             progress = (groupParticipants)
@@ -119,12 +120,12 @@ fun MLSProgressIndicator(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewGroupConversationParticipants() {
+fun PreviewGroupConversationParticipants() = WireTheme {
     GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW)
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewMLSProgressIndicator() {
+fun PreviewMLSProgressIndicator() = WireTheme {
     MLSProgressIndicator(0.25F)
 }

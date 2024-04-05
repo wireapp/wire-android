@@ -1,4 +1,4 @@
-package com.wire.android.ui.common.snackbar/*
+/*
  * Wire
  * Copyright (C) 2024 Wire Swiss GmbH
  *
@@ -15,6 +15,8 @@ package com.wire.android.ui.common.snackbar/*
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
+package com.wire.android.ui.common.snackbar
 
 // TODO uncomment when anchoredDraggable will be available on [composeBom] version
 // import androidx.compose.foundation.gestures.AnchoredDraggableState

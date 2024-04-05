@@ -878,7 +878,7 @@ private fun SnackBarMessage(
             val snackbarResult = snackbarHostState.showSnackbar(
                 message = it.uiText.asString(context.resources),
                 actionLabel = actionLabel,
-                duration = SnackbarDuration.Short
+                duration = if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Long,
             )
             // Show downloads folder when clicking on Snackbar cta button
             if (it is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed) {

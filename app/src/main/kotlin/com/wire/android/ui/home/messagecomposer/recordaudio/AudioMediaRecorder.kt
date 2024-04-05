@@ -123,13 +123,9 @@ class AudioMediaRecorder @Inject constructor(
 
     private companion object {
         fun getRecordingAudioFileName(): String =
-<<<<<<< HEAD
-            "wire-audio-${DateTimeUtil.currentInstant().audioFileDateTime()}.m4a"
-        fun getRecordingAudioEffectsFileName(): String =
-            "wire-audio-${DateTimeUtil.currentInstant().audioFileDateTime()}-filter.m4a"
-=======
             "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}.m4a"
->>>>>>> aaeaffdf8 (fix: crash on GrapheneOS when downloading certificate (WPB-7407) (#2864))
+        fun getRecordingAudioEffectsFileName(): String =
+            "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}-filter.m4a"
         const val SIZE_OF_1MB = 1024 * 1024
         const val AUDIO_CHANNELS = 1
         const val SAMPLING_RATE = 44100

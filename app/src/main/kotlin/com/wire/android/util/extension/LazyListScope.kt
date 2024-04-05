@@ -40,7 +40,7 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
 
     if (items.isNotEmpty()) {
         if (!header.isNullOrEmpty()) {
-            item(key ="header:${header}") {
+            item(key = "header:$header") {
                 FolderHeader(
                     name = header,
                     modifier = Modifier

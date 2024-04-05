@@ -61,7 +61,7 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
 
     fun getCertificateName(): String {
         val date = DateTimeUtil.currentInstant().fileDateTime()
-        return "wire-certificate-${selfUserHandle}-${date}.txt"
+        return "wire-certificate-$selfUserHandle-$date.txt"
     }
 }
 

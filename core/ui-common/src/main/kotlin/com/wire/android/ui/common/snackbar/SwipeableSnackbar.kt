@@ -107,14 +107,7 @@ fun SwipeableSnackbar(
             .anchoredDraggable(
                 state = state,
                 orientation = Orientation.Horizontal
-            )
-            .offset {
-                IntOffset(
-                    state
-                        .requireOffset()
-                        .roundToInt(), 0
-                )
-            }
+            ).offset { IntOffset(state.requireOffset().roundToInt(), 0) }
     )
 }
 

@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.details
 
-import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.slideInVertically

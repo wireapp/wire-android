@@ -21,7 +21,7 @@ import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
 import com.wire.android.appLogger
-import com.wire.android.util.audioFileDateTime
+import com.wire.android.util.fileDateTime
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.util.DateTimeUtil
@@ -123,9 +123,13 @@ class AudioMediaRecorder @Inject constructor(
 
     private companion object {
         fun getRecordingAudioFileName(): String =
+<<<<<<< HEAD
             "wire-audio-${DateTimeUtil.currentInstant().audioFileDateTime()}.m4a"
         fun getRecordingAudioEffectsFileName(): String =
             "wire-audio-${DateTimeUtil.currentInstant().audioFileDateTime()}-filter.m4a"
+=======
+            "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}.m4a"
+>>>>>>> aaeaffdf8 (fix: crash on GrapheneOS when downloading certificate (WPB-7407) (#2864))
         const val SIZE_OF_1MB = 1024 * 1024
         const val AUDIO_CHANNELS = 1
         const val SAMPLING_RATE = 44100

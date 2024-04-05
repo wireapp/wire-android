@@ -87,5 +87,5 @@ tasks.register("staticCodeAnalysis") {
 tasks.register("testCoverage") {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase."
-    dependsOn("koverHtmlReport")
+    dependsOn("koverXmlReport")
 }

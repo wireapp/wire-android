@@ -66,25 +66,6 @@ fun E2eiCertificateDetailsScreen(
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
     val downloadedString = stringResource(id = R.string.media_gallery_on_image_downloaded)
-    val errorDownloadedString = stringResource(id = R.string.certificate_download_error)
-
-    val downloadCertificateRequestFlow = rememberWriteStorageRequestFlow(
-        onGranted = {
-            scope.launch {
-                withContext(Dispatchers.IO) {
-                    createPemFile(
-                        pathname = e2eiCertificateDetailsViewModel.getCertificateName(),
-                        content = e2eiCertificateDetailsViewModel.getCertificate()
-                    )
-                }
-                e2eiCertificateDetailsViewModel.state.wireModalSheetState.hide()
-                snackbarHostState.showSnackbar(downloadedString)
-            }
-        }, onDenied = {
-            scope.launch {
-                snackbarHostState.showSnackbar(errorDownloadedString)
-            }
-        })
 
     WireScaffold(
         topBar = {
@@ -123,7 +104,18 @@ fun E2eiCertificateDetailsScreen(
                         snackbarHostState.showSnackbar(copiedToClipboardString)
                     }
                 },
-                onDownload = downloadCertificateRequestFlow::launch
+                onDownload = {
+                    scope.launch {
+                        withContext(Dispatchers.IO) {
+                            createPemFile(
+                                pathname = e2eiCertificateDetailsViewModel.getCertificateName(),
+                                content = e2eiCertificateDetailsViewModel.getCertificate()
+                            )
+                        }
+                        e2eiCertificateDetailsViewModel.state.wireModalSheetState.hide()
+                        snackbarHostState.showSnackbar(downloadedString)
+                    }
+                }
             )
         }
     }

@@ -20,7 +20,6 @@ package com.wire.android.ui.authentication.login
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -33,7 +32,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -42,7 +40,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -72,6 +69,7 @@ import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.rememberTopBarElevationState
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
@@ -113,7 +111,6 @@ fun LoginScreen(
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun LoginContent(
     onBackPressed: () -> Unit,
@@ -139,10 +136,7 @@ private fun LoginContent(
     }
 }
 
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    ExperimentalFoundationApi::class,
-)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MainLoginContent(
     onBackPressed: () -> Unit,
@@ -158,7 +152,7 @@ private fun MainLoginContent(
     val initialPageIndex = if (ssoLoginResult == null) LoginTabItem.EMAIL.ordinal else LoginTabItem.SSO.ordinal
     val pagerState = rememberPagerState(
         initialPage = initialPageIndex,
-        pageCount = { LoginTabItem.values().size }
+        pageCount = { LoginTabItem.entries.size }
     )
 
     val ssoDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
@@ -180,7 +174,7 @@ private fun MainLoginContent(
                 onNavigationPressed = onBackPressed
             ) {
                 WireTabRow(
-                    tabs = LoginTabItem.values().toList(),
+                    tabs = LoginTabItem.entries,
                     selectedTabIndex = pagerState.calculateCurrentTab(),
                     onTabChange = {
 
@@ -217,7 +211,7 @@ private fun MainLoginContent(
                     .fillMaxWidth()
                     .padding(internalPadding)
             ) { pageIndex ->
-                when (LoginTabItem.values()[pageIndex]) {
+                when (LoginTabItem.entries[pageIndex]) {
                     LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
                     LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult)
                 }

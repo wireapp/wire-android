@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.authentication.login.email
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.forEachTextValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -31,11 +33,11 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
-import com.wire.android.ui.authentication.login.updateEmailLoginEnabled
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
@@ -49,6 +51,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "ComplexMethod")
+@OptIn(ExperimentalFoundationApi::class)
 @HiltViewModel
 class LoginEmailViewModel @Inject constructor(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
@@ -66,21 +69,29 @@ class LoginEmailViewModel @Inject constructor(
     coreLogic
 ) {
 
+    init {
+        onPasswordChange()
+        onUserIdentifierChange()
+        onProxyIdentifierChange()
+    }
+
     var secondFactorVerificationCodeState by mutableStateOf(
         VerificationCodeState()
     )
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Suppress("LongMethod")
     fun login(onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
-        loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
+        loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None)
+        updateEmailLoginEnabled()
         viewModelScope.launch {
             val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
 
             val secondFactorVerificationCode = secondFactorVerificationCodeState.codeInput.text.text
             val loginResult = withContext(dispatchers.io()) {
                 authScope.login(
-                    userIdentifier = loginState.userIdentifier.text,
-                    password = loginState.password.text,
+                    userIdentifier = userIdentifier.text.toString(),
+                    password = password.text.toString(),
                     shouldPersistClient = true,
                     secondFactorVerificationCode = secondFactorVerificationCode
                 )
@@ -112,7 +123,7 @@ class LoginEmailViewModel @Inject constructor(
             withContext(dispatchers.io()) {
                 registerClient(
                     userId = storedUserId,
-                    password = loginState.password.text,
+                    password = password.text.toString(),
                 )
             }.let {
                 when (it) {
@@ -134,9 +145,14 @@ class LoginEmailViewModel @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     private suspend fun resolveCurrentAuthScope(): AuthenticationScope? =
         coreLogic.versionedAuthenticationScope(serverConfig).invoke(
-            loginState.getProxyCredentials()
+            if (proxyIdentifier.text.isNotBlank() && proxyPassword.text.isNotBlank()) {
+                ProxyCredentials(proxyIdentifier.text.toString(), proxyPassword.text.toString())
+            } else {
+                null
+            }
         ).let {
             when (it) {
                 is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
@@ -161,12 +177,14 @@ class LoginEmailViewModel @Inject constructor(
     private suspend fun handleAuthenticationFailure(it: AuthenticationResult.Failure, authScope: AuthenticationScope) {
         when (it) {
             is AuthenticationResult.Failure.InvalidCredentials.Missing2FA -> {
-                loginState = loginState.copy(emailLoginLoading = false).updateEmailLoginEnabled()
+                loginState = loginState.copy(emailLoginLoading = false)
+                updateEmailLoginEnabled()
                 request2FACode(authScope)
             }
 
             is AuthenticationResult.Failure.InvalidCredentials.Invalid2FA -> {
-                loginState = loginState.copy(emailLoginLoading = false).updateEmailLoginEnabled()
+                loginState = loginState.copy(emailLoginLoading = false)
+                updateEmailLoginEnabled()
                 secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCurrentCodeInvalid = true)
             }
 
@@ -175,7 +193,7 @@ class LoginEmailViewModel @Inject constructor(
     }
 
     private suspend fun request2FACode(authScope: AuthenticationScope) {
-        val email = loginState.userIdentifier.text.trim()
+        val email = userIdentifier.text.toString().trim()
         val result = authScope.requestSecondFactorVerificationCode(
             email = email,
             verifiableAction = VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION
@@ -196,25 +214,40 @@ class LoginEmailViewModel @Inject constructor(
         }
     }
 
-    fun onUserIdentifierChange(newText: TextFieldValue) {
-        // in case an error is showing e.g. inline error it should be cleared
-        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.userIdentifier) {
-            clearEmailLoginError()
+    fun onUserIdentifierChange() {
+        viewModelScope.launch {
+            userIdentifier.forEachTextValue {
+                // in case an error is showing e.g. inline error it should be cleared TODO KBX
+//                if (loginState.loginError is LoginError.TextFieldError && newText != userIdentifier.text.toString()) {
+//                    clearEmailLoginError()
+//                }
+                updateEmailLoginEnabled()
+                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
+            }
+
         }
-        loginState = loginState.copy(userIdentifier = newText).updateEmailLoginEnabled()
-        savedStateHandle.set(USER_IDENTIFIER_SAVED_STATE_KEY, newText.text)
     }
 
-    fun onPasswordChange(newText: TextFieldValue) {
-        loginState = loginState.copy(password = newText).updateEmailLoginEnabled()
+
+    fun onPasswordChange() {
+        viewModelScope.launch {
+            password.forEachTextValue {
+                updateEmailLoginEnabled()
+            }
+        }
     }
 
-    fun onProxyIdentifierChange(newText: TextFieldValue) {
-        loginState = loginState.copy(proxyIdentifier = newText).updateEmailLoginEnabled()
+    fun onProxyIdentifierChange() {
+        viewModelScope.launch {
+            proxyIdentifier.forEachTextValue {
+                updateEmailLoginEnabled()
+            }
+        }
     }
 
     fun onProxyPasswordChange(newText: TextFieldValue) {
-        loginState = loginState.copy(proxyPassword = newText).updateEmailLoginEnabled()
+        loginState = loginState.copy(proxyPassword = newText)
+        updateEmailLoginEnabled()
     }
 
     fun onCodeChange(newValue: CodeFieldValue, onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {

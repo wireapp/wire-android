@@ -429,9 +429,9 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun searchConversation(searchQuery: TextFieldValue) {
+    fun searchConversation(searchQuery: String) {
         viewModelScope.launch {
-            mutableSearchQueryFlow.emit(SearchQueryUpdate.UpdateQuery(searchQuery.text))
+            mutableSearchQueryFlow.emit(SearchQueryUpdate.UpdateQuery(searchQuery))
         }
     }
 

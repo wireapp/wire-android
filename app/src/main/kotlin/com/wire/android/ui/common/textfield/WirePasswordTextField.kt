@@ -122,7 +122,7 @@ fun WirePasswordTextField(
             labelText = labelText,
             labelMandatoryIcon = labelMandatoryIcon,
             descriptionText = descriptionText,
-            state = state,
+            fieldState = state,
             interactionSource = interactionSource,
             textStyle = textStyle,
             placeholderTextStyle = placeHolderTextStyle,

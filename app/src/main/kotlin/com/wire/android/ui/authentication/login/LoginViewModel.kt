@@ -19,6 +19,8 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -48,6 +50,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+@OptIn(ExperimentalFoundationApi::class)
 @Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -72,15 +75,33 @@ open class LoginViewModel @Inject constructor(
         if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
+    var userIdentifier by mutableStateOf(
+        TextFieldState(
+            if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) preFilledUserIdentifier.userIdentifier
+            else savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+        )
+    )
+
+    var userInput by mutableStateOf(
+        TextFieldState(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY)
+    )
+
+    var password by mutableStateOf(
+        TextFieldState(String.EMPTY)
+    )
+
+    var proxyIdentifier by mutableStateOf(
+        TextFieldState(String.EMPTY)
+    )
+
+    var proxyPassword by mutableStateOf(
+        TextFieldState(String.EMPTY)
+    )
+
     var loginState by mutableStateOf(
         LoginState(
-            userInput = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
-            userIdentifier = TextFieldValue(
-                if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) preFilledUserIdentifier.userIdentifier
-                else savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
-            ),
             userIdentifierEnabled = preFilledUserIdentifier is PreFilledUserIdentifierType.None,
-            password = TextFieldValue(String.EMPTY),
             isProxyAuthRequired =
             if (serverConfig.apiProxy?.needsAuthentication != null) serverConfig.apiProxy?.needsAuthentication!!
             else false,
@@ -91,18 +112,20 @@ open class LoginViewModel @Inject constructor(
         set
 
     open fun updateSSOLoginError(error: LoginError) {
-        loginState = if (error is LoginError.None) {
-            loginState.copy(loginError = error)
+        if (error is LoginError.None) {
+            loginState = loginState.copy(loginError = error)
         } else {
-            loginState.copy(ssoLoginLoading = false, loginError = error).updateSSOLoginEnabled()
+            loginState = loginState.copy(ssoLoginLoading = false, loginError = error)
+            updateSSOLoginEnabled()
         }
     }
 
     open fun updateEmailLoginError(error: LoginError) {
-        loginState = if (error is LoginError.None) {
-            loginState.copy(loginError = error)
+        if (error is LoginError.None) {
+            loginState = loginState.copy(loginError = error)
         } else {
-            loginState.copy(emailLoginLoading = false, loginError = error).updateEmailLoginEnabled()
+            loginState = loginState.copy(emailLoginLoading = false, loginError = error)
+            updateEmailLoginEnabled()
         }
     }
 
@@ -145,6 +168,23 @@ open class LoginViewModel @Inject constructor(
 
     fun updateTheApp() {
         // todo : update the app after releasing on the store
+    }
+
+    fun updateEmailLoginEnabled(): LoginState {
+        return loginState.copy(
+            emailLoginEnabled = userIdentifier.text.isNotEmpty()
+                    && password.text.isNotEmpty()
+                    && !loginState.emailLoginLoading
+                    && (!loginState.isProxyAuthRequired
+                    || (loginState.isProxyAuthRequired
+                    && proxyIdentifier.text.isNotEmpty()
+                    && proxyPassword.text.isNotEmpty())
+                    )
+        )
+    }
+
+    fun updateSSOLoginEnabled() {
+        loginState = loginState.copy(ssoLoginEnabled = userInput.text.isNotEmpty() && !loginState.ssoLoginLoading)
     }
 
     companion object {

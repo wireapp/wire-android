@@ -109,8 +109,8 @@ fun ConversationRouterHomeBridge(
             }
         }
 
-        LaunchedEffect(searchQuery) {
-            viewModel.searchConversation(searchQuery)
+        LaunchedEffect(searchQuery.text) {
+            viewModel.searchConversation(searchQuery.text)
         }
     }
 

@@ -18,10 +18,13 @@
 
 package com.wire.android.ui.common.textfield
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.input.TextFieldLineLimits
+import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -46,15 +49,14 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 internal fun AutoFillTextField(
     autofillTypes: List<AutofillType>,
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
+    state: TextFieldState,
+    onValueChange: (String) -> Unit,
     readOnly: Boolean = false,
-    singleLine: Boolean = true,
-    maxLines: Int = 1,
+    lineLimits: TextFieldLineLimits = TextFieldLineLimits.SingleLine,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions(),
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -63,7 +65,7 @@ internal fun AutoFillTextField(
     labelText: String? = null,
     labelMandatoryIcon: Boolean = false,
     descriptionText: String? = null,
-    state: WireTextFieldState = WireTextFieldState.Default,
+    fieldState: WireTextFieldState = WireTextFieldState.Default,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     visualTransformation: VisualTransformation = VisualTransformation.None,
     textStyle: TextStyle = MaterialTheme.wireTypography.body01,
@@ -77,18 +79,18 @@ internal fun AutoFillTextField(
 ) {
     val autofillNode = AutofillNode(
         autofillTypes = autofillTypes,
-        onFill = { onValueChange(TextFieldValue(it, TextRange(it.length))) }
+        onFill = { onValueChange(it) }
+//            TextRange(it.length))) }
     )
     val autofill = LocalAutofill.current
 
     LocalAutofillTree.current += autofillNode
 
-    WireTextField(
-        value = value,
+    WireTextField2(
+        state = state,
         onValueChange = onValueChange,
         readOnly = readOnly,
-        singleLine = singleLine,
-        maxLines = maxLines,
+        lineLimits = lineLimits,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         leadingIcon = leadingIcon,
@@ -97,7 +99,7 @@ internal fun AutoFillTextField(
         labelText = labelText,
         labelMandatoryIcon = labelMandatoryIcon,
         descriptionText = descriptionText,
-        state = state,
+        fieldState = fieldState,
         interactionSource = interactionSource,
         visualTransformation = visualTransformation,
         textStyle = textStyle,

@@ -18,16 +18,14 @@
 
 package com.wire.android.ui.authentication.login
 
+import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 
 data class LoginState(
-    val userIdentifier: TextFieldValue = TextFieldValue(""),
     val userIdentifierEnabled: Boolean = true,
     val password: TextFieldValue = TextFieldValue(""),
-    val userInput: TextFieldValue = TextFieldValue(""),
-    val proxyIdentifier: TextFieldValue = TextFieldValue(""),
     val proxyPassword: TextFieldValue = TextFieldValue(""),
     val ssoLoginLoading: Boolean = false,
     val emailLoginLoading: Boolean = false,
@@ -38,19 +36,13 @@ data class LoginState(
     val isProxyEnabled: Boolean = false,
     val customServerDialogState: CustomServerDialogState? = null,
 ) {
-    fun getProxyCredentials(): ProxyCredentials? =
-        if (proxyIdentifier.text.isNotBlank() && proxyPassword.text.isNotBlank()) {
-            ProxyCredentials(proxyIdentifier.text, proxyPassword.text)
-        } else {
-            null
-        }
+//    fun getProxyCredentials(): ProxyCredentials? =
+//        if (proxyIdentifier.text.isNotBlank() && proxyPassword.text.isNotBlank()) {
+//            ProxyCredentials(proxyIdentifier.text, proxyPassword.text)
+//        } else {
+//            null
+//        }
 }
 
-fun LoginState.updateEmailLoginEnabled() =
-    copy(
-        emailLoginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !emailLoginLoading &&
-                (!isProxyAuthRequired || (isProxyAuthRequired && proxyIdentifier.text.isNotEmpty() && proxyPassword.text.isNotEmpty()))
-    )
 
-fun LoginState.updateSSOLoginEnabled() =
-    copy(ssoLoginEnabled = userInput.text.isNotEmpty() && !ssoLoginLoading)
+

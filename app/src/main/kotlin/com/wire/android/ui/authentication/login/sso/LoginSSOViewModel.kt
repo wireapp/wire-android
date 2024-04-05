@@ -19,6 +19,8 @@
 package com.wire.android.ui.authentication.login.sso
 
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.forEachTextValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -29,7 +31,6 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
-import com.wire.android.ui.authentication.login.updateSSOLoginEnabled
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
@@ -50,6 +51,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
+@OptIn(ExperimentalFoundationApi::class)
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
@@ -70,9 +72,10 @@ class LoginSSOViewModel @Inject constructor(
     var openWebUrl = MutableSharedFlow<String>()
 
     fun login() {
-        loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
+        loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None)
+        updateSSOLoginEnabled()
 
-        loginState.userInput.text.also {
+        userInput.text.toString().also {
             if (validateEmailUseCase(it)) {
                 domainLookupFlow()
             } else {
@@ -151,7 +154,7 @@ class LoginSSOViewModel @Inject constructor(
                     }
                 }
 
-            defaultAuthScope.domainLookup(loginState.userInput.text).also {
+            defaultAuthScope.domainLookup(userInput.text.toString()).also {
                 when (it) {
                     is DomainLookupUseCase.Result.Failure -> {
                         loginState = loginState.copy(ssoLoginLoading = false, loginError = it.toLoginError())
@@ -193,7 +196,7 @@ class LoginSSOViewModel @Inject constructor(
                     }
                 }
 
-            authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.userInput.text)).let { result ->
+            authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(userInput.text.toString())).let { result ->
                 when (result) {
                     is SSOInitiateLoginResult.Failure -> updateSSOLoginError(result.toLoginSSOError())
                     is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)
@@ -209,7 +212,8 @@ class LoginSSOViewModel @Inject constructor(
         serverConfigId: String,
         onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit
     ) {
-        loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
+        loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None)
+        updateSSOLoginEnabled()
         viewModelScope.launch {
             val authScope =
                 coreLogic.versionedAuthenticationScope(serverConfig)(null).let {
@@ -277,12 +281,16 @@ class LoginSSOViewModel @Inject constructor(
     }
 
     fun onSSOCodeChange(newText: TextFieldValue) {
-        // in case an error is showing e.g. inline error is should be cleared
-        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.userInput) {
-            clearSSOLoginError()
+        viewModelScope.launch {
+            // in case an error is showing e.g. inline error is should be cleared
+//            if (loginState.loginError is LoginError.TextFieldError && newText != loginState.userInput) {
+//                clearSSOLoginError()
+//            }
+            userInput.forEachTextValue {
+                updateSSOLoginEnabled()
+                savedStateHandle[SSO_CODE_SAVED_STATE_KEY] = newText.text
+            }
         }
-        loginState = loginState.copy(userInput = newText).updateSSOLoginEnabled()
-        savedStateHandle.set(SSO_CODE_SAVED_STATE_KEY, newText.text)
     }
 
     fun handleSSOResult(
@@ -300,7 +308,8 @@ class LoginSSOViewModel @Inject constructor(
 
     private fun openWebUrl(url: String) {
         viewModelScope.launch {
-            loginState = loginState.copy(ssoLoginLoading = false, loginError = LoginError.None).updateSSOLoginEnabled()
+            loginState = loginState.copy(ssoLoginLoading = false, loginError = LoginError.None)
+            updateSSOLoginEnabled()
             openWebUrl.emit(url)
         }
     }

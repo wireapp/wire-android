@@ -73,7 +73,7 @@ private fun ProxyContent(
     Column(
         modifier = Modifier
     ) {
-        Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
+        Hor(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
         Text(
             text = stringResource(R.string.label_proxy_credentials),
             style = MaterialTheme.wireTypography.title03.copy(

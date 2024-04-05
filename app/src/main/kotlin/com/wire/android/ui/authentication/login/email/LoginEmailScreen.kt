@@ -16,9 +16,12 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.wire.android.ui.authentication.login.email
 
 import android.content.Context
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -31,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -106,12 +110,12 @@ fun LoginEmailScreen(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun LoginEmailContent(
     scrollState: ScrollState,
     loginState: LoginState,
-    onUserIdentifierChange: (TextFieldValue) -> Unit,
+    userIdentifier: TextFieldState,
     onPasswordChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
@@ -151,8 +155,7 @@ private fun LoginEmailContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-                userIdentifier = loginState.userIdentifier,
-                onUserIdentifierChange = onUserIdentifierChange,
+                state = userIdentifier,
                 error = when (loginState.loginError) {
                     LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                     else -> null
@@ -207,22 +210,21 @@ private fun LoginEmailContent(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun UserIdentifierInput(
     modifier: Modifier,
-    userIdentifier: TextFieldValue,
+    state: TextFieldState,
     error: String?,
-    onUserIdentifierChange: (TextFieldValue) -> Unit,
     isEnabled: Boolean,
 ) {
     AutoFillTextField(
         autofillTypes = listOf(AutofillType.EmailAddress, AutofillType.Username),
-        value = userIdentifier,
-        onValueChange = onUserIdentifierChange,
+        state = state,
+        onValueChange = {},
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
         labelText = stringResource(R.string.login_user_identifier_label),
-        state = when {
+        fieldState = when {
             !isEnabled -> WireTextFieldState.Disabled
             error != null -> WireTextFieldState.Error(error)
             else -> WireTextFieldState.Default
@@ -302,6 +304,7 @@ fun PreviewLoginEmailScreen() {
         LoginEmailContent(
             scrollState = rememberScrollState(),
             loginState = LoginState(),
+            userIdentifier = TextFieldState(),
             onUserIdentifierChange = { },
             onPasswordChange = { },
             onDialogDismiss = { },

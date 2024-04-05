@@ -684,7 +684,8 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     private val conversationDetailsFlow = MutableSharedFlow<ConversationDetails>(replay = Int.MAX_VALUE)
 
-    private val observeParticipantsForConversationFlow = MutableSharedFlow<ConversationParticipantsData>(replay = Int.MAX_VALUE)
+    private val observeParticipantsForConversationFlow =
+        MutableSharedFlow<ConversationParticipantsData>(replay = Int.MAX_VALUE)
 
     @MockK
     private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase

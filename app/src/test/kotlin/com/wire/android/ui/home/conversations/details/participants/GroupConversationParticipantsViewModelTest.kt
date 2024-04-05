@@ -89,9 +89,9 @@ internal class Arrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>() } returns GroupConversationAllParticipantsNavArgs(
-            conversationId = conversationId
-        )
+        every {
+            savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>()
+        } returns GroupConversationAllParticipantsNavArgs(conversationId = conversationId)
         // Default empty values
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
     }

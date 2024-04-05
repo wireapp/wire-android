@@ -23,14 +23,16 @@ pluginManagement {
 }
 
 // Include all the existent modules in the project
+val basePathModules = setOf("features", "core")
+val ignorableModules = setOf("buildSrc", "kalium")
 rootDir
     .walk()
     .maxDepth(1)
-    .filter {
-        it.name == "features" || it.name != "buildSrc" && it.name != "kalium" && it.isDirectory &&
-                file("${it.absolutePath}/build.gradle.kts").exists()
+    .filter { project ->
+        basePathModules.contains(project.name) || ignorableModules.none { project.name == it }
+                && project.isDirectory && file("${project.absolutePath}/build.gradle.kts").exists()
     }.map { rootDirFile ->
-        if (rootDirFile.name == "features") {
+        if (basePathModules.contains(rootDirFile.name)) {
             rootDirFile.walk()
                 .maxDepth(1)
                 .filter { it.name != "template" && file("${it.absolutePath}/build.gradle.kts").exists() }

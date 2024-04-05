@@ -85,6 +85,7 @@ dependencies {
 
     // features
     implementation(project(":features:sketch"))
+    implementation(project(":core:ui-common"))
 
     // Application dependencies
     implementation(libs.androidx.appcompat)

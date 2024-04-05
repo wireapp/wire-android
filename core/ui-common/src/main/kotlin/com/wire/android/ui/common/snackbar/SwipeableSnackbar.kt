@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+package com.wire.android.ui.common.snackbar
+
 // TODO uncomment when anchoredDraggable will be available on [composeBom] version
 // import androidx.compose.foundation.gestures.AnchoredDraggableState
 // import androidx.compose.foundation.gestures.DraggableAnchors

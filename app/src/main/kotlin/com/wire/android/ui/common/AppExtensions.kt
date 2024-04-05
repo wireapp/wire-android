@@ -101,7 +101,9 @@ fun <T> rememberFlow(
     flow: Flow<T>,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ): Flow<T> {
-    return remember(key1 = flow, key2 = lifecycleOwner) { flow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED) }
+    return remember(key1 = flow, key2 = lifecycleOwner) {
+        flow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
 }
 
 // TODO replace by collectAsStateWithLifecycle() after updating lifecycle version to 2.6.0-alpha01 or newer
@@ -122,8 +124,7 @@ fun <T> StateFlow<T>.collectAsStateLifecycleAware(
 ): State<T> = collectAsStateLifecycleAware(value, context)
 
 fun monthYearHeader(month: Int, year: Int): String {
-    val currentYear = Instant.fromEpochMilliseconds(System.currentTimeMillis()).toLocalDateTime(
-        TimeZone.currentSystemDefault()).year
+    val currentYear = Instant.fromEpochMilliseconds(System.currentTimeMillis()).toLocalDateTime(TimeZone.currentSystemDefault()).year
     val monthYearInstant = LocalDateTime(year = year, monthNumber = month, 1, 0, 0, 0)
 
     val monthName = monthYearInstant.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())

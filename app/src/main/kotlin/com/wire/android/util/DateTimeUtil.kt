@@ -176,12 +176,22 @@ fun String.uiMessageDateTime(now: Long): MessageDateTime? = this
 
         when {
             differenceInMinutes == 0L -> MessageDateTime.Now
-            differenceInMinutes <= THIRTY_MINUTES -> MessageDateTime.Within30Minutes(differenceInMinutes.toInt())
-            differenceInMinutes > THIRTY_MINUTES && DateUtils.isToday(serverDateInMillis) -> MessageDateTime.Today(messageTimeFormatter.format(serverDateInMillis))
-            isYesterday(serverDateInMillis, now) -> MessageDateTime.Yesterday(messageTimeFormatter.format(serverDateInMillis))
-            withinWeek -> MessageDateTime.WithinWeek(messageWeekDayFormatter.format(serverDate))
-            !withinWeek && isSameYear -> MessageDateTime.NotWithinWeekButSameYear(messageLongerThanWeekAndSameYearFormatter.format(serverDate))
-            else -> MessageDateTime.Other(messageMonthDayAndYear.format(serverDate))
+            differenceInMinutes <= THIRTY_MINUTES -> MessageDateTime.Within30Minutes(
+                minutes = differenceInMinutes.toInt()
+            )
+            differenceInMinutes > THIRTY_MINUTES && DateUtils.isToday(serverDateInMillis) -> MessageDateTime.Today(
+                time = messageTimeFormatter.format(serverDateInMillis)
+            )
+            isYesterday(serverDateInMillis, now) -> MessageDateTime.Yesterday(
+                time = messageTimeFormatter.format(serverDateInMillis)
+            )
+            withinWeek -> MessageDateTime.WithinWeek(
+                date = messageWeekDayFormatter.format(serverDate)
+            )
+            !withinWeek && isSameYear -> MessageDateTime.NotWithinWeekButSameYear(
+                date = messageLongerThanWeekAndSameYearFormatter.format(serverDate)
+            )
+            else -> MessageDateTime.Other(date = messageMonthDayAndYear.format(serverDate))
         }
     }
 

@@ -18,6 +18,7 @@
 
 package scripts
 
+import DependenciesVersionTask
 import IncludeGitBuildTask
 
 plugins {
@@ -29,8 +30,13 @@ project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) 
     println("> Registering Task :includeGitBuildIdentifier")
 }
 
+project.tasks.register("dependenciesVersionTask", DependenciesVersionTask::class) {
+    println("> Registering Task :dependenciesVersionTask")
+}
+
 project.afterEvaluate {
     project.tasks.matching { it.name.startsWith("bundle") || it.name.startsWith("assemble") }.configureEach {
         dependsOn("includeGitBuildIdentifier")
+        dependsOn("dependenciesVersionTask")
     }
 }

@@ -58,9 +58,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -201,7 +199,6 @@ fun ConversationScreen(
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
-    val focusManager = LocalFocusManager.current
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
@@ -392,8 +389,13 @@ fun ConversationScreen(
                 }
             }
         },
+<<<<<<< HEAD
         onBackButtonClick = { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) },
         composerMessages = sendMessageViewModel.infoMessage,
+=======
+        onBackButtonClick = { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) },
+        composerMessages = messageComposerViewModel.infoMessage,
+>>>>>>> eca268278 (fix: close properly keyboard in conversation screen [WPB-7630] (#2872))
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
@@ -454,7 +456,7 @@ fun ConversationScreen(
         },
         onTypingEvent = messageComposerViewModel::sendTypingEvent
     )
-    BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) }
+    BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
     DeleteMessageDialog(
         state = conversationMessagesViewModel.deleteMessageDialogsState,
         actions = conversationMessagesViewModel.deleteMessageHelper
@@ -562,11 +564,11 @@ fun ConversationScreen(
 
 private fun conversationScreenOnBackButtonClick(
     messageComposerViewModel: MessageComposerViewModel,
-    focusManager: FocusManager,
+    messageComposerStateHolder: MessageComposerStateHolder,
     navigator: Navigator
 ) {
     messageComposerViewModel.sendTypingEvent(TypingIndicatorMode.STOPPED)
-    focusManager.clearFocus(true)
+    messageComposerStateHolder.messageCompositionInputStateHolder.collapseComposer(null)
     navigator.navigateBack()
 }
 

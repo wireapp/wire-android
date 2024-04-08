@@ -50,7 +50,8 @@ fun LogOptions(
     isLoggingEnabled: Boolean,
     onLoggingEnabledChange: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
-    onShareLogs: () -> Unit
+    onShareLogs: () -> Unit,
+    downloadLogs: () -> Unit
 ) {
     Column {
         FolderHeader(stringResource(R.string.label_logs_option_title))
@@ -59,6 +60,16 @@ fun LogOptions(
             onCheckedChange = onLoggingEnabledChange
         )
         if (isLoggingEnabled) {
+
+            SettingsItem(
+                text = stringResource(R.string.label_download),
+                trailingIcon = R.drawable.ic_download,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = downloadLogs
+                )
+            )
+
             SettingsItem(
                 text = stringResource(R.string.label_share_logs),
                 trailingIcon = R.drawable.ic_entypo_share,
@@ -129,6 +140,7 @@ fun PreviewLoggingOptions() {
         isLoggingEnabled = true,
         onLoggingEnabledChange = {},
         onDeleteLogs = {},
-        onShareLogs = {}
+        onShareLogs = {},
+        downloadLogs = {}
     )
 }

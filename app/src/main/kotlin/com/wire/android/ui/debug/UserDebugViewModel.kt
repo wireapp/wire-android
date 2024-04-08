@@ -20,6 +20,8 @@
 
 package com.wire.android.ui.debug
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,14 +29,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
+import com.wire.android.di.LogFileDirectory
 import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
+import com.wire.android.util.saveFileToDownloadsFolder
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okio.Path.Companion.toPath
+import java.io.File
 import javax.inject.Inject
 
 data class UserDebugState(
@@ -50,6 +59,8 @@ class UserDebugViewModel
 @Inject constructor(
     @CurrentAccount val currentAccount: UserId,
     private val logFileWriter: LogFileWriter,
+    @LogFileDirectory private val logFileDirectory: File,
+    @ApplicationContext private val context: Context,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     private val globalDataStore: GlobalDataStore
 ) : ViewModel() {
@@ -79,6 +90,19 @@ class UserDebugViewModel
         } else {
             logFileWriter.stop()
             CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
+        }
+    }
+
+    fun downloadLogsLocally() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                logFileDirectory.listFiles()?.forEach { logFile ->
+                    saveFileToDownloadsFolder(logFile.name, logFile.absolutePath.toPath(), logFile.length(), context)
+                }
+            }
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Logs downloaded  ", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

@@ -17,10 +17,32 @@
  */
 package com.wire.android.ui.authentication.welcome
 
+import android.content.Context
+import android.content.Intent
+import com.wire.android.util.getMimeType
+import com.wire.android.util.getUrisOfFilesInDirectory
+import com.wire.android.util.multipleFileSharingIntent
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import java.io.File
 
 data class WelcomeScreenState(
     val links: ServerConfig.Links,
     val isThereActiveSession: Boolean = false,
-    val maxAccountsReached: Boolean = false
-)
+    val maxAccountsReached: Boolean = false,
+    val isLoggingEnabled: Boolean = false,
+    val logFileLocation: String = "",
+) {
+
+    fun shareLogs(context: Context) {
+        val dir = File(logFileLocation)
+        val fileUris = context.getUrisOfFilesInDirectory(dir)
+        val intent = context.multipleFileSharingIntent(fileUris)
+        // The first log file is simply text, not compressed. Get its mime type separately
+        // and set it as the mime type for the intent.
+        intent.type = fileUris.firstOrNull()?.getMimeType(context) ?: "text/plain"
+        // Get all other mime types and add them
+        val mimeTypes = fileUris.drop(1).mapNotNull { it.getMimeType(context) }
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toSet().toTypedArray())
+        context.startActivity(intent)
+    }
+}

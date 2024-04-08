@@ -80,8 +80,8 @@ class WireApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-
-        enableStrictMode()
+// TODO: revert me
+//        enableStrictMode()
 
         if (this.isGoogleServicesAvailable()) {
             val firebaseOptions = FirebaseOptions.Builder()

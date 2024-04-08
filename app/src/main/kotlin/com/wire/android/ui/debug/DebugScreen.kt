@@ -99,6 +99,7 @@ private fun UserDebugContent(
                     onLoggingEnabledChange = userDebugViewModel::setLoggingEnabledState,
                     onDeleteLogs = userDebugViewModel::deleteLogs,
                     onShareLogs = debugContentState::shareLogs,
+                    downloadLogs = userDebugViewModel::downloadLogsLocally
                 )
                 DebugDataOptions(
                     appVersion = BuildConfig.VERSION_NAME,

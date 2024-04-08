@@ -83,6 +83,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.debug.LogOptions
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
@@ -108,12 +109,20 @@ fun WelcomeScreen(
     navigator: Navigator,
     viewModel: WelcomeViewModel = hiltViewModel()
 ) {
+    val activityContext = LocalContext.current
     WelcomeContent(
         viewModel.state.isThereActiveSession,
-        viewModel.state.maxAccountsReached,
-        viewModel.state.links,
-        navigator::navigateBack,
-        navigator::navigate
+        isLogingEnabled = viewModel.state.isLoggingEnabled,
+        maxAccountsReached = viewModel.state.maxAccountsReached,
+        state = viewModel.state.links,
+        downloadLogsLocally = viewModel::downloadLogsLocally,
+        navigateBack = navigator::navigateBack,
+        deleteLogs = viewModel::deleteLogs,
+        shareLogs = {
+            viewModel.state.shareLogs(context = activityContext)
+        },
+        setLogingState = viewModel::setLoggingEnabledState,
+        navigate = navigator::navigate,
     )
 }
 
@@ -121,9 +130,14 @@ fun WelcomeScreen(
 private fun WelcomeContent(
     isThereActiveSession: Boolean,
     maxAccountsReached: Boolean,
+    isLogingEnabled: Boolean,
+    deleteLogs: () -> Unit,
+    setLogingState: (state: Boolean) -> Unit,
+    shareLogs: () -> Unit,
+    downloadLogsLocally: () -> Unit,
     state: ServerConfig.Links,
     navigateBack: () -> Unit,
-    navigate: (NavigationCommand) -> Unit
+    navigate: (NavigationCommand) -> Unit,
 ) {
     val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
@@ -177,6 +191,13 @@ private fun WelcomeContent(
                 )
             ) {
                 LoginButton(onClick = { navigate(NavigationCommand(LoginScreenDestination())) })
+                LogOptions(
+                    isLoggingEnabled = isLogingEnabled,
+                    onLoggingEnabledChange = setLogingState,
+                    onDeleteLogs = deleteLogs,
+                    onShareLogs = shareLogs,
+                    downloadLogs = downloadLogsLocally
+                )
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
@@ -388,7 +409,13 @@ fun PreviewWelcomeScreen() {
             maxAccountsReached = false,
             state = ServerConfig.DEFAULT,
             navigateBack = {},
-            navigate = {})
+            navigate = {},
+            downloadLogsLocally = {},
+            deleteLogs = {},
+            shareLogs = {},
+            isLogingEnabled = false,
+            setLogingState = {}
+        )
     }
 }
 

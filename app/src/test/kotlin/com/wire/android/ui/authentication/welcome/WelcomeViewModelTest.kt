@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.authentication.welcome
 
+import android.content.Context
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
@@ -30,6 +31,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.jupiter.api.BeforeEach
@@ -47,6 +49,8 @@ class WelcomeViewModelTest {
 
     private lateinit var welcomeViewModel: WelcomeViewModel
 
+    @MockK
+    private lateinit var context: Context
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -55,6 +59,6 @@ class WelcomeViewModelTest {
         every { authServerConfigProvider.authServer } returns MutableStateFlow(authServer.links)
         coEvery { authServerConfigProvider.authServer } returns MutableStateFlow(authServer.links)
         coEvery { getSessions() } returns GetAllSessionsResult.Success(listOf())
-        welcomeViewModel = WelcomeViewModel(authServerConfigProvider, getSessions)
+        welcomeViewModel = WelcomeViewModel(authServerConfigProvider, getSessions, context, mockk(), mockk(), mockk())
     }
 }

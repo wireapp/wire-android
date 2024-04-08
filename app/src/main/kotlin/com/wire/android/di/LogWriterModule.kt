@@ -25,9 +25,17 @@ import com.wire.android.util.LogFileWriter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
+import java.io.File
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class LogFileDirectory
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -38,5 +46,16 @@ class LogWriterModule {
     fun provideKaliumFileWriter(@ApplicationContext context: Context): LogFileWriter {
         val logsDirectory = LogFileWriter.logsDirectory(context)
         return LogFileWriter(logsDirectory)
+    }
+}
+
+@Module
+@InstallIn(ViewModelComponent::class)
+class LogFileDirectoryModule {
+    @LogFileDirectory
+    @ViewModelScoped
+    @Provides
+    fun provideLogFileDirectory(@ApplicationContext context: Context): File {
+        return LogFileWriter.logsDirectory(context)
     }
 }

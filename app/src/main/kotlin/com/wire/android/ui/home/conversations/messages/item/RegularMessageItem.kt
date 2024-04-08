@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +63,7 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
@@ -79,7 +82,8 @@ import com.wire.kalium.logic.data.asset.isSaved
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
-import java.util.Calendar
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 // TODO: a definite candidate for a refactor and cleanup
 @Suppress("ComplexMethod")
@@ -108,6 +112,7 @@ fun RegularMessageItem(
     onReplyClickable: Clickable? = null,
     isInteractionAvailable: Boolean = true,
     useSmallBottomPadding: Boolean = false,
+    currentTimeInMillisFlow: Flow<Long> = flow { },
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable
 ) {
     with(message) {
@@ -128,7 +133,7 @@ fun RegularMessageItem(
                 Column {
                     if (showAuthor) {
                         Spacer(modifier = Modifier.height(dimensions().avatarClickablePadding))
-                        MessageAuthorRow(messageHeader = message.header)
+                        MessageAuthorRow(messageHeader = message.header, currentTimeInMillisFlow)
                         Spacer(modifier = Modifier.height(dimensions().spacing4x))
                     }
                     if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
@@ -324,7 +329,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, assetTransferStatus: A
 }
 
 @Composable
-private fun MessageAuthorRow(messageHeader: MessageHeader) {
+private fun MessageAuthorRow(messageHeader: MessageHeader, currentTimeInMillisFlow: Flow<Long>) {
     with(messageHeader) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Row(
@@ -347,7 +352,8 @@ private fun MessageAuthorRow(messageHeader: MessageHeader) {
                 }
             }
             MessageTimeLabel(
-                messageDateTime = messageHeader.messageTime.formattedDate(now = Calendar.getInstance().timeInMillis),
+                messageTime = messageHeader.messageTime,
+                currentTimeInMillisFlow = currentTimeInMillisFlow,
                 modifier = Modifier.padding(start = dimensions().spacing6x)
             )
         }
@@ -386,9 +392,15 @@ private fun MessageFooter(
 
 @Composable
 private fun MessageTimeLabel(
-    messageDateTime: MessageDateTime?,
+    messageTime: MessageTime,
+    currentTimeInMillisFlow: Flow<Long>,
     modifier: Modifier = Modifier
 ) {
+
+    val currentTime by currentTimeInMillisFlow.collectAsState(initial = System.currentTimeMillis())
+
+    val messageDateTime = messageTime.formattedDate(now = currentTime)
+
     val context = LocalContext.current
 
     val timeString = when (messageDateTime) {
@@ -398,6 +410,7 @@ private fun MessageTimeLabel(
             messageDateTime.minutes,
             messageDateTime.minutes
         )
+
         is MessageDateTime.Today -> context.resources.getString(R.string.message_datetime_today, messageDateTime.time)
         is MessageDateTime.Yesterday -> context.resources.getString(R.string.message_datetime_yesterday, messageDateTime.time)
         is MessageDateTime.WithinWeek -> context.resources.getString(R.string.message_datetime_other, messageDateTime.date)

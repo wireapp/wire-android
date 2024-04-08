@@ -26,8 +26,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Close
@@ -45,10 +45,17 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.config.DrawingViewModelFactory
+import com.wire.android.feature.sketch.model.DrawingState
 import com.wire.android.feature.sketch.tools.DrawingToolsConfig
+import com.wire.android.model.ClickBlockParams
+import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryIconButton
+import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireDimensions
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -65,7 +72,7 @@ fun DrawingCanvasBottomSheet(
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = colorsScheme().background,
         dragHandle = {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -105,10 +112,11 @@ fun DrawingCanvasBottomSheet(
             }
             Row(
                 Modifier
-                    .height(80.dp) // todo extract dimens
+                    .height(dimensions().spacing80x)
                     .fillMaxWidth()
             ) {
                 DrawingToolbar(
+                    state = viewModel.state,
                     onSendSketch = {
                         scope.launch { onSendSketch(viewModel.saveImage(context, tempWritableImageUri)) }
                             .invokeOnCompletion { scope.launch { sheetState.hide() } }
@@ -121,6 +129,7 @@ fun DrawingCanvasBottomSheet(
 
 @Composable
 private fun DrawingToolbar(
+    state: DrawingState,
     onSendSketch: () -> Unit = {},
 ) {
     Row(
@@ -134,9 +143,17 @@ private fun DrawingToolbar(
         IconButton(onClick = {}) {
             Icon(Icons.Default.Circle, null)
         }
-        IconButton(onClick = onSendSketch) {
-            Icon(Icons.AutoMirrored.Default.Send, null)
-        }
+        WirePrimaryIconButton(
+            onButtonClicked = onSendSketch,
+            iconResource = R.drawable.ic_send,
+            contentDescription = R.string.content_description_send_button,
+            state = if (state.paths.isNotEmpty()) WireButtonState.Default else WireButtonState.Disabled,
+            shape = RoundedCornerShape(dimensions().spacing20x),
+            colors = wireSendPrimaryButtonColors(),
+            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+            minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+            minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+        )
     }
 }
 

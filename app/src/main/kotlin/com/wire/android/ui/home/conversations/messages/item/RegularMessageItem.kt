@@ -72,12 +72,14 @@ import com.wire.android.ui.home.conversations.model.messagetypes.location.Locati
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.MessageDateTime
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isSaved
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
+import java.util.Calendar
 
 // TODO: a definite candidate for a refactor and cleanup
 @Suppress("ComplexMethod")
@@ -345,7 +347,7 @@ private fun MessageAuthorRow(messageHeader: MessageHeader) {
                 }
             }
             MessageTimeLabel(
-                time = messageHeader.messageTime.formattedDate,
+                messageDateTime = messageHeader.messageTime.formattedDate(now = Calendar.getInstance().timeInMillis),
                 modifier = Modifier.padding(start = dimensions().spacing6x)
             )
         }
@@ -384,11 +386,28 @@ private fun MessageFooter(
 
 @Composable
 private fun MessageTimeLabel(
-    time: String,
+    messageDateTime: MessageDateTime?,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
+    val timeString = when (messageDateTime) {
+        is MessageDateTime.Now -> context.resources.getString(R.string.message_datetime_now)
+        is MessageDateTime.Within30Minutes -> context.resources.getQuantityString(
+            R.plurals.message_datetime_minutes_ago,
+            messageDateTime.minutes,
+            messageDateTime.minutes
+        )
+        is MessageDateTime.Today -> context.resources.getString(R.string.message_datetime_today, messageDateTime.time)
+        is MessageDateTime.Yesterday -> context.resources.getString(R.string.message_datetime_yesterday, messageDateTime.time)
+        is MessageDateTime.WithinWeek -> context.resources.getString(R.string.message_datetime_other, messageDateTime.date)
+        is MessageDateTime.NotWithinWeekButSameYear -> context.resources.getString(R.string.message_datetime_other, messageDateTime.date)
+        is MessageDateTime.Other -> context.resources.getString(R.string.message_datetime_other, messageDateTime.date)
+        null -> ""
+    }
+
     Text(
-        text = time,
+        text = timeString,
         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
         maxLines = 1,
         modifier = modifier

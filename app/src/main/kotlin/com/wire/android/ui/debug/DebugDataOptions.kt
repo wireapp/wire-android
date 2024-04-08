@@ -61,6 +61,7 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
+import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
@@ -103,7 +104,7 @@ class DebugDataOptionsViewModel
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
-    private val disableEventProcessingUseCase: DisableEventProcessingUseCase,
+    private val disableEventProcessingUseCase: DisableEventProcessingUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(
@@ -129,16 +130,6 @@ class DebugDataOptionsViewModel
         }
     }
 
-<<<<<<< HEAD
-=======
-    fun checkCrlRevocationList() {
-        viewModelScope.launch {
-            checkCrlRevocationListUseCase(
-                forceUpdate = true
-            )
-        }
-    }
-
     fun checkDependenciesVersion() {
         viewModelScope.launch {
             val dependencies = context.getDependenciesVersion().toImmutableMap()
@@ -148,7 +139,6 @@ class DebugDataOptionsViewModel
         }
     }
 
->>>>>>> 581f0606b (feat: add avs and cc version to debug screen (#2830))
     fun enableEncryptedProteusStorage(enabled: Boolean) {
         if (enabled) {
             viewModelScope.launch {
@@ -387,13 +377,8 @@ fun DebugDataOptionsContent(
                 isEventProcessingEnabled = state.isEventProcessingDisabled,
                 onDisableEventProcessingChange = onDisableEventProcessingChange,
                 onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
-<<<<<<< HEAD
-                onForceUpdateApiVersions = onForceUpdateApiVersions
-=======
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
-                checkCrlRevocationList = checkCrlRevocationList,
                 dependenciesMap = state.dependencies
->>>>>>> 581f0606b (feat: add avs and cc version to debug screen (#2830))
             )
         }
 
@@ -561,13 +546,8 @@ private fun DebugToolsOptions(
     isEventProcessingEnabled: Boolean,
     onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
-<<<<<<< HEAD
-    onForceUpdateApiVersions: () -> Unit
-=======
     onForceUpdateApiVersions: () -> Unit,
-    checkCrlRevocationList: () -> Unit,
     dependenciesMap: ImmutableMap<String, String?>
->>>>>>> 581f0606b (feat: add avs and cc version to debug screen (#2830))
 ) {
     FolderHeader(stringResource(R.string.label_debug_tools_title))
     Column {
@@ -691,6 +671,6 @@ fun PreviewOtherDebugOptions() {
         onManualMigrationPressed = {},
         enrollE2EICertificate = {},
         handleE2EIEnrollmentResult = {},
-        dismissCertificateDialog = {},
+        dismissCertificateDialog = {}
     )
 }

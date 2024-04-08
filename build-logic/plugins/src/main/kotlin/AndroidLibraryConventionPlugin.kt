@@ -23,14 +23,16 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 
-class AndroidLibraryConventionPlugin: Plugin<Project> {
+class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
-        with(pluginManager){
+        with(pluginManager) {
             apply("com.android.library")
             apply("org.jetbrains.kotlin.android")
         }
 
         extensions.configure<LibraryExtension> {
+            namespace = "com.wire.android.feature.${target.name}"
+
             // TODO: Handle flavors. Currently implemented in `variants.gradle.kts` script
             configureKotlinAndroid(this)
             defaultConfig.targetSdk = AndroidSdk.target

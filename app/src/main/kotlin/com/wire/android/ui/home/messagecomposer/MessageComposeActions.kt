@@ -51,7 +51,8 @@ fun MessageComposeActions(
     onPingButtonClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: () -> Unit,
     onGifButtonClicked: () -> Unit,
-    onRichEditingButtonClicked: () -> Unit
+    onRichEditingButtonClicked: () -> Unit,
+    onDrawingModeClicked: () -> Unit
 ) {
     if (isEditing) {
         EditingActions(
@@ -71,7 +72,8 @@ fun MessageComposeActions(
             isSelfDeletingActive,
             onSelfDeletionOptionButtonClicked,
             onPingButtonClicked,
-            onMentionButtonClicked
+            onMentionButtonClicked,
+            onDrawingModeClicked
         )
     }
 }
@@ -87,7 +89,8 @@ private fun ComposingActions(
     isSelfDeletingActive: Boolean,
     onSelfDeletionOptionButtonClicked: () -> Unit,
     onPingButtonClicked: () -> Unit,
-    onMentionButtonClicked: () -> Unit
+    onMentionButtonClicked: () -> Unit,
+    onDrawingModeClicked: () -> Unit
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
@@ -107,6 +110,12 @@ private fun ComposingActions(
                 isSelected = selectedOption == AdditionalOptionSelectItem.RichTextEditing,
                 onRichEditingButtonClicked
             )
+            if (DrawingIcon) {
+                DrawingModeAction(
+                    isSelected = selectedOption == AdditionalOptionSelectItem.DrawingMode,
+                    onDrawingModeClicked
+                )
+            }
             if (EmojiIcon) AddEmojiAction({})
             if (GifIcon) AddGifAction(onGifButtonClicked)
             if (isSelfDeletingSettingEnabled) SelfDeletingMessageAction(
@@ -155,6 +164,17 @@ private fun RichTextEditingAction(isSelected: Boolean, onButtonClicked: () -> Un
         iconResource = R.drawable.ic_rich_text,
         state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
         contentDescription = R.string.content_description_conversation_enable_rich_text_mode
+    )
+}
+
+@Composable
+private fun DrawingModeAction(isSelected: Boolean, onButtonClicked: () -> Unit) {
+    WireSecondaryIconButton(
+        onButtonClicked = onButtonClicked,
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+        iconResource = R.drawable.ic_drawing,
+        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
+        contentDescription = R.string.content_description_conversation_enable_drawing_mode
     )
 }
 

@@ -383,7 +383,11 @@ fun E2EICertificateRevokedDialog(
             type = WireDialogButtonType.Secondary,
         ),
         buttonsHorizontalAlignment = false,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
     )
 }
 

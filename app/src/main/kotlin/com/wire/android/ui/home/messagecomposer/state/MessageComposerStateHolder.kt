@@ -112,7 +112,7 @@ class MessageComposerStateHolder(
 
     fun onInputFocusedChanged(onFocused: Boolean) {
         if (onFocused) {
-            additionalOptionStateHolder.hideAdditionalOptionsMenu()
+            additionalOptionStateHolder.unselectAdditionalOptionsMenu()
             messageCompositionInputStateHolder.requestFocus()
         } else {
             messageCompositionInputStateHolder.clearFocus()

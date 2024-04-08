@@ -20,13 +20,10 @@ package com.wire.android.util
 
 import android.text.format.DateUtils
 import com.wire.android.appLogger
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import java.time.Instant as JavaInstant
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -46,7 +43,7 @@ private val messageTimeFormatter = DateFormat
     .getTimeInstance(DateFormat.SHORT)
     .apply { timeZone = TimeZone.getDefault() }
 private val messageWeekDayFormatter = SimpleDateFormat(
-    "EEEE MMM, hh:mm a",
+    "EEEE MMM dd, hh:mm a",
     Locale.getDefault()
 )
 private val messageLongerThanWeekAndSameYearFormatter = SimpleDateFormat(
@@ -60,6 +57,7 @@ private val messageMonthDayAndYear = SimpleDateFormat(
 private const val oneMinuteFromMillis = 60 * 1000
 private const val thirtyMinutes = 30
 private const val oneWeekInDays = 7
+private const val oneDay = 1
 
 
 private val readReceiptDateTimeFormat = SimpleDateFormat(
@@ -102,7 +100,7 @@ fun String.serverDate(): Date? = try {
 }
 
 /**
- * Transforms receive Long to Calendar
+ * Transforms received Long to Calendar
  *
  * @return Calendar
  */
@@ -111,14 +109,35 @@ private fun Long.getCalendar(): Calendar = Calendar.getInstance().apply {
 }
 
 /**
- * Verifies is received dates
+ * Verifies if received dates (date, (now -1 day)) are the same, meaning its yesterday
+ *
+ * @param date: Long - message date
+ * @param now: Long - current user date when checking the message
+ *
+ * @return Boolean
  */
 private fun isYesterday(date: Long, now: Long): Boolean {
-    val d = JavaInstant.ofEpochMilli(date).truncatedTo(ChronoUnit.DAYS)
-    val n = JavaInstant.ofEpochMilli(now).truncatedTo(ChronoUnit.DAYS)
-    return d.until(n, ChronoUnit.DAYS) == 1L
+    val messageCalendar = date.getCalendar()
+    val nowCalendar = now.getCalendar().apply {
+        add(Calendar.DATE, -oneDay)
+    }
+
+    return nowCalendar.get(Calendar.DAY_OF_MONTH) == messageCalendar.get(Calendar.DAY_OF_MONTH)
+            && nowCalendar.get(Calendar.MONTH) ==
+            messageCalendar.get(Calendar.MONTH) &&
+            nowCalendar.get(Calendar.YEAR) ==
+            messageCalendar.get(Calendar.YEAR)
 }
 
+/**
+ * Verifies if received dates (date, (now -7 days)) are within the same week.
+ * Checks if message date is equals or after (now -7 days)
+ *
+ * @param date: Long - message date
+ * @param now: Long - current user date when checking the message
+ *
+ * @return Boolean
+ */
 private fun isDatesWithinWeek(date: Long, now: Long): Boolean =
     date.getCalendar().after(
         now.getCalendar().apply {
@@ -126,26 +145,44 @@ private fun isDatesWithinWeek(date: Long, now: Long): Boolean =
         }
     )
 
+/**
+ * Verifies if received dates are the same year
+ *
+ * @param date: Long - message date
+ * @param now: Long - current user date when checking the message
+ *
+ * @return Boolean
+ */
 private fun isDatesSameYear(date: Long, now: Long): Boolean =
     date.getCalendar().get(Calendar.YEAR) == now.getCalendar().get(Calendar.YEAR)
 
-fun String.uiMessageDateTime(): String? = this
+sealed interface MessageDateTime {
+    data object Now : MessageDateTime
+    data class Within30Minutes(val minutes: Int) : MessageDateTime
+    data class Today(val time: String) : MessageDateTime
+    data class Yesterday(val time: String) : MessageDateTime
+    data class WithinWeek(val date: String) : MessageDateTime
+    data class NotWithinWeekButSameYear(val date: String) : MessageDateTime
+    data class Other(val date: String) : MessageDateTime
+
+}
+
+fun String.uiMessageDateTime(now: Long): MessageDateTime? = this
     .serverDate()?.let { serverDate ->
-        val now = Clock.System.now().toEpochMilliseconds()
-        val differenceBetweenServerDateAndNow = now - serverDate.time
+        val serverDateInMillis = serverDate.time
+        val differenceBetweenServerDateAndNow = now - serverDateInMillis
         val differenceInMinutes: Long = differenceBetweenServerDateAndNow / oneMinuteFromMillis
-        val withinWeek = isDatesWithinWeek(date = serverDate.time, now = now)
-        val isSameYear = isDatesSameYear(date = serverDate.time, now = now)
-
-
+        val withinWeek = isDatesWithinWeek(date = serverDateInMillis, now = now)
+        val isSameYear = isDatesSameYear(date = serverDateInMillis, now = now)
 
         when {
-            differenceInMinutes <= thirtyMinutes -> "$differenceInMinutes minutes ago"
-            differenceInMinutes > thirtyMinutes && DateUtils.isToday(serverDate.time) -> "Today, ${messageTimeFormatter.format(serverDate.time)}"
-            isYesterday(serverDate.time, now) -> "Yesterday, ${messageTimeFormatter.format(serverDate.time)}"
-            withinWeek -> messageWeekDayFormatter.format(serverDate)
-            !withinWeek && isSameYear -> messageLongerThanWeekAndSameYearFormatter.format(serverDate)
-            else -> messageMonthDayAndYear.format(serverDate)
+            differenceInMinutes == 0L -> MessageDateTime.Now
+            differenceInMinutes <= thirtyMinutes -> MessageDateTime.Within30Minutes(differenceInMinutes.toInt()) // "$differenceInMinutes minutes ago"
+            differenceInMinutes > thirtyMinutes && DateUtils.isToday(serverDateInMillis) -> MessageDateTime.Today(messageTimeFormatter.format(serverDateInMillis)) // "Today, ${messageTimeFormatter.format(serverDateInMillis)}"
+            isYesterday(serverDateInMillis, now) -> MessageDateTime.Yesterday(messageTimeFormatter.format(serverDateInMillis)) // "Yesterday, ${messageTimeFormatter.format(serverDateInMillis)}"
+            withinWeek -> MessageDateTime.WithinWeek(messageWeekDayFormatter.format(serverDate)) // messageWeekDayFormatter.format(serverDate)
+            !withinWeek && isSameYear -> MessageDateTime.NotWithinWeekButSameYear(messageLongerThanWeekAndSameYearFormatter.format(serverDate)) // messageLongerThanWeekAndSameYearFormatter.format(serverDate)
+            else -> MessageDateTime.Other(messageMonthDayAndYear.format(serverDate)) // messageMonthDayAndYear.format(serverDate)
         }
     }
 

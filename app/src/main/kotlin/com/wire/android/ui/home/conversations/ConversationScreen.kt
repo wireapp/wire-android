@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.home.conversations
 
-import SwipeableSnackbar
+import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -116,6 +116,7 @@ import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
+import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
@@ -125,16 +126,18 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
+import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
+import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
 import com.wire.android.ui.home.messagecomposer.MessageComposer
+import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
-import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
@@ -188,6 +191,7 @@ fun ConversationScreen(
     conversationCallViewModel: ConversationCallViewModel = hiltViewModel(),
     conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
     messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
+    sendMessageViewModel: SendMessageViewModel = hiltViewModel(),
     conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
     messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
     groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
@@ -335,8 +339,8 @@ fun ConversationScreen(
                 NavigationCommand(MessageDetailsScreenDestination(conversationInfoViewModel.conversationId, messageId, isSelfMessage))
             )
         },
-        onSendMessage = messageComposerViewModel::trySendMessage,
-        onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
+        onSendMessage = sendMessageViewModel::trySendMessage,
+        onDeleteMessage = conversationMessagesViewModel::showDeleteMessageDialog,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
             with(conversationMessagesViewModel) {
@@ -389,14 +393,14 @@ fun ConversationScreen(
             }
         },
         onBackButtonClick = { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) },
-        composerMessages = messageComposerViewModel.infoMessage,
+        composerMessages = sendMessageViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri,
-        onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage,
+        onFailedMessageRetryClicked = sendMessageViewModel::retrySendingMessage,
         requestMentions = messageComposerViewModel::searchMembersToMention,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
         onPermissionPermanentlyDenied = {
@@ -452,8 +456,8 @@ fun ConversationScreen(
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) }
     DeleteMessageDialog(
-        state = messageComposerViewModel.deleteMessageDialogsState,
-        actions = messageComposerViewModel.deleteMessageHelper
+        state = conversationMessagesViewModel.deleteMessageDialogsState,
+        actions = conversationMessagesViewModel.deleteMessageHelper
     )
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
@@ -470,8 +474,8 @@ fun ConversationScreen(
         }
     )
     AssetTooLargeDialog(
-        dialogState = messageComposerViewModel.assetTooLargeDialogState,
-        hideDialog = messageComposerViewModel::hideAssetTooLargeError
+        dialogState = sendMessageViewModel.assetTooLargeDialogState,
+        hideDialog = sendMessageViewModel::hideAssetTooLargeError
     )
     VisitLinkDialog(
         dialogState = messageComposerViewModel.visitLinkDialogState,
@@ -489,15 +493,15 @@ fun ConversationScreen(
     )
 
     SureAboutMessagingInDegradedConversationDialog(
-        dialogState = messageComposerViewModel.sureAboutMessagingDialogState,
-        sendAnyway = messageComposerViewModel::acceptSureAboutSendingMessage,
-        hideDialog = messageComposerViewModel::dismissSureAboutSendingMessage
+        dialogState = sendMessageViewModel.sureAboutMessagingDialogState,
+        sendAnyway = sendMessageViewModel::acceptSureAboutSendingMessage,
+        hideDialog = sendMessageViewModel::dismissSureAboutSendingMessage
     )
 
-    (messageComposerViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
+    (sendMessageViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
         LegalHoldSubjectMessageDialog(
-            dialogDismissed = messageComposerViewModel::dismissSureAboutSendingMessage,
-            sendAnywayClicked = messageComposerViewModel::acceptSureAboutSendingMessage,
+            dialogDismissed = sendMessageViewModel::dismissSureAboutSendingMessage,
+            sendAnywayClicked = sendMessageViewModel::acceptSureAboutSendingMessage,
         )
     }
 
@@ -640,7 +644,7 @@ private fun ConversationScreen(
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    onFailedMessageRetryClicked: (String) -> Unit,
+    onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
     requestMentions: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
@@ -793,7 +797,7 @@ private fun ConversationScreenContent(
     onShowEditingOptions: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
-    onFailedMessageRetryClicked: (String) -> Unit,
+    onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
@@ -852,7 +856,7 @@ private fun ConversationScreenContent(
 }
 
 @Composable
-fun SnackBarMessage(
+private fun SnackBarMessage(
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>
 ) {
@@ -874,7 +878,7 @@ fun SnackBarMessage(
             val snackbarResult = snackbarHostState.showSnackbar(
                 message = it.uiText.asString(context.resources),
                 actionLabel = actionLabel,
-                duration = SnackbarDuration.Short
+                duration = if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Long,
             )
             // Show downloads folder when clicking on Snackbar cta button
             if (it is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed) {
@@ -884,6 +888,7 @@ fun SnackBarMessage(
     }
 }
 
+@Suppress("ComplexMethod")
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MessageList(
@@ -903,7 +908,7 @@ fun MessageList(
     onShowEditingOption: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
-    onFailedMessageRetryClicked: (String) -> Unit,
+    onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     selectedMessageId: String?,
@@ -911,6 +916,8 @@ fun MessageList(
     interactionAvailability: InteractionAvailability,
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
+    val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
+
     LaunchedEffect(lazyPagingMessages.itemCount) {
         if (lazyPagingMessages.itemCount > prevItemCount.value && selectedMessageId == null) {
             val canScrollToLastMessage = prevItemCount.value > 0
@@ -923,17 +930,20 @@ fun MessageList(
         }
     }
 
+    // update last read message when scroll ends
     LaunchedEffect(lazyListState.isScrollInProgress) {
         if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
             val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
+            updateLastReadMessage(lastVisibleMessage, lastUnreadMessageInstant, onUpdateConversationReadDate)
+        }
+    }
 
-            val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.header.messageTime.utcISO)
-
-            // TODO: This IF condition should be in the UseCase
-            //       If there are no unread messages, then use distant future and don't update read date
-            if (lastVisibleMessageInstant > (lastUnreadMessageInstant ?: Instant.DISTANT_FUTURE)) {
-                onUpdateConversationReadDate(lastVisibleMessage.header.messageTime.utcISO)
-            }
+    // update last read message on start
+    LaunchedEffect(lazyPagingMessages.itemCount) {
+        if (!readLastMessageAtStartTriggered.value && lazyPagingMessages.itemSnapshotList.items.isNotEmpty()) {
+            val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
+            readLastMessageAtStartTriggered.value = true
+            updateLastReadMessage(lastVisibleMessage, lastUnreadMessageInstant, onUpdateConversationReadDate)
         }
     }
 
@@ -974,50 +984,53 @@ fun MessageList(
                     val showAuthor = rememberShouldShowHeader(index, message, lazyPagingMessages)
                     val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
 
-                    when (message) {
-                        is UIMessage.Regular -> {
-                            MessageItem(
-                                message = message,
-                                conversationDetailsData = conversationDetailsData,
-                                showAuthor = showAuthor,
-                                useSmallBottomPadding = useSmallBottomPadding,
-                                audioMessagesState = audioMessagesState,
-                                assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
-                                onAudioClick = onAudioItemClicked,
-                                onChangeAudioPosition = onChangeAudioPosition,
-                                onLongClicked = onShowEditingOption,
-                                onAssetMessageClicked = onAssetItemClicked,
-                                onImageMessageClicked = onImageFullScreenMode,
-                                onOpenProfile = onOpenProfile,
-                                onReactionClicked = onReactionClicked,
-                                onResetSessionClicked = onResetSessionClicked,
-                                onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                                onLinkClick = onLinkClick,
-                                onReplyClickable = Clickable(
-                                    enabled = true,
-                                    onClick = {
-                                        onNavigateToReplyOriginalMessage(message)
-                                    }
-                                ),
-                                isSelectedMessage = (message.header.messageId == selectedMessageId),
-                                isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
-                            )
-                        }
-
-                        is UIMessage.System -> SystemMessageItem(
-                            message = message,
-                            onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                            onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                            onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                            isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
-                        )
-                    }
+                    MessageContainerItem(
+                        message = message,
+                        conversationDetailsData = conversationDetailsData,
+                        showAuthor = showAuthor,
+                        useSmallBottomPadding = useSmallBottomPadding,
+                        audioMessagesState = audioMessagesState,
+                        assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
+                        onAudioClick = onAudioItemClicked,
+                        onChangeAudioPosition = onChangeAudioPosition,
+                        onLongClicked = onShowEditingOption,
+                        onAssetMessageClicked = onAssetItemClicked,
+                        onImageMessageClicked = onImageFullScreenMode,
+                        onOpenProfile = onOpenProfile,
+                        onReactionClicked = onReactionClicked,
+                        onResetSessionClicked = onResetSessionClicked,
+                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                        onLinkClick = onLinkClick,
+                        onReplyClickable = Clickable(
+                            enabled = true,
+                            onClick = {
+                                onNavigateToReplyOriginalMessage(message)
+                            }
+                        ),
+                        isSelectedMessage = (message.header.messageId == selectedMessageId),
+                        isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
+                    )
                 }
             }
             JumpToLastMessageButton(lazyListState = lazyListState)
-        })
+        }
+    )
+}
+
+private fun updateLastReadMessage(
+    lastVisibleMessage: UIMessage,
+    lastUnreadMessageInstant: Instant?,
+    onUpdateConversationReadDate: (String) -> Unit
+) {
+    val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.header.messageTime.utcISO)
+
+    // TODO: This IF condition should be in the UseCase
+    //       If there are no unread messages, then use distant future and don't update read date
+    if (lastVisibleMessageInstant > (lastUnreadMessageInstant ?: Instant.DISTANT_FUTURE)) {
+        onUpdateConversationReadDate(lastVisibleMessage.header.messageTime.utcISO)
+    }
 }
 
 @Composable
@@ -1102,7 +1115,7 @@ fun PreviewConversationScreen() {
         onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,
         tempWritableVideoUri = null,
-        onFailedMessageRetryClicked = {},
+        onFailedMessageRetryClicked = { _, _ -> },
         requestMentions = {},
         onClearMentionSearchResult = {},
         onPermissionPermanentlyDenied = {},

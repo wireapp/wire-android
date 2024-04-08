@@ -247,7 +247,7 @@ private fun E2EIErrorWithSnoozeDialog(
 }
 
 @Composable
-private fun E2EIErrorNoSnoozeDialog(
+fun E2EIErrorNoSnoozeDialog(
     isE2EILoading: Boolean,
     updateCertificate: () -> Unit
 ) {
@@ -383,7 +383,11 @@ fun E2EICertificateRevokedDialog(
             type = WireDialogButtonType.Secondary,
         ),
         buttonsHorizontalAlignment = false,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
     )
 }
 

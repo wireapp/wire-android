@@ -26,6 +26,7 @@ import okio.Path
  * Represents a set of metadata information of an asset message
  */
 data class AssetBundle(
+    val key: String,
     val mimeType: String,
     val dataPath: Path,
     val dataSize: Long,

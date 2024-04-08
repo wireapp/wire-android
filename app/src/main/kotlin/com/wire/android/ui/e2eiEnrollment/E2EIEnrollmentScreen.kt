@@ -20,9 +20,6 @@ package com.wire.android.ui.e2eiEnrollment
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +31,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -57,7 +53,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
-import com.wire.android.ui.home.E2EIErrorWithDismissDialog
+import com.wire.android.ui.home.E2EIErrorNoSnoozeDialog
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
@@ -133,7 +129,7 @@ private fun E2EIEnrollmentScreenContent(
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = 0.dp,
+                elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.end_to_end_identity_required_dialog_title),
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackButtonClicked
@@ -162,9 +158,10 @@ private fun E2EIEnrollmentScreenContent(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
-            modifier = Modifier.padding(PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding))
+            modifier = Modifier
+                .padding(internalPadding)
+                .padding(MaterialTheme.wireDimensions.spacing16x)
         ) {
-            Spacer(modifier = Modifier.height(internalPadding.calculateTopPadding()))
             val text = buildAnnotatedString {
                 val style = SpanStyle(
                     color = colorsScheme().onBackground,
@@ -193,10 +190,12 @@ private fun E2EIEnrollmentScreenContent(
         }
 
         if (state.isCertificateEnrollError) {
-            E2EIErrorWithDismissDialog(
+            E2EIErrorNoSnoozeDialog(
                 isE2EILoading = state.isLoading,
-                updateCertificate = enrollE2EICertificate,
-                onDismiss = dismissErrorDialog
+                updateCertificate = {
+                    dismissErrorDialog()
+                    enrollE2EICertificate()
+                }
             )
         }
 

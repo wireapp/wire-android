@@ -18,20 +18,21 @@
 
 package scripts
 
+import findVersion
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
     id("com.android.application") apply false
     id("io.gitlab.arturbosch.detekt")
-    id("org.jetbrains.kotlinx.kover")
 }
 
 dependencies {
-    val detektVersion = "1.19.0"
+    val detektVersion = findVersion("detekt").requiredVersion
     detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
-    detektPlugins("com.wire:detekt-rules:1.0.0-SNAPSHOT") {
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-libraries:$detektVersion")
+    detektPlugins("com.wire:detekt-rules:1.0.0-1.23.6") {
         isChanging = true
     }
 }
@@ -45,11 +46,11 @@ val detektAll by tasks.registering(Detekt::class) {
 
     val outputFile = "$buildDir/staticAnalysis/index.html"
 
-    setSource(files(projectDir))
+    setSource(files(rootDir))
     config.setFrom("$rootDir/config/detekt/detekt.yml")
 
     include("**/*.kt")
-    exclude("**/*.kts", "**/build/**", "/buildSrc")
+    exclude("**/*.kts", "**/build/**", "/buildSrc", "/kalium", "/template")
 
     baseline.set(file("$rootDir/config/detekt/baseline.xml"))
 
@@ -70,12 +71,12 @@ tasks.withType(DetektCreateBaselineTask::class) {
     buildUponDefaultConfig.set(true)
     ignoreFailures.set(true)
     parallel.set(true)
-    setSource(files(projectDir))
+    setSource(files(rootDir))
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
     baseline.set(file("$rootDir/config/detekt/baseline.xml"))
 
     include("**/*.kt")
-    exclude("**/*.kts", "**/build/**", "/buildSrc")
+    exclude("**/*.kts", "**/build/**", "/buildSrc", "/kalium", "/template")
 }
 
 tasks.register("staticCodeAnalysis") {
@@ -87,45 +88,4 @@ tasks.register("testCoverage") {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase."
     dependsOn("koverXmlReport")
-}
-
-koverReport {
-    defaults {
-        mergeWith("devDebug")
-
-        filters {
-            excludes {
-                classes(
-                    "*Fragment",
-                    "*Fragment\$*",
-                    "*Activity",
-                    "*Activity\$*",
-                    "*.databinding.*",
-                    "*.BuildConfig",
-                    "**/R.class",
-                    "**/R\$*.class",
-                    "**/Manifest*.*",
-                    "**/Manifest$*.class",
-                    "**/*Test*.*",
-                    "*NavArgs*",
-                    "*ComposableSingletons*",
-                    "*_HiltModules*",
-                    "*Hilt_*",
-                )
-                packages(
-                    "hilt_aggregated_deps",
-                    "com.wire.android.di",
-                    "dagger.hilt.internal.aggregatedroot.codegen",
-                    "com.wire.android.ui.home.conversations.mock",
-                )
-                annotatedBy(
-                    "*Generated*",
-                    "*HomeNavGraph*",
-                    "*Destination*",
-                    "*Composable*",
-                    "*Preview*",
-                )
-            }
-        }
-    }
 }

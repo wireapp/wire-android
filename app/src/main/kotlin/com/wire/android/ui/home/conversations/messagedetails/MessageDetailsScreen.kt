@@ -38,7 +38,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -101,10 +100,7 @@ fun MessageDetailsScreen(
     )
 }
 
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MessageDetailsScreenContent(
     messageDetailsState: MessageDetailsState,
@@ -154,7 +150,7 @@ private fun MessageDetailsScreenContent(
                     .fillMaxWidth()
                     .padding(internalPadding)
             ) { pageIndex ->
-                when (MessageDetailsTab.values()[pageIndex]) {
+                when (MessageDetailsTab.entries[pageIndex]) {
                     MessageDetailsTab.REACTIONS -> MessageDetailsReactions(
                         reactionsData = messageDetailsState.reactionsData,
                         lazyListState = lazyListStates[pageIndex],

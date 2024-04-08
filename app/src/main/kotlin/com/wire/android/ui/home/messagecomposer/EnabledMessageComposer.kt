@@ -19,7 +19,8 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.wire.android.feature.sketch.DrawingCanvasBottomSheet
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
@@ -94,17 +96,13 @@ fun EnabledMessageComposer(
 
         LaunchedEffect(offsetY) {
             with(density) {
-                inputStateHolder.handleOffsetChange(
+                inputStateHolder.handleImeOffsetChange(
                     offsetY.toDp(),
                     navBarHeight,
                     imeAnimationSource.toDp(),
                     imeAnimationTarget.toDp()
                 )
             }
-        }
-
-        LaunchedEffect(isImeVisible) {
-            inputStateHolder.handleIMEVisibility(isImeVisible)
         }
 
         LaunchedEffect(modalBottomSheetState.isVisible) {
@@ -260,33 +258,50 @@ fun EnabledMessageComposer(
                                     additionalOptionStateHolder.toRichTextEditing()
                                 },
                                 onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
+                                onDrawingModeClicked = additionalOptionStateHolder::toDrawingMode
                             )
                         }
-
-                        AdditionalOptionSubMenu(
-                            isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
-                            additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
-                            onRecordAudioMessageClicked = ::toAudioRecording,
-                            onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
-                            onLocationPickerClicked = ::toLocationPicker,
-                            onAttachmentPicked = onAttachmentPicked,
-                            onAudioRecorded = onAudioRecorded,
-                            onLocationPicked = onLocationPicked,
-                            onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
-                            tempWritableImageUri = tempWritableImageUri,
-                            tempWritableVideoUri = tempWritableVideoUri,
+                        Box(
                             modifier = Modifier
                                 .height(
-                                    inputStateHolder.calculateOptionsMenuHeight(
-                                        additionalOptionStateHolder.additionalOptionsSubMenuState
-                                    )
+                                    inputStateHolder.calculateOptionsMenuHeight(additionalOptionStateHolder.additionalOptionsSubMenuState)
                                 )
                                 .fillMaxWidth()
-                                .background(
-                                    colorsScheme().messageComposerBackgroundColor
+                                .background(colorsScheme().messageComposerBackgroundColor)
+                        ) {
+                            androidx.compose.animation.AnimatedVisibility(
+                                visible = inputStateHolder.subOptionsVisible,
+                                enter = fadeIn(),
+                                exit = fadeOut(),
+                            ) {
+                                AdditionalOptionSubMenu(
+                                    isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
+                                    additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
+                                    onRecordAudioMessageClicked = ::toAudioRecording,
+                                    onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
+                                    onLocationPickerClicked = ::toLocationPicker,
+                                    onAttachmentPicked = onAttachmentPicked,
+                                    onAudioRecorded = onAudioRecorded,
+                                    onLocationPicked = onLocationPicked,
+                                    onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
+                                    tempWritableImageUri = tempWritableImageUri,
+                                    tempWritableVideoUri = tempWritableVideoUri,
+                                    modifier = Modifier.fillMaxSize()
                                 )
-                                .animateContentSize()
-                        )
+                            }
+                        }
+
+                        if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.DrawingMode) {
+                            DrawingCanvasBottomSheet(
+                                onDismissSketch = {
+                                    inputStateHolder.handleBackPressed(
+                                        isImeVisible,
+                                        additionalOptionStateHolder.additionalOptionsSubMenuState
+                                    )
+                                },
+                                onSendSketch = onSendButtonClicked
+                            )
+                        }
                     }
                 }
             }

@@ -33,7 +33,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -68,6 +68,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
@@ -103,7 +104,7 @@ fun ImportMediaScreen(
         FeatureFlagState.SharingRestrictedState.NO_USER -> {
             ImportMediaLoggedOutContent(
                 fileSharingRestrictedState = fileSharingRestrictedState,
-                navigateBack = navigator::navigateBack
+                navigateBack = navigator.finish
             )
         }
 
@@ -112,7 +113,7 @@ fun ImportMediaScreen(
             ImportMediaRestrictedContent(
                 fileSharingRestrictedState = fileSharingRestrictedState,
                 importMediaAuthenticatedState = importMediaViewModel.importMediaState,
-                navigateBack = navigator::navigateBack
+                navigateBack = navigator.finish
             )
         }
 
@@ -127,14 +128,14 @@ fun ImportMediaScreen(
                         navigator.navigate(
                             NavigationCommand(
                                 ConversationScreenDestination(it),
-                                BackStackMode.CLEAR_TILL_START
+                                BackStackMode.REMOVE_CURRENT
                             )
                         )
                     }
                 },
                 onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
                 infoMessage = importMediaViewModel.infoMessage,
-                navigateBack = navigator::navigateBack,
+                navigateBack = navigator.finish,
             )
             val context = LocalContext.current
             LaunchedEffect(importMediaViewModel.importMediaState.importedAssets) {
@@ -150,7 +151,7 @@ fun ImportMediaScreen(
         }
     }
 
-    BackHandler { navigator.navigateBack() }
+    BackHandler { navigator.finish() }
 }
 
 @Composable
@@ -165,6 +166,7 @@ fun ImportMediaRestrictedContent(
                 WireCenterAlignedTopAppBar(
                     elevation = 0.dp,
                     onNavigationPressed = navigateBack,
+                    navigationIconType = NavigationIconType.Close,
                     title = stringResource(id = R.string.import_media_content_title),
                     actions = {
                         UserProfileAvatar(
@@ -205,6 +207,7 @@ fun ImportMediaRegularContent(
                 WireCenterAlignedTopAppBar(
                     elevation = 0.dp,
                     onNavigationPressed = navigateBack,
+                    navigationIconType = NavigationIconType.Close,
                     title = stringResource(id = R.string.import_media_content_title),
                     actions = {
                         UserProfileAvatar(
@@ -255,6 +258,7 @@ fun ImportMediaLoggedOutContent(
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
                 onNavigationPressed = navigateBack,
+                navigationIconType = NavigationIconType.Close,
                 title = stringResource(id = R.string.import_media_content_title),
             )
         },
@@ -369,10 +373,15 @@ private fun ImportMediaContent(
         val itemWidth =
             if (isMultipleImport) dimensions().importedMediaAssetSize + horizontalPadding.times(2)
             else screenWidth - (horizontalPadding * 2)
-        val contentPadding = PaddingValues(
-            start = horizontalPadding,
-            end = (screenWidth - itemWidth + horizontalPadding)
-        )
+        val contentPadding = if (isMultipleImport) {
+            PaddingValues(
+                start = horizontalPadding,
+                end = (screenWidth - itemWidth + horizontalPadding)
+            )
+        } else {
+            val totalPadding = screenWidth - itemWidth
+            PaddingValues(start = totalPadding / 2, end = totalPadding / 2)
+        }
         val lazyListState = rememberLazyListState()
         if (state.isImporting) {
             Box(
@@ -401,7 +410,7 @@ private fun ImportMediaContent(
                 }
             }
         }
-        Divider(
+        HorizontalDivider(
             color = colorsScheme().outline,
             thickness = 1.dp,
             modifier = Modifier.padding(top = dimensions().spacing12x)

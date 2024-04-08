@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.util
 
 import android.text.format.DateUtils
@@ -163,7 +165,6 @@ sealed interface MessageDateTime {
     data class WithinWeek(val date: String) : MessageDateTime
     data class NotWithinWeekButSameYear(val date: String) : MessageDateTime
     data class Other(val date: String) : MessageDateTime
-
 }
 
 fun String.uiMessageDateTime(now: Long): MessageDateTime? = this

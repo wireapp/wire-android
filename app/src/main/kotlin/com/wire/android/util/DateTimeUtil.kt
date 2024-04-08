@@ -110,6 +110,23 @@ private fun Long.getCalendar(): Calendar = Calendar.getInstance().apply {
 }
 
 /**
+ * Verifies if received dates (date, now) are the same day
+ *
+ * @param date: Long - message date
+ * @param now: Long - current user date when checking the message
+ *
+ * @return Boolean
+ */
+private fun isDatesSameDay(date: Long, now: Long): Boolean {
+    val messageCalendar = date.getCalendar()
+    val nowCalendar = now.getCalendar()
+
+    return nowCalendar.get(Calendar.DAY_OF_MONTH) == messageCalendar.get(Calendar.DAY_OF_MONTH)
+            && nowCalendar.get(Calendar.MONTH) == messageCalendar.get(Calendar.MONTH)
+            && nowCalendar.get(Calendar.YEAR) == messageCalendar.get(Calendar.YEAR)
+}
+
+/**
  * Verifies if received dates (date, (now -1 day)) are the same, meaning its yesterday
  *
  * @param date: Long - message date
@@ -124,10 +141,8 @@ private fun isYesterday(date: Long, now: Long): Boolean {
     }
 
     return nowCalendar.get(Calendar.DAY_OF_MONTH) == messageCalendar.get(Calendar.DAY_OF_MONTH)
-            && nowCalendar.get(Calendar.MONTH) ==
-            messageCalendar.get(Calendar.MONTH) &&
-            nowCalendar.get(Calendar.YEAR) ==
-            messageCalendar.get(Calendar.YEAR)
+            && nowCalendar.get(Calendar.MONTH) == messageCalendar.get(Calendar.MONTH)
+            && nowCalendar.get(Calendar.YEAR) == messageCalendar.get(Calendar.YEAR)
 }
 
 /**
@@ -172,6 +187,7 @@ fun String.uiMessageDateTime(now: Long): MessageDateTime? = this
         val serverDateInMillis = serverDate.time
         val differenceBetweenServerDateAndNow = now - serverDateInMillis
         val differenceInMinutes: Long = differenceBetweenServerDateAndNow / ONE_MINUTE_FROM_MILLIS
+        val isSameDay = isDatesSameDay(date = serverDateInMillis, now = now)
         val withinWeek = isDatesWithinWeek(date = serverDateInMillis, now = now)
         val isSameYear = isDatesSameYear(date = serverDateInMillis, now = now)
 
@@ -180,7 +196,7 @@ fun String.uiMessageDateTime(now: Long): MessageDateTime? = this
             differenceInMinutes <= THIRTY_MINUTES -> MessageDateTime.Within30Minutes(
                 minutes = differenceInMinutes.toInt()
             )
-            differenceInMinutes > THIRTY_MINUTES && DateUtils.isToday(serverDateInMillis) -> MessageDateTime.Today(
+            differenceInMinutes > THIRTY_MINUTES && isSameDay -> MessageDateTime.Today(
                 time = messageTimeFormatter.format(serverDateInMillis)
             )
             isYesterday(serverDateInMillis, now) -> MessageDateTime.Yesterday(

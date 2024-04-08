@@ -96,7 +96,7 @@ class RecordAudioViewModelTest {
     fun `given user is recording audio, when stopping the recording, then send audio button is shown`() =
         runTest {
             // given
-            val (_, viewModel) = Arrangement()
+            val (arrangement, viewModel) = Arrangement()
                 .arrange()
 
             viewModel.startRecording()
@@ -109,6 +109,13 @@ class RecordAudioViewModelTest {
                 RecordAudioButtonState.READY_TO_SEND,
                 viewModel.state.buttonState
             )
+            verify(exactly = 1) {
+                arrangement.generateAudioFileWithEffects(
+                    context = any(),
+                    originalFilePath = viewModel.state.originalOutputFile!!.path,
+                    effectsFilePath = viewModel.state.effectsOutputFile!!.path
+                )
+            }
         }
 
     @Test
@@ -268,6 +275,7 @@ class RecordAudioViewModelTest {
         val currentScreenManager = mockk<CurrentScreenManager>()
         val getAssetSizeLimit = mockk<GetAssetSizeLimitUseCase>()
         val globalDataStore = mockk<GlobalDataStore>()
+        val generateAudioFileWithEffects = mockk<GenerateAudioFileWithEffectsUseCase>()
         val context = mockk<Context>()
 
         val viewModel by lazy {
@@ -278,6 +286,7 @@ class RecordAudioViewModelTest {
                 currentScreenManager = currentScreenManager,
                 audioMediaRecorder = audioMediaRecorder,
                 getAssetSizeLimit = getAssetSizeLimit,
+                generateAudioFileWithEffects = generateAudioFileWithEffects,
                 globalDataStore = globalDataStore
             )
         }
@@ -304,6 +313,7 @@ class RecordAudioViewModelTest {
                     maxSize = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
                 )
             )
+            every { generateAudioFileWithEffects(any(), any(), any()) } returns Unit
 
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(
                 CurrentScreen.Conversation(

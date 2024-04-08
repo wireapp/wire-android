@@ -1,6 +1,6 @@
 [versions]
 # Gradle - Remind to change in `gradle-wrapper.properties` file as well!
-androidJunit5 = "1.9.3.0"
+androidJunit5 = "1.10.0.0"
 gradle = "8.5"
 
 # Kotlin

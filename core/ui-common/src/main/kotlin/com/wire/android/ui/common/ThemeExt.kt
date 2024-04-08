@@ -15,25 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.common.snackbar
+package com.wire.android.ui.common
 
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
-import com.wire.android.util.ui.UIText
-import kotlinx.coroutines.flow.SharedFlow
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 
-// TODO: moved to commons, when deciding about [UIText]
 @Composable
-fun SnackbarHostState.collectAndShowSnackbar(
-    snackbarFlow: SharedFlow<UIText>
-) {
-    val localContext = LocalContext.current
+fun dimensions() = MaterialTheme.wireDimensions
 
-    LaunchedEffect(snackbarFlow) {
-        snackbarFlow.collect {
-            showSnackbar(it.asString(localContext.resources))
-        }
-    }
-}
+@Composable
+fun colorsScheme() = MaterialTheme.wireColorScheme
+
+@Composable
+fun typography() = MaterialTheme.wireTypography

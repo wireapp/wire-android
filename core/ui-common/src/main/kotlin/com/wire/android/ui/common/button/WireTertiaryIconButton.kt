@@ -34,7 +34,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
@@ -79,15 +78,25 @@ fun WireTertiaryIconButton(
 @Preview
 @Composable
 fun PreviewWireTertiaryIconButton() {
-    WireTertiaryIconButton({}, false, R.drawable.ic_add, 0)
+    WireTertiaryIconButton({}, false, com.google.android.material.R.drawable.m3_password_eye, 0)
 }
+
 @Preview
 @Composable
 fun PreviewWireTertiaryIconButtonLoading() {
-    WireTertiaryIconButton({}, true, R.drawable.ic_add, 0)
+    WireTertiaryIconButton({}, true, com.google.android.material.R.drawable.m3_password_eye, 0)
 }
+
 @Preview
 @Composable
 fun PreviewWireTertiaryIconButtonRound() {
-    WireTertiaryIconButton({}, false, R.drawable.ic_add, 0, CircleShape, DpSize(40.dp, 40.dp), DpSize(48.dp, 48.dp))
+    WireTertiaryIconButton(
+        {},
+        false,
+        com.google.android.material.R.drawable.m3_password_eye,
+        0,
+        CircleShape,
+        DpSize(40.dp, 40.dp),
+        DpSize(48.dp, 48.dp)
+    )
 }

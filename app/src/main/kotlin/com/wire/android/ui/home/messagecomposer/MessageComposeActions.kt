@@ -110,10 +110,12 @@ private fun ComposingActions(
                 isSelected = selectedOption == AdditionalOptionSelectItem.RichTextEditing,
                 onRichEditingButtonClicked
             )
-            DrawingModeAction(
-                isSelected = selectedOption == AdditionalOptionSelectItem.DrawingMode,
-                onDrawingModeClicked
-            )
+            if (DrawingIcon) {
+                DrawingModeAction(
+                    isSelected = selectedOption == AdditionalOptionSelectItem.DrawingMode,
+                    onDrawingModeClicked
+                )
+            }
             if (EmojiIcon) AddEmojiAction({})
             if (GifIcon) AddGifAction(onGifButtonClicked)
             if (isSelfDeletingSettingEnabled) SelfDeletingMessageAction(

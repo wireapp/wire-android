@@ -34,6 +34,7 @@ plugins {
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
     id(ScriptPlugins.spotless)
+    id(libs.plugins.wire.kover.get().pluginId)
 }
 
 repositories {
@@ -85,6 +86,11 @@ dependencies {
 
     // features
     implementation(project(":features:sketch"))
+    implementation(project(":core:ui-common"))
+
+    // kover
+    kover(project(":features:sketch"))
+    kover(project(":core:ui-common"))
 
     // Application dependencies
     implementation(libs.androidx.appcompat)

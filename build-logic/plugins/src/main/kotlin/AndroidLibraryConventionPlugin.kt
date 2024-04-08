@@ -40,6 +40,14 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             configureCompose(this)
 
             configureAndroidKotlinTests()
+
+            buildTypes {
+                // libraries can skip minification, since the app will do it
+                release {
+                    isMinifyEnabled = false
+                    proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+                }
+            }
         }
     }
 }

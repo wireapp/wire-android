@@ -34,13 +34,12 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
 import com.wire.android.feature.sketch.model.DrawingPathProperties
 import com.wire.android.feature.sketch.model.DrawingState
-import com.wire.android.feature.sketch.tools.DrawingToolsConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.FileOutputStream
 
-class DrawingCanvasViewModel(private val drawingToolsConfig: DrawingToolsConfig) : ViewModel() {
+class DrawingCanvasViewModel : ViewModel() {
 
     internal var state: DrawingState by mutableStateOf(DrawingState())
         private set
@@ -50,7 +49,7 @@ class DrawingCanvasViewModel(private val drawingToolsConfig: DrawingToolsConfig)
     }
 
     private fun initializeCanvas() {
-        state = DrawingState(currentPath = DrawingPathProperties(color = drawingToolsConfig.colors.random()))
+        state = DrawingState(currentPath = DrawingPathProperties())
     }
 
     /**

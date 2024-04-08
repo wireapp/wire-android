@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,12 +32,10 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,28 +46,30 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.wire.android.feature.sketch.config.DrawingViewModelFactory
 import com.wire.android.feature.sketch.model.DrawingState
-import com.wire.android.feature.sketch.tools.DrawingToolsConfig
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireSecondaryIconButton
+import com.wire.android.ui.common.button.WireTertiaryIconButton
 import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawingCanvasBottomSheet(
-    drawingToolsConfig: DrawingToolsConfig,
     onDismissSketch: () -> Unit,
     onSendSketch: (Uri) -> Unit,
     tempWritableImageUri: Uri?,
-    viewModel: DrawingCanvasViewModel = viewModel(factory = DrawingViewModelFactory(drawingToolsConfig)),
+    viewModel: DrawingCanvasViewModel = viewModel(),
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -76,36 +77,7 @@ fun DrawingCanvasBottomSheet(
     ModalBottomSheet(
         shape = CutCornerShape(dimensions().spacing0x),
         containerColor = colorsScheme().background,
-        dragHandle = {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .disableDrag()
-                    .padding(horizontal = dimensions().spacing12x)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    IconButton(
-                        onClick = {
-                            scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() }
-                        },
-                    ) {
-                        Icon(Icons.Default.Close, null)
-                    }
-                    WireSecondaryIconButton(
-                        onButtonClicked = { },
-                        iconResource = R.drawable.ic_undo,
-                        contentDescription = R.string.content_description_undo_button,
-                        state = if (viewModel.state.paths.isNotEmpty()) WireButtonState.Default else WireButtonState.Disabled,
-                        minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
-                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                    )
-                }
-
-            }
-        },
+        dragHandle = { DrawingTopBar(scope, sheetState, onDismissSketch, viewModel.state) },
         sheetState = sheetState,
         onDismissRequest = onDismissSketch
     ) {
@@ -139,6 +111,43 @@ fun DrawingCanvasBottomSheet(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DrawingTopBar(
+    scope: CoroutineScope = rememberCoroutineScope(),
+    sheetState: SheetState,
+    onDismissSketch: () -> Unit,
+    state: DrawingState
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .disableDrag()
+            .padding(horizontal = dimensions().spacing8x)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireTertiaryIconButton(
+                onButtonClicked = { scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() } },
+                iconResource = R.drawable.ic_close,
+                contentDescription = R.string.content_description_close_button,
+                minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+            )
+            WireSecondaryIconButton(
+                onButtonClicked = { },
+                iconResource = R.drawable.ic_undo,
+                contentDescription = R.string.content_description_undo_button,
+                state = if (state.paths.isNotEmpty()) WireButtonState.Default else WireButtonState.Disabled,
+                minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+            )
+        }
+    }
+}
+
 @Composable
 private fun DrawingToolbar(
     state: DrawingState,
@@ -148,14 +157,21 @@ private fun DrawingToolbar(
         Modifier
             .disableDrag()
             .fillMaxHeight()
-            .padding(horizontal = dimensions().spacing12x)
+            .padding(horizontal = dimensions().spacing8x)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        IconButton(onClick = {}) {
-            Icon(Icons.Default.Circle, null)
-        }
+        WireSecondaryButton(
+            onClick = { },
+            leadingIcon = Icons.Default.Circle.Icon(),
+            leadingIconAlignment = IconAlignment.Center,
+            fillMaxWidth = false,
+            minSize = dimensions().buttonSmallMinSize,
+            minClickableSize = dimensions().buttonMinClickableSize,
+            shape = RoundedCornerShape(dimensions().spacing12x),
+            contentPadding = PaddingValues(horizontal = dimensions().spacing8x, vertical = dimensions().spacing4x)
+        )
         WirePrimaryIconButton(
             onButtonClicked = onSendSketch,
             iconResource = R.drawable.ic_send,

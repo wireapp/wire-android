@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~ Wire
   ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
@@ -15,10 +15,12 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources>
-    <string name="module_name">Sketch module</string>
-    <string name="content_description_send_button">Send</string>
-    <string name="content_description_undo_button">Undo</string>
-    <string name="sketch_details_empty_text">Pick your favorite color and start sketching 🎨</string>
-    <string name="content_description_close_button">close</string>
-</resources>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="16dp"
+        android:height="16dp"
+        android:viewportWidth="16"
+        android:viewportHeight="16">
+    <path
+            android:fillColor="#000000"
+            android:pathData="M2.757,14.656L8,9.414L13.243,14.656L14.657,13.242L9.414,8L14.657,2.757L13.243,1.343L8,6.585L2.757,1.343L1.343,2.757L6.586,8L1.343,13.242L2.757,14.656Z" />
+</vector>

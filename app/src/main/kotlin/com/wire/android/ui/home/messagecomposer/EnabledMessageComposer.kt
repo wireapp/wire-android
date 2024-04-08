@@ -48,7 +48,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.wire.android.feature.sketch.DrawingCanvasBottomSheet
-import com.wire.android.feature.sketch.tools.DrawingToolsConfig
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
@@ -63,7 +62,6 @@ import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
-import kotlinx.collections.immutable.toImmutableList
 
 @OptIn(ExperimentalLayoutApi::class)
 @Suppress("ComplexMethod")
@@ -308,7 +306,6 @@ fun EnabledMessageComposer(
                                     )
                                     onAttachmentPicked(UriAsset(it))
                                 },
-                                drawingToolsConfig = DrawingToolsConfig(colorsScheme().wireAccentColors.getAllColors().toImmutableList()),
                                 tempWritableImageUri = tempWritableImageUri
                             )
                         }

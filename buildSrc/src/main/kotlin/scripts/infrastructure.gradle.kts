@@ -40,7 +40,7 @@ tasks.register("runUnitTests") {
     val validSubprojects = setOf("core", "features")
     rootProject.subprojects {
         if (validSubprojects.contains(parent?.name)) {
-            dependsOn(":${parent?.name}:$name:test${Default.BUILD_TYPE.capitalized()}UnitTest")
+            dependsOn(":${parent?.name}:$name:testDebugUnitTest")
         }
     }
 }

@@ -18,6 +18,7 @@
 
 package scripts
 
+import WriteKeyValuesToFileTask
 import IncludeGitBuildTask
 
 plugins {
@@ -25,12 +26,29 @@ plugins {
 }
 
 // TODO: Extract to a convention plugin
-project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {
+val gitIdTask = project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {
     println("> Registering Task :includeGitBuildIdentifier")
 }
 
+val dependenciesVersionTask = project.tasks.register("dependenciesVersionTask", WriteKeyValuesToFileTask::class) {
+    outputJsonFile.set(project.file("src/main/assets/dependencies_version.json"))
+    val catalogs = project.extensions.getByType(VersionCatalogsExtension::class.java)
+    val catalog = catalogs.named("klibs")
+    val pairs = mapOf(
+        "avs" to catalog.findVersion("avs").get().requiredVersion,
+        "core-crypto" to catalog.findVersion("core-crypto-multiplatform").get().requiredVersion
+    )
+    keyValues.set(pairs)
+}
+
 project.afterEvaluate {
-    project.tasks.matching { it.name.startsWith("bundle") || it.name.startsWith("assemble") }.configureEach {
-        dependsOn("includeGitBuildIdentifier")
+    project.tasks.matching {
+        it.name.startsWith("merge") &&
+                it.name.endsWith("Assets") ||
+                it.name.startsWith("lintVitalAnalyze")
     }
+        .configureEach {
+            dependsOn(gitIdTask)
+            dependsOn(dependenciesVersionTask)
+        }
 }

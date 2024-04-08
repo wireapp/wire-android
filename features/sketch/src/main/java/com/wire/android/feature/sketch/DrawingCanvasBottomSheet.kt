@@ -26,9 +26,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,6 +53,7 @@ import com.wire.android.feature.sketch.tools.DrawingToolsConfig
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
+import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -72,26 +74,36 @@ fun DrawingCanvasBottomSheet(
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
+        shape = CutCornerShape(dimensions().spacing0x),
         containerColor = colorsScheme().background,
         dragHandle = {
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
+                Modifier
                     .fillMaxWidth()
-                    .disableDrag(),
+                    .disableDrag()
+                    .padding(horizontal = dimensions().spacing12x)
             ) {
-                IconButton(
-                    onClick = {
-                        scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() }
-                    },
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(Icons.Default.Close, null)
+                    IconButton(
+                        onClick = {
+                            scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() }
+                        },
+                    ) {
+                        Icon(Icons.Default.Close, null)
+                    }
+                    WireSecondaryIconButton(
+                        onButtonClicked = { },
+                        iconResource = R.drawable.ic_undo,
+                        contentDescription = R.string.content_description_undo_button,
+                        state = if (viewModel.state.paths.isNotEmpty()) WireButtonState.Default else WireButtonState.Disabled,
+                        minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    )
                 }
-                IconButton(
-                    onClick = {},
-                ) {
-                    Icon(Icons.AutoMirrored.Default.Undo, null)
-                }
+
             }
         },
         sheetState = sheetState,
@@ -136,6 +148,7 @@ private fun DrawingToolbar(
         Modifier
             .disableDrag()
             .fillMaxHeight()
+            .padding(horizontal = dimensions().spacing12x)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -161,7 +174,7 @@ private fun DrawingToolbar(
  * Disables the drag gesture on the bottom sheet.
  * This is a compromise made for the first iteration of the feature.
  *
- * TODO: The final implementation should be a full screen drawing experience.
+ * TODO: The final implementation should be a full screen drawing experience, therefore navigation aware.
  */
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
 private fun Modifier.disableDrag() = pointerInput(Unit) {

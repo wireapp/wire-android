@@ -187,48 +187,50 @@ class MessageCompositionInputStateHolderTest {
     }
 
     @Test
-    fun `when offset decreases, showSubOptions is true, and actualOffset is greater than optionsHeight, values remain unchanged`() = runTest {
-        // Given
-        state.updateValuesForTesting(
-            previousOffset = 50.dp,
-            keyboardHeight = 20.dp,
-            showSubOptions = true,
-            optionsHeight = 10.dp
-        )
+    fun `when offset decreases, showSubOptions is true, and actualOffset is greater than optionsHeight, values remain unchanged`() =
+        runTest {
+            // Given
+            state.updateValuesForTesting(
+                previousOffset = 50.dp,
+                keyboardHeight = 20.dp,
+                showSubOptions = true,
+                optionsHeight = 10.dp
+            )
 
-        // When
-        state.handleOffsetChange(
-            30.dp,
-            NAVIGATION_BAR_HEIGHT,
-            SOURCE,
-            TARGET
-        )
+            // When
+            state.handleOffsetChange(
+                30.dp,
+                NAVIGATION_BAR_HEIGHT,
+                SOURCE,
+                TARGET
+            )
 
-        // Then
-        state.optionsHeight shouldBeEqualTo 10.dp
-    }
+            // Then
+            state.optionsHeight shouldBeEqualTo 10.dp
+        }
 
     @Test
-    fun `when offset decreases, showSubOptions is false, and actualOffset is greater than optionsHeight, optionsHeight is updated`() = runTest {
-        // Given
-        state.updateValuesForTesting(
-            previousOffset = 50.dp,
-            keyboardHeight = 20.dp,
-            showSubOptions = false,
-            optionsHeight = 10.dp
-        )
+    fun `when offset decreases, showSubOptions is false, and actualOffset is greater than optionsHeight, optionsHeight is updated`() =
+        runTest {
+            // Given
+            state.updateValuesForTesting(
+                previousOffset = 50.dp,
+                keyboardHeight = 20.dp,
+                showSubOptions = false,
+                optionsHeight = 10.dp
+            )
 
-        // When
-        state.handleOffsetChange(
-            30.dp,
-            NAVIGATION_BAR_HEIGHT,
-            SOURCE,
-            TARGET
-        )
+            // When
+            state.handleOffsetChange(
+                30.dp,
+                NAVIGATION_BAR_HEIGHT,
+                SOURCE,
+                TARGET
+            )
 
-        // Then
-        state.optionsHeight shouldBeEqualTo 30.dp
-    }
+            // Then
+            state.optionsHeight shouldBeEqualTo 30.dp
+        }
 
     @Test
     fun `when offset is the same as previousOffset and greater than current keyboardHeight, keyboardHeight is updated`() = runTest {
@@ -262,19 +264,20 @@ class MessageCompositionInputStateHolderTest {
     }
 
     @Test
-    fun `given extended keyboard height when attachment button is clicked, then keyboardHeight is set to initialKeyboardHeight`() = runTest {
-        // Given
-        val initialKeyboardHeight = 10.dp
-        state.updateValuesForTesting(previousOffset = 40.dp, keyboardHeight = 20.dp, initialKeyboardHeight = initialKeyboardHeight)
+    fun `given extended keyboard height when attachment button is clicked, then keyboardHeight is set to initialKeyboardHeight`() =
+        runTest {
+            // Given
+            val initialKeyboardHeight = 10.dp
+            state.updateValuesForTesting(previousOffset = 40.dp, keyboardHeight = 20.dp, initialKeyboardHeight = initialKeyboardHeight)
 
-        // When
-        state.showOptions()
-        state.handleOffsetChange(0.dp, NAVIGATION_BAR_HEIGHT, source = TARGET, target = SOURCE)
+            // When
+            state.showOptions()
+            state.handleOffsetChange(0.dp, NAVIGATION_BAR_HEIGHT, source = TARGET, target = SOURCE)
 
-        // Then
-        state.keyboardHeight shouldBeEqualTo 20.dp
-        state.optionsHeight shouldBeEqualTo initialKeyboardHeight
-    }
+            // Then
+            state.keyboardHeight shouldBeEqualTo 20.dp
+            state.optionsHeight shouldBeEqualTo initialKeyboardHeight
+        }
 
     @Test
     fun `when offset decreases but is not zero, only optionsHeight is updated`() = runTest {

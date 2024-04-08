@@ -192,7 +192,7 @@ fun String.uiMessageDateTime(now: Long): MessageDateTime? = this
         val isSameYear = isDatesSameYear(date = serverDateInMillis, now = now)
 
         when {
-            differenceInMinutes == 0L -> MessageDateTime.Now
+            differenceBetweenServerDateAndNow < ONE_MINUTE_FROM_MILLIS -> MessageDateTime.Now
             differenceInMinutes <= THIRTY_MINUTES -> MessageDateTime.Within30Minutes(
                 minutes = differenceInMinutes.toInt()
             )

@@ -113,6 +113,18 @@ class DrawingCanvasViewModel : ViewModel() {
     }
 
     /**
+     * Undoes the last stroke.
+     */
+    fun onUndoLastStroke() {
+        if (state.paths.isNotEmpty()) {
+            state = state.copy(
+                paths = state.paths.dropLast(1),
+                pathsUndone = state.pathsUndone + state.paths.last()
+            )
+        }
+    }
+
+    /**
      * Saves the image to the provided URI and resets the canvas.
      *
      * @param context The context to use to open the file descriptor.

@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.sketch
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,12 +38,13 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.model.DrawingState
@@ -61,7 +62,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,11 +73,11 @@ fun DrawingCanvasBottomSheet(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { false })
     ModalBottomSheet(
         shape = CutCornerShape(dimensions().spacing0x),
         containerColor = colorsScheme().background,
-        dragHandle = { DrawingTopBar(scope, sheetState, onDismissSketch, viewModel.state) },
+        dragHandle = { DrawingTopBar(scope, sheetState, onDismissSketch, viewModel::onUndoLastStroke, viewModel.state) },
         sheetState = sheetState,
         onDismissRequest = onDismissSketch
     ) {
@@ -117,12 +117,12 @@ private fun DrawingTopBar(
     scope: CoroutineScope = rememberCoroutineScope(),
     sheetState: SheetState,
     onDismissSketch: () -> Unit,
+    onUndoStroke: () -> Unit,
     state: DrawingState
 ) {
     Row(
         Modifier
             .fillMaxWidth()
-            .disableDrag()
             .padding(horizontal = dimensions().spacing8x)
     ) {
         Row(
@@ -137,7 +137,7 @@ private fun DrawingTopBar(
                 minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
             )
             WireSecondaryIconButton(
-                onButtonClicked = { },
+                onButtonClicked = onUndoStroke,
                 iconResource = R.drawable.ic_undo,
                 contentDescription = R.string.content_description_undo_button,
                 state = if (state.paths.isNotEmpty()) WireButtonState.Default else WireButtonState.Disabled,
@@ -153,9 +153,9 @@ private fun DrawingToolbar(
     state: DrawingState,
     onSendSketch: () -> Unit = {},
 ) {
+    var showToolSelection by remember { mutableStateOf(false) }
     Row(
         Modifier
-            .disableDrag()
             .fillMaxHeight()
             .padding(horizontal = dimensions().spacing8x)
             .fillMaxWidth(),
@@ -163,7 +163,7 @@ private fun DrawingToolbar(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         WireSecondaryButton(
-            onClick = { },
+            onClick = { showToolSelection = !showToolSelection },
             leadingIcon = Icons.Default.Circle.Icon(),
             leadingIconAlignment = IconAlignment.Center,
             fillMaxWidth = false,
@@ -186,22 +186,19 @@ private fun DrawingToolbar(
     }
 }
 
-/**
- * Disables the drag gesture on the bottom sheet.
- * This is a compromise made for the first iteration of the feature.
- *
- * TODO: The final implementation should be a full screen drawing experience, therefore navigation aware.
- */
-@SuppressLint("ModifierFactoryUnreferencedReceiver")
-private fun Modifier.disableDrag() = pointerInput(Unit) {
-    awaitPointerEventScope {
-        while (true) {
-            awaitPointerEvent(pass = PointerEventPass.Initial).changes.forEach {
-                val offset = it.positionChange()
-                if (abs(offset.y) > 0f) {
-                    it.consume()
-                }
-            }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ToolPicker() {
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+    ModalBottomSheet(
+        shape = CutCornerShape(dimensions().spacing0x),
+        containerColor = colorsScheme().background,
+        sheetState = sheetState,
+        onDismissRequest = { scope.launch { sheetState.hide() } }
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Text(text = "Tool Picker here")
         }
     }
 }

@@ -108,13 +108,15 @@ class MessageMapperTest {
         val uiMessage6 = mapper.toUIMessage(members, message6)
 
         // Then
-        assert(
+        assertEquals(
+            true,
             arrangement.checkMessageData(
                 uiMessage = uiMessage1,
                 time = message1.date.uiMessageDateTime(arrangement.dateNow.time)
             )
         )
-        assert(
+        assertEquals(
+            true,
             arrangement.checkMessageData(
                 uiMessage = uiMessage2,
                 time = message2.date.uiMessageDateTime(arrangement.dateNow.time),
@@ -126,7 +128,8 @@ class MessageMapperTest {
                 )
             )
         )
-        assert(
+        assertEquals(
+            true,
             arrangement.checkMessageData(
                 uiMessage = uiMessage3,
                 time = message3.date.uiMessageDateTime(arrangement.dateNow.time),
@@ -137,7 +140,8 @@ class MessageMapperTest {
                 )
             )
         )
-        assert(
+        assertEquals(
+            true,
             arrangement.checkMessageData(
                 uiMessage = uiMessage4,
                 time = message4.date.uiMessageDateTime(arrangement.dateNow.time),
@@ -149,7 +153,8 @@ class MessageMapperTest {
             )
         )
 
-        assert(
+        assertEquals(
+            true,
             arrangement.checkMessageData(
                 uiMessage = uiMessage5,
                 time = message5.date.uiMessageDateTime(arrangement.dateNow.time),
@@ -161,7 +166,8 @@ class MessageMapperTest {
             )
         )
 
-        assert(
+        assertEquals(
+            true,
             arrangement.checkMessageData(
                 uiMessage = uiMessage6,
                 time = message6.date.uiMessageDateTime(arrangement.dateNow.time),
@@ -193,9 +199,18 @@ class MessageMapperTest {
         val result = mapper.toUIMessage(members, message)?.header?.messageStatus?.flowStatus
 
         // then
-        assert(result != null)
-        assert(result!! is MessageFlowStatus.Read)
-        assert((result as MessageFlowStatus.Read).count == 10L)
+        assertEquals(
+            true,
+            result != null
+        )
+        assertEquals(
+            true,
+            result!! is MessageFlowStatus.Read
+        )
+        assertEquals(
+            true,
+            (result as MessageFlowStatus.Read).count == 10L
+        )
     }
 
     @Suppress("LongMethod")

@@ -22,11 +22,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -162,16 +164,20 @@ private fun DrawingToolbar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        WireSecondaryButton(
-            onClick = { showToolSelection = !showToolSelection },
-            leadingIcon = Icons.Default.Circle.Icon(),
-            leadingIconAlignment = IconAlignment.Center,
-            fillMaxWidth = false,
-            minSize = dimensions().buttonSmallMinSize,
-            minClickableSize = dimensions().buttonMinClickableSize,
-            shape = RoundedCornerShape(dimensions().spacing12x),
-            contentPadding = PaddingValues(horizontal = dimensions().spacing8x, vertical = dimensions().spacing4x)
-        )
+        val colorPickerEnabled = false //enable when implemented
+        if (colorPickerEnabled) {
+            WireSecondaryButton(
+                onClick = { showToolSelection = !showToolSelection },
+                leadingIcon = Icons.Default.Circle.Icon(),
+                leadingIconAlignment = IconAlignment.Center,
+                fillMaxWidth = false,
+                minSize = dimensions().buttonSmallMinSize,
+                minClickableSize = dimensions().buttonMinClickableSize,
+                shape = RoundedCornerShape(dimensions().spacing12x),
+                contentPadding = PaddingValues(horizontal = dimensions().spacing8x, vertical = dimensions().spacing4x)
+            )
+        }
+        Spacer(Modifier.size(dimensions().spacing2x))
         WirePrimaryIconButton(
             onButtonClicked = onSendSketch,
             iconResource = R.drawable.ic_send,

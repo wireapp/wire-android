@@ -64,7 +64,7 @@ class AdditionalOptionStateHolder {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.AttachFile
     }
 
-    fun hideAdditionalOptionsMenu() {
+    fun unselectAdditionalOptionsMenu() {
         selectedOption = AdditionalOptionSelectItem.None
     }
 
@@ -88,6 +88,7 @@ class AdditionalOptionStateHolder {
 
     fun toAttachmentAndAdditionalOptionsMenu() {
         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
+        unselectAdditionalOptionsMenu()
     }
 
     fun toSelfDeletingOptionsMenu() {

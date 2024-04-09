@@ -47,6 +47,9 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -79,6 +82,7 @@ fun ActiveMessageComposerInput(
     onEditButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onToggleInputSize: () -> Unit,
+    onTextCollapse: () -> Unit,
     onCancelReply: () -> Unit,
     onCancelEdit: () -> Unit,
     onInputFocusedChanged: (Boolean) -> Unit,
@@ -138,6 +142,7 @@ fun ActiveMessageComposerInput(
                     onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
                     showOptions = showOptions,
                     onPlusClick = onPlusClick,
+                    onTextCollapse = onTextCollapse,
                     modifier = stretchToMaxParentConstraintHeightOrWithInBoundary,
                 )
             }
@@ -162,6 +167,7 @@ fun ActiveMessageComposerInput(
                     onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
                     showOptions = showOptions,
                     onPlusClick = onPlusClick,
+                    onTextCollapse = onTextCollapse,
                     modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
                 )
             }
@@ -196,6 +202,7 @@ private fun InputContent(
     onLineBottomYCoordinateChanged: (Float) -> Unit,
     showOptions: Boolean,
     onPlusClick: () -> Unit,
+    onTextCollapse: () -> Unit,
     modifier: Modifier,
 ) {
     if (!showOptions && inputType is MessageCompositionType.Composing) {
@@ -209,6 +216,7 @@ private fun InputContent(
     }
 
     MessageComposerTextInput(
+        isTextExpanded = isTextExpanded,
         inputFocused = inputFocused,
         colors = inputType.inputTextColor(),
         messageText = messageComposition.messageTextFieldValue,
@@ -218,6 +226,7 @@ private fun InputContent(
         onFocusChanged = onInputFocusedChanged,
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
         onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
+        onTextCollapse = onTextCollapse,
         modifier = modifier
     )
 
@@ -254,6 +263,7 @@ private fun InputContent(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun MessageComposerTextInput(
+    isTextExpanded: Boolean,
     inputFocused: Boolean,
     colors: WireTextFieldColors,
     singleLine: Boolean,
@@ -263,6 +273,7 @@ private fun MessageComposerTextInput(
     onFocusChanged: (Boolean) -> Unit = {},
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
+    onTextCollapse: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -303,6 +314,18 @@ private fun MessageComposerTextInput(
             .onFocusChanged { focusState ->
                 if (focusState.isFocused) {
                     onFocusChanged(focusState.isFocused)
+                }
+            }
+            .onPreInterceptKeyBeforeSoftKeyboard { event ->
+                if (event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_BACK) {
+                    if (isTextExpanded) {
+                        onTextCollapse()
+                        true
+                    } else {
+                        false
+                    }
+                } else {
+                    false
                 }
             },
         interactionSource = interactionSource,

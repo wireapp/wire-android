@@ -65,7 +65,7 @@ class DateTimeUtilKtTest {
                 add(Calendar.MINUTE, 31)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.Today("07:00"), result)
+        assertEquals(MessageDateTime.Today("07:00 AM"), result)
     }
 
     @Test
@@ -75,7 +75,7 @@ class DateTimeUtilKtTest {
                 add(Calendar.DATE, 1)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.Yesterday("07:00"), result)
+        assertEquals(MessageDateTime.Yesterday("07:00 AM"), result)
     }
 
     @Test
@@ -85,7 +85,7 @@ class DateTimeUtilKtTest {
                 add(Calendar.DATE, 3)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.WithinWeek("Saturday Jan 20, 07:00 am"), result)
+        assertEquals(MessageDateTime.WithinWeek("Saturday Jan 20, 07:00 AM"), result)
     }
 
     @Test
@@ -95,7 +95,7 @@ class DateTimeUtilKtTest {
                 add(Calendar.DATE, 10)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.NotWithinWeekButSameYear("Jan 20, 07:00 am"), result)
+        assertEquals(MessageDateTime.NotWithinWeekButSameYear("Jan 20, 07:00 AM"), result)
     }
 
     @Test
@@ -105,7 +105,7 @@ class DateTimeUtilKtTest {
                 set(Calendar.YEAR, 2025)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.Other("Jan 20 2024, 07:00 am"), result)
+        assertEquals(MessageDateTime.Other("Jan 20 2024, 07:00 AM"), result)
     }
 
     private fun getDummyCalendar(): Calendar = Calendar.getInstance().apply {

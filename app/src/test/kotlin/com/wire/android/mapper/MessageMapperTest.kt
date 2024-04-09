@@ -257,11 +257,11 @@ class MessageMapperTest {
             resultWithin30Minutes
         )
         assertEquals(
-            MessageDateTime.Today("07:00"),
+            MessageDateTime.Today("7:00 AM"),
             resultToday
         )
         assertEquals(
-            MessageDateTime.Yesterday("07:00"),
+            MessageDateTime.Yesterday("7:00 AM"),
             resultYesterday
         )
         assertEquals(

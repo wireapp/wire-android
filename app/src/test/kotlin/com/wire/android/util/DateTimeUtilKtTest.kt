@@ -65,7 +65,7 @@ class DateTimeUtilKtTest {
                 add(Calendar.MINUTE, 31)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.Today("07:00 AM"), result)
+        assertEquals(MessageDateTime.Today("7:00 AM"), result)
     }
 
     @Test
@@ -75,7 +75,7 @@ class DateTimeUtilKtTest {
                 add(Calendar.DATE, 1)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.Yesterday("07:00 AM"), result)
+        assertEquals(MessageDateTime.Yesterday("7:00 AM"), result)
     }
 
     @Test

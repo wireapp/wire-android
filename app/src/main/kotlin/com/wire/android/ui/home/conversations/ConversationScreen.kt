@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations
 
-import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -100,6 +99,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
@@ -161,6 +161,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.milliseconds
@@ -452,7 +453,8 @@ fun ConversationScreen(
                 }
             }
         },
-        onTypingEvent = messageComposerViewModel::sendTypingEvent
+        onTypingEvent = messageComposerViewModel::sendTypingEvent,
+        currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) }
     DeleteMessageDialog(
@@ -651,7 +653,8 @@ private fun ConversationScreen(
     conversationScreenState: ConversationScreenState,
     messageComposerStateHolder: MessageComposerStateHolder,
     onLinkClick: (String) -> Unit,
-    onTypingEvent: (TypingIndicatorMode) -> Unit
+    onTypingEvent: (TypingIndicatorMode) -> Unit,
+    currentTimeInMillisFlow: Flow<Long> = flow { }
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -760,7 +763,8 @@ private fun ConversationScreen(
                     tempWritableVideoUri = tempWritableVideoUri,
                     onLinkClick = onLinkClick,
                     onTypingEvent = onTypingEvent,
-                    onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage
+                    onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage,
+                    currentTimeInMillisFlow = currentTimeInMillisFlow
                 )
             }
         }
@@ -807,7 +811,8 @@ private fun ConversationScreenContent(
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
     onTypingEvent: (TypingIndicatorMode) -> Unit,
-    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit
+    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
+    currentTimeInMillisFlow: Flow<Long> = flow {},
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -842,6 +847,7 @@ private fun ConversationScreenContent(
                 selectedMessageId = selectedMessageId,
                 onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
+                currentTimeInMillisFlow = currentTimeInMillisFlow
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
@@ -914,6 +920,7 @@ fun MessageList(
     selectedMessageId: String?,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
     interactionAvailability: InteractionAvailability,
+    currentTimeInMillisFlow: Flow<Long> = flow { }
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
@@ -1011,6 +1018,7 @@ fun MessageList(
                         ),
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
                         isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
+                        currentTimeInMillisFlow = currentTimeInMillisFlow
                     )
                 }
             }

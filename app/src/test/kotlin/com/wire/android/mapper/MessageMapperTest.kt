@@ -200,8 +200,9 @@ class MessageMapperTest {
         assert((result as MessageFlowStatus.Read).count == 10L)
     }
 
+    @Suppress("LongMethod")
     @Test
-    fun givenMessageWithSpecificDate_whenCheckingFormattedUIDates_thenReturnCorrectMessageDateTime() = runTest {
+    fun givenMessageWithDate_whenCheckingFormattedUIDates_thenReturnCorrectMessageDateTime() = runTest {
         // given
         val (arrangement, _) = Arrangement().arrange()
         val calendar = Calendar.getInstance().apply {
@@ -339,13 +340,12 @@ class MessageMapperTest {
                 expirationStatus = ExpirationStatus.NotExpirable
             )
         ): Boolean {
-            return (uiMessage?.source == source && uiMessage.header.membership == membership
+            return uiMessage?.source == source && uiMessage.header.membership == membership
                     && uiMessage.header.messageTime.formattedDate(dateNow.time) == time
                     && uiMessage.header.messageStatus.flowStatus == status.flowStatus
                     && uiMessage.header.messageStatus.isDeleted == status.isDeleted
                     && uiMessage.header.messageStatus.editStatus == status.editStatus
                     && uiMessage.header.messageStatus.expirationStatus == status.expirationStatus
-                    )
         }
     }
 }

@@ -20,7 +20,6 @@
 
 package com.wire.android.util
 
-import android.text.format.DateUtils
 import com.wire.android.appLogger
 import kotlinx.datetime.Instant
 import java.text.DateFormat

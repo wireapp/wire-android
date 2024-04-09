@@ -19,6 +19,7 @@
 package scripts
 
 import findVersion
+import org.gradle.configurationcache.extensions.capitalized
 import scripts.Variants_gradle.Default
 import java.util.Properties
 
@@ -34,6 +35,17 @@ tasks.named<Wrapper>("wrapper") {
 tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
     dependsOn(":app:test${Default.BUILD_VARIANT}UnitTest")
+    val buildType =
+        if (Default.BUILD_TYPE == Variants_gradle.BuildTypes.DEBUG) Default.BUILD_TYPE.capitalized()
+        else Variants_gradle.BuildTypes.RELEASE.capitalized()
+
+    // valid submodules path to run unit tests
+    val validSubprojects = setOf("core", "features")
+    rootProject.subprojects {
+        if (validSubprojects.contains(parent?.name)) {
+            dependsOn(":${parent?.name}:$name:test${buildType}UnitTest")
+        }
+    }
 }
 
 tasks.register("runAcceptanceTests") {

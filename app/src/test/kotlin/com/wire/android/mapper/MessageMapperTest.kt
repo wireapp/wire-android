@@ -265,15 +265,15 @@ class MessageMapperTest {
             resultYesterday
         )
         assertEquals(
-            MessageDateTime.WithinWeek("Saturday Jan 20, 07:00 am"),
+            MessageDateTime.WithinWeek("Saturday Jan 20, 7:00 AM"),
             resultWithinWeek
         )
         assertEquals(
-            MessageDateTime.NotWithinWeekButSameYear("Jan 20, 07:00 am"),
+            MessageDateTime.NotWithinWeekButSameYear("Jan 20, 7:00 AM"),
             resultNotWithinWeekButSameYear
         )
         assertEquals(
-            MessageDateTime.Other("Jan 20 2024, 07:00 am"),
+            MessageDateTime.Other("Jan 20 2024, 7:00 AM"),
             resultOther
         )
     }

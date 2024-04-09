@@ -80,9 +80,7 @@ class MessageMapperTest {
     @Suppress("LongMethod")
     fun givenMessageList_whenMappingToUIMessages_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
-        val (arrangement, mapper) = Arrangement()
-            .withISOFormatter()
-            .arrange()
+        val (arrangement, mapper) = Arrangement().arrange()
 
         val now = arrangement.serverDateFormatter.format(arrangement.dateNow)
         val calendar = Calendar.getInstance()
@@ -305,10 +303,6 @@ class MessageMapperTest {
             coEvery { messageContentMapper.fromMessage(any(), any()) } returns TextMessage(
                 MessageBody(UIText.DynamicString("some message text"))
             )
-            every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers { "" } // firstArg<String>().uiMessageDateTime() ?: "" }
-        }
-
-        fun withISOFormatter(): Arrangement = apply {
             every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers {
                 serverDateFormatter.format(dateNow)
             }

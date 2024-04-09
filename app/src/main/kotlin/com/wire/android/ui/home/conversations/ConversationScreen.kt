@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations
 
-import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -98,6 +97,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
@@ -389,13 +389,8 @@ fun ConversationScreen(
                 }
             }
         },
-<<<<<<< HEAD
-        onBackButtonClick = { conversationScreenOnBackButtonClick(messageComposerViewModel, focusManager, navigator) },
-        composerMessages = sendMessageViewModel.infoMessage,
-=======
         onBackButtonClick = { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) },
-        composerMessages = messageComposerViewModel.infoMessage,
->>>>>>> eca268278 (fix: close properly keyboard in conversation screen [WPB-7630] (#2872))
+        composerMessages = sendMessageViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,

@@ -48,49 +48,8 @@ class MessageCompositionInputStateHolderTest {
     }
 
     @Test
-<<<<<<< HEAD
-    fun `when offset increases and is bigger than previous and options height, options height is updated`() {
-=======
-    fun `when IME is visible, showOptions should be set to true`() = runTest {
-        // Given
-        val isImeVisible = true
-
-        // When
-        state.handleIMEVisibility(isImeVisible)
-
-        // Then
-        state.optionsVisible shouldBeEqualTo true
-    }
-
-    @Test
-    fun `when IME is hidden and showSubOptions is true, showOptions remains unchanged`() = runTest {
-        // Given
-        val isImeVisible = false
-        state.updateValuesForTesting(showSubOptions = true, showOptions = false)
-
-        // When
-        state.handleIMEVisibility(isImeVisible)
-
-        // Then
-        state.optionsVisible shouldBeEqualTo false
-    }
-
-    @Test
-    fun `when IME is hidden and showSubOptions is false, showOptions should be set to false`() = runTest {
-        // Given
-        val isImeVisible = false
-        state.updateValuesForTesting(showSubOptions = false)
-
-        // When
-        state.handleIMEVisibility(isImeVisible)
-
-        // Then
-        state.optionsVisible shouldBeEqualTo false
-    }
-
-    @Test
     fun `when offset increases and is bigger than previous and options height, options height is updated`() = runTest {
->>>>>>> eca268278 (fix: close properly keyboard in conversation screen [WPB-7630] (#2872))
+
         // When
         state.handleImeOffsetChange(
             50.dp,
@@ -202,23 +161,13 @@ class MessageCompositionInputStateHolderTest {
                 optionsHeight = 10.dp
             )
 
-<<<<<<< HEAD
-        // When
-        state.handleImeOffsetChange(
-            30.dp,
-            NAVIGATION_BAR_HEIGHT,
-            SOURCE,
-            TARGET
-        )
-=======
             // When
-            state.handleOffsetChange(
+            state.handleImeOffsetChange(
                 30.dp,
                 NAVIGATION_BAR_HEIGHT,
                 SOURCE,
                 TARGET
             )
->>>>>>> eca268278 (fix: close properly keyboard in conversation screen [WPB-7630] (#2872))
 
             // Then
             state.optionsHeight shouldBeEqualTo 10.dp
@@ -235,23 +184,13 @@ class MessageCompositionInputStateHolderTest {
                 optionsHeight = 10.dp
             )
 
-<<<<<<< HEAD
-        // When
-        state.handleImeOffsetChange(
-            30.dp,
-            NAVIGATION_BAR_HEIGHT,
-            SOURCE,
-            TARGET
-        )
-=======
             // When
-            state.handleOffsetChange(
+            state.handleImeOffsetChange(
                 30.dp,
                 NAVIGATION_BAR_HEIGHT,
                 SOURCE,
                 TARGET
             )
->>>>>>> eca268278 (fix: close properly keyboard in conversation screen [WPB-7630] (#2872))
 
             // Then
             state.optionsHeight shouldBeEqualTo 30.dp
@@ -295,15 +234,9 @@ class MessageCompositionInputStateHolderTest {
             val initialKeyboardHeight = 10.dp
             state.updateValuesForTesting(previousOffset = 40.dp, keyboardHeight = 20.dp, initialKeyboardHeight = initialKeyboardHeight)
 
-<<<<<<< HEAD
-        // When
-        state.showOptions()
-        state.handleImeOffsetChange(0.dp, NAVIGATION_BAR_HEIGHT, source = TARGET, target = SOURCE)
-=======
             // When
             state.showOptions()
-            state.handleOffsetChange(0.dp, NAVIGATION_BAR_HEIGHT, source = TARGET, target = SOURCE)
->>>>>>> eca268278 (fix: close properly keyboard in conversation screen [WPB-7630] (#2872))
+            state.handleImeOffsetChange(0.dp, NAVIGATION_BAR_HEIGHT, source = TARGET, target = SOURCE)
 
             // Then
             state.keyboardHeight shouldBeEqualTo 20.dp
@@ -330,23 +263,24 @@ class MessageCompositionInputStateHolderTest {
     }
 
     @Test
-    fun `when keyboard is still in a process of hiding from the previous screen after navigating, options should not be visible`() {
-        // Given
-        state.updateValuesForTesting(previousOffset = 0.dp)
+    fun `when keyboard is still in a process of hiding from the previous screen after navigating, options should not be visible`() =
+        runTest {
+            // Given
+            state.updateValuesForTesting(previousOffset = 0.dp)
 
-        // When
-        state.handleImeOffsetChange(
-            offset = 40.dp,
-            navBarHeight = NAVIGATION_BAR_HEIGHT,
-            source = 50.dp,
-            target = 0.dp
-        )
+            // When
+            state.handleImeOffsetChange(
+                offset = 40.dp,
+                navBarHeight = NAVIGATION_BAR_HEIGHT,
+                source = 50.dp,
+                target = 0.dp
+            )
 
-        // Then
-        state.optionsHeight shouldBeEqualTo 0.dp
-        state.optionsVisible shouldBeEqualTo false
-        state.isTextExpanded shouldBeEqualTo false
-    }
+            // Then
+            state.optionsHeight shouldBeEqualTo 0.dp
+            state.optionsVisible shouldBeEqualTo false
+            state.isTextExpanded shouldBeEqualTo false
+        }
 
     companion object {
         // I set it 0 to make tests more straight forward

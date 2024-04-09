@@ -259,7 +259,10 @@ fun EnabledMessageComposer(
                                     additionalOptionStateHolder.toRichTextEditing()
                                 },
                                 onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                                onDrawingModeClicked = additionalOptionStateHolder::toDrawingMode
+                                onDrawingModeClicked = {
+                                    inputStateHolder.collapseComposer()
+                                    additionalOptionStateHolder.toDrawingMode()
+                                }
                             )
                         }
                         Box(
@@ -295,10 +298,7 @@ fun EnabledMessageComposer(
                         if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.DrawingMode) {
                             DrawingCanvasBottomSheet(
                                 onDismissSketch = {
-                                    inputStateHolder.handleBackPressed(
-                                        isImeVisible,
-                                        additionalOptionStateHolder.additionalOptionsSubMenuState
-                                    )
+                                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
                                 },
                                 onSendSketch = onSendButtonClicked
                             )

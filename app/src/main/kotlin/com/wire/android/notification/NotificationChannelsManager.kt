@@ -130,6 +130,7 @@ class NotificationChannelsManager @Inject constructor(
             .setVibrationEnabled(false)
             .setImportance(NotificationManagerCompat.IMPORTANCE_DEFAULT)
             .setSound(null, null)
+            .setShowBadge(false)
             .build()
 
         notificationManagerCompat.createNotificationChannel(notificationChannel)
@@ -165,6 +166,7 @@ class NotificationChannelsManager @Inject constructor(
         val notificationChannel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_HIGH)
             .setName(channelName)
+            .setShowBadge(false)
             .build()
 
         notificationManagerCompat.createNotificationChannel(notificationChannel)

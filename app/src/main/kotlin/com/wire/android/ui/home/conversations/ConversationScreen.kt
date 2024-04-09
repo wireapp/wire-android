@@ -389,7 +389,9 @@ fun ConversationScreen(
                 }
             }
         },
-        onBackButtonClick = { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) },
+        onBackButtonClick = {
+            conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator)
+        },
         composerMessages = sendMessageViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,

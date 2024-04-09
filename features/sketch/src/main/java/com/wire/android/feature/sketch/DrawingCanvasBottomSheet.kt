@@ -164,7 +164,7 @@ private fun DrawingToolbar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        val colorPickerEnabled = false //enable when implemented
+        val colorPickerEnabled = false // enable when implemented
         if (colorPickerEnabled) {
             WireSecondaryButton(
                 onClick = { showToolSelection = !showToolSelection },

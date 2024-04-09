@@ -54,7 +54,7 @@ compose-destinations = "1.10.2"
 
 # Hilt
 hilt = "2.51.1"
-hilt-composeNavigation = "1.1.0"
+hilt-composeNavigation = "1.2.0"
 hilt-work = "1.2.0"
 
 # Android UI

@@ -84,6 +84,11 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.CallActivity
+import com.wire.android.ui.calling.CallScreenType
+import com.wire.android.ui.calling.getInitiatingCallIntent
+import com.wire.android.ui.calling.getOngoingCallIntent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -103,10 +108,10 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
-import com.wire.android.ui.destinations.InitiatingCallScreenDestination
+//import com.wire.android.ui.destinations.InitiatingCallScreenDestination
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.destinations.MessageDetailsScreenDestination
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
+//import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
@@ -217,6 +222,8 @@ fun ConversationScreen(
     // then ViewModel also detects it's removed and calls onNotFound which can execute navigateBack again and close the app
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
 
+    val activity = LocalActivity.current
+
     LaunchedEffect(alreadyDeletedByUser) {
         if (!alreadyDeletedByUser) {
             conversationInfoViewModel.observeConversationDetails(navigator::navigateBack)
@@ -248,7 +255,13 @@ fun ConversationScreen(
             appLogger.i("showing showJoinAnywayDialog..")
             JoinAnywayDialog(
                 onDismiss = ::dismissJoinCallAnywayDialog,
-                onConfirm = { joinAnyway { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) } }
+                onConfirm = {
+                    joinAnyway {
+                        getOngoingCallIntent(activity, it.toString()).run {
+                            activity.startActivity(this)
+                        }
+                    }
+                }
             )
         }
     }
@@ -257,7 +270,9 @@ fun ConversationScreen(
         ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
             OngoingActiveCallDialog(onJoinAnyways = {
                 conversationCallViewModel.endEstablishedCallIfAny {
-                    navigator.navigate(NavigationCommand(InitiatingCallScreenDestination(conversationCallViewModel.conversationId)))
+                    getInitiatingCallIntent(activity, conversationCallViewModel.conversationId.toString()).run {
+                        activity.startActivity(this)
+                    }
                 }
                 showDialog.value = ConversationScreenDialogType.NONE
             }, onDialogDismiss = {
@@ -281,9 +296,15 @@ fun ConversationScreen(
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
                         onOpenInitiatingCallScreen = {
-                            navigator.navigate(NavigationCommand(InitiatingCallScreenDestination(it)))
+                            getInitiatingCallIntent(activity, it.toString()).run {
+                                activity.startActivity(this)
+                            }
                         }
-                    ) { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
+                    ) {
+                        getOngoingCallIntent(activity, it.toString()).run {
+                            activity.startActivity(this)
+                        }
+                    }
                 },
                 onDialogDismiss = {
                     showDialog.value = ConversationScreenDialogType.NONE
@@ -307,9 +328,15 @@ fun ConversationScreen(
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
                         onOpenInitiatingCallScreen = {
-                            navigator.navigate(NavigationCommand(InitiatingCallScreenDestination(it)))
+                            getInitiatingCallIntent(activity, it.toString()).run {
+                                activity.startActivity(this)
+                            }
                         }
-                    ) { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
+                    ) {
+                        getOngoingCallIntent(activity, it.toString()).run {
+                            activity.startActivity(this)
+                        }
+                    }
                 },
                 onDialogDismiss = { showDialog.value = ConversationScreenDialogType.NONE }
             )
@@ -364,12 +391,22 @@ fun ConversationScreen(
                 coroutineScope,
                 conversationInfoViewModel.conversationInfoViewState.conversationType,
                 onOpenInitiatingCallScreen = {
-                    navigator.navigate(NavigationCommand(InitiatingCallScreenDestination(it)))
+                    getInitiatingCallIntent(activity, it.toString()).run {
+                        activity.startActivity(this)
+                    }
                 }
-            ) { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
+            ) {
+                getOngoingCallIntent(activity, it.toString()).run {
+                    activity.startActivity(this)
+                }
+            }
         },
         onJoinCall = {
-            conversationCallViewModel.joinOngoingCall { navigator.navigate(NavigationCommand(OngoingCallScreenDestination(it))) }
+            conversationCallViewModel.joinOngoingCall {
+                getOngoingCallIntent(activity, it.toString()).run {
+                    activity.startActivity(this)
+                }
+            }
         },
         onReactionClick = { messageId, emoji ->
             conversationMessagesViewModel.toggleReaction(messageId, emoji)

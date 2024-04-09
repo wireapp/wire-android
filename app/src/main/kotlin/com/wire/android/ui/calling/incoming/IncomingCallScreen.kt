@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.calling.incoming
 
+import android.content.Intent
 import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
@@ -36,16 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.WakeUpScreenPopUpNavigationAnimation
+import com.wire.android.ui.AppLockActivity
+import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallState
-import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
@@ -58,7 +54,6 @@ import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.PermissionDenialType
@@ -66,21 +61,32 @@ import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.id.ConversationId
 
-@RootNavGraph
-@Destination(
-    navArgsDelegate = CallingNavArgs::class,
-    style = WakeUpScreenPopUpNavigationAnimation::class
-)
 @Composable
 fun IncomingCallScreen(
-    navigator: Navigator,
-    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
-    incomingCallViewModel: IncomingCallViewModel = hiltViewModel()
+    conversationId: ConversationId,
+    incomingCallViewModel: IncomingCallViewModel = hiltViewModel<IncomingCallViewModel, IncomingCallViewModel.Factory>(
+        creationCallback = { factory -> factory.create(conversationId = conversationId) }
+    ),
+    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+        creationCallback = { factory -> factory.create(conversationId = conversationId) }
+    ),
+    onCallAccepted: () -> Unit
 ) {
-    val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+    val activity = LocalActivity.current
+
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val audioPermissionCheck = AudioPermissionCheckFlow(
-        onAcceptCall = incomingCallViewModel::acceptCall,
+        onAcceptCall = {
+            incomingCallViewModel.acceptCall {
+                Intent(activity, AppLockActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                }.run {
+                    activity.startActivity(this)
+                }
+            }
+        },
         onPermanentPermissionDecline = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
@@ -95,19 +101,27 @@ fun IncomingCallScreen(
         if (incomingCallState.shouldShowJoinCallAnywayDialog) {
             JoinAnywayDialog(
                 onDismiss = ::dismissJoinCallAnywayDialog,
-                onConfirm = ::acceptCallAnyway
+                onConfirm = {
+                    acceptCallAnyway {
+                        Intent(activity, AppLockActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                        }.run {
+                            activity.startActivity(this)
+                        }
+                    }
+                }
             )
         }
     }
     LaunchedEffect(incomingCallViewModel.incomingCallState.flowState) {
-        when (val flowState = incomingCallViewModel.incomingCallState.flowState) {
-            is IncomingCallState.FlowState.CallClosed -> navigator.navigateBack()
-            is IncomingCallState.FlowState.CallAccepted -> navigator.navigate(
-                NavigationCommand(
-                    OngoingCallScreenDestination(flowState.conversationId),
-                    BackStackMode.REMOVE_CURRENT_AND_REPLACE
-                )
-            )
+        when (incomingCallViewModel.incomingCallState.flowState) {
+            is IncomingCallState.FlowState.CallClosed -> {
+                activity.finish()
+            }
+
+            is IncomingCallState.FlowState.CallAccepted -> {
+                onCallAccepted()
+            }
 
             is IncomingCallState.FlowState.Default -> { /* do nothing */
             }
@@ -119,7 +133,10 @@ fun IncomingCallScreen(
             toggleMute = { sharedCallingViewModel.toggleMute(true) },
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
-            declineCall = incomingCallViewModel::declineCall,
+            declineCall = {
+                incomingCallViewModel::declineCall
+                activity.finish()
+            },
             acceptCall = audioPermissionCheck::launch,
             onVideoPreviewCreated = ::setVideoPreview,
             onSelfClearVideoPreview = ::clearVideoPreview,
@@ -250,6 +267,10 @@ private fun IncomingCallContent(
     }
 }
 
+fun launchLockScreenForIncomingCallScreen() {
+    appLogger.d("IncomingCall - App locked")
+}
+
 @Composable
 fun AudioPermissionCheckFlow(
     onAcceptCall: () -> Unit,
@@ -266,5 +287,15 @@ fun AudioPermissionCheckFlow(
 @Preview
 @Composable
 fun PreviewIncomingCallScreen() {
-    IncomingCallContent(CallState(ConversationId("value", "domain")), {}, {}, {}, {}, {}, {}, {}, {})
+    IncomingCallContent(
+        callState = CallState(ConversationId("value", "domain")),
+        toggleMute = { },
+        toggleSpeaker = { },
+        toggleVideo = { },
+        declineCall = { },
+        acceptCall = { },
+        onVideoPreviewCreated = { },
+        onSelfClearVideoPreview = { },
+        onPermissionPermanentlyDenied = { },
+    )
 }

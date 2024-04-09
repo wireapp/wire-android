@@ -28,6 +28,8 @@ import com.wire.android.notification.broadcastreceivers.CallNotificationDismissR
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
 import com.wire.android.ui.WireActivity
+import com.wire.android.ui.calling.CallActivity
+import com.wire.android.ui.calling.CallScreenType
 import com.wire.android.util.deeplink.DeepLinkProcessor
 
 fun messagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent {
@@ -81,17 +83,6 @@ fun replyMessagePendingIntent(context: Context, conversationId: String, userId: 
     PendingIntent.FLAG_MUTABLE
 )
 
-fun openIncomingCallPendingIntent(context: Context, conversationId: String, userId: String): PendingIntent {
-    val intent = openIncomingCallIntent(context, conversationId, userId)
-
-    return PendingIntent.getActivity(
-        context.applicationContext,
-        OPEN_INCOMING_CALL_REQUEST_CODE,
-        intent,
-        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-    )
-}
-
 fun openOngoingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
     val intent = openOngoingCallIntent(context, conversationId)
 
@@ -132,27 +123,21 @@ fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String
         context,
         FULL_SCREEN_REQUEST_CODE,
         intent,
-        PendingIntent.FLAG_IMMUTABLE
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 }
 
 private fun openIncomingCallIntent(context: Context, conversationId: String, userId: String) =
-    Intent(context.applicationContext, WireActivity::class.java).apply {
-        data = Uri.Builder()
-            .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
-            .authority(DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST)
-            .appendPath(conversationId)
-            .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
-            .build()
+    Intent(context.applicationContext, CallActivity::class.java).apply {
+        putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
+        putExtra(CallActivity.EXTRA_USER_ID, userId)
+        putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Incoming.name)
     }
 
 private fun openOngoingCallIntent(context: Context, conversationId: String) =
-    Intent(context.applicationContext, WireActivity::class.java).apply {
-        data = Uri.Builder()
-            .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
-            .authority(DeepLinkProcessor.ONGOING_CALL_DEEPLINK_HOST)
-            .appendPath(conversationId)
-            .build()
+    Intent(context.applicationContext, CallActivity::class.java).apply {
+        putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
+        putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Ongoing.name)
     }
 
 private fun openMigrationLoginIntent(context: Context, userHandle: String) =

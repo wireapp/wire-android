@@ -25,7 +25,6 @@ import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.Call
@@ -81,7 +80,7 @@ class OngoingCallViewModelTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = conversationId)
+        every { savedStateHandle.get<String>("conversationId") } returns conversationId.toString()
         coEvery { establishedCall.invoke() } returns flowOf(listOf(provideCall()))
         coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
         coEvery { globalDataStore.getShouldShowDoubleTapToast(any()) } returns false
@@ -89,6 +88,7 @@ class OngoingCallViewModelTest {
 
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
+            conversationIdInjected = conversationId,
             establishedCalls = establishedCall,
             requestVideoStreams = requestVideoStreams,
             currentScreenManager = currentScreenManager,

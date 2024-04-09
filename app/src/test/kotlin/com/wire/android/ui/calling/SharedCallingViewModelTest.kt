@@ -64,9 +64,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SharedCallingViewModelTest {
 
     @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
     private lateinit var allCalls: GetAllCallsWithSortedParticipantsUseCase
 
     @MockK
@@ -133,7 +130,6 @@ class SharedCallingViewModelTest {
     fun setup() {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         MockKAnnotations.init(this)
-        every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
         coEvery { allCalls.invoke() } returns emptyFlow()
         coEvery { observeConversationDetails.invoke(any()) } returns emptyFlow()
         coEvery { observeSpeaker.invoke() } returns emptyFlow()
@@ -142,7 +138,7 @@ class SharedCallingViewModelTest {
         )
 
         sharedCallingViewModel = SharedCallingViewModel(
-            savedStateHandle = savedStateHandle,
+            conversationId = conversationId,
             conversationDetails = observeConversationDetails,
             allCalls = allCalls,
             endCall = endCall,

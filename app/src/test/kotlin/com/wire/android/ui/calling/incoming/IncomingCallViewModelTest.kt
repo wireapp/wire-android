@@ -18,12 +18,10 @@
 
 package com.wire.android.ui.calling.incoming
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.media.CallRinger
-import com.wire.android.ui.calling.CallingNavArgs
-import com.wire.android.ui.navArgs
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -60,9 +58,6 @@ class IncomingCallViewModelTest {
     class Arrangement {
 
         @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var rejectCall: RejectCallUseCase
 
         @MockK
@@ -83,9 +78,11 @@ class IncomingCallViewModelTest {
         @MockK
         lateinit var muteCall: MuteCallUseCase
 
+        @MockK
+        lateinit var lockCodeTimeManager: LockCodeTimeManager
+
         init {
             MockKAnnotations.init(this)
-            every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
 
             // Default empty values
             coEvery { rejectCall(any()) } returns Unit
@@ -106,14 +103,15 @@ class IncomingCallViewModelTest {
         }
 
         fun arrange() = this to IncomingCallViewModel(
-            savedStateHandle = savedStateHandle,
+            conversationId = dummyConversationId,
             incomingCalls = incomingCalls,
             rejectCall = rejectCall,
             acceptCall = acceptCall,
             callRinger = callRinger,
             observeEstablishedCalls = observeEstablishedCalls,
             endCall = endCall,
-            muteCall = muteCall
+            muteCall = muteCall,
+            lockCodeTimeManager = lockCodeTimeManager
         )
     }
 

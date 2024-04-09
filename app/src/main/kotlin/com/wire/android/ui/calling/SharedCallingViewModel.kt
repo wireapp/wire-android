@@ -30,7 +30,6 @@ import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
-import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -41,7 +40,8 @@ import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
@@ -55,6 +55,9 @@ import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.util.PlatformView
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharedFlow
@@ -69,9 +72,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class SharedCallingViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = SharedCallingViewModel.Factory::class)
+class SharedCallingViewModel @AssistedInject constructor(
+    @Assisted val conversationId: ConversationId,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val allCalls: GetAllCallsWithSortedParticipantsUseCase,
     private val endCall: EndCallUseCase,
@@ -91,9 +94,6 @@ class SharedCallingViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
-
-    private val callingNavArgs: CallingNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = callingNavArgs.conversationId
 
     var callState by mutableStateOf(CallState(conversationId))
 
@@ -301,5 +301,10 @@ class SharedCallingViewModel @Inject constructor(
             setVideoPreview(conversationId, PlatformView(null))
             setVideoPreview(conversationId, PlatformView(view))
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: ConversationId): SharedCallingViewModel
     }
 }

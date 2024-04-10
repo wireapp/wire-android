@@ -50,7 +50,7 @@ class DrawingCanvasViewModelTest {
         assertEquals(viewModel.state.currentPosition, Offset.Unspecified)
 
         // when
-        drawStrokes(viewModel)
+        startDrawing(viewModel)
 
         // then
         with(viewModel.state) {
@@ -60,8 +60,8 @@ class DrawingCanvasViewModelTest {
         }
     }
 
-    // simulates the drawing of strokes
-    private fun drawStrokes(viewModel: DrawingCanvasViewModel) = with(viewModel) {
+    // simulates the start of drawing of strokes
+    private fun startDrawing(viewModel: DrawingCanvasViewModel) = with(viewModel) {
         onStartDrawing(MOVED_OFFSET)
         onStartDrawingEvent()
     }

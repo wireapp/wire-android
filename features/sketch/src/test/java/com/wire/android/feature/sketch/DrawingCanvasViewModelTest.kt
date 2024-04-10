@@ -56,13 +56,59 @@ class DrawingCanvasViewModelTest {
         with(viewModel.state) {
             assertEquals(DrawingMotionEvent.Down, drawingMotionEvent)
             assertEquals(currentPath.path, paths.first().path)
+            assertEquals(currentPosition, INITIAL_OFFSET)
+        }
+    }
+
+    @Test
+    fun givenDrawingEvent_WhenCallingTheAction_ThenUpdateTheStateWithTheCurrentMovingPathPosition() {
+        // given
+        val (_, viewModel) = Arrangement().arrange()
+        assertEquals(viewModel.state.currentPosition, Offset.Unspecified)
+
+        // when
+        draw(viewModel)
+
+        // then
+        with(viewModel.state) {
+            assertEquals(DrawingMotionEvent.Move, drawingMotionEvent)
+            assertEquals(currentPath.path, paths.first().path)
             assertEquals(currentPosition, MOVED_OFFSET)
         }
     }
 
+    @Test
+    fun givenStopDrawingEvent_WhenCallingTheAction_ThenUpdateTheStateWithTheFinalPathPosition() {
+        // given
+        val (_, viewModel) = Arrangement().arrange()
+        assertEquals(viewModel.state.currentPosition, Offset.Unspecified)
+
+        // when
+        stopDrawing(viewModel)
+
+        // then
+        with(viewModel.state) {
+            assertEquals(DrawingMotionEvent.Idle, drawingMotionEvent)
+            assertEquals(currentPosition, Offset.Unspecified)
+        }
+    }
+
+    private fun stopDrawing(viewModel: DrawingCanvasViewModel) = with(viewModel) {
+        draw(viewModel)
+        onStopDrawing()
+        onStopDrawingEvent()
+    }
+
+    // simulates the drawing of strokes
+    private fun draw(viewModel: DrawingCanvasViewModel) = with(viewModel) {
+        startDrawing(viewModel)
+        onDraw(MOVED_OFFSET)
+        onDrawEvent()
+    }
+
     // simulates the start of drawing of strokes
     private fun startDrawing(viewModel: DrawingCanvasViewModel) = with(viewModel) {
-        onStartDrawing(MOVED_OFFSET)
+        onStartDrawing(INITIAL_OFFSET)
         onStartDrawingEvent()
     }
 

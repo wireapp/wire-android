@@ -45,6 +45,8 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 @OptIn(ExperimentalFoundationApi::class)
 @Suppress("ComplexMethod")
@@ -76,7 +78,8 @@ fun MessageContainerItem(
     shouldDisplayFooter: Boolean = true,
     onReplyClickable: Clickable? = null,
     isSelectedMessage: Boolean = false,
-    isInteractionAvailable: Boolean = true
+    isInteractionAvailable: Boolean = true,
+    currentTimeInMillisFlow: Flow<Long> = flow { },
 ) {
     val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
     if (
@@ -153,7 +156,8 @@ fun MessageContainerItem(
                 shouldDisplayMessageStatus = shouldDisplayMessageStatus,
                 shouldDisplayFooter = shouldDisplayFooter,
                 selfDeletionTimerState = selfDeletionTimerState,
-                useSmallBottomPadding = useSmallBottomPadding
+                useSmallBottomPadding = useSmallBottomPadding,
+                currentTimeInMillisFlow = currentTimeInMillisFlow
             )
         }
     }

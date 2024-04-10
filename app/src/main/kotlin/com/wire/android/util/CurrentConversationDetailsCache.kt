@@ -20,6 +20,13 @@ package com.wire.android.util
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 
+/**
+ * Cache for the current conversation details.
+ * This is used to display the conversation name in the toolbar or can be used for other purposes.
+ *
+ * TODO: This is temporary, when we have navigation for sketch, we might do it with navigation arguments.
+ * TODO: Anyway, this might be useful, and we might keep it or discuss it.
+ */
 object CurrentConversationDetailsCache {
 
     @Volatile

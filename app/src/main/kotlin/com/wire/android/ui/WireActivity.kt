@@ -62,7 +62,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
-import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.calling.getOngoingCallIntent
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar

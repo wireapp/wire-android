@@ -85,6 +85,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
 
+@Suppress("ParameterWrapping")
 @Composable
 fun OngoingCallScreen(
     conversationId: ConversationId,

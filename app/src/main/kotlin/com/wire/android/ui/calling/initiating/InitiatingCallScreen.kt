@@ -55,6 +55,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
 
+@Suppress("ParameterWrapping")
 @Composable
 fun InitiatingCallScreen(
     conversationId: ConversationId,

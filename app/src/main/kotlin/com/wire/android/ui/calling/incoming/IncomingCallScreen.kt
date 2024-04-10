@@ -62,6 +62,7 @@ import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.id.ConversationId
 
+@Suppress("ParameterWrapping")
 @Composable
 fun IncomingCallScreen(
     conversationId: ConversationId,

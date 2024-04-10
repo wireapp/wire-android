@@ -52,7 +52,7 @@ class CallActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         callNotificationManager.hideAllNotifications()
 
-        appLogger.i("${TAG} Initializing proximity sensor..")
+        appLogger.i("$TAG Initializing proximity sensor..")
         proximitySensorManager.initialize()
 
         WindowCompat.setDecorFitsSystemWindows(window, false)

@@ -19,14 +19,12 @@
 package com.wire.android.ui.calling
 
 import android.view.View
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
-import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -128,7 +126,6 @@ class SharedCallingViewModelTest {
 
     @BeforeEach
     fun setup() {
-        val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         MockKAnnotations.init(this)
         coEvery { allCalls.invoke() } returns emptyFlow()
         coEvery { observeConversationDetails.invoke(any()) } returns emptyFlow()

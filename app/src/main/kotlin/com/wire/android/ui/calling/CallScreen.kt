@@ -33,12 +33,6 @@ import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.calling.ongoing.OngoingCallScreen
 import com.wire.kalium.logic.data.id.ConversationId
 
-enum class CallScreenType {
-    Incoming,
-    Ongoing,
-    Initiating
-}
-
 @Composable
 fun CallScreen(
     conversationId: ConversationId,
@@ -61,7 +55,7 @@ fun CallScreen(
                 IncomingCallScreen(
                     conversationId = conversationId,
                     onCallAccepted = {
-                        navController.navigate("${CallScreenType.Ongoing.name}/${conversationId}")
+                        navController.navigate("${CallScreenType.Ongoing.name}/$conversationId")
                     }
                 )
             }
@@ -70,9 +64,16 @@ fun CallScreen(
             }
             composable(route = "${CallScreenType.Initiating.name}/{conversationId}") {
                 InitiatingCallScreen(conversationId) {
-                    navController.navigate("${CallScreenType.Ongoing.name}/${conversationId}")
+                    navController.navigate("${CallScreenType.Ongoing.name}/$conversationId")
                 }
             }
         }
     }
 }
+
+enum class CallScreenType {
+    Incoming,
+    Ongoing,
+    Initiating
+}
+

@@ -58,6 +58,7 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
+import com.wire.android.util.CurrentConversationDetailsCache
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -306,6 +307,7 @@ fun EnabledMessageComposer(
                                     )
                                     onAttachmentPicked(UriAsset(it))
                                 },
+                                conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
                                 tempWritableImageUri = tempWritableImageUri
                             )
                         }

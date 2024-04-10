@@ -48,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.model.DrawingState
 import com.wire.android.model.ClickBlockParams
@@ -62,6 +63,7 @@ import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -71,6 +73,7 @@ fun DrawingCanvasBottomSheet(
     onDismissSketch: () -> Unit,
     onSendSketch: (Uri) -> Unit,
     tempWritableImageUri: Uri?,
+    conversationTitle: String = "",
     viewModel: DrawingCanvasViewModel = viewModel(),
 ) {
     val context = LocalContext.current
@@ -79,7 +82,9 @@ fun DrawingCanvasBottomSheet(
     ModalBottomSheet(
         shape = CutCornerShape(dimensions().spacing0x),
         containerColor = colorsScheme().background,
-        dragHandle = { DrawingTopBar(scope, sheetState, onDismissSketch, viewModel::onUndoLastStroke, viewModel.state) },
+        dragHandle = {
+            DrawingTopBar(scope, sheetState, conversationTitle, onDismissSketch, viewModel::onUndoLastStroke, viewModel.state)
+        },
         sheetState = sheetState,
         onDismissRequest = onDismissSketch
     ) {
@@ -118,6 +123,7 @@ fun DrawingCanvasBottomSheet(
 private fun DrawingTopBar(
     scope: CoroutineScope = rememberCoroutineScope(),
     sheetState: SheetState,
+    conversationTitle: String,
     onDismissSketch: () -> Unit,
     onUndoStroke: () -> Unit,
     state: DrawingState
@@ -137,6 +143,13 @@ private fun DrawingTopBar(
                 contentDescription = R.string.content_description_close_button,
                 minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
                 minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+            )
+            Text(
+                text = conversationTitle,
+                style = MaterialTheme.wireTypography.title01,
+                modifier = Modifier.align(Alignment.CenterVertically),
+                maxLines = MAX_LINES_TOPBAR,
+                overflow = TextOverflow.Ellipsis
             )
             WireSecondaryIconButton(
                 onButtonClicked = onUndoStroke,
@@ -208,3 +221,5 @@ fun ToolPicker() {
         }
     }
 }
+
+private const val MAX_LINES_TOPBAR = 1

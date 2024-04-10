@@ -101,6 +101,7 @@ import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
+import com.wire.android.ui.destinations.ImagesPreviewScreenDestination
 import com.wire.android.ui.destinations.InitiatingCallScreenDestination
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.destinations.MessageDetailsScreenDestination
@@ -199,6 +200,7 @@ fun ConversationScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
+    val resources = LocalContext.current.resources
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
@@ -338,6 +340,17 @@ fun ConversationScreen(
             )
         },
         onSendMessage = sendMessageViewModel::trySendMessage,
+        onImagePicked = {
+            navigator.navigate(
+                NavigationCommand(
+                    ImagesPreviewScreenDestination(
+                        conversationId = conversationInfoViewModel.conversationInfoViewState.conversationId,
+                        conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
+                        assetUri = it
+                    )
+                )
+            )
+        },
         onDeleteMessage = conversationMessagesViewModel::showDeleteMessageDialog,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
@@ -626,6 +639,7 @@ private fun ConversationScreen(
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
+    onImagePicked: (Uri) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
@@ -742,6 +756,7 @@ private fun ConversationScreen(
                     messageComposerStateHolder = messageComposerStateHolder,
                     messages = conversationMessagesViewState.messages,
                     onSendMessage = onSendMessage,
+                    onImagePicked = onImagePicked,
                     onAssetItemClicked = onAssetItemClicked,
                     onAudioItemClicked = onAudioClick,
                     onChangeAudioPosition = onChangeAudioPosition,
@@ -789,6 +804,7 @@ private fun ConversationScreenContent(
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
+    onImagePicked: (Uri) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
@@ -856,7 +872,8 @@ private fun ConversationScreenContent(
         onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
         tempWritableVideoUri = tempWritableVideoUri,
         tempWritableImageUri = tempWritableImageUri,
-        onTypingEvent = onTypingEvent
+        onTypingEvent = onTypingEvent,
+        onImagePicked = onImagePicked
     )
 }
 
@@ -1129,6 +1146,7 @@ fun PreviewConversationScreen() {
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { _ -> },
-        onTypingEvent = {}
+        onTypingEvent = {},
+        onImagePicked = {}
     )
 }

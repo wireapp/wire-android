@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.flow.SharedFlow
 
+// TODO: moved to commons, when deciding about [UIText]
 @Composable
 fun SnackbarHostState.collectAndShowSnackbar(
     snackbarFlow: SharedFlow<UIText>

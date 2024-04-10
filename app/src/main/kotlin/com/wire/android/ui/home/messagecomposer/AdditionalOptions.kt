@@ -55,6 +55,7 @@ fun AdditionalOptionsMenu(
     onRichEditingButtonClicked: () -> Unit,
     onCloseRichEditingButtonClicked: () -> Unit,
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
+    onDrawingModeClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier.background(colorsScheme().messageComposerBackgroundColor)) {
@@ -71,7 +72,8 @@ fun AdditionalOptionsMenu(
                     onGifButtonClicked = onGifOptionClicked ?: {},
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
                     onRichEditingButtonClicked = onRichEditingButtonClicked,
-                    onPingClicked = onPingOptionClicked
+                    onPingClicked = onPingOptionClicked,
+                    onDrawingModeClicked = onDrawingModeClicked
                 )
             }
 
@@ -97,6 +99,7 @@ fun AdditionalOptionSubMenu(
     onCloseAdditionalAttachment: () -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
     additionalOptionsState: AdditionalOptionSubMenuState,
+    onImagePicked: (Uri) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onLocationPicked: (GeoLocatedAddress) -> Unit,
@@ -106,6 +109,7 @@ fun AdditionalOptionSubMenu(
 ) {
     Box(modifier = modifier) {
         AttachmentOptionsComponent(
+            onImagePicked = onImagePicked,
             onAttachmentPicked = onAttachmentPicked,
             tempWritableImageUri = tempWritableImageUri,
             tempWritableVideoUri = tempWritableVideoUri,
@@ -153,6 +157,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     isSelfDeletingActive: Boolean,
     onGifButtonClicked: () -> Unit = {},
     onRichEditingButtonClicked: () -> Unit = {},
+    onDrawingModeClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(modifier.wrapContentSize()) {
@@ -168,7 +173,8 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
             isSelfDeletingActive = isSelfDeletingActive,
             onGifButtonClicked = onGifButtonClicked,
-            onRichEditingButtonClicked = onRichEditingButtonClicked
+            onRichEditingButtonClicked = onRichEditingButtonClicked,
+            onDrawingModeClicked = onDrawingModeClicked
         )
     }
 }

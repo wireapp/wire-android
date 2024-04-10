@@ -7,7 +7,6 @@ import org.junit.Test
 
 class DrawingCanvasViewModelTest {
 
-
     @Test
     fun givenOnStartDrawingIsCalled_WhenCallingTheAction_ThenUpdateStateWithEventDown() {
         // given
@@ -45,14 +44,10 @@ class DrawingCanvasViewModelTest {
     }
 
     private class Arrangement {
-
-
         fun arrange() = this to DrawingCanvasViewModel()
     }
 
     private companion object {
         val DUMMY_OFFSET = Offset(0f, 0f)
     }
-
-
 }

@@ -39,6 +39,4 @@ class WireAccentColors(private val association: (Accent) -> Color) {
         Accent.Unknown -> default
         else -> association(accent)
     }
-
-    fun getAllColors(): List<Color> = Accent.entries.map { association(it) }
 }

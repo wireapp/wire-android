@@ -110,7 +110,7 @@ fun EnabledMessageComposer(
                 messageCompositionInputStateHolder.clearFocus()
             } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
                 messageCompositionInputStateHolder.requestFocus()
-                additionalOptionStateHolder.hideAdditionalOptionsMenu()
+                additionalOptionStateHolder.unselectAdditionalOptionsMenu()
             }
         }
 
@@ -177,6 +177,7 @@ fun EnabledMessageComposer(
                                 inputFocused = messageCompositionInputStateHolder.inputFocused,
                                 onInputFocusedChanged = ::onInputFocusedChanged,
                                 onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
+                                onTextCollapse = messageCompositionInputStateHolder::collapseText,
                                 onCancelReply = messageCompositionHolder::clearReply,
                                 onCancelEdit = ::cancelEdit,
                                 onMessageTextChanged = {
@@ -246,7 +247,7 @@ fun EnabledMessageComposer(
                                 onAdditionalOptionsMenuClicked = {
                                     if (!isKeyboardMoving) {
                                         if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.AttachFile) {
-                                            additionalOptionStateHolder.hideAdditionalOptionsMenu()
+                                            additionalOptionStateHolder.unselectAdditionalOptionsMenu()
                                             messageCompositionInputStateHolder.toComposing()
                                         } else {
                                             showAdditionalOptionsMenu()
@@ -258,7 +259,10 @@ fun EnabledMessageComposer(
                                     additionalOptionStateHolder.toRichTextEditing()
                                 },
                                 onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                                onDrawingModeClicked = additionalOptionStateHolder::toDrawingMode
+                                onDrawingModeClicked = {
+                                    inputStateHolder.collapseComposer()
+                                    additionalOptionStateHolder.toDrawingMode()
+                                }
                             )
                         }
                         Box(
@@ -294,10 +298,7 @@ fun EnabledMessageComposer(
                         if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.DrawingMode) {
                             DrawingCanvasBottomSheet(
                                 onDismissSketch = {
-                                    inputStateHolder.handleBackPressed(
-                                        isImeVisible,
-                                        additionalOptionStateHolder.additionalOptionsSubMenuState
-                                    )
+                                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
                                 },
                                 onSendSketch = onSendButtonClicked
                             )
@@ -310,10 +311,7 @@ fun EnabledMessageComposer(
                 cancelEdit()
             }
             BackHandler(isImeVisible || inputStateHolder.optionsVisible) {
-                inputStateHolder.handleBackPressed(
-                    isImeVisible,
-                    additionalOptionStateHolder.additionalOptionsSubMenuState
-                )
+                inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
             }
         }
     }

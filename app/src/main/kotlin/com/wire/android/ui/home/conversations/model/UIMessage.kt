@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.Copyable
+import com.wire.android.util.MessageDateTime
 import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
@@ -589,7 +590,7 @@ enum class MessageSource {
 }
 
 data class MessageTime(val utcISO: String) {
-    val formattedDate = utcISO.uiMessageDateTime() ?: ""
+    fun formattedDate(now: Long): MessageDateTime? = utcISO.uiMessageDateTime(now = now)
 }
 
 @Stable

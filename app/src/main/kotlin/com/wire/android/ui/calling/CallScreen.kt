@@ -76,4 +76,3 @@ enum class CallScreenType {
     Ongoing,
     Initiating
 }
-

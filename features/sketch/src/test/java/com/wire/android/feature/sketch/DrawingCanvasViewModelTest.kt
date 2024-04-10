@@ -68,11 +68,6 @@ class DrawingCanvasViewModelTest {
 
     private class Arrangement {
         val viewModel = DrawingCanvasViewModel()
-
-        fun withCurrentPath(newPosition: Offset) = apply {
-            viewModel.setNewState(viewModel.state.copy(currentPosition = newPosition))
-        }
-
         fun arrange() = this to viewModel
     }
 

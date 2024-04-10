@@ -41,6 +41,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
@@ -80,11 +81,7 @@ fun IncomingCallScreen(
     val audioPermissionCheck = AudioPermissionCheckFlow(
         onAcceptCall = {
             incomingCallViewModel.acceptCall {
-                Intent(activity, AppLockActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                }.run {
-                    activity.startActivity(this)
-                }
+                (activity as CallActivity).openAppLockActivity()
             }
         },
         onPermanentPermissionDecline = {
@@ -103,11 +100,7 @@ fun IncomingCallScreen(
                 onDismiss = ::dismissJoinCallAnywayDialog,
                 onConfirm = {
                     acceptCallAnyway {
-                        Intent(activity, AppLockActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                        }.run {
-                            activity.startActivity(this)
-                        }
+                        (activity as CallActivity).openAppLockActivity()
                     }
                 }
             )
@@ -134,8 +127,14 @@ fun IncomingCallScreen(
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
             declineCall = {
-                incomingCallViewModel::declineCall
-                activity.finish()
+                incomingCallViewModel.declineCall(
+                    onAppLocked = {
+                        (activity as CallActivity).openAppLockActivity()
+                    },
+                    onCallRejected = {
+                        activity.finish()
+                    }
+                )
             },
             acceptCall = audioPermissionCheck::launch,
             onVideoPreviewCreated = ::setVideoPreview,
@@ -157,6 +156,14 @@ fun IncomingCallScreen(
         dialogState = permissionPermanentlyDeniedDialogState,
         hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
+}
+
+fun CallActivity.openAppLockActivity() {
+    Intent(this, AppLockActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+    }.run {
+        startActivity(this)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

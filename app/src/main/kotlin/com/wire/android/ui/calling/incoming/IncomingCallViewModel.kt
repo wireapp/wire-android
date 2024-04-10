@@ -99,14 +99,24 @@ class IncomingCallViewModel @AssistedInject constructor(
         }
     }
 
-    fun declineCall() {
+    fun declineCall(
+        onAppLocked: () -> Unit,
+        onCallRejected: () -> Unit
+    ) {
         viewModelScope.launch {
-            observeIncomingCallJob.cancel()
-            launch { rejectCall(conversationId = conversationId) }
-            launch {
-                callRinger.stop()
-                incomingCallState =
-                    incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
+            lockCodeTimeManager.observeAppLock().first().let {
+                if (it) {
+                    onAppLocked()
+                } else {
+                    observeIncomingCallJob.cancel()
+                    launch { rejectCall(conversationId = conversationId) }
+                    launch {
+                        callRinger.stop()
+                        incomingCallState =
+                            incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
+                    }
+                    onCallRejected()
+                }
             }
         }
     }

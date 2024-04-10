@@ -13,7 +13,7 @@ class DrawingCanvasViewModelTest {
         val (_, viewModel) = Arrangement().arrange()
 
         // when
-        viewModel.onStartDrawing(DUMMY_OFFSET)
+        viewModel.onStartDrawing(INITIAL_OFFSET)
 
         // then
         assertEquals(DrawingMotionEvent.Down, viewModel.state.drawingMotionEvent)
@@ -25,7 +25,7 @@ class DrawingCanvasViewModelTest {
         val (_, viewModel) = Arrangement().arrange()
 
         // when
-        viewModel.onDraw(DUMMY_OFFSET)
+        viewModel.onDraw(INITIAL_OFFSET)
 
         // then
         assertEquals(DrawingMotionEvent.Move, viewModel.state.drawingMotionEvent)
@@ -46,8 +46,8 @@ class DrawingCanvasViewModelTest {
     @Test
     fun givenStartDrawingEvent_WhenCallingTheAction_ThenUpdateTheStateWithTheInitialPathPosition() {
         // given
-        val (arrangement, viewModel) = Arrangement()
-            .arrange()
+        val (_, viewModel) = Arrangement().arrange()
+        assertEquals(viewModel.state.currentPosition, Offset.Unspecified)
 
         // when
         drawStrokes(viewModel)
@@ -72,7 +72,7 @@ class DrawingCanvasViewModelTest {
     }
 
     private companion object {
-        val DUMMY_OFFSET = Offset(0f, 0f)
+        val INITIAL_OFFSET = Offset(0f, 0f)
         val MOVED_OFFSET = Offset(10f, 10f)
     }
 }

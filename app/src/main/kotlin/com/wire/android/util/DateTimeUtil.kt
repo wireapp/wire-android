@@ -50,7 +50,7 @@ private val readReceiptDateTimeFormat = SimpleDateFormat(
     Locale.getDefault()
 ).apply { timeZone = TimeZone.getDefault() }
 
-private val audioFileDateTimeFormat = SimpleDateFormat(
+private val fileDateTimeFormat = SimpleDateFormat(
     "yyyy-MM-dd-hh-mm-ss",
     Locale.getDefault()
 ).apply { timeZone = TimeZone.getDefault() }
@@ -96,7 +96,7 @@ fun Date.toMediumOnlyDateTime(): String = mediumOnlyDateTimeFormat.format(this)
 
 fun Instant.uiReadReceiptDateTime(): String = readReceiptDateTimeFormat.format(Date(this.toEpochMilliseconds()))
 
-fun Instant.audioFileDateTime(): String = audioFileDateTimeFormat
+fun Instant.fileDateTime(): String = fileDateTimeFormat
     .format(Date(this.toEpochMilliseconds()))
 
 fun getCurrentParsedDateTime(): String = mediumDateTimeFormat.format(System.currentTimeMillis())

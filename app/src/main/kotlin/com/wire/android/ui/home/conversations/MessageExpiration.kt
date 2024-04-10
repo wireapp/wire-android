@@ -99,10 +99,10 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
         selfDeletionStatus: Message.ExpirationData.SelfDeletionStatus?,
         expireAfter: Duration,
     ) =
-        if (selfDeletionStatus is Message.ExpirationData.SelfDeletionStatus.Started) selfDeletionStatus.selfDeletionStartDate + expireAfter
-        else {
-            val currentTime = currentTime()
-            currentTime + expireAfter
+        if (selfDeletionStatus is Message.ExpirationData.SelfDeletionStatus.Started) {
+            selfDeletionStatus.selfDeletionEndDate
+        } else {
+            currentTime() + expireAfter
         }
 
     sealed class SelfDeletionTimerState {

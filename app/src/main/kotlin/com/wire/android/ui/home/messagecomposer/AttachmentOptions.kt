@@ -60,6 +60,7 @@ import com.wire.android.util.ui.KeyboardHeight
 
 @Composable
 fun AttachmentOptionsComponent(
+    onImagePicked: (Uri) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
     tempWritableImageUri: Uri?,
@@ -75,6 +76,7 @@ fun AttachmentOptionsComponent(
         isFileSharingEnabled,
         tempWritableImageUri,
         tempWritableVideoUri,
+        onImagePicked,
         onAttachmentPicked,
         onRecordAudioMessageClicked,
         onLocationPickerClicked,
@@ -219,6 +221,7 @@ private fun buildAttachmentOptionItems(
     isFileSharingEnabled: Boolean,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
+    onImagePicked: (Uri) -> Unit,
     onFilePicked: (UriAsset) -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
     onLocationPickerClicked: () -> Unit,
@@ -229,7 +232,7 @@ private fun buildAttachmentOptionItems(
         onPermissionPermanentlyDenied
     )
     val galleryFlow = GalleryFlow(
-        remember { { onFilePicked(UriAsset(it, false)) } },
+        remember { { onImagePicked(it) } },
         onPermissionPermanentlyDenied
     )
     val cameraFlow = TakePictureFlow(
@@ -310,7 +313,8 @@ private data class AttachmentOptionItem(
 @Composable
 fun PreviewAttachmentComponents() {
     AttachmentOptionsComponent(
-        {},
+        onImagePicked = {},
+        onAttachmentPicked = {},
         isFileSharingEnabled = true,
         tempWritableImageUri = null,
         tempWritableVideoUri = null,
@@ -329,7 +333,8 @@ fun PreviewAttachmentOptionsComponentSmallScreen() {
             contentAlignment = Alignment.BottomCenter
         ) {
             AttachmentOptionsComponent(
-                {},
+                onAttachmentPicked = {},
+                onImagePicked = {},
                 isFileSharingEnabled = true,
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
@@ -350,13 +355,14 @@ fun PreviewAttachmentOptionsComponentNormalScreen() {
             contentAlignment = Alignment.BottomCenter
         ) {
             AttachmentOptionsComponent(
-                {},
+                onAttachmentPicked = {},
+                onImagePicked = {},
                 isFileSharingEnabled = true,
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
                 onRecordAudioMessageClicked = {},
                 onLocationPickerClicked = {},
-                onCaptureVideoPermissionPermanentlyDenied = {},
+                onCaptureVideoPermissionPermanentlyDenied = {}
             )
         }
     }
@@ -371,13 +377,14 @@ fun PreviewAttachmentOptionsComponentTabledScreen() {
             contentAlignment = Alignment.BottomCenter
         ) {
             AttachmentOptionsComponent(
-                {},
+                onAttachmentPicked = {},
+                onImagePicked = {},
                 isFileSharingEnabled = true,
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
                 onRecordAudioMessageClicked = {},
                 onLocationPickerClicked = {},
-                onCaptureVideoPermissionPermanentlyDenied = {},
+                onCaptureVideoPermissionPermanentlyDenied = {}
             )
         }
     }

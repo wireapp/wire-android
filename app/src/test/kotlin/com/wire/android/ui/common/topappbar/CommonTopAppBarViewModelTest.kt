@@ -107,6 +107,7 @@ class CommonTopAppBarViewModelTest {
         val (_, commonTopAppBarViewModel) = Arrangement()
             .withCurrentSessionExist()
             .withActiveCall()
+            .withCurrentScreen(CurrentScreen.Home)
             .withSyncState(SyncState.Waiting)
             .arrange()
 
@@ -114,7 +115,7 @@ class CommonTopAppBarViewModelTest {
         val state = commonTopAppBarViewModel.state
 
         val info = state.connectivityState
-        info shouldBeInstanceOf ConnectivityUIState.WaitingConnection::class
+        info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
     }
 
     @Test

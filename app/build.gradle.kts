@@ -163,10 +163,12 @@ dependencies {
 
     // firebase
     var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
-	if (fdroidBuild) {
+	if (!fdroidBuild) {
         implementation(platform(libs.firebase.bom))
         implementation(libs.firebase.fcm)
         implementation(libs.googleGms.location)
+    } else {
+        println("Excluding FireBase for FDroid build")
     }
     implementation(libs.androidx.work)
 

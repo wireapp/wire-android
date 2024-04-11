@@ -149,6 +149,10 @@ class MessageCompositionInputStateHolder(
         isTextExpanded = !isTextExpanded
     }
 
+    fun collapseText() {
+        isTextExpanded = false
+    }
+
     fun clearFocus() {
         inputFocused = false
     }
@@ -168,8 +172,8 @@ class MessageCompositionInputStateHolder(
         clearFocus()
     }
 
-    fun handleBackPressed(isImeVisible: Boolean, additionalOptionsSubMenuState: AdditionalOptionSubMenuState) {
-        if ((isImeVisible || optionsVisible) && additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
+    fun collapseComposer(additionalOptionsSubMenuState: AdditionalOptionSubMenuState? = null) {
+        if (additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
             optionsVisible = false
             subOptionsVisible = false
             isTextExpanded = false

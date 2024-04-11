@@ -1277,6 +1277,8 @@
     <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_title">Certificate couldn’t be issued.</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_text">Please try again, or reach out to your team admin.</string>
     <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_description">Log out to reduce security risks. Then log in again, get a new certificate, and reset your password.\n\nIf you keep using this device, your conversations are no longer verified.</string>
@@ -1295,6 +1297,7 @@
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
+    <string name="record_audio_unable_due_to_error">Something went wrong while trying to record audio message. Please try again.</string>
     <string name="call_permission_dialog_title">App permission</string>
     <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone in your device settings.</string>
     <string name="label_not_now">Not Now</string>

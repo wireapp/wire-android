@@ -34,6 +34,14 @@ rootDir
         include(":${it.name}")
     }
 
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("klibs") {
+            from(files("kalium/gradle/libs.versions.toml"))
+        }
+    }
+}
+
 // A work-around where we define the included builds in a different file
 // so Reloaded's Dependabot doesn't try to look into Kalium's build.gradle.kts, which is inaccessible as it is a git submodule.
 // See: https://github.com/dependabot/dependabot-core/issues/7201#issuecomment-1571319655

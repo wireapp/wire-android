@@ -102,18 +102,11 @@ class CallActivity : AppCompatActivity() {
 }
 
 fun CallActivity.setUpCallingFlags() {
-    window.addFlags(
-        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
-    )
+    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
         setShowWhenLocked(true)
-        setTurnScreenOn(true)
     } else {
-        window.addFlags(
-            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-        )
+        window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
     }
 }
 
@@ -123,14 +116,6 @@ fun getOngoingCallIntent(
 ) = Intent(activity, CallActivity::class.java).apply {
     putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
     putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Ongoing.name)
-}
-
-fun getIncomingCallIntent(
-    activity: Activity,
-    conversationId: String
-) = Intent(activity, CallActivity::class.java).apply {
-    putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-    putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Incoming.name)
 }
 
 fun getInitiatingCallIntent(

@@ -17,17 +17,19 @@
  */
 package com.wire.android.ui.calling
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.calling.ongoing.OngoingCallScreen
@@ -40,7 +42,9 @@ fun CallScreen(
     navController: NavHostController = rememberNavController()
 ) {
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        topBar = { Column(Modifier.size(0.dp)) { } },
+    ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = "${startDestination.name}/$conversationId",
@@ -50,7 +54,6 @@ fun CallScreen(
         ) {
             composable(
                 route = "${CallScreenType.Incoming.name}/{conversationId}",
-                arguments = listOf(navArgument("conversationId") { type = NavType.StringType })
             ) {
                 IncomingCallScreen(
                     conversationId = conversationId,

@@ -71,7 +71,7 @@ fun CallerDetails(
     proteusVerificationStatus: Conversation.VerificationStatus?,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(top = dimensions().spacing32x),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

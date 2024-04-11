@@ -266,10 +266,6 @@ private fun IncomingCallContent(
     }
 }
 
-fun launchLockScreenForIncomingCallScreen() {
-    appLogger.d("IncomingCall - App locked")
-}
-
 @Composable
 fun AudioPermissionCheckFlow(
     onAcceptCall: () -> Unit,

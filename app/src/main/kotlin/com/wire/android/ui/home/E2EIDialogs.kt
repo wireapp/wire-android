@@ -195,14 +195,46 @@ fun E2EISuccessDialog(
 }
 
 @Composable
-fun E2EIErrorWithDismissDialog(
+fun E2EIUpdateErrorWithDismissDialog(
+    isE2EILoading: Boolean,
+    updateCertificate: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    E2EIErrorWithDismissDialog(
+        title = stringResource(id = R.string.end_to_end_identity_renew_error_dialog_title),
+        text = stringResource(id = R.string.end_to_end_identity_renew_error_dialog_text),
+        isE2EILoading = isE2EILoading,
+        updateCertificate = updateCertificate,
+        onDismiss = onDismiss
+    )
+}
+
+@Composable
+fun E2EIEnrollmentErrorWithDismissDialog(
+    isE2EILoading: Boolean,
+    onClick: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    E2EIErrorWithDismissDialog(
+        title = stringResource(id = R.string.end_to_end_identity_enrollment_error_dialog_title),
+        text = stringResource(id = R.string.end_to_end_identity_enrollment_error_dialog_text),
+        isE2EILoading = isE2EILoading,
+        updateCertificate = onClick,
+        onDismiss = onDismiss
+    )
+}
+
+@Composable
+private fun E2EIErrorWithDismissDialog(
+    title: String,
+    text: String,
     isE2EILoading: Boolean,
     updateCertificate: () -> Unit,
     onDismiss: () -> Unit
 ) {
     WireDialog(
-        title = stringResource(id = R.string.end_to_end_identity_renew_error_dialog_title),
-        text = stringResource(id = R.string.end_to_end_identity_renew_error_dialog_text),
+        title = title,
+        text = text,
         onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = updateCertificate,
@@ -247,7 +279,7 @@ private fun E2EIErrorWithSnoozeDialog(
 }
 
 @Composable
-fun E2EIErrorNoSnoozeDialog(
+private fun E2EIErrorNoSnoozeDialog(
     isE2EILoading: Boolean,
     updateCertificate: () -> Unit
 ) {

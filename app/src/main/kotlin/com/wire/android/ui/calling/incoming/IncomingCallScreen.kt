@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.calling.incoming
 
-import android.content.Intent
 import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
@@ -39,7 +38,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallState
@@ -49,6 +47,7 @@ import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
+import com.wire.android.ui.calling.openAppLockActivity
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -157,14 +156,6 @@ fun IncomingCallScreen(
         dialogState = permissionPermanentlyDeniedDialogState,
         hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
-}
-
-fun CallActivity.openAppLockActivity() {
-    Intent(this, AppLockActivity::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-    }.run {
-        startActivity(this)
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

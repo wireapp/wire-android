@@ -153,7 +153,7 @@ fun OngoingCallScreen(
                 }
             }
         )
-        BackHandler(enabled = isCameraOn) {
+        BackHandler {
             activity.finish()
         }
     }

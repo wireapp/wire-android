@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import com.wire.android.appLogger
 import com.wire.android.notification.CallNotificationManager
+import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
@@ -138,4 +139,12 @@ fun getInitiatingCallIntent(
 ) = Intent(activity, CallActivity::class.java).apply {
     putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
     putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Initiating.name)
+}
+
+fun CallActivity.openAppLockActivity() {
+    Intent(this, AppLockActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+    }.run {
+        startActivity(this)
+    }
 }

@@ -82,20 +82,6 @@ fun Modifier.shimmerPlaceholder(
     shape = shape,
 )
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
-    val onClick = rememberClickBlockAction(clickable.clickBlockParams, clickable.onClick)
-    val onLongClick = clickable.onLongClick?.let { onLongClick ->
-        rememberClickBlockAction(clickable.clickBlockParams, onLongClick)
-    }
-    this.combinedClickable(
-        enabled = clickable.enabled,
-        onClick = onClick,
-        onLongClick = onLongClick
-    )
-} ?: this
-
 @Composable
 fun <T> rememberFlow(
     flow: Flow<T>,

@@ -57,6 +57,7 @@ fun DrawingToolPicker(
     ModalBottomSheet(
         shape = CutCornerShape(dimensions().spacing0x),
         containerColor = colorsScheme().surface,
+        contentColor = colorsScheme().onSurface,
         sheetState = sheetState,
         onDismissRequest = { scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() } }
     ) {

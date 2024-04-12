@@ -75,8 +75,8 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
-import com.wire.android.ui.home.E2EIErrorWithDismissDialog
 import com.wire.android.ui.home.E2EISuccessDialog
+import com.wire.android.ui.home.E2EIUpdateErrorWithDismissDialog
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.wireColorScheme
@@ -279,7 +279,7 @@ fun DeviceDetailsContent(
         }
 
         if (state.isE2EICertificateEnrollError) {
-            E2EIErrorWithDismissDialog(
+            E2EIUpdateErrorWithDismissDialog(
                 isE2EILoading = state.isLoadingCertificate,
                 updateCertificate = { enrollE2eiCertificate() },
                 onDismiss = onEnrollE2EIErrorDismiss

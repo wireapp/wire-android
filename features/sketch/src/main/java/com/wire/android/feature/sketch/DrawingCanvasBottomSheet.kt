@@ -195,7 +195,7 @@ private fun DrawingToolbar(
     if (showToolSelection) {
         DrawingToolPicker(
             currentColor = state.currentPath.color,
-            onColorSelected = { onColorChanged(it); showToolSelection = false },
+            onColorSelected = { onColorChanged(it).also { showToolSelection = false } },
             onDismissRequest = { showToolSelection = false }
         )
     }

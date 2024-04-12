@@ -165,11 +165,13 @@ class DrawingCanvasViewModel : ViewModel() {
     }
 
     fun onColorChanged(selectedColor: Color) {
-        state = state.copy(currentPath = DrawingPathProperties().apply {
-            strokeWidth = state.currentPath.strokeWidth
-            color = selectedColor
-            drawMode = state.currentPath.drawMode
-        })
+        state = state.copy(
+            currentPath = DrawingPathProperties().apply {
+                strokeWidth = state.currentPath.strokeWidth
+                color = selectedColor
+                drawMode = state.currentPath.drawMode
+            }
+        )
     }
 
     private fun Uri?.orTempUri(context: Context): Uri = this ?: run {

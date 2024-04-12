@@ -1277,7 +1277,7 @@
     <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
-    <string name="end_to_end_identity_enrollment_error_dialog_title">Certificate couldn’t be issued.</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_title">Certificate couldn’t be issued</string>
     <string name="end_to_end_identity_enrollment_error_dialog_text">Please try again, or reach out to your team admin.</string>
     <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>

@@ -104,7 +104,6 @@ class DebugDataOptionsViewModel
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
-    private val disableEventProcessingUseCase: DisableEventProcessingUseCase
     private val disableEventProcessingUseCase: DisableEventProcessingUseCase,
     private val checkCrlRevocationListUseCase: CheckCrlRevocationListUseCase
 ) : ViewModel() {
@@ -400,7 +399,7 @@ fun DebugDataOptionsContent(
                 onDisableEventProcessingChange = onDisableEventProcessingChange,
                 onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
-                dependenciesMap = state.dependencies
+                dependenciesMap = state.dependencies,
                 checkCrlRevocationList = checkCrlRevocationList
             )
         }
@@ -570,7 +569,7 @@ private fun DebugToolsOptions(
     onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
-    dependenciesMap: ImmutableMap<String, String?>
+    dependenciesMap: ImmutableMap<String, String?>,
     checkCrlRevocationList: () -> Unit
 ) {
     FolderHeader(stringResource(R.string.label_debug_tools_title))

@@ -943,7 +943,7 @@ private fun SnackBarMessage(
     }
 }
 
-@Suppress("ComplexMethod")
+@Suppress("ComplexMethod", "ComplexCondition")
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MessageList(
@@ -994,11 +994,15 @@ fun MessageList(
         }
     }
 
-    // update last read message on start
+    // update last read message on start or when list is not scrollable
     LaunchedEffect(lazyPagingMessages.itemCount) {
-        if (!readLastMessageAtStartTriggered.value && lazyPagingMessages.itemSnapshotList.items.isNotEmpty()) {
+        if ((!readLastMessageAtStartTriggered.value || (!lazyListState.canScrollBackward && !lazyListState.canScrollForward))
+            && lazyPagingMessages.itemSnapshotList.items.isNotEmpty()
+        ) {
             val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
-            readLastMessageAtStartTriggered.value = true
+            if (!readLastMessageAtStartTriggered.value) {
+                readLastMessageAtStartTriggered.value = true
+            }
             updateLastReadMessage(lastVisibleMessage, lastUnreadMessageInstant, onUpdateConversationReadDate)
         }
     }

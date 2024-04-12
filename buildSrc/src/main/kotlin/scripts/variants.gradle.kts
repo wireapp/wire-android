@@ -44,10 +44,6 @@ object Default {
         ?: System.getenv("FLAVOR")
         ?: default
 
-    val isFdroidBuild = (buildFlavour(default = null) ?: gradle.startParameter.taskRequests.toString())
-        .lowercase()
-        .contains("fdroid")
-
     fun buildFlavour(): String = System.getenv("flavor")
         ?: System.getenv("FLAVOR")
         ?: ProductFlavors.Dev.buildName

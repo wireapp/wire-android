@@ -162,10 +162,15 @@ dependencies {
     implementation(libs.bundlizer.core)
 
     // firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.fcm)
+    var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
+	if (!fdroidBuild) {
+        implementation(platform(libs.firebase.bom))
+        implementation(libs.firebase.fcm)
+        implementation(libs.googleGms.location)
+    } else {
+        println("Excluding FireBase for FDroid build")
+    }
     implementation(libs.androidx.work)
-    implementation(libs.googleGms.location)
 
     // commonMark
     implementation(libs.commonmark.core)

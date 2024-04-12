@@ -52,16 +52,14 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.MessageComposerViewState
+import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
+import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
+import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
-import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AttachmentPickedBundle
-import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.AudioMessageBundle
-import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle.LocationBundle
-import com.wire.android.ui.home.messagecomposer.state.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
-import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -87,7 +85,8 @@ fun MessageComposer(
     onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
-    onTypingEvent: (TypingIndicatorMode) -> Unit
+    onTypingEvent: (TypingIndicatorMode) -> Unit,
+    onImagePicked: (Uri) -> Unit
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {
@@ -133,14 +132,23 @@ fun MessageComposer(
                     messageComposerStateHolder = messageComposerStateHolder,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
-                        onSendMessageBundle(messageCompositionHolder.toMessageBundle())
+                        onSendMessageBundle(messageCompositionHolder.toMessageBundle(conversationId))
                         onClearMentionSearchResult()
                         clearMessage()
                     },
-                    onPingOptionClicked = { onSendMessageBundle(Ping) },
-                    onAttachmentPicked = { onSendMessageBundle(AttachmentPickedBundle(it)) },
-                    onAudioRecorded = { onSendMessageBundle(AudioMessageBundle(it)) },
-                    onLocationPicked = { onSendMessageBundle(LocationBundle(it.getFormattedAddress(), it.location)) },
+                    onPingOptionClicked = { onSendMessageBundle(Ping(conversationId)) },
+                    onImagePicked = onImagePicked,
+                    onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.AttachmentPickedBundle(conversationId, it)) },
+                    onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
+                    onLocationPicked = {
+                        onSendMessageBundle(
+                            ComposableMessageBundle.LocationBundle(
+                                conversationId,
+                                it.getFormattedAddress(),
+                                it.location
+                            )
+                        )
+                    },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult,
@@ -273,7 +281,8 @@ private fun BaseComposerPreview(
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
-        onTypingEvent = { }
+        onTypingEvent = { },
+        onImagePicked = {}
     )
 }
 

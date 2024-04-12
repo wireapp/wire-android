@@ -21,7 +21,7 @@ import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
 import com.wire.android.appLogger
-import com.wire.android.util.audioFileDateTime
+import com.wire.android.util.fileDateTime
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.util.DateTimeUtil
@@ -49,7 +49,8 @@ class AudioMediaRecorder @Inject constructor(
 
     private var mediaRecorder: MediaRecorder? = null
 
-    var outputFile: File? = null
+    var originalOutputFile: File? = null
+    var effectsOutputFile: File? = null
 
     private val _maxFileSizeReached = MutableSharedFlow<RecordAudioDialogState>()
     fun getMaxFileSizeReached(): Flow<RecordAudioDialogState> =
@@ -63,8 +64,12 @@ class AudioMediaRecorder @Inject constructor(
                 MediaRecorder()
             }
 
-            outputFile = kaliumFileSystem
+            originalOutputFile = kaliumFileSystem
                 .tempFilePath(getRecordingAudioFileName())
+                .toFile()
+
+            effectsOutputFile = kaliumFileSystem
+                .tempFilePath(getRecordingAudioEffectsFileName())
                 .toFile()
 
             mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -74,7 +79,7 @@ class AudioMediaRecorder @Inject constructor(
             mediaRecorder?.setAudioChannels(AUDIO_CHANNELS)
             mediaRecorder?.setAudioEncodingBitRate(AUDIO_ENCONDING_BIT_RATE)
             mediaRecorder?.setMaxFileSize(assetLimitInMegabyte)
-            mediaRecorder?.setOutputFile(outputFile)
+            mediaRecorder?.setOutputFile(originalOutputFile)
 
             observeAudioFileSize(assetLimitInMegabyte)
         }
@@ -118,7 +123,9 @@ class AudioMediaRecorder @Inject constructor(
 
     private companion object {
         fun getRecordingAudioFileName(): String =
-            "wire-audio-${DateTimeUtil.currentInstant().audioFileDateTime()}.m4a"
+            "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}.m4a"
+        fun getRecordingAudioEffectsFileName(): String =
+            "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}-filter.m4a"
         const val SIZE_OF_1MB = 1024 * 1024
         const val AUDIO_CHANNELS = 1
         const val SAMPLING_RATE = 44100

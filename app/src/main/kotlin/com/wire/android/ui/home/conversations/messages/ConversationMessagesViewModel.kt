@@ -67,10 +67,16 @@ import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentMap
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
@@ -143,6 +149,19 @@ class ConversationMessagesViewModel @Inject constructor(
         observeAudioPlayerState()
         observeAssetStatuses()
     }
+
+    val currentTimeInMillisFlow: Flow<Long> = flow {
+        while (true) {
+            delay(CURRENT_TIME_REFRESH_WINDOW_IN_MILLIS)
+            emit(System.currentTimeMillis())
+        }
+    }
+        .flowOn(Dispatchers.IO)
+        .shareIn(
+            scope = CoroutineScope(Dispatchers.Default),
+            replay = 1,
+            started = SharingStarted.WhileSubscribed()
+        )
 
     fun navigateToReplyOriginalMessage(message: UIMessage) {
         if (message.messageContent is UIMessageContent.TextMessage) {
@@ -425,5 +444,6 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private companion object {
         const val DEFAULT_ASSET_NAME = "Wire File"
+        const val CURRENT_TIME_REFRESH_WINDOW_IN_MILLIS: Long = 60_000
     }
 }

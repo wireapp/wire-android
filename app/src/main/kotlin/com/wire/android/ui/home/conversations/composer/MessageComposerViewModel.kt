@@ -32,8 +32,10 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.VisitLinkDialogState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.navArgs
+import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.FileSharingStatus
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
@@ -69,7 +71,9 @@ class MessageComposerViewModel @Inject constructor(
     private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
-    private val saveMessageDraft: SaveMessageDraftUseCase
+    private val saveMessageDraft: SaveMessageDraftUseCase,
+    private val fileManager: FileManager,
+    private val kaliumFileSystem: KaliumFileSystem,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
@@ -93,9 +97,25 @@ class MessageComposerViewModel @Inject constructor(
     )
 
     init {
+        initTempWritableVideoUri()
+        initTempWritableImageUri()
         observeIsTypingAvailable()
         observeSelfDeletingMessagesStatus()
         setFileSharingStatus()
+    }
+
+    private fun initTempWritableVideoUri() {
+        viewModelScope.launch {
+            tempWritableVideoUri =
+                fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
+        }
+    }
+
+    private fun initTempWritableImageUri() {
+        viewModelScope.launch {
+            tempWritableImageUri =
+                fileManager.getTempWritableImageUri(kaliumFileSystem.rootCachePath)
+        }
     }
 
     private fun observeIsTypingAvailable() = viewModelScope.launch {

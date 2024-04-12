@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -49,11 +48,9 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.createPemFile
-import com.wire.android.util.saveFileToDownloadsFolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okio.Path.Companion.toOkioPath
 
 @RootNavGraph
 @Destination(
@@ -67,7 +64,7 @@ fun E2eiCertificateDetailsScreen(
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+    val downloadedString = stringResource(id = R.string.media_gallery_on_image_downloaded)
 
     WireScaffold(
         topBar = {
@@ -92,7 +89,6 @@ fun E2eiCertificateDetailsScreen(
         with(e2eiCertificateDetailsViewModel) {
             val copiedToClipboardString =
                 stringResource(id = R.string.e2ei_certificate_details_certificate_copied_to_clipboard)
-            val downloadedString = stringResource(id = R.string.media_gallery_on_image_downloaded)
 
             E2eiCertificateDetailsContent(
                 padding = it,
@@ -110,14 +106,10 @@ fun E2eiCertificateDetailsScreen(
                 onDownload = {
                     scope.launch {
                         withContext(Dispatchers.IO) {
-                            createPemFile(CERTIFICATE_FILE_NAME, getCertificate()).also {
-                                saveFileToDownloadsFolder(
-                                    context = context,
-                                    assetName = CERTIFICATE_FILE_NAME,
-                                    assetDataPath = it.toPath().toOkioPath(),
-                                    assetDataSize = it.length()
-                                )
-                            }
+                            createPemFile(
+                                pathname = getCertificateName(),
+                                content = getCertificate()
+                            )
                         }
                         state.wireModalSheetState.hide()
                         snackbarHostState.showSnackbar(downloadedString)
@@ -153,5 +145,3 @@ fun E2eiCertificateDetailsContent(
         style = textStyle
     )
 }
-
-const val CERTIFICATE_FILE_NAME = "certificate.txt"

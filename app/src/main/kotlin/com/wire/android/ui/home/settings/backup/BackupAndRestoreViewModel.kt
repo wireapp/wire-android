@@ -78,6 +78,7 @@ class BackupAndRestoreViewModel
     init {
         observeLastBackupDate()
     }
+
     private fun observeLastBackupDate() {
         viewModelScope.launch {
             userDataStore.lastBackupDateSeconds().collect {
@@ -117,6 +118,7 @@ class BackupAndRestoreViewModel
             userDataStore.setLastBackupDateSeconds(currentTime)
         }
     }
+
     fun shareBackup() = viewModelScope.launch {
         updateLastBackupDate()
         latestCreatedBackup?.let { backupData ->
@@ -144,7 +146,8 @@ class BackupAndRestoreViewModel
             backupCreationProgress = BackupCreationProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified,
             passwordValidation = ValidatePasswordResult.Valid,
-        )    }
+        )
+    }
 
     fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
         latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)

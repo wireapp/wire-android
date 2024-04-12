@@ -19,17 +19,16 @@ package com.wire.android.feature.sketch
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
@@ -46,12 +45,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.model.DrawingState
 import com.wire.android.model.ClickBlockParams
-import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
@@ -105,6 +104,7 @@ fun DrawingCanvasBottomSheet(
         }
         DrawingToolbar(
             state = viewModel.state,
+            onColorChanged = viewModel::onColorChanged,
             onSendSketch = {
                 scope.launch { onSendSketch(viewModel.saveImage(context, tempWritableImageUri)) }
                     .invokeOnCompletion { scope.launch { sheetState.hide() } }
@@ -157,6 +157,7 @@ private fun DrawingTopBar(
 @Composable
 private fun DrawingToolbar(
     state: DrawingState,
+    onColorChanged: (Color) -> Unit,
     onSendSketch: () -> Unit = {},
 ) {
     var showToolSelection by remember { mutableStateOf(false) }
@@ -168,19 +169,16 @@ private fun DrawingToolbar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        val colorPickerEnabled = false // enable when implemented
-        if (colorPickerEnabled) {
-            WireSecondaryButton(
-                onClick = { showToolSelection = !showToolSelection },
-                leadingIcon = Icons.Default.Circle.Icon(),
-                leadingIconAlignment = IconAlignment.Center,
-                fillMaxWidth = false,
-                minSize = dimensions().buttonSmallMinSize,
-                minClickableSize = dimensions().buttonMinClickableSize,
-                shape = RoundedCornerShape(dimensions().spacing12x),
-                contentPadding = PaddingValues(horizontal = dimensions().spacing8x, vertical = dimensions().spacing4x)
-            )
-        }
+        WireSecondaryButton(
+            onClick = { showToolSelection = !showToolSelection },
+            leadingIcon = { Icon(Icons.Default.Circle, null, tint = state.currentPath.color) },
+            leadingIconAlignment = IconAlignment.Center,
+            fillMaxWidth = false,
+            minSize = dimensions().buttonSmallMinSize,
+            minClickableSize = dimensions().buttonMinClickableSize,
+            shape = RoundedCornerShape(dimensions().spacing12x),
+            contentPadding = PaddingValues(horizontal = dimensions().spacing8x, vertical = dimensions().spacing4x)
+        )
         Spacer(Modifier.size(dimensions().spacing2x))
         WirePrimaryIconButton(
             onButtonClicked = onSendSketch,
@@ -194,22 +192,12 @@ private fun DrawingToolbar(
             minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ToolPicker() {
-    val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState()
-    ModalBottomSheet(
-        shape = CutCornerShape(dimensions().spacing0x),
-        containerColor = colorsScheme().background,
-        sheetState = sheetState,
-        onDismissRequest = { scope.launch { sheetState.hide() } }
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text(text = "Tool Picker here")
-        }
+    if (showToolSelection) {
+        DrawingToolPicker(
+            currentColor = state.currentPath.color,
+            onColorSelected = { onColorChanged(it); showToolSelection = false },
+            onDismissRequest = { showToolSelection = false }
+        )
     }
 }
 

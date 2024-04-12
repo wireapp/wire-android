@@ -21,4 +21,5 @@
     <string name="content_description_undo_button">Undo</string>
     <string name="sketch_details_empty_text">Pick your favorite color and start sketching 🎨</string>
     <string name="content_description_close_button">close</string>
+    <string name="title_color_picker">Color</string>
 </resources>

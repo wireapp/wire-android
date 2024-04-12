@@ -37,7 +37,7 @@ import androidx.compose.ui.graphics.toArgb
 internal class DrawingPathProperties(
     var path: Path = Path(),
     var strokeWidth: Float = 10f,
-    var color: Color = Color.Blue,
+    var color: Color = Color.Black,
     var drawMode: DrawMode = DrawMode.Pen
 ) {
     fun draw(scope: DrawScope, bitmap: Bitmap? = null) {

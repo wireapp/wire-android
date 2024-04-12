@@ -59,9 +59,7 @@ android {
     }
     android.buildFeatures.buildConfig = true
 
-    val fdroidBuild = (Variants_gradle.Default.buildFlavour(default = null) ?: gradle.startParameter.taskRequests.toString())
-        .lowercase()
-        .contains("fdroid")
+    val fdroidBuild = Variants_gradle.Default.isFdroidBuild
 
     println("Building with: $fdroidBuild")
     sourceSets {

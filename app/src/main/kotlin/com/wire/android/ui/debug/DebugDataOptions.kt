@@ -61,6 +61,7 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
+import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
@@ -103,7 +104,8 @@ class DebugDataOptionsViewModel
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
-    private val disableEventProcessingUseCase: DisableEventProcessingUseCase
+    private val disableEventProcessingUseCase: DisableEventProcessingUseCase,
+    private val checkCrlRevocationListUseCase: CheckCrlRevocationListUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(
@@ -134,6 +136,14 @@ class DebugDataOptionsViewModel
             val dependencies = context.getDependenciesVersion().toImmutableMap()
             state = state.copy(
                 dependencies = dependencies
+            )
+        }
+    }
+
+    fun checkCrlRevocationList() {
+        viewModelScope.launch {
+            checkCrlRevocationListUseCase(
+                forceUpdate = true
             )
         }
     }
@@ -272,7 +282,8 @@ fun DebugDataOptions(
         onDisableEventProcessingChange = viewModel::disableEventProcessing,
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
-        dismissCertificateDialog = viewModel::dismissCertificateDialog
+        dismissCertificateDialog = viewModel::dismissCertificateDialog,
+        checkCrlRevocationList = viewModel::checkCrlRevocationList
     )
 }
 
@@ -290,7 +301,8 @@ fun DebugDataOptionsContent(
     onManualMigrationPressed: () -> Unit,
     enrollE2EICertificate: () -> Unit,
     handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
-    dismissCertificateDialog: () -> Unit
+    dismissCertificateDialog: () -> Unit,
+    checkCrlRevocationList: () -> Unit
 ) {
     Column {
 
@@ -326,6 +338,16 @@ fun DebugDataOptionsContent(
             )
         )
         if (BuildConfig.PRIVATE_BUILD) {
+
+            SettingsItem(
+                title = stringResource(R.string.debug_id),
+                text = state.debugId,
+                trailingIcon = R.drawable.ic_copy,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = { }
+                )
+            )
 
             SettingsItem(
                 title = stringResource(R.string.debug_id),
@@ -377,7 +399,8 @@ fun DebugDataOptionsContent(
                 onDisableEventProcessingChange = onDisableEventProcessingChange,
                 onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
-                dependenciesMap = state.dependencies
+                dependenciesMap = state.dependencies,
+                checkCrlRevocationList = checkCrlRevocationList
             )
         }
 
@@ -546,7 +569,8 @@ private fun DebugToolsOptions(
     onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
-    dependenciesMap: ImmutableMap<String, String?>
+    dependenciesMap: ImmutableMap<String, String?>,
+    checkCrlRevocationList: () -> Unit
 ) {
     FolderHeader(stringResource(R.string.label_debug_tools_title))
     Column {
@@ -574,6 +598,29 @@ private fun DebugToolsOptions(
                 )
             }
         )
+
+        // checkCrlRevocationList
+        RowItemTemplate(
+            modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = "CRL revocation check",
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            },
+            actions = {
+                WirePrimaryButton(
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    onClick = checkCrlRevocationList,
+                    text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
+                    fillMaxWidth = false
+                )
+            }
+        )
+
         RowItemTemplate(
             modifier = Modifier.wrapContentWidth(),
             title = {
@@ -670,6 +717,7 @@ fun PreviewOtherDebugOptions() {
         onManualMigrationPressed = {},
         enrollE2EICertificate = {},
         handleE2EIEnrollmentResult = {},
-        dismissCertificateDialog = {}
+        dismissCertificateDialog = {},
+        checkCrlRevocationList = {}
     )
 }

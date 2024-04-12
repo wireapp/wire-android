@@ -99,6 +99,7 @@ fun AdditionalOptionSubMenu(
     onCloseAdditionalAttachment: () -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
     additionalOptionsState: AdditionalOptionSubMenuState,
+    onImagePicked: (Uri) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onLocationPicked: (GeoLocatedAddress) -> Unit,
@@ -108,6 +109,7 @@ fun AdditionalOptionSubMenu(
 ) {
     Box(modifier = modifier) {
         AttachmentOptionsComponent(
+            onImagePicked = onImagePicked,
             onAttachmentPicked = onAttachmentPicked,
             tempWritableImageUri = tempWritableImageUri,
             tempWritableVideoUri = tempWritableVideoUri,

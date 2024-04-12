@@ -38,11 +38,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,6 +48,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.model.DrawingState
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
@@ -154,13 +152,17 @@ private fun DrawingTopBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DrawingToolbar(
     state: DrawingState,
     onColorChanged: (Color) -> Unit,
     onSendSketch: () -> Unit = {},
 ) {
-    var showToolSelection by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberWireModalSheetState()
+    val openColorPickerSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
+    val closeColorPickerSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
     Row(
         Modifier
             .height(dimensions().spacing80x)
@@ -170,7 +172,7 @@ private fun DrawingToolbar(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         WireSecondaryButton(
-            onClick = { showToolSelection = !showToolSelection },
+            onClick = { openColorPickerSheet() },
             leadingIcon = { Icon(Icons.Default.Circle, null, tint = state.currentPath.color) },
             leadingIconAlignment = IconAlignment.Center,
             fillMaxWidth = false,
@@ -192,13 +194,15 @@ private fun DrawingToolbar(
             minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
         )
     }
-    if (showToolSelection) {
-        DrawingToolPicker(
-            currentColor = state.currentPath.color,
-            onColorSelected = { onColorChanged(it).also { showToolSelection = false } },
-            onDismissRequest = { showToolSelection = false }
-        )
-    }
+
+    DrawingToolPicker(
+        sheetState = sheetState,
+        currentColor = state.currentPath.color,
+        onColorSelected = {
+            onColorChanged(it)
+            closeColorPickerSheet()
+        }
+    )
 }
 
 private const val MAX_LINES_TOPBAR = 1

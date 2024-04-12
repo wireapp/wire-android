@@ -26,66 +26,56 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireTypography
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawingToolPicker(
+    sheetState: WireModalSheetState,
     currentColor: Color,
     onColorSelected: (Color) -> Unit,
-    onDismissRequest: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState()
-    ModalBottomSheet(
-        shape = CutCornerShape(dimensions().spacing0x),
-        containerColor = colorsScheme().surface,
-        contentColor = colorsScheme().onSurface,
+    val colorPalette = colorsScheme().sketchColorPalette
+    WireModalSheetLayout(
         sheetState = sheetState,
-        onDismissRequest = { scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() } }
+        coroutineScope = scope,
     ) {
-        Text(
-            text = stringResource(id = R.string.title_color_picker),
-            style = MaterialTheme.wireTypography.title01,
-            modifier = Modifier
-                .padding(dimensions().spacing8x)
-                .align(Alignment.Start)
-        )
-        val colorPalette = colorsScheme().sketchColorPalette
-        LazyVerticalGrid(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(PaddingValues(horizontal = dimensions().spacing8x)),
-            columns = GridCells.Fixed(GRID_CELLS),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            items(colorPalette.size) { index ->
-                val color = colorPalette[index]
-                ColorOptionButton(
-                    color = color,
-                    selected = color == currentColor,
-                    onColorSelected = { onColorSelected(color) }
-                )
+        MenuModalSheetContent(
+            header = MenuModalSheetHeader.Visible(title = stringResource(id = R.string.title_color_picker)),
+            menuItems = listOf {
+                LazyVerticalGrid(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(PaddingValues(horizontal = dimensions().spacing8x)),
+                    columns = GridCells.Fixed(GRID_CELLS),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                ) {
+
+                    items(colorPalette.size) { index ->
+                        val color = colorPalette[index]
+                        ColorOptionButton(
+                            color = color,
+                            selected = color == currentColor,
+                            onColorSelected = { onColorSelected(color) }
+                        )
+                    }
+                }
             }
-        }
+        )
     }
 }
 

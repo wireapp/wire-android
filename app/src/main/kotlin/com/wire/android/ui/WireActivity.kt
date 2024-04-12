@@ -38,7 +38,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -58,6 +57,7 @@ import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.LocalNavigator
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
@@ -106,14 +106,15 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.ui.updateScreenSettings
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-@OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 @Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {
@@ -156,7 +157,7 @@ class WireActivity : AppCompatActivity() {
         appLogger.i("$TAG proximity sensor")
         proximitySensorManager.initialize()
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.Default) {
 
             appLogger.i("$TAG persistent connection status")
             viewModel.observePersistentConnectionStatus()
@@ -172,10 +173,12 @@ class WireActivity : AppCompatActivity() {
                 InitialAppState.LOGGED_IN -> HomeScreenDestination
             }
             appLogger.i("$TAG composable content")
-            setComposableContent(startDestination) {
-                appLogger.i("$TAG splash hide")
-                shouldKeepSplashOpen = false
-                handleDeepLink(intent, savedInstanceState)
+            withContext(Dispatchers.Main) {
+                setComposableContent(startDestination) {
+                    appLogger.i("$TAG splash hide")
+                    shouldKeepSplashOpen = false
+                    handleDeepLink(intent, savedInstanceState)
+                }
             }
         }
     }
@@ -219,10 +222,12 @@ class WireActivity : AppCompatActivity() {
                                 navigator.navigate(NavigationCommand(OngoingCallScreenDestination(establishedCall.conversationId)))
                             },
                         )
-                        NavigationGraph(
-                            navigator = navigator,
-                            startDestination = startDestination
-                        )
+                        CompositionLocalProvider(LocalNavigator provides navigator) {
+                            NavigationGraph(
+                                navigator = navigator,
+                                startDestination = startDestination
+                            )
+                        }
 
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
@@ -461,15 +466,17 @@ class WireActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.Default) {
             lockCodeTimeManager.get().observeAppLock()
                 // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
                 .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                 .first().let {
                     if (it) {
-                        startActivity(
-                            Intent(this@WireActivity, AppLockActivity::class.java)
-                        )
+                        withContext(Dispatchers.Main) {
+                            startActivity(
+                                Intent(this@WireActivity, AppLockActivity::class.java)
+                            )
+                        }
                     }
                 }
         }

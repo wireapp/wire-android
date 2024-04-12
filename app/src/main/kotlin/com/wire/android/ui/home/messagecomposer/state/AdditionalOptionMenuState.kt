@@ -40,6 +40,7 @@ enum class AdditionalOptionSubMenuState {
 
 enum class AdditionalOptionSelectItem {
     RichTextEditing,
+    DrawingMode,
 
     // it's only used to show keyboard after self deleting bottom sheet collapses
     SelfDeleting,
@@ -64,7 +65,7 @@ class AdditionalOptionStateHolder {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.AttachFile
     }
 
-    fun hideAdditionalOptionsMenu() {
+    fun unselectAdditionalOptionsMenu() {
         selectedOption = AdditionalOptionSelectItem.None
     }
 
@@ -88,10 +89,15 @@ class AdditionalOptionStateHolder {
 
     fun toAttachmentAndAdditionalOptionsMenu() {
         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
+        unselectAdditionalOptionsMenu()
     }
 
     fun toSelfDeletingOptionsMenu() {
         selectedOption = AdditionalOptionSelectItem.SelfDeleting
+    }
+
+    fun toDrawingMode() {
+        selectedOption = AdditionalOptionSelectItem.DrawingMode
     }
 
     companion object {

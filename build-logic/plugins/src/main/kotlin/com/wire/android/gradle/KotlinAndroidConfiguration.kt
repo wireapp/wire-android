@@ -30,7 +30,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import versionCatalog
 
 internal fun Project.configureKotlinAndroid(
-    commonExtension: CommonExtension<*, *, *, *, *>,
+    commonExtension: CommonExtension<*, *, *, *, *>, // Add another `*` when upgrading AGP to 8.3
 ): Unit = with(commonExtension) {
     compileSdk = AndroidSdk.compile
 
@@ -85,6 +85,7 @@ private fun Project.configureKotlin() {
     }
 }
 
+// Add another `*` when upgrading AGP to 8.3
 internal fun CommonExtension<*, *, *, *, *>.configureAndroidKotlinTests() {
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

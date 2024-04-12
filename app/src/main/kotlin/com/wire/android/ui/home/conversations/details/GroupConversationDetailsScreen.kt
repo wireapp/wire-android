@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.home.conversations.details
 
-import SwipeableSnackbar
+import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration

@@ -21,5 +21,8 @@ dependencyResolutionManagement {
         create("klibs") {
             from(files("../kalium/gradle/libs.versions.toml"))
         }
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
     }
 }

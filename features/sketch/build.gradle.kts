@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewModelCompose)
 
     testImplementation(libs.junit4)
+    testImplementation(libs.coroutines.test)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
 }

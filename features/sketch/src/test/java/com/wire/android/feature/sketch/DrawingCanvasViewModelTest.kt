@@ -2,13 +2,14 @@ package com.wire.android.feature.sketch
 
 import androidx.compose.ui.geometry.Offset
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class DrawingCanvasViewModelTest {
 
     @Test
-    fun givenOnStartDrawingIsCalled_WhenCallingTheAction_ThenUpdateStateWithEventDown() {
+    fun givenOnStartDrawingIsCalled_WhenCallingTheAction_ThenUpdateStateWithEventDown() = runTest {
         // given
         val (_, viewModel) = Arrangement().arrange()
 
@@ -20,7 +21,7 @@ class DrawingCanvasViewModelTest {
     }
 
     @Test
-    fun givenOnDrawIsCalled_WhenCallingTheAction_ThenUpdateStateWithEventMove() {
+    fun givenOnDrawIsCalled_WhenCallingTheAction_ThenUpdateStateWithEventMove() = runTest {
         // given
         val (_, viewModel) = Arrangement().arrange()
 
@@ -32,7 +33,7 @@ class DrawingCanvasViewModelTest {
     }
 
     @Test
-    fun givenOnStopDrawingIsCalled_WhenCallingTheAction_ThenUpdateStateWithEventUp() {
+    fun givenOnStopDrawingIsCalled_WhenCallingTheAction_ThenUpdateStateWithEventUp() = runTest {
         // given
         val (_, viewModel) = Arrangement().arrange()
 
@@ -44,7 +45,7 @@ class DrawingCanvasViewModelTest {
     }
 
     @Test
-    fun givenStartDrawingEvent_WhenCallingTheAction_ThenUpdateTheStateWithTheInitialPathPosition() {
+    fun givenStartDrawingEvent_WhenCallingTheAction_ThenUpdateTheStateWithTheInitialPathPosition() = runTest {
         // given
         val (_, viewModel) = Arrangement().arrange()
         assertEquals(viewModel.state.currentPosition, Offset.Unspecified)
@@ -61,7 +62,7 @@ class DrawingCanvasViewModelTest {
     }
 
     @Test
-    fun givenDrawingEvent_WhenCallingTheAction_ThenUpdateTheStateWithTheCurrentMovingPathPosition() {
+    fun givenDrawingEvent_WhenCallingTheAction_ThenUpdateTheStateWithTheCurrentMovingPathPosition() = runTest {
         // given
         val (_, viewModel) = Arrangement().arrange()
         assertEquals(viewModel.state.currentPosition, Offset.Unspecified)
@@ -78,7 +79,7 @@ class DrawingCanvasViewModelTest {
     }
 
     @Test
-    fun givenStopDrawingEvent_WhenCallingTheAction_ThenUpdateTheStateWithTheFinalPathPosition() {
+    fun givenStopDrawingEvent_WhenCallingTheAction_ThenUpdateTheStateWithTheFinalPathPosition() = runTest {
         // given
         val (_, viewModel) = Arrangement().arrange()
         assertEquals(viewModel.state.currentPosition, Offset.Unspecified)

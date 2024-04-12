@@ -88,33 +88,30 @@ fun DrawingCanvasBottomSheet(
         sheetState = sheetState,
         onDismissRequest = onDismissSketch
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Row(Modifier.weight(weight = 1f, fill = true)) {
-                DrawingCanvasComponent(
-                    state = viewModel.state,
-                    onStartDrawingEvent = viewModel::onStartDrawingEvent,
-                    onDrawEvent = viewModel::onDrawEvent,
-                    onStopDrawingEvent = viewModel::onStopDrawingEvent,
-                    onSizeChanged = viewModel::onSizeChanged,
-                    onStartDrawing = viewModel::onStartDrawing,
-                    onDraw = viewModel::onDraw,
-                    onStopDrawing = viewModel::onStopDrawing
-                )
-            }
-            Row(
-                Modifier
-                    .height(dimensions().spacing80x)
-                    .fillMaxWidth()
-            ) {
-                DrawingToolbar(
-                    state = viewModel.state,
-                    onSendSketch = {
-                        scope.launch { onSendSketch(viewModel.saveImage(context, tempWritableImageUri)) }
-                            .invokeOnCompletion { scope.launch { sheetState.hide() } }
-                    }
-                )
-            }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .height(dimensions().spacing80x)
+                .weight(weight = 1f, fill = true)
+        ) {
+            DrawingCanvasComponent(
+                state = viewModel.state,
+                onStartDrawingEvent = viewModel::onStartDrawingEvent,
+                onDrawEvent = viewModel::onDrawEvent,
+                onStopDrawingEvent = viewModel::onStopDrawingEvent,
+                onSizeChanged = viewModel::onSizeChanged,
+                onStartDrawing = viewModel::onStartDrawing,
+                onDraw = viewModel::onDraw,
+                onStopDrawing = viewModel::onStopDrawing
+            )
         }
+        DrawingToolbar(
+            state = viewModel.state,
+            onSendSketch = {
+                scope.launch { onSendSketch(viewModel.saveImage(context, tempWritableImageUri)) }
+                    .invokeOnCompletion { scope.launch { sheetState.hide() } }
+            }
+        )
     }
 }
 
@@ -131,35 +128,31 @@ private fun DrawingTopBar(
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = dimensions().spacing8x)
+            .padding(horizontal = dimensions().spacing8x),
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            WireTertiaryIconButton(
-                onButtonClicked = { scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() } },
-                iconResource = R.drawable.ic_close,
-                contentDescription = R.string.content_description_close_button,
-                minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-            )
-            Text(
-                text = conversationTitle,
-                style = MaterialTheme.wireTypography.title01,
-                modifier = Modifier.align(Alignment.CenterVertically),
-                maxLines = MAX_LINES_TOPBAR,
-                overflow = TextOverflow.Ellipsis
-            )
-            WireSecondaryIconButton(
-                onButtonClicked = onUndoStroke,
-                iconResource = R.drawable.ic_undo,
-                contentDescription = R.string.content_description_undo_button,
-                state = if (state.paths.isNotEmpty()) WireButtonState.Default else WireButtonState.Disabled,
-                minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
-                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-            )
-        }
+        WireTertiaryIconButton(
+            onButtonClicked = { scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() } },
+            iconResource = R.drawable.ic_close,
+            contentDescription = R.string.content_description_close_button,
+            minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+            minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+        )
+        Text(
+            text = conversationTitle,
+            style = MaterialTheme.wireTypography.title01,
+            modifier = Modifier.align(Alignment.CenterVertically),
+            maxLines = MAX_LINES_TOPBAR,
+            overflow = TextOverflow.Ellipsis
+        )
+        WireSecondaryIconButton(
+            onButtonClicked = onUndoStroke,
+            iconResource = R.drawable.ic_undo,
+            contentDescription = R.string.content_description_undo_button,
+            state = if (state.paths.isNotEmpty()) WireButtonState.Default else WireButtonState.Disabled,
+            minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+            minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+        )
     }
 }
 

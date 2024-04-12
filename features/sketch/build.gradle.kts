@@ -19,8 +19,6 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons)
     implementation(libs.androidx.lifecycle.viewModelCompose)
-    implementation(libs.compose.ui.preview)
-    debugImplementation(libs.compose.ui.tooling)
 
     testImplementation(libs.junit4)
     testImplementation(libs.coroutines.test)

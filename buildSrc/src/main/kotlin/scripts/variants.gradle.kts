@@ -40,10 +40,23 @@ object BuildTypes {
 }
 
 object Default {
-    val BUILD_FLAVOR: String = System.getenv("flavor") ?: System.getenv("FLAVOR") ?: ProductFlavors.Dev.buildName
-    val BUILD_TYPE = System.getenv("buildType") ?: System.getenv("BUILD_TYPE") ?: BuildTypes.DEBUG
+    fun buildFlavour(default: String?): String? = System.getenv("flavor")
+        ?: System.getenv("FLAVOR")
+        ?: default
 
-    val BUILD_VARIANT = "${BUILD_FLAVOR.capitalize()}${BUILD_TYPE.capitalize()}"
+    fun buildFlavour(): String = System.getenv("flavor")
+        ?: System.getenv("FLAVOR")
+        ?: ProductFlavors.Dev.buildName
+
+    fun buildType(default: String?): String? = System.getenv("buildType")
+        ?: System.getenv("BUILD_TYPE")
+        ?: default
+
+    fun buildType(): String = System.getenv("buildType")
+        ?: System.getenv("BUILD_TYPE")
+        ?: BuildTypes.DEBUG
+
+    val BUILD_VARIANT = "${buildFlavour().capitalize()}${buildType().capitalize()}"
 }
 
 fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(

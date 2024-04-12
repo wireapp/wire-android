@@ -38,7 +38,7 @@ tasks.register("runUnitTests") {
 
 tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
-    dependsOn(":app:connected${Default.BUILD_FLAVOR.capitalize()}DebugAndroidTest")
+    dependsOn(":app:connected${Default.buildFlavour().capitalize()}DebugAndroidTest")
 }
 
 tasks.register("assembleApp") {
@@ -71,7 +71,7 @@ tasks.register("runApp", Exec::class) {
         val sdkDir = properties["sdk.dir"]
         val adb = "${sdkDir}/platform-tools/adb"
 
-        val applicationPackage = "com.wire.android.${Default.BUILD_FLAVOR}"
+        val applicationPackage = "com.wire.android.${Default.buildFlavour()}"
         val launchActivity = "com.wire.android.feature.launch.ui.LauncherActivity"
 
         commandLine(adb, "shell", "am", "start", "-n", "${applicationPackage}/${launchActivity}")

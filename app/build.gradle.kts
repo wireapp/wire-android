@@ -1,3 +1,5 @@
+import scripts.Variants_gradle
+
 /*
  * Wire
  * Copyright (C) 2024 Wire Swiss GmbH
@@ -57,16 +59,20 @@ android {
     }
     android.buildFeatures.buildConfig = true
 
-    var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
+    val fdroidBuild = (Variants_gradle.Default.buildFlavour(default = null) ?: gradle.startParameter.taskRequests.toString())
+        .lowercase()
+        .contains("fdroid")
+
+    println("Building with: $fdroidBuild")
     sourceSets {
         // Add the "foss" sourceSets for the fdroid flavor
-        if(fdroidBuild) {
+        if (fdroidBuild) {
             getByName("fdroid") {
                 java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
                 res.srcDirs("src/prod/res")
                 println("Building with FOSS sourceSets")
             }
-        // For all other flavors use the "nonfree" sourceSets
+            // For all other flavors use the "nonfree" sourceSets
         } else {
             getByName("main") {
                 java.srcDirs("src/nonfree/kotlin")
@@ -163,7 +169,7 @@ dependencies {
 
     // firebase
     var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
-	if (!fdroidBuild) {
+    if (!fdroidBuild) {
         implementation(platform(libs.firebase.bom))
         implementation(libs.firebase.fcm)
         implementation(libs.googleGms.location)

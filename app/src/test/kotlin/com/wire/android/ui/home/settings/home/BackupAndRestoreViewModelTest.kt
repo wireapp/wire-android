@@ -53,24 +53,42 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.Instant
 import okio.IOException
 import okio.Path.Companion.toPath
 import okio.buffer
 import org.amshove.kluent.internal.assertEquals
+import org.amshove.kluent.internal.assertFalse
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertInstanceOf
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
 class BackupAndRestoreViewModelTest {
 
     private val dispatcher = TestDispatcherProvider()
 
+    @BeforeEach
+    fun setUp() {
+        Dispatchers.setMain(dispatcher.main())
+    }
+
+    @AfterEach
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
     @Test
-    fun givenAnEmptyPassword_whenCreatingABackup_thenItCreatesItSuccessfully() = runTest(dispatcher.default()) {
+    fun givenAnEmptyPassword_whenCreatingABackup_thenItCreatesItSuccessfully() = runTest {
         // Given
         val emptyPassword = ""
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -82,8 +100,8 @@ class BackupAndRestoreViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assert(backupAndRestoreViewModel.latestCreatedBackup?.isEncrypted == false)
         assert(backupAndRestoreViewModel.state.backupCreationProgress is BackupCreationProgress.Finished)
+        assertFalse(backupAndRestoreViewModel.latestCreatedBackup?.isEncrypted!!)
         coVerify(exactly = 1) { arrangement.createBackupFile(password = emptyPassword) }
     }
 
@@ -100,8 +118,8 @@ class BackupAndRestoreViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assert(backupAndRestoreViewModel.latestCreatedBackup?.isEncrypted == true)
-        assert(backupAndRestoreViewModel.state.backupCreationProgress is BackupCreationProgress.Finished)
+        assertInstanceOf(BackupCreationProgress.Finished::class.java, backupAndRestoreViewModel.state.backupCreationProgress)
+        assertTrue(backupAndRestoreViewModel.latestCreatedBackup?.isEncrypted!!)
         coVerify(exactly = 1) { arrangement.createBackupFile(password = password) }
     }
 
@@ -155,7 +173,7 @@ class BackupAndRestoreViewModelTest {
     }
 
     @Test
-    fun givenANonEmptyPassword_whenCreatingABackupWithAGivenError_thenItReturnsAFailure() = runTest(dispatcher.default()) {
+    fun givenANonEmptyPassword_whenCreatingABackupWithAGivenError_thenItReturnsAFailure() = runTest {
         // Given
         val password = "mayTh3ForceBeWIthYou"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -173,7 +191,7 @@ class BackupAndRestoreViewModelTest {
     }
 
     @Test
-    fun givenACreatedBackup_whenSharingIt_thenTheStateIsReset() = runTest(dispatcher.default()) {
+    fun givenACreatedBackup_whenSharingIt_thenTheStateIsResetButKeepsTheLastBackupDate() = runTest {
         // Given
         val storedBackup = BackupAndRestoreState.CreatedBackup("backupFilePath".toPath(), "backupName.zip", 100L, true)
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -187,7 +205,9 @@ class BackupAndRestoreViewModelTest {
 
         // Then
         assert(backupAndRestoreViewModel.latestCreatedBackup == storedBackup)
-        assert(backupAndRestoreViewModel.state == BackupAndRestoreState.INITIAL_STATE)
+        assertEquals(BackupAndRestoreState.INITIAL_STATE.copy(
+            lastBackupData = backupAndRestoreViewModel.state.lastBackupData
+        ), backupAndRestoreViewModel.state)
         coVerify(exactly = 1) {
             arrangement.fileManager.shareWithExternalApp(
                 storedBackup.path,
@@ -201,7 +221,7 @@ class BackupAndRestoreViewModelTest {
     }
 
     @Test
-    fun givenACreatedBackup_whenSavingIt_thenTheStateIsReset() = runTest(dispatcher.default()) {
+    fun givenACreatedBackup_whenSavingIt_thenTheStateIsResetButKeepsTheLastBackupDate() = runTest(dispatcher.default()) {
         // Given
         val storedBackup = BackupAndRestoreState.CreatedBackup("backupFilePath".toPath(), "backupName.zip", 100L, true)
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -216,7 +236,10 @@ class BackupAndRestoreViewModelTest {
 
         // Then
         assert(backupAndRestoreViewModel.latestCreatedBackup == storedBackup)
-        assert(backupAndRestoreViewModel.state == BackupAndRestoreState.INITIAL_STATE)
+        assertEquals(
+            BackupAndRestoreState.INITIAL_STATE.copy(lastBackupData = backupAndRestoreViewModel.state.lastBackupData),
+            backupAndRestoreViewModel.state
+        )
         coVerify(exactly = 1) {
             arrangement.fileManager.copyToUri(
                 storedBackup.path,
@@ -457,6 +480,7 @@ class BackupAndRestoreViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             val mockUri = mockk<Uri>()
             mockkStatic(Uri::class)
+            withGetLastBackupDateSeconds()
             every { Uri.parse("some-backup") } returns mockUri
             coEvery { importBackup(any(), any()) } returns RestoreBackupResult.Success
             coEvery { createBackupFile(any()) } returns CreateBackupResult.Success("".toPath(), 0L, "")
@@ -569,6 +593,10 @@ class BackupAndRestoreViewModelTest {
 
         fun withUpdateLastBackupData() = apply {
             coEvery { userDataStore.setLastBackupDateSeconds(any()) } returns Unit
+        }
+
+        fun withGetLastBackupDateSeconds(result: Flow<Long?> = flowOf(Instant.DISTANT_PAST.epochSeconds)) = apply {
+            coEvery { userDataStore.lastBackupDateSeconds() } returns result
         }
 
         fun arrange() = this to viewModel

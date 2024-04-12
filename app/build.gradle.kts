@@ -44,6 +44,11 @@ repositories {
     google()
 }
 
+fun isFossSourceSet(): Boolean {
+    return  (Variants_gradle.Default.buildFlavour(default = null) ?: gradle.startParameter.taskRequests.toString())
+        .lowercase()
+        .contains("fdroid")
+}
 android {
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin
@@ -59,9 +64,7 @@ android {
     }
     android.buildFeatures.buildConfig = true
 
-    val fdroidBuild = (Variants_gradle.Default.buildFlavour(default = null) ?: gradle.startParameter.taskRequests.toString())
-        .lowercase()
-        .contains("fdroid")
+    val fdroidBuild = isFossSourceSet()
 
     println("Building with: $fdroidBuild")
     sourceSets {
@@ -168,7 +171,8 @@ dependencies {
     implementation(libs.bundlizer.core)
 
     // firebase
-    var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
+    var fdroidBuild = isFossSourceSet()
+
     if (!fdroidBuild) {
         implementation(platform(libs.firebase.bom))
         implementation(libs.firebase.fcm)

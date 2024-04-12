@@ -1,3 +1,5 @@
+import scripts.Variants_gradle
+
 /*
  * Wire
  * Copyright (C) 2024 Wire Swiss GmbH
@@ -16,6 +18,12 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+fun isFossSourceSet(): Boolean {
+    return  (Variants_gradle.Default.buildFlavour(default = null) ?: gradle.startParameter.taskRequests.toString())
+        .lowercase()
+        .contains("fdroid")
+}
+
 buildscript {
     repositories {
         google()
@@ -25,7 +33,7 @@ buildscript {
     }
     dependencies {
         classpath(libs.hilt.gradlePlugin)
-        var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
+        var fdroidBuild = isFossSourceSet()
 	    if (fdroidBuild) {
             println("Not including gms")
         } else {

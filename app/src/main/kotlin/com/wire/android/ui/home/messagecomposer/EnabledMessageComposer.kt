@@ -301,11 +301,11 @@ fun EnabledMessageComposer(
                                     )
                                 },
                                 onSendSketch = {
+                                    onAttachmentPicked(UriAsset(it))
                                     inputStateHolder.handleBackPressed(
                                         isImeVisible,
                                         additionalOptionStateHolder.additionalOptionsSubMenuState
                                     )
-                                    onAttachmentPicked(UriAsset(it))
                                 },
                                 conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
                                 tempWritableImageUri = tempWritableImageUri

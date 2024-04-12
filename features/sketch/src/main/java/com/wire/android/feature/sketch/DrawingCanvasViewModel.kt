@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
@@ -37,6 +38,7 @@ import com.wire.android.feature.sketch.model.DrawingState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.FileOutputStream
 
 class DrawingCanvasViewModel : ViewModel() {
@@ -133,6 +135,7 @@ class DrawingCanvasViewModel : ViewModel() {
      * @return The [Uri] of the saved image.
      */
     suspend fun saveImage(context: Context, tempWritableImageUri: Uri?): Uri {
+        val tempSketchFile = tempWritableImageUri.orTempUri(context)
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 with(state) {
@@ -144,20 +147,26 @@ class DrawingCanvasViewModel : ViewModel() {
                         Bitmap.Config.ARGB_8888
                     )
                     val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.WHITE }) }
-                    context.contentResolver.openFileDescriptor(tempWritableImageUri!!, "rw")?.use { fileDescriptor ->
+                    context.contentResolver.openFileDescriptor(tempSketchFile, "rw")?.use { fileDescriptor ->
                         FileOutputStream(fileDescriptor.fileDescriptor).use { fileOutputStream ->
                             paths.forEach { path -> path.drawNative(canvas) }
                             bitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY, fileOutputStream)
                             fileOutputStream.flush()
                         }.also {
-                            Log.d("DrawingCanvasViewModel", "Image written to: $tempWritableImageUri")
+                            Log.d("DrawingCanvasViewModel", "Image written to: $tempSketchFile")
                         }
                     }
                 }
             }
         }.join()
         initializeCanvas()
-        return tempWritableImageUri!!
+        return tempSketchFile
+    }
+
+    private fun Uri?.orTempUri(context: Context): Uri = this ?: run {
+        val tempFile = File.createTempFile("temp_sketch", ".jpg", context.cacheDir)
+        tempFile.deleteOnExit()
+        tempFile.toUri()
     }
 
     companion object {

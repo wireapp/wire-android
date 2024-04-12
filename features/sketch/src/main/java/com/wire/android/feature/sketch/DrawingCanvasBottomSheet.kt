@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -91,7 +90,6 @@ fun DrawingCanvasBottomSheet(
         Row(
             Modifier
                 .fillMaxWidth()
-                .height(dimensions().spacing80x)
                 .weight(weight = 1f, fill = true)
         ) {
             DrawingCanvasComponent(
@@ -164,7 +162,7 @@ private fun DrawingToolbar(
     var showToolSelection by remember { mutableStateOf(false) }
     Row(
         Modifier
-            .fillMaxHeight()
+            .height(dimensions().spacing80x)
             .padding(horizontal = dimensions().spacing8x)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,

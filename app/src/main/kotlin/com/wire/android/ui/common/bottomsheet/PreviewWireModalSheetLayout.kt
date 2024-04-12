@@ -24,7 +24,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 
-
 @Preview
 @Composable
 fun PreviewMenuModalSheetContentWithoutHeader() {

@@ -18,8 +18,6 @@
 
 package com.wire.android.ui.common
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,7 +38,6 @@ import androidx.lifecycle.flowWithLifecycle
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
-import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions

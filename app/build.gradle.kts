@@ -66,7 +66,6 @@ android {
 
     val fdroidBuild = isFossSourceSet()
 
-    println("Building with: $fdroidBuild")
     sourceSets {
         // Add the "foss" sourceSets for the fdroid flavor
         if (fdroidBuild) {

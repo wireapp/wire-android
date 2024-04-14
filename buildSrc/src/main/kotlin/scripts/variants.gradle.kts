@@ -46,7 +46,7 @@ object Default {
 
     fun buildFlavour(): String = System.getenv("flavor")
         ?: System.getenv("FLAVOR")
-        ?: ProductFlavors.Fdroid.buildName
+        ?: ProductFlavors.Dev.buildName
 
     fun buildType(default: String?): String? = System.getenv("buildType")
         ?: System.getenv("BUILD_TYPE")

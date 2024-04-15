@@ -167,7 +167,9 @@ class MessageDraftViewModelTest {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
-            every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = TestConversation.ID)
+            every {
+                savedStateHandle.navArgs<ConversationNavArgs>()
+            } returns ConversationNavArgs(conversationId = TestConversation.ID)
         }
 
         @MockK

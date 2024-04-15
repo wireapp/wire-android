@@ -61,9 +61,9 @@ android {
     sourceSets {
         // Add the "foss" sourceSets for the fdroid flavor
         if(fdroidBuild) {
-            getByName("main") {
+            getByName("fdroid") {
                 java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
-                resources.srcDirs("src/prod/res")
+                res.srcDirs("src/prod/res")
                 println("Building with FOSS sourceSets")
             }
         // For all other flavors use the "nonfree" sourceSets
@@ -162,10 +162,15 @@ dependencies {
     implementation(libs.bundlizer.core)
 
     // firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.fcm)
+    var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
+	if (!fdroidBuild) {
+        implementation(platform(libs.firebase.bom))
+        implementation(libs.firebase.fcm)
+        implementation(libs.googleGms.location)
+    } else {
+        println("Excluding FireBase for FDroid build")
+    }
     implementation(libs.androidx.work)
-    implementation(libs.googleGms.location)
 
     // commonMark
     implementation(libs.commonmark.core)

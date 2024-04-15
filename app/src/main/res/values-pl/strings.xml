@@ -106,6 +106,7 @@
     <string name="content_description_conversation_search_icon">Search icon</string>
     <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_conversation_enable_rich_text_mode">W&#322;&#261;cz tryb bogatego tekstu</string>
+    <string name="content_description_conversation_enable_drawing_mode">Enable drawing mode button</string>
     <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
     <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
     <string name="content_description_conversation_rich_text_italic">Rich text formatting Italic</string>
@@ -218,6 +219,7 @@ Wybierz silne has&#322;o, aby chroni&#263; plik kopii zapasowej.</string>
 
 URL &#347;rodowiska:
 %2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">Lokalne &#347;rodowisko</string>
     <string name="welcome_migration_dialog_title">Witaj w naszej nowej aplikacji Android &#128075;</string>
     <string name="welcome_migration_dialog_content">Przebudowali&#347;my aplikacj&#281;, aby by&#322;a bardziej u&#380;yteczna dla ka&#380;dego.
@@ -273,7 +275,7 @@ Dowiedz si&#281; wi&#281;cej o przebudowanej aplikacji Wire - nowe opcje i uspra
     <string name="conversation_history_wipe_explanation">Zgodnie z ustawieniami bezpiecze&#324;stwa Twojego zespo&#322;u historia rozm&#243;w zosta&#322;a r&#243;wnie&#380; usuni&#281;ta.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Zweryfikuj swoje konto</string>
-    <string name="second_factor_authentication_instructions_label">Wpisz kod weryfikacyjny, kt&#243;ry zosta&#322; wys&#322;any na adres e-mail %1$s</string>
+    <string name="second_factor_authentication_instructions_label">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="second_factor_code_error">Nieprawid&#322;owy kod lub maksymalna liczba pr&#243;b wyczerpana. Spr&#243;buj ponownie lub popro&#347; o inny kod.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Usu&#324; urz&#261;dzenie</string>
@@ -466,6 +468,17 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="message_details_reactions_empty_learn_more">Dowiedz si&#281; wi&#281;cej o reakcjach</string>
     <string name="message_details_read_receipts_empty_text">Nikt nie odczyta&#322; jeszcze tej wiadomo&#347;ci &#128064;</string>
     <string name="message_details_read_receipts_empty_learn_more">Dowiedz si&#281; wi&#281;cej o potwierdzeniach odczytania</string>
+    <!-- Messages Date and Time -->
+    <string name="message_datetime_now">now</string>
+    <plurals name="message_datetime_minutes_ago">
+        <item quantity="one">1 minute ago</item>
+        <item quantity="few">%1$d minutes ago</item>
+        <item quantity="many">%1$d minutes ago</item>
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <string name="message_datetime_today">Today, %s</string>
+    <string name="message_datetime_yesterday">Yesterday, %s</string>
+    <string name="message_datetime_other">%s</string>
     <!-- Attachment options -->
     <string name="attachment_share_file">Za&#322;&#261;cz Plik</string>
     <string name="attachment_share_image">Za&#322;&#261;cz Obraz</string>
@@ -1030,6 +1043,8 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
     <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
@@ -1310,6 +1325,8 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_title">Certificate couldn’t be issued</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_text">Please try again, or reach out to your team admin.</string>
     <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_description">Log out to reduce security risks. Then log in again, get a new certificate, and reset your password.\n\nIf you keep using this device, your conversations are no longer verified.</string>
@@ -1319,6 +1336,7 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
     <string name="record_audio_send_label">Send Audio Message</string>
+    <string name="record_audio_apply_filter_label">Apply audio filter</string>
     <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
     <string name="record_audio_discard_dialog_text">The audio message will be deleted and can not be sent.</string>
     <string name="record_audio_discard_dialog_discard_button">Discard</string>

@@ -19,6 +19,7 @@ package com.wire.android.feature.sketch
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
@@ -51,7 +53,6 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.WireColorPalette
 
 @Composable
 fun DrawingToolPicker(
@@ -141,11 +142,13 @@ private fun SelectedColor(color: Color, onColorSelected: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .aspectRatio(1f)
-            .padding(dimensions().spacing12x),
+            .padding(dimensions().spacing12x)
+            .background(colorsScheme().surface, CircleShape)
+            .border(dimensions().spacing2x, colorsScheme().secondaryText, CircleShape),
         checked = true,
         border = BorderStroke(
-            dimensions().spacing2x,
-            colorsScheme().secondaryText
+            if (color == Color.White) dimensions().spacing1x else dimensions().spacing2x,
+            if (color == Color.White) colorsScheme().onSurface else colorsScheme().surface
         ),
         colors = IconToggleButtonColors(
             containerColor = color,
@@ -162,7 +165,7 @@ private fun SelectedColor(color: Color, onColorSelected: () -> Unit) {
             contentDescription = null,
             tint = if (color == Color.White) colorsScheme().onBackground else colorsScheme().background,
             modifier = Modifier.size(
-                dimensions().spacing16x
+                dimensions().spacing12x
             )
         )
     }
@@ -177,7 +180,7 @@ private const val GRID_CELLS = 6
 fun PreviewDrawingToolPicker() {
     DrawingToolPicker(
         sheetState = WireModalSheetState(SheetValue.Expanded),
-        currentColor = WireColorPalette.LightBlue500,
+        currentColor = Color.White,
         onColorSelected = {}
     )
 }

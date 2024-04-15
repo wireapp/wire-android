@@ -18,14 +18,20 @@
 package com.wire.android.feature.sketch
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
@@ -50,32 +56,47 @@ fun DrawingToolPicker(
     val scope = rememberCoroutineScope()
     val colorPalette = colorsScheme().sketchColorPalette
     WireModalSheetLayout(
+        dragHandle = null,
         sheetState = sheetState,
         coroutineScope = scope,
     ) {
-        MenuModalSheetContent(
-            header = MenuModalSheetHeader.Visible(title = stringResource(id = R.string.title_color_picker)),
-            menuItems = listOf {
-                LazyVerticalGrid(
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(PaddingValues(horizontal = dimensions().spacing8x)),
-                    columns = GridCells.Fixed(GRID_CELLS),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                ) {
+        Column(
+            modifier = Modifier
+                .background(colorsScheme().surface)
+                .wrapContentSize()
+        ) {
+            Box(
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = dimensions().spacing12x)
+                    .size(width = dimensions().modalBottomSheetDividerWidth, height = dimensions().spacing4x)
+                    .background(color = colorsScheme().background, shape = RoundedCornerShape(size = dimensions().spacing2x))
 
-                    items(colorPalette.size) { index ->
-                        val color = colorPalette[index]
-                        ColorOptionButton(
-                            color = color,
-                            selected = color == currentColor,
-                            onColorSelected = { onColorSelected(color) }
-                        )
+            )
+            MenuModalSheetContent(
+                header = MenuModalSheetHeader.Visible(title = stringResource(id = R.string.title_color_picker)),
+                menuItems = listOf {
+                    LazyVerticalGrid(
+                        modifier = Modifier
+                            .background(colorsScheme().surface)
+                            .padding(PaddingValues(horizontal = dimensions().spacing8x)),
+                        columns = GridCells.Fixed(GRID_CELLS),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalArrangement = Arrangement.SpaceEvenly,
+                    ) {
+
+                        items(colorPalette.size) { index ->
+                            val color = colorPalette[index]
+                            ColorOptionButton(
+                                color = color,
+                                selected = color == currentColor,
+                                onColorSelected = { onColorSelected(color) }
+                            )
+                        }
                     }
                 }
-            }
-        )
+            )
+        }
     }
 }
 

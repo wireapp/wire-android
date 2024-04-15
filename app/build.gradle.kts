@@ -69,13 +69,9 @@ android {
 
     sourceSets {
         // Add the "foss" sourceSets for the fdroid flavor
-<<<<<<< HEAD
-        if(fdroidBuild) {
-            getByName("main") {
-=======
+
         if (fdroidBuild) {
             getByName("fdroid") {
->>>>>>> a2f844ca0 (fix: error in deciding whether the current build should use open source only dependencies or not (#2890))
                 java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
                 resources.srcDirs("src/prod/res")
                 println("Building with FOSS sourceSets")
@@ -183,21 +179,16 @@ dependencies {
     implementation(libs.resaca.hilt)
     implementation(libs.bundlizer.core)
 
-    // firebase
-<<<<<<< HEAD
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.fcm)
-=======
     var fdroidBuild = isFossSourceSet()
 
     if (!fdroidBuild) {
+        // firebase
         implementation(platform(libs.firebase.bom))
         implementation(libs.firebase.fcm)
         implementation(libs.googleGms.location)
     } else {
         println("Excluding FireBase for FDroid build")
     }
->>>>>>> a2f844ca0 (fix: error in deciding whether the current build should use open source only dependencies or not (#2890))
     implementation(libs.androidx.work)
     implementation(libs.googleGms.location)
 

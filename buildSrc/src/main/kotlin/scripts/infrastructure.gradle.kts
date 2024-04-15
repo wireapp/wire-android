@@ -36,7 +36,7 @@ tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
     dependsOn(":app:test${Default.BUILD_VARIANT}UnitTest")
     val buildType =
-        if (Default.BUILD_TYPE == Variants_gradle.BuildTypes.DEBUG) Default.BUILD_TYPE.capitalized()
+        if (Default.resolvedBuildType() == Variants_gradle.BuildTypes.DEBUG) Default.resolvedBuildType().capitalized()
         else Variants_gradle.BuildTypes.RELEASE.capitalized()
 
     // valid submodules path to run unit tests

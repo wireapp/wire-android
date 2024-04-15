@@ -45,7 +45,7 @@ repositories {
 }
 
 fun isFossSourceSet(): Boolean {
-    return  (Variants_gradle.Default.buildFlavour(default = null) ?: gradle.startParameter.taskRequests.toString())
+    return (Variants_gradle.Default.explicitBuildFlavor() ?: gradle.startParameter.taskRequests.toString())
         .lowercase()
         .contains("fdroid")
 }

@@ -17,19 +17,26 @@
  */
 package com.wire.android.ui.markdown
 
-import org.commonmark.Extension
-import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
-import org.commonmark.ext.gfm.tables.TablesExtension
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 
-object MarkdownConstants {
-    const val TAG_URL = "linkTag"
-    const val TAG_MENTION = "mentionTag"
-    const val MENTION_MARK = "&&"
-    const val BULLET_MARK = "\u2022"
-    const val EMPTY_SPACE = "&nbsp;"
-
-    val supportedExtensions: List<Extension> = listOf(
-        StrikethroughExtension.builder().requireTwoTildes(true).build(),
-        TablesExtension.create()
+@Composable
+fun MarkdownInline(
+    inlines: List<MarkdownNode.Inline>,
+    nodeData: NodeData
+) {
+    val annotatedString = buildAnnotatedString {
+        pushStyle(nodeData.style.toSpanStyle())
+        inlineNodeChildren(inlines, this, nodeData)
+        pop()
+    }
+    MarkdownText(
+        annotatedString,
+        style = nodeData.style,
+        color = nodeData.color,
+        clickable = false,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
     )
 }

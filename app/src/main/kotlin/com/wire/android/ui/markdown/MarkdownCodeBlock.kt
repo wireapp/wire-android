@@ -39,13 +39,9 @@ fun MarkdownIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode
         fontFamily = FontFamily.Monospace,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(dimensions().spacing4x)
-            .background(MaterialTheme.wireColorScheme.outlineVariant)
-            .border(
-                dimensions().spacing1x, MaterialTheme.wireColorScheme.outline,
-                shape = RoundedCornerShape(dimensions().spacing4x)
-            )
-            .padding(dimensions().spacing4x)
+            .padding(vertical = dimensions().spacing4x)
+            .background(MaterialTheme.wireColorScheme.surfaceVariant, shape = RoundedCornerShape(dimensions().spacing16x))
+            .padding(dimensions().spacing8x)
     )
 }
 
@@ -57,12 +53,8 @@ fun MarkdownFencedCodeBlock(fencedCodeBlock: MarkdownNode.Block.FencedCode, node
         fontFamily = FontFamily.Monospace,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(dimensions().spacing4x)
-            .background(MaterialTheme.wireColorScheme.outlineVariant)
-            .border(
-                dimensions().spacing1x, MaterialTheme.wireColorScheme.outline,
-                shape = RoundedCornerShape(dimensions().spacing4x)
-            )
-            .padding(dimensions().spacing4x)
+            .padding(vertical = dimensions().spacing4x)
+            .background(MaterialTheme.wireColorScheme.surfaceVariant, shape = RoundedCornerShape(dimensions().spacing16x))
+            .padding(dimensions().spacing8x)
     )
 }

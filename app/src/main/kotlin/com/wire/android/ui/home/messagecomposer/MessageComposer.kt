@@ -253,7 +253,7 @@ private fun BaseComposerPreview(
             )
         )
     }
-    val messageComposition = remember { mutableStateOf(MessageComposition.DEFAULT) }
+    val messageComposition = remember { mutableStateOf(MessageComposition(ConversationId("value", "domain"))) }
     val selfDeletionTimer = remember { mutableStateOf(SelfDeletionTimer.Enabled(Duration.ZERO)) }
 
     MessageComposer(

@@ -110,19 +110,27 @@ fun inlineNodeChildren(
     children.forEach { child ->
         when (child) {
             is MarkdownNode.Inline.Text -> {
-                updatedMentions = appendLinksAndMentions(
-                    annotatedString,
-                    convertTypoGraphs(child.literal),
-                    nodeData.copy(mentions = updatedMentions)
-                )
+                if(nodeData.disableLinks) {
+                    annotatedString.append(convertTypoGraphs(child.literal))
+                } else {
+                    updatedMentions = appendLinksAndMentions(
+                        annotatedString,
+                        convertTypoGraphs(child.literal),
+                        nodeData.copy(mentions = updatedMentions)
+                    )
+                }
             }
 
             is MarkdownNode.Inline.Image -> {
-                updatedMentions = appendLinksAndMentions(
-                    annotatedString,
-                    child.destination,
-                    nodeData.copy(mentions = updatedMentions)
-                )
+                if(nodeData.disableLinks) {
+                    annotatedString.append(child.destination)
+                } else {
+                    updatedMentions = appendLinksAndMentions(
+                        annotatedString,
+                        child.destination,
+                        nodeData.copy(mentions = updatedMentions)
+                    )
+                }
             }
 
             is MarkdownNode.Inline.Emphasis -> {
@@ -162,20 +170,24 @@ fun inlineNodeChildren(
             }
 
             is MarkdownNode.Inline.Link -> {
-                annotatedString.pushStyle(
-                    SpanStyle(
-                        color = nodeData.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline
+                if (nodeData.disableLinks) {
+                    annotatedString.append(child.destination)
+                } else {
+                    annotatedString.pushStyle(
+                        SpanStyle(
+                            color = nodeData.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        )
                     )
-                )
-                annotatedString.pushStringAnnotation(TAG_URL, child.destination)
-                updatedMentions = inlineNodeChildren(
-                    child.children,
-                    annotatedString,
-                    nodeData
-                )
-                annotatedString.pop()
-                annotatedString.pop()
+                    annotatedString.pushStringAnnotation(TAG_URL, child.destination)
+                    updatedMentions = inlineNodeChildren(
+                        child.children,
+                        annotatedString,
+                        nodeData
+                    )
+                    annotatedString.pop()
+                    annotatedString.pop()
+                }
             }
 
             is MarkdownNode.Inline.Strikethrough -> {

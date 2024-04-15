@@ -31,6 +31,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -60,6 +61,9 @@ class ConversationInfoViewModelArrangement {
     lateinit var observerSelfUser: GetSelfUserUseCase
 
     @MockK
+    lateinit var fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase
+
+    @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK(relaxed = true)
@@ -71,6 +75,7 @@ class ConversationInfoViewModelArrangement {
             savedStateHandle,
             observeConversationDetails,
             observerSelfUser,
+            fetchConversationMLSVerificationStatus,
             wireSessionImageLoader
         )
     }
@@ -86,6 +91,7 @@ class ConversationInfoViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow().map {
             ObserveConversationDetailsUseCase.Result.Success(it)
         }
+        coEvery { fetchConversationMLSVerificationStatus.invoke(any()) } returns Unit
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

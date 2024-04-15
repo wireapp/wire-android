@@ -16,16 +16,16 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.settings.account
+fun Map<String, String?>.toJsonString (): String {
+    if (this.isEmpty()) return "{}"
 
-data class MyAccountState(
-    val fullName: String = "",
-    val userName: String = "",
-    val email: String = "",
-    val teamName: String? = null,
-    val domain: String = "",
-    val changePasswordUrl: String? = null,
-    val isEditNameAllowed: Boolean = false,
-    val isEditEmailAllowed: Boolean = false,
-    val isEditHandleAllowed: Boolean = false
-)
+    return StringBuilder().apply {
+        append("{")
+        this@toJsonString.forEach { (key, value) ->
+            append("\"$key\":\"$value\",")
+        }
+        deleteCharAt(length - 1)
+        append("}")
+
+    }.toString()
+}

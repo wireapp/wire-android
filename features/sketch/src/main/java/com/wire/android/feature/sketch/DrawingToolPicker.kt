@@ -53,6 +53,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireColorPalette
 
 @Composable
 fun DrawingToolPicker(
@@ -142,13 +143,13 @@ private fun SelectedColor(color: Color, onColorSelected: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .aspectRatio(1f)
-            .padding(dimensions().spacing12x)
+            .padding(if (color.isWhite()) dimensions().corner14x else dimensions().corner12x)
             .background(colorsScheme().surface, CircleShape)
             .border(dimensions().spacing2x, colorsScheme().secondaryText, CircleShape),
         checked = true,
         border = BorderStroke(
-            if (color == Color.White) dimensions().spacing1x else dimensions().spacing2x,
-            if (color == Color.White) colorsScheme().onSurface else colorsScheme().surface
+            if (color.isWhite()) dimensions().spacing1x else dimensions().spacing2x,
+            if (color.isWhite()) colorsScheme().onSurface else colorsScheme().surface
         ),
         colors = IconToggleButtonColors(
             containerColor = color,
@@ -163,9 +164,9 @@ private fun SelectedColor(color: Color, onColorSelected: () -> Unit) {
         Icon(
             imageVector = Icons.Default.CheckCircle,
             contentDescription = null,
-            tint = if (color == Color.White) colorsScheme().onBackground else colorsScheme().background,
+            tint = if (color.isWhite()) colorsScheme().onBackground else colorsScheme().background,
             modifier = Modifier.size(
-                dimensions().spacing12x
+                dimensions().spacing16x
             )
         )
     }
@@ -173,11 +174,23 @@ private fun SelectedColor(color: Color, onColorSelected: () -> Unit) {
 
 private const val GRID_CELLS = 6
 
+private fun Color.isWhite() = this == Color.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun PreviewDrawingToolPicker() {
+fun PreviewDrawingToolPickerSelectedNonWhite() {
+    DrawingToolPicker(
+        sheetState = WireModalSheetState(SheetValue.Expanded),
+        currentColor = WireColorPalette.LightBlue500,
+        onColorSelected = {}
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun PreviewDrawingToolPickerSelectedWhite() {
     DrawingToolPicker(
         sheetState = WireModalSheetState(SheetValue.Expanded),
         currentColor = Color.White,

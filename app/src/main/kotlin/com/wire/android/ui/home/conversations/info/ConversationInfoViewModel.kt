@@ -39,6 +39,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
@@ -52,6 +53,7 @@ class ConversationInfoViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observerSelfUser: GetSelfUserUseCase,
+    private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -64,6 +66,13 @@ class ConversationInfoViewModel @Inject constructor(
 
     init {
         getSelfUserId()
+        fetchMLSVerificationStatus()
+    }
+
+    private fun fetchMLSVerificationStatus() {
+        viewModelScope.launch {
+            fetchConversationMLSVerificationStatus(conversationId)
+        }
     }
 
     private fun getSelfUserId() {

@@ -24,5 +24,4 @@ object MarkdownParser {
     private val parser = Parser.builder().extensions(MarkdownConstants.supportedExtensions).build()
 
     fun parse(text: String) = (parser.parse(text) as Document).toContent() as MarkdownNode.Document
-
 }

@@ -110,7 +110,7 @@ fun inlineNodeChildren(
     children.forEach { child ->
         when (child) {
             is MarkdownNode.Inline.Text -> {
-                if(nodeData.disableLinks) {
+                if (nodeData.disableLinks) {
                     annotatedString.append(convertTypoGraphs(child.literal))
                 } else {
                     updatedMentions = appendLinksAndMentions(
@@ -122,7 +122,7 @@ fun inlineNodeChildren(
             }
 
             is MarkdownNode.Inline.Image -> {
-                if(nodeData.disableLinks) {
+                if (nodeData.disableLinks) {
                     annotatedString.append(child.destination)
                 } else {
                     updatedMentions = appendLinksAndMentions(

@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-@file:Suppress("ComplexMethod")
+@file:Suppress("ComplexMethod", "TooManyFunctions")
+
 package com.wire.android.ui.markdown
 
 import kotlinx.collections.immutable.persistentListOf

@@ -62,7 +62,7 @@ private fun LastMessageMarkdown(text: String, leadingText: String = "") {
     val markdownPreview = text.toMarkdownDocument().getFirstInlines()
     val leadingInlines = leadingText.toMarkdownDocument().getFirstInlines()?.children ?: persistentListOf()
 
-    if(markdownPreview != null) {
+    if (markdownPreview != null) {
         MarkdownInline(
             inlines = leadingInlines.plus(markdownPreview.children),
             nodeData = nodeData

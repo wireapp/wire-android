@@ -24,13 +24,9 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
@@ -49,15 +45,13 @@ import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.EMPTY
-import com.wire.android.util.getDependenciesVersion
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.functional.Either
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
 
 @Composable
 fun DebugDataOptions(
@@ -80,7 +74,8 @@ fun DebugDataOptions(
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         dismissCertificateDialog = viewModel::dismissCertificateDialog,
-        checkCrlRevocationList = viewModel::checkCrlRevocationList
+        checkCrlRevocationList = viewModel::checkCrlRevocationList,
+        dependenciesMap = viewModel.state.dependencies
     )
 }
 
@@ -99,7 +94,8 @@ fun DebugDataOptionsContent(
     enrollE2EICertificate: () -> Unit,
     handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
     dismissCertificateDialog: () -> Unit,
-    checkCrlRevocationList: () -> Unit
+    checkCrlRevocationList: () -> Unit,
+    dependenciesMap: ImmutableMap<String, String?>
 ) {
     Column {
 
@@ -134,7 +130,7 @@ fun DebugDataOptionsContent(
                 onClick = { onCopyText(state.commitish) }
             )
         )
-        dependenciesItem()
+        DependenciesItem(dependenciesMap)
         if (BuildConfig.PRIVATE_BUILD) {
 
             SettingsItem(
@@ -444,21 +440,10 @@ private fun DebugToolsOptions(
  *
  */
 @Composable
-fun dependenciesItem() {
-    val applicationContext = LocalContext.current.applicationContext
-    val state: MutableState<String> = remember { mutableStateOf(String.EMPTY) }
-
-    LaunchedEffect(key1 = Unit) {
-        withContext(Dispatchers.IO) {
-            val title = applicationContext.resources.getString(R.string.item_dependencies_title)
-            applicationContext.getDependenciesVersion().let {
-                prettyPrintMap(it, title)
-            }.also {
-                withContext(Dispatchers.Main) {
-                    state.value = it
-                }
-            }
-        }
+fun DependenciesItem(dependencies: ImmutableMap<String, String?>) {
+    val title = stringResource(id = R.string.item_dependencies_title)
+    val text = remember {
+        prettyPrintMap(dependencies, title)
     }
     RowItemTemplate(
         modifier = Modifier.wrapContentWidth(),
@@ -466,12 +451,13 @@ fun dependenciesItem() {
             Text(
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.onBackground,
-                text = state.value,
+                text = text,
                 modifier = Modifier.padding(start = dimensions().spacing8x)
             )
         }
     )
 }
+
 @Composable
 private fun DisableEventProcessingSwitch(
     isEnabled: Boolean = false,
@@ -535,6 +521,7 @@ fun PreviewOtherDebugOptions() {
         enrollE2EICertificate = {},
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
-        checkCrlRevocationList = {}
+        checkCrlRevocationList = {},
+        dependenciesMap = persistentMapOf()
     )
 }

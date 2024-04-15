@@ -30,22 +30,28 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconToggleButtonColors
+import androidx.compose.material3.OutlinedIconToggleButton
+import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireColorPalette
 
 @Composable
 fun DrawingToolPicker(
@@ -84,7 +90,6 @@ fun DrawingToolPicker(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalArrangement = Arrangement.SpaceEvenly,
                     ) {
-
                         items(colorPalette.size) { index ->
                             val color = colorPalette[index]
                             ColorOptionButton(
@@ -101,19 +106,78 @@ fun DrawingToolPicker(
 }
 
 @Composable
-fun ColorOptionButton(color: Color, selected: Boolean = false, onColorSelected: () -> Unit) {
-    Button(
-        onClick = onColorSelected,
-        shape = CircleShape,
+private fun ColorOptionButton(color: Color, selected: Boolean = false, onColorSelected: () -> Unit) {
+    when (selected) {
+        true -> SelectedColor(color, onColorSelected)
+        false -> NonSelectedColor(color, onColorSelected)
+    }
+}
+
+@Composable
+private fun NonSelectedColor(color: Color, onColorSelected: () -> Unit) {
+    OutlinedIconToggleButton(
         modifier = Modifier
             .fillMaxSize()
             .aspectRatio(1f)
             .padding(dimensions().spacing12x),
-        contentPadding = PaddingValues(dimensions().spacing1x),
-        colors = ButtonDefaults.buttonColors(containerColor = color),
-        border = if (selected) BorderStroke(dimensions().spacing2x, colorsScheme().onSurface) else null,
-        content = {}
+        checked = false,
+        border = if (color == Color.White) BorderStroke(dimensions().spacing1x, colorsScheme().onBackground) else null,
+        colors = IconToggleButtonColors(
+            containerColor = color,
+            checkedContainerColor = color,
+            checkedContentColor = color,
+            disabledContainerColor = color,
+            disabledContentColor = color,
+            contentColor = color,
+        ),
+        onCheckedChange = { onColorSelected() },
+        content = { }
     )
 }
 
+@Composable
+private fun SelectedColor(color: Color, onColorSelected: () -> Unit) {
+    OutlinedIconToggleButton(
+        modifier = Modifier
+            .fillMaxSize()
+            .aspectRatio(1f)
+            .padding(dimensions().spacing12x),
+        checked = true,
+        border = BorderStroke(
+            dimensions().spacing2x,
+            colorsScheme().secondaryText
+        ),
+        colors = IconToggleButtonColors(
+            containerColor = color,
+            checkedContainerColor = color,
+            checkedContentColor = color,
+            disabledContainerColor = color,
+            disabledContentColor = color,
+            contentColor = color,
+        ),
+        onCheckedChange = { onColorSelected() }
+    ) {
+        Icon(
+            imageVector = Icons.Default.CheckCircle,
+            contentDescription = null,
+            tint = if (color == Color.White) colorsScheme().onBackground else colorsScheme().background,
+            modifier = Modifier.size(
+                dimensions().spacing16x
+            )
+        )
+    }
+}
+
 private const val GRID_CELLS = 6
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun PreviewDrawingToolPicker() {
+    DrawingToolPicker(
+        sheetState = WireModalSheetState(SheetValue.Expanded),
+        currentColor = WireColorPalette.LightBlue500,
+        onColorSelected = {}
+    )
+}

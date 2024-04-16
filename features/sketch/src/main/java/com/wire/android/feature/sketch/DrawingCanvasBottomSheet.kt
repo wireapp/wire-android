@@ -91,6 +91,12 @@ fun DrawingCanvasBottomSheet(
             }
         }
     }
+    val dismissEvent: () -> Unit = remember {
+        {
+            viewModel.initializeCanvas()
+            onDismissSketch()
+        }
+    }
 
     ModalBottomSheet(
         shape = CutCornerShape(dimensions().spacing0x),
@@ -133,12 +139,6 @@ fun DrawingCanvasBottomSheet(
     }
 
     if (viewModel.state.showConfirmationDialog) {
-        val dismissEvent: () -> Unit = remember {
-            {
-                viewModel.initializeCanvas()
-                onDismissSketch()
-            }
-        }
         DiscardDialogConfirmation(scope, sheetState, dismissEvent, viewModel::onHideConfirmationDialog)
     }
 }

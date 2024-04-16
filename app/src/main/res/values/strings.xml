@@ -201,6 +201,7 @@
     <string name="debug_settings_api_versioning_title" translatable="false">API VERSIONING</string>
     <string name="debug_settings_e2ei_enrollment_title" translatable="false">E2EI Manual Enrollment</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
+    <string name="item_dependencies_title">Dependencies:</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
     <string name="support_screen_title">Support</string>
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>

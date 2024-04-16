@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.debug
 
-import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,19 +25,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.CurrentAccount
-import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireDialog
@@ -53,26 +45,14 @@ import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.getDependenciesVersion
-import com.wire.android.util.getDeviceIdString
-import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
-import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
-import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.fold
-import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
-import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
+<<<<<<< HEAD
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -261,6 +241,8 @@ class DebugDataOptionsViewModel
     //endregion
 }
 //endregion
+=======
+>>>>>>> 6510fa14a (feat: display avs and CC version on all builds (#2894))
 
 @Composable
 fun DebugDataOptions(
@@ -283,7 +265,8 @@ fun DebugDataOptions(
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         dismissCertificateDialog = viewModel::dismissCertificateDialog,
-        checkCrlRevocationList = viewModel::checkCrlRevocationList
+        checkCrlRevocationList = viewModel::checkCrlRevocationList,
+        dependenciesMap = viewModel.state.dependencies
     )
 }
 
@@ -302,7 +285,8 @@ fun DebugDataOptionsContent(
     enrollE2EICertificate: () -> Unit,
     handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
     dismissCertificateDialog: () -> Unit,
-    checkCrlRevocationList: () -> Unit
+    checkCrlRevocationList: () -> Unit,
+    dependenciesMap: ImmutableMap<String, String?>
 ) {
     Column {
 
@@ -337,6 +321,7 @@ fun DebugDataOptionsContent(
                 onClick = { onCopyText(state.commitish) }
             )
         )
+        DependenciesItem(dependenciesMap)
         if (BuildConfig.PRIVATE_BUILD) {
 
             SettingsItem(
@@ -399,7 +384,10 @@ fun DebugDataOptionsContent(
                 onDisableEventProcessingChange = onDisableEventProcessingChange,
                 onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
+<<<<<<< HEAD
                 dependenciesMap = state.dependencies,
+=======
+>>>>>>> 6510fa14a (feat: display avs and CC version on all builds (#2894))
                 checkCrlRevocationList = checkCrlRevocationList
             )
         }
@@ -569,7 +557,10 @@ private fun DebugToolsOptions(
     onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
+<<<<<<< HEAD
     dependenciesMap: ImmutableMap<String, String?>,
+=======
+>>>>>>> 6510fa14a (feat: display avs and CC version on all builds (#2894))
     checkCrlRevocationList: () -> Unit
 ) {
     FolderHeader(stringResource(R.string.label_debug_tools_title))
@@ -641,18 +632,29 @@ private fun DebugToolsOptions(
                 )
             }
         )
-        RowItemTemplate(
-            modifier = Modifier.wrapContentWidth(),
-            title = {
-                Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    text = prettyPrintMap(dependenciesMap),
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
-                )
-            }
-        )
     }
+}
+
+/**
+ *
+ */
+@Composable
+fun DependenciesItem(dependencies: ImmutableMap<String, String?>) {
+    val title = stringResource(id = R.string.item_dependencies_title)
+    val text = remember {
+        prettyPrintMap(dependencies, title)
+    }
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = text,
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        }
+    )
 }
 
 @Composable
@@ -685,8 +687,8 @@ private fun DisableEventProcessingSwitch(
 }
 
 @Stable
-private fun prettyPrintMap(map: ImmutableMap<String, String?>): String = StringBuilder().apply {
-    append("Dependencies:\n")
+private fun prettyPrintMap(map: Map<String, String?>, title: String): String = StringBuilder().apply {
+    append("$title\n")
     map.forEach { (key, value) ->
         append("$key: $value\n")
     }
@@ -718,6 +720,7 @@ fun PreviewOtherDebugOptions() {
         enrollE2EICertificate = {},
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
-        checkCrlRevocationList = {}
+        checkCrlRevocationList = {},
+        dependenciesMap = persistentMapOf()
     )
 }

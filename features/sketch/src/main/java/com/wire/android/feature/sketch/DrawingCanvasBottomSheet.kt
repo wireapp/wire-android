@@ -28,13 +28,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -44,7 +47,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.model.DrawingState
 import com.wire.android.model.ClickBlockParams
@@ -79,10 +85,15 @@ fun DrawingCanvasBottomSheet(
         shape = CutCornerShape(dimensions().spacing0x),
         containerColor = colorsScheme().background,
         dragHandle = {
-            DrawingTopBar(scope, sheetState, conversationTitle, onDismissSketch, viewModel::onUndoLastStroke, viewModel.state)
+            DrawingTopBar(conversationTitle, viewModel::onShowConfirmationDialog, viewModel::onUndoLastStroke, viewModel.state)
         },
         sheetState = sheetState,
-        onDismissRequest = onDismissSketch
+        onDismissRequest = viewModel::onShowConfirmationDialog,
+        properties = ModalBottomSheetProperties(
+            isFocusable = true,
+            securePolicy = SecureFlagPolicy.SecureOn,
+            shouldDismissOnBackPress = false
+        )
     ) {
         Row(
             Modifier
@@ -109,13 +120,14 @@ fun DrawingCanvasBottomSheet(
             }
         )
     }
+
+    if (viewModel.state.showConfirmationDialog) {
+        DiscardDialogConfirmation(scope, sheetState, onDismissSketch, viewModel::onHideConfirmationDialog)
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DrawingTopBar(
-    scope: CoroutineScope = rememberCoroutineScope(),
-    sheetState: SheetState,
     conversationTitle: String,
     onDismissSketch: () -> Unit,
     onUndoStroke: () -> Unit,
@@ -128,7 +140,7 @@ private fun DrawingTopBar(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         WireTertiaryIconButton(
-            onButtonClicked = { scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() } },
+            onButtonClicked = onDismissSketch,
             iconResource = R.drawable.ic_close,
             contentDescription = R.string.content_description_close_button,
             minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
@@ -202,6 +214,42 @@ private fun DrawingToolbar(
             onColorChanged(it)
             closeColorPickerSheet()
         }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DiscardDialogConfirmation(
+    scope: CoroutineScope,
+    sheetState: SheetState,
+    onDismissSketch: () -> Unit,
+    onHideConfirmationDialog: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onHideConfirmationDialog,
+        title = { Text(stringResource(R.string.confirm_changes_title)) },
+        text = { Text(stringResource(R.string.confirm_changes_text)) },
+        confirmButton = {
+            TextButton(onClick = {
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    onHideConfirmationDialog()
+                    onDismissSketch()
+                }
+            }) {
+                Text(stringResource(R.string.confirm_changes_dismiss))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                onHideConfirmationDialog()
+            }) {
+                Text(stringResource(R.string.confirm_changes_confirm))
+            }
+        },
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
     )
 }
 

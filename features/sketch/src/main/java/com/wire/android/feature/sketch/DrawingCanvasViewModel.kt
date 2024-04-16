@@ -51,8 +51,17 @@ class DrawingCanvasViewModel : ViewModel() {
         initializeCanvas()
     }
 
+
     private fun initializeCanvas() {
         state = DrawingState(currentPath = DrawingPathProperties())
+    }
+
+    fun onShowConfirmationDialog() {
+        state = state.copy(showConfirmationDialog = true)
+    }
+
+    fun onHideConfirmationDialog() {
+        state = state.copy(showConfirmationDialog = false)
     }
 
     /**

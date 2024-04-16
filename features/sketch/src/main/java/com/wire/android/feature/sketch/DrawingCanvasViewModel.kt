@@ -52,7 +52,7 @@ class DrawingCanvasViewModel : ViewModel() {
     }
 
 
-    private fun initializeCanvas() {
+    fun initializeCanvas() {
         state = DrawingState(currentPath = DrawingPathProperties())
     }
 

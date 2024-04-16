@@ -64,6 +64,7 @@ import com.wire.android.ui.common.button.WireTertiaryIconButton
 import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.CoroutineScope
@@ -81,14 +82,24 @@ fun DrawingCanvasBottomSheet(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { false })
+    val onDismissEvent: () -> Unit = remember {
+        {
+            if (viewModel.state.paths.isNotEmpty()) {
+                viewModel.onShowConfirmationDialog()
+            } else {
+                scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() }
+            }
+        }
+    }
+
     ModalBottomSheet(
         shape = CutCornerShape(dimensions().spacing0x),
         containerColor = colorsScheme().background,
         dragHandle = {
-            DrawingTopBar(conversationTitle, viewModel::onShowConfirmationDialog, viewModel::onUndoLastStroke, viewModel.state)
+            DrawingTopBar(conversationTitle, onDismissEvent, viewModel::onUndoLastStroke, viewModel.state)
         },
         sheetState = sheetState,
-        onDismissRequest = viewModel::onShowConfirmationDialog,
+        onDismissRequest = onDismissEvent,
         properties = ModalBottomSheetProperties(
             isFocusable = true,
             securePolicy = SecureFlagPolicy.SecureOn,
@@ -122,14 +133,20 @@ fun DrawingCanvasBottomSheet(
     }
 
     if (viewModel.state.showConfirmationDialog) {
-        DiscardDialogConfirmation(scope, sheetState, onDismissSketch, viewModel::onHideConfirmationDialog)
+        val dismissEvent: () -> Unit = remember {
+            {
+                viewModel.initializeCanvas()
+                onDismissSketch()
+            }
+        }
+        DiscardDialogConfirmation(scope, sheetState, dismissEvent, viewModel::onHideConfirmationDialog)
     }
 }
 
 @Composable
 private fun DrawingTopBar(
     conversationTitle: String,
-    onDismissSketch: () -> Unit,
+    dismissAction: () -> Unit,
     onUndoStroke: () -> Unit,
     state: DrawingState
 ) {
@@ -140,7 +157,7 @@ private fun DrawingTopBar(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         WireTertiaryIconButton(
-            onButtonClicked = onDismissSketch,
+            onButtonClicked = dismissAction,
             iconResource = R.drawable.ic_close,
             contentDescription = R.string.content_description_close_button,
             minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
@@ -226,6 +243,8 @@ private fun DiscardDialogConfirmation(
     onHideConfirmationDialog: () -> Unit,
 ) {
     AlertDialog(
+        backgroundColor = MaterialTheme.wireColorScheme.background,
+        contentColor = MaterialTheme.wireColorScheme.onBackground,
         onDismissRequest = onHideConfirmationDialog,
         title = { Text(stringResource(R.string.confirm_changes_title)) },
         text = { Text(stringResource(R.string.confirm_changes_text)) },
@@ -235,17 +254,9 @@ private fun DiscardDialogConfirmation(
                     onHideConfirmationDialog()
                     onDismissSketch()
                 }
-            }) {
-                Text(stringResource(R.string.confirm_changes_dismiss))
-            }
+            }) { Text(stringResource(R.string.confirm_changes_dismiss)) }
         },
-        dismissButton = {
-            TextButton(onClick = {
-                onHideConfirmationDialog()
-            }) {
-                Text(stringResource(R.string.confirm_changes_confirm))
-            }
-        },
+        dismissButton = { TextButton(onClick = { onHideConfirmationDialog() }) { Text(stringResource(R.string.confirm_changes_confirm)) } },
         properties = DialogProperties(
             dismissOnBackPress = false,
             dismissOnClickOutside = false

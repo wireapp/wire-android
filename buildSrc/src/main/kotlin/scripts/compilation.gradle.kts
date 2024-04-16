@@ -36,7 +36,7 @@ val dependenciesVersionTask = project.tasks.register("dependenciesVersionTask", 
     val catalog = catalogs.named("klibs")
     val pairs = mapOf(
         "avs" to catalog.findVersion("avs").get().requiredVersion,
-        "core-crypto" to catalog.findVersion("core-crypto-multiplatform").get().requiredVersion
+        "core-crypto" to catalog.findVersion("core-crypto").get().requiredVersion
     )
     keyValues.set(pairs)
 }

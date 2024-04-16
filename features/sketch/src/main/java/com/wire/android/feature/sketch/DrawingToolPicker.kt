@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.sketch
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -54,6 +55,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireColorPalette
+import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun DrawingToolPicker(
@@ -164,7 +166,7 @@ private fun SelectedColor(color: Color, onColorSelected: () -> Unit) {
         Icon(
             imageVector = Icons.Default.CheckCircle,
             contentDescription = null,
-            tint = if (color.isWhite()) colorsScheme().onBackground else colorsScheme().background,
+            tint = if (color.isWhite()) Color.Black else Color.White,
             modifier = Modifier.size(
                 dimensions().spacing16x
             )
@@ -180,20 +182,24 @@ private fun Color.isWhite() = this == Color.White
 @Preview
 @Composable
 fun PreviewDrawingToolPickerSelectedNonWhite() {
-    DrawingToolPicker(
-        sheetState = WireModalSheetState(SheetValue.Expanded),
-        currentColor = WireColorPalette.LightBlue500,
-        onColorSelected = {}
-    )
+    WireTheme {
+        DrawingToolPicker(
+            sheetState = WireModalSheetState(SheetValue.Expanded),
+            currentColor = WireColorPalette.LightBlue500,
+            onColorSelected = {}
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewDrawingToolPickerSelectedWhite() {
-    DrawingToolPicker(
-        sheetState = WireModalSheetState(SheetValue.Expanded),
-        currentColor = Color.White,
-        onColorSelected = {}
-    )
+    WireTheme {
+        DrawingToolPicker(
+            sheetState = WireModalSheetState(SheetValue.Expanded),
+            currentColor = Color.White,
+            onColorSelected = {}
+        )
+    }
 }

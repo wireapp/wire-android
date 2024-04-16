@@ -54,9 +54,9 @@ class CallActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setupCallActivity()
-
         callNotificationManager.hideAllNotifications()
+
+        setUpCallingFlags()
 
         appLogger.i("$TAG Initializing proximity sensor..")
         proximitySensorManager.initialize()
@@ -105,11 +105,7 @@ class CallActivity : AppCompatActivity() {
     }
 }
 
-/**
- * Enable the calling activity to be shown in the lockscreen and dismiss the keyguard to enable
- * users to answer without unblocking.
- */
-private fun CallActivity.setupCallActivity() {
+fun CallActivity.setUpCallingFlags() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
         setShowWhenLocked(true)
         setTurnScreenOn(true)
@@ -118,11 +114,6 @@ private fun CallActivity.setupCallActivity() {
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                     or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON,
         )
-    }
-
-    val keyguardManager = getSystemService<KeyguardManager>()
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && keyguardManager != null) {
-        keyguardManager.requestDismissKeyguard(this, null)
     }
 }
 

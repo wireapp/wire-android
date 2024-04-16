@@ -60,8 +60,8 @@ fun MarkdownBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: Node
                     }
                     MarkdownText(
                         text,
-                        onLongClick = nodeData.onLongClick,
-                        onOpenProfile = nodeData.onOpenProfile
+                        onLongClick = nodeData.actions?.onLongClick,
+                        onOpenProfile = nodeData.actions?.onOpenProfile
                     )
                 }
 

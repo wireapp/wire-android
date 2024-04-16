@@ -52,6 +52,7 @@ fun LazyListScope.folderWithElements(
 ) = folderWithElements(
     header = header,
     items = items.associateBy { it.id.toString() },
+    animateItemPlacement = false,
     factory = {
         ConversationParticipantItem(
             uiParticipant = it,

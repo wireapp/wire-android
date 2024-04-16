@@ -1103,8 +1103,9 @@ private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
 @Preview
 @Composable
 fun PreviewConversationScreen() {
+    val conversationId = ConversationId("value", "domain")
     val messageComposerViewState = remember { mutableStateOf(MessageComposerViewState()) }
-    val messageCompositionState = remember { mutableStateOf(MessageComposition.DEFAULT) }
+    val messageCompositionState = remember { mutableStateOf(MessageComposition(conversationId)) }
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
@@ -1117,7 +1118,7 @@ fun PreviewConversationScreen() {
         messageComposerViewState = messageComposerViewState,
         conversationCallViewState = ConversationCallViewState(),
         conversationInfoViewState = ConversationInfoViewState(
-            conversationId = ConversationId("value", "domain"),
+            conversationId = conversationId,
             conversationName = UIText.DynamicString("Some test conversation")
         ),
         conversationMessagesViewState = ConversationMessagesViewState(),

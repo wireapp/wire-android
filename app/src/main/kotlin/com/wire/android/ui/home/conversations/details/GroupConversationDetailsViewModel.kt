@@ -102,8 +102,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata
 ), GroupConversationDetailsBottomSheetEventsHandler {
 
-    override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS
-
     private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = groupConversationDetailsNavArgs.conversationId
 
@@ -418,6 +416,5 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     companion object {
         const val TAG = "GroupConversationDetailsViewModel"
-        const val MAX_NUMBER_OF_PARTICIPANTS = 4
     }
 }

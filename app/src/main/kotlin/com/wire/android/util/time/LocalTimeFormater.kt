@@ -15,21 +15,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.markdown
+package com.wire.android.util.time
 
-import org.commonmark.Extension
-import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
-import org.commonmark.ext.gfm.tables.TablesExtension
+import android.content.Context
+import android.text.format.DateFormat
+import androidx.compose.runtime.Stable
+import java.util.Date
+import java.util.TimeZone
 
-object MarkdownConstants {
-    const val TAG_URL = "linkTag"
-    const val TAG_MENTION = "mentionTag"
-    const val MENTION_MARK = "&&"
-    const val BULLET_MARK = "\u2022"
-    const val NON_BREAKING_SPACE = "&nbsp;"
+@Stable
+fun convertTimestampToDateTime(
+    timestampSeconds: Long,
+    context: Context
+): Pair<String, String> {
 
-    val supportedExtensions: List<Extension> = listOf(
-        StrikethroughExtension.builder().requireTwoTildes(true).build(),
-        TablesExtension.create()
-    )
+    val dateFormat = DateFormat.getDateFormat(context)
+    val timeFormat = DateFormat.getTimeFormat(context)
+
+    val timezone = TimeZone.getDefault()
+    dateFormat.timeZone = timezone
+    timeFormat.timeZone = timezone
+
+    val dateTime = Date(timestampSeconds * 1000)
+    val date = dateFormat.format(dateTime)
+    val time = timeFormat.format(dateTime)
+
+    return Pair(date, time)
 }

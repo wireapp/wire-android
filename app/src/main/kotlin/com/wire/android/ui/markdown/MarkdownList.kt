@@ -44,8 +44,8 @@ fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData
                 MarkdownText(
                     annotatedString = text,
                     style = MaterialTheme.wireTypography.body01,
-                    onLongClick = nodeData.onLongClick,
-                    onOpenProfile = nodeData.onOpenProfile
+                    onLongClick = nodeData.actions?.onLongClick,
+                    onOpenProfile = nodeData.actions?.onOpenProfile
                 )
                 MarkdownNodeBlockChildren(children = listItem.children, nodeData = nodeData)
             }
@@ -69,8 +69,8 @@ fun MarkdownOrderedList(orderedList: MarkdownNode.Block.ListBlock.Ordered, nodeD
                 MarkdownText(
                     annotatedString = text,
                     style = MaterialTheme.wireTypography.body01,
-                    onLongClick = nodeData.onLongClick,
-                    onOpenProfile = nodeData.onOpenProfile
+                    onLongClick = nodeData.actions?.onLongClick,
+                    onOpenProfile = nodeData.actions?.onOpenProfile
                 )
                 MarkdownNodeBlockChildren(children = listItem.children, nodeData = nodeData)
             }

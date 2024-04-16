@@ -106,6 +106,7 @@ import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserBottomSheetState
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserProfileBottomSheetContent
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
@@ -571,10 +572,11 @@ private fun ContentFooter(
     }
 }
 
-enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : TabItem {
+enum class OtherUserProfileTabItem(@StringRes val titleResId: Int) : TabItem {
     GROUP(R.string.user_profile_group_tab),
     DETAILS(R.string.user_profile_details_tab),
     DEVICES(R.string.user_profile_devices_tab);
+    override val title: UIText = UIText.StringResource(titleResId)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

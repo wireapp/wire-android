@@ -18,6 +18,7 @@
 package com.wire.android.ui.calling
 
 import android.app.Activity
+import android.app.KeyguardManager
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -27,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.core.content.getSystemService
 import androidx.core.view.WindowCompat
 import com.wire.android.appLogger
 import com.wire.android.notification.CallNotificationManager
@@ -51,13 +53,15 @@ class CallActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setupCallActivity()
+
         callNotificationManager.hideAllNotifications()
 
         appLogger.i("$TAG Initializing proximity sensor..")
         proximitySensorManager.initialize()
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        setUpCallingFlags()
 
         val conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
         val screenType = intent.extras?.getString(EXTRA_SCREEN_TYPE)
@@ -101,12 +105,24 @@ class CallActivity : AppCompatActivity() {
     }
 }
 
-fun CallActivity.setUpCallingFlags() {
-    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+/**
+ * Enable the calling activity to be shown in the lockscreen and dismiss the keyguard to enable
+ * users to answer without unblocking.
+ */
+private fun CallActivity.setupCallActivity() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
         setShowWhenLocked(true)
+        setTurnScreenOn(true)
     } else {
-        window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
+        window.addFlags(
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                    or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON,
+        )
+    }
+
+    val keyguardManager = getSystemService<KeyguardManager>()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && keyguardManager != null) {
+        keyguardManager.requestDismissKeyguard(this, null)
     }
 }
 

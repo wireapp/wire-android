@@ -21,7 +21,6 @@ package com.wire.android.ui.home.settings.home
 import android.net.Uri
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.net.toUri
-import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
@@ -87,6 +86,7 @@ class BackupAndRestoreViewModelTest {
     fun tearDown() {
         Dispatchers.resetMain()
     }
+
     @Test
     fun givenAnEmptyPassword_whenCreatingABackup_thenItCreatesItSuccessfully() = runTest {
         // Given
@@ -205,9 +205,12 @@ class BackupAndRestoreViewModelTest {
 
         // Then
         assert(backupAndRestoreViewModel.latestCreatedBackup == storedBackup)
-        assertEquals(BackupAndRestoreState.INITIAL_STATE.copy(
-            lastBackupData = backupAndRestoreViewModel.state.lastBackupData
-        ), backupAndRestoreViewModel.state)
+        assertEquals(
+            BackupAndRestoreState.INITIAL_STATE.copy(
+                lastBackupData = backupAndRestoreViewModel.state.lastBackupData
+            ),
+            backupAndRestoreViewModel.state
+        )
         coVerify(exactly = 1) {
             arrangement.fileManager.shareWithExternalApp(
                 storedBackup.path,

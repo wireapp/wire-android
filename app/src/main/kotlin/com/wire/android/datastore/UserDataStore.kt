@@ -23,6 +23,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -60,6 +61,12 @@ class UserDataStore(private val context: Context, userId: UserId) {
         context.dataStore.edit { it.clear() }
     }
 
+    fun lastBackupDateSeconds(): Flow<Long?> = context.dataStore.data.map { it[LAST_BACKUP_DATE_INSTANT] }
+
+    suspend fun setLastBackupDateSeconds(timeStampSeconds: Long) {
+        context.dataStore.edit { it[LAST_BACKUP_DATE_INSTANT] = timeStampSeconds }
+    }
+
     private fun getStatusKey(status: UserAvailabilityStatus) = when (status) {
         UserAvailabilityStatus.AVAILABLE -> SHOW_STATUS_RATIONALE_AVAILABLE
         UserAvailabilityStatus.BUSY -> SHOW_STATUS_RATIONALE_BUSY
@@ -81,6 +88,7 @@ class UserDataStore(private val context: Context, userId: UserId) {
         private val SHOW_STATUS_RATIONALE_NONE = booleanPreferencesKey("show_status_rationale_none")
         private val USER_AVATAR_ASSET_ID = stringPreferencesKey("user_avatar_asset_id")
         private val INITIAL_SYNC_COMPLETED = booleanPreferencesKey("initial_sync_completed")
+        private val LAST_BACKUP_DATE_INSTANT = longPreferencesKey("last_backup_date_instant")
     }
 
 }

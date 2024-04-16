@@ -199,12 +199,12 @@ sealed class UILastMessageContent {
     data class SenderWithMessage(
         val sender: UIText,
         val message: UIText,
-        val separator: String = MarkdownConstants.EMPTY_SPACE
+        val separator: String = MarkdownConstants.NON_BREAKING_SPACE
     ) : UILastMessageContent()
 
     data class MultipleMessage(
         val messages: List<UIText>,
-        val separator: String = MarkdownConstants.EMPTY_SPACE
+        val separator: String = MarkdownConstants.NON_BREAKING_SPACE
     ) : UILastMessageContent()
 
     data class Connection(val connectionState: ConnectionState, val userId: UserId) : UILastMessageContent()

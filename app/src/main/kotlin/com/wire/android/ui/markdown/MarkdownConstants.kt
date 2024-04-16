@@ -26,7 +26,7 @@ object MarkdownConstants {
     const val TAG_MENTION = "mentionTag"
     const val MENTION_MARK = "&&"
     const val BULLET_MARK = "\u2022"
-    const val EMPTY_SPACE = "&nbsp;"
+    const val NON_BREAKING_SPACE = "&nbsp;"
 
     val supportedExtensions: List<Extension> = listOf(
         StrikethroughExtension.builder().requireTwoTildes(true).build(),

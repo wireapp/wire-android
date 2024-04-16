@@ -69,7 +69,7 @@ private fun LastMessageMarkdown(text: String, leadingText: String = "") {
         )
     } else {
         Text(
-            text = leadingText.replace(MarkdownConstants.EMPTY_SPACE, " ") + text,
+            text = leadingText.replace(MarkdownConstants.NON_BREAKING_SPACE, " ") + text,
             style = nodeData.style,
             color = nodeData.color,
             maxLines = 1,

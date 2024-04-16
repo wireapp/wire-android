@@ -256,7 +256,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                 is WithUser.Text -> UILastMessageContent.SenderWithMessage(
                     sender = userUIText,
                     message = (content as WithUser.Text).messageBody.let { UIText.DynamicString(it) },
-                    separator = ":${MarkdownConstants.EMPTY_SPACE}"
+                    separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
                 )
 
                 is WithUser.Composite -> {
@@ -265,7 +265,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     UILastMessageContent.SenderWithMessage(
                         sender = userUIText,
                         message = text,
-                        separator = ":${MarkdownConstants.EMPTY_SPACE}"
+                        separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
                     )
                 }
 
@@ -340,7 +340,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
         is MessagePreviewContent.Draft -> UILastMessageContent.SenderWithMessage(
             UIText.StringResource(R.string.label_draft),
             (content as MessagePreviewContent.Draft).message.toUIText(),
-            separator = ":${MarkdownConstants.EMPTY_SPACE}"
+            separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
         )
 
         Unknown -> UILastMessageContent.None

@@ -17,19 +17,11 @@
  */
 package com.wire.android.ui.markdown
 
-import org.commonmark.Extension
-import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
-import org.commonmark.ext.gfm.tables.TablesExtension
+import org.commonmark.node.Document
+import org.commonmark.parser.Parser
 
-object MarkdownConstants {
-    const val TAG_URL = "linkTag"
-    const val TAG_MENTION = "mentionTag"
-    const val MENTION_MARK = "&&"
-    const val BULLET_MARK = "\u2022"
-    const val NON_BREAKING_SPACE = "&nbsp;"
+object MarkdownParser {
+    private val parser = Parser.builder().extensions(MarkdownConstants.supportedExtensions).build()
 
-    val supportedExtensions: List<Extension> = listOf(
-        StrikethroughExtension.builder().requireTwoTildes(true).build(),
-        TablesExtension.create()
-    )
+    fun parse(text: String) = (parser.parse(text) as Document).toContent() as MarkdownNode.Document
 }

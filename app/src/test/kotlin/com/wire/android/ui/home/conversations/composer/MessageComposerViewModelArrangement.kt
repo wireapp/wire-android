@@ -185,7 +185,7 @@ internal class MessageComposerViewModelArrangement {
     }
 
     fun withSaveDraftMessage() = apply {
-        coEvery { saveMessageDraftUseCase(any(), any()) } returns Unit
+        coEvery { saveMessageDraftUseCase(any()) } returns Unit
     }
 
     fun arrange() = this to viewModel

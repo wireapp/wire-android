@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.markdown
 
+import kotlinx.collections.immutable.PersistentList
+
 sealed class MarkdownNode {
     abstract val children: List<MarkdownNode>
     abstract val isParentDocument: Boolean
@@ -142,3 +144,5 @@ sealed class MarkdownNode {
         override val isParentDocument: Boolean = false
     ) : MarkdownNode()
 }
+
+data class MarkdownPreview(val children: PersistentList<MarkdownNode.Inline>)

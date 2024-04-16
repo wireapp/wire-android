@@ -47,8 +47,8 @@ fun MarkdownHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData) {
         MarkdownText(
             annotatedString = text,
             style = style,
-            onLongClick = nodeData.onLongClick,
-            onOpenProfile = nodeData.onOpenProfile
+            onLongClick = nodeData.actions?.onLongClick,
+            onOpenProfile = nodeData.actions?.onOpenProfile
         )
     }
 }

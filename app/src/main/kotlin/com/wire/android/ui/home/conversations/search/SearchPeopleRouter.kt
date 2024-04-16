@@ -59,6 +59,7 @@ import com.wire.android.ui.home.newconversation.common.CreateNewGroupButton
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsAlwaysEnabled
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.ui.UIText
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.coroutines.launch
 
@@ -237,9 +238,10 @@ fun SearchUsersAndServicesScreen(
     )
 }
 
-enum class SearchPeopleTabItem(@StringRes override val titleResId: Int) : TabItem {
+enum class SearchPeopleTabItem(@StringRes val titleResId: Int) : TabItem {
     PEOPLE(R.string.label_add_member_people),
     SERVICES(R.string.label_add_member_services);
+    override val title: UIText = UIText.StringResource(titleResId)
 }
 
 enum class SearchPeopleScreenType {

@@ -30,35 +30,43 @@ import com.wire.kalium.logic.data.user.UserAssetId
 import okio.Path
 
 @Stable
-sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
-    /**
-     * Value that uniquely identifies this Asset,
-     * can be used for caching purposes, for example.
-     */
-    abstract val uniqueKey: String
-
-    @Stable
-    data class UserAvatarAsset(
-        private val imageLoader: WireSessionImageLoader,
-        val userAssetId: UserAssetId
-    ) : ImageAsset(imageLoader) {
-        override val uniqueKey: String
-            get() = userAssetId.toString()
-    }
+sealed class ImageAsset {
 
     /**
      * Represents an image asset that is stored locally on the device, and it isn't necessarily bounded to any specific conversation or
      * message, i.e. some preview images that the user selected from local device gallery.
      */
     @Stable
-    data class LocalImageAsset(
-        private val imageLoader: WireSessionImageLoader,
+    data class Local(
         val dataPath: Path,
         val idKey: String
-    ) : ImageAsset(imageLoader) {
+    ) : ImageAsset()
 
+    sealed class Network(private val imageLoader: WireSessionImageLoader) : ImageAsset() {
+
+        /**
+         * Value that uniquely identifies this Asset,
+         * can be used for caching purposes, for example.
+         */
+        abstract val uniqueKey: String
+
+        @Composable
+        fun paint(
+            fallbackData: Any? = null,
+            withCrossfadeAnimation: Boolean = false
+        ) = when {
+            LocalInspectionMode.current -> painterResource(id = R.drawable.ic_welcome_1)
+            else -> imageLoader.paint(asset = this, fallbackData = fallbackData, withCrossfadeAnimation = withCrossfadeAnimation)
+        }
+    }
+
+    @Stable
+    data class UserAvatarAsset(
+        private val imageLoader: WireSessionImageLoader,
+        val userAssetId: UserAssetId
+    ) : Network(imageLoader) {
         override val uniqueKey: String
-            get() = idKey
+            get() = userAssetId.toString()
     }
 
     @Stable
@@ -68,20 +76,13 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
         val messageId: String,
         val isSelfAsset: Boolean,
         val isEphemeral: Boolean = false
-    ) : ImageAsset(imageLoader) {
+    ) : Network(imageLoader) {
         override fun toString(): String = "$conversationId:$messageId:$isSelfAsset:$isEphemeral"
         override val uniqueKey: String
             get() = toString()
     }
 
-    @Composable
-    fun paint(
-        fallbackData: Any? = null,
-        withCrossfadeAnimation: Boolean = false
-    ) = when {
-        LocalInspectionMode.current -> painterResource(id = R.drawable.ic_welcome_1)
-        else -> imageLoader.paint(asset = this, fallbackData = fallbackData, withCrossfadeAnimation = withCrossfadeAnimation)
-    }
+
 }
 
 fun String.parseIntoPrivateImageAsset(

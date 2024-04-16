@@ -178,14 +178,14 @@ fun MessageImage(
     transferStatus: AssetTransferStatus,
     onImageClick: Clickable,
     shouldFillMaxWidth: Boolean = false,
-    isImportedMediaAsset: Boolean = false
 ) {
     Box(
         Modifier
             .padding(top = MaterialTheme.wireDimensions.spacing4x)
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
             .background(
-                color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                color = MaterialTheme.wireColorScheme.onPrimary,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
             .border(
                 width = dimensions().spacing1x,
@@ -216,9 +216,9 @@ fun MessageImage(
                 )
             }
 
-            asset != null -> {
-                if (isImportedMediaAsset) ImportedImageMessage(asset, shouldFillMaxWidth)
-                else DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
+            asset != null -> when (asset) {
+                is ImageAsset.Local -> ImportedImageMessage(asset, shouldFillMaxWidth)
+                is ImageAsset.Network -> DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
             }
 
             // Show error placeholder
@@ -234,7 +234,7 @@ fun MessageImage(
 
 @Composable
 fun MediaAssetImage(
-    asset: ImageAsset?,
+    asset: ImageAsset.Network?,
     width: Dp,
     height: Dp,
     transferStatus: AssetTransferStatus?,

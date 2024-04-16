@@ -15,9 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-@file:Suppress("ComplexMethod")
+@file:Suppress("ComplexMethod", "TooManyFunctions")
+
 package com.wire.android.ui.markdown
 
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
 import org.commonmark.ext.gfm.tables.TableBlock
 import org.commonmark.ext.gfm.tables.TableBody
@@ -45,6 +48,8 @@ import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
+
+fun String.toMarkdownDocument(): MarkdownNode.Document = MarkdownParser.parse(this)
 
 fun <T : Node> T.toContent(isParentDocument: Boolean = false): MarkdownNode {
     return when (this) {
@@ -160,6 +165,38 @@ fun MarkdownNode.filterNodesContainingQuery(query: String): MarkdownNode? {
         is MarkdownNode.Block.ThematicBreak -> null
         is MarkdownNode.Inline.Break -> this
     }
+}
+
+fun MarkdownNode.getFirstInlines(): MarkdownPreview? {
+    return when (this) {
+        is MarkdownNode.Document -> children.firstOrNull()?.getFirstInlines()
+        is MarkdownNode.Block.BlockQuote -> children.firstOrNull()?.getFirstInlines()
+        is MarkdownNode.Block.FencedCode -> literal.toPreview()
+        is MarkdownNode.Block.Heading -> children.toPreview()
+        is MarkdownNode.Block.IntendedCode -> literal.toPreview()
+        is MarkdownNode.Block.ListBlock.Bullet -> children.firstOrNull()?.getFirstInlines()
+        is MarkdownNode.Block.ListBlock.Ordered -> children.firstOrNull()?.getFirstInlines()
+        is MarkdownNode.Block.ListItem -> children.firstOrNull()?.getFirstInlines()
+        is MarkdownNode.Block.Paragraph -> children.toPreview()
+        is MarkdownNode.Block.Table -> children.firstOrNull()?.getFirstInlines()
+        is MarkdownNode.Block.TableContent.Body -> children.firstOrNull()?.getFirstInlines()
+        is MarkdownNode.Block.TableContent.Head -> children.firstOrNull()?.getFirstInlines()
+        is MarkdownNode.Block.ThematicBreak -> null
+        is MarkdownNode.Inline -> {
+            throw IllegalArgumentException("It should not go to inline children!")
+        }
+
+        is MarkdownNode.TableCell -> children.toPreview()
+        is MarkdownNode.TableRow -> children.firstOrNull()?.children?.toPreview()
+    }
+}
+
+private fun List<MarkdownNode.Inline>.toPreview(): MarkdownPreview {
+    return MarkdownPreview(this.toPersistentList())
+}
+
+private fun String.toPreview(): MarkdownPreview {
+    return MarkdownPreview(persistentListOf(MarkdownNode.Inline.Text(this)))
 }
 
 private fun MarkdownNode.containsQuery(query: String): Boolean {

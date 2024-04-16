@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversations.composer
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import io.mockk.coVerify
@@ -113,6 +114,7 @@ class MessageComposerViewModelTest {
         runTest {
             // given
             val messageDraft = MessageDraft(
+                conversationId = ConversationId("value", "domain"),
                 text = "hello",
                 editMessageId = null,
                 quotedMessageId = null,
@@ -128,6 +130,6 @@ class MessageComposerViewModelTest {
             advanceUntilIdle()
 
             // then
-            coVerify(exactly = 1) { arrangement.saveMessageDraftUseCase.invoke(eq(viewModel.conversationId), eq(messageDraft)) }
+            coVerify(exactly = 1) { arrangement.saveMessageDraftUseCase.invoke(eq(messageDraft)) }
         }
 }

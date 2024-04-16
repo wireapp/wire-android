@@ -80,6 +80,7 @@
     <string name="label_user_blocked">Blocked</string>
     <string name="label_and">and</string>
     <string name="label_retry">Retry</string>
+    <string name="label_draft">*Draft*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Show password</string>

@@ -42,6 +42,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
+@Suppress("TooManyFunctions")
 class DrawingCanvasViewModel : ViewModel() {
 
     internal var state: DrawingState by mutableStateOf(DrawingState())
@@ -50,7 +51,6 @@ class DrawingCanvasViewModel : ViewModel() {
     init {
         initializeCanvas()
     }
-
 
     fun initializeCanvas() {
         state = DrawingState(currentPath = DrawingPathProperties())

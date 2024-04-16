@@ -256,7 +256,11 @@ private fun DiscardDialogConfirmation(
                 }
             }) { Text(stringResource(R.string.confirm_changes_dismiss)) }
         },
-        dismissButton = { TextButton(onClick = { onHideConfirmationDialog() }) { Text(stringResource(R.string.confirm_changes_confirm)) } },
+        dismissButton = {
+            TextButton(onClick = {
+                onHideConfirmationDialog()
+            }) { Text(stringResource(R.string.confirm_changes_confirm)) }
+        },
         properties = DialogProperties(
             dismissOnBackPress = false,
             dismissOnClickOutside = false

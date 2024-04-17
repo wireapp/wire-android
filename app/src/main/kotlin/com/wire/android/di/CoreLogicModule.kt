@@ -35,6 +35,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
@@ -445,4 +446,11 @@ class UseCaseModule {
     fun provideObserveIsAppLockEditableUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic
     ): ObserveIsAppLockEditableUseCase = coreLogic.getGlobalScope().observeIsAppLockEditableUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideFetchConversationMLSVerificationStatusUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): FetchConversationMLSVerificationStatusUseCase = coreLogic.getSessionScope(currentAccount).fetchConversationMLSVerificationStatus
 }

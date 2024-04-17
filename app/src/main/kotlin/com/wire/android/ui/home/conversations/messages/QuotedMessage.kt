@@ -39,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,7 +63,12 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle.COMPLETE
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle.PREVIEW
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.markdown.MarkdownInline
+import com.wire.android.ui.markdown.NodeData
+import com.wire.android.ui.markdown.getFirstInlines
+import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
 
 private const val TEXT_QUOTE_MAX_LINES = 7
@@ -344,7 +350,7 @@ private fun QuotedText(
                     StatusBox(it.asString())
                 }
             }
-            MainContentText(text)
+            MainMarkdownText(text)
         }, footerContent = {
             QuotedMessageOriginalDate(originalDateTimeDescription)
         },
@@ -513,6 +519,33 @@ fun QuotedAudioMessage(
         footerContent = { QuotedMessageOriginalDate(originalDateTimeText) },
         clickable = clickable
     )
+}
+
+@Composable
+private fun MainMarkdownText(text: String, fontStyle: FontStyle = FontStyle.Normal) {
+    val nodeData = NodeData(
+        color = colorsScheme().onSurfaceVariant,
+        style = MaterialTheme.wireTypography.subline01.copy(fontStyle = fontStyle),
+        colorScheme = MaterialTheme.wireColorScheme,
+        typography = MaterialTheme.wireTypography,
+        searchQuery = "",
+        mentions = listOf(),
+        disableLinks = true,
+    )
+
+    val markdownPreview = remember(text) {
+        text.toMarkdownDocument().getFirstInlines()
+    }
+
+    if (markdownPreview != null) {
+        MarkdownInline(
+            inlines = markdownPreview.children,
+            maxLines = TEXT_QUOTE_MAX_LINES,
+            nodeData = nodeData
+        )
+    } else {
+        MainContentText(text, fontStyle)
+    }
 }
 
 @Composable

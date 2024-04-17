@@ -202,7 +202,7 @@ class MessageComposerViewModel @Inject constructor(
 
     fun saveDraft(messageDraft: MessageDraft) {
         viewModelScope.launch {
-            saveMessageDraft(conversationId, messageDraft)
+            saveMessageDraft(messageDraft)
         }
     }
 }

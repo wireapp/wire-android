@@ -28,8 +28,10 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.Copyable
+import com.wire.android.util.MessageDateTime
 import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
@@ -194,9 +196,16 @@ sealed class UILastMessageContent {
 
     data class TextMessage(val messageBody: MessageBody) : UILastMessageContent()
 
-    data class SenderWithMessage(val sender: UIText, val message: UIText, val separator: String = " ") : UILastMessageContent()
+    data class SenderWithMessage(
+        val sender: UIText,
+        val message: UIText,
+        val separator: String = MarkdownConstants.NON_BREAKING_SPACE
+    ) : UILastMessageContent()
 
-    data class MultipleMessage(val messages: List<UIText>, val separator: String = " ") : UILastMessageContent()
+    data class MultipleMessage(
+        val messages: List<UIText>,
+        val separator: String = MarkdownConstants.NON_BREAKING_SPACE
+    ) : UILastMessageContent()
 
     data class Connection(val connectionState: ConnectionState, val userId: UserId) : UILastMessageContent()
 
@@ -589,7 +598,7 @@ enum class MessageSource {
 }
 
 data class MessageTime(val utcISO: String) {
-    val formattedDate = utcISO.uiMessageDateTime() ?: ""
+    fun formattedDate(now: Long): MessageDateTime? = utcISO.uiMessageDateTime(now = now)
 }
 
 @Stable

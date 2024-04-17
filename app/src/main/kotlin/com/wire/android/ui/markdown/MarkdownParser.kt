@@ -15,17 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.markdown
 
-package com.wire.android.ui.home.settings.account
+import org.commonmark.node.Document
+import org.commonmark.parser.Parser
 
-data class MyAccountState(
-    val fullName: String = "",
-    val userName: String = "",
-    val email: String = "",
-    val teamName: String? = null,
-    val domain: String = "",
-    val changePasswordUrl: String? = null,
-    val isEditNameAllowed: Boolean = false,
-    val isEditEmailAllowed: Boolean = false,
-    val isEditHandleAllowed: Boolean = false
-)
+object MarkdownParser {
+    private val parser = Parser.builder().extensions(MarkdownConstants.supportedExtensions).build()
+
+    fun parse(text: String) = (parser.parse(text) as Document).toContent() as MarkdownNode.Document
+}

@@ -22,6 +22,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.model.update
 import io.mockk.MockKAnnotations
@@ -44,7 +45,7 @@ class MessageCompositionHolderTest {
     fun before() {
         MockKAnnotations.init(this, relaxUnitFun = true)
 
-        messageComposition = mutableStateOf(MessageComposition())
+        messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))
         state = MessageCompositionHolder(messageComposition = messageComposition, {})
     }
 

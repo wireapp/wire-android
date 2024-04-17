@@ -45,7 +45,7 @@ class MessageDraftViewModel @Inject constructor(
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
-    var state = mutableStateOf(MessageComposition.DEFAULT.copy(messageTextFieldValue = TextFieldValue("")))
+    var state = mutableStateOf(MessageComposition(conversationId))
         private set
 
     init {

@@ -15,17 +15,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.markdown
 
-package com.wire.android.ui.home.settings.account
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 
-data class MyAccountState(
-    val fullName: String = "",
-    val userName: String = "",
-    val email: String = "",
-    val teamName: String? = null,
-    val domain: String = "",
-    val changePasswordUrl: String? = null,
-    val isEditNameAllowed: Boolean = false,
-    val isEditEmailAllowed: Boolean = false,
-    val isEditHandleAllowed: Boolean = false
-)
+@Composable
+fun MarkdownInline(
+    inlines: List<MarkdownNode.Inline>,
+    nodeData: NodeData
+) {
+    val annotatedString = buildAnnotatedString {
+        pushStyle(nodeData.style.toSpanStyle())
+        inlineNodeChildren(inlines, this, nodeData)
+        pop()
+    }
+    MarkdownText(
+        annotatedString,
+        style = nodeData.style,
+        color = nodeData.color,
+        clickable = false,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
+}

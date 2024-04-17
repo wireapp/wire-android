@@ -15,17 +15,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.util.time
 
-package com.wire.android.ui.home.settings.account
+import android.content.Context
+import android.text.format.DateFormat
+import androidx.compose.runtime.Stable
+import java.util.Date
+import java.util.TimeZone
 
-data class MyAccountState(
-    val fullName: String = "",
-    val userName: String = "",
-    val email: String = "",
-    val teamName: String? = null,
-    val domain: String = "",
-    val changePasswordUrl: String? = null,
-    val isEditNameAllowed: Boolean = false,
-    val isEditEmailAllowed: Boolean = false,
-    val isEditHandleAllowed: Boolean = false
-)
+@Stable
+fun convertTimestampToDateTime(
+    timestampSeconds: Long,
+    context: Context
+): Pair<String, String> {
+
+    val dateFormat = DateFormat.getDateFormat(context)
+    val timeFormat = DateFormat.getTimeFormat(context)
+
+    val timezone = TimeZone.getDefault()
+    dateFormat.timeZone = timezone
+    timeFormat.timeZone = timezone
+
+    val dateTime = Date(timestampSeconds * 1000)
+    val date = dateFormat.format(dateTime)
+    val time = timeFormat.format(dateTime)
+
+    return Pair(date, time)
+}

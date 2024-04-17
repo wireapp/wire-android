@@ -105,9 +105,13 @@ internal fun MessageBody(
         )
     )
 
-    text?.also {
+    val markdownDocument = remember(text) {
+        text?.toMarkdownDocument()
+    }
+
+    markdownDocument?.also {
         MarkdownDocument(
-            it.toMarkdownDocument(),
+            it,
             nodeData,
             clickable
         )

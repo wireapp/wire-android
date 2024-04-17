@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 @Composable
 fun MarkdownInline(
     inlines: List<MarkdownNode.Inline>,
+    maxLines: Int = 1,
     nodeData: NodeData
 ) {
     val annotatedString = buildAnnotatedString {
@@ -36,7 +37,7 @@ fun MarkdownInline(
         style = nodeData.style,
         color = nodeData.color,
         clickable = false,
-        maxLines = 1,
+        maxLines = maxLines,
         overflow = TextOverflow.Ellipsis
     )
 }

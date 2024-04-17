@@ -30,23 +30,23 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.VectorPainter
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
 import com.wire.android.feature.sketch.model.DrawingState
@@ -93,8 +93,7 @@ private fun CanvasLayout(
     val textLayoutResult = remember(emptyCanvasText) {
         textMeasurer.measure(emptyCanvasText, emptyCanvasStyle)
     }
-    val vector = ImageVector.vectorResource(id = R.drawable.ic_long_arrow)
-    val painter = rememberVectorPainter(image = vector)
+    val arrowDrawable = ImageBitmap.Companion.imageResource(id = R.drawable.ic_arrow_onboarding)
     val drawModifier = Modifier
         .fillMaxSize()
         .clipToBounds() // necessary to draw inside the canvas.
@@ -126,7 +125,7 @@ private fun CanvasLayout(
             restoreToCount(checkPoint)
         }
         if (paths.isEmpty()) {
-            emptyCanvasState(textMeasurer, emptyCanvasText, emptyCanvasStyle, textLayoutResult, painter)
+            emptyCanvasState(textMeasurer, emptyCanvasText, emptyCanvasStyle, textLayoutResult, arrowDrawable)
         }
     }
 }
@@ -136,24 +135,23 @@ private fun DrawScope.emptyCanvasState(
     emptyCanvasText: String,
     emptyCanvasStyle: TextStyle,
     textLayoutResult: TextLayoutResult,
-    painter: VectorPainter
+    arrowDrawable: ImageBitmap
 ) {
+    val textPosition = Offset(
+        x = center.x - textLayoutResult.size.width / 2,
+        y = center.y - textLayoutResult.size.height / 2
+    )
     drawText(
         textMeasurer = textMeasurer,
         text = emptyCanvasText,
         style = emptyCanvasStyle,
-        topLeft = Offset(
-            x = center.x - textLayoutResult.size.width / 2,
-            y = center.y - textLayoutResult.size.height / 2
+        topLeft = textPosition,
+
         )
+    drawImage(
+        image = arrowDrawable,
+        topLeft = textPosition.plus(Offset(x = textLayoutResult.size.width / 2f, y = textLayoutResult.size.height + 10.dp.toPx()))
     )
-    // todo. uncomment when figure it out how to position this correctly on the canvas.
-    val enabled = false
-    if (enabled) {
-        with(painter) {
-            draw(painter.intrinsicSize, alpha = .5f)
-        }
-    }
 }
 
 /**
@@ -178,4 +176,19 @@ private suspend fun AwaitPointerEventScope.handleGestures(
         }
     } while (event.changes.any { it.pressed })
     onStopDrawing()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCanvasEmptyState() {
+    DrawingCanvasComponent(
+        state = DrawingState(),
+        onStartDrawingEvent = {},
+        onDrawEvent = {},
+        onStopDrawingEvent = {},
+        onSizeChanged = {},
+        onStartDrawing = {},
+        onDraw = {},
+        onStopDrawing = {}
+    )
 }

@@ -437,7 +437,8 @@ private fun DebugToolsOptions(
 }
 
 /**
- *
+ * Compose function that will display the list of dependencies
+ * @param dependencies an Immutable map of a dependency name to its version number
  */
 @Composable
 fun DependenciesItem(dependencies: ImmutableMap<String, String?>) {
@@ -488,7 +489,7 @@ private fun DisableEventProcessingSwitch(
 }
 
 @Stable
-private fun prettyPrintMap(map: Map<String, String?>, title: String): String = StringBuilder().apply {
+private fun prettyPrintMap(map: ImmutableMap<String, String?>, title: String): String = StringBuilder().apply {
     append("$title\n")
     map.forEach { (key, value) ->
         append("$key: $value\n")

@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -45,6 +44,7 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MigrationScreenDestination
@@ -57,23 +57,27 @@ import java.io.File
 @RootNavGraph
 @Destination
 @Composable
-fun DebugScreen(navigator: Navigator) {
+fun DebugScreen(navigator: Navigator, userDebugViewModel: UserDebugViewModel = hiltViewModel()) {
     UserDebugContent(
         onNavigationPressed = navigator::navigateBack,
         onManualMigrationPressed = {
             navigator.navigate(NavigationCommand(MigrationScreenDestination(it), BackStackMode.CLEAR_WHOLE))
-        }
+        },
+        state = userDebugViewModel.state,
+        onLoggingEnabledChange = userDebugViewModel::setLoggingEnabledState,
+        onDeleteLogs = userDebugViewModel::deleteLogs
     )
 }
 
 @Composable
-private fun UserDebugContent(
+internal fun UserDebugContent(
+    state: UserDebugState,
     onNavigationPressed: () -> Unit,
     onManualMigrationPressed: (currentAccount: UserId) -> Unit,
-    userDebugViewModel: UserDebugViewModel = hiltViewModel(),
-
+    onLoggingEnabledChange: (Boolean) -> Unit,
+    onDeleteLogs: () -> Unit,
 ) {
-    val debugContentState: DebugContentState = rememberDebugContentState(userDebugViewModel.logPath)
+    val debugContentState: DebugContentState = rememberDebugContentState(state.logPath)
 
     WireScaffold(
         topBar = {
@@ -85,7 +89,7 @@ private fun UserDebugContent(
             )
         }
     ) { internalPadding ->
-        with(userDebugViewModel.state) {
+        with(state) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -94,8 +98,8 @@ private fun UserDebugContent(
             ) {
                 LogOptions(
                     isLoggingEnabled = isLoggingEnabled,
-                    onLoggingEnabledChange = userDebugViewModel::setLoggingEnabledState,
-                    onDeleteLogs = userDebugViewModel::deleteLogs,
+                    onLoggingEnabledChange = onLoggingEnabledChange,
+                    onDeleteLogs = onDeleteLogs,
                     onShareLogs = debugContentState::shareLogs,
                 )
                 DebugDataOptions(

@@ -205,6 +205,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.espresso.intents)
     androidTestImplementation(libs.androidx.espresso.accessibility)
+    androidTestImplementation(libs.hamcrest)
+//    androidTestImplementation(libs.hilt.test)
+//    kspAndroidTest(libs.hilt.compiler)
+
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.test.uiAutomator)
     androidTestImplementation(libs.androidx.test.work)

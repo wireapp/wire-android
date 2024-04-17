@@ -18,10 +18,9 @@
 
 package com.wire.android.ui.calling
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -41,7 +40,6 @@ import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,16 +47,13 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(NavigationTestExtension::class)
 @ExtendWith(CoroutineTestExtension::class)
 class OngoingCallViewModelTest {
-
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     private lateinit var establishedCall: ObserveEstablishedCallsUseCase
@@ -80,15 +75,15 @@ class OngoingCallViewModelTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        every { savedStateHandle.get<String>("conversationId") } returns conversationId.toString()
         coEvery { establishedCall.invoke() } returns flowOf(listOf(provideCall()))
-        coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
+        coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(
+            CurrentScreen.SomeOther
+        )
         coEvery { globalDataStore.getShouldShowDoubleTapToast(any()) } returns false
         coEvery { setVideoSendState.invoke(any(), any()) } returns Unit
 
         ongoingCallViewModel = OngoingCallViewModel(
-            savedStateHandle = savedStateHandle,
-            conversationIdInjected = conversationId,
+            conversationId = conversationId,
             establishedCalls = establishedCall,
             requestVideoStreams = requestVideoStreams,
             currentScreenManager = currentScreenManager,
@@ -113,26 +108,42 @@ class OngoingCallViewModelTest {
     }
 
     @Test
-    fun givenParticipantsList_WhenRequestingVideoStream_ThenRequestItForOnlyParticipantsWithVideoEnabled() = runTest {
-        val expectedClients = listOf(
-            CallClient(participant1.id.toString(), participant1.clientId),
-            CallClient(participant3.id.toString(), participant3.clientId)
-        )
-        coEvery { requestVideoStreams(conversationId = conversationId, expectedClients) } returns Unit
+    fun givenParticipantsList_WhenRequestingVideoStream_ThenRequestItForOnlyParticipantsWithVideoEnabled() =
+        runTest {
+            val expectedClients = listOf(
+                CallClient(participant1.id.toString(), participant1.clientId),
+                CallClient(participant3.id.toString(), participant3.clientId)
+            )
+            coEvery {
+                requestVideoStreams(
+                    conversationId = conversationId,
+                    expectedClients
+                )
+            } returns Unit
 
-        ongoingCallViewModel.requestVideoStreams(participants)
+            ongoingCallViewModel.requestVideoStreams(participants)
 
-        coVerify(exactly = 1) { requestVideoStreams(conversationId, expectedClients) }
-    }
+            coVerify(exactly = 1) { requestVideoStreams(conversationId, expectedClients) }
+        }
 
     @Test
     fun givenDoubleTabIndicatorIsDisplayed_whenUserTapsOnIt_thenHideIt() = runTest {
-        coEvery { globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false) } returns Unit
+        coEvery {
+            globalDataStore.setShouldShowDoubleTapToastStatus(
+                currentUserId.toString(),
+                false
+            )
+        } returns Unit
 
         ongoingCallViewModel.hideDoubleTapToast()
 
         assertEquals(false, ongoingCallViewModel.shouldShowDoubleTapToast)
-        coVerify(exactly = 1) { globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false) }
+        coVerify(exactly = 1) {
+            globalDataStore.setShouldShowDoubleTapToastStatus(
+                currentUserId.toString(),
+                false
+            )
+        }
     }
 
     companion object {
@@ -174,7 +185,12 @@ class OngoingCallViewModelTest {
         val participants = listOf(participant1, participant2, participant3)
     }
 
-    private fun provideCall(id: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")) = Call(
+    private fun provideCall(
+        id: ConversationId = ConversationId(
+            "some-dummy-value",
+            "some.dummy.domain"
+        )
+    ) = Call(
         conversationId = id,
         status = CallStatus.ESTABLISHED,
         callerId = "caller_id",

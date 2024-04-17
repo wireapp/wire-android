@@ -18,6 +18,8 @@
 package com.wire.android.feature.sketch
 
 import android.net.Uri
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,13 +28,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
@@ -137,7 +140,7 @@ fun DrawingCanvasBottomSheet(
 }
 
 @Composable
-private fun DrawingTopBar(
+internal fun DrawingTopBar(
     conversationTitle: String,
     dismissAction: () -> Unit,
     onUndoStroke: () -> Unit,
@@ -176,7 +179,7 @@ private fun DrawingTopBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DrawingToolbar(
+internal fun DrawingToolbar(
     state: DrawingState,
     onColorChanged: (Color) -> Unit,
     onSendSketch: () -> Unit = {},
@@ -194,14 +197,25 @@ private fun DrawingToolbar(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         WireSecondaryButton(
-            onClick = { openColorPickerSheet() },
-            leadingIcon = { Icon(Icons.Default.Circle, null, tint = state.currentPath.color) },
+            onClick = openColorPickerSheet,
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Circle,
+                    null,
+                    tint = state.currentPath.color,
+                    modifier = Modifier
+                        .border(
+                            shape = CircleShape,
+                            border = BorderStroke(dimensions().spacing1x, colorsScheme().secondaryText)
+                        )
+                )
+            },
             leadingIconAlignment = IconAlignment.Center,
             fillMaxWidth = false,
             minSize = dimensions().buttonSmallMinSize,
             minClickableSize = dimensions().buttonMinClickableSize,
             shape = RoundedCornerShape(dimensions().spacing12x),
-            contentPadding = PaddingValues(horizontal = dimensions().spacing8x, vertical = dimensions().spacing4x)
+            contentPadding = PaddingValues(horizontal = dimensions().spacing8x, vertical = dimensions().spacing4x),
         )
         Spacer(Modifier.size(dimensions().spacing2x))
         WirePrimaryIconButton(

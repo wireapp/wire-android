@@ -28,17 +28,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -47,9 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.model.DrawingState
@@ -64,10 +59,8 @@ import com.wire.android.ui.common.button.WireTertiaryIconButton
 import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -231,40 +224,6 @@ private fun DrawingToolbar(
             onColorChanged(it)
             closeColorPickerSheet()
         }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DiscardDialogConfirmation(
-    scope: CoroutineScope,
-    sheetState: SheetState,
-    onDismissSketch: () -> Unit,
-    onHideConfirmationDialog: () -> Unit,
-) {
-    AlertDialog(
-        backgroundColor = MaterialTheme.wireColorScheme.background,
-        contentColor = MaterialTheme.wireColorScheme.onBackground,
-        onDismissRequest = onHideConfirmationDialog,
-        title = { Text(stringResource(R.string.confirm_changes_title)) },
-        text = { Text(stringResource(R.string.confirm_changes_text)) },
-        confirmButton = {
-            TextButton(onClick = {
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    onHideConfirmationDialog()
-                    onDismissSketch()
-                }
-            }) { Text(stringResource(R.string.confirm_changes_dismiss)) }
-        },
-        dismissButton = {
-            TextButton(onClick = {
-                onHideConfirmationDialog()
-            }) { Text(stringResource(R.string.confirm_changes_confirm)) }
-        },
-        properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false
-        )
     )
 }
 

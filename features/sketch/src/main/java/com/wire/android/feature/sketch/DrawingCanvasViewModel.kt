@@ -42,6 +42,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
+@Suppress("TooManyFunctions")
 class DrawingCanvasViewModel : ViewModel() {
 
     internal var state: DrawingState by mutableStateOf(DrawingState())
@@ -51,8 +52,16 @@ class DrawingCanvasViewModel : ViewModel() {
         initializeCanvas()
     }
 
-    private fun initializeCanvas() {
+    fun initializeCanvas() {
         state = DrawingState(currentPath = DrawingPathProperties())
+    }
+
+    fun onShowConfirmationDialog() {
+        state = state.copy(showConfirmationDialog = true)
+    }
+
+    fun onHideConfirmationDialog() {
+        state = state.copy(showConfirmationDialog = false)
     }
 
     /**

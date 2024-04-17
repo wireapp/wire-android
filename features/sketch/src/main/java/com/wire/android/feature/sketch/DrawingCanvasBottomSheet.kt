@@ -18,6 +18,8 @@
 package com.wire.android.feature.sketch
 
 import android.net.Uri
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,16 +28,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -45,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.model.DrawingState
 import com.wire.android.model.ClickBlockParams
@@ -60,7 +64,6 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,14 +78,35 @@ fun DrawingCanvasBottomSheet(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { false })
+    val onDismissEvent: () -> Unit = remember {
+        {
+            if (viewModel.state.paths.isNotEmpty()) {
+                viewModel.onShowConfirmationDialog()
+            } else {
+                scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() }
+            }
+        }
+    }
+    val dismissEvent: () -> Unit = remember {
+        {
+            viewModel.initializeCanvas()
+            onDismissSketch()
+        }
+    }
+
     ModalBottomSheet(
         shape = CutCornerShape(dimensions().spacing0x),
         containerColor = colorsScheme().background,
         dragHandle = {
-            DrawingTopBar(scope, sheetState, conversationTitle, onDismissSketch, viewModel::onUndoLastStroke, viewModel.state)
+            DrawingTopBar(conversationTitle, onDismissEvent, viewModel::onUndoLastStroke, viewModel.state)
         },
         sheetState = sheetState,
-        onDismissRequest = onDismissSketch
+        onDismissRequest = onDismissEvent,
+        properties = ModalBottomSheetProperties(
+            isFocusable = true,
+            securePolicy = SecureFlagPolicy.SecureOn,
+            shouldDismissOnBackPress = false
+        )
     ) {
         Row(
             Modifier
@@ -109,15 +133,16 @@ fun DrawingCanvasBottomSheet(
             }
         )
     }
+
+    if (viewModel.state.showConfirmationDialog) {
+        DiscardDialogConfirmation(scope, sheetState, dismissEvent, viewModel::onHideConfirmationDialog)
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DrawingTopBar(
-    scope: CoroutineScope = rememberCoroutineScope(),
-    sheetState: SheetState,
+internal fun DrawingTopBar(
     conversationTitle: String,
-    onDismissSketch: () -> Unit,
+    dismissAction: () -> Unit,
     onUndoStroke: () -> Unit,
     state: DrawingState
 ) {
@@ -128,7 +153,7 @@ private fun DrawingTopBar(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         WireTertiaryIconButton(
-            onButtonClicked = { scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() } },
+            onButtonClicked = dismissAction,
             iconResource = R.drawable.ic_close,
             contentDescription = R.string.content_description_close_button,
             minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
@@ -154,7 +179,7 @@ private fun DrawingTopBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DrawingToolbar(
+internal fun DrawingToolbar(
     state: DrawingState,
     onColorChanged: (Color) -> Unit,
     onSendSketch: () -> Unit = {},
@@ -172,14 +197,25 @@ private fun DrawingToolbar(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         WireSecondaryButton(
-            onClick = { openColorPickerSheet() },
-            leadingIcon = { Icon(Icons.Default.Circle, null, tint = state.currentPath.color) },
+            onClick = openColorPickerSheet,
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Circle,
+                    null,
+                    tint = state.currentPath.color,
+                    modifier = Modifier
+                        .border(
+                            shape = CircleShape,
+                            border = BorderStroke(dimensions().spacing1x, colorsScheme().secondaryText)
+                        )
+                )
+            },
             leadingIconAlignment = IconAlignment.Center,
             fillMaxWidth = false,
             minSize = dimensions().buttonSmallMinSize,
             minClickableSize = dimensions().buttonMinClickableSize,
             shape = RoundedCornerShape(dimensions().spacing12x),
-            contentPadding = PaddingValues(horizontal = dimensions().spacing8x, vertical = dimensions().spacing4x)
+            contentPadding = PaddingValues(horizontal = dimensions().spacing8x, vertical = dimensions().spacing4x),
         )
         Spacer(Modifier.size(dimensions().spacing2x))
         WirePrimaryIconButton(

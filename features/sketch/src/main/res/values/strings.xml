@@ -21,4 +21,9 @@
     <string name="content_description_undo_button">Undo</string>
     <string name="sketch_details_empty_text">Pick your favorite color and start sketching 🎨</string>
     <string name="content_description_close_button">close</string>
+    <string name="title_color_picker">Color</string>
+    <string name="confirm_changes_title">Discard drawing?</string>
+    <string name="confirm_changes_text">If you leave without sending, your drawing will be lost.</string>
+    <string name="confirm_changes_confirm">Cancel</string>
+    <string name="confirm_changes_dismiss">Discard</string>
 </resources>

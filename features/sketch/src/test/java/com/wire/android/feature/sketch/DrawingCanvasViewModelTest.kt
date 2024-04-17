@@ -1,6 +1,7 @@
 package com.wire.android.feature.sketch
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -91,6 +92,50 @@ class DrawingCanvasViewModelTest {
         with(viewModel.state) {
             assertEquals(DrawingMotionEvent.Idle, drawingMotionEvent)
             assertEquals(currentPosition, Offset.Unspecified)
+        }
+    }
+
+    @Test
+    fun givenOnColorChanged_WhenCallingTheAction_ThenUpdateCurrentPathWithTheSelectedColor() = runTest {
+        // given
+        val (_, viewModel) = Arrangement().arrange()
+        assertEquals(viewModel.state.currentPath.color, Color.Black)
+
+        // when
+        val newColor = Color.Magenta
+        viewModel.onColorChanged(newColor)
+
+        // then
+        with(viewModel.state) {
+            assertEquals(currentPath.color, newColor)
+        }
+    }
+
+    @Test
+    fun givenWeWantToDiscard_WhenCallingTheAction_ThenUpdateStateToShowConfirmation() = runTest {
+        // given
+        val (_, viewModel) = Arrangement().arrange()
+
+        // when
+        viewModel.onShowConfirmationDialog()
+
+        // then
+        with(viewModel.state) {
+            assertEquals(true, showConfirmationDialog)
+        }
+    }
+
+    @Test
+    fun givenWeCancelToDiscard_WhenCallingTheAction_ThenUpdateStateToHideConfirmation() = runTest {
+        // given
+        val (_, viewModel) = Arrangement().arrange()
+
+        // when
+        viewModel.onHideConfirmationDialog()
+
+        // then
+        with(viewModel.state) {
+            assertEquals(false, showConfirmationDialog)
         }
     }
 

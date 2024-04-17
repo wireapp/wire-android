@@ -34,10 +34,14 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 
+/**
+ * Represents the current path properties [DrawingState.currentPath]
+ * This can be extended in the future to [strokeWidth], [drawMode] ,etc.
+ */
 internal class DrawingPathProperties(
     var path: Path = Path(),
     var strokeWidth: Float = 10f,
-    var color: Color = Color.Blue,
+    var color: Color = Color.Black,
     var drawMode: DrawMode = DrawMode.Pen
 ) {
     fun draw(scope: DrawScope, bitmap: Bitmap? = null) {

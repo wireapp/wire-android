@@ -97,7 +97,6 @@ class AccountSwitchUseCase @Inject constructor(
                     appLogger.i("$TAG Given account is not found: ${userId.toLogString()}")
                     SwitchAccountResult.GivenAccountIsInvalid
                 }
-
             }
         }
     }

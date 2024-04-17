@@ -55,6 +55,7 @@ class AccountSwitchUseCaseTest {
             val (arrangement, switchAccount) =
                 Arrangement(testScope)
                     .withGetCurrentSession(CurrentSessionResult.Success(ACCOUNT_VALID_1))
+                    .withGetAllSessions(GetAllSessionsResult.Success(listOf(ACCOUNT_VALID_1, ACCOUNT_VALID_2)))
                     .withUpdateCurrentSession(UpdateCurrentSessionUseCase.Result.Success)
                     .arrange()
 
@@ -78,7 +79,7 @@ class AccountSwitchUseCaseTest {
                 Arrangement(testScope)
                     .withGetCurrentSession(CurrentSessionResult.Success(ACCOUNT_VALID_1))
                     .withUpdateCurrentSession(UpdateCurrentSessionUseCase.Result.Success)
-                    .withGetAllSessions(GetAllSessionsResult.Success(emptyList()))
+                    .withGetAllSessions(GetAllSessionsResult.Success(listOf(ACCOUNT_VALID_1)))
                     .withServerConfigForAccount(ServerConfigForAccountUseCase.Result.Success(serverConfig))
                     .arrange()
 
@@ -95,7 +96,7 @@ class AccountSwitchUseCaseTest {
     @Test
     fun givenCurrentSessionIsInvalid_whenSwitchingToAccount_thenUpdateCurrentSessionAndDeleteTheOldOne() = testScope.runTest {
         val currentAccount = ACCOUNT_INVALID_3
-        val switchTO = ACCOUNT_VALID_2
+        val switchTo = ACCOUNT_VALID_2
 
         val expectedResult = SwitchAccountResult.SwitchedToAnotherAccount
 
@@ -103,18 +104,52 @@ class AccountSwitchUseCaseTest {
             Arrangement(testScope)
                 .withGetCurrentSession(CurrentSessionResult.Success(currentAccount))
                 .withUpdateCurrentSession(UpdateCurrentSessionUseCase.Result.Success)
-                .withGetAllSessions(GetAllSessionsResult.Success(emptyList()))
+                .withGetAllSessions(GetAllSessionsResult.Success(listOf(currentAccount, switchTo)))
                 .withDeleteSession(currentAccount.userId, DeleteSessionUseCase.Result.Success)
                 .arrange()
 
-        val result = switchAccount(SwitchAccountParam.SwitchToAccount(switchTO.userId))
+        val result = switchAccount(SwitchAccountParam.SwitchToAccount(switchTo.userId))
         testScope.advanceUntilIdle()
 
         assertEquals(expectedResult, result)
         coVerify(exactly = 1) {
             arrangement.currentSession()
-            arrangement.updateCurrentSession(switchTO.userId)
+            arrangement.updateCurrentSession(switchTo.userId)
             arrangement.deleteSession(currentAccount.userId)
+        }
+    }
+
+    @Test
+    fun givenProvidedAccountIsNotFound_whenSwitchingToAccount_thenReturnGivenAccountIsInvalid() = testScope.runTest {
+        val (arrangement, switchAccount) =
+            Arrangement(testScope)
+                .withGetCurrentSession(CurrentSessionResult.Success(ACCOUNT_VALID_1))
+                .withGetAllSessions(GetAllSessionsResult.Success(listOf(ACCOUNT_VALID_1)))
+                .arrange()
+
+        val result = switchAccount(SwitchAccountParam.SwitchToAccount(ACCOUNT_VALID_2.userId))
+
+        assertEquals(SwitchAccountResult.GivenAccountIsInvalid, result)
+        coVerify(exactly = 1) {
+            arrangement.currentSession()
+            arrangement.getSessions()
+        }
+    }
+
+    @Test
+    fun givenProvidedAccountIsNotValid_whenSwitchingToAccount_thenReturnGivenAccountIsInvalid() = testScope.runTest {
+        val (arrangement, switchAccount) =
+            Arrangement(testScope)
+                .withGetCurrentSession(CurrentSessionResult.Success(ACCOUNT_VALID_1))
+                .withGetAllSessions(GetAllSessionsResult.Success(listOf(ACCOUNT_VALID_1, ACCOUNT_INVALID_3)))
+                .arrange()
+
+        val result = switchAccount(SwitchAccountParam.SwitchToAccount(ACCOUNT_INVALID_3.userId))
+
+        assertEquals(SwitchAccountResult.GivenAccountIsInvalid, result)
+        coVerify(exactly = 1) {
+            arrangement.currentSession()
+            arrangement.getSessions()
         }
     }
 

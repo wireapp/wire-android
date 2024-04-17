@@ -76,13 +76,19 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
@@ -120,6 +126,7 @@ class MessageComposerViewModel @Inject constructor(
     private val setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase,
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
     private val sendLocation: SendLocationUseCase,
+    private val currentSessionFlowUseCase: CurrentSessionFlowUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
@@ -188,14 +195,24 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     private fun observeIsTypingAvailable() = viewModelScope.launch {
-        observeConversationInteractionAvailability(conversationId).collect { result ->
-            messageComposerViewState.value = messageComposerViewState.value.copy(
-                interactionAvailability = when (result) {
-                    is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
-                    is IsInteractionAvailableResult.Success -> result.interactionAvailability
+        currentSessionFlowUseCase()
+            .flatMapLatest {
+                when (it) {
+                    is CurrentSessionResult.Success -> {
+                        observeConversationInteractionAvailability(conversationId)
+                            .mapLatest { result ->
+                                when (result) {
+                                    is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
+                                    is IsInteractionAvailableResult.Success -> result.interactionAvailability
+                                }
+                            }
+                    }
+                    else -> flowOf(InteractionAvailability.DISABLED)
                 }
-            )
-        }
+            }
+            .collectLatest {
+                messageComposerViewState.value = messageComposerViewState.value.copy(interactionAvailability = it)
+            }
     }
 
     private fun observeSelfDeletingMessagesStatus() = viewModelScope.launch {

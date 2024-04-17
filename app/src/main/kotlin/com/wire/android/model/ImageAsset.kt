@@ -81,8 +81,6 @@ sealed class ImageAsset {
         override val uniqueKey: String
             get() = toString()
     }
-
-
 }
 
 fun String.parseIntoPrivateImageAsset(

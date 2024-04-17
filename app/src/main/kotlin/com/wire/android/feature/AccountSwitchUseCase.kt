@@ -74,8 +74,8 @@ class AccountSwitchUseCase @Inject constructor(
         }
     }
 
-    private suspend fun checkAccountAndSwitchIfPossible(userId: UserId, current: AccountInfo?): SwitchAccountResult {
-        return getSessions().let {
+    private suspend fun checkAccountAndSwitchIfPossible(userId: UserId, current: AccountInfo?): SwitchAccountResult =
+        getSessions().let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
                     it.sessions
@@ -89,17 +89,18 @@ class AccountSwitchUseCase @Inject constructor(
                             }
                         }
                 }
+
                 is GetAllSessionsResult.Failure.Generic -> {
                     appLogger.i("$TAG Failure when switching account to: ${userId.toLogString()}")
                     SwitchAccountResult.Failure
                 }
+
                 GetAllSessionsResult.Failure.NoSessionFound -> {
                     appLogger.i("$TAG Given account is not found: ${userId.toLogString()}")
                     SwitchAccountResult.GivenAccountIsInvalid
                 }
             }
         }
-    }
 
     private suspend fun getNextAccountIfPossibleAndSwitch(current: AccountInfo?): SwitchAccountResult {
         val nextSessionId: UserId? = getSessions().let {

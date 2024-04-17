@@ -17,16 +17,15 @@
  */
 package com.wire.android.feature.sketch
 
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
-import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.button.WireButtonState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -38,28 +37,25 @@ internal fun DiscardDialogConfirmation(
     onDismissSketch: () -> Unit,
     onHideConfirmationDialog: () -> Unit,
 ) {
-    AlertDialog(
-        backgroundColor = MaterialTheme.wireColorScheme.background,
-        contentColor = MaterialTheme.wireColorScheme.onBackground,
-        onDismissRequest = onHideConfirmationDialog,
-        title = { Text(stringResource(R.string.confirm_changes_title)) },
-        text = { Text(stringResource(R.string.confirm_changes_text)) },
-        confirmButton = {
-            TextButton(onClick = {
+    WireDialog(
+        title = stringResource(id = R.string.confirm_changes_title),
+        text = stringResource(id = R.string.confirm_changes_text),
+        onDismiss = onHideConfirmationDialog,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = {
                 scope.launch { sheetState.hide() }.invokeOnCompletion {
                     onHideConfirmationDialog()
                     onDismissSketch()
                 }
-            }) { Text(stringResource(R.string.confirm_changes_dismiss)) }
-        },
-        dismissButton = {
-            TextButton(onClick = {
-                onHideConfirmationDialog()
-            }) { Text(stringResource(R.string.confirm_changes_confirm)) }
-        },
-        properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false
-        )
+            },
+            text = stringResource(id = R.string.confirm_changes_dismiss),
+            type = WireDialogButtonType.Primary,
+            state = WireButtonState.Error
+        ),
+        dismissButtonProperties = WireDialogButtonProperties(
+            text = stringResource(id = R.string.confirm_changes_confirm),
+            onClick = onHideConfirmationDialog
+        ),
+        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = false, dismissOnClickOutside = false)
     )
 }

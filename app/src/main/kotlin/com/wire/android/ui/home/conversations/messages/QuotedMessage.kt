@@ -344,14 +344,16 @@ private fun QuotedText(
         modifier = modifier,
         startContent = {
             startContent()
-        }, centerContent = {
+        },
+        centerContent = {
             editedTimeDescription?.let {
                 if (style == COMPLETE) {
                     StatusBox(it.asString())
                 }
             }
             MainMarkdownText(text)
-        }, footerContent = {
+        },
+        footerContent = {
             QuotedMessageOriginalDate(originalDateTimeDescription)
         },
         clickable = clickable

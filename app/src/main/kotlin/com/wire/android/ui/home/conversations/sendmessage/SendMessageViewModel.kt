@@ -114,17 +114,32 @@ class SendMessageViewModel @Inject constructor(
         observeConversationUnderLegalHoldNotified(conversationId).first().let { !it }
 
     fun trySendMessage(messageBundle: MessageBundle) {
-        viewModelScope.launch {
-            when {
-                shouldInformAboutDegradedBeforeSendingMessage(messageBundle.conversationId) ->
-                    sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(messageBundle)
+        trySendMessages(listOf(messageBundle))
+    }
+    
+    fun trySendMessages(messageBundleList: List<MessageBundle>) {
+        val messageBundleMap = messageBundleList.groupBy { it.conversationId }
 
-                shouldInformAboutUnderLegalHoldBeforeSendingMessage(messageBundle.conversationId) ->
-                    sureAboutMessagingDialogState =
-                        SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(messageBundle)
+        messageBundleMap.forEach { (conversationId, bundles) ->
+            viewModelScope.launch {
+                when {
+                    shouldInformAboutDegradedBeforeSendingMessage(conversationId) ->
+                        sureAboutMessagingDialogState =
+                            SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(conversationId, bundles)
 
-                else -> sendMessage(messageBundle)
+                    shouldInformAboutUnderLegalHoldBeforeSendingMessage(conversationId) ->
+                        sureAboutMessagingDialogState =
+                            SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(conversationId, messageBundleList)
+
+                    else -> sendMessages(messageBundleList)
+                }
             }
+        }
+    }
+
+    private suspend fun sendMessages(messageBundleList: List<MessageBundle>) {
+        messageBundleList.forEach {
+            sendMessage(it)
         }
     }
 
@@ -265,8 +280,16 @@ class SendMessageViewModel @Inject constructor(
 
     private fun CoreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) = also {
         if (this is LegalHoldEnabledForConversationFailure) {
-            sureAboutMessagingDialogState =
-                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(this.messageId, conversationId)
+            sureAboutMessagingDialogState = when(val currentState = sureAboutMessagingDialogState) {
+                // if multiple messages will fail, update messageIdList to retry sending all of them
+                is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending -> currentState.copy(
+                    messageIdList = currentState.messageIdList.plus(messageId)
+                )
+                SureAboutMessagingDialogState.Hidden,
+                is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending,
+                is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
+                    SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(listOf(messageId), conversationId)
+            }
         }
     }
 
@@ -276,6 +299,12 @@ class SendMessageViewModel @Inject constructor(
     private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) = also {
         if (it is ScheduleNewAssetMessageResult.Failure) {
             it.coreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId)
+        }
+    }
+
+    fun retrySendingMessages(messageIdList: List<String>, conversationId: ConversationId) {
+        messageIdList.forEach {
+            retrySendingMessage(it, conversationId)
         }
     }
 
@@ -295,13 +324,13 @@ class SendMessageViewModel @Inject constructor(
                 it.markAsNotified(it.conversationId)
                 when (it) {
                     is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
-                        trySendMessage(it.messageBundleToSend)
+                        trySendMessages(it.messageBundleListToSend)
 
                     is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending ->
-                        trySendMessage(it.messageBundleToSend)
+                        trySendMessages(it.messageBundleListToSend)
 
                     is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending ->
-                        retrySendingMessage(it.messageId, it.conversationId)
+                        retrySendingMessages(it.messageIdList, it.conversationId)
                 }
             }
         }
@@ -323,9 +352,5 @@ class SendMessageViewModel @Inject constructor(
             }
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
-    }
-
-    companion object {
-        private const val sizeOf1MB = 1024 * 1024
     }
 }

@@ -78,16 +78,15 @@ class AccountSwitchUseCase @Inject constructor(
         getSessions().let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
-                    it.sessions
-                        .any { accountInfo -> (accountInfo is AccountInfo.Valid) && (accountInfo.userId == userId) }
-                        .let { isAccountLoggedInAndValid ->
-                            if (isAccountLoggedInAndValid) {
-                                switch(userId, current)
-                            } else {
-                                appLogger.i("$TAG Given account is not logged in or invalid: ${userId.toLogString()}")
-                                return SwitchAccountResult.GivenAccountIsInvalid
-                            }
-                        }
+                    val isAccountLoggedInAndValid = it.sessions.any {
+                        accountInfo -> (accountInfo is AccountInfo.Valid) && (accountInfo.userId == userId)
+                    }
+                    if (isAccountLoggedInAndValid) {
+                        switch(userId, current)
+                    } else {
+                        appLogger.i("$TAG Given account is not logged in or invalid: ${userId.toLogString()}")
+                        return SwitchAccountResult.GivenAccountIsInvalid
+                    }
                 }
 
                 is GetAllSessionsResult.Failure.Generic -> {

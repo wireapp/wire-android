@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversationslist.common
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.markdown.MarkdownInline
@@ -59,8 +60,13 @@ private fun LastMessageMarkdown(text: String, leadingText: String = "") {
         disableLinks = true
     )
 
-    val markdownPreview = text.toMarkdownDocument().getFirstInlines()
-    val leadingInlines = leadingText.toMarkdownDocument().getFirstInlines()?.children ?: persistentListOf()
+    val markdownPreview = remember(text) {
+        text.toMarkdownDocument().getFirstInlines()
+    }
+
+    val leadingInlines = remember(leadingText) {
+        leadingText.toMarkdownDocument().getFirstInlines()?.children ?: persistentListOf()
+    }
 
     if (markdownPreview != null) {
         MarkdownInline(

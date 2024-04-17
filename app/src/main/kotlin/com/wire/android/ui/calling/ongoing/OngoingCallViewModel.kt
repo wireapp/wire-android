@@ -22,7 +22,6 @@ import android.os.CountDownTimer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -35,7 +34,6 @@ import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
@@ -52,9 +50,8 @@ import kotlinx.coroutines.launch
 @Suppress("LongParameterList")
 @HiltViewModel(assistedFactory = OngoingCallViewModel.Factory::class)
 class OngoingCallViewModel @AssistedInject constructor(
-    savedStateHandle: SavedStateHandle,
     @Assisted
-    val conversationIdInjected: ConversationId,
+    val conversationId: ConversationId,
     @CurrentAccount
     private val currentUserId: UserId,
     private val globalDataStore: GlobalDataStore,
@@ -63,13 +60,6 @@ class OngoingCallViewModel @AssistedInject constructor(
     private val setVideoSendState: SetVideoSendStateUseCase,
     private val currentScreenManager: CurrentScreenManager
 ) : ViewModel() {
-    private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
-
-    private val conversationIdString: String? = savedStateHandle["conversationId"]
-    private val conversationId =
-        conversationIdString?.let { qualifiedIdMapper.fromStringToQualifiedID(it) }
-            ?: conversationIdInjected
-
     var shouldShowDoubleTapToast: Boolean by mutableStateOf(false)
         private set
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null

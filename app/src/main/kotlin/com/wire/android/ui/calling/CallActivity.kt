@@ -18,22 +18,29 @@
 package com.wire.android.ui.calling
 
 import android.app.Activity
-import android.app.KeyguardManager
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.core.content.getSystemService
+import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
 import com.wire.android.appLogger
+import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.incoming.IncomingCallScreen
+import com.wire.android.ui.calling.initiating.InitiatingCallScreen
+import com.wire.android.ui.calling.ongoing.OngoingCallScreen
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
@@ -73,14 +80,39 @@ class CallActivity : AppCompatActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    conversationId?.let {
-                        screenType?.let { screenType ->
-                            val startDestination = CallScreenType.valueOf(screenType)
-                            CallScreen(
-                                conversationId = qualifiedIdMapper.fromStringToQualifiedID(it),
-                                startDestination = startDestination
-                            )
+                    var currentCallScreenType by remember { mutableStateOf(screenType) }
+                    currentCallScreenType?.let { currentScreenType ->
+                        AnimatedContent(
+                            targetState = currentScreenType,
+                            transitionSpec = {
+                                TransitionAnimationType.POP_UP.enterTransition.togetherWith(
+                                    TransitionAnimationType.POP_UP.exitTransition
+                                )
+                            },
+                            label = currentScreenType
+                        ) { screenType ->
+                            conversationId?.let {
+                                when (screenType) {
+                                    CallScreenType.Initiating.name -> InitiatingCallScreen(
+                                        qualifiedIdMapper.fromStringToQualifiedID(it)
+                                    ) {
+                                        currentCallScreenType = CallScreenType.Ongoing.name
+                                    }
+
+                                    CallScreenType.Ongoing.name -> OngoingCallScreen(
+                                        qualifiedIdMapper.fromStringToQualifiedID(it)
+                                    )
+
+                                    CallScreenType.Incoming.name -> IncomingCallScreen(
+                                        qualifiedIdMapper.fromStringToQualifiedID(it)
+                                    ) {
+                                        currentCallScreenType = CallScreenType.Ongoing.name
+                                    }
+                                }
+                            }
                         }
+                    } ?: run {
+                        finish()
                     }
                 }
             }

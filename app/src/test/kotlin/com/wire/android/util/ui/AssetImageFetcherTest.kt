@@ -38,7 +38,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okio.Path
 import okio.buffer
@@ -46,7 +45,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-@OptIn(ExperimentalCoroutinesApi::class)
 internal class AssetImageFetcherTest {
 
     @Test
@@ -287,11 +285,11 @@ internal class AssetImageFetcherTest {
         val mockFetchResult = mockk<FetchResult>()
         val mockContext = mockk<Context>()
 
-        lateinit var imageData: ImageAsset
+        lateinit var imageData: ImageAsset.Network
         private var options: Options? = null
 
         fun withSuccessfulImageData(
-            data: ImageAsset,
+            data: ImageAsset.Network,
             expectedAssetPath: Path,
             expectedAssetSize: Long,
             assetName: String = "name",
@@ -334,7 +332,7 @@ internal class AssetImageFetcherTest {
         }
 
         fun withErrorResponse(
-            data: ImageAsset,
+            data: ImageAsset.Network,
             isRetryNeeded: Boolean = false,
             coreFailure: CoreFailure = CoreFailure.Unknown(null)
         ): Arrangement {

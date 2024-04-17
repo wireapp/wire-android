@@ -15,20 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.sketch
+package com.wire.android.util
 
-import org.junit.Test
-
-import org.junit.Assert.*
+import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.toUIText
 
 /**
- * Example local unit test, which will execute on the development machine (host).
+ * Cache for the current conversation details.
+ * This is used to display the conversation name in the toolbar or can be used for other purposes.
  *
- * See [testing documentation](http://d.android.com/tools/testing).
+ * TODO: This is temporary, when we have navigation for sketch, we might do it with navigation arguments.
+ * TODO: Anyway, this might be useful, and we might keep it or discuss it.
  */
-class ExampleUnitTest {
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+object CurrentConversationDetailsCache {
+
+    @Volatile
+    var conversationName: UIText = "".toUIText()
+        private set
+
+    @Synchronized
+    fun updateConversationName(newName: UIText) {
+        conversationName = newName
     }
 }

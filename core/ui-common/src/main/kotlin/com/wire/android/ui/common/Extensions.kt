@@ -18,6 +18,8 @@
 package com.wire.android.ui.common
 
 import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -27,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.model.Clickable
 import com.wire.android.util.LocalSyncStateObserver
 
 @Composable
@@ -47,10 +50,26 @@ fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: ()
             when {
                 clickBlockParams.blockWhenConnecting && syncStateObserver.isConnecting ->
                     Toast.makeText(context, context.getString(R.string.label_wait_until_connected), Toast.LENGTH_SHORT).show()
+
                 clickBlockParams.blockWhenSyncing && syncStateObserver.isSyncing ->
                     Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
+
                 else -> clickAction()
             }
         }
     }
 }
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
+    val onClick = rememberClickBlockAction(clickable.clickBlockParams, clickable.onClick)
+    val onLongClick = clickable.onLongClick?.let { onLongClick ->
+        rememberClickBlockAction(clickable.clickBlockParams, onLongClick)
+    }
+    this.combinedClickable(
+        enabled = clickable.enabled,
+        onClick = onClick,
+        onLongClick = onLongClick
+    )
+} ?: this

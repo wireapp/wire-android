@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.conversations.info
 
 import com.wire.android.model.ImageAsset
+import com.wire.android.util.CurrentConversationDetailsCache
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -37,7 +38,11 @@ data class ConversationInfoViewState(
     val mlsVerificationStatus: Conversation.VerificationStatus? = null,
     val proteusVerificationStatus: Conversation.VerificationStatus? = null,
     val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.UNKNOWN,
-)
+) {
+    init {
+        CurrentConversationDetailsCache.updateConversationName(conversationName)
+    }
+}
 
 sealed class ConversationDetailsData {
     data object None : ConversationDetailsData()

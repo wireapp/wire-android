@@ -261,10 +261,7 @@ fun EnabledMessageComposer(
                                     additionalOptionStateHolder.toRichTextEditing()
                                 },
                                 onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                                onDrawingModeClicked = {
-                                    inputStateHolder.collapseComposer()
-                                    additionalOptionStateHolder.toDrawingMode()
-                                }
+                                onDrawingModeClicked = additionalOptionStateHolder::toDrawingMode
                             )
                         }
                         Box(
@@ -305,10 +302,7 @@ fun EnabledMessageComposer(
                                 },
                                 onSendSketch = {
                                     onAttachmentPicked(UriAsset(it))
-                                    inputStateHolder.handleBackPressed(
-                                        isImeVisible,
-                                        additionalOptionStateHolder.additionalOptionsSubMenuState
-                                    )
+                                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
                                 },
                                 conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
                                 tempWritableImageUri = tempWritableImageUri

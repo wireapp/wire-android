@@ -46,7 +46,7 @@ import javax.inject.Singleton
 
 @Suppress("LongParameterList")
 @Singleton
-class  AccountSwitchUseCase @Inject constructor(
+class AccountSwitchUseCase @Inject constructor(
     private val updateCurrentSession: UpdateCurrentSessionUseCase,
     private val getSessions: GetSessionsUseCase,
     private val getCurrentSession: CurrentSessionUseCase,

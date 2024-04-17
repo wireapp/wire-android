@@ -80,6 +80,7 @@
     <string name="label_user_blocked">Blocked</string>
     <string name="label_and">and</string>
     <string name="label_retry">Retry</string>
+    <string name="label_draft">*Draft*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Show password</string>
@@ -214,6 +215,9 @@
     <string name="settings_backups_group_title">Backups</string>
     <string name="settings_other_group_title">Other</string>
     <string name="settings_backup_info">Create a backup to preserve your conversation history. You can use this to restore history if you lose your device or switch to a new one.\n\nChoose a strong password to protect the backup file.</string>
+    <string name="settings_backup_last_backup_title">Last Backup</string>
+    <string name="settings_backup_last_backup_date">The most recent backup from this device has been created on %1$s at %2$s.</string>
+    <string name="settings_backup_last_backup_date_no_time">You did not create a backup from this device yet.</string>
     <string name="settings_backup_create">Create a Backup</string>
     <string name="settings_backup_restore">Restore from Backup</string>
     <!-- Welcome -->

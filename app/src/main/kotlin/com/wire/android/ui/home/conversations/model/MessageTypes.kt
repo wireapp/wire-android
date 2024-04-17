@@ -56,9 +56,9 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedI
 import com.wire.android.ui.markdown.DisplayMention
 import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
-import com.wire.android.ui.markdown.MarkdownNode
+import com.wire.android.ui.markdown.NodeActions
 import com.wire.android.ui.markdown.NodeData
-import com.wire.android.ui.markdown.toContent
+import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -71,11 +71,6 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_FOUND
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOAD_IN_PROGRESS
 import kotlinx.collections.immutable.PersistentList
 import okio.Path
-import org.commonmark.Extension
-import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
-import org.commonmark.ext.gfm.tables.TablesExtension
-import org.commonmark.node.Document
-import org.commonmark.parser.Parser
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 //       waiting for the backend to implement mapping logic for the MessageBody
@@ -103,19 +98,16 @@ internal fun MessageBody(
         typography = MaterialTheme.wireTypography,
         searchQuery = searchQuery,
         mentions = displayMentions,
-        onLongClick = onLongClick,
-        onOpenProfile = onOpenProfile,
-        onLinkClick = onLinkClick
+        actions = NodeActions(
+            onLongClick = onLongClick,
+            onOpenProfile = onOpenProfile,
+            onLinkClick = onLinkClick
+        )
     )
 
-    val extensions: List<Extension> = listOf(
-        StrikethroughExtension.builder().requireTwoTildes(true).build(),
-        TablesExtension.create()
-    )
     text?.also {
-        val document = (Parser.builder().extensions(extensions).build().parse(it) as Document).toContent() as MarkdownNode.Document
         MarkdownDocument(
-            document,
+            it.toMarkdownDocument(),
             nodeData,
             clickable
         )

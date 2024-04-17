@@ -18,7 +18,6 @@
 package com.wire.android.ui.markdown
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,13 +38,9 @@ fun MarkdownIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode
         fontFamily = FontFamily.Monospace,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(dimensions().spacing4x)
-            .background(MaterialTheme.wireColorScheme.outlineVariant)
-            .border(
-                dimensions().spacing1x, MaterialTheme.wireColorScheme.outline,
-                shape = RoundedCornerShape(dimensions().spacing4x)
-            )
-            .padding(dimensions().spacing4x)
+            .padding(vertical = dimensions().spacing4x)
+            .background(MaterialTheme.wireColorScheme.surfaceVariant, shape = RoundedCornerShape(dimensions().spacing16x))
+            .padding(dimensions().spacing8x)
     )
 }
 
@@ -57,12 +52,8 @@ fun MarkdownFencedCodeBlock(fencedCodeBlock: MarkdownNode.Block.FencedCode, node
         fontFamily = FontFamily.Monospace,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(dimensions().spacing4x)
-            .background(MaterialTheme.wireColorScheme.outlineVariant)
-            .border(
-                dimensions().spacing1x, MaterialTheme.wireColorScheme.outline,
-                shape = RoundedCornerShape(dimensions().spacing4x)
-            )
-            .padding(dimensions().spacing4x)
+            .padding(vertical = dimensions().spacing4x)
+            .background(MaterialTheme.wireColorScheme.surfaceVariant, shape = RoundedCornerShape(dimensions().spacing16x))
+            .padding(dimensions().spacing8x)
     )
 }

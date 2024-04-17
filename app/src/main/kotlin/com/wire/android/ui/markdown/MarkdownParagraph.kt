@@ -44,9 +44,9 @@ fun MarkdownParagraph(
         MarkdownText(
             annotatedString,
             style = nodeData.style,
-            onLongClick = nodeData.onLongClick,
-            onOpenProfile = nodeData.onOpenProfile,
-            onClickLink = nodeData.onLinkClick,
+            onLongClick = nodeData.actions?.onLongClick,
+            onOpenProfile = nodeData.actions?.onOpenProfile,
+            onClickLink = nodeData.actions?.onLinkClick,
             clickable = clickable
         )
     }

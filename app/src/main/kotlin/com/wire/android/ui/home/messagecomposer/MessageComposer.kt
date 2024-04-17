@@ -85,7 +85,8 @@ fun MessageComposer(
     onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
-    onTypingEvent: (TypingIndicatorMode) -> Unit
+    onTypingEvent: (TypingIndicatorMode) -> Unit,
+    onImagePicked: (Uri) -> Unit
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {
@@ -136,6 +137,7 @@ fun MessageComposer(
                         clearMessage()
                     },
                     onPingOptionClicked = { onSendMessageBundle(Ping(conversationId)) },
+                    onImagePicked = onImagePicked,
                     onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.AttachmentPickedBundle(conversationId, it)) },
                     onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
                     onLocationPicked = {
@@ -253,7 +255,7 @@ private fun BaseComposerPreview(
             )
         )
     }
-    val messageComposition = remember { mutableStateOf(MessageComposition.DEFAULT) }
+    val messageComposition = remember { mutableStateOf(MessageComposition(ConversationId("value", "domain"))) }
     val selfDeletionTimer = remember { mutableStateOf(SelfDeletionTimer.Enabled(Duration.ZERO)) }
 
     MessageComposer(
@@ -279,7 +281,8 @@ private fun BaseComposerPreview(
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
-        onTypingEvent = { }
+        onTypingEvent = { },
+        onImagePicked = {}
     )
 }
 

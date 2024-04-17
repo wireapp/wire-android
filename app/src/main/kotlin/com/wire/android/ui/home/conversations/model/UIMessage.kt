@@ -28,16 +28,18 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.android.ui.markdown.MarkdownConstants
+import com.wire.android.ui.theme.Accent
 import com.wire.android.util.Copyable
+import com.wire.android.util.MessageDateTime
 import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
-import com.wire.android.ui.theme.Accent
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -194,9 +196,16 @@ sealed class UILastMessageContent {
 
     data class TextMessage(val messageBody: MessageBody) : UILastMessageContent()
 
-    data class SenderWithMessage(val sender: UIText, val message: UIText, val separator: String = " ") : UILastMessageContent()
+    data class SenderWithMessage(
+        val sender: UIText,
+        val message: UIText,
+        val separator: String = MarkdownConstants.NON_BREAKING_SPACE
+    ) : UILastMessageContent()
 
-    data class MultipleMessage(val messages: List<UIText>, val separator: String = " ") : UILastMessageContent()
+    data class MultipleMessage(
+        val messages: List<UIText>,
+        val separator: String = MarkdownConstants.NON_BREAKING_SPACE
+    ) : UILastMessageContent()
 
     data class Connection(val connectionState: ConnectionState, val userId: UserId) : UILastMessageContent()
 
@@ -387,8 +396,8 @@ sealed class UIMessageContent {
 
         sealed class MissedCall(
             open val author: UIText,
-            @StringRes stringResId: Int
-        ) : SystemMessage(R.drawable.ic_call_end, stringResId) {
+            @StringRes stringResId: Int,
+        ) : SystemMessage(R.drawable.ic_call_end, stringResId, isSmallIcon = false) {
 
             data class YouCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_you_called)
             data class OtherCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_other_called)
@@ -589,7 +598,7 @@ enum class MessageSource {
 }
 
 data class MessageTime(val utcISO: String) {
-    val formattedDate = utcISO.uiMessageDateTime() ?: ""
+    fun formattedDate(now: Long): MessageDateTime? = utcISO.uiMessageDateTime(now = now)
 }
 
 @Stable

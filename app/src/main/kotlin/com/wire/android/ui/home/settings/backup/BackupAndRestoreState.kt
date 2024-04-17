@@ -26,7 +26,8 @@ data class BackupAndRestoreState(
     val restoreFileValidation: RestoreFileValidation,
     val restorePasswordValidation: PasswordValidation,
     val backupCreationProgress: BackupCreationProgress,
-    val passwordValidation: ValidatePasswordResult = ValidatePasswordResult.Valid
+    val lastBackupData: Long?,
+    val passwordValidation: ValidatePasswordResult
 ) {
 
     data class CreatedBackup(val path: Path, val assetName: String, val assetSize: Long, val isEncrypted: Boolean)
@@ -37,34 +38,35 @@ data class BackupAndRestoreState(
             backupCreationProgress = BackupCreationProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified,
             passwordValidation = ValidatePasswordResult.Valid,
+            lastBackupData = null
         )
     }
 }
 
 sealed interface PasswordValidation {
-    object NotVerified : PasswordValidation
-    object Entered : PasswordValidation
-    object NotValid : PasswordValidation
-    object Valid : PasswordValidation
+    data object NotVerified : PasswordValidation
+    data object Entered : PasswordValidation
+    data object NotValid : PasswordValidation
+    data object Valid : PasswordValidation
 }
 
 sealed interface BackupCreationProgress {
     data class Finished(val fileName: String) : BackupCreationProgress
     data class InProgress(val value: Float = 0f) : BackupCreationProgress
-    object Failed : BackupCreationProgress
+    data object Failed : BackupCreationProgress
 }
 
 sealed interface BackupRestoreProgress {
-    object Finished : BackupRestoreProgress
+    data object Finished : BackupRestoreProgress
     data class InProgress(val value: Float = 0f) : BackupRestoreProgress
-    object Failed : BackupRestoreProgress
+    data object Failed : BackupRestoreProgress
 }
 
 sealed class RestoreFileValidation {
-    object Initial : RestoreFileValidation()
-    object ValidNonEncryptedBackup : RestoreFileValidation()
-    object IncompatibleBackup : RestoreFileValidation()
-    object WrongBackup : RestoreFileValidation()
-    object GeneralFailure : RestoreFileValidation()
-    object PasswordRequired : RestoreFileValidation()
+    data object Initial : RestoreFileValidation()
+    data object ValidNonEncryptedBackup : RestoreFileValidation()
+    data object IncompatibleBackup : RestoreFileValidation()
+    data object WrongBackup : RestoreFileValidation()
+    data object GeneralFailure : RestoreFileValidation()
+    data object PasswordRequired : RestoreFileValidation()
 }

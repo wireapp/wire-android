@@ -24,9 +24,9 @@ import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.waz.audioeffect.AudioEffect
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -56,6 +56,7 @@ class RecordAudioViewModel @Inject constructor(
     private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
+    private val generateAudioFileWithEffects: GenerateAudioFileWithEffectsUseCase,
     private val currentScreenManager: CurrentScreenManager,
     private val audioMediaRecorder: AudioMediaRecorder,
     private val globalDataStore: GlobalDataStore
@@ -71,6 +72,13 @@ class RecordAudioViewModel @Inject constructor(
     private val tag = "RecordAudioViewModel"
 
     fun getInfoMessage(): SharedFlow<UIText> = infoMessage.asSharedFlow()
+
+    fun setApplyEffectsAndPlayAudio(enabled: Boolean) {
+        setShouldApplyEffects(enabled = enabled)
+        if (state.audioState.audioMediaPlayingState is AudioMediaPlayingState.Playing) {
+            onPlayAudio()
+        }
+    }
 
     fun getPlayableAudioFile(): File? = if (state.shouldApplyEffects) {
         state.effectsOutputFile
@@ -167,21 +175,11 @@ class RecordAudioViewModel @Inject constructor(
         audioMediaRecorder.release()
 
         if (state.originalOutputFile != null && state.effectsOutputFile != null) {
-            if (state.shouldApplyEffects) {
-                val result = AudioEffect(context)
-                    .applyEffectM4A(
-                        state.originalOutputFile!!.path,
-                        state.effectsOutputFile!!.path,
-                        AudioEffect.AVS_AUDIO_EFFECT_VOCODER_MED,
-                        true
-                    )
-
-                if (result > -1) {
-                    appLogger.i("[$tag] -> Audio file with effects generated successfully.")
-                } else {
-                    appLogger.w("[$tag] -> There was an issue with generating audio file with effects.")
-                }
-            }
+            generateAudioFileWithEffects(
+                context = context,
+                originalFilePath = state.originalOutputFile!!.path,
+                effectsFilePath = state.effectsOutputFile!!.path
+            )
 
             state = state.copy(
                 buttonState = RecordAudioButtonState.READY_TO_SEND,

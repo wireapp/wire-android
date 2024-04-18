@@ -94,6 +94,7 @@ private fun CanvasLayout(
     val textLayoutResult = remember(emptyCanvasText) {
         textMeasurer.measure(emptyCanvasText, emptyCanvasStyle)
     }
+    // todo: change later this mirrored to the non mirrored, when we have the full toolbar.
     val arrowDrawable = ImageBitmap.Companion.imageResource(id = R.drawable.ic_arrow_onboarding_mirror)
     val drawModifier = Modifier
         .fillMaxSize()

@@ -86,8 +86,6 @@ fun EnterLockCodeScreen(
     BackHandler {
         if (navigator.navController.previousBackStackEntry?.destination() is AppUnlockWithBiometricsScreenDestination) {
             navigator.navigateBack()
-        } else {
-            navigator.finish()
         }
     }
     LaunchedEffect(viewModel.state.done) {

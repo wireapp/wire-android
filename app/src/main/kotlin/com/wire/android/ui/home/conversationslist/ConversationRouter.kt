@@ -30,6 +30,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.getOngoingCallIntent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
@@ -44,7 +46,6 @@ import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
@@ -85,6 +86,8 @@ fun ConversationRouterHomeBridge(
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val viewModel: ConversationListViewModel = hiltViewModel()
+
+    val activity = LocalActivity.current
 
     LaunchedEffect(conversationsSource) {
         viewModel.updateConversationsSource(conversationsSource)
@@ -198,7 +201,11 @@ fun ConversationRouterHomeBridge(
             { userId -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId))) }
         }
         val onJoinedCall: (ConversationId) -> Unit = remember(navigator) {
-            { conversationId -> navigator.navigate(NavigationCommand(OngoingCallScreenDestination(conversationId))) }
+            {
+                getOngoingCallIntent(activity, it.toString()).run {
+                    activity.startActivity(this)
+                }
+            }
         }
 
         with(viewModel.conversationListState) {

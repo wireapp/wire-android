@@ -15,10 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling
+package com.wire.android.feature.sketch
 
-import com.wire.kalium.logic.data.id.ConversationId
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.feature.sketch.model.DrawingState
+import com.wire.android.ui.theme.WireTheme
 
-data class CallingNavArgs(
-    val conversationId: ConversationId
-)
+@Preview(showBackground = true)
+@Composable
+fun PreviewToolBar() {
+    WireTheme {
+        DrawingToolbar(DrawingState(), {}, {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewTopBar() {
+    WireTheme {
+        DrawingTopBar("Conversation Name", {}, {}, DrawingState())
+    }
+}

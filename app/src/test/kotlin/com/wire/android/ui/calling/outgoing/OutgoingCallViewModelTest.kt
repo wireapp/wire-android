@@ -16,15 +16,20 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.calling.initiating
+package com.wire.android.ui.calling.outgoing
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.media.CallRinger
+import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -42,13 +47,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(NavigationTestExtension::class)
 @ExtendWith(CoroutineTestExtension::class)
-class InitiatingCallViewModelTest {
+class OutgoingCallViewModelTest {
 
     @Test
     fun `given an outgoing call, when the user ends call, then invoke endCall useCase and close the screen`() =
         runTest {
             // Given
             val (arrangement, viewModel) = Arrangement()
+                .withObserveOutgoingCallReturning(listOf(call))
                 .withEndingCall()
                 .withStartCallSucceeding()
                 .arrange()
@@ -62,7 +68,7 @@ class InitiatingCallViewModelTest {
                 coVerify(exactly = 1) { endCall(any()) }
                 coVerify(exactly = 1) { callRinger.stop() }
             }
-            assertTrue { viewModel.state.flowState is InitiatingCallState.FlowState.CallClosed }
+            assertTrue { viewModel.state.flowState is OutgoingCallState.FlowState.CallClosed }
         }
 
     @Test
@@ -70,6 +76,7 @@ class InitiatingCallViewModelTest {
         runTest {
             // Given
             val (arrangement, viewModel) = Arrangement()
+                .withObserveOutgoingCallReturning(listOf(call))
                 .withNoInternetConnection()
                 .withStartCallSucceeding()
                 .arrange()
@@ -83,16 +90,37 @@ class InitiatingCallViewModelTest {
             }
         }
 
+    @Test
+    fun `given user already started a call, when user tries to start another call, then do not initiat a new one`() =
+        runTest {
+
+            // Given
+            val (arrangement, viewModel) = Arrangement()
+                .withObserveOutgoingCallReturning(listOf(call))
+                .arrange()
+
+            // When
+            viewModel.initiateCall()
+
+            // Then
+            with(arrangement) {
+                coVerify(inverse = true) { startCall(any()) }
+            }
+        }
+
     private class Arrangement {
 
         @MockK
         private lateinit var establishedCalls: ObserveEstablishedCallsUseCase
 
         @MockK
+        private lateinit var observeOutgoingCall: ObserveOutgoingCallUseCase
+
+        @MockK
         private lateinit var isLastCallClosed: IsLastCallClosedUseCase
 
         @MockK
-        private lateinit var startCall: StartCallUseCase
+        lateinit var startCall: StartCallUseCase
 
         @MockK
         lateinit var callRinger: CallRinger
@@ -102,10 +130,11 @@ class InitiatingCallViewModelTest {
 
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
-        val initiatingCallViewModel by lazy {
-            InitiatingCallViewModel(
+        val outgoingCallViewModel by lazy {
+            OutgoingCallViewModel(
                 conversationId = dummyConversationId,
                 observeEstablishedCalls = establishedCalls,
+                observeOutgoingCall = observeOutgoingCall,
                 startCall = startCall,
                 endCall = endCall,
                 isLastCallClosed = isLastCallClosed,
@@ -134,6 +163,27 @@ class InitiatingCallViewModelTest {
             coEvery { startCall(any(), any()) } returns StartCallUseCase.Result.Success
         }
 
-        fun arrange() = this to initiatingCallViewModel
+        fun withObserveOutgoingCallReturning(calls: List<Call>) = apply {
+            coEvery { observeOutgoingCall() } returns flowOf(calls)
+        }
+
+        fun arrange() = this to outgoingCallViewModel
+    }
+
+    companion object {
+        val call = Call(
+            conversationId = ConversationId("caller", "domain"),
+            status = CallStatus.STARTED,
+            callerId = UserId("caller", "domain").toString(),
+            participants = listOf(),
+            isMuted = true,
+            isCameraOn = false,
+            isCbrEnabled = false,
+            maxParticipants = 0,
+            conversationName = "ONE_ON_ONE Name",
+            conversationType = Conversation.Type.ONE_ON_ONE,
+            callerName = "otherUsername",
+            callerTeamName = "team_1"
+        )
     }
 }

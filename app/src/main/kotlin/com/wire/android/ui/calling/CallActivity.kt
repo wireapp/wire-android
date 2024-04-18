@@ -18,6 +18,7 @@
 package com.wire.android.ui.calling
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -39,8 +40,8 @@ import com.wire.android.notification.CallNotificationManager
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
-import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.calling.ongoing.OngoingCallScreen
+import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
@@ -60,8 +61,6 @@ class CallActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        callNotificationManager.hideAllNotifications()
 
         setUpCallingFlags()
 
@@ -93,10 +92,14 @@ class CallActivity : AppCompatActivity() {
                         ) { screenType ->
                             conversationId?.let {
                                 when (screenType) {
-                                    CallScreenType.Initiating.name -> InitiatingCallScreen(
-                                        qualifiedIdMapper.fromStringToQualifiedID(it)
-                                    ) {
-                                        currentCallScreenType = CallScreenType.Ongoing.name
+                                    CallScreenType.Outgoing.name -> {
+                                        OutgoingCallScreen(
+                                            conversationId = qualifiedIdMapper.fromStringToQualifiedID(
+                                                it
+                                            ),
+                                        ) {
+                                            currentCallScreenType = CallScreenType.Ongoing.name
+                                        }
                                     }
 
                                     CallScreenType.Ongoing.name -> OngoingCallScreen(
@@ -157,13 +160,19 @@ fun getOngoingCallIntent(
     putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Ongoing.name)
 }
 
-fun getInitiatingCallIntent(
+fun getOutgoingCallIntent(
     activity: Activity,
     conversationId: String
 ) = Intent(activity, CallActivity::class.java).apply {
     putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-    putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Initiating.name)
+    putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Outgoing.name)
 }
+
+fun getIncomingCallIntent(context: Context, conversationId: String) =
+    Intent(context.applicationContext, CallActivity::class.java).apply {
+        putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
+        putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Incoming.name)
+    }
 
 fun CallActivity.openAppLockActivity() {
     Intent(this, AppLockActivity::class.java).apply {

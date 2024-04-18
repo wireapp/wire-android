@@ -60,6 +60,6 @@ fun HangUpButton(
 @Composable
 fun PreviewComposableHangUpButton() {
     HangUpButton(modifier = Modifier
-        .width(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize)
-        .height(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize), onHangUpButtonClicked = { })
+        .width(MaterialTheme.wireDimensions.outgoingCallHangUpButtonSize)
+        .height(MaterialTheme.wireDimensions.outgoingCallHangUpButtonSize), onHangUpButtonClicked = { })
 }

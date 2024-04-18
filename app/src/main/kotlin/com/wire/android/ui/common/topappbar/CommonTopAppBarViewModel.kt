@@ -28,6 +28,7 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -66,9 +67,15 @@ class CommonTopAppBarViewModel @Inject constructor(
     }
 
     private suspend fun activeCallFlow(userId: UserId): Flow<Call?> = coreLogic.sessionScope(userId) {
-        calls.establishedCall().distinctUntilChanged().map { calls ->
+        combine(
+            calls.establishedCall(),
+            calls.getIncomingCalls(),
+            calls.observeOutgoingCall(),
+        ) { establishedCall, incomingCalls, outgoingCalls ->
+            incomingCalls + outgoingCalls + establishedCall
+        }.map { calls ->
             calls.firstOrNull()
-        }
+        }.distinctUntilChanged()
     }
 
     init {
@@ -116,7 +123,13 @@ class CommonTopAppBarViewModel @Inject constructor(
         val canDisplayConnectivityIssues = currentScreen !is CurrentScreen.AuthRelated
 
         if (activeCall != null) {
-            return ConnectivityUIState.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
+            return if(activeCall.status == CallStatus.INCOMING) {
+                ConnectivityUIState.IncomingCall(activeCall.conversationId, activeCall.callerName)
+            } else if(activeCall.status == CallStatus.STARTED) {
+                ConnectivityUIState.OutgoingCall(activeCall.conversationId, activeCall.callerName)
+            } else {
+                ConnectivityUIState.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
+            }
         }
 
         return if (canDisplayConnectivityIssues) {

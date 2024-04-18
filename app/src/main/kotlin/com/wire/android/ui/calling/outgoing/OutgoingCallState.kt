@@ -15,14 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling.initiating
+package com.wire.android.ui.calling.outgoing
 
-data class InitiatingCallState(
+data class OutgoingCallState(
     val flowState: FlowState = FlowState.Default
 ) {
     sealed interface FlowState {
-        object Default : FlowState
-        object CallClosed : FlowState
-        object CallEstablished : FlowState
+        data object Default : FlowState
+        data object CallClosed : FlowState
+        data object CallEstablished : FlowState
     }
 }

@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.calling.common
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -69,9 +68,12 @@ fun CallerDetails(
     protocolInfo: Conversation.ProtocolInfo?,
     mlsVerificationStatus: Conversation.VerificationStatus?,
     proteusVerificationStatus: Conversation.VerificationStatus?,
+    onMinimiseScreen: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(top = dimensions().spacing32x),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = dimensions().spacing32x),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -82,7 +84,7 @@ fun CallerDetails(
                 .align(Alignment.Start)
                 .rotate(180f),
             onClick = {
-                Toast.makeText(context, "Not implemented yet =)", Toast.LENGTH_SHORT).show()
+                onMinimiseScreen()
             }
         ) {
             Image(
@@ -92,7 +94,9 @@ fun CallerDetails(
         }
         if (isCbrEnabled) {
             Text(
-                text = stringResource(id = R.string.calling_constant_bit_rate_indication).uppercase(Locale.getDefault()),
+                text = stringResource(id = R.string.calling_constant_bit_rate_indication).uppercase(
+                    Locale.getDefault()
+                ),
                 color = colorsScheme().secondaryText,
                 style = MaterialTheme.wireTypography.title03,
             )
@@ -133,7 +137,7 @@ fun CallerDetails(
         if (!isCameraOn && conversationType == ConversationType.OneOnOne) {
             UserProfileAvatar(
                 avatarData = UserAvatarData(avatarAssetId),
-                size = dimensions().initiatingCallUserAvatarSize,
+                size = dimensions().outgoingCallUserAvatarSize,
                 modifier = Modifier.padding(top = dimensions().spacing16x)
             )
         }
@@ -154,6 +158,7 @@ fun PreviewCallerDetails() {
         callingLabel = String.EMPTY,
         protocolInfo = null,
         mlsVerificationStatus = null,
-        proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
+        proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+        onMinimiseScreen = { }
     )
 }

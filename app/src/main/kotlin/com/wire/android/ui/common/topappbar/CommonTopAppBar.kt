@@ -56,11 +56,15 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun CommonTopAppBar(
     commonTopAppBarState: CommonTopAppBarState,
     onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit,
+    onReturnToIncomingCallClick: (ConnectivityUIState.IncomingCall) -> Unit,
+    onReturnToOutgoingCallClick: (ConnectivityUIState.OutgoingCall) -> Unit
 ) {
     Column {
         ConnectivityStatusBar(
             connectivityInfo = commonTopAppBarState.connectivityState,
-            onReturnToCallClick = onReturnToCallClick
+            onReturnToCallClick = onReturnToCallClick,
+            onReturnToIncomingCallClick = onReturnToIncomingCallClick,
+            onReturnToOutgoingCallClick = onReturnToOutgoingCallClick
         )
     }
 }
@@ -68,11 +72,15 @@ fun CommonTopAppBar(
 @Composable
 private fun ConnectivityStatusBar(
     connectivityInfo: ConnectivityUIState,
-    onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit
+    onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit,
+    onReturnToIncomingCallClick: (ConnectivityUIState.IncomingCall) -> Unit,
+    onReturnToOutgoingCallClick: (ConnectivityUIState.OutgoingCall) -> Unit
 ) {
     val isVisible = connectivityInfo !is ConnectivityUIState.None
     val backgroundColor = when (connectivityInfo) {
-        is ConnectivityUIState.EstablishedCall -> MaterialTheme.wireColorScheme.positive
+        is ConnectivityUIState.EstablishedCall,
+        is ConnectivityUIState.IncomingCall,
+        is ConnectivityUIState.OutgoingCall -> MaterialTheme.wireColorScheme.positive
         ConnectivityUIState.Connecting, ConnectivityUIState.WaitingConnection -> MaterialTheme.wireColorScheme.primary
         ConnectivityUIState.None -> MaterialTheme.wireColorScheme.background
     }
@@ -94,9 +102,15 @@ private fun ConnectivityStatusBar(
         .height(MaterialTheme.wireDimensions.ongoingCallLabelHeight)
         .background(backgroundColor)
         .run {
-            if (connectivityInfo is ConnectivityUIState.EstablishedCall) {
-                clickable(onClick = { onReturnToCallClick(connectivityInfo) })
-            } else this
+            when(connectivityInfo) {
+                is ConnectivityUIState.EstablishedCall ->
+                    clickable(onClick = { onReturnToCallClick(connectivityInfo) })
+                is ConnectivityUIState.IncomingCall ->
+                    clickable(onClick = { onReturnToIncomingCallClick(connectivityInfo) })
+                is ConnectivityUIState.OutgoingCall ->
+                    clickable(onClick = { onReturnToOutgoingCallClick(connectivityInfo) })
+                else -> this
+            }
         }
 
     AnimatedVisibility(
@@ -112,10 +126,25 @@ private fun ConnectivityStatusBar(
             when (connectivityInfo) {
                 is ConnectivityUIState.EstablishedCall ->
                     OngoingCallContent(connectivityInfo.isMuted)
+
+                is ConnectivityUIState.IncomingCall ->
+                    IncomingCallContent(callerName = connectivityInfo.callerName)
+
+                is ConnectivityUIState.OutgoingCall ->
+                    OutgoingCallContent(callerName = connectivityInfo.callerName)
+
                 ConnectivityUIState.Connecting ->
-                    StatusLabel(R.string.connectivity_status_bar_connecting, MaterialTheme.wireColorScheme.onPrimary)
+                    StatusLabel(
+                        R.string.connectivity_status_bar_connecting,
+                        MaterialTheme.wireColorScheme.onPrimary
+                    )
+
                 ConnectivityUIState.WaitingConnection ->
-                    StatusLabel(R.string.connectivity_status_bar_waiting_for_network, MaterialTheme.wireColorScheme.onPrimary)
+                    StatusLabel(
+                        R.string.connectivity_status_bar_waiting_for_network,
+                        MaterialTheme.wireColorScheme.onPrimary
+                    )
+
                 ConnectivityUIState.None -> {}
             }
         }
@@ -127,14 +156,55 @@ private fun OngoingCallContent(isMuted: Boolean) {
     Row {
         MicrophoneIcon(isMuted, MaterialTheme.wireColorScheme.onPositive)
         CameraIcon(MaterialTheme.wireColorScheme.onPositive)
-        StatusLabel(R.string.connectivity_status_bar_return_to_call, MaterialTheme.wireColorScheme.onPositive)
+        StatusLabel(
+            R.string.connectivity_status_bar_return_to_call,
+            MaterialTheme.wireColorScheme.onPositive
+        )
     }
 }
 
 @Composable
-private fun StatusLabel(stringResource: Int, color: Color = MaterialTheme.wireColorScheme.onPrimary) {
+private fun IncomingCallContent(callerName: String?) {
+    Row {
+        StatusLabelWithValue(
+            stringResource = R.string.connectivity_status_bar_return_to_incoming_call,
+            callerName = callerName,
+            color = MaterialTheme.wireColorScheme.onPositive
+        )
+    }
+}
+@Composable
+private fun OutgoingCallContent(callerName: String?) {
+    Row {
+        StatusLabelWithValue(
+            stringResource = R.string.connectivity_status_bar_return_to_outgoing_call,
+            callerName = callerName,
+            color = MaterialTheme.wireColorScheme.onPositive
+        )
+    }
+}
+
+@Composable
+private fun StatusLabel(
+    stringResource: Int,
+    color: Color = MaterialTheme.wireColorScheme.onPrimary
+) {
     Text(
         text = stringResource(id = stringResource).uppercase(),
+        color = color,
+        style = MaterialTheme.wireTypography.title03,
+    )
+}
+
+@Composable
+private fun StatusLabelWithValue(
+    stringResource: Int,
+    callerName: String?,
+    color: Color = MaterialTheme.wireColorScheme.onPrimary
+) {
+    val defaultCallerName = stringResource(R.string.calling_participant_tile_default_user_name)
+    Text(
+        text = stringResource(id = stringResource, callerName ?: defaultCallerName).uppercase(),
         color = color,
         style = MaterialTheme.wireTypography.title03,
     )
@@ -164,7 +234,10 @@ private fun CameraIcon(tint: Color = MaterialTheme.wireColorScheme.onPositive) {
 }
 
 @Composable
-private fun MicrophoneIcon(isMuted: Boolean, tint: Color = MaterialTheme.wireColorScheme.onPositive) {
+private fun MicrophoneIcon(
+    isMuted: Boolean,
+    tint: Color = MaterialTheme.wireColorScheme.onPositive
+) {
     Icon(
         painter = painterResource(
             id = if (isMuted) R.drawable.ic_microphone_white_muted
@@ -192,14 +265,19 @@ private fun clearStatusBarColor() {
 @Composable
 private fun PreviewCommonTopAppBar(connectivityUIState: ConnectivityUIState) {
     WireTheme {
-        CommonTopAppBar(CommonTopAppBarState(connectivityUIState), {})
+        CommonTopAppBar(CommonTopAppBarState(connectivityUIState), {}, {}, {})
     }
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewCommonTopAppBar_ConnectivityCallNotMuted() =
-    PreviewCommonTopAppBar(ConnectivityUIState.EstablishedCall(ConversationId("what", "ever"), false))
+    PreviewCommonTopAppBar(
+        ConnectivityUIState.EstablishedCall(
+            ConversationId("what", "ever"),
+            false
+        )
+    )
 
 @PreviewMultipleThemes
 @Composable

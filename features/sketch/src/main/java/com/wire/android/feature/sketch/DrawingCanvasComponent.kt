@@ -36,7 +36,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.input.pointer.positionChangedIgnoreConsumed
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
@@ -163,7 +163,7 @@ private suspend fun AwaitPointerEventScope.handleGestures(
     onDraw: (Offset) -> Unit,
     onStopDrawing: () -> Unit
 ) {
-    val downEvent = awaitFirstDown(false)
+    val downEvent = awaitFirstDown()
     onStartDrawing(downEvent.position)
     if (downEvent.pressed != downEvent.previousPressed) {
         downEvent.consume()
@@ -171,7 +171,7 @@ private suspend fun AwaitPointerEventScope.handleGestures(
     do {
         val event = awaitPointerEvent()
         onDraw(event.changes.first().position)
-        val hasNewLineDraw = event.changes.first().positionChange() != Offset.Zero
+        val hasNewLineDraw = event.changes.first().positionChangedIgnoreConsumed()
         if (hasNewLineDraw) {
             event.changes.first().consume()
         }

@@ -190,7 +190,6 @@ dependencies {
         println("Excluding FireBase for FDroid build")
     }
     implementation(libs.androidx.work)
-    implementation(libs.googleGms.location)
 
     // commonMark
     implementation(libs.commonmark.core)

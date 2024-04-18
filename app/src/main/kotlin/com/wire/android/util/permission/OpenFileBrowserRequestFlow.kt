@@ -39,7 +39,7 @@ fun rememberOpenFileBrowserFlow(
     onFileBrowserItemPicked: (Uri) -> Unit,
     onPermissionDenied: () -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
-): UseStorageRequestFlow {
+): UseStorageRequestFlow<Uri?> {
     val context = LocalContext.current
 
     val openFileBrowserLauncher: ManagedActivityResultLauncher<String, Uri?> =

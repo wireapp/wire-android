@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.media.preview
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,6 +28,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -91,7 +94,7 @@ fun ImagesPreviewScreen(
         previewState = imagesPreviewViewModel.viewState,
         sendState = sendMessageViewModel.viewState,
         onNavigationPressed = { navigator.navigateBack() },
-        onSendMessage = sendMessageViewModel::trySendMessage
+        onSendMessages = sendMessageViewModel::trySendMessages
     )
 
     AssetTooLargeDialog(
@@ -115,14 +118,16 @@ fun ImagesPreviewScreen(
     SnackBarMessage(sendMessageViewModel.infoMessage)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Content(
     previewState: ImagesPreviewState,
     sendState: SendMessageState,
     onNavigationPressed: () -> Unit = {},
-    onSendMessage: (MessageBundle) -> Unit
+    onSendMessages: (List<MessageBundle>) -> Unit
 ) {
     val configuration = LocalConfiguration.current
+    val pagerState = rememberPagerState(pageCount = { previewState.assetUriList.size })
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -164,11 +169,14 @@ private fun Content(
                             )
                         },
                         onClick = {
-                            onSendMessage(
-                                ComposableMessageBundle.AttachmentPickedBundle(
-                                    previewState.conversationId,
-                                    UriAsset(previewState.assetUri)
-                                )
+                            onSendMessages(
+                                previewState.assetUriList.map {
+                                    ComposableMessageBundle.AttachmentPickedBundle(
+                                        previewState.conversationId,
+                                        UriAsset(it)
+                                    )
+                                }
+
                             )
                         }
                     )
@@ -184,14 +192,16 @@ private fun Content(
                 .fillMaxHeight()
                 .fillMaxWidth()
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(previewState.assetUri)
-                    .build(),
-                contentDescription = "preview_asset_image",
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier.width(configuration.screenWidthDp.dp)
-            )
+            HorizontalPager(state = pagerState) { index ->
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(previewState.assetUriList[index])
+                        .build(),
+                    contentDescription = "preview_asset_image",
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier.width(configuration.screenWidthDp.dp)
+                )
+            }
         }
     }
 }

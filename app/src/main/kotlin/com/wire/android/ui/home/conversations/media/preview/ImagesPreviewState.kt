@@ -19,5 +19,6 @@ package com.wire.android.ui.home.conversations.media.preview
 
 import android.net.Uri
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.collections.immutable.PersistentList
 
-data class ImagesPreviewState(val conversationId: ConversationId, val conversationName: String, val assetUri: Uri)
+data class ImagesPreviewState(val conversationId: ConversationId, val conversationName: String, val assetUriList: PersistentList<Uri>)

@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.navArgs
+import kotlinx.collections.immutable.toPersistentList
 import javax.inject.Inject
 
 class ImagesPreviewViewModel @Inject constructor(
@@ -34,7 +35,7 @@ class ImagesPreviewViewModel @Inject constructor(
         ImagesPreviewState(
             conversationId = navArgs.conversationId,
             conversationName = navArgs.conversationName,
-            assetUri = navArgs.assetUri
+            assetUriList = navArgs.assetUriList.toPersistentList()
         )
     )
         private set

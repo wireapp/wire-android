@@ -340,13 +340,13 @@ fun ConversationScreen(
             )
         },
         onSendMessage = sendMessageViewModel::trySendMessage,
-        onImagePicked = {
+        onImagesPicked = {
             navigator.navigate(
                 NavigationCommand(
                     ImagesPreviewScreenDestination(
                         conversationId = conversationInfoViewModel.conversationInfoViewState.conversationId,
                         conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
-                        assetUri = it
+                        assetUriList = ArrayList(it)
                     )
                 )
             )
@@ -639,7 +639,7 @@ private fun ConversationScreen(
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
-    onImagePicked: (Uri) -> Unit,
+    onImagesPicked: (List<Uri>) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
@@ -756,7 +756,7 @@ private fun ConversationScreen(
                     messageComposerStateHolder = messageComposerStateHolder,
                     messages = conversationMessagesViewState.messages,
                     onSendMessage = onSendMessage,
-                    onImagePicked = onImagePicked,
+                    onImagesPicked = onImagesPicked,
                     onAssetItemClicked = onAssetItemClicked,
                     onAudioItemClicked = onAudioClick,
                     onChangeAudioPosition = onChangeAudioPosition,
@@ -804,7 +804,7 @@ private fun ConversationScreenContent(
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
-    onImagePicked: (Uri) -> Unit,
+    onImagesPicked: (List<Uri>) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
@@ -873,7 +873,7 @@ private fun ConversationScreenContent(
         tempWritableVideoUri = tempWritableVideoUri,
         tempWritableImageUri = tempWritableImageUri,
         onTypingEvent = onTypingEvent,
-        onImagePicked = onImagePicked
+        onImagesPicked = onImagesPicked
     )
 }
 
@@ -1152,6 +1152,6 @@ fun PreviewConversationScreen() {
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { _ -> },
         onTypingEvent = {},
-        onImagePicked = {}
+        onImagesPicked = {}
     )
 }

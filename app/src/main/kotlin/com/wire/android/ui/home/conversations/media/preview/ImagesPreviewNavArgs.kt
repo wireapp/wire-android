@@ -23,5 +23,5 @@ import com.wire.kalium.logic.data.id.ConversationId
 data class ImagesPreviewNavArgs(
     val conversationId: ConversationId,
     val conversationName: String,
-    val assetUri: Uri
+    val assetUriList: ArrayList<Uri>
 )

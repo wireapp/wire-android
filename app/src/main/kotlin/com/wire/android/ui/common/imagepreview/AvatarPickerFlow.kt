@@ -19,6 +19,7 @@
 package com.wire.android.ui.common.imagepreview
 
 import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.wire.android.ui.userprofile.avatarpicker.ImageSource
@@ -30,7 +31,7 @@ import com.wire.android.util.permission.rememberTakePictureFlow
 
 class AvatarPickerFlow(
     private val takePictureFlow: UseCameraRequestFlow,
-    private val openGalleryFlow: UseStorageRequestFlow
+    private val openGalleryFlow: UseStorageRequestFlow<Uri?>
 ) {
     fun launch(imageSource: ImageSource) {
         when (imageSource) {
@@ -56,7 +57,8 @@ fun rememberPickPictureState(
     )
 
     val openGalleryFlow = rememberOpenGalleryFlow(
-        onGalleryItemPicked = { pickedPictureUri -> onImageSelected(pickedPictureUri) },
+        contract = ActivityResultContracts.GetContent(),
+        onGalleryItemPicked = { pickedPictureUri -> pickedPictureUri?.let { onImageSelected(it) } },
         onPermissionDenied = { /* Nothing to do */ },
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
     )

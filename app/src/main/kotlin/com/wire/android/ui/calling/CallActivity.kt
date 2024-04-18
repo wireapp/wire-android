@@ -93,11 +93,7 @@ class CallActivity : AppCompatActivity() {
                             conversationId?.let {
                                 when (screenType) {
                                     CallScreenType.Outgoing.name -> {
-                                        OutgoingCallScreen(
-                                            conversationId = qualifiedIdMapper.fromStringToQualifiedID(
-                                                it
-                                            ),
-                                        ) {
+                                        OutgoingCallScreen(conversationId = qualifiedIdMapper.fromStringToQualifiedID(it)) {
                                             currentCallScreenType = CallScreenType.Ongoing.name
                                         }
                                     }

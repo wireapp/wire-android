@@ -18,11 +18,14 @@
 package com.wire.android.feature.sketch.model
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 
 internal data class DrawingState(
     val paths: List<DrawingPathProperties> = listOf(),
     val pathsUndone: List<DrawingPathProperties> = listOf(),
     val drawingMotionEvent: DrawingMotionEvent = DrawingMotionEvent.Idle,
     val currentPath: DrawingPathProperties = DrawingPathProperties(),
-    val currentPosition: Offset = Offset.Unspecified
+    val currentPosition: Offset = Offset.Unspecified,
+    var canvasSize: Size? = null,
+    val showConfirmationDialog: Boolean = false
 )

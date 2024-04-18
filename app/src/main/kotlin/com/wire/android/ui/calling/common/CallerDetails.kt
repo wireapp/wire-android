@@ -71,9 +71,7 @@ fun CallerDetails(
     onMinimiseScreen: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = dimensions().spacing32x),
+        modifier = Modifier.fillMaxSize().padding(top = dimensions().spacing32x),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

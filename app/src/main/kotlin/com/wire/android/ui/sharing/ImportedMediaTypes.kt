@@ -42,7 +42,6 @@ fun ImportedImageView(item: ImportedMediaAsset.Image, isMultipleImport: Boolean)
         transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
         onImageClick = Clickable(enabled = false),
         shouldFillMaxWidth = !isMultipleImport,
-        isImportedMediaAsset = true
     )
 }
 

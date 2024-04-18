@@ -15,29 +15,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.markdown
+package com.wire.android.ui.common.bottomsheet
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.edit.ReactionOption
+import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 
+@Preview
 @Composable
-fun MarkdownInline(
-    inlines: List<MarkdownNode.Inline>,
-    maxLines: Int = 1,
-    nodeData: NodeData
-) {
-    val annotatedString = buildAnnotatedString {
-        pushStyle(nodeData.style.toSpanStyle())
-        inlineNodeChildren(inlines, this, nodeData)
-        pop()
-    }
-    MarkdownText(
-        annotatedString,
-        style = nodeData.style,
-        color = nodeData.color,
-        clickable = false,
-        maxLines = maxLines,
-        overflow = TextOverflow.Ellipsis
+fun PreviewMenuModalSheetContentWithoutHeader() {
+    MenuModalSheetContent(
+        MenuModalSheetHeader.Gone,
+        listOf { ReactionOption({}) }
+    )
+}
+
+@Preview
+@Composable
+fun PreviewMenuModalSheetContentWithHeader() {
+    MenuModalSheetContent(
+        MenuModalSheetHeader.Visible("Title", { GroupConversationAvatar(colorsScheme().primary) }, dimensions().spacing8x),
+        listOf { ReactionOption({}) }
     )
 }

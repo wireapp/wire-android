@@ -15,14 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.navigation.style
+package com.wire.android.util
 
-interface ScreenModeStyle {
-    fun screenMode(): ScreenMode
-}
+import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.toUIText
 
-enum class ScreenMode {
-    KEEP_ON, // keep screen on while that NavigationItem is visible (i.e CallScreen)
-    WAKE_UP, // wake up the device on navigating to that NavigationItem (i.e IncomingCall)
-    NONE // do not wake up and allow device to sleep
+/**
+ * Cache for the current conversation details.
+ * This is used to display the conversation name in the toolbar or can be used for other purposes.
+ *
+ * TODO: This is temporary, when we have navigation for sketch, we might do it with navigation arguments.
+ * TODO: Anyway, this might be useful, and we might keep it or discuss it.
+ */
+object CurrentConversationDetailsCache {
+
+    @Volatile
+    var conversationName: UIText = "".toUIText()
+        private set
+
+    @Synchronized
+    fun updateConversationName(newName: UIText) {
+        conversationName = newName
+    }
 }

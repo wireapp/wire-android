@@ -15,20 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.sketch
+package com.wire.android.feature.sketch.tools
 
-import org.junit.Test
-
-import org.junit.Assert.*
+import androidx.compose.ui.graphics.Color
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 /**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
+ * Configuration for the drawing tools.
+ * ie. colors, stroke width, etc.
  */
-class ExampleUnitTest {
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
-    }
-}
+data class DrawingToolsConfig(
+    val colors: ImmutableList<Color> = persistentListOf(Color.Blue),
+    // todo. later add more configurations, like stroke width, etc.
+)

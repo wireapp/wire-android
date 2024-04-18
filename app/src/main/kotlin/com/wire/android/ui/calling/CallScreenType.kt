@@ -15,17 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.sketch.model
 
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
+package com.wire.android.ui.calling
 
-internal data class DrawingState(
-    val paths: List<DrawingPathProperties> = listOf(),
-    val pathsUndone: List<DrawingPathProperties> = listOf(),
-    val drawingMotionEvent: DrawingMotionEvent = DrawingMotionEvent.Idle,
-    val currentPath: DrawingPathProperties = DrawingPathProperties(),
-    val currentPosition: Offset = Offset.Unspecified,
-    var canvasSize: Size? = null,
-    val showConfirmationDialog: Boolean = false
-)
+enum class CallScreenType {
+    Incoming,
+    Ongoing,
+    Initiating
+}

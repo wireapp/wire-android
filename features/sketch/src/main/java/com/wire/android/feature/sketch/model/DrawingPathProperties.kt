@@ -19,20 +19,29 @@ package com.wire.android.feature.sketch.model
 
 import android.graphics.Bitmap
 import android.graphics.BitmapShader
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.Shader
+import android.os.Build
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.toArgb
 
+/**
+ * Represents the current path properties [DrawingState.currentPath]
+ * This can be extended in the future to [strokeWidth], [drawMode] ,etc.
+ */
 internal class DrawingPathProperties(
     var path: Path = Path(),
     var strokeWidth: Float = 10f,
-    var color: Color = Color.Blue,
+    var color: Color = Color.Black,
     var drawMode: DrawMode = DrawMode.Pen
 ) {
     fun draw(scope: DrawScope, bitmap: Bitmap? = null) {
@@ -80,4 +89,51 @@ internal class DrawingPathProperties(
             DrawMode.None -> {}
         }
     }
+
+    fun drawNative(canvas: Canvas) {
+        when (drawMode) {
+            DrawMode.Pen -> {
+                canvas.drawPath(
+                    androidPath,
+                    paint
+                )
+            }
+
+            DrawMode.Eraser -> {
+                canvas.drawPath(
+                    androidPath,
+                    paint
+                )
+            }
+
+            DrawMode.None -> {}
+        }
+    }
+
+    private val androidPath
+        get() = path.asAndroidPath()
+
+    private val paint: Paint
+        get() {
+            return if (drawMode == DrawMode.Pen) {
+                Paint().apply {
+                    color = this@DrawingPathProperties.color.toArgb()
+                    style = Paint.Style.STROKE
+                    strokeWidth = this@DrawingPathProperties.strokeWidth
+                    strokeCap = Paint.Cap.ROUND
+                    strokeJoin = Paint.Join.ROUND
+                }
+            } else {
+                Paint().apply {
+                    color = Color.Transparent.toArgb()
+                    style = Paint.Style.STROKE
+                    strokeWidth = this@DrawingPathProperties.strokeWidth
+                    strokeCap = Paint.Cap.ROUND
+                    strokeJoin = Paint.Join.ROUND
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        blendMode = android.graphics.BlendMode.CLEAR
+                    }
+                }
+            }
+        }
 }

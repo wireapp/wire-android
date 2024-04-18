@@ -97,8 +97,8 @@ fun buildMenuSheetItems(items: List<@Composable () -> Unit>) {
     items.forEach { itemBuilder ->
         // Make sure that every item added to this list is actually not empty. Otherwise, the divider will be still drawn and give the
         // impression that it has extra thickness
-        WireDivider()
         itemBuilder()
+        WireDivider()
     }
 }
 

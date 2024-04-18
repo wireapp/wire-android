@@ -53,7 +53,7 @@ import okio.Path
 
 @Composable
 fun DisplayableImageMessage(
-    imageData: ImageAsset.Network,
+    imageData: ImageAsset.Remote,
     width: Dp,
     height: Dp,
     modifier: Modifier = Modifier

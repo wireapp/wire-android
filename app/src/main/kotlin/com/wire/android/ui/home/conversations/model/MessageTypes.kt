@@ -210,7 +210,7 @@ fun MessageImage(
 
             asset != null -> when (asset) {
                 is ImageAsset.Local -> ImportedImageMessage(asset, shouldFillMaxWidth)
-                is ImageAsset.Network -> DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
+                is ImageAsset.Remote -> DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
             }
 
             // Show error placeholder
@@ -226,7 +226,7 @@ fun MessageImage(
 
 @Composable
 fun MediaAssetImage(
-    asset: ImageAsset.Network?,
+    asset: ImageAsset.Remote?,
     width: Dp,
     height: Dp,
     transferStatus: AssetTransferStatus?,

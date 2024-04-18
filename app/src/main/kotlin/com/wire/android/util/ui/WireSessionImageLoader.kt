@@ -74,7 +74,7 @@ class WireSessionImageLoader(
      */
     @Composable
     fun paint(
-        asset: ImageAsset.Network?,
+        asset: ImageAsset.Remote?,
         fallbackData: Any? = null,
         withCrossfadeAnimation: Boolean = false,
     ): Painter {

@@ -285,11 +285,11 @@ internal class AssetImageFetcherTest {
         val mockFetchResult = mockk<FetchResult>()
         val mockContext = mockk<Context>()
 
-        lateinit var imageData: ImageAsset.Network
+        lateinit var imageData: ImageAsset.Remote
         private var options: Options? = null
 
         fun withSuccessfulImageData(
-            data: ImageAsset.Network,
+            data: ImageAsset.Remote,
             expectedAssetPath: Path,
             expectedAssetSize: Long,
             assetName: String = "name",
@@ -332,7 +332,7 @@ internal class AssetImageFetcherTest {
         }
 
         fun withErrorResponse(
-            data: ImageAsset.Network,
+            data: ImageAsset.Remote,
             isRetryNeeded: Boolean = false,
             coreFailure: CoreFailure = CoreFailure.Unknown(null)
         ): Arrangement {

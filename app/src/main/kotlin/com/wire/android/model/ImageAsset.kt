@@ -42,7 +42,7 @@ sealed class ImageAsset {
         val idKey: String
     ) : ImageAsset()
 
-    sealed class Network(private val imageLoader: WireSessionImageLoader) : ImageAsset() {
+    sealed class Remote(private val imageLoader: WireSessionImageLoader) : ImageAsset() {
 
         /**
          * Value that uniquely identifies this Asset,
@@ -64,7 +64,7 @@ sealed class ImageAsset {
     data class UserAvatarAsset(
         private val imageLoader: WireSessionImageLoader,
         val userAssetId: UserAssetId
-    ) : Network(imageLoader) {
+    ) : Remote(imageLoader) {
         override val uniqueKey: String
             get() = userAssetId.toString()
     }
@@ -76,7 +76,7 @@ sealed class ImageAsset {
         val messageId: String,
         val isSelfAsset: Boolean,
         val isEphemeral: Boolean = false
-    ) : Network(imageLoader) {
+    ) : Remote(imageLoader) {
         override fun toString(): String = "$conversationId:$messageId:$isSelfAsset:$isEphemeral"
         override val uniqueKey: String
             get() = toString()

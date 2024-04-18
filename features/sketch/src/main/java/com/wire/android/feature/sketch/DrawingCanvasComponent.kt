@@ -94,7 +94,7 @@ private fun CanvasLayout(
     val textLayoutResult = remember(emptyCanvasText) {
         textMeasurer.measure(emptyCanvasText, emptyCanvasStyle)
     }
-    val arrowDrawable = ImageBitmap.Companion.imageResource(id = R.drawable.ic_arrow_onboarding)
+    val arrowDrawable = ImageBitmap.Companion.imageResource(id = R.drawable.ic_arrow_onboarding_mirror)
     val drawModifier = Modifier
         .fillMaxSize()
         .clipToBounds() // necessary to draw inside the canvas.
@@ -151,7 +151,7 @@ private fun DrawScope.emptyCanvasState(
         )
     drawImage(
         image = arrowDrawable,
-        topLeft = textPosition.plus(Offset(x = textLayoutResult.size.width / 2f, y = textLayoutResult.size.height + 10.dp.toPx()))
+        topLeft = textPosition.plus(Offset(x = textLayoutResult.size.width / 4f, y = textLayoutResult.size.height + 30.dp.toPx()))
     )
 }
 

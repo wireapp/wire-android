@@ -18,40 +18,59 @@
 package com.wire.android.ui.debug
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.wire.android.ui.WireTestActivity
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@HiltAndroidTest
+@RunWith(AndroidJUnit4::class)
 class DebugScreenComposeTest {
 
-    @get:Rule
-    val composeTestRule by lazy { createComposeRule() }
+    @get:Rule(order = 1)
+    val hiltRule = HiltAndroidRule(this)
 
-    @Test
-    fun givenAUserIsInDebugScreen_TitleShouldBeDisplayed() = runTest {
+    @get:Rule(order = 1)
+    val composeTestRule = createAndroidComposeRule<WireTestActivity>()
+
+    @Before
+    fun setup() {
+        hiltRule.inject()
+
         composeTestRule.setContent {
-            val snackbarHostState = remember { SnackbarHostState() }
-            CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
-                WireTheme {
-                    LocalSnackbarHostState.current
-                    UserDebugContent(
-                        onNavigationPressed = { },
-                        onManualMigrationPressed = {},
-                        state = UserDebugState(logPath = "logPath"),
-                        onLoggingEnabledChange = {},
-                        onDeleteLogs = {}
-                    )
+            Surface {
+                val snackbarHostState = remember { SnackbarHostState() }
+                CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
+                    WireTheme {
+                        LocalSnackbarHostState.current
+                        UserDebugContent(
+                            onNavigationPressed = { },
+                            onManualMigrationPressed = {},
+                            state = UserDebugState(logPath = "logPath"),
+                            onLoggingEnabledChange = {},
+                            onDeleteLogs = {}
+                        )
+                    }
                 }
             }
         }
+    }
 
+    @Test
+    fun givenAUserIsInDebugScreen_TitleShouldBeDisplayed() = runTest {
         composeTestRule.onNodeWithText("Debug Settings").assertIsDisplayed()
     }
 }

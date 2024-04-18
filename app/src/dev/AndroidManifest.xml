@@ -19,7 +19,7 @@
         xmlns:tools="http://schemas.android.com/tools">
 
     <application tools:node="merge">
-        <activity android:name="com.wire.android.ui.WireTestActivity" />
+        <activity android:name="com.wire.android.ui.WireTestActivity" android:exported="true"/>
     </application>
 
 </manifest>

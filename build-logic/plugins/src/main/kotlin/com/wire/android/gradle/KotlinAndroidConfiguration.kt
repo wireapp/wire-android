@@ -88,7 +88,7 @@ private fun Project.configureKotlin() {
 // Add another `*` when upgrading AGP to 8.3
 internal fun CommonExtension<*, *, *, *, *>.configureAndroidKotlinTests() {
     defaultConfig {
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.wire.android.WireTestRunner"
         testInstrumentationRunnerArguments.putAll(
             mapOf(
                 "clearPackageData" to "true",

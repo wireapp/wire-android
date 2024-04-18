@@ -73,8 +73,6 @@ internal class AssetImageFetcher(
                         }
                     }
                 }
-
-                is ImageAsset.LocalImageAsset -> drawableResultWrapper.toFetchResult(data.dataPath)
             }
         }
     }
@@ -90,9 +88,9 @@ internal class AssetImageFetcher(
         private val getPrivateAssetUseCase: GetMessageAssetUseCase,
         private val deleteAssetUseCase: DeleteAssetUseCase,
         private val drawableResultWrapper: DrawableResultWrapper,
-    ) : Fetcher.Factory<ImageAsset> {
+    ) : Fetcher.Factory<ImageAsset.Remote> {
         override fun create(
-            data: ImageAsset,
+            data: ImageAsset.Remote,
             options: Options,
             imageLoader: ImageLoader
         ): Fetcher = AssetImageFetcher(
@@ -106,7 +104,7 @@ internal class AssetImageFetcher(
 }
 
 data class AssetFetcherParameters(
-    val data: ImageAsset,
+    val data: ImageAsset.Remote,
     val options: Options
 )
 

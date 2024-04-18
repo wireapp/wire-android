@@ -22,36 +22,36 @@ import android.os.CountDownTimer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
-import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.model.UICallParticipant
-import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.call.VideoState
-import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@HiltViewModel
-class OngoingCallViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = OngoingCallViewModel.Factory::class)
+class OngoingCallViewModel @AssistedInject constructor(
+    @Assisted
+    val conversationId: ConversationId,
     @CurrentAccount
     private val currentUserId: UserId,
     private val globalDataStore: GlobalDataStore,
@@ -60,10 +60,6 @@ class OngoingCallViewModel @Inject constructor(
     private val setVideoSendState: SetVideoSendStateUseCase,
     private val currentScreenManager: CurrentScreenManager
 ) : ViewModel() {
-
-    private val ongoingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = ongoingCallNavArgs.conversationId
-
     var shouldShowDoubleTapToast: Boolean by mutableStateOf(false)
         private set
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null
@@ -98,6 +94,7 @@ class OngoingCallViewModel @Inject constructor(
             setVideoSendState(conversationId, VideoState.STARTED)
         }
     }
+
     fun stopSendingVideoFeed() {
         viewModelScope.launch {
             setVideoSendState(conversationId, VideoState.STOPPED)
@@ -109,10 +106,10 @@ class OngoingCallViewModel @Inject constructor(
             .distinctUntilChanged()
             .collect { calls ->
                 val currentCall = calls.find { call -> call.conversationId == conversationId }
-                val currentScreen = currentScreenManager.observeCurrentScreen(viewModelScope).first()
-                val isCurrentlyOnOngoingScreen = currentScreen is CurrentScreen.OngoingCallScreen
+                val currentScreen =
+                    currentScreenManager.observeCurrentScreen(viewModelScope).first()
                 val isOnBackground = currentScreen is CurrentScreen.InBackground
-                if (currentCall == null && (isCurrentlyOnOngoingScreen || isOnBackground)) {
+                if (currentCall == null && isOnBackground) {
                     state = state.copy(flowState = OngoingCallState.FlowState.CallClosed)
                 }
             }
@@ -137,25 +134,30 @@ class OngoingCallViewModel @Inject constructor(
 
     private fun startDoubleTapToastDisplayCountDown() {
         doubleTapIndicatorCountDownTimer?.cancel()
-        doubleTapIndicatorCountDownTimer = object : CountDownTimer(DOUBLE_TAP_TOAST_DISPLAY_TIME, COUNT_DOWN_INTERVAL) {
-            override fun onTick(p0: Long) {
-                appLogger.i("startDoubleTapToastDisplayCountDown: $p0")
-            }
+        doubleTapIndicatorCountDownTimer =
+            object : CountDownTimer(DOUBLE_TAP_TOAST_DISPLAY_TIME, COUNT_DOWN_INTERVAL) {
+                override fun onTick(p0: Long) {
+                    appLogger.i("startDoubleTapToastDisplayCountDown: $p0")
+                }
 
-            override fun onFinish() {
-                shouldShowDoubleTapToast = false
-                viewModelScope.launch {
-                    globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
+                override fun onFinish() {
+                    shouldShowDoubleTapToast = false
+                    viewModelScope.launch {
+                        globalDataStore.setShouldShowDoubleTapToastStatus(
+                            currentUserId.toString(),
+                            false
+                        )
+                    }
                 }
             }
-        }
         doubleTapIndicatorCountDownTimer?.start()
     }
 
     private fun showDoubleTapToast() {
         viewModelScope.launch {
             delay(DELAY_TO_SHOW_DOUBLE_TAP_TOAST)
-            shouldShowDoubleTapToast = globalDataStore.getShouldShowDoubleTapToast(currentUserId.toString())
+            shouldShowDoubleTapToast =
+                globalDataStore.getShouldShowDoubleTapToast(currentUserId.toString())
             if (shouldShowDoubleTapToast) {
                 startDoubleTapToastDisplayCountDown()
             }
@@ -173,5 +175,10 @@ class OngoingCallViewModel @Inject constructor(
         const val DOUBLE_TAP_TOAST_DISPLAY_TIME = 7000L
         const val COUNT_DOWN_INTERVAL = 1000L
         const val DELAY_TO_SHOW_DOUBLE_TAP_TOAST = 500L
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: ConversationId): OngoingCallViewModel
     }
 }

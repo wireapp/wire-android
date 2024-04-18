@@ -19,14 +19,12 @@
 package com.wire.android.ui.calling
 
 import android.view.View
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
-import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -62,9 +60,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 class SharedCallingViewModelTest {
-
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     private lateinit var allCalls: GetAllCallsWithSortedParticipantsUseCase
@@ -131,9 +126,7 @@ class SharedCallingViewModelTest {
 
     @BeforeEach
     fun setup() {
-        val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         MockKAnnotations.init(this)
-        every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
         coEvery { allCalls.invoke() } returns emptyFlow()
         coEvery { observeConversationDetails.invoke(any()) } returns emptyFlow()
         coEvery { observeSpeaker.invoke() } returns emptyFlow()
@@ -142,7 +135,7 @@ class SharedCallingViewModelTest {
         )
 
         sharedCallingViewModel = SharedCallingViewModel(
-            savedStateHandle = savedStateHandle,
+            conversationId = conversationId,
             conversationDetails = observeConversationDetails,
             allCalls = allCalls,
             endCall = endCall,

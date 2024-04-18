@@ -45,6 +45,7 @@ import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
@@ -178,6 +179,9 @@ private suspend fun AwaitPointerEventScope.handleGestures(
     onStopDrawing()
 }
 
+@Preview(showBackground = true, device = Devices.NEXUS_10)
+@Preview(showBackground = true, device = Devices.PIXEL_2)
+@Preview(showBackground = true, device = Devices.PIXEL_7A)
 @Preview(showBackground = true)
 @Composable
 fun PreviewCanvasEmptyState() {

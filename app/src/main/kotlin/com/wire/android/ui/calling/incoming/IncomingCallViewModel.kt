@@ -21,32 +21,32 @@ package com.wire.android.ui.calling.incoming
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.media.CallRinger
-import com.wire.android.ui.calling.CallingNavArgs
-import com.wire.android.ui.navArgs
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@HiltViewModel
-class IncomingCallViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = IncomingCallViewModel.Factory::class)
+class IncomingCallViewModel @AssistedInject constructor(
+    @Assisted val conversationId: ConversationId,
     private val incomingCalls: GetIncomingCallsUseCase,
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase,
@@ -54,10 +54,8 @@ class IncomingCallViewModel @Inject constructor(
     private val muteCall: MuteCallUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase,
+    private val lockCodeTimeManager: LockCodeTimeManager
 ) : ViewModel() {
-
-    private val incomingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = incomingCallNavArgs.conversationId
 
     private lateinit var observeIncomingCallJob: Job
     private var establishedCallConversationId: ConversationId? = null
@@ -94,19 +92,31 @@ class IncomingCallViewModel @Inject constructor(
             calls.find { call -> call.conversationId == conversationId }.also {
                 if (it == null) {
                     callRinger.stop()
-                    incomingCallState = incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
+                    incomingCallState =
+                        incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
                 }
             }
         }
     }
 
-    fun declineCall() {
+    fun declineCall(
+        onAppLocked: () -> Unit,
+        onCallRejected: () -> Unit
+    ) {
         viewModelScope.launch {
-            observeIncomingCallJob.cancel()
-            launch { rejectCall(conversationId = conversationId) }
-            launch {
-                callRinger.stop()
-                incomingCallState = incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
+            lockCodeTimeManager.observeAppLock().first().let {
+                if (it) {
+                    onAppLocked()
+                } else {
+                    observeIncomingCallJob.cancel()
+                    launch { rejectCall(conversationId = conversationId) }
+                    launch {
+                        callRinger.stop()
+                        incomingCallState =
+                            incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
+                    }
+                    onCallRejected()
+                }
             }
         }
     }
@@ -119,35 +129,54 @@ class IncomingCallViewModel @Inject constructor(
         incomingCallState = incomingCallState.copy(shouldShowJoinCallAnywayDialog = false)
     }
 
-    fun acceptCallAnyway() {
+    fun acceptCallAnyway(onAppLocked: () -> Unit) {
         viewModelScope.launch {
-            establishedCallConversationId?.let {
-                endCall(it)
-                // we need to update mute state to false, so if the user re-join the call te mic will will be muted
-                muteCall(it, false)
-                delay(DELAY_END_CALL)
+            lockCodeTimeManager.observeAppLock().first().let {
+                if (it) {
+                    onAppLocked()
+                } else {
+                    establishedCallConversationId?.let {
+                        endCall(it)
+                        // we need to update mute state to false, so if the user re-join the call te mic will will be muted
+                        muteCall(it, false)
+                        delay(DELAY_END_CALL)
+                    }
+                    acceptCall(onAppLocked)
+                }
             }
-            acceptCall()
         }
     }
 
-    fun acceptCall() {
+    fun acceptCall(onAppLocked: () -> Unit) {
         viewModelScope.launch {
-            if (incomingCallState.hasEstablishedCall) {
-                showJoinCallAnywayDialog()
-            } else {
-                callRinger.stop()
+            lockCodeTimeManager.observeAppLock().first().let {
+                if (it) {
+                    onAppLocked()
+                } else {
+                    if (incomingCallState.hasEstablishedCall) {
+                        showJoinCallAnywayDialog()
+                    } else {
+                        callRinger.stop()
 
-                dismissJoinCallAnywayDialog()
-                observeIncomingCallJob.cancel()
+                        dismissJoinCallAnywayDialog()
+                        observeIncomingCallJob.cancel()
 
-                acceptCall(conversationId = conversationId)
-                incomingCallState = incomingCallState.copy(flowState = IncomingCallState.FlowState.CallAccepted(conversationId))
+                        acceptCall(conversationId = conversationId)
+                        incomingCallState = incomingCallState.copy(
+                            flowState = IncomingCallState.FlowState.CallAccepted(conversationId)
+                        )
+                    }
+                }
             }
         }
     }
 
     companion object {
         const val DELAY_END_CALL = 200L
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: ConversationId): IncomingCallViewModel
     }
 }

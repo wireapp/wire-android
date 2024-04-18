@@ -55,7 +55,7 @@ object FeatureVisibilityFlags {
     const val UserProfileEditIcon = false
     const val MessageEditIcon = true
     const val SearchConversationMessages = true
-    const val DrawingIcon = false
+    const val DrawingIcon = true
 }
 
 val LocalFeatureVisibilityFlags = staticCompositionLocalOf { FeatureVisibilityFlags }

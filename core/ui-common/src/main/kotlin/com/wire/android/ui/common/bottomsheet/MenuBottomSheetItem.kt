@@ -37,16 +37,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.clickable
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -128,32 +123,5 @@ fun MenuItemIcon(
         modifier = Modifier
             .size(size)
             .then(modifier)
-    )
-}
-
-@Preview
-@Composable
-fun PreviewMenuBottomSheetItem() {
-    MenuBottomSheetItem(
-        title = "very long looooooong title",
-        icon = {
-            MenuItemIcon(
-                id = R.drawable.ic_erase,
-                contentDescription = "",
-            )
-        },
-        action = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "very long looooooong action",
-                    style = MaterialTheme.wireTypography.body01,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    modifier = Modifier.weight(weight = 1f, fill = false)
-                )
-                Spacer(modifier = Modifier.size(dimensions().spacing16x))
-                ArrowRightIcon()
-            }
-        }
     )
 }

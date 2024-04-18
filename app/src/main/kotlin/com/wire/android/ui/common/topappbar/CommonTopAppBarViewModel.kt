@@ -32,7 +32,6 @@ import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -44,7 +43,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class CommonTopAppBarViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
@@ -114,11 +112,10 @@ class CommonTopAppBarViewModel @Inject constructor(
         connectivity: Connectivity,
         activeCall: Call?
     ): ConnectivityUIState {
-        val canDisplayActiveCall = currentScreen !is CurrentScreen.OngoingCallScreen
 
         val canDisplayConnectivityIssues = currentScreen !is CurrentScreen.AuthRelated
 
-        if (activeCall != null && canDisplayActiveCall) {
+        if (activeCall != null) {
             return ConnectivityUIState.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
         }
 

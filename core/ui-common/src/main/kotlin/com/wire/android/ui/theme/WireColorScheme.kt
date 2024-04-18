@@ -104,7 +104,8 @@ data class WireColorScheme(
     val validE2eiStatusColor: Color,
     val mlsVerificationTextColor: Color,
     val wireAccentColors: WireAccentColors,
-    val checkboxTextDisabled: Color
+    val checkboxTextDisabled: Color,
+    val sketchColorPalette: List<Color>
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,
@@ -251,7 +252,27 @@ private val LightWireColorScheme = WireColorScheme(
             Accent.Unknown -> WireColorPalette.LightBlue500
         }
     },
-    checkboxTextDisabled = WireColorPalette.Gray70
+    checkboxTextDisabled = WireColorPalette.Gray70,
+    sketchColorPalette = listOf(
+        Color.Black,
+        Color.White,
+        WireColorPalette.LightBlue500,
+        WireColorPalette.LightGreen550,
+        WireColorPalette.DarkAmber500,
+        WireColorPalette.LightRed500,
+        WireColorPalette.Orange,
+        WireColorPalette.LightPurple600,
+        WireColorPalette.Brown,
+        WireColorPalette.Turquoise,
+        WireColorPalette.DarkBlue500,
+        WireColorPalette.DarkGreen500,
+        WireColorPalette.DarkPetrol500,
+        WireColorPalette.DarkPurple500,
+        WireColorPalette.DarkRed500,
+        WireColorPalette.Pink,
+        WireColorPalette.Chocolate,
+        WireColorPalette.Gray70,
+    )
 )
 
 // Dark WireColorScheme
@@ -372,7 +393,27 @@ private val DarkWireColorScheme = WireColorScheme(
             Accent.Unknown -> WireColorPalette.DarkBlue500
         }
     },
-    checkboxTextDisabled = WireColorPalette.Gray70
+    checkboxTextDisabled = WireColorPalette.Gray70,
+    sketchColorPalette = listOf(
+        Color.Black,
+        Color.White,
+        WireColorPalette.LightBlue500,
+        WireColorPalette.LightGreen550,
+        WireColorPalette.DarkAmber500,
+        WireColorPalette.LightRed500,
+        WireColorPalette.Orange,
+        WireColorPalette.LightPurple600,
+        WireColorPalette.Brown,
+        WireColorPalette.Turquoise,
+        WireColorPalette.DarkBlue500,
+        WireColorPalette.DarkGreen500,
+        WireColorPalette.DarkPetrol500,
+        WireColorPalette.DarkPurple500,
+        WireColorPalette.DarkRed500,
+        WireColorPalette.Pink,
+        WireColorPalette.Chocolate,
+        WireColorPalette.Gray70,
+    )
 )
 
 @PackagePrivate

@@ -62,7 +62,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
-import com.wire.android.ui.calling.ProximitySensorManager
+import com.wire.android.ui.calling.getOngoingCallIntent
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
@@ -72,10 +72,8 @@ import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
-import com.wire.android.ui.destinations.IncomingCallScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
@@ -103,7 +101,6 @@ import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.android.util.ui.updateScreenSettings
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -121,9 +118,6 @@ class WireActivity : AppCompatActivity() {
 
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager
-
-    @Inject
-    lateinit var proximitySensorManager: ProximitySensorManager
 
     @Inject
     lateinit var lockCodeTimeManager: Lazy<LockCodeTimeManager>
@@ -153,9 +147,6 @@ class WireActivity : AppCompatActivity() {
 
         lifecycle.addObserver(currentScreenManager)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        appLogger.i("$TAG proximity sensor")
-        proximitySensorManager.initialize()
 
         lifecycleScope.launch(Dispatchers.Default) {
 
@@ -219,7 +210,9 @@ class WireActivity : AppCompatActivity() {
                         CommonTopAppBar(
                             commonTopAppBarState = commonTopAppBarViewModel.state,
                             onReturnToCallClick = { establishedCall ->
-                                navigator.navigate(NavigationCommand(OngoingCallScreenDestination(establishedCall.conversationId)))
+                                getOngoingCallIntent(this@WireActivity, establishedCall.conversationId.toString()).run {
+                                    startActivity(this)
+                                }
                             },
                         )
                         CompositionLocalProvider(LocalNavigator provides navigator) {
@@ -263,7 +256,6 @@ class WireActivity : AppCompatActivity() {
         DisposableEffect(navController) {
             val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, navDestination, _ ->
                 currentKeyboardController?.hide()
-                updateScreenSettings(navDestination)
             }
             navController.addOnDestinationChangedListener(updateScreenSettingsListener)
             navController.addOnDestinationChangedListener(currentScreenManager)
@@ -480,13 +472,6 @@ class WireActivity : AppCompatActivity() {
                     }
                 }
         }
-
-        proximitySensorManager.registerListener()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        proximitySensorManager.unRegisterListener()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -530,15 +515,6 @@ class WireActivity : AppCompatActivity() {
 
             is DeepLinkResult.CustomServerConfig -> {
                 // do nothing, already handled in ViewModel
-            }
-
-            is DeepLinkResult.IncomingCall -> {
-                if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-                navigate(NavigationCommand(IncomingCallScreenDestination(result.conversationsId)))
-            }
-
-            is DeepLinkResult.OngoingCall -> {
-                navigate(NavigationCommand(OngoingCallScreenDestination(result.conversationsId)))
             }
 
             is DeepLinkResult.OpenConversation -> {

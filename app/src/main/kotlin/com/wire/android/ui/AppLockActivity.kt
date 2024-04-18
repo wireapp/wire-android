@@ -74,6 +74,7 @@ class AppLockActivity : AppCompatActivity() {
             }
         }
     }
+
     companion object {
         const val SET_TEAM_APP_LOCK = "set_team_app_lock"
     }

@@ -433,7 +433,6 @@
     <ID>MultiLineIfElse:WireTextField.kt$it</ID>
     <ID>MultiLineIfElse:WriteStorageRequestFlow.kt$onGranted()</ID>
     <ID>NoBlankLineBeforeRbrace:CreateAccountEmailViewState.kt$CreateAccountEmailViewState$ </ID>
-    <ID>NoBlankLineBeforeRbrace:DrawingCanvasBottomSheet.kt$ </ID>
     <ID>NoBlankLineBeforeRbrace:DrawingCanvasViewModel.kt$DrawingCanvasViewModel$ </ID>
     <ID>NoBlankLineBeforeRbrace:EmailComposer.kt$EmailComposer$ </ID>
     <ID>NoBlankLineBeforeRbrace:FakeKaliumFileSystem.kt$FakeKaliumFileSystem$ </ID>
@@ -485,7 +484,6 @@
     <ID>NoTrailingSpaces:ScalaServerConfigDAOTest.kt$ScalaServerConfigDAOTest.Arrangement$ </ID>
     <ID>NoUnusedImports:ApiVersioningDialogs.kt$com.wire.android.ui.server.ApiVersioningDialogs.kt</ID>
     <ID>NoUnusedImports:CreateAccountDetailsScreen.kt$import com.wire.android.ui.common.scaffold.WireScaffold</ID>
-    <ID>NoUnusedImports:DateTimeUtilKtTest.kt$com.wire.android.util.DateTimeUtilKtTest.kt</ID>
     <ID>NoUnusedImports:SearchPeopleScreenState.kt$com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt</ID>
     <ID>NoUnusedImports:SpeakerButton.kt$com.wire.android.ui.calling.controlbuttons.SpeakerButton.kt</ID>
     <ID>NoUnusedImports:ZoomableImage.kt$com.wire.android.ui.home.gallery.ZoomableImage.kt</ID>
@@ -642,6 +640,7 @@
     <ID>SpacingBetweenDeclarationsWithAnnotations:UpdateReceiver.kt$UpdateReceiver$@Inject lateinit var migrationManager: MigrationManager</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:UpdateReceiver.kt$UpdateReceiver$@Inject lateinit var workManager: WorkManager</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:UriUtilTest.kt$UriUtilTest$@Test fun givenLinkWithoutParams_whenCallingFindParameterValue_thenReturnsParamValue()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Chocolate = Color(0xFF622F00)</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber100 = Color(0xFFFFF6D4)</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber200 = Color(0xFFFFEEA8)</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber300 = Color(0xFFFFE57D)</ID>
@@ -761,6 +760,9 @@
     <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed700 = Color(0xFF74000B)</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed800 = Color(0xFF4E0008)</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed900 = Color(0xFF3A0006)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Orange = Color(0xFFFD8312)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Pink = Color(0xFFEB239B)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Turquoise = Color(0xFF01718E)</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WirePrimaryIconButton.kt$@Preview @Composable fun PreviewWirePrimaryIconButtonLoading()</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WirePrimaryIconButton.kt$@Preview @Composable fun PreviewWirePrimaryIconButtonRound()</ID>
     <ID>SpreadOperator:ViewModelScopedPreview.kt$ViewModelScopedPreviewProcessor$(aggregating = true, *items.mapNotNull { it.containingFile }.toTypedArray())</ID>
@@ -779,7 +781,6 @@
     <ID>UnusedParameter:LoginSSOScreen.kt$serverTitle: String</ID>
     <ID>UnusedParameter:MentionScreen.kt$openConversationNotificationsSettings: (ConversationItem) -&gt; Unit</ID>
     <ID>UnusedParameter:ShouldTriggerMigrationForUserUserCaseTest.kt$ShouldTriggerMigrationForUserUserCaseTest.Arrangement$version: Int?</ID>
-    <ID>UnusedParameter:SwipeableSnackbar.kt$onDismiss: () -&gt; Unit = { hostState.currentSnackbarData?.dismiss() }</ID>
     <ID>UnusedParameter:TrackingNavController.kt$nameFromRoute: (String) -&gt; String?</ID>
     <ID>UnusedParameter:WireButtonDefaults.kt$WireButtonColors$interactionSource: InteractionSource</ID>
     <ID>UnusedParameter:WireItemLabel.kt$minHeight: Dp = dimensions().badgeSmallMinSize.height</ID>
@@ -796,9 +797,6 @@
     <ID>UnusedPrivateProperty:SelfUserProfileViewModel.kt$SelfUserProfileViewModel$private val notificationChannelsManager: NotificationChannelsManager</ID>
     <ID>UnusedPrivateProperty:SendMessageViewModel.kt$SendMessageViewModel.Companion$private const val sizeOf1MB = 1024 * 1024</ID>
     <ID>UnusedPrivateProperty:SendMessageViewModelArrangement.kt$SendMessageViewModelArrangement$@MockK private lateinit var savedStateHandle: SavedStateHandle</ID>
-    <ID>UnusedPrivateProperty:SwipeableSnackbar.kt$val currentScreenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }</ID>
-    <ID>UnusedPrivateProperty:SwipeableSnackbar.kt$val positionalThreshold: (Float) -&gt; Float = { distance -&gt; distance * 0.5f }</ID>
-    <ID>UnusedPrivateProperty:SwipeableSnackbar.kt$val velocityThreshold: () -&gt; Float = with(density) { { 125.dp.toPx() } }</ID>
     <ID>UnusedPrivateProperty:WireNotificationManagerTest.kt$WireNotificationManagerTest.Companion$private val TEST_SERVER_CONFIG: ServerConfig = newServerConfig(1)</ID>
     <ID>Wrapping:AddMembersToConversationViewModel.kt$AddMembersToConversationViewModel$(</ID>
     <ID>Wrapping:AssetImageFetcherTest.kt$AssetImageFetcherTest.Arrangement$( data = imageData, options ?: Options( context = mockContext, parameters = Parameters.Builder().set(key = OPTION_PARAMETER_RETRY_KEY, value = 0, memoryCacheKey = null).build() ) )</ID>

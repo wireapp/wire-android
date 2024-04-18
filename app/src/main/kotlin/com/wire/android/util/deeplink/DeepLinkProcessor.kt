@@ -47,12 +47,17 @@ sealed class DeepLinkResult {
         data class Failure(val ssoError: SSOFailureCodes) : SSOLogin()
     }
 
-    data class IncomingCall(val conversationsId: ConversationId, val switchedAccount: Boolean = false) : DeepLinkResult()
+    data class OpenConversation(
+        val conversationsId: ConversationId,
+        val switchedAccount: Boolean = false
+    ) : DeepLinkResult()
 
-    data class OngoingCall(val conversationsId: ConversationId) : DeepLinkResult()
-    data class OpenConversation(val conversationsId: ConversationId, val switchedAccount: Boolean = false) : DeepLinkResult()
-    data class OpenOtherUserProfile(val userId: QualifiedID, val switchedAccount: Boolean = false) : DeepLinkResult()
-    data class JoinConversation(val code: String, val key: String, val domain: String?) : DeepLinkResult()
+    data class OpenOtherUserProfile(val userId: QualifiedID, val switchedAccount: Boolean = false) :
+        DeepLinkResult()
+
+    data class JoinConversation(val code: String, val key: String, val domain: String?) :
+        DeepLinkResult()
+
     data class MigrationLogin(val userHandle: String) : DeepLinkResult()
 }
 
@@ -69,10 +74,12 @@ class DeepLinkProcessor @Inject constructor(
         return when (uri.host) {
             ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
             SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
-            INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri, switchedAccount)
-            ONGOING_CALL_DEEPLINK_HOST -> getOngoingCallDeepLinkResult(uri)
             CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri, switchedAccount)
-            OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri, switchedAccount)
+            OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(
+                uri,
+                switchedAccount
+            )
+
             MIGRATION_LOGIN_HOST -> getOpenMigrationLoginDeepLinkResult(uri)
             JOIN_CONVERSATION_DEEPLINK_HOST -> getJoinConversationDeepLinkResult(uri)
             else -> DeepLinkResult.Unknown
@@ -80,25 +87,32 @@ class DeepLinkProcessor @Inject constructor(
     }
 
     private suspend fun switchAccountIfNeeded(uri: Uri): Boolean {
-        uri.getQueryParameter(USER_TO_USE_QUERY_PARAM)?.toQualifiedID(qualifiedIdMapper)?.let { userId ->
-            val shouldSwitchAccount = when (val result = currentSession()) {
-                is CurrentSessionResult.Failure.Generic -> true
-                CurrentSessionResult.Failure.SessionNotFound -> true
-                is CurrentSessionResult.Success -> result.accountInfo.userId != userId
+        uri.getQueryParameter(USER_TO_USE_QUERY_PARAM)?.toQualifiedID(qualifiedIdMapper)
+            ?.let { userId ->
+                val shouldSwitchAccount = when (val result = currentSession()) {
+                    is CurrentSessionResult.Failure.Generic -> true
+                    CurrentSessionResult.Failure.SessionNotFound -> true
+                    is CurrentSessionResult.Success -> result.accountInfo.userId != userId
+                }
+                if (shouldSwitchAccount) {
+                    return accountSwitch(SwitchAccountParam.SwitchToAccount(userId)) == SwitchAccountResult.SwitchedToAnotherAccount
+                }
             }
-            if (shouldSwitchAccount) {
-                return accountSwitch(SwitchAccountParam.SwitchToAccount(userId)) == SwitchAccountResult.SwitchedToAnotherAccount
-            }
-        }
         return false
     }
 
-    private fun getOpenConversationDeepLinkResult(uri: Uri, switchedAccount: Boolean): DeepLinkResult =
+    private fun getOpenConversationDeepLinkResult(
+        uri: Uri,
+        switchedAccount: Boolean
+    ): DeepLinkResult =
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let { conversationId ->
             DeepLinkResult.OpenConversation(conversationId, switchedAccount)
         } ?: DeepLinkResult.Unknown
 
-    private fun getOpenOtherUserProfileDeepLinkResult(uri: Uri, switchedAccount: Boolean): DeepLinkResult =
+    private fun getOpenOtherUserProfileDeepLinkResult(
+        uri: Uri,
+        switchedAccount: Boolean
+    ): DeepLinkResult =
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
             DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
         } ?: DeepLinkResult.Unknown
@@ -109,18 +123,9 @@ class DeepLinkProcessor @Inject constructor(
             else DeepLinkResult.MigrationLogin(it)
         } ?: DeepLinkResult.Unknown
 
-    private fun getCustomServerConfigDeepLinkResult(uri: Uri) = uri.getQueryParameter(SERVER_CONFIG_PARAM)?.let {
-        DeepLinkResult.CustomServerConfig(it)
-    } ?: DeepLinkResult.Unknown
-
-    private fun getIncomingCallDeepLinkResult(uri: Uri, switchedAccount: Boolean) =
-        uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
-            DeepLinkResult.IncomingCall(it, switchedAccount)
-        } ?: DeepLinkResult.Unknown
-
-    private fun getOngoingCallDeepLinkResult(uri: Uri) =
-        uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
-            DeepLinkResult.OngoingCall(it)
+    private fun getCustomServerConfigDeepLinkResult(uri: Uri) =
+        uri.getQueryParameter(SERVER_CONFIG_PARAM)?.let {
+            DeepLinkResult.CustomServerConfig(it)
         } ?: DeepLinkResult.Unknown
 
     private fun getSSOLoginDeepLinkResult(uri: Uri): DeepLinkResult {
@@ -162,8 +167,6 @@ class DeepLinkProcessor @Inject constructor(
         const val SSO_LOGIN_COOKIE_PARAM = "cookie"
         const val SSO_LOGIN_ERROR_PARAM = "error"
         const val SSO_LOGIN_SERVER_CONFIG_PARAM = "location"
-        const val INCOMING_CALL_DEEPLINK_HOST = "incoming-call"
-        const val ONGOING_CALL_DEEPLINK_HOST = "ongoing-call"
         const val CONVERSATION_DEEPLINK_HOST = "conversation"
         const val OTHER_USER_PROFILE_DEEPLINK_HOST = "other-user-profile"
         const val MIGRATION_LOGIN_HOST = "migration-login"
@@ -176,7 +179,10 @@ class DeepLinkProcessor @Inject constructor(
 }
 
 enum class SSOFailureCodes(val label: String, val errorCode: Int) {
-    ServerErrorUnsupportedSaml("server-error-unsupported-saml", SSOServerErrorCode.SERVER_ERROR_UNSUPPORTED_SAML),
+    ServerErrorUnsupportedSaml(
+        "server-error-unsupported-saml",
+        SSOServerErrorCode.SERVER_ERROR_UNSUPPORTED_SAML
+    ),
     BadSuccessRedirect("bad-success-redirect", SSOServerErrorCode.BAD_SUCCESS_REDIRECT),
     BadFailureRedirect("bad-failure-redirect", SSOServerErrorCode.BAD_FAILURE_REDIRECT),
     BadUsername("bad-username", SSOServerErrorCode.BAD_USERNAME),
@@ -185,7 +191,10 @@ enum class SSOFailureCodes(val label: String, val errorCode: Int) {
     NotFound("not-found", SSOServerErrorCode.NOT_FOUND),
     Forbidden("forbidden", SSOServerErrorCode.FORBIDDEN),
     NoMatchingAuthReq("no-matching-auth-req", SSOServerErrorCode.NO_MATCHING_AUTH_REQ),
-    InsufficientPermissions("insufficient-permissions", SSOServerErrorCode.INSUFFICIENT_PERMISSIONS),
+    InsufficientPermissions(
+        "insufficient-permissions",
+        SSOServerErrorCode.INSUFFICIENT_PERMISSIONS
+    ),
     Unknown("unknown", SSOServerErrorCode.UNKNOWN);
 
     companion object {

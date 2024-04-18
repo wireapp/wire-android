@@ -15,14 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.navigation.style
 
-interface ScreenModeStyle {
-    fun screenMode(): ScreenMode
-}
+package com.wire.android.ui.calling
 
-enum class ScreenMode {
-    KEEP_ON, // keep screen on while that NavigationItem is visible (i.e CallScreen)
-    WAKE_UP, // wake up the device on navigating to that NavigationItem (i.e IncomingCall)
-    NONE // do not wake up and allow device to sleep
+enum class CallScreenType {
+    Incoming,
+    Ongoing,
+    Initiating
 }

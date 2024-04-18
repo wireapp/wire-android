@@ -233,35 +233,6 @@ class WireActivityViewModelTest {
         }
 
     @Test
-    fun `given Intent with IncomingCall, when currentSession is present, then initialAppState is LOGGED_IN and result IncomingCall`() =
-        runTest {
-            val result = DeepLinkResult.IncomingCall(ConversationId("val", "dom"))
-            val (arrangement, viewModel) = Arrangement()
-                .withSomeCurrentSession()
-                .withDeepLinkResult(result)
-                .arrange()
-
-            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
-
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
-            verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
-        }
-
-    @Test
-    fun `given Intent with IncomingCall, when currentSession is absent, then initialAppState is NOT_LOGGED_IN`() = runTest {
-        val result = DeepLinkResult.IncomingCall(ConversationId("val", "dom"))
-        val (arrangement, viewModel) = Arrangement()
-            .withNoCurrentSession()
-            .withDeepLinkResult(result)
-            .arrange()
-
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult)
-
-        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
-        verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-    }
-
-    @Test
     fun `given Intent with OpenConversation, when currentSession is present, then initialAppState is LOGGED_IN and result OpenConversation`() =
         runTest {
             val result = DeepLinkResult.OpenConversation(ConversationId("val", "dom"))

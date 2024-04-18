@@ -163,7 +163,7 @@ private suspend fun AwaitPointerEventScope.handleGestures(
     onDraw: (Offset) -> Unit,
     onStopDrawing: () -> Unit
 ) {
-    val downEvent = awaitFirstDown()
+    val downEvent = awaitFirstDown(false)
     onStartDrawing(downEvent.position)
     if (downEvent.pressed != downEvent.previousPressed) {
         downEvent.consume()

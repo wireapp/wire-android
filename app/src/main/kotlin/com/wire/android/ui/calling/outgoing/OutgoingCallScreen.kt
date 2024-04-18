@@ -82,8 +82,7 @@ fun OutgoingCallScreen(
                 onCallAccepted()
             }
 
-            OutgoingCallState.FlowState.Default -> { /* do nothing */
-            }
+            OutgoingCallState.FlowState.Default -> { /* do nothing */ }
         }
     }
     with(sharedCallingViewModel) {

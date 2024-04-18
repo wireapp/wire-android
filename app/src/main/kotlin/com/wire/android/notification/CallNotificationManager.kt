@@ -87,8 +87,11 @@ class CallNotificationManager @Inject constructor(
 
     fun handleIncomingCallNotifications(calls: List<Call>, userId: UserId) {
         if (calls.isEmpty()) {
-            incomingCallsForUsers.update { it.filter {
-                it.first != userId } }
+            incomingCallsForUsers.update {
+                it.filter {
+                    it.first != userId
+                }
+            }
         } else {
             incomingCallsForUsers.update { it.filter { it.first != userId } + (userId to calls.first()) }
         }
@@ -124,13 +127,25 @@ class CallNotificationManager @Inject constructor(
     internal fun showIncomingCallNotification(call: Call, userId: QualifiedID) {
         appLogger.i("$TAG: showing incoming call notification for user ${userId.toLogString()}")
         val notification = builder.getIncomingCallNotification(call, userId)
-        notificationManager.notify(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID, notification)
+        notificationManager.notify(
+            NotificationConstants.CALL_INCOMING_NOTIFICATION_ID,
+            notification
+        )
     }
+
     @VisibleForTesting
-    internal fun showOutgoingCallNotification(conversationId: ConversationId, userId: UserId, conversationName: String) {
+    internal fun showOutgoingCallNotification(
+        conversationId: ConversationId,
+        userId: UserId,
+        conversationName: String
+    ) {
         appLogger.i("$TAG: showing outgoing call notification for user ${userId.toLogString()}")
-        val notification = builder.getOutgoingCallNotification(conversationId, userId, conversationName)
-        notificationManager.notify(NotificationConstants.CALL_OUTGOING_NOTIFICATION_ID, notification)
+        val notification =
+            builder.getOutgoingCallNotification(conversationId, userId, conversationName)
+        notificationManager.notify(
+            NotificationConstants.CALL_OUTGOING_NOTIFICATION_ID,
+            notification
+        )
     }
 
     // Notifications
@@ -171,11 +186,8 @@ class CallNotificationBuilder @Inject constructor(
             .setOngoing(true)
             .setVibrate(VIBRATE_PATTERN)
             .setFullScreenIntent(
-                outgoingCallPendingIntent(
-                    context,
-                    conversationIdString,
-                    userIdString
-                ), true
+                outgoingCallPendingIntent(context, conversationIdString),
+                true
             )
             .addAction(getHangUpCallAction(context, conversationIdString, userId.toString()))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -183,7 +195,6 @@ class CallNotificationBuilder @Inject constructor(
                 outgoingCallPendingIntent(
                     context,
                     conversationIdString,
-                    userIdString
                 )
             )
             .build()
@@ -207,7 +218,7 @@ class CallNotificationBuilder @Inject constructor(
             .setVibrate(VIBRATE_PATTERN)
             .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString), true)
             .addAction(getDeclineCallAction(context, conversationIdString, userIdString))
-            .addAction(getOpenIncomingCallAction(context, conversationIdString, userIdString))
+            .addAction(getOpenIncomingCallAction(context, conversationIdString))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString))
             .build()

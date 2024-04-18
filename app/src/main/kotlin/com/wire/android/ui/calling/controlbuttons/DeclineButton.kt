@@ -43,10 +43,15 @@ fun DeclineButton(buttonClicked: () -> Unit) {
     ) {
         Icon(
             modifier = Modifier
-                .clickable(interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(bounded = false, radius = dimensions().outgoingCallHangUpButtonSize / 2),
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(
+                        bounded = false,
+                        radius = dimensions().outgoingCallHangUpButtonSize / 2
+                    ),
                     role = Role.Button,
-                    onClick = { buttonClicked() }),
+                    onClick = { buttonClicked() }
+                ),
             painter = painterResource(id = R.drawable.ic_decline),
             contentDescription = stringResource(id = R.string.content_description_calling_decline_call),
             tint = Color.Unspecified

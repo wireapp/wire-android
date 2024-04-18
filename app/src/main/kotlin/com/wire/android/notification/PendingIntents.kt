@@ -117,8 +117,8 @@ fun declineCallPendingIntent(context: Context, conversationId: String, userId: S
     )
 }
 
-fun outgoingCallPendingIntent(context: Context, conversationId: String, userId: String): PendingIntent {
-    val intent = openOutgoingCallIntent(context, conversationId, userId)
+fun outgoingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
+    val intent = openOutgoingCallIntent(context, conversationId)
 
     return PendingIntent.getActivity(
         context,
@@ -139,7 +139,7 @@ fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String
     )
 }
 
-private fun openOutgoingCallIntent(context: Context, conversationId: String, userId: String) =
+private fun openOutgoingCallIntent(context: Context, conversationId: String) =
     Intent(context.applicationContext, CallActivity::class.java).apply {
         putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
         putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Outgoing.name)

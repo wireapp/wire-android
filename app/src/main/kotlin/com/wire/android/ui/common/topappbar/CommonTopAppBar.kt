@@ -70,6 +70,17 @@ fun CommonTopAppBar(
 }
 
 @Composable
+fun getBackgroundColor(connectivityInfo: ConnectivityUIState): Color {
+    return when (connectivityInfo) {
+        is ConnectivityUIState.EstablishedCall,
+        is ConnectivityUIState.IncomingCall,
+        is ConnectivityUIState.OutgoingCall -> MaterialTheme.wireColorScheme.positive
+        ConnectivityUIState.Connecting, ConnectivityUIState.WaitingConnection -> MaterialTheme.wireColorScheme.primary
+        ConnectivityUIState.None -> MaterialTheme.wireColorScheme.background
+    }
+}
+
+@Composable
 private fun ConnectivityStatusBar(
     connectivityInfo: ConnectivityUIState,
     onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit,
@@ -77,13 +88,7 @@ private fun ConnectivityStatusBar(
     onReturnToOutgoingCallClick: (ConnectivityUIState.OutgoingCall) -> Unit
 ) {
     val isVisible = connectivityInfo !is ConnectivityUIState.None
-    val backgroundColor = when (connectivityInfo) {
-        is ConnectivityUIState.EstablishedCall,
-        is ConnectivityUIState.IncomingCall,
-        is ConnectivityUIState.OutgoingCall -> MaterialTheme.wireColorScheme.positive
-        ConnectivityUIState.Connecting, ConnectivityUIState.WaitingConnection -> MaterialTheme.wireColorScheme.primary
-        ConnectivityUIState.None -> MaterialTheme.wireColorScheme.background
-    }
+    val backgroundColor = getBackgroundColor(connectivityInfo)
     if (!isVisible) {
         clearStatusBarColor()
     }
@@ -102,13 +107,16 @@ private fun ConnectivityStatusBar(
         .height(MaterialTheme.wireDimensions.ongoingCallLabelHeight)
         .background(backgroundColor)
         .run {
-            when(connectivityInfo) {
+            when (connectivityInfo) {
                 is ConnectivityUIState.EstablishedCall ->
                     clickable(onClick = { onReturnToCallClick(connectivityInfo) })
+
                 is ConnectivityUIState.IncomingCall ->
                     clickable(onClick = { onReturnToIncomingCallClick(connectivityInfo) })
+
                 is ConnectivityUIState.OutgoingCall ->
                     clickable(onClick = { onReturnToOutgoingCallClick(connectivityInfo) })
+
                 else -> this
             }
         }
@@ -173,6 +181,7 @@ private fun IncomingCallContent(callerName: String?) {
         )
     }
 }
+
 @Composable
 private fun OutgoingCallContent(callerName: String?) {
     Row {

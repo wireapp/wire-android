@@ -27,13 +27,3 @@ object SlideNavigationAnimation : WireDestinationStyleAnimated {
 object PopUpNavigationAnimation : WireDestinationStyleAnimated {
     override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
 }
-
-object WakeUpScreenPopUpNavigationAnimation : WireDestinationStyleAnimated, ScreenModeStyle {
-    override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
-    override fun screenMode(): ScreenMode = ScreenMode.WAKE_UP
-}
-
-object KeepOnScreenPopUpNavigationAnimation : WireDestinationStyleAnimated, ScreenModeStyle {
-    override fun animationType(): TransitionAnimationType = TransitionAnimationType.POP_UP
-    override fun screenMode(): ScreenMode = ScreenMode.KEEP_ON
-}

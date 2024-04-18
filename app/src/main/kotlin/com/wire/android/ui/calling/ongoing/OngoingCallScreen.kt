@@ -51,12 +51,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.WakeUpScreenPopUpNavigationAnimation
-import com.wire.android.ui.calling.CallingNavArgs
+import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CameraButton
@@ -89,27 +85,33 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
 
-@RootNavGraph
-@Destination(
-    navArgsDelegate = CallingNavArgs::class,
-    style = WakeUpScreenPopUpNavigationAnimation::class
-)
+@Suppress("ParameterWrapping")
 @Composable
 fun OngoingCallScreen(
-    navigator: Navigator,
-    ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
-    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
+    conversationId: ConversationId,
+    ongoingCallViewModel: OngoingCallViewModel = hiltViewModel<OngoingCallViewModel, OngoingCallViewModel.Factory>(
+        creationCallback = { factory -> factory.create(conversationId = conversationId) }
+    ),
+    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+        creationCallback = { factory -> factory.create(conversationId = conversationId) }
+    )
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
+    val activity = LocalActivity.current
+
     LaunchedEffect(ongoingCallViewModel.state.flowState) {
         when (ongoingCallViewModel.state.flowState) {
-            OngoingCallState.FlowState.CallClosed -> navigator.navigateBack()
+            OngoingCallState.FlowState.CallClosed -> {
+                activity.finish()
+            }
+
             OngoingCallState.FlowState.Default -> { /* do nothing */
             }
         }
     }
+
     with(sharedCallingViewModel.callState) {
         OngoingCallContent(
             conversationId = conversationId,
@@ -126,7 +128,7 @@ fun OngoingCallScreen(
             shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
             toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
             toggleMute = sharedCallingViewModel::toggleMute,
-            hangUpCall = { sharedCallingViewModel.hangUpCall(navigator::navigateBack) },
+            hangUpCall = { sharedCallingViewModel.hangUpCall { activity.finish() } },
             toggleVideo = sharedCallingViewModel::toggleVideo,
             flipCamera = sharedCallingViewModel::flipCamera,
             setVideoPreview = {
@@ -137,7 +139,7 @@ fun OngoingCallScreen(
                 sharedCallingViewModel.clearVideoPreview()
                 ongoingCallViewModel.stopSendingVideoFeed()
             },
-            navigateBack = navigator::navigateBack,
+            navigateBack = { activity.finish() },
             requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
             hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
             onPermissionPermanentlyDenied = {
@@ -151,7 +153,9 @@ fun OngoingCallScreen(
                 }
             }
         )
-        BackHandler(enabled = isCameraOn, navigator::navigateBack)
+        BackHandler {
+            activity.finish()
+        }
     }
 
     PermissionPermanentlyDeniedDialog(

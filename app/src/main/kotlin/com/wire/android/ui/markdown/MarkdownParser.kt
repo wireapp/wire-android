@@ -15,10 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling
+package com.wire.android.ui.markdown
 
-import com.wire.kalium.logic.data.id.ConversationId
+import org.commonmark.node.Document
+import org.commonmark.parser.Parser
 
-data class CallingNavArgs(
-    val conversationId: ConversationId
-)
+object MarkdownParser {
+    private val parser = Parser.builder().extensions(MarkdownConstants.supportedExtensions).build()
+
+    fun parse(text: String) = (parser.parse(text) as Document).toContent() as MarkdownNode.Document
+}

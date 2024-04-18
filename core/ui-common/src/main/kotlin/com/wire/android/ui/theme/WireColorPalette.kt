@@ -309,4 +309,15 @@ object WireColorPalette {
 
     @Stable
     val BlackAlpha55 = Color(0x8C000000)
+
+    @Stable
+    val Brown = Color(0xFFA25915)
+    @Stable
+    val Chocolate = Color(0xFF622F00)
+    @Stable
+    val Orange = Color(0xFFFD8312)
+    @Stable
+    val Pink = Color(0xFFEB239B)
+    @Stable
+    val Turquoise = Color(0xFF01718E)
 }

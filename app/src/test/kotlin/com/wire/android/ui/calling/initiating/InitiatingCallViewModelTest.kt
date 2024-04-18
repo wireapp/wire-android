@@ -18,12 +18,9 @@
 
 package com.wire.android.ui.calling.initiating
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.media.CallRinger
-import com.wire.android.ui.calling.CallingNavArgs
-import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
@@ -48,46 +45,45 @@ import org.junit.jupiter.api.extension.ExtendWith
 class InitiatingCallViewModelTest {
 
     @Test
-    fun `given an outgoing call, when the user ends call, then invoke endCall useCase and close the screen`() = runTest {
-        // Given
-        val (arrangement, viewModel) = Arrangement()
-            .withEndingCall()
-            .withStartCallSucceeding()
-            .arrange()
+    fun `given an outgoing call, when the user ends call, then invoke endCall useCase and close the screen`() =
+        runTest {
+            // Given
+            val (arrangement, viewModel) = Arrangement()
+                .withEndingCall()
+                .withStartCallSucceeding()
+                .arrange()
 
-        // When
-        viewModel.hangUpCall()
-        advanceUntilIdle()
+            // When
+            viewModel.hangUpCall()
+            advanceUntilIdle()
 
-        // Then
-        with(arrangement) {
-            coVerify(exactly = 1) { endCall(any()) }
-            coVerify(exactly = 1) { callRinger.stop() }
+            // Then
+            with(arrangement) {
+                coVerify(exactly = 1) { endCall(any()) }
+                coVerify(exactly = 1) { callRinger.stop() }
+            }
+            assertTrue { viewModel.state.flowState is InitiatingCallState.FlowState.CallClosed }
         }
-        assertTrue { viewModel.state.flowState is InitiatingCallState.FlowState.CallClosed }
-    }
 
     @Test
-    fun `given a start call error, when user tries to start a call, call ring tone is not called`() = runTest {
-        // Given
-        val (arrangement, viewModel) = Arrangement()
-            .withNoInternetConnection()
-            .withStartCallSucceeding()
-            .arrange()
+    fun `given a start call error, when user tries to start a call, call ring tone is not called`() =
+        runTest {
+            // Given
+            val (arrangement, viewModel) = Arrangement()
+                .withNoInternetConnection()
+                .withStartCallSucceeding()
+                .arrange()
 
-        // When
-        viewModel.initiateCall()
+            // When
+            viewModel.initiateCall()
 
-        // Then
-        with(arrangement) {
-            coVerify(exactly = 0) { callRinger.ring(any()) }
+            // Then
+            with(arrangement) {
+                coVerify(exactly = 0) { callRinger.ring(any()) }
+            }
         }
-    }
 
     private class Arrangement {
-
-        @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
 
         @MockK
         private lateinit var establishedCalls: ObserveEstablishedCallsUseCase
@@ -104,9 +100,11 @@ class InitiatingCallViewModelTest {
         @MockK
         lateinit var endCall: EndCallUseCase
 
+        val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+
         val initiatingCallViewModel by lazy {
             InitiatingCallViewModel(
-                savedStateHandle = savedStateHandle,
+                conversationId = dummyConversationId,
                 observeEstablishedCalls = establishedCalls,
                 startCall = startCall,
                 endCall = endCall,
@@ -116,9 +114,7 @@ class InitiatingCallViewModelTest {
         }
 
         init {
-            val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
             MockKAnnotations.init(this)
-            every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
             coEvery { isLastCallClosed.invoke(any(), any()) } returns flowOf(false)
             coEvery { establishedCalls() } returns flowOf(emptyList())
             every { callRinger.ring(any(), any(), any()) } returns Unit

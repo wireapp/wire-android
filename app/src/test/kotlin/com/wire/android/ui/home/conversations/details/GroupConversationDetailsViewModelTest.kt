@@ -64,8 +64,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
@@ -86,7 +85,7 @@ class GroupConversationDetailsViewModelTest {
             }
         }
         val conversationParticipantsData = ConversationParticipantsData(
-            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            participants = members,
             allParticipantsCount = members.size
         )
 
@@ -109,7 +108,7 @@ class GroupConversationDetailsViewModelTest {
             }
         }
         val conversationParticipantsData = ConversationParticipantsData(
-            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            participants = members,
             allParticipantsCount = members.size
         )
 
@@ -137,7 +136,7 @@ class GroupConversationDetailsViewModelTest {
         }
         val archivingEventTimestamp = 123456789L
         val conversationParticipantsData = ConversationParticipantsData(
-            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            participants = members,
             allParticipantsCount = members.size
         )
         val conversationDetails = testGroup.copy(conversation = testGroup.conversation.copy(name = "Group name 1"))
@@ -185,7 +184,7 @@ class GroupConversationDetailsViewModelTest {
         }
         val archivingEventTimestamp = 123456789L
         val conversationParticipantsData = ConversationParticipantsData(
-            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            participants = members,
             allParticipantsCount = members.size
         )
 
@@ -233,7 +232,7 @@ class GroupConversationDetailsViewModelTest {
             }
         }
         val conversationParticipantsData = ConversationParticipantsData(
-            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            participants = members,
             allParticipantsCount = members.size,
             isSelfAnAdmin = true
         )
@@ -290,7 +289,7 @@ class GroupConversationDetailsViewModelTest {
             }
         }
         val conversationParticipantsData = ConversationParticipantsData(
-            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            participants = members,
             allParticipantsCount = members.size
         )
 
@@ -316,7 +315,7 @@ class GroupConversationDetailsViewModelTest {
             }
         }
         val conversationParticipantsData = ConversationParticipantsData(
-            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            participants = members,
             allParticipantsCount = members.size,
         )
 
@@ -362,7 +361,7 @@ class GroupConversationDetailsViewModelTest {
             }
         }
         val conversationParticipantsData = ConversationParticipantsData(
-            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            participants = members,
             allParticipantsCount = members.size
         )
 
@@ -506,7 +505,7 @@ class GroupConversationDetailsViewModelTest {
     ) = runTest {
         val members = buildList { for (i in 1..5) { add(testUIParticipant(i)) } }
         val conversationParticipantsData = ConversationParticipantsData(
-            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            participants = members,
             allParticipantsCount = members.size,
             isSelfAnAdmin = isSelfAnAdmin
         )
@@ -683,9 +682,10 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
 
-    private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
+    private val conversationDetailsFlow = MutableSharedFlow<ConversationDetails>(replay = Int.MAX_VALUE)
 
-    private val observeParticipantsForConversationChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
+    private val observeParticipantsForConversationFlow =
+        MutableSharedFlow<ConversationParticipantsData>(replay = Int.MAX_VALUE)
 
     @MockK
     private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
@@ -741,14 +741,14 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
-        coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
+        coEvery { observeConversationDetails(any()) } returns conversationDetailsFlow
             .map { ObserveConversationDetailsUseCase.Result.Success(it) }
-        conversationDetailsChannel.send(conversationDetails)
+        conversationDetailsFlow.emit(conversationDetails)
     }
 
     suspend fun withConversationMembersUpdate(conversationParticipantsData: ConversationParticipantsData) = apply {
-        coEvery { observeParticipantsForConversationUseCase(any()) } returns observeParticipantsForConversationChannel.consumeAsFlow()
-        observeParticipantsForConversationChannel.send(conversationParticipantsData)
+        coEvery { observeParticipantsForConversationUseCase(any()) } returns observeParticipantsForConversationFlow
+        observeParticipantsForConversationFlow.emit(conversationParticipantsData)
     }
 
     suspend fun withUpdateConversationAccessUseCaseReturns(result: UpdateConversationAccessRoleUseCase.Result) = apply {

@@ -30,19 +30,13 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 
 data class MessageComposition(
+    val conversationId: ConversationId,
     val messageTextFieldValue: TextFieldValue = TextFieldValue(""),
     val editMessageId: String? = null,
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
     val quotedMessageId: String? = null,
     val selectedMentions: List<UIMention> = emptyList(),
 ) {
-    companion object {
-        val DEFAULT = MessageComposition(
-            messageTextFieldValue = TextFieldValue(text = ""),
-            quotedMessage = null,
-            selectedMentions = emptyList()
-        )
-    }
 
     val messageText: String
         get() = messageTextFieldValue.text
@@ -152,6 +146,7 @@ fun MutableState<MessageComposition>.update(block: (MessageComposition) -> Messa
 
 fun MessageComposition.toDraft(): MessageDraft {
     return MessageDraft(
+        conversationId = conversationId,
         text = messageTextFieldValue.text,
         editMessageId = editMessageId,
         quotedMessageId = quotedMessageId,

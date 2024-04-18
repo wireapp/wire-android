@@ -58,6 +58,7 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
+import com.wire.android.util.CurrentConversationDetailsCache
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -260,10 +261,7 @@ fun EnabledMessageComposer(
                                     additionalOptionStateHolder.toRichTextEditing()
                                 },
                                 onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                                onDrawingModeClicked = {
-                                    inputStateHolder.collapseComposer()
-                                    additionalOptionStateHolder.toDrawingMode()
-                                }
+                                onDrawingModeClicked = additionalOptionStateHolder::toDrawingMode
                             )
                         }
                         Box(
@@ -302,7 +300,12 @@ fun EnabledMessageComposer(
                                 onDismissSketch = {
                                     inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
                                 },
-                                onSendSketch = onSendButtonClicked
+                                onSendSketch = {
+                                    onAttachmentPicked(UriAsset(it))
+                                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
+                                },
+                                conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
+                                tempWritableImageUri = tempWritableImageUri
                             )
                         }
                     }

@@ -65,6 +65,9 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTim
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -303,7 +306,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                         ImportMediaSnackbarMessages.MaxAssetSizeExceeded(importedAsset.assetSizeExceeded!!)
                     )
                 }
-                importMediaState = importMediaState.copy(importedAssets = mutableListOf(importedAsset))
+                importMediaState = importMediaState.copy(importedAssets = persistentListOf(importedAsset))
             }
         }
     }
@@ -314,7 +317,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             handleImportedAsset(fileUri)
         } ?: listOf()
 
-        importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
+        importMediaState = importMediaState.copy(importedAssets = importedMediaAssets.toPersistentList())
 
         importedMediaAssets.firstOrNull { it.assetSizeExceeded != null }?.let {
             onSnackbarMessage(ImportMediaSnackbarMessages.MaxAssetSizeExceeded(it.assetSizeExceeded!!))
@@ -430,8 +433,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                     assetBundle = assetBundle,
                     width = imgWidth,
                     height = imgHeight,
-                    assetSizeExceeded = assetSizeExceeded,
-                    wireSessionImageLoader = wireSessionImageLoader
+                    assetSizeExceeded = assetSizeExceeded
                 )
             }
 
@@ -458,7 +460,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 @Stable
 data class ImportMediaAuthenticatedState(
     val avatarAsset: ImageAsset.UserAvatarAsset? = null,
-    val importedAssets: List<ImportedMediaAsset> = emptyList(),
+    val importedAssets: PersistentList<ImportedMediaAsset> = persistentListOf(),
     val importedText: String? = null,
     val isImporting: Boolean = false,
     val shareableConversationListState: ShareableConversationListState = ShareableConversationListState(),

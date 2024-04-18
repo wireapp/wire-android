@@ -74,7 +74,7 @@ class WireSessionImageLoader(
      */
     @Composable
     fun paint(
-        asset: ImageAsset?,
+        asset: ImageAsset.Remote?,
         fallbackData: Any? = null,
         withCrossfadeAnimation: Boolean = false,
     ): Painter {
@@ -124,7 +124,6 @@ class WireSessionImageLoader(
         private val networkStateObserver: NetworkStateObserver,
     ) {
         private val defaultImageLoader = Coil.imageLoader(context)
-        private val resources = context.resources
 
         fun newImageLoader(): WireSessionImageLoader =
             WireSessionImageLoader(
@@ -135,7 +134,7 @@ class WireSessionImageLoader(
                                 getPublicAssetUseCase = getAvatarAsset,
                                 getPrivateAssetUseCase = getPrivateAsset,
                                 deleteAssetUseCase = deleteAsset,
-                                drawableResultWrapper = DrawableResultWrapper(resources),
+                                drawableResultWrapper = DrawableResultWrapper(),
                             )
                         )
                         if (SDK_INT >= 28) {

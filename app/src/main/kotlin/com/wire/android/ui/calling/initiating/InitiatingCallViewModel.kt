@@ -21,38 +21,34 @@ package com.wire.android.ui.calling.initiating
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.media.CallRinger
-import com.wire.android.ui.calling.CallingNavArgs
-import com.wire.android.ui.navArgs
-import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@HiltViewModel
-class InitiatingCallViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = InitiatingCallViewModel.Factory::class)
+class InitiatingCallViewModel @AssistedInject constructor(
+    @Assisted val conversationId: ConversationId,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val startCall: StartCallUseCase,
     private val endCall: EndCallUseCase,
     private val isLastCallClosed: IsLastCallClosedUseCase,
     private val callRinger: CallRinger
 ) : ViewModel() {
-
-    private val initiatingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = initiatingCallNavArgs.conversationId
 
     private val callStartTime: Long = Calendar.getInstance().timeInMillis
     private var wasCallHangUp: Boolean = false
@@ -108,7 +104,11 @@ class InitiatingCallViewModel @Inject constructor(
             conversationId = conversationId
         )
         when (result) {
-            StartCallUseCase.Result.Success -> callRinger.ring(resource = R.raw.ringing_from_me, isIncomingCall = false)
+            StartCallUseCase.Result.Success -> callRinger.ring(
+                resource = R.raw.ringing_from_me,
+                isIncomingCall = false
+            )
+
             StartCallUseCase.Result.SyncFailure -> {} // TODO: handle case where start call fails
         }
     }
@@ -119,5 +119,10 @@ class InitiatingCallViewModel @Inject constructor(
             stopRingerAndMarkCallAsHungUp()
             state = state.copy(flowState = InitiatingCallState.FlowState.CallClosed)
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: ConversationId): InitiatingCallViewModel
     }
 }

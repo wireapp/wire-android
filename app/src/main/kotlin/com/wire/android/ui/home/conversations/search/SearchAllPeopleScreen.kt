@@ -230,11 +230,10 @@ private fun LazyListScope.internalSuccessItem(
     onOpenUserProfile: (Contact) -> Unit
 ) {
     if (searchResult.isNotEmpty()) {
-        folderWithElements(header = searchTitle,
-            items = (if (allItemsVisible) searchResult else searchResult.take(
-                DEFAULT_SEARCH_RESULT_ITEM_SIZE
-            ))
-                .associateBy { it.id }) { contact ->
+        folderWithElements(
+            header = searchTitle,
+            items = (if (allItemsVisible) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)).associateBy { it.id }
+        ) { contact ->
             with(contact) {
                 val onClick = remember { { isChecked: Boolean -> onChecked(isChecked, this) } }
                 InternalContactSearchResultItem(

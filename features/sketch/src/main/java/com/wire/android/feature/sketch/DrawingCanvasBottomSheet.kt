@@ -104,7 +104,7 @@ fun DrawingCanvasBottomSheet(
         onDismissRequest = onDismissEvent,
         properties = ModalBottomSheetProperties(
             isFocusable = true,
-            securePolicy = SecureFlagPolicy.SecureOn,
+            securePolicy = SecureFlagPolicy.Inherit,
             shouldDismissOnBackPress = false
         )
     ) {
@@ -162,6 +162,7 @@ internal fun DrawingTopBar(
         Text(
             text = conversationTitle,
             style = MaterialTheme.wireTypography.title01,
+            color = colorsScheme().onBackground,
             modifier = Modifier.align(Alignment.CenterVertically),
             maxLines = MAX_LINES_TOPBAR,
             overflow = TextOverflow.Ellipsis

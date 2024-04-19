@@ -177,8 +177,14 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(user1, user2), this)
             runCurrent()
 
-            verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(incomingCalls, user2) }
+            verify(exactly = 1) {
+                arrangement.callNotificationManager.handleIncomingCallNotifications(
+                    incomingCalls,
+                    user2
+                )
+            }
         }
+
     @Test
     fun givenOutgoingCall_whenCurrentUserIsDifferentFromCallReceiver_thenCallNotificationIsShown() =
         runTestWithCancellation(dispatcherProvider.main()) {
@@ -906,13 +912,14 @@ class WireNotificationManagerTest {
             coEvery { globalKaliumScope.doesValidSessionExist.invoke(any()) } returns DoesValidSessionExistResult.Success(true)
         }
 
+        @Suppress("LongParameterList")
         private fun mockSpecificUserSession(
             incomingCalls: List<Call> = emptyList(),
             establishedCalls: List<Call> = emptyList(),
             outgoingCalls: List<Call> = emptyList(),
             notifications: List<LocalNotification> = emptyList(),
             selfUser: SelfUser = TestUser.SELF_USER,
-            userId: MockKMatcherScope.() -> UserId,
+            userId: MockKMatcherScope.() -> UserId
         ) {
             coEvery { coreLogic.getSessionScope(userId()) } returns mockk {
                 coEvery { syncManager } returns this@Arrangement.syncManager
@@ -964,6 +971,7 @@ class WireNotificationManagerTest {
             return this
         }
 
+        @Suppress("LongParameterList")
         fun withSpecificUserSession(
             userId: UserId,
             incomingCalls: List<Call> = emptyList(),

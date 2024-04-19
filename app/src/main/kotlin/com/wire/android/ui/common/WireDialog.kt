@@ -41,7 +41,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalUriHandler
@@ -51,7 +50,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.wire.android.ui.common.button.WireButtonState
@@ -60,11 +58,11 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Stable
 fun wireDialogPropertiesBuilder(
@@ -81,6 +79,7 @@ fun wireDialogPropertiesBuilder(
 fun WireDialog(
     title: String,
     text: String,
+    textSuffixLink: DialogTextSuffixLink? = null,
     onDismiss: () -> Unit,
     optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
@@ -116,6 +115,7 @@ fun WireDialog(
             )
             withStyle(style) { append(text) }
         },
+        textSuffixLink = textSuffixLink,
         centerContent = centerContent,
         content = content
     )
@@ -125,6 +125,7 @@ fun WireDialog(
 fun WireDialog(
     title: String,
     text: AnnotatedString? = null,
+    textSuffixLink: DialogTextSuffixLink? = null,
     onDismiss: () -> Unit,
     optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
@@ -153,6 +154,7 @@ fun WireDialog(
             title = title,
             titleLoading = titleLoading,
             text = text,
+            textSuffixLink = textSuffixLink,
             centerContent = centerContent,
             content = content
         )
@@ -164,6 +166,7 @@ private fun WireDialogContent(
     title: String,
     titleLoading: Boolean = false,
     text: AnnotatedString? = null,
+    textSuffixLink: DialogTextSuffixLink? = null,
     optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
@@ -203,17 +206,11 @@ private fun WireDialogContent(
             ) {
                 text?.let {
                     item {
-                        ClickableText(
+                        TextWithLinkSuffix(
                             text = text,
-                            style = MaterialTheme.wireTypography.body01,
-                            modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
-                            onClick = { offset ->
-                                text.getStringAnnotations(
-                                    tag = MarkdownConstants.TAG_URL,
-                                    start = offset,
-                                    end = offset,
-                                ).firstOrNull()?.let { result -> uriHandler.openUri(result.item) }
-                            }
+                            linkText = textSuffixLink?.linkText,
+                            onLinkClick = { textSuffixLink?.linkUrl?.let { uriHandler.openUri(it) } },
+                            modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
                         )
                     }
                 }
@@ -299,8 +296,7 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
 fun PreviewWireDialog() {
     var password by remember { mutableStateOf(TextFieldValue("")) }
@@ -342,8 +338,29 @@ fun PreviewWireDialog() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Preview(showBackground = true)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireDialogWithSuffixLink() {
+    WireTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireDialogContent(
+                dismissButtonProperties = WireDialogButtonProperties(
+                    text = "OK",
+                    onClick = { }
+                ),
+                title = "title",
+                text = AnnotatedString("This is a long text with a link on a second line.\nThis is a second line."),
+                textSuffixLink = DialogTextSuffixLink("link", "https://www.wire.com"),
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
 @Composable
 fun PreviewWireDialogWith2OptionButtons() {
     var password by remember { mutableStateOf(TextFieldValue("")) }
@@ -392,8 +409,7 @@ fun PreviewWireDialogWith2OptionButtons() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
 fun PreviewWireDialogCentered() {
     var password by remember { mutableStateOf(TextFieldValue("")) }
@@ -445,3 +461,5 @@ data class WireDialogButtonProperties(
     val type: WireDialogButtonType = WireDialogButtonType.Secondary,
     val loading: Boolean = false
 )
+
+data class DialogTextSuffixLink(val linkText: String, val linkUrl: String)

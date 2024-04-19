@@ -338,7 +338,6 @@ fun PreviewWireDialog() {
     }
 }
 
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewWireDialogWithSuffixLink() {

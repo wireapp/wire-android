@@ -45,7 +45,7 @@ androidx-biometric = "1.1.0"
 androidx-startup = "1.1.1"
 
 # Compose
-composeBom = "2024.04.01" # TODO check if in new version [anchoredDraggable] is available
+composeBom = "2024.04.01"
 compose-activity = "1.8.2"
 compose-compiler = "1.5.11"
 compose-constraint = "1.0.1"

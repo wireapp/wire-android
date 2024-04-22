@@ -57,14 +57,27 @@ import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/home/conversations/sendmessage/SendMessageViewModel.kt
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
+=======
+import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+>>>>>>> adc820486 (fix: secure switching to invalid account and disable composer [WPB-7369] (#2906)):app/src/main/kotlin/com/wire/android/ui/home/conversations/MessageComposerViewModel.kt
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.isRight
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
@@ -90,8 +103,47 @@ class SendMessageViewModel @Inject constructor(
     private val setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase,
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
     private val sendLocation: SendLocationUseCase,
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/home/conversations/sendmessage/SendMessageViewModel.kt
     private val removeMessageDraft: RemoveMessageDraftUseCase,
 ) : ViewModel() {
+=======
+    private val currentSessionFlowUseCase: CurrentSessionFlowUseCase,
+) : SavedStateViewModel(savedStateHandle) {
+
+    var messageComposerViewState = mutableStateOf(MessageComposerViewState())
+        private set
+
+    var tempWritableVideoUri: Uri? = null
+        private set
+
+    var tempWritableImageUri: Uri? = null
+        private set
+
+    // TODO: should be moved to ConversationMessagesViewModel?
+    var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
+        DeleteMessageDialogsState.States(
+            forYourself = DeleteMessageDialogActiveState.Hidden,
+            forEveryone = DeleteMessageDialogActiveState.Hidden
+        )
+    )
+        private set
+
+    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = conversationNavArgs.conversationId
+
+    val deleteMessageHelper = DeleteMessageDialogHelper(
+        viewModelScope,
+        conversationId,
+        ::updateDeleteDialogState
+    ) { messageId, deleteForEveryone, _ ->
+        deleteMessage(
+            conversationId = conversationId,
+            messageId = messageId,
+            deleteForEveryone = deleteForEveryone
+        )
+            .onFailure { onSnackbarMessage(ErrorDeletingMessage) }
+    }
+>>>>>>> adc820486 (fix: secure switching to invalid account and disable composer [WPB-7369] (#2906)):app/src/main/kotlin/com/wire/android/ui/home/conversations/MessageComposerViewModel.kt
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -115,7 +167,42 @@ class SendMessageViewModel @Inject constructor(
         _infoMessage.emit(type)
     }
 
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/home/conversations/sendmessage/SendMessageViewModel.kt
     private suspend fun shouldInformAboutDegradedBeforeSendingMessage(conversationId: ConversationId): Boolean =
+=======
+    private fun observeIsTypingAvailable() = viewModelScope.launch {
+        currentSessionFlowUseCase()
+            .flatMapLatest {
+                when (it) {
+                    is CurrentSessionResult.Success -> {
+                        observeConversationInteractionAvailability(conversationId)
+                            .mapLatest { result ->
+                                when (result) {
+                                    is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
+                                    is IsInteractionAvailableResult.Success -> result.interactionAvailability
+                                }
+                            }
+                    }
+                    else -> flowOf(InteractionAvailability.DISABLED)
+                }
+            }
+            .collectLatest {
+                messageComposerViewState.value = messageComposerViewState.value.copy(interactionAvailability = it)
+            }
+    }
+
+    private fun observeSelfDeletingMessagesStatus() = viewModelScope.launch {
+        observeSelfDeletingMessages(
+            conversationId,
+            considerSelfUserSettings = true
+        ).collect { selfDeletingStatus ->
+            messageComposerViewState.value =
+                messageComposerViewState.value.copy(selfDeletionTimer = selfDeletingStatus)
+        }
+    }
+
+    private suspend fun shouldInformAboutDegradedBeforeSendingMessage(): Boolean =
+>>>>>>> adc820486 (fix: secure switching to invalid account and disable composer [WPB-7369] (#2906)):app/src/main/kotlin/com/wire/android/ui/home/conversations/MessageComposerViewModel.kt
         observeDegradedConversationNotified(conversationId).first().let { !it }
 
     private suspend fun shouldInformAboutUnderLegalHoldBeforeSendingMessage(conversationId: ConversationId) =

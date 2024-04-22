@@ -24,6 +24,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestConversation
+import com.wire.android.framework.TestUser
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -38,6 +39,7 @@ import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.configuration.FileSharingStatus
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
@@ -61,6 +63,8 @@ import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
@@ -68,6 +72,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import okio.Path
@@ -90,6 +95,14 @@ internal class MessageComposerViewModelArrangement {
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
         coEvery { fileManager.getTempWritableVideoUri(any(), any()) } returns Uri.parse("video.mp4")
         coEvery { fileManager.getTempWritableImageUri(any(), any()) } returns Uri.parse("image.jpg")
+<<<<<<< HEAD:app/src/test/kotlin/com/wire/android/ui/home/conversations/composer/MessageComposerViewModelArrangement.kt
+=======
+        coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
+        coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
+        coEvery { setNotifiedAboutConversationUnderLegalHold(any()) } returns Unit
+        coEvery { observeConversationUnderLegalHoldNotified(any()) } returns flowOf(true)
+        coEvery { currentSessionFlowUseCase() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+>>>>>>> adc820486 (fix: secure switching to invalid account and disable composer [WPB-7369] (#2906)):app/src/test/kotlin/com/wire/android/ui/home/conversations/MessageComposerViewModelArrangement.kt
     }
 
     @MockK
@@ -137,6 +150,9 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var fileManager: FileManager
 
+    @MockK
+    lateinit var currentSessionFlowUseCase: CurrentSessionFlowUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -152,9 +168,18 @@ internal class MessageComposerViewModelArrangement {
             observeSelfDeletingMessages = observeConversationSelfDeletionStatus,
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
             sendTypingEvent = sendTypingEvent,
+<<<<<<< HEAD:app/src/test/kotlin/com/wire/android/ui/home/conversations/composer/MessageComposerViewModelArrangement.kt
             saveMessageDraft = saveMessageDraftUseCase,
             kaliumFileSystem = fakeKaliumFileSystem,
             fileManager = fileManager
+=======
+            setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
+            observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
+            setNotifiedAboutConversationUnderLegalHold = setNotifiedAboutConversationUnderLegalHold,
+            observeConversationUnderLegalHoldNotified = observeConversationUnderLegalHoldNotified,
+            sendLocation = sendLocation,
+            currentSessionFlowUseCase = currentSessionFlowUseCase,
+>>>>>>> adc820486 (fix: secure switching to invalid account and disable composer [WPB-7369] (#2906)):app/src/test/kotlin/com/wire/android/ui/home/conversations/MessageComposerViewModelArrangement.kt
         )
     }
 
@@ -186,6 +211,10 @@ internal class MessageComposerViewModelArrangement {
 
     fun withSaveDraftMessage() = apply {
         coEvery { saveMessageDraftUseCase(any()) } returns Unit
+    }
+
+    fun withCurrentSessionFlowResult(resultFlow: Flow<CurrentSessionResult>) = apply {
+        coEvery { currentSessionFlowUseCase() } returns resultFlow
     }
 
     fun arrange() = this to viewModel

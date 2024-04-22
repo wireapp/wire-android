@@ -252,8 +252,6 @@ class MessageNotificationManager
 
                 setWhen(conversation.lastMessageTime)
 
-                setLargeIcon(conversation.image?.toBitmap())
-
                 setStyle(updatedMessageStyle)
             }.build()
     }
@@ -408,10 +406,6 @@ class MessageNotificationManager
                 } else {
                     author?.name.also {
                         setName(it)
-                    }
-
-                    author?.image?.toBitmap()?.let {
-                        setIcon(IconCompat.createWithAdaptiveBitmap(it))
                     }
                 }
             }

@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -179,7 +180,7 @@ private const val GRID_CELLS = 6
 private fun Color.isWhite() = this == Color.White
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview(showSystemUi = true, device = Devices.NEXUS_5)
 @Composable
 fun PreviewDrawingToolPickerSelectedNonWhite() {
     WireTheme {

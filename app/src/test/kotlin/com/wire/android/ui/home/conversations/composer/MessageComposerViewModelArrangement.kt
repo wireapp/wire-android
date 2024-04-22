@@ -95,7 +95,9 @@ internal class MessageComposerViewModelArrangement {
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
         coEvery { fileManager.getTempWritableVideoUri(any(), any()) } returns Uri.parse("video.mp4")
         coEvery { fileManager.getTempWritableImageUri(any(), any()) } returns Uri.parse("image.jpg")
-        coEvery { currentSessionFlowUseCase() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+        coEvery {
+            currentSessionFlowUseCase()
+        } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
     }
 
     @MockK

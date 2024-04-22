@@ -20,20 +20,20 @@ package com.wire.android.ui
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.ui.calling.CallActivityViewModel
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import io.mockk.coEvery
-import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
-import org.junit.jupiter.api.Test
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Test
 
 class CallActivityViewModelTest {
 
@@ -62,7 +62,6 @@ class CallActivityViewModelTest {
             assertEquals(true, result.await())
         }
 
-
     @Test
     fun `given screenshot censoring disabled, when checking screenshot censoring config, then return false`() =
         runTest {
@@ -76,11 +75,11 @@ class CallActivityViewModelTest {
             assertEquals(false, result.await())
         }
 
-
     private class Arrangement {
 
         @MockK
-        private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory
+        private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory:
+                ObserveScreenshotCensoringConfigUseCaseProvider.Factory
 
         @MockK
         private lateinit var currentSession: CurrentSessionUseCase
@@ -109,12 +108,13 @@ class CallActivityViewModelTest {
             coEvery { currentSession() } returns result
         }
 
-        suspend fun withScreenshotCensoringConfigReturning(result: ObserveScreenshotCensoringConfigResult) = apply {
-            coEvery { observeScreenshotCensoringConfig() } returns flowOf(result)
-        }
+        suspend fun withScreenshotCensoringConfigReturning(result: ObserveScreenshotCensoringConfigResult) =
+            apply {
+                coEvery { observeScreenshotCensoringConfig() } returns flowOf(result)
+            }
     }
 
     companion object {
-        val accountInfo  = AccountInfo.Valid(userId = UserId("userId", "domain"))
+        val accountInfo = AccountInfo.Valid(userId = UserId("userId", "domain"))
     }
 }

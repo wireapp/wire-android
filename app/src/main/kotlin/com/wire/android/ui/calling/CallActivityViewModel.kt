@@ -35,7 +35,8 @@ import javax.inject.Inject
 class CallActivityViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val currentSession: CurrentSessionUseCase,
-    private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory
+    private val observeScreenshotCensoringConfigUseCaseProviderFactory:
+    ObserveScreenshotCensoringConfigUseCaseProvider.Factory
 ) : ViewModel() {
 
     fun isScreenshotCensoringConfigEnabled(): Deferred<Boolean> =

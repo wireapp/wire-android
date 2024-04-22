@@ -34,9 +34,12 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
@@ -818,4 +821,16 @@ class MessageComposerViewModelTest {
             coVerify(exactly = 1) { arrangement.sendLocation.invoke(any(), any(), any(), any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
         }
+
+    @Test
+    fun `given no current session, then disable interaction`() = runTest {
+        // given
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withCurrentSessionFlowResult(flowOf(CurrentSessionResult.Failure.SessionNotFound))
+            .arrange()
+        advanceUntilIdle()
+        // then
+        assertEquals(InteractionAvailability.DISABLED, viewModel.messageComposerViewState.value.interactionAvailability)
+    }
 }

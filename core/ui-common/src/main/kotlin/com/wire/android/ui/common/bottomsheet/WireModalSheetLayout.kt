@@ -21,12 +21,7 @@ package com.wire.android.ui.common.bottomsheet
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
-import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
@@ -88,7 +83,6 @@ fun MenuModalSheetLayout(
     )
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MenuModalSheetContent(
     header: MenuModalSheetHeader = MenuModalSheetHeader.Gone,
@@ -97,10 +91,5 @@ fun MenuModalSheetContent(
     Column {
         ModalSheetHeaderItem(header = header)
         buildMenuSheetItems(items = menuItems)
-        Spacer(
-            Modifier.windowInsetsBottomHeight(
-                WindowInsets.navigationBarsIgnoringVisibility
-            )
-        )
     }
 }

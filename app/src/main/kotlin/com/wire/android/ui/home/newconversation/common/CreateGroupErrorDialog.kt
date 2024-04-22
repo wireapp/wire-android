@@ -19,18 +19,13 @@ package com.wire.android.ui.home.newconversation.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import com.wire.android.R
+import com.wire.android.ui.common.DialogTextSuffixLink
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.DialogAnnotatedErrorStrings
+import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -40,51 +35,34 @@ fun CreateGroupErrorDialog(
     onAccept: () -> Unit,
     onCancel: () -> Unit
 ) {
-    val dialogStrings = when (error) {
-        is CreateGroupState.Error.LackingConnection -> DialogAnnotatedErrorStrings(
-            stringResource(R.string.error_no_network_title),
-            buildAnnotatedString { append(stringResource(R.string.error_no_network_message)) }
-        )
+    val (dialogStrings, dialogSuffixLink) = when (error) {
+        is CreateGroupState.Error.LackingConnection -> DialogErrorStrings(
+            title = stringResource(R.string.error_no_network_title),
+            message = stringResource(R.string.error_no_network_message),
+        ) to null
 
-        is CreateGroupState.Error.Unknown -> DialogAnnotatedErrorStrings(
-            stringResource(R.string.error_unknown_title),
-            buildAnnotatedString { append(stringResource(R.string.error_unknown_message)) }
-        )
+        is CreateGroupState.Error.Unknown -> DialogErrorStrings(
+            title = stringResource(R.string.error_unknown_title),
+            message = stringResource(R.string.error_unknown_message),
+        ) to null
 
-        is CreateGroupState.Error.ConflictedBackends -> DialogAnnotatedErrorStrings(
+        is CreateGroupState.Error.ConflictedBackends -> DialogErrorStrings(
             title = stringResource(id = R.string.group_can_not_be_created_title),
-            annotatedMessage = buildAnnotatedString {
-                val description = stringResource(
+            message = stringResource(
                     id = R.string.group_can_not_be_created_federation_conflict_description,
                     error.domains.dropLast(1).joinToString(", "),
                     error.domains.last()
-                )
-                val learnMore = stringResource(id = R.string.label_learn_more)
-
-                append(description)
-                append(' ')
-
-                withStyle(
-                    style = SpanStyle(
-                        color = colorsScheme().primary,
-                        textDecoration = TextDecoration.Underline
-                    )
-                ) {
-                    append(learnMore)
-                }
-                addStringAnnotation(
-                    tag = MarkdownConstants.TAG_URL,
-                    annotation = stringResource(id = R.string.url_message_details_offline_backends_learn_more),
-                    start = description.length + 1,
-                    end = description.length + 1 + learnMore.length
-                )
-            }
+                ),
+        ) to DialogTextSuffixLink(
+            linkText = stringResource(id = R.string.label_learn_more),
+            linkUrl = stringResource(id = R.string.url_message_details_offline_backends_learn_more)
         )
     }
 
     WireDialog(
-        dialogStrings.title,
-        dialogStrings.annotatedMessage,
+        title = dialogStrings.title,
+        text = dialogStrings.annotatedMessage,
+        textSuffixLink = dialogSuffixLink,
         onDismiss = onDismiss,
         buttonsHorizontalAlignment = false,
         optionButton1Properties = WireDialogButtonProperties(

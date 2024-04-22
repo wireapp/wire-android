@@ -53,9 +53,15 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+<<<<<<< HEAD:core/ui-common/src/main/kotlin/com/wire/android/ui/common/WireDialog.kt
+=======
+import com.wire.android.ui.common.textfield.WirePasswordTextField
+import com.wire.android.ui.theme.WireTheme
+>>>>>>> e58ffb842 (refactor: make learn more links clickable for automation [WPB-5888] (#2915)):app/src/main/kotlin/com/wire/android/ui/common/WireDialog.kt
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Stable
 fun wireDialogPropertiesBuilder(
@@ -72,6 +78,7 @@ fun wireDialogPropertiesBuilder(
 fun WireDialog(
     title: String,
     text: String,
+    textSuffixLink: DialogTextSuffixLink? = null,
     onDismiss: () -> Unit,
     optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
@@ -107,6 +114,7 @@ fun WireDialog(
             )
             withStyle(style) { append(text) }
         },
+        textSuffixLink = textSuffixLink,
         centerContent = centerContent,
         content = content
     )
@@ -116,6 +124,7 @@ fun WireDialog(
 fun WireDialog(
     title: String,
     text: AnnotatedString? = null,
+    textSuffixLink: DialogTextSuffixLink? = null,
     onDismiss: () -> Unit,
     optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
@@ -144,6 +153,7 @@ fun WireDialog(
             title = title,
             titleLoading = titleLoading,
             text = text,
+            textSuffixLink = textSuffixLink,
             centerContent = centerContent,
             content = content
         )
@@ -155,6 +165,7 @@ fun WireDialogContent(
     title: String,
     titleLoading: Boolean = false,
     text: AnnotatedString? = null,
+    textSuffixLink: DialogTextSuffixLink? = null,
     optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
@@ -194,8 +205,9 @@ fun WireDialogContent(
             ) {
                 text?.let {
                     item {
-                        ClickableText(
+                        TextWithLinkSuffix(
                             text = text,
+<<<<<<< HEAD:core/ui-common/src/main/kotlin/com/wire/android/ui/common/WireDialog.kt
                             style = MaterialTheme.wireTypography.body01,
                             modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
                             onClick = { offset ->
@@ -205,6 +217,11 @@ fun WireDialogContent(
                                     end = offset,
                                 ).firstOrNull()?.let { result -> uriHandler.openUri(result.item) }
                             }
+=======
+                            linkText = textSuffixLink?.linkText,
+                            onLinkClick = { textSuffixLink?.linkUrl?.let { uriHandler.openUri(it) } },
+                            modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
+>>>>>>> e58ffb842 (refactor: make learn more links clickable for automation [WPB-5888] (#2915)):app/src/main/kotlin/com/wire/android/ui/common/WireDialog.kt
                         )
                     }
                 }
@@ -290,6 +307,164 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
     }
 }
 
+<<<<<<< HEAD:core/ui-common/src/main/kotlin/com/wire/android/ui/common/WireDialog.kt
+=======
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireDialog() {
+    var password by remember { mutableStateOf(TextFieldValue("")) }
+    WireTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireDialogContent(
+                optionButton1Properties = WireDialogButtonProperties(
+                    text = "OK",
+                    onClick = { },
+                    type = WireDialogButtonType.Primary,
+                    state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
+                ),
+                dismissButtonProperties = WireDialogButtonProperties(
+                    text = "Cancel",
+                    onClick = { }
+                ),
+                title = "title",
+                text = buildAnnotatedString {
+                    val style = SpanStyle(
+                        color = colorsScheme().onBackground,
+                        fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                        fontSize = MaterialTheme.wireTypography.body01.fontSize,
+                        fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
+                        fontStyle = MaterialTheme.wireTypography.body01.fontStyle
+                    )
+                    withStyle(style) { append("text\nsecond line\nthirdLine\nfourth line\nfifth line\nsixth line\nseventh line") }
+                },
+            ) {
+                WirePasswordTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    autofill = false
+                )
+            }
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireDialogWithSuffixLink() {
+    WireTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireDialogContent(
+                dismissButtonProperties = WireDialogButtonProperties(
+                    text = "OK",
+                    onClick = { }
+                ),
+                title = "title",
+                text = AnnotatedString("This is a long text with a link on a second line.\nThis is a second line."),
+                textSuffixLink = DialogTextSuffixLink("link", "https://www.wire.com"),
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireDialogWith2OptionButtons() {
+    var password by remember { mutableStateOf(TextFieldValue("")) }
+    WireTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireDialogContent(
+                optionButton1Properties = WireDialogButtonProperties(
+                    text = "OK",
+                    onClick = { },
+                    type = WireDialogButtonType.Primary,
+                    state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
+                ),
+                optionButton2Properties = WireDialogButtonProperties(
+                    text = "Later",
+                    onClick = { },
+                    type = WireDialogButtonType.Primary,
+                    state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
+                ),
+                dismissButtonProperties = WireDialogButtonProperties(
+                    text = "Cancel",
+                    onClick = { }
+                ),
+                title = "title",
+                text = buildAnnotatedString {
+                    val style = SpanStyle(
+                        color = colorsScheme().onBackground,
+                        fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                        fontSize = MaterialTheme.wireTypography.body01.fontSize,
+                        fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
+                        fontStyle = MaterialTheme.wireTypography.body01.fontStyle
+                    )
+                    withStyle(style) { append("text") }
+                },
+                buttonsHorizontalAlignment = false
+            ) {
+                WirePasswordTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    autofill = true
+                )
+            }
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireDialogCentered() {
+    var password by remember { mutableStateOf(TextFieldValue("")) }
+    WireTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireDialogContent(
+                optionButton1Properties = WireDialogButtonProperties(
+                    text = "OK",
+                    onClick = { },
+                    type = WireDialogButtonType.Primary,
+                    state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
+                ),
+                dismissButtonProperties = WireDialogButtonProperties(
+                    text = "Cancel",
+                    onClick = { }
+                ),
+                centerContent = true,
+                title = "title",
+                text = buildAnnotatedString {
+                    val style = SpanStyle(
+                        color = colorsScheme().onBackground,
+                        fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                        fontSize = MaterialTheme.wireTypography.body01.fontSize,
+                        fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
+                        fontStyle = MaterialTheme.wireTypography.body01.fontStyle
+                    )
+                    withStyle(style) { append("text\nsecond line\nthirdLine\nfourth line\nfifth line\nsixth line\nseventh line") }
+                },
+            ) {
+                WirePasswordTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    autofill = false
+                )
+            }
+        }
+    }
+}
+
+>>>>>>> e58ffb842 (refactor: make learn more links clickable for automation [WPB-5888] (#2915)):app/src/main/kotlin/com/wire/android/ui/common/WireDialog.kt
 enum class WireDialogButtonType { Primary, Secondary, Tertiary }
 
 data class WireDialogButtonProperties(
@@ -300,5 +475,9 @@ data class WireDialogButtonProperties(
     val loading: Boolean = false
 )
 
+<<<<<<< HEAD:core/ui-common/src/main/kotlin/com/wire/android/ui/common/WireDialog.kt
 // todo, replace when markdown is moved to commons
 private const val TAG_URL = "linkTag"
+=======
+data class DialogTextSuffixLink(val linkText: String, val linkUrl: String)
+>>>>>>> e58ffb842 (refactor: make learn more links clickable for automation [WPB-5888] (#2915)):app/src/main/kotlin/com/wire/android/ui/common/WireDialog.kt

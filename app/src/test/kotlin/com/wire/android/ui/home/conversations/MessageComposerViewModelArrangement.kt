@@ -24,6 +24,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestConversation
+import com.wire.android.framework.TestUser
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.model.UserAvatarData
@@ -41,6 +42,7 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.FileSharingStatus
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
@@ -77,6 +79,8 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -85,6 +89,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import okio.Path
@@ -113,6 +118,7 @@ internal class MessageComposerViewModelArrangement {
         coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
         coEvery { setNotifiedAboutConversationUnderLegalHold(any()) } returns Unit
         coEvery { observeConversationUnderLegalHoldNotified(any()) } returns flowOf(true)
+        coEvery { currentSessionFlowUseCase() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
     }
 
     @MockK
@@ -202,6 +208,9 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var sendLocation: SendLocationUseCase
 
+    @MockK
+    lateinit var currentSessionFlowUseCase: CurrentSessionFlowUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -232,7 +241,8 @@ internal class MessageComposerViewModelArrangement {
             observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
             setNotifiedAboutConversationUnderLegalHold = setNotifiedAboutConversationUnderLegalHold,
             observeConversationUnderLegalHoldNotified = observeConversationUnderLegalHoldNotified,
-            sendLocation = sendLocation
+            sendLocation = sendLocation,
+            currentSessionFlowUseCase = currentSessionFlowUseCase,
         )
     }
 
@@ -361,6 +371,10 @@ internal class MessageComposerViewModelArrangement {
 
     fun withSuccessfulRetryFailedMessage() = apply {
         coEvery { retryFailedMessageUseCase(any(), any()) } returns Either.Right(Unit)
+    }
+
+    fun withCurrentSessionFlowResult(resultFlow: Flow<CurrentSessionResult>) = apply {
+        coEvery { currentSessionFlowUseCase() } returns resultFlow
     }
 
     fun arrange() = this to viewModel

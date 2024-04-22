@@ -95,12 +95,18 @@ class CallNotificationManagerTest {
             verify(exactly = 1) { arrangement.notificationManager.notify(any(), notification) }
             verify(exactly = 0) { arrangement.notificationManager.cancel(any()) }
         }
+
     @Test
     fun `given an outgoing call for one user, when handling notifications,, then show notification for that call`() =
         runTest(dispatcherProvider.main()) {
             val notification = mockk<Notification>()
             val (arrangement, callNotificationManager) = Arrangement()
-                .withOutgoingNotificationForUserAndCall(notification, TEST_USER_ID1, TEST_CALL1.conversationId, TEST_CALL1.conversationName!!)
+                .withOutgoingNotificationForUserAndCall(
+                    notification,
+                    TEST_USER_ID1,
+                    TEST_CALL1.conversationId,
+                    TEST_CALL1.conversationName!!
+                )
                 .arrange()
 
             arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call

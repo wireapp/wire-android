@@ -30,13 +30,11 @@ import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
-import androidx.core.graphics.drawable.IconCompat
 import androidx.core.text.toSpannable
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.notification.NotificationConstants.getConversationNotificationId
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
-import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotification

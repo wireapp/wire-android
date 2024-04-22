@@ -173,7 +173,6 @@ class CallNotificationBuilder @Inject constructor(
         conversationName: String
     ): Notification {
         val conversationIdString = conversationId.toString()
-        val userIdString = userId.toString()
         val channelId = NotificationConstants.getOutgoingChannelId(userId)
 
         return NotificationCompat.Builder(context, channelId)

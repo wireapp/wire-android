@@ -95,14 +95,7 @@ internal class MessageComposerViewModelArrangement {
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
         coEvery { fileManager.getTempWritableVideoUri(any(), any()) } returns Uri.parse("video.mp4")
         coEvery { fileManager.getTempWritableImageUri(any(), any()) } returns Uri.parse("image.jpg")
-<<<<<<< HEAD:app/src/test/kotlin/com/wire/android/ui/home/conversations/composer/MessageComposerViewModelArrangement.kt
-=======
-        coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
-        coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
-        coEvery { setNotifiedAboutConversationUnderLegalHold(any()) } returns Unit
-        coEvery { observeConversationUnderLegalHoldNotified(any()) } returns flowOf(true)
         coEvery { currentSessionFlowUseCase() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
->>>>>>> adc820486 (fix: secure switching to invalid account and disable composer [WPB-7369] (#2906)):app/src/test/kotlin/com/wire/android/ui/home/conversations/MessageComposerViewModelArrangement.kt
     }
 
     @MockK
@@ -168,18 +161,10 @@ internal class MessageComposerViewModelArrangement {
             observeSelfDeletingMessages = observeConversationSelfDeletionStatus,
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
             sendTypingEvent = sendTypingEvent,
-<<<<<<< HEAD:app/src/test/kotlin/com/wire/android/ui/home/conversations/composer/MessageComposerViewModelArrangement.kt
             saveMessageDraft = saveMessageDraftUseCase,
             kaliumFileSystem = fakeKaliumFileSystem,
-            fileManager = fileManager
-=======
-            setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
-            observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
-            setNotifiedAboutConversationUnderLegalHold = setNotifiedAboutConversationUnderLegalHold,
-            observeConversationUnderLegalHoldNotified = observeConversationUnderLegalHoldNotified,
-            sendLocation = sendLocation,
+            fileManager = fileManager,
             currentSessionFlowUseCase = currentSessionFlowUseCase,
->>>>>>> adc820486 (fix: secure switching to invalid account and disable composer [WPB-7369] (#2906)):app/src/test/kotlin/com/wire/android/ui/home/conversations/MessageComposerViewModelArrangement.kt
         )
     }
 

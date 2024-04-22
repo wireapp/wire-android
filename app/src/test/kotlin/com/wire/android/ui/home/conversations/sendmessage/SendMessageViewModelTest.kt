@@ -35,16 +35,9 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
-<<<<<<< HEAD:app/src/test/kotlin/com/wire/android/ui/home/conversations/sendmessage/SendMessageViewModelTest.kt
-=======
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
->>>>>>> adc820486 (fix: secure switching to invalid account and disable composer [WPB-7369] (#2906)):app/src/test/kotlin/com/wire/android/ui/home/conversations/MessageComposerViewModelTest.kt
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
@@ -571,20 +564,7 @@ class SendMessageViewModelTest {
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
         }
 
-<<<<<<< HEAD:app/src/test/kotlin/com/wire/android/ui/home/conversations/sendmessage/SendMessageViewModelTest.kt
     companion object {
         val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-=======
-    @Test
-    fun `given no current session, then disable interaction`() = runTest {
-        // given
-        val (_, viewModel) = MessageComposerViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withCurrentSessionFlowResult(flowOf(CurrentSessionResult.Failure.SessionNotFound))
-            .arrange()
-        advanceUntilIdle()
-        // then
-        assertEquals(InteractionAvailability.DISABLED, viewModel.messageComposerViewState.value.interactionAvailability)
->>>>>>> adc820486 (fix: secure switching to invalid account and disable composer [WPB-7369] (#2906)):app/src/test/kotlin/com/wire/android/ui/home/conversations/MessageComposerViewModelTest.kt
     }
 }

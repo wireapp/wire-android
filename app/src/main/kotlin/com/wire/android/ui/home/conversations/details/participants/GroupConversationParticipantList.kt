@@ -65,7 +65,7 @@ fun LazyListScope.folderWithElements(
 
 fun LazyListScope.folderWithElements(
     header: String,
-    items: Map<String,UIParticipant>,
+    items: Map<String, UIParticipant>,
     onRowItemClicked: (UIParticipant) -> Unit,
     showRightArrow: Boolean = true
 ) = folderWithElements(

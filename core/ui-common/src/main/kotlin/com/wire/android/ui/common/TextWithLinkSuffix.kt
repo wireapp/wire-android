@@ -54,15 +54,14 @@ fun TextWithLinkSuffix(
 ) {
     val textMeasurer = rememberTextMeasurer()
     val linkId = "link"
-    val inlineText = if (linkText != null) {
+    val inlineText = linkText?.let {
         text.plus(
             buildAnnotatedString {
                 append(" ")
                 appendInlineContent(linkId, "[link]")
             }
         )
-    }
-    else text
+    } ?: text
     val inlineContent = buildMap {
         if (linkText != null) {
             val textLayoutResult: TextLayoutResult = textMeasurer.measure(

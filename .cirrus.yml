@@ -1,0 +1,13 @@
+static-code-analysis:
+    only_if: $CIRRUS_BRANCH == "main" || $CIRRUS_BRANCH == "develop" || $CIRRUS_BRANCH == "release/candidate" || CIRRUS_PR != ""
+    gradle_cache:
+        folder: ~/.gradle/caches
+    check_script: gradle detektAll
+    container:
+        image: gradle:jdk17
+    cleanup_before_cache_script:
+        - rm -rf ~/.gradle/caches/$GRADLE_VERSION/
+        - rm -rf ~/.gradle/caches/transforms-1
+        - rm -rf ~/.gradle/caches/journal-1
+        - rm -rf ~/.gradle/caches/jars-3/*/buildSrc.jar
+        - find ~/.gradle/caches/ -name "*.lock" -type f -delete

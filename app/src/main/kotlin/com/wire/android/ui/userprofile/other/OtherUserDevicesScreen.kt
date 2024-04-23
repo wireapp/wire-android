@@ -50,6 +50,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
+import java.util.Locale
 
 @Composable
 fun OtherUserDevicesScreen(
@@ -74,7 +75,8 @@ private fun OtherUserEmptyDevicesContent() {
         verticalAlignment = Alignment.Top
     ) {
         Text(
-            text = stringResource(id = R.string.label_client_key_fingerprint_not_available).lowercase().capitalize(),
+            text = stringResource(id = R.string.label_client_key_fingerprint_not_available).lowercase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
             textAlign = TextAlign.Center,
             style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText)
         )

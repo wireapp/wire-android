@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -198,7 +198,7 @@ private fun DisabledInteractionMessageComposer(
                 messageListContent()
             }
             if (warningText != null) {
-                Divider(color = MaterialTheme.wireColorScheme.outline)
+                HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier

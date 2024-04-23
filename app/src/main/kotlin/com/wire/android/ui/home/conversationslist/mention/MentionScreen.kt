@@ -73,7 +73,6 @@ fun MentionScreenContent(
         onMentionItemClick = onMentionItemClick,
         onEditConversationItem = onEditConversationItem,
         onOpenUserProfile = onOpenUserProfile,
-        openConversationNotificationsSettings = openConversationNotificationsSettings,
     )
 }
 
@@ -85,7 +84,6 @@ private fun MentionContent(
     onMentionItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     val context = LocalContext.current
     LazyColumn(

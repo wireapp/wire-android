@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,7 +73,7 @@ private fun ProxyContent(
     Column(
         modifier = Modifier
     ) {
-        Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
+        HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
         Text(
             text = stringResource(R.string.label_proxy_credentials),
             style = MaterialTheme.wireTypography.title03.copy(

@@ -100,12 +100,12 @@ fun MLSProgressIndicator(
         contentAlignment = Alignment.Center
     ) {
         LinearProgressIndicator(
-            progress = progress,
+            progress = { progress },
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(),
             color = color,
-            trackColor = trackColor
+            trackColor = trackColor,
         )
         Text(
             style = MaterialTheme.typography.labelLarge,

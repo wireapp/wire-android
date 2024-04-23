@@ -161,9 +161,9 @@ sealed class SwitchAccountParam {
 }
 
 sealed class SwitchAccountResult {
-    object Failure : SwitchAccountResult()
-    object SwitchedToAnotherAccount : SwitchAccountResult()
-    object NoOtherAccountToSwitch : SwitchAccountResult()
+    data object Failure : SwitchAccountResult()
+    data object SwitchedToAnotherAccount : SwitchAccountResult()
+    data object NoOtherAccountToSwitch : SwitchAccountResult()
 
     fun callAction(actions: SwitchAccountActions) = when (this) {
         NoOtherAccountToSwitch -> actions.noOtherAccountToSwitch()

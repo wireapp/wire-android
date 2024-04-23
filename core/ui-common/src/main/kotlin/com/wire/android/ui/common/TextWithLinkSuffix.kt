@@ -61,7 +61,8 @@ fun TextWithLinkSuffix(
                 appendInlineContent(linkId, "[link]")
             }
         )
-    } else text
+    }
+    else text
     val inlineContent = buildMap {
         if (linkText != null) {
             val textLayoutResult: TextLayoutResult = textMeasurer.measure(
@@ -70,9 +71,13 @@ fun TextWithLinkSuffix(
             )
             val textSize = textLayoutResult.size
             val density = LocalDensity.current
-            val (linkWidthSp, linkHeightSp) = with(density) { textSize.width.toSp() to textSize.height.toSp() }
+            val (linkWidthSp, linkHeightSp) = with(density) {
+                textSize.width.toSp() to textSize.height.toSp()
+            }
 
-            put(linkId, InlineTextContent(
+            put(
+                linkId,
+                InlineTextContent(
                 placeholder = Placeholder(
                     width = linkWidthSp,
                     height = linkHeightSp,

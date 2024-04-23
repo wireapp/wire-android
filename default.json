@@ -87,6 +87,7 @@
     "force_constant_bitrate_calls": false,
     "ignore_ssl_certificates": false,
     "mls_support_enabled": true,
+    "lower_keypackage_limit": false,
     "encrypt_proteus_storage": false,
     "self_deleting_messages": true,
     "wipe_on_cookie_invalid": false,

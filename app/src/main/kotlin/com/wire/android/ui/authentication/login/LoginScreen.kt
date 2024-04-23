@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -243,22 +244,22 @@ fun LoginErrorDialog(
 ) {
     val dialogErrorData: LoginDialogErrorData = when (error) {
         is LoginError.DialogError.InvalidCredentialsError -> LoginDialogErrorData(
-            stringResource(R.string.login_error_invalid_credentials_title),
-            stringResource(R.string.login_error_invalid_credentials_message),
-            onDialogDismiss
+            title = stringResource(R.string.login_error_invalid_credentials_title),
+            body = AnnotatedString(stringResource(R.string.login_error_invalid_credentials_message)),
+            onDismiss = onDialogDismiss
         )
 
         is LoginError.DialogError.UserAlreadyExists -> LoginDialogErrorData(
-            stringResource(R.string.login_error_user_already_logged_in_title),
-            stringResource(R.string.login_error_user_already_logged_in_message),
-            onDialogDismiss
+            title = stringResource(R.string.login_error_user_already_logged_in_title),
+            body = AnnotatedString(stringResource(R.string.login_error_user_already_logged_in_message)),
+            onDismiss = onDialogDismiss
         )
 
         is LoginError.DialogError.ProxyError -> {
             LoginDialogErrorData(
-                stringResource(R.string.error_socket_title),
-                stringResource(R.string.error_socket_message),
-                onDialogDismiss
+                title = stringResource(R.string.error_socket_title),
+                body = AnnotatedString(stringResource(R.string.error_socket_message)),
+                onDismiss = onDialogDismiss
             )
         }
 
@@ -266,36 +267,36 @@ fun LoginErrorDialog(
             val strings = error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
             LoginDialogErrorData(
                 strings.title,
-                strings.message,
+                strings.annotatedMessage,
                 onDialogDismiss
             )
         }
 
         is LoginError.DialogError.InvalidSSOCodeError -> LoginDialogErrorData(
-            stringResource(R.string.login_error_invalid_credentials_title),
-            stringResource(R.string.login_error_invalid_sso_code),
-            onDialogDismiss
+            title = stringResource(R.string.login_error_invalid_credentials_title),
+            body = AnnotatedString(stringResource(R.string.login_error_invalid_sso_code)),
+            onDismiss = onDialogDismiss
         )
 
         is LoginError.DialogError.InvalidSSOCookie -> LoginDialogErrorData(
-            stringResource(R.string.login_sso_error_invalid_cookie_title),
-            stringResource(R.string.login_sso_error_invalid_cookie_message),
-            onDialogDismiss
+            title = stringResource(R.string.login_sso_error_invalid_cookie_title),
+            body = AnnotatedString(stringResource(R.string.login_sso_error_invalid_cookie_message)),
+            onDismiss = onDialogDismiss
         )
 
         is LoginError.DialogError.SSOResultError -> {
             with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
                 LoginDialogErrorData(
-                    stringResource(R.string.sso_error_dialog_title),
-                    stringResource(R.string.sso_error_dialog_message, this.ssoError.errorCode),
-                    onDialogDismiss
+                    title = stringResource(R.string.sso_error_dialog_title),
+                    body = AnnotatedString(stringResource(R.string.sso_error_dialog_message, this.ssoError.errorCode)),
+                    onDismiss = onDialogDismiss
                 )
             }
         }
 
         is LoginError.DialogError.ServerVersionNotSupported -> LoginDialogErrorData(
             title = stringResource(R.string.api_versioning_server_version_not_supported_title),
-            body = stringResource(R.string.api_versioning_server_version_not_supported_message),
+            body = AnnotatedString(stringResource(R.string.api_versioning_server_version_not_supported_message)),
             onDismiss = onDialogDismiss,
             actionTextId = R.string.label_close,
             dismissOnClickOutside = false
@@ -303,7 +304,7 @@ fun LoginErrorDialog(
 
         is LoginError.DialogError.ClientUpdateRequired -> LoginDialogErrorData(
             title = stringResource(R.string.api_versioning_client_update_required_title),
-            body = stringResource(R.string.api_versioning_client_update_required_message),
+            body = AnnotatedString(stringResource(R.string.api_versioning_client_update_required_message)),
             onDismiss = onDialogDismiss,
             actionTextId = R.string.label_update,
             onAction = updateTheApp,
@@ -313,9 +314,9 @@ fun LoginErrorDialog(
         LoginError.DialogError.PasswordNeededToRegisterClient -> TODO()
 
         else -> LoginDialogErrorData(
-            stringResource(R.string.error_unknown_title),
-            stringResource(R.string.error_unknown_message),
-            onDialogDismiss
+            title = stringResource(R.string.error_unknown_title),
+            body = AnnotatedString(stringResource(R.string.error_unknown_message)),
+            onDismiss = onDialogDismiss
         )
     }
 
@@ -338,7 +339,7 @@ fun LoginErrorDialog(
 
 data class LoginDialogErrorData(
     val title: String,
-    val body: String,
+    val body: AnnotatedString,
     val onDismiss: () -> Unit,
     @StringRes val actionTextId: Int = R.string.label_ok,
     val onAction: () -> Unit = onDismiss,

@@ -261,7 +261,10 @@ fun EnabledMessageComposer(
                                     additionalOptionStateHolder.toRichTextEditing()
                                 },
                                 onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                                onDrawingModeClicked = additionalOptionStateHolder::toDrawingMode
+                                onDrawingModeClicked = {
+                                    showAdditionalOptionsMenu()
+                                    additionalOptionStateHolder.toDrawingMode()
+                                }
                             )
                         }
                         Box(

@@ -54,6 +54,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
      * Security/Cryptography stuff
      */
     MLS_SUPPORT_ENABLED("mls_support_enabled", ConfigType.BOOLEAN),
+    LOWER_KEYPACKAGE_LIMIT("lower_keypackage_limit", ConfigType.BOOLEAN),
     ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
     WIPE_ON_COOKIE_INVALID("wipe_on_cookie_invalid", ConfigType.BOOLEAN),
     WIPE_ON_ROOTED_DEVICE("wipe_on_rooted_device", ConfigType.BOOLEAN),

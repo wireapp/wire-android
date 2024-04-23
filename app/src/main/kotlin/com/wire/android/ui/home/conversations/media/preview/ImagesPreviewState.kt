@@ -17,8 +17,14 @@
  */
 package com.wire.android.ui.home.conversations.media.preview
 
-import android.net.Uri
+import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 
-data class ImagesPreviewState(val conversationId: ConversationId, val conversationName: String, val assetUriList: PersistentList<Uri>)
+data class ImagesPreviewState(
+    val conversationId: ConversationId,
+    val conversationName: String,
+    val assetUriList: PersistentList<ImportedMediaAsset> = persistentListOf(),
+    val selectedIndex: Int = 0
+)

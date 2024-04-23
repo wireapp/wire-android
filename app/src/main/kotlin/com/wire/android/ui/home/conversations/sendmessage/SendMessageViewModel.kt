@@ -36,6 +36,7 @@ import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
+import com.wire.android.ui.sharing.SendMessagesSnackbarMessages
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
@@ -62,9 +63,11 @@ import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.isRight
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
@@ -104,12 +107,7 @@ class SendMessageViewModel @Inject constructor(
         SureAboutMessagingDialogState.Hidden
     )
 
-    var viewState: SendMessageState by mutableStateOf(
-        SendMessageState(
-            messageSent = false,
-            inProgress = false
-        )
-    )
+    var viewState: SendMessageState by mutableStateOf(SendMessageState())
 
     private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
@@ -126,28 +124,46 @@ class SendMessageViewModel @Inject constructor(
     }
 
     fun trySendMessages(messageBundleList: List<MessageBundle>) {
-        val messageBundleMap = messageBundleList.groupBy { it.conversationId }
+        if (messageBundleList.size > MAX_LIMIT_MESSAGE_SEND) {
+            onSnackbarMessage(SendMessagesSnackbarMessages.MaxAmountOfAssetsReached)
+        } else {
+            val messageBundleMap = messageBundleList.groupBy { it.conversationId }
+            messageBundleMap.forEach { (conversationId, bundles) ->
+                viewModelScope.launch {
+                    when {
+                        shouldInformAboutDegradedBeforeSendingMessage(conversationId) ->
+                            sureAboutMessagingDialogState =
+                                SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(conversationId, bundles)
 
-        messageBundleMap.forEach { (conversationId, bundles) ->
-            viewModelScope.launch {
-                when {
-                    shouldInformAboutDegradedBeforeSendingMessage(conversationId) ->
-                        sureAboutMessagingDialogState =
-                            SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(conversationId, bundles)
+                        shouldInformAboutUnderLegalHoldBeforeSendingMessage(conversationId) ->
+                            sureAboutMessagingDialogState =
+                                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(
+                                    conversationId,
+                                    messageBundleList
+                                )
 
-                    shouldInformAboutUnderLegalHoldBeforeSendingMessage(conversationId) ->
-                        sureAboutMessagingDialogState =
-                            SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(conversationId, messageBundleList)
-
-                    else -> sendMessages(messageBundleList)
+                        else -> sendMessages(messageBundleList)
+                    }
                 }
             }
         }
     }
 
     private suspend fun sendMessages(messageBundleList: List<MessageBundle>) {
+        val jobs: MutableCollection<Job> = mutableListOf()
         messageBundleList.forEach {
-            sendMessage(it)
+            val job = viewModelScope.launch {
+                sendMessage(it)
+            }
+            jobs.add(job)
+        }
+        jobs.joinAll()
+        withContext(dispatchers.main()) {
+            val action = messageBundleList.firstOrNull()?.let {
+                SendMessageAction.NavigateToConversation(it.conversationId)
+            } ?: SendMessageAction.NavigateToHome
+
+            viewState = viewState.copy(inProgress = false, afterMessageSendAction = action)
         }
     }
 
@@ -305,11 +321,12 @@ class SendMessageViewModel @Inject constructor(
 
     private fun CoreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) = also {
         if (this is LegalHoldEnabledForConversationFailure) {
-            sureAboutMessagingDialogState = when(val currentState = sureAboutMessagingDialogState) {
+            sureAboutMessagingDialogState = when (val currentState = sureAboutMessagingDialogState) {
                 // if multiple messages will fail, update messageIdList to retry sending all of them
                 is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending -> currentState.copy(
                     messageIdList = currentState.messageIdList.plus(messageId)
                 )
+
                 SureAboutMessagingDialogState.Hidden,
                 is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending,
                 is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
@@ -384,10 +401,20 @@ class SendMessageViewModel @Inject constructor(
     }
 
     private fun beforeSendingMessage() {
-        viewState = viewState.copy(messageSent = false, inProgress = true)
+        viewState = viewState.copy(inProgress = true)
     }
 
     private fun Either<CoreFailure, Unit>.handleAfterMessageResult() {
-        viewState = viewState.copy(messageSent = this.isRight(), inProgress = false)
+        viewState = viewState.copy(
+            afterMessageSendAction = if (this.isRight()) {
+                SendMessageAction.None // TODO KBX pass action
+            } else {
+                SendMessageAction.None
+            }, inProgress = false
+        )
+    }
+
+    private companion object {
+        const val MAX_LIMIT_MESSAGE_SEND = 20
     }
 }

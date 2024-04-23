@@ -169,11 +169,10 @@ fun MessageButtonsContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageImage(
-    asset: ImageAsset?,
+    asset: ImageAsset.Remote?,
     imgParams: ImageMessageParams,
     transferStatus: AssetTransferStatus,
-    onImageClick: Clickable,
-    shouldFillMaxWidth: Boolean = false,
+    onImageClick: Clickable
 ) {
     Box(
         Modifier
@@ -212,11 +211,7 @@ fun MessageImage(
                 )
             }
 
-            asset != null -> when (asset) {
-                is ImageAsset.Local -> ImportedImageMessage(asset, shouldFillMaxWidth)
-                is ImageAsset.Remote -> DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
-            }
-
+            asset != null -> DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
             // Show error placeholder
             transferStatus == FAILED_UPLOAD || transferStatus == FAILED_DOWNLOAD -> {
                 ImageMessageFailed(

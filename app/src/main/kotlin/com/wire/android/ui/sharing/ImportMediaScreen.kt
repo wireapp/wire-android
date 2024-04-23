@@ -54,8 +54,6 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
@@ -68,10 +66,11 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.FeatureFlagState
+import com.wire.android.ui.home.conversations.media.preview.AssetPreview
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
+import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
@@ -116,19 +115,22 @@ fun ImportMediaScreen(
 
         FeatureFlagState.SharingRestrictedState.NONE -> {
             val importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
+            val sendMessageViewModel: SendMessageViewModel = hiltViewModel()
+
             ImportMediaRegularContent(
                 importMediaAuthenticatedState = importMediaViewModel.importMediaState,
                 onSearchQueryChanged = importMediaViewModel::onSearchQueryChanged,
                 onConversationClicked = importMediaViewModel::onConversationClicked,
                 checkRestrictionsAndSendImportedMedia = {
-                    importMediaViewModel.checkRestrictionsAndSendImportedMedia {
-                        navigator.navigate(
-                            NavigationCommand(
-                                ConversationScreenDestination(it),
-                                BackStackMode.REMOVE_CURRENT
-                            )
-                        )
-                    }
+                                                        // TODO KBX
+//                    importMediaViewModel.checkRestrictionsAndSendImportedMedia {
+//                        navigator.navigate(
+//                            NavigationCommand(
+//                                ConversationScreenDestination(it),
+//                                BackStackMode.REMOVE_CURRENT
+//                            )
+//                        )
+//                    }
                 },
                 onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
                 infoMessage = importMediaViewModel.infoMessage,
@@ -381,10 +383,7 @@ private fun ImportMediaContent(
             }
         } else if (!isMultipleImport) {
             Box(modifier = Modifier.padding(horizontal = dimensions().spacing16x)) {
-                ImportedMediaItemView(
-                    item = importedItemsList.first(),
-                    isMultipleImport = false
-                )
+                AssetPreview(asset = importedItemsList.first(), onClick = {})
             }
         } else {
             LazyRow(
@@ -395,9 +394,9 @@ private fun ImportMediaContent(
                 items(
                     count = importedItemsList.size,
                 ) { index ->
-                    ImportedMediaItemView(
-                        item = importedItemsList[index],
-                        isMultipleImport = true
+                    AssetPreview(
+                        asset = importedItemsList[index],
+                        onClick = {}
                     )
                 }
             }

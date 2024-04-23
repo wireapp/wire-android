@@ -36,7 +36,6 @@ import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
@@ -46,18 +45,14 @@ import com.wire.android.ui.home.conversationslist.parseConversationEventType
 import com.wire.android.ui.home.conversationslist.parsePrivateConversationEventType
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
-import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.parcelableArrayList
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -70,7 +65,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -79,7 +73,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -303,7 +296,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             handleImportedAsset(uri)?.let { importedAsset ->
                 if (importedAsset.assetSizeExceeded != null) {
                     onSnackbarMessage(
-                        ImportMediaSnackbarMessages.MaxAssetSizeExceeded(importedAsset.assetSizeExceeded!!)
+                        SendMessagesSnackbarMessages.MaxAssetSizeExceeded(importedAsset.assetSizeExceeded!!)
                     )
                 }
                 importMediaState = importMediaState.copy(importedAssets = persistentListOf(importedAsset))
@@ -320,66 +313,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         importMediaState = importMediaState.copy(importedAssets = importedMediaAssets.toPersistentList())
 
         importedMediaAssets.firstOrNull { it.assetSizeExceeded != null }?.let {
-            onSnackbarMessage(ImportMediaSnackbarMessages.MaxAssetSizeExceeded(it.assetSizeExceeded!!))
+            onSnackbarMessage(SendMessagesSnackbarMessages.MaxAssetSizeExceeded(it.assetSizeExceeded!!))
         }
     }
-
-    fun checkRestrictionsAndSendImportedMedia(onSent: (ConversationId) -> Unit) =
-        viewModelScope.launch(dispatchers.default()) {
-            val conversation =
-                importMediaState.selectedConversationItem.firstOrNull() ?: return@launch
-            val assetsToSend = importMediaState.importedAssets
-            val textToSend = importMediaState.importedText
-
-            if (assetsToSend.size > MAX_LIMIT_MEDIA_IMPORT) {
-                onSnackbarMessage(ImportMediaSnackbarMessages.MaxAmountOfAssetsReached)
-            } else {
-                val jobs: MutableCollection<Job> = mutableListOf()
-
-                textToSend?.let {
-                    sendTextMessage(
-                        conversationId = conversation.conversationId,
-                        text = it
-                    )
-                } ?: assetsToSend.forEach { importedAsset ->
-                    val isImage = importedAsset is ImportedMediaAsset.Image
-                    val job = viewModelScope.launch {
-                        sendAssetMessage(
-                            conversationId = conversation.conversationId,
-                            assetDataPath = importedAsset.assetBundle.dataPath,
-                            assetName = importedAsset.assetBundle.fileName,
-                            assetDataSize = importedAsset.assetBundle.dataSize,
-                            assetMimeType = importedAsset.assetBundle.mimeType,
-                            assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
-                            assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
-                            audioLengthInMs = getAudioLengthInMs(
-                                dataPath = importedAsset.assetBundle.dataPath,
-                                mimeType = importedAsset.assetBundle.mimeType,
-                            )
-                        ).also {
-                            val logConversationId = conversation.conversationId.toLogString()
-                            if (it is ScheduleNewAssetMessageResult.Failure) {
-                                appLogger.e(
-                                    "Failed to import asset message to " +
-                                            "conversationId=$logConversationId"
-                                )
-                            } else {
-                                appLogger.d(
-                                    "Success importing asset message to " +
-                                            "conversationId=$logConversationId"
-                                )
-                            }
-                        }
-                    }
-                    jobs.add(job)
-                }
-
-                jobs.joinAll()
-                withContext(dispatchers.main()) {
-                    onSent(conversation.conversationId)
-                }
-            }
-        }
 
     fun onNewConversationPicked(conversationId: ConversationId) = viewModelScope.launch {
         importMediaState = importMediaState.copy(
@@ -415,36 +351,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? = withContext(dispatchers.io()) {
         when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false, audioPath = null)) {
-            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> mapToImportedAsset(result.assetBundle, result.maxLimitInMB)
+            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)
 
             HandleUriAssetUseCase.Result.Failure.Unknown -> null
-            is HandleUriAssetUseCase.Result.Success -> mapToImportedAsset(result.assetBundle, null)
-        }
-    }
-
-    private fun mapToImportedAsset(assetBundle: AssetBundle, assetSizeExceeded: Int?): ImportedMediaAsset {
-        return when (assetBundle.assetType) {
-            AttachmentType.IMAGE -> {
-                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(
-                    kaliumFileSystem,
-                    assetBundle.dataPath
-                )
-                ImportedMediaAsset.Image(
-                    assetBundle = assetBundle,
-                    width = imgWidth,
-                    height = imgHeight,
-                    assetSizeExceeded = assetSizeExceeded
-                )
-            }
-
-            AttachmentType.GENERIC_FILE,
-            AttachmentType.AUDIO,
-            AttachmentType.VIDEO -> {
-                ImportedMediaAsset.GenericAsset(
-                    assetBundle = assetBundle,
-                    assetSizeExceeded = assetSizeExceeded
-                )
-            }
+            is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
         }
     }
 

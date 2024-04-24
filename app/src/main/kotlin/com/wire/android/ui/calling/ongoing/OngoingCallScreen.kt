@@ -169,7 +169,6 @@ fun OngoingCallScreen(
         hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 
-    sharedCallingViewModel.callState.callStatus
     handleVideoPreviewOnLifecycleChange(
         isCameraOn = sharedCallingViewModel.callState.isCameraOn,
         callStatus = sharedCallingViewModel.callState.callStatus,
@@ -190,18 +189,14 @@ private fun handleVideoPreviewOnLifecycleChange(
     pauseSendingVideoFeed: () -> Unit
 ) {
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
+    DisposableEffect(lifecycleOwner, isCameraOn, callStatus) {
 
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_PAUSE) {
-                if (isCameraOn && callStatus == CallStatus.ESTABLISHED) {
-                    pauseSendingVideoFeed()
-                }
+            if (event == Lifecycle.Event.ON_PAUSE && callStatus == CallStatus.ESTABLISHED && isCameraOn) {
+                pauseSendingVideoFeed()
             }
-            if (event == Lifecycle.Event.ON_RESUME) {
-                if (isCameraOn && callStatus == CallStatus.ESTABLISHED) {
-                    startSendingVideoFeed()
-                }
+            if (event == Lifecycle.Event.ON_RESUME && callStatus == CallStatus.ESTABLISHED && isCameraOn) {
+                startSendingVideoFeed()
             }
         }
 

@@ -23,7 +23,6 @@ firebaseBOM = "32.8.1"
 fragment = "1.5.6"
 resaca = "2.4.6"
 bundlizer = "0.8.0"
-spotless = "6.24.0"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
 kover = "0.7.6"
@@ -126,7 +125,6 @@ hilt-gradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", v
 googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google-gms" }
 googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
-spotless-gradlePlugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
 
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }

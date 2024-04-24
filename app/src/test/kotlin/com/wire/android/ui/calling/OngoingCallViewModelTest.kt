@@ -146,6 +146,44 @@ class OngoingCallViewModelTest {
         }
     }
 
+    @Test
+    fun givenSetVideoSendStateUseCase_whenStartSendingVideoFeedIsCalled_thenInvokeUseCaseWithStartedStateOnce() = runTest {
+        coEvery {
+            setVideoSendState(any(), VideoState.STARTED)
+        } returns Unit
+
+        ongoingCallViewModel.startSendingVideoFeed()
+
+        coVerify(exactly = 1) {
+            setVideoSendState(any(), VideoState.STARTED)
+        }
+    }
+
+    @Test
+    fun givenSetVideoSendStateUseCase_whenPauseSendingVideoFeedIsCalled_thenInvokeUseCaseWithPausedStateOnce() = runTest {
+        coEvery {
+            setVideoSendState(any(), VideoState.PAUSED)
+        } returns Unit
+
+        ongoingCallViewModel.pauseSendingVideoFeed()
+
+        coVerify(exactly = 1) {
+            setVideoSendState(any(), VideoState.PAUSED)
+        }
+    }
+    @Test
+    fun givenSetVideoSendStateUseCase_whenStopSendingVideoFeedIsCalled_thenInvokeUseCaseWithStoppedStateOnce() = runTest {
+        coEvery {
+            setVideoSendState(any(), VideoState.STOPPED)
+        } returns Unit
+
+        ongoingCallViewModel.pauseSendingVideoFeed()
+
+        coVerify(exactly = 1) {
+            setVideoSendState(any(), VideoState.STOPPED)
+        }
+    }
+
     companion object {
         val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         val currentUserId = UserId("userId", "some.dummy.domain")

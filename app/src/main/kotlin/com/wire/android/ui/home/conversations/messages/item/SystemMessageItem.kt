@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,11 +40,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
+import com.wire.android.ui.common.TextWithLinkSuffix
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -104,40 +101,18 @@ fun SystemMessageItem(
                     errorColor = MaterialTheme.wireColorScheme.error,
                     isErrorString = message.addingFailed,
                 )
-                val learnMoreAnnotatedString = message.messageContent.learnMoreResId?.let {
-                    val learnMoreLink = stringResource(id = message.messageContent.learnMoreResId)
-                    val learnMoreText = stringResource(id = R.string.label_learn_more)
-                    buildAnnotatedString {
-                        append(learnMoreText)
-                        addStyle(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                textDecoration = TextDecoration.Underline
-                            ),
-                            start = 0,
-                            end = learnMoreText.length
-                        )
-                        addStringAnnotation(tag = TAG_LEARN_MORE, annotation = learnMoreLink, start = 0, end = learnMoreText.length)
-                    }
-                }
-                val fullAnnotatedString = when {
-                    learnMoreAnnotatedString == null -> annotatedString
-                    message.messageContent.expandable && expanded -> annotatedString + AnnotatedString("\n") + learnMoreAnnotatedString
-                    message.messageContent.expandable && !expanded -> annotatedString
-                    else -> annotatedString + AnnotatedString(" ") + learnMoreAnnotatedString
-                }
+                val learnMoreLink = message.messageContent.learnMoreResId?.let { stringResource(id = it) }
 
-                ClickableText(
-                    modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
-                    text = fullAnnotatedString,
-                    onClick = { offset ->
-                        fullAnnotatedString.getStringAnnotations(TAG_LEARN_MORE, offset, offset)
-                            .firstOrNull()?.let { result -> CustomTabsHelper.launchUrl(context, result.item) }
-                    },
-                    style = MaterialTheme.wireTypography.body02,
+                TextWithLinkSuffix(
+                    text = annotatedString,
+                    linkText = learnMoreLink?.let { stringResource(id = R.string.label_learn_more) },
+                    textColor = MaterialTheme.wireColorScheme.secondaryText,
+                    linkColor = MaterialTheme.wireColorScheme.onBackground,
+                    onLinkClick = { learnMoreLink?.let { CustomTabsHelper.launchUrl(context, it) } },
                     onTextLayout = {
                         centerOfFirstLine = if (it.lineCount == 0) 0f else ((it.getLineTop(0) + it.getLineBottom(0)) / 2)
-                    }
+                    },
+                    modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
                 )
 
                 if (message.messageContent.expandable) {
@@ -371,4 +346,3 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddMarkdownText(
 
 private const val EXPANDABLE_THRESHOLD = 4
 private const val SINGLE_EXPANDABLE_THRESHOLD = 1
-private const val TAG_LEARN_MORE = "tag_learn_more"

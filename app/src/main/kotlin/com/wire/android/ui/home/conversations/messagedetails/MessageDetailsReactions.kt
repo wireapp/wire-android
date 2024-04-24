@@ -52,10 +52,10 @@ fun MessageDetailsReactions(
                 state = lazyListState,
                 modifier = Modifier.weight(weight = 1f, fill = true)
             ) {
-                reactionsData.reactions.forEach {
+                reactionsData.reactions.forEach { entry ->
                     folderWithElements(
-                        header = "${it.key} ${it.value.size}",
-                        items = it.value,
+                        header = "${entry.key} ${entry.value.size}",
+                        items = entry.value.associateBy { "${entry.key}_${it.id}" },
                         onRowItemClicked = { },
                         showRightArrow = false
                     )

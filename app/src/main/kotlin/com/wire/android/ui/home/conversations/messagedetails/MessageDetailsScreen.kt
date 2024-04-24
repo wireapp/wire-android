@@ -180,8 +180,9 @@ private fun MessageDetailsScreenContent(
     }
 }
 
-sealed class MessageDetailsTabItem(@StringRes val titleResId: Int, open val count: Int) : TabItem {
-    override val title: UIText = UIText.StringResource(titleResId)
-    data class Reactions(override val count: Int) : MessageDetailsTabItem(R.string.message_details_reactions_tab, count)
-    data class ReadReceipts(override val count: Int) : MessageDetailsTabItem(R.string.message_details_read_receipts_tab, count)
+sealed class MessageDetailsTabItem(@StringRes val titleResId: Int, argument: String) : TabItem {
+    override val title: UIText = UIText.StringResource(titleResId, argument)
+
+    data class Reactions(val count: Int) : MessageDetailsTabItem(R.string.message_details_reactions_tab, "$count")
+    data class ReadReceipts(val count: Int) : MessageDetailsTabItem(R.string.message_details_read_receipts_tab, "$count")
 }

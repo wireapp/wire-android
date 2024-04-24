@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
@@ -59,6 +60,7 @@ fun ModalSheetHeaderItem(header: MenuModalSheetHeader = MenuModalSheetHeader.Gon
                         style = MaterialTheme.wireTypography.title02
                     )
                 }
+                WireDivider()
             }
         }
     }

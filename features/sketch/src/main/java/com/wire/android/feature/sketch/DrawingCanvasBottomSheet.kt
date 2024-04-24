@@ -62,6 +62,7 @@ import com.wire.android.ui.common.button.WireTertiaryIconButton
 import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.launch
@@ -104,7 +105,7 @@ fun DrawingCanvasBottomSheet(
         onDismissRequest = onDismissEvent,
         properties = ModalBottomSheetProperties(
             isFocusable = true,
-            securePolicy = SecureFlagPolicy.SecureOn,
+            securePolicy = SecureFlagPolicy.Inherit,
             shouldDismissOnBackPress = false
         )
     ) {
@@ -162,6 +163,7 @@ internal fun DrawingTopBar(
         Text(
             text = conversationTitle,
             style = MaterialTheme.wireTypography.title01,
+            color = MaterialTheme.wireColorScheme.onBackground,
             modifier = Modifier.align(Alignment.CenterVertically),
             maxLines = MAX_LINES_TOPBAR,
             overflow = TextOverflow.Ellipsis

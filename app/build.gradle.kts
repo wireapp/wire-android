@@ -69,25 +69,21 @@ android {
 
     sourceSets {
         // Add the "foss" sourceSets for the fdroid flavor
-
         if (fdroidBuild) {
             getByName("fdroid") {
                 java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
-                resources.srcDirs("src/prod/res")
+                res.srcDirs("src/prod/res")
                 println("Building with FOSS sourceSets")
             }
             // For all other flavors use the "nonfree" sourceSets
         } else {
             getByName("main") {
-                java.srcDirs("src/main/kotlin", "src/nonfree/kotlin")
+                java.srcDirs("src/nonfree/kotlin")
                 println("Building with non-free sourceSets")
             }
         }
     }
 }
-
-
-
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")

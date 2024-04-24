@@ -116,7 +116,7 @@ fun GroupConversationSettings(
                 )
             }
 
-            item { WireDivider(color = colorsScheme().outline) }
+            item { WireDivider(color = colorsScheme().outlineVariant) }
 
             item {
                 ServicesOption(
@@ -152,7 +152,7 @@ fun GroupConversationSettings(
                 )
             }
         }
-        item { WireDivider(color = colorsScheme().outline) }
+        item { WireDivider(color = colorsScheme().outlineVariant) }
         item {
             ReadReceiptOption(
                 isSwitchEnabled = state.isUpdatingReadReceiptAllowed,

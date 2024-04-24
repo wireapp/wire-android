@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -72,6 +71,7 @@ fun wireDialogPropertiesBuilder(
 fun WireDialog(
     title: String,
     text: String,
+    textSuffixLink: DialogTextSuffixLink? = null,
     onDismiss: () -> Unit,
     optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
@@ -107,6 +107,7 @@ fun WireDialog(
             )
             withStyle(style) { append(text) }
         },
+        textSuffixLink = textSuffixLink,
         centerContent = centerContent,
         content = content
     )
@@ -116,6 +117,7 @@ fun WireDialog(
 fun WireDialog(
     title: String,
     text: AnnotatedString? = null,
+    textSuffixLink: DialogTextSuffixLink? = null,
     onDismiss: () -> Unit,
     optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
@@ -144,6 +146,7 @@ fun WireDialog(
             title = title,
             titleLoading = titleLoading,
             text = text,
+            textSuffixLink = textSuffixLink,
             centerContent = centerContent,
             content = content
         )
@@ -155,6 +158,7 @@ fun WireDialogContent(
     title: String,
     titleLoading: Boolean = false,
     text: AnnotatedString? = null,
+    textSuffixLink: DialogTextSuffixLink? = null,
     optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
@@ -194,17 +198,11 @@ fun WireDialogContent(
             ) {
                 text?.let {
                     item {
-                        ClickableText(
+                        TextWithLinkSuffix(
                             text = text,
-                            style = MaterialTheme.wireTypography.body01,
-                            modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing),
-                            onClick = { offset ->
-                                text.getStringAnnotations(
-                                    tag = TAG_URL,
-                                    start = offset,
-                                    end = offset,
-                                ).firstOrNull()?.let { result -> uriHandler.openUri(result.item) }
-                            }
+                            linkText = textSuffixLink?.linkText,
+                            onLinkClick = { textSuffixLink?.linkUrl?.let { uriHandler.openUri(it) } },
+                            modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
                         )
                     }
                 }
@@ -300,5 +298,4 @@ data class WireDialogButtonProperties(
     val loading: Boolean = false
 )
 
-// todo, replace when markdown is moved to commons
-private const val TAG_URL = "linkTag"
+data class DialogTextSuffixLink(val linkText: String, val linkUrl: String)

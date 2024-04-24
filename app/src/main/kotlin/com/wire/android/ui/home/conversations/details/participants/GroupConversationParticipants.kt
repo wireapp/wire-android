@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.details.participants
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,7 +73,7 @@ fun GroupConversationParticipants(
                     ) {
                         val groupParticipants = groupParticipantsState.data.allParticipants
                         MLSProgressIndicator(
-                            progress = (groupParticipants)
+                            mlsProgress = (groupParticipants)
                                 .filter { it.supportedProtocolList.contains(SupportedProtocol.MLS) }
                                 .size / (groupParticipantsState.data.allCount).toFloat(),
                             modifier = Modifier
@@ -87,11 +89,13 @@ fun GroupConversationParticipants(
 
 @Composable
 fun MLSProgressIndicator(
-    progress: Float,
+    mlsProgress: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.wireColorScheme.primary,
     trackColor: Color = MaterialTheme.wireColorScheme.uncheckedColor
 ) {
+    val progress by animateFloatAsState(targetValue = mlsProgress)
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -109,7 +113,7 @@ fun MLSProgressIndicator(
         )
         Text(
             style = MaterialTheme.typography.labelLarge,
-            text = "${SupportedProtocol.MLS.name} (${String.format("%.2f", progress * 100)}%)",
+            text = "${SupportedProtocol.MLS.name} (${String.format("%.2f", mlsProgress * 100)}%)",
             textAlign = TextAlign.Center,
             color = MaterialTheme.wireColorScheme.onPrimary,
             modifier = Modifier.fillMaxWidth()

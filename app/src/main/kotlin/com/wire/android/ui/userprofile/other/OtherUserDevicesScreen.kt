@@ -51,7 +51,6 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.capitalizeFirstLetter
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
-import java.util.Locale
 
 @Composable
 fun OtherUserDevicesScreen(

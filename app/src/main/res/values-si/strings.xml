@@ -80,6 +80,7 @@
     <string name="label_user_blocked">අවහිර කර ඇත</string>
     <string name="label_and">සහ</string>
     <string name="label_retry">නැවත</string>
+    <string name="label_draft">*කටුපිටපත*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">යෙදුමේ ලාංඡනය</string>
     <string name="content_description_reveal_password">මුරපදය පෙන්වන්න</string>
@@ -104,6 +105,7 @@
     <string name="content_description_conversation_search_icon">සොයන්න නිරූපකය</string>
     <string name="content_description_conversation_search_input">සෙවුම ආදානය</string>
     <string name="content_description_conversation_enable_rich_text_mode">සරු පෙළ නිරූපකය සබල කරන්න</string>
+    <string name="content_description_conversation_enable_drawing_mode">Enable drawing mode button</string>
     <string name="content_description_conversation_rich_text_header">ශ්‍රීර්ෂකය ලෙස ආකෘතිකරණය</string>
     <string name="content_description_conversation_rich_text_bold">පෙළ තදට ආකෘතිකරණය</string>
     <string name="content_description_conversation_rich_text_italic">පෙළ ඇදට ආකෘතිකරණය</string>
@@ -184,6 +186,7 @@
     <string name="give_feedback_screen_title">ප්‍රතිපෝෂණ</string>
     <string name="report_bug_screen_title">දෝෂ වාර්තා</string>
     <string name="debug_settings_screen_title">නිදොස්කරණ සැකසුම්</string>
+    <string name="item_dependencies_title">පරායත්ත:</string>
     <string name="support_screen_title">සහාය</string>
     <string name="backup_and_restore_screen_title">සංවාද උපස්ථය හෝ ප්‍රත්‍යර්පණය</string>
     <string name="search_bar_conversations_hint">සංවාද සොයන්න</string>
@@ -197,6 +200,9 @@
     <string name="settings_backups_group_title">උපස්ථ</string>
     <string name="settings_other_group_title">වෙනත්</string>
     <string name="settings_backup_info">ඔබගේ සංවාද ඉතිහාසය සුරැකීමට උපස්ථයක් සාදන්න. ඔබගේ පරිගණකය නැති වුවහොත් හෝ අළුත් උපාංගයකට මාරු වුවහොත් ඉතිහාසය ප්‍රත්‍යර්පණයට මෙය භාවිතා කිරීමට හැකිය.\n\n උපස්ථ ගොනුවේ ආරක්‍ෂාවට ශක්තිමත් මුරපදයක් යොදන්න.</string>
+    <string name="settings_backup_last_backup_title">අවසාන උපස්ථය</string>
+    <string name="settings_backup_last_backup_date">The most recent backup from this device has been created on %1$s at %2$s.</string>
+    <string name="settings_backup_last_backup_date_no_time">You did not create a backup from this device yet.</string>
     <string name="settings_backup_create">උපස්ථයක් සාදන්න</string>
     <string name="settings_backup_restore">උපස්ථයකින් ප්‍රත්‍යර්පණය</string>
     <!-- Welcome -->
@@ -210,6 +216,7 @@
     <string name="welcome_screen_carousel_item_message_5">වයර් ස්වාධීනව විගණනය කර ඇත. ISO, CCPA, GDPR, SOX-අනුකූල වේ</string>
     <string name="welcome_button_create_team">කණ්ඩායමක් සාදන්න</string>
     <string name="server_details_dialog_body">සේවාදායකයේ නම:\n%1$s\n\nඒ.ස.නි.:\n%2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">පරිශ්‍රයක සේවාදායකයකි</string>
     <string name="welcome_migration_dialog_title">අපගේ නව ඇන්ඩ්‍රොයිඩ් යෙදුමට පිළිගනිමු 👋</string>
     <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
@@ -269,7 +276,7 @@
     <string name="conversation_history_wipe_explanation">ඔබගේ කණ්ඩායමේ ආරක්‍ෂණ සැකසුම් වලට අනුව, ඔබගේ සංවාද ඉතිහාසය ද මකා ඇත.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">ගිණුම සත්‍යාපනය කරන්න</string>
-    <string name="second_factor_authentication_instructions_label">වි-තැපෑල වෙත එවූ සත්‍යාපන කේතය යොදන්න. %1$s</string>
+    <string name="second_factor_authentication_instructions_label">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="second_factor_code_error">වලංගු නොවන කේතයකි හෝ උපරිම තැත් කිරීම් ඉක්මවා ඇත. නැවත උත්සාහ කරන්න හෝ වෙනත් කේතයක් ඉල්ලන්න</string>
     <!-- Remove Device -->
     <string name="remove_device_title">උපාංගයක් ඉවත් කරන්න</string>
@@ -453,6 +460,15 @@
     <string name="message_details_reactions_empty_learn_more">ප්‍රතික්‍රියා ගැන තව දැනගන්න</string>
     <string name="message_details_read_receipts_empty_text">පණිවිඩය තවමත් කියවා නැත 👀</string>
     <string name="message_details_read_receipts_empty_learn_more">කියවූ බවට ලදුපත් ගැන තව දැනගන්න</string>
+    <!-- Messages Date and Time -->
+    <string name="message_datetime_now">Just now</string>
+    <plurals name="message_datetime_minutes_ago">
+        <item quantity="one">විනාඩියකට පෙර</item>
+        <item quantity="other">විනාඩි %1$d කට පෙර</item>
+    </plurals>
+    <string name="message_datetime_today">අද, %s</string>
+    <string name="message_datetime_yesterday">ඊයේ, %s</string>
+    <string name="message_datetime_other">%s</string>
     <!-- Attachment options -->
     <string name="attachment_share_file">ගොනුව</string>
     <string name="attachment_share_image">එකතුව</string>
@@ -810,7 +826,7 @@
     <string name="calling_confirm_start_call_title_dialog">ඇමතුමක් අරඹන්න</string>
     <string name="calling_confirm_start_call_description_dialog">ඔබට %1$s දෙනෙකුට ඇමතීමට වුවමනාද?</string>
     <string name="calling_confirm_start_call_action_dialog">අමතන්න</string>
-    <string name="calling_participant_tile_default_user_name">Default</string>
+    <string name="calling_participant_tile_default_user_name">පෙරනිමි</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">ඇමතුමට ආපසු</string>
     <string name="connectivity_status_bar_connecting">පණිවිඩ විසංකේතනය වෙමින්</string>
@@ -979,6 +995,8 @@
     <string name="custom_backend_dialog_body">ඔබ ඉදිරියට ගියහොත්, ඔබගේ අනුග්‍රාහකය පහත පරිශ්‍රයේ සේවාදායකයට හරවා යවනු ලැබේ:</string>
     <string name="custom_backend_dialog_body_backend_name">සේවාදායකයේ නම:</string>
     <string name="custom_backend_dialog_body_backend_api">සේවාදායකයේ ඒ.ස.නි.:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">ප්‍රතියුක්තයේ ඒ.ස.නි.:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">ප්‍රතියුක්තය සත්‍යාපනය:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">අපලේඛනයේ ඒ.ස.නි.:</string>
     <string name="custom_backend_dialog_body_backend_teams">කණ්ඩායම්වල ඒ.ස.නි.:</string>
     <string name="custom_backend_dialog_body_backend_accounts">ගිණුම්වල ඒ.ස.නි.:</string>
@@ -1238,6 +1256,8 @@
     <string name="end_to_end_identity_renew_success_dialog_title">සහතිකය යාවත්කාල විය</string>
     <string name="end_to_end_identity_renew_success_dialog_text">සහතිකය යාවත්කාලීනයි. ඔබගේ උපාංගය සත්‍යාපිතයි.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">සහතිකයේ විස්තර</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_title">Certificate couldn’t be issued</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_text">Please try again, or reach out to your team admin.</string>
     <string name="end_to_end_identity_ceritifcate">සහතිකයේ විස්තර</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">අන්ත අනන්‍යතා සහතිකය අහෝසි කෙරිණි</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_description">ආරක්‍ෂණ අවදානම් අවම කිරීමට නික්මෙන්න. ඉන්පසු නැවත ඇතුළු වී නව සහතිකයක් ගෙන ඔබගේ මුරපදය යළි සකසන්න.\n\nඔබ මෙම උපාංගය දිගටම භාවිතා කරන්නේ නම්, ඔබගේ සංවාද තවදුරටත් සත්‍යාපිත නොවේ.</string>
@@ -1247,6 +1267,7 @@
     <string name="record_audio_start_label">පටිගතය අරඹන්න</string>
     <string name="record_audio_recording_label">හඬ පටිගත වෙමින්…</string>
     <string name="record_audio_send_label">හඬ පණිවිඩය යවන්න</string>
+    <string name="record_audio_apply_filter_label">ශ්‍රව්‍ය පෙරහන යොදන්න</string>
     <string name="record_audio_discard_dialog_title">හඬ පණිවිඩය ඉවතලන්නද?</string>
     <string name="record_audio_discard_dialog_text">හඬ පණිවිඩය මැකෙන අතර යැවීමට නොහැකි වනු ඇත.</string>
     <string name="record_audio_discard_dialog_discard_button">ඉවතලන්න</string>
@@ -1314,7 +1335,7 @@
     <string name="legal_hold_label">නෛතික රැඳවුම</string>
     <string name="legal_hold_is_active_label">නෛතික රැඳවුම ක්‍රියාත්මකයි</string>
     <string name="legal_hold_is_pending_label">නෛතික රැඳවුමට පොරොත්තුයි</string>
-    <string name="legal_hold_accept">Accept</string>
+    <string name="legal_hold_accept">පිළිගන්න</string>
     <string name="legal_hold_system_message_enabled_self">ඔබ දැන් නෛතික රැඳවුමට යටත් වේ.</string>
     <string name="legal_hold_system_message_enabled_others">%1$s සඳහා නෛතික රැඳවුම සක්‍රිය කෙරිණි.</string>
     <string name="legal_hold_system_message_disabled_self">ඔබ තවදුරටත් නෛතික රැඳවුමට යටත් නොවේ.</string>
@@ -1342,7 +1363,7 @@
     <string name="save_permission_dialog_description">To save this file, allow Wire to access your Downloads folder in your device settings.</string>
     <string name="save_backup_file_permission_dialog_description">To save this backup file, allow Wire to access your Downloads folder in your device settings.</string>
     <string name="restore_backup_permission_dialog_description">To restore conversations, allow Wire to access your files in your device settings.</string>
-    <string name="camera_permission_dialog_description">To turn the camera on, allow Wire to access your camera in your device settings.</string>
+    <string name="camera_permission_dialog_description">වයර් සඳහා රූගතය භාවිතයට ඔබගේ උපාංගයේ සැකසුම් හරහා රූගතය වෙත ප්‍රවේශ වීමට ඉඩ දෙන්න.</string>
     <!-- Share Location -->
     <string name="location_attachment_share_title">ස්ථානය බෙදාගන්න</string>
     <string name="location_app_permission_dialog_body">ස්ථානය යැවීම සඳහා ඔබගේ උපාංගයෙහි ස්ථානය වෙත ප්‍රවේශයට ඉඩ දෙන්න.</string>

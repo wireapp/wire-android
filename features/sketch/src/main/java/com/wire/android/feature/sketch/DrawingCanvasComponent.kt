@@ -36,7 +36,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChangedIgnoreConsumed
+import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
@@ -172,7 +172,7 @@ private suspend fun AwaitPointerEventScope.handleGestures(
     do {
         val event = awaitPointerEvent()
         onDraw(event.changes.first().position)
-        val hasNewLineDraw = event.changes.first().positionChangedIgnoreConsumed()
+        val hasNewLineDraw = event.changes.first().positionChanged()
         if (hasNewLineDraw) {
             event.changes.first().consume()
         }

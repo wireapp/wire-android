@@ -24,11 +24,16 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -47,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -57,6 +63,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireColorPalette
 import com.wire.android.ui.theme.WireTheme
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DrawingToolPicker(
     sheetState: WireModalSheetState,
@@ -106,6 +113,13 @@ fun DrawingToolPicker(
                 }
             )
         }
+        Spacer(
+            Modifier
+                .background(colorsScheme().background)
+                .windowInsetsBottomHeight(
+                    WindowInsets.navigationBarsIgnoringVisibility
+                )
+        )
     }
 }
 
@@ -179,7 +193,7 @@ private const val GRID_CELLS = 6
 private fun Color.isWhite() = this == Color.White
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview(showSystemUi = true, device = Devices.NEXUS_5)
 @Composable
 fun PreviewDrawingToolPickerSelectedNonWhite() {
     WireTheme {

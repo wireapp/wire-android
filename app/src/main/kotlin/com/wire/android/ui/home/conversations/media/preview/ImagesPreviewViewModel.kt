@@ -28,7 +28,6 @@ import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
@@ -63,7 +62,7 @@ class ImagesPreviewViewModel @Inject constructor(
         viewModelScope.launch {
             val assets = navArgs.assetUriList.map { handleImportedAsset(it) }
             viewState = viewState.copy(
-                assetUriList = assets.filterNotNull().toPersistentList()
+                assetBundleList = assets.filterNotNull().toPersistentList()
             )
         }
     }

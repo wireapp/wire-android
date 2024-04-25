@@ -138,7 +138,7 @@ fun MessageComposer(
                     },
                     onPingOptionClicked = { onSendMessageBundle(Ping(conversationId)) },
                     onImagesPicked = onImagesPicked,
-                    onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.AttachmentPickedBundle(conversationId, it)) },
+                    onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.UriPickedBundle(conversationId, it)) },
                     onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
                     onLocationPicked = {
                         onSendMessageBundle(

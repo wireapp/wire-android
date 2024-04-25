@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.media.preview
 
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -82,7 +81,6 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.home.conversations.AssetTooLargeDialog
 import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageAction
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageState
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
@@ -170,7 +168,7 @@ private fun Content(
     onSelected: (index: Int) -> Unit
 ) {
     val configuration = LocalConfiguration.current
-    val pagerState = rememberPagerState(pageCount = { previewState.assetUriList.size })
+    val pagerState = rememberPagerState(pageCount = { previewState.assetBundleList.size })
     LaunchedEffect(key1 = previewState.selectedIndex) {
         if (previewState.selectedIndex != pagerState.currentPage) {
             pagerState.animateScrollToPage(previewState.selectedIndex)
@@ -225,10 +223,10 @@ private fun Content(
                         },
                         onClick = {
                             onSendMessages(
-                                previewState.assetUriList.map {
+                                previewState.assetBundleList.map {
                                     ComposableMessageBundle.AttachmentPickedBundle(
                                         previewState.conversationId,
-                                        UriAsset(Uri.fromFile(it.assetBundle.dataPath.toFile()))
+                                        it.assetBundle
                                     )
                                 }
 
@@ -257,8 +255,8 @@ private fun Content(
                         modifier = Modifier
                             .width(configuration.screenWidthDp.dp)
                             .fillMaxHeight(),
-                        model = previewState.assetUriList[index].assetBundle.dataPath.toFile(),
-                        contentDescription = previewState.assetUriList[index].assetBundle.fileName
+                        model = previewState.assetBundleList[index].assetBundle.dataPath.toFile(),
+                        contentDescription = previewState.assetBundleList[index].assetBundle.fileName
                     )
                 }
             }
@@ -272,7 +270,7 @@ private fun Content(
                 contentPadding = PaddingValues(start = dimensions().spacing16x, end = dimensions().spacing16x)
             ) {
                 items(
-                    count = previewState.assetUriList.size,
+                    count = previewState.assetBundleList.size,
                 ) { index ->
                     Box(
                         modifier = Modifier
@@ -283,7 +281,7 @@ private fun Content(
                             modifier = Modifier
                                 .size(dimensions().spacing64x)
                                 .align(Alignment.BottomStart),
-                            asset = previewState.assetUriList[index],
+                            asset = previewState.assetBundleList[index],
                             isSelected = previewState.selectedIndex == index,
                             onClick = { onSelected(index) }
                         )

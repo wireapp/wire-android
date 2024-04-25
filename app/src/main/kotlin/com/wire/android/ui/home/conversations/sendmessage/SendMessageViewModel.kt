@@ -187,6 +187,10 @@ class SendMessageViewModel @Inject constructor(
             }
 
             is ComposableMessageBundle.AttachmentPickedBundle -> {
+                sendAttachment(messageBundle.assetBundle, messageBundle.conversationId)
+            }
+
+            is ComposableMessageBundle.UriPickedBundle -> {
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
                     conversationId = messageBundle.conversationId
@@ -259,6 +263,7 @@ class SendMessageViewModel @Inject constructor(
             }
 
             is HandleUriAssetUseCase.Result.Success -> {
+                println("KBX attachment ${result.assetBundle.assetType} ${result.assetBundle.dataPath}")
                 sendAttachment(result.assetBundle, conversationId)
             }
         }

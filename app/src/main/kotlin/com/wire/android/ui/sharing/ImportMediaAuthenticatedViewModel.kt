@@ -296,7 +296,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             handleImportedAsset(uri)?.let { importedAsset ->
                 if (importedAsset.assetSizeExceeded != null) {
                     onSnackbarMessage(
-                        SendMessagesSnackbarMessages.MaxAssetSizeExceeded(importedAsset.assetSizeExceeded!!)
+                        SendMessagesSnackbarMessages.MaxAssetSizeExceeded(importedAsset.assetSizeExceeded)
                     )
                 }
                 importMediaState = importMediaState.copy(importedAssets = persistentListOf(importedAsset))

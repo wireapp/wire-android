@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.sharing
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -29,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
@@ -68,12 +70,15 @@ import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.media.preview.AssetPreview
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
+import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.theme.wireTypography
@@ -122,7 +127,13 @@ fun ImportMediaScreen(
                 onSearchQueryChanged = importMediaViewModel::onSearchQueryChanged,
                 onConversationClicked = importMediaViewModel::onConversationClicked,
                 checkRestrictionsAndSendImportedMedia = {
-                                                        // TODO KBX
+                    sendMessageViewModel.trySendMessages(importMediaViewModel.importMediaState.importedAssets.map {
+                        ComposableMessageBundle.AttachmentPickedBundle(
+                            importMediaViewModel.importMediaState.selectedConversationItem.first().conversationId,
+                            it.assetBundle
+                        )
+                    })
+                    // TODO KBX
 //                    importMediaViewModel.checkRestrictionsAndSendImportedMedia {
 //                        navigator.navigate(
 //                            NavigationCommand(
@@ -371,7 +382,7 @@ private fun ImportMediaContent(
         if (state.isImporting) {
             Box(
                 Modifier
-                    .height(dimensions().spacing100x)
+                    .height(dimensions().spacing120x)
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
             ) {
@@ -382,12 +393,16 @@ private fun ImportMediaContent(
                 )
             }
         } else if (!isMultipleImport) {
-            Box(modifier = Modifier.padding(horizontal = dimensions().spacing16x)) {
+            Box(modifier = Modifier
+                .padding(horizontal = dimensions().spacing16x)
+                .height(dimensions().spacing120x)) {
                 AssetPreview(asset = importedItemsList.first(), onClick = {})
             }
         } else {
             LazyRow(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(dimensions().spacing120x),
                 horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
                 contentPadding = PaddingValues(start = dimensions().spacing16x, end = dimensions().spacing16x)
             ) {
@@ -395,6 +410,7 @@ private fun ImportMediaContent(
                     count = importedItemsList.size,
                 ) { index ->
                     AssetPreview(
+                        modifier = Modifier.width(dimensions().spacing120x),
                         asset = importedItemsList[index],
                         onClick = {}
                     )

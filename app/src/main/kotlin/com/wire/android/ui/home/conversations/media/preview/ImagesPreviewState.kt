@@ -25,6 +25,6 @@ import kotlinx.collections.immutable.persistentListOf
 data class ImagesPreviewState(
     val conversationId: ConversationId,
     val conversationName: String,
-    val assetUriList: PersistentList<ImportedMediaAsset> = persistentListOf(),
+    val assetBundleList: PersistentList<ImportedMediaAsset> = persistentListOf(),
     val selectedIndex: Int = 0
 )

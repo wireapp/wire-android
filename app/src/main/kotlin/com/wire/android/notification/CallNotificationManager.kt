@@ -187,7 +187,6 @@ class CallNotificationBuilder @Inject constructor(
             .setContentText(context.getString(R.string.notification_outgoing_call_tap_to_return))
             .setAutoCancel(false)
             .setOngoing(true)
-            .setVibrate(VIBRATE_PATTERN)
             .setFullScreenIntent(
                 outgoingCallPendingIntent(context, conversationIdString),
                 true

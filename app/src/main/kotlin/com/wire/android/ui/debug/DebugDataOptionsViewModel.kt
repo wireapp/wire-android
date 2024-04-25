@@ -25,6 +25,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
+import com.wire.android.di.ScopedArgs
+import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.util.getDependenciesVersion
 import com.wire.android.util.getDeviceIdString
@@ -45,11 +47,28 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
+
+
+@ViewModelScopedPreview
+interface DebugDataOptionsViewModel {
+
+    fun state(): DebugDataOptionsState = DebugDataOptionsState()
+    fun currentAccount(): UserId = UserId("value", "domain")
+    fun checkCrlRevocationList() {}
+    fun enableEncryptedProteusStorage(enabled: Boolean) {}
+    fun restartSlowSyncForRecovery() {}
+    fun enrollE2EICertificate() {}
+    fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {}
+    fun dismissCertificateDialog() {}
+    fun forceUpdateApiVersions() {}
+    fun disableEventProcessing(disabled: Boolean) {}
+}
 
 @Suppress("LongParameterList")
 @HiltViewModel
-class DebugDataOptionsViewModel
+class DebugDataOptionsViewModelImpl
 @Inject constructor(
     @ApplicationContext private val context: Context,
     @CurrentAccount val currentAccount: UserId,
@@ -58,7 +77,7 @@ class DebugDataOptionsViewModel
     private val mlsKeyPackageCount: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
     private val checkCrlRevocationList: CheckCrlRevocationListUseCase
-) : ViewModel() {
+) : ViewModel(), DebugDataOptionsViewModel {
 
     var state by mutableStateOf(
         DebugDataOptionsState()
@@ -92,7 +111,10 @@ class DebugDataOptionsViewModel
         }
     }
 
-    fun checkCrlRevocationList() {
+    override fun state() = state
+    override fun currentAccount(): UserId = currentAccount
+
+    override fun checkCrlRevocationList() {
         viewModelScope.launch {
             checkCrlRevocationList(
                 forceUpdate = true
@@ -100,7 +122,7 @@ class DebugDataOptionsViewModel
         }
     }
 
-    fun enableEncryptedProteusStorage(enabled: Boolean) {
+    override fun enableEncryptedProteusStorage(enabled: Boolean) {
         if (enabled) {
             viewModelScope.launch {
                 globalDataStore.setEncryptedProteusStorageEnabled(true)
@@ -108,17 +130,17 @@ class DebugDataOptionsViewModel
         }
     }
 
-    fun restartSlowSyncForRecovery() {
+    override fun restartSlowSyncForRecovery() {
         viewModelScope.launch {
             restartSlowSyncProcessForRecovery()
         }
     }
 
-    fun enrollE2EICertificate() {
+    override fun enrollE2EICertificate() {
         state = state.copy(startGettingE2EICertificate = true)
     }
 
-    fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {
+    override fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {
         result.fold({
             state = state.copy(
                 certificate = (it as E2EIFailure.OAuth).reason,
@@ -142,17 +164,17 @@ class DebugDataOptionsViewModel
         })
     }
 
-    fun dismissCertificateDialog() {
+    override fun dismissCertificateDialog() {
         state = state.copy(
             showCertificate = false,
         )
     }
 
-    fun forceUpdateApiVersions() {
+    override fun forceUpdateApiVersions() {
         updateApiVersions.scheduleImmediateApiVersionUpdate()
     }
 
-    fun disableEventProcessing(disabled: Boolean) {
+    override fun disableEventProcessing(disabled: Boolean) {
         viewModelScope.launch {
             disableEventProcessing(disabled)
             state = state.copy(isEventProcessingDisabled = disabled)
@@ -213,3 +235,8 @@ class DebugDataOptionsViewModel
     //endregion
 }
 //endregion
+
+@Serializable
+object DebugDataOptions : ScopedArgs {
+    override val key = "DebugDataOptionsKey"
+}

@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -97,7 +97,7 @@ fun ActiveMessageComposerInput(
         modifier = modifier
             .background(inputType.backgroundColor())
     ) {
-        Divider(color = MaterialTheme.wireColorScheme.outline)
+        HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
         if (showOptions) {
             CollapseButton(
                 isCollapsed = !isTextExpanded,

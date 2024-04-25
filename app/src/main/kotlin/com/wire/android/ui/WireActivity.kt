@@ -254,7 +254,7 @@ class WireActivity : AppCompatActivity() {
         }
 
         DisposableEffect(navController) {
-            val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, navDestination, _ ->
+            val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, _, _ ->
                 currentKeyboardController?.hide()
             }
             navController.addOnDestinationChangedListener(updateScreenSettingsListener)

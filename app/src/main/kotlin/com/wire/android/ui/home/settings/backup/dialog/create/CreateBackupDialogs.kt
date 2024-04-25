@@ -155,7 +155,7 @@ fun CreateBackupDialog(
                 }
             }
             VerticalSpace.x16()
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = progress)
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = { progress })
             VerticalSpace.x16()
         }
     }

@@ -30,6 +30,7 @@ import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
@@ -38,9 +39,9 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUsersTypingUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
@@ -292,6 +293,11 @@ class ConversationModule {
 
     @ViewModelScoped
     @Provides
+<<<<<<< HEAD
     fun provideSyncConversationCodeUseCase(conversationScope: ConversationScope): SyncConversationCodeUseCase =
         conversationScope.syncConversationCode
+=======
+    fun provideIsOneToOneConversationCreatedUseCase(conversationScope: ConversationScope): IsOneToOneConversationCreatedUseCase =
+        conversationScope.isOneToOneConversationCreatedUseCase
+>>>>>>> 7b0fa7bcc (fix: Handle 1o1 conversations when no key packages [WPB-6936] (#2936))
 }

@@ -50,7 +50,11 @@ data class OtherUserProfileState(
     val blockingState: BlockingState = BlockingState.CAN_NOT_BE_BLOCKED,
     val isProteusVerified: Boolean = false,
     val isMLSVerified: Boolean = false,
+<<<<<<< HEAD
     val isUnderLegalHold: Boolean = false,
+=======
+    val isConversationStarted: Boolean = false
+>>>>>>> 7b0fa7bcc (fix: Handle 1o1 conversations when no key packages [WPB-6936] (#2936))
 ) {
     fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
         return conversationSheetContent?.let {

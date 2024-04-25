@@ -26,11 +26,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.di.scopedArgs
+<<<<<<< HEAD
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logger.obfuscateId
+=======
+import com.wire.android.model.ActionableState
+import com.wire.android.model.finishAction
+import com.wire.android.model.performAction
+import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.CoreFailure
+>>>>>>> 7b0fa7bcc (fix: Handle 1o1 conversations when no key packages [WPB-6936] (#2936))
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
@@ -57,14 +67,23 @@ import javax.inject.Inject
 interface ConnectionActionButtonViewModel {
     val infoMessage: SharedFlow<UIText>
         get() = MutableSharedFlow()
+<<<<<<< HEAD
     fun actionableState(): ConnectionActionState = ConnectionActionState()
+=======
+
+    fun actionableState(): ActionableState = ActionableState()
+>>>>>>> 7b0fa7bcc (fix: Handle 1o1 conversations when no key packages [WPB-6936] (#2936))
     fun onSendConnectionRequest() {}
     fun onCancelConnectionRequest() {}
     fun onAcceptConnectionRequest() {}
     fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit) {}
     fun onUnblockUser() {}
+<<<<<<< HEAD
     fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit) {}
     fun onMissingLegalHoldConsentDismissed() {}
+=======
+    fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit, onMissingKeyPackages: () -> Unit) {}
+>>>>>>> 7b0fa7bcc (fix: Handle 1o1 conversations when no key packages [WPB-6936] (#2936))
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -190,17 +209,19 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit) {
+    override fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit, onMissingKeyPackages: () -> Unit) {
         viewModelScope.launch {
             state = state.performAction()
             when (val result = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }) {
                 is CreateConversationResult.Failure -> {
                     appLogger.d(("Couldn't retrieve or create the conversation"))
                     state = state.finishAction()
+                    if (result.coreFailure is CoreFailure.MissingKeyPackages) onMissingKeyPackages()
                 }
 
                 is CreateConversationResult.Success -> onSuccess(result.conversation.id)
             }
+            state.finishAction()
         }
     }
 

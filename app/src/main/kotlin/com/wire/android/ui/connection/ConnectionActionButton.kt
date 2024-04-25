@@ -23,25 +23,35 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.ui.common.VisibilityState
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
+import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.legalhold.dialog.connectionfailed.LegalHoldSubjectConnectionFailedDialog
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -50,7 +60,9 @@ import com.wire.kalium.logic.data.user.UserId
 fun ConnectionActionButton(
     userId: UserId,
     userName: String,
+    fullName: String,
     connectionStatus: ConnectionState,
+    isConversationStarted: Boolean,
     onConnectionRequestIgnored: (String) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit = {},
     viewModel: ConnectionActionButtonViewModel =
@@ -60,12 +72,15 @@ fun ConnectionActionButton(
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
+    val unableStartConversationDialogState = rememberVisibilityState<UnableStartConversationDialogState>()
 
     UnblockUserDialogContent(
         dialogState = unblockUserDialogState,
         onUnblock = { viewModel.onUnblockUser() },
         isLoading = viewModel.actionableState().isPerformingAction,
     )
+
+    UnableStartConversationDialogContent(dialogState = unableStartConversationDialogState)
 
     if (!viewModel.actionableState().isPerformingAction) {
         unblockUserDialogState.dismiss()
@@ -86,9 +101,13 @@ fun ConnectionActionButton(
         )
 
         ConnectionState.ACCEPTED -> WirePrimaryButton(
-            text = stringResource(R.string.label_open_conversation),
+            text = stringResource(if (isConversationStarted) R.string.label_open_conversation else R.string.label_start_conversation),
             loading = viewModel.actionableState().isPerformingAction,
-            onClick = { viewModel.onOpenConversation(onOpenConversation) },
+            onClick = {
+                viewModel.onOpenConversation(onOpenConversation) {
+                    unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
+                }
+            },
         )
 
         ConnectionState.IGNORED -> WirePrimaryButton(
@@ -175,13 +194,40 @@ fun ConnectionActionButton(
 }
 
 @Composable
+fun UnableStartConversationDialogContent(dialogState: VisibilityState<UnableStartConversationDialogState>) {
+    VisibilityState(dialogState) { state ->
+        WireDialog(
+            title = stringResource(id = R.string.missing_keypackage_dialog_title),
+            text = LocalContext.current.resources.stringWithStyledArgs(
+                R.string.missing_keypackage_dialog_body,
+                MaterialTheme.wireTypography.body01,
+                MaterialTheme.wireTypography.body02,
+                colorsScheme().onBackground,
+                colorsScheme().onBackground,
+                state.userName
+            ),
+            onDismiss = dialogState::dismiss,
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = dialogState::dismiss,
+                text = stringResource(id = R.string.label_ok),
+                type = WireDialogButtonType.Primary,
+            ),
+        )
+    }
+}
+
+data class UnableStartConversationDialogState(val userName: String)
+
+@Composable
 @PreviewMultipleThemes
 fun PreviewOtherUserConnectionActionButtonPending() {
     WireTheme {
         ConnectionActionButton(
             userId = UserId("value", "domain"),
             userName = "Username",
+            fullName = "some user",
             connectionStatus = ConnectionState.PENDING,
+            isConversationStarted = false
         )
     }
 }
@@ -193,7 +239,9 @@ fun PreviewOtherUserConnectionActionButtonNotConnected() {
         ConnectionActionButton(
             userId = UserId("value", "domain"),
             userName = "Username",
+            fullName = "some user",
             connectionStatus = ConnectionState.NOT_CONNECTED,
+            isConversationStarted = false
         )
     }
 }
@@ -205,7 +253,9 @@ fun PreviewOtherUserConnectionActionButtonBlocked() {
         ConnectionActionButton(
             userId = UserId("value", "domain"),
             userName = "Username",
+            fullName = "some user",
             connectionStatus = ConnectionState.BLOCKED,
+            isConversationStarted = false
         )
     }
 }
@@ -217,7 +267,9 @@ fun PreviewOtherUserConnectionActionButtonCanceled() {
         ConnectionActionButton(
             userId = UserId("value", "domain"),
             userName = "Username",
+            fullName = "some user",
             connectionStatus = ConnectionState.CANCELLED,
+            isConversationStarted = false
         )
     }
 }
@@ -229,7 +281,9 @@ fun PreviewOtherUserConnectionActionButtonAccepted() {
         ConnectionActionButton(
             userId = UserId("value", "domain"),
             userName = "Username",
+            fullName = "some user",
             connectionStatus = ConnectionState.ACCEPTED,
+            isConversationStarted = false
         )
     }
 }
@@ -241,7 +295,9 @@ fun PreviewOtherUserConnectionActionButtonSent() {
         ConnectionActionButton(
             userId = UserId("value", "domain"),
             userName = "Username",
+            fullName = "some user",
             connectionStatus = ConnectionState.SENT,
+            isConversationStarted = false
         )
     }
 }

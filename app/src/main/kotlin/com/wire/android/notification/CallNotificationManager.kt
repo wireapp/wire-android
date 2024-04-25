@@ -54,7 +54,7 @@ class CallNotificationManager @Inject constructor(
     private val notificationManager = NotificationManagerCompat.from(context)
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val incomingCallsForUsers = MutableStateFlow<List<Pair<UserId, Call>>>(emptyList())
-    private val outgoingCallForUsers = MutableStateFlow<List<Pair<UserId, Call>>>(emptyList())
+    private val outgoingCallForUsers = MutableStateFlow<Map<UserId, Call>>(mapOf())
 
     init {
         scope.launch {
@@ -77,8 +77,12 @@ class CallNotificationManager @Inject constructor(
                 if (it.isEmpty()) {
                     hideOutgoingCallNotification()
                 } else {
-                    it.first().let { (userId, call) ->
-                        showOutgoingCallNotification(call.conversationId, userId, call.conversationName ?: "Name")
+                    it[it.keys.first()]?.let { call ->
+                        showOutgoingCallNotification(
+                            conversationId = call.conversationId,
+                            userId = it.keys.first(),
+                            conversationName = call.conversationName ?: context.getString(R.string.calling_participant_tile_default_user_name)
+                        )
                     }
                 }
             }
@@ -98,9 +102,9 @@ class CallNotificationManager @Inject constructor(
     }
     fun handleOutgoingCallNotifications(calls: List<Call>, userId: UserId) {
         if (calls.isEmpty()) {
-            outgoingCallForUsers.update { it.filter { it.first != userId } }
+            outgoingCallForUsers.update { it.filter { it.key != userId }  }
         } else {
-            outgoingCallForUsers.update { it.filter { it.first != userId } + (userId to calls.first()) }
+            outgoingCallForUsers.update { it.filter { it.key != userId } + (userId to calls.first())  }
         }
     }
 

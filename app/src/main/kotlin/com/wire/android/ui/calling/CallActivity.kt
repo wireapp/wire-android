@@ -77,6 +77,19 @@ class CallActivity : AppCompatActivity() {
 
         val conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
         val screenType = intent.extras?.getString(EXTRA_SCREEN_TYPE)
+        val userId = intent.extras?.getString(EXTRA_USER_ID)
+
+        userId?.let {
+            qualifiedIdMapper.fromStringToQualifiedID(it).run {
+                callActivityViewModel.switchAccountIfNeeded(this)
+            }
+        }
+
+        setUpCallingFlags()
+        setUpScreenShootPreventionFlag()
+
+        appLogger.i("$TAG Initializing proximity sensor..")
+        proximitySensorManager.initialize()
 
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }

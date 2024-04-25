@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -85,7 +85,7 @@ private fun SecurityClassificationBanner(
 ) {
     if (state != SecurityClassificationType.NONE) {
         Column(modifier = modifier) {
-            Divider(color = getDividerColorFor(state))
+            HorizontalDivider(color = getDividerColorFor(state))
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
@@ -106,7 +106,7 @@ private fun SecurityClassificationBanner(
                     style = MaterialTheme.wireTypography.label03
                 )
             }
-            Divider(color = getDividerColorFor(state))
+            HorizontalDivider(color = getDividerColorFor(state))
         }
     }
 }
@@ -165,11 +165,11 @@ fun PreviewClassifiedIndicator() {
                 SecurityClassificationBanner(
                     state = SecurityClassificationType.NONE
                 )
-                Divider()
+                HorizontalDivider()
                 SecurityClassificationBanner(
                     state = SecurityClassificationType.NOT_CLASSIFIED
                 )
-                Divider()
+                HorizontalDivider()
                 SecurityClassificationBanner(
                     state = SecurityClassificationType.CLASSIFIED
                 )

@@ -4,7 +4,7 @@ androidJunit5 = "1.10.0.0"
 gradle = "8.5"
 
 # Kotlin
-grgitCore = "5.2.0"
+grgitCore = "5.2.2"
 kotlin = "1.9.23"
 
 # KotlinX
@@ -23,7 +23,6 @@ firebaseBOM = "32.8.1"
 fragment = "1.5.6"
 resaca = "2.4.6"
 bundlizer = "0.8.0"
-spotless = "6.1.2"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
 kover = "0.7.6"
@@ -61,7 +60,7 @@ hilt-work = "1.2.0"
 accompanist = "0.32.0" # adjusted to work with compose-destinations "1.9.54"
 material = "1.11.0"
 coil = "2.6.0"
-commonmark = "0.21.0"
+commonmark = "0.22.0"
 
 # RSS
 rss-parser = "6.0.7"
@@ -74,8 +73,8 @@ openIdAppAuth = "0.11.1"
 
 # Other Tools
 aboutLibraries = "11.1.3"
-leakCanary = "2.7"
-ksp = "1.9.23-1.0.19"
+leakCanary = "2.14"
+ksp = "1.9.23-1.0.20"
 
 # Benchmark
 benchmark-macro-junit4 = "1.2.4"
@@ -94,9 +93,9 @@ junit4 = "4.13.2"
 junit5 = "5.10.2"
 kluent = "1.73"
 mockk = "1.13.10"
-okio = "3.7.0"
-turbine = "1.0.0"
-robolectric = "4.11.1"
+okio = "3.9.0"
+turbine = "1.1.0"
+robolectric = "4.12.1"
 
 [plugins]
 # 3rd Party plugins
@@ -126,7 +125,6 @@ hilt-gradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", v
 googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google-gms" }
 googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
-spotless-gradlePlugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
 
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }

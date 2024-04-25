@@ -19,6 +19,8 @@ package com.wire.android.ui
 
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
+import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.ui.calling.CallActivityViewModel
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.UserId
@@ -28,6 +30,7 @@ import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotC
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
@@ -75,6 +78,45 @@ class CallActivityViewModelTest {
             assertEquals(false, result.await())
         }
 
+    @Test
+    fun `given no session available, when trying to switch account, then try to switchAccount usecase once`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withCurrentSessionReturning(CurrentSessionResult.Failure.SessionNotFound)
+                .withAccountSwitch(SwitchAccountResult.Failure)
+                .arrange()
+
+            viewModel.switchAccountIfNeeded(userId)
+
+            coVerify(exactly = 1) { arrangement.accountSwitch(any()) }
+        }
+
+    @Test
+    fun `given userId different from currentSession, when trying to switch account, then invoke switchAccount usecase once`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withCurrentSessionReturning(CurrentSessionResult.Success(accountInfo))
+                .withAccountSwitch(SwitchAccountResult.SwitchedToAnotherAccount)
+                .arrange()
+
+            viewModel.switchAccountIfNeeded(UserId("anotherUserId", "domain"))
+
+            coVerify(exactly = 1) { arrangement.accountSwitch(any()) }
+        }
+
+    @Test
+    fun `given userId same as currentSession, when trying to switch account, then do not invoke switchAccount usecase`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withCurrentSessionReturning(CurrentSessionResult.Success(accountInfo))
+                .withAccountSwitch(SwitchAccountResult.SwitchedToAnotherAccount)
+                .arrange()
+
+            viewModel.switchAccountIfNeeded(userId)
+
+            coVerify(inverse = true) { arrangement.accountSwitch(any()) }
+        }
+
     private class Arrangement {
 
         @MockK
@@ -83,6 +125,9 @@ class CallActivityViewModelTest {
 
         @MockK
         private lateinit var currentSession: CurrentSessionUseCase
+
+        @MockK
+        lateinit var accountSwitch: AccountSwitchUseCase
 
         @MockK
         private lateinit var observeScreenshotCensoringConfig: ObserveScreenshotCensoringConfigUseCase
@@ -99,6 +144,7 @@ class CallActivityViewModelTest {
                 dispatchers = TestDispatcherProvider(),
                 currentSession = currentSession,
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
+                accountSwitch = accountSwitch
             )
         }
 
@@ -108,6 +154,10 @@ class CallActivityViewModelTest {
             coEvery { currentSession() } returns result
         }
 
+        suspend fun withAccountSwitch(result: SwitchAccountResult) = apply {
+            coEvery { accountSwitch(any()) } returns result
+        }
+
         suspend fun withScreenshotCensoringConfigReturning(result: ObserveScreenshotCensoringConfigResult) =
             apply {
                 coEvery { observeScreenshotCensoringConfig() } returns flowOf(result)
@@ -115,6 +165,7 @@ class CallActivityViewModelTest {
     }
 
     companion object {
-        val accountInfo = AccountInfo.Valid(userId = UserId("userId", "domain"))
+        val userId = UserId("userId", "domain")
+        val accountInfo = AccountInfo.Valid(userId = userId)
     }
 }

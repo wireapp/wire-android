@@ -237,8 +237,7 @@ fun ConversationRouterHomeBridge(
                         callHistory = callHistory,
                         onCallItemClick = onOpenConversation,
                         onEditConversationItem = onEditConversationItem,
-                        onOpenUserProfile = onOpenUserProfile,
-                        openConversationNotificationsSettings = onEditNotifications
+                        onOpenUserProfile = onOpenUserProfile
                     )
 
                 ConversationItemType.MENTIONS ->

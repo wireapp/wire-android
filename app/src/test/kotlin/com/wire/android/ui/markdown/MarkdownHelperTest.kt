@@ -254,7 +254,7 @@ class MarkdownHelperTest {
 
     @Test
     fun `given strikethrough node, when toContent is called, then it should return Inline Strikethrough`() {
-        val strikethroughNode = Strikethrough()
+        val strikethroughNode = Strikethrough(null)
         strikethroughNode.appendChild(Text("strikethrough text"))
 
         val result = strikethroughNode.toContent()

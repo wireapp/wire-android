@@ -114,7 +114,7 @@ private fun calculateMaxHeight(
     val baseHeightInt = with(density) { defaultMaxHeightDropdownMenu.toPx().toInt() }
 
     var sum = with(density) { DropdownMenuVerticalPadding.toPx().toInt() } * TWO
-    for ((i, itemSize) in itemHeights.toSortedMap()) {
+    for ((_, itemSize) in itemHeights.toSortedMap()) {
         sum += itemSize
         if (sum >= baseHeightInt) {
             return with(density) { (sum - itemSize / TWO).toDp() }

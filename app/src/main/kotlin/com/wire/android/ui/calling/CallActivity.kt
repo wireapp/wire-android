@@ -64,14 +64,12 @@ class CallActivity : AppCompatActivity() {
 
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
+    @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setUpScreenShootPreventionFlag()
         setUpCallingFlags()
-
-        appLogger.i("$TAG Initializing proximity sensor..")
-        proximitySensorManager.initialize()
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -112,7 +110,11 @@ class CallActivity : AppCompatActivity() {
                             conversationId?.let {
                                 when (screenType) {
                                     CallScreenType.Outgoing.name -> {
-                                        OutgoingCallScreen(conversationId = qualifiedIdMapper.fromStringToQualifiedID(it)) {
+                                        OutgoingCallScreen(
+                                            conversationId = qualifiedIdMapper.fromStringToQualifiedID(
+                                                it
+                                            )
+                                        ) {
                                             currentCallScreenType = CallScreenType.Ongoing.name
                                         }
                                     }
@@ -129,9 +131,7 @@ class CallActivity : AppCompatActivity() {
                                 }
                             }
                         }
-                    } ?: run {
-                        finish()
-                    }
+                    } ?: run { finish() }
                 }
             }
         }

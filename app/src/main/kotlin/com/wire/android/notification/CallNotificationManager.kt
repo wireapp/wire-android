@@ -81,7 +81,8 @@ class CallNotificationManager @Inject constructor(
                         showOutgoingCallNotification(
                             conversationId = call.conversationId,
                             userId = it.keys.first(),
-                            conversationName = call.conversationName ?: context.getString(R.string.calling_participant_tile_default_user_name)
+                            conversationName = call.conversationName
+                                ?: context.getString(R.string.calling_participant_tile_default_user_name)
                         )
                     }
                 }
@@ -102,9 +103,9 @@ class CallNotificationManager @Inject constructor(
     }
     fun handleOutgoingCallNotifications(calls: List<Call>, userId: UserId) {
         if (calls.isEmpty()) {
-            outgoingCallForUsers.update { it.filter { it.key != userId }  }
+            outgoingCallForUsers.update { it.filter { it.key != userId } }
         } else {
-            outgoingCallForUsers.update { it.filter { it.key != userId } + (userId to calls.first())  }
+            outgoingCallForUsers.update { it.filter { it.key != userId } + (userId to calls.first()) }
         }
     }
 

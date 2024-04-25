@@ -35,7 +35,6 @@ plugins {
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
-    id(ScriptPlugins.spotless)
     id(libs.plugins.wire.kover.get().pluginId)
 }
 

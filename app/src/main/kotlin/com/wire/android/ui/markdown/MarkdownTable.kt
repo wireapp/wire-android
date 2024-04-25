@@ -78,8 +78,8 @@ fun MarkdownTable(tableBlock: MarkdownNode.Block.Table, nodeData: NodeData, onMe
                         modifier = Modifier
                             .weight(1f)
                             .padding(dimensions().spacing8x),
-                        onLongClick = nodeData.onLongClick,
-                        onOpenProfile = nodeData.onOpenProfile
+                        onLongClick = nodeData.actions?.onLongClick,
+                        onOpenProfile = nodeData.actions?.onOpenProfile
                     )
                 }
             }

@@ -19,7 +19,6 @@ package com.wire.android.ui.sharing
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,20 +29,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -88,6 +84,7 @@ import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -358,30 +355,16 @@ private fun ImportMediaContent(
     onConversationClicked: (conversationId: ConversationId) -> Unit,
     searchBarState: SearchBarState
 ) {
-    val importedItemsList: List<ImportedMediaAsset> = state.importedAssets
+    val importedItemsList: PersistentList<ImportedMediaAsset> = state.importedAssets
     val itemsToImport = importedItemsList.size
-    val pagerState = rememberPagerState(pageCount = { itemsToImport })
-    val isMultipleImport = itemsToImport > 1
+
+    val isMultipleImport = itemsToImport != 1
 
     Column(
         modifier = Modifier
             .padding(internalPadding)
             .fillMaxSize()
     ) {
-        val horizontalPadding = dimensions().spacing8x
-        val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-        val itemWidth =
-            if (isMultipleImport) dimensions().importedMediaAssetSize + horizontalPadding.times(2)
-            else screenWidth - (horizontalPadding * 2)
-        val contentPadding = if (isMultipleImport) {
-            PaddingValues(
-                start = horizontalPadding,
-                end = (screenWidth - itemWidth + horizontalPadding)
-            )
-        } else {
-            val totalPadding = screenWidth - itemWidth
-            PaddingValues(start = totalPadding / 2, end = totalPadding / 2)
-        }
         val lazyListState = rememberLazyListState()
         if (state.isImporting) {
             Box(
@@ -396,16 +379,25 @@ private fun ImportMediaContent(
                     size = dimensions().spacing24x
                 )
             }
+        } else if (!isMultipleImport) {
+            Box(modifier = Modifier.padding(horizontal = dimensions().spacing16x)) {
+                ImportedMediaItemView(
+                    item = importedItemsList.first(),
+                    isMultipleImport = false
+                )
+            }
         } else {
-            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-                HorizontalPager(
-                    state = pagerState,
-                    contentPadding = contentPadding,
-                    pageSpacing = dimensions().spacing8x
-                ) { page ->
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
+                contentPadding = PaddingValues(start = dimensions().spacing16x, end = dimensions().spacing16x)
+            ) {
+                items(
+                    count = importedItemsList.size,
+                ) { index ->
                     ImportedMediaItemView(
-                        importedItemsList[page],
-                        isMultipleImport
+                        item = importedItemsList[index],
+                        isMultipleImport = true
                     )
                 }
             }

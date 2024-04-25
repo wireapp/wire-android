@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -85,7 +85,8 @@ fun MessageComposer(
     onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
-    onTypingEvent: (TypingIndicatorMode) -> Unit
+    onTypingEvent: (TypingIndicatorMode) -> Unit,
+    onImagePicked: (Uri) -> Unit
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {
@@ -136,6 +137,7 @@ fun MessageComposer(
                         clearMessage()
                     },
                     onPingOptionClicked = { onSendMessageBundle(Ping(conversationId)) },
+                    onImagePicked = onImagePicked,
                     onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.AttachmentPickedBundle(conversationId, it)) },
                     onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
                     onLocationPicked = {
@@ -196,7 +198,7 @@ private fun DisabledInteractionMessageComposer(
                 messageListContent()
             }
             if (warningText != null) {
-                Divider(color = MaterialTheme.wireColorScheme.outline)
+                HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -253,7 +255,7 @@ private fun BaseComposerPreview(
             )
         )
     }
-    val messageComposition = remember { mutableStateOf(MessageComposition.DEFAULT) }
+    val messageComposition = remember { mutableStateOf(MessageComposition(ConversationId("value", "domain"))) }
     val selfDeletionTimer = remember { mutableStateOf(SelfDeletionTimer.Enabled(Duration.ZERO)) }
 
     MessageComposer(
@@ -279,7 +281,8 @@ private fun BaseComposerPreview(
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
-        onTypingEvent = { }
+        onTypingEvent = { },
+        onImagePicked = {}
     )
 }
 

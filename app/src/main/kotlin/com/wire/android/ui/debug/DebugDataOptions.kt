@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.debug
 
-import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,19 +25,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.CurrentAccount
-import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireDialog
@@ -53,204 +45,13 @@ import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.getDependenciesVersion
-import com.wire.android.util.getDeviceIdString
-import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
-import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.fold
-import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
-import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.collections.immutable.toImmutableMap
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-//region DebugDataOptionsViewModel
-data class DebugDataOptionsState(
-    val isEncryptedProteusStorageEnabled: Boolean = false,
-    val isEventProcessingDisabled: Boolean = false,
-    val keyPackagesCount: Int = 0,
-    val mslClientId: String = "null",
-    val mlsErrorMessage: String = "null",
-    val isManualMigrationAllowed: Boolean = false,
-    val debugId: String = "null",
-    val commitish: String = "null",
-    val certificate: String = "null",
-    val showCertificate: Boolean = false,
-    val startGettingE2EICertificate: Boolean = false,
-    val dependencies: ImmutableMap<String, String?> = persistentMapOf()
-)
-
-@Suppress("LongParameterList")
-@HiltViewModel
-class DebugDataOptionsViewModel
-@Inject constructor(
-    @ApplicationContext private val context: Context,
-    @CurrentAccount val currentAccount: UserId,
-    private val globalDataStore: GlobalDataStore,
-    private val updateApiVersions: UpdateApiVersionsScheduler,
-    private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
-    private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
-    private val disableEventProcessingUseCase: DisableEventProcessingUseCase
-) : ViewModel() {
-
-    var state by mutableStateOf(
-        DebugDataOptionsState()
-    )
-
-    init {
-        observeEncryptedProteusStorageState()
-        observeMlsMetadata()
-        checkIfCanTriggerManualMigration()
-        checkDependenciesVersion()
-        setGitHashAndDeviceId()
-    }
-
-    private fun setGitHashAndDeviceId() {
-        viewModelScope.launch {
-            val deviceId = context.getDeviceIdString() ?: "null"
-            val gitBuildId = context.getGitBuildId()
-            state = state.copy(
-                debugId = deviceId,
-                commitish = gitBuildId
-            )
-        }
-    }
-
-    fun checkDependenciesVersion() {
-        viewModelScope.launch {
-            val dependencies = context.getDependenciesVersion().toImmutableMap()
-            state = state.copy(
-                dependencies = dependencies
-            )
-        }
-    }
-
-    fun enableEncryptedProteusStorage(enabled: Boolean) {
-        if (enabled) {
-            viewModelScope.launch {
-                globalDataStore.setEncryptedProteusStorageEnabled(true)
-            }
-        }
-    }
-
-    fun restartSlowSyncForRecovery() {
-        viewModelScope.launch {
-            restartSlowSyncProcessForRecovery()
-        }
-    }
-
-    fun enrollE2EICertificate() {
-        state = state.copy(startGettingE2EICertificate = true)
-    }
-
-    fun handleE2EIEnrollmentResult(result: Either<CoreFailure, E2EIEnrollmentResult>) {
-        result.fold({
-            state = state.copy(
-                certificate = (it as E2EIFailure.OAuth).reason,
-                showCertificate = true,
-                startGettingE2EICertificate = false
-            )
-        }, {
-            if (it is E2EIEnrollmentResult.Finalized) {
-                state = state.copy(
-                    certificate = it.certificate,
-                    showCertificate = true,
-                    startGettingE2EICertificate = false
-                )
-            } else {
-                state.copy(
-                    certificate = it.toString(),
-                    showCertificate = true,
-                    startGettingE2EICertificate = false
-                )
-            }
-        })
-    }
-
-    fun dismissCertificateDialog() {
-        state = state.copy(
-            showCertificate = false,
-        )
-    }
-
-    fun forceUpdateApiVersions() {
-        updateApiVersions.scheduleImmediateApiVersionUpdate()
-    }
-
-    fun disableEventProcessing(disabled: Boolean) {
-        viewModelScope.launch {
-            disableEventProcessingUseCase(disabled)
-            state = state.copy(isEventProcessingDisabled = disabled)
-        }
-    }
-
-    //region Private
-    private fun observeEncryptedProteusStorageState() {
-        viewModelScope.launch {
-            globalDataStore.isEncryptedProteusStorageEnabled().collect {
-                state = state.copy(isEncryptedProteusStorageEnabled = it)
-            }
-        }
-    }
-
-    // If status is NoNeed, it means that the user has already been migrated in and older app version,
-    // or it is a new install
-    // this is why we check the existence of the database file
-    private fun checkIfCanTriggerManualMigration() {
-        viewModelScope.launch {
-            globalDataStore.getUserMigrationStatus(currentAccount.value).first()
-                .let { migrationStatus ->
-                    if (migrationStatus != UserMigrationStatus.NoNeed) {
-                        context.getDatabasePath(currentAccount.value).let {
-                            state = state.copy(
-                                isManualMigrationAllowed = (it.exists() && it.isFile)
-                            )
-                        }
-                    }
-                }
-        }
-    }
-
-    private fun observeMlsMetadata() {
-        viewModelScope.launch {
-            mlsKeyPackageCountUseCase().let {
-                when (it) {
-                    is MLSKeyPackageCountResult.Success -> {
-                        state = state.copy(
-                            keyPackagesCount = it.count,
-                            mslClientId = it.clientId.value
-                        )
-                    }
-
-                    is MLSKeyPackageCountResult.Failure.NetworkCallFailure -> {
-                        state = state.copy(mlsErrorMessage = "Network Error!")
-                    }
-
-                    is MLSKeyPackageCountResult.Failure.FetchClientIdFailure -> {
-                        state = state.copy(mlsErrorMessage = "ClientId Fetch Error!")
-                    }
-
-                    is MLSKeyPackageCountResult.Failure.Generic -> {}
-                }
-            }
-        }
-    }
-    //endregion
-}
-//endregion
 
 @Composable
 fun DebugDataOptions(
@@ -272,7 +73,9 @@ fun DebugDataOptions(
         onDisableEventProcessingChange = viewModel::disableEventProcessing,
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
-        dismissCertificateDialog = viewModel::dismissCertificateDialog
+        dismissCertificateDialog = viewModel::dismissCertificateDialog,
+        checkCrlRevocationList = viewModel::checkCrlRevocationList,
+        dependenciesMap = viewModel.state.dependencies
     )
 }
 
@@ -290,7 +93,9 @@ fun DebugDataOptionsContent(
     onManualMigrationPressed: () -> Unit,
     enrollE2EICertificate: () -> Unit,
     handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
-    dismissCertificateDialog: () -> Unit
+    dismissCertificateDialog: () -> Unit,
+    checkCrlRevocationList: () -> Unit,
+    dependenciesMap: ImmutableMap<String, String?>
 ) {
     Column {
 
@@ -325,6 +130,7 @@ fun DebugDataOptionsContent(
                 onClick = { onCopyText(state.commitish) }
             )
         )
+        DependenciesItem(dependenciesMap)
         if (BuildConfig.PRIVATE_BUILD) {
 
             SettingsItem(
@@ -377,7 +183,7 @@ fun DebugDataOptionsContent(
                 onDisableEventProcessingChange = onDisableEventProcessingChange,
                 onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
-                dependenciesMap = state.dependencies
+                checkCrlRevocationList = checkCrlRevocationList
             )
         }
 
@@ -546,7 +352,7 @@ private fun DebugToolsOptions(
     onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
-    dependenciesMap: ImmutableMap<String, String?>
+    checkCrlRevocationList: () -> Unit
 ) {
     FolderHeader(stringResource(R.string.label_debug_tools_title))
     Column {
@@ -574,6 +380,29 @@ private fun DebugToolsOptions(
                 )
             }
         )
+
+        // checkCrlRevocationList
+        RowItemTemplate(
+            modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = "CRL revocation check",
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            },
+            actions = {
+                WirePrimaryButton(
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    onClick = checkCrlRevocationList,
+                    text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
+                    fillMaxWidth = false
+                )
+            }
+        )
+
         RowItemTemplate(
             modifier = Modifier.wrapContentWidth(),
             title = {
@@ -594,18 +423,30 @@ private fun DebugToolsOptions(
                 )
             }
         )
-        RowItemTemplate(
-            modifier = Modifier.wrapContentWidth(),
-            title = {
-                Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    text = prettyPrintMap(dependenciesMap),
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
-                )
-            }
-        )
     }
+}
+
+/**
+ * Compose function that will display the list of dependencies
+ * @param dependencies an Immutable map of a dependency name to its version number
+ */
+@Composable
+fun DependenciesItem(dependencies: ImmutableMap<String, String?>) {
+    val title = stringResource(id = R.string.item_dependencies_title)
+    val text = remember {
+        prettyPrintMap(dependencies, title)
+    }
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = text,
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        }
+    )
 }
 
 @Composable
@@ -638,8 +479,8 @@ private fun DisableEventProcessingSwitch(
 }
 
 @Stable
-private fun prettyPrintMap(map: ImmutableMap<String, String?>): String = StringBuilder().apply {
-    append("Dependencies:\n")
+private fun prettyPrintMap(map: ImmutableMap<String, String?>, title: String): String = StringBuilder().apply {
+    append("$title\n")
     map.forEach { (key, value) ->
         append("$key: $value\n")
     }
@@ -670,6 +511,8 @@ fun PreviewOtherDebugOptions() {
         onManualMigrationPressed = {},
         enrollE2EICertificate = {},
         handleE2EIEnrollmentResult = {},
-        dismissCertificateDialog = {}
+        dismissCertificateDialog = {},
+        checkCrlRevocationList = {},
+        dependenciesMap = persistentMapOf()
     )
 }

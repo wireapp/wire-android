@@ -98,6 +98,7 @@ class LegalHoldRequestedViewModel @Inject constructor(
                     is LegalHoldRequestData.Pending -> {
                         LegalHoldRequestedState.Visible(
                             requiresPassword = legalHoldRequestData.isPasswordRequired,
+                            acceptEnabled = !legalHoldRequestData.isPasswordRequired,
                             legalHoldDeviceFingerprint = legalHoldRequestData.fingerprint,
                             userId = legalHoldRequestData.userId,
                         )
@@ -115,7 +116,7 @@ class LegalHoldRequestedViewModel @Inject constructor(
 
     fun passwordChanged(password: TextFieldValue) {
         state.ifVisible {
-            state = it.copy(password = password, acceptEnabled = validatePassword(password.text).isValid)
+            state = it.copy(password = password, acceptEnabled = !it.requiresPassword || validatePassword(password.text).isValid)
         }
     }
 
@@ -127,6 +128,7 @@ class LegalHoldRequestedViewModel @Inject constructor(
         (legalHoldRequestDataStateFlow.value as? LegalHoldRequestData.Pending)?.let {
             state = LegalHoldRequestedState.Visible(
                 requiresPassword = it.isPasswordRequired,
+                acceptEnabled = !it.isPasswordRequired,
                 legalHoldDeviceFingerprint = it.fingerprint,
                 userId = it.userId,
             )
@@ -137,46 +139,40 @@ class LegalHoldRequestedViewModel @Inject constructor(
         state.ifVisible {
             state = it.copy(acceptEnabled = false, loading = true)
             // the accept button is enabled if the password is valid, this check is for safety only
-            validatePassword(it.password.text).let { validatePasswordResult ->
-                when (validatePasswordResult.isValid) {
-                    false ->
-                        state = it.copy(
-                            loading = false,
-                            error = LegalHoldRequestedError.InvalidCredentialsError
-                        )
+            if (it.requiresPassword && validatePassword(it.password.text).isValid.not()) {
+                state = it.copy(loading = false, error = LegalHoldRequestedError.InvalidCredentialsError)
+            } else {
+                val password = if (it.requiresPassword) it.password.text else null
+                viewModelScope.launch {
+                    coreLogic.sessionScope(it.userId) {
+                        approveLegalHoldRequest(password).let { approveLegalHoldResult ->
+                            state = when (approveLegalHoldResult) {
+                                is ApproveLegalHoldRequestUseCase.Result.Success ->
+                                    LegalHoldRequestedState.Hidden
 
-                    true ->
-                        viewModelScope.launch {
-                            coreLogic.sessionScope(it.userId) {
-                                approveLegalHoldRequest(it.password.text).let { approveLegalHoldResult ->
-                                    state = when (approveLegalHoldResult) {
-                                        is ApproveLegalHoldRequestUseCase.Result.Success ->
-                                            LegalHoldRequestedState.Hidden
+                                ApproveLegalHoldRequestUseCase.Result.Failure.InvalidPassword ->
+                                    it.copy(
+                                        loading = false,
+                                        error = LegalHoldRequestedError.InvalidCredentialsError
+                                    )
 
-                                        ApproveLegalHoldRequestUseCase.Result.Failure.InvalidPassword ->
-                                            it.copy(
-                                                loading = false,
-                                                error = LegalHoldRequestedError.InvalidCredentialsError
-                                            )
+                                ApproveLegalHoldRequestUseCase.Result.Failure.PasswordRequired ->
+                                    it.copy(
+                                        loading = false,
+                                        requiresPassword = true,
+                                        error = LegalHoldRequestedError.InvalidCredentialsError
+                                    )
 
-                                        ApproveLegalHoldRequestUseCase.Result.Failure.PasswordRequired ->
-                                            it.copy(
-                                                loading = false,
-                                                requiresPassword = true,
-                                                error = LegalHoldRequestedError.InvalidCredentialsError
-                                            )
-
-                                        is ApproveLegalHoldRequestUseCase.Result.Failure.GenericFailure -> {
-                                            appLogger.e("$TAG: Failed to approve legal hold: ${approveLegalHoldResult.coreFailure}")
-                                            it.copy(
-                                                loading = false,
-                                                error = LegalHoldRequestedError.GenericError(approveLegalHoldResult.coreFailure)
-                                            )
-                                        }
-                                    }
+                                is ApproveLegalHoldRequestUseCase.Result.Failure.GenericFailure -> {
+                                    appLogger.e("$TAG: Failed to approve legal hold: ${approveLegalHoldResult.coreFailure}")
+                                    it.copy(
+                                        loading = false,
+                                        error = LegalHoldRequestedError.GenericError(approveLegalHoldResult.coreFailure)
+                                    )
                                 }
                             }
                         }
+                    }
                 }
             }
         }

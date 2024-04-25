@@ -1,3 +1,5 @@
+import scripts.Variants_gradle
+
 /*
  * Wire
  * Copyright (C) 2024 Wire Swiss GmbH
@@ -33,7 +35,6 @@ plugins {
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
-    id(ScriptPlugins.spotless)
     id(libs.plugins.wire.kover.get().pluginId)
 }
 
@@ -43,6 +44,11 @@ repositories {
     google()
 }
 
+fun isFossSourceSet(): Boolean {
+    return (Variants_gradle.Default.explicitBuildFlavor() ?: gradle.startParameter.taskRequests.toString())
+        .lowercase()
+        .contains("fdroid")
+}
 android {
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin
@@ -58,27 +64,25 @@ android {
     }
     android.buildFeatures.buildConfig = true
 
-    var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
+    val fdroidBuild = isFossSourceSet()
+
     sourceSets {
         // Add the "foss" sourceSets for the fdroid flavor
-        if(fdroidBuild) {
-            getByName("main") {
+        if (fdroidBuild) {
+            getByName("fdroid") {
                 java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
-                resources.srcDirs("src/prod/res")
+                res.srcDirs("src/prod/res")
                 println("Building with FOSS sourceSets")
             }
-        // For all other flavors use the "nonfree" sourceSets
+            // For all other flavors use the "nonfree" sourceSets
         } else {
             getByName("main") {
-                java.srcDirs("src/main/kotlin", "src/nonfree/kotlin")
+                java.srcDirs("src/nonfree/kotlin")
                 println("Building with non-free sourceSets")
             }
         }
     }
 }
-
-
-
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
@@ -170,11 +174,17 @@ dependencies {
     implementation(libs.resaca.hilt)
     implementation(libs.bundlizer.core)
 
-    // firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.fcm)
+    var fdroidBuild = isFossSourceSet()
+
+    if (!fdroidBuild) {
+        // firebase
+        implementation(platform(libs.firebase.bom))
+        implementation(libs.firebase.fcm)
+        implementation(libs.googleGms.location)
+    } else {
+        println("Excluding FireBase for FDroid build")
+    }
     implementation(libs.androidx.work)
-    implementation(libs.googleGms.location)
 
     // commonMark
     implementation(libs.commonmark.core)

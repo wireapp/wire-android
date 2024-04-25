@@ -58,6 +58,7 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
+import com.wire.android.util.CurrentConversationDetailsCache
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -74,6 +75,7 @@ fun EnabledMessageComposer(
     onSearchMentionQueryChanged: (String) -> Unit,
     onTypingEvent: (Conversation.TypingIndicatorMode) -> Unit,
     onSendButtonClicked: () -> Unit,
+    onImagePicked: (Uri) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onLocationPicked: (GeoLocatedAddress) -> Unit,
@@ -110,7 +112,7 @@ fun EnabledMessageComposer(
                 messageCompositionInputStateHolder.clearFocus()
             } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
                 messageCompositionInputStateHolder.requestFocus()
-                additionalOptionStateHolder.hideAdditionalOptionsMenu()
+                additionalOptionStateHolder.unselectAdditionalOptionsMenu()
             }
         }
 
@@ -177,6 +179,7 @@ fun EnabledMessageComposer(
                                 inputFocused = messageCompositionInputStateHolder.inputFocused,
                                 onInputFocusedChanged = ::onInputFocusedChanged,
                                 onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
+                                onTextCollapse = messageCompositionInputStateHolder::collapseText,
                                 onCancelReply = messageCompositionHolder::clearReply,
                                 onCancelEdit = ::cancelEdit,
                                 onMessageTextChanged = {
@@ -246,7 +249,7 @@ fun EnabledMessageComposer(
                                 onAdditionalOptionsMenuClicked = {
                                     if (!isKeyboardMoving) {
                                         if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.AttachFile) {
-                                            additionalOptionStateHolder.hideAdditionalOptionsMenu()
+                                            additionalOptionStateHolder.unselectAdditionalOptionsMenu()
                                             messageCompositionInputStateHolder.toComposing()
                                         } else {
                                             showAdditionalOptionsMenu()
@@ -258,7 +261,10 @@ fun EnabledMessageComposer(
                                     additionalOptionStateHolder.toRichTextEditing()
                                 },
                                 onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                                onDrawingModeClicked = additionalOptionStateHolder::toDrawingMode
+                                onDrawingModeClicked = {
+                                    showAdditionalOptionsMenu()
+                                    additionalOptionStateHolder.toDrawingMode()
+                                }
                             )
                         }
                         Box(
@@ -280,6 +286,7 @@ fun EnabledMessageComposer(
                                     onRecordAudioMessageClicked = ::toAudioRecording,
                                     onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
                                     onLocationPickerClicked = ::toLocationPicker,
+                                    onImagePicked = onImagePicked,
                                     onAttachmentPicked = onAttachmentPicked,
                                     onAudioRecorded = onAudioRecorded,
                                     onLocationPicked = onLocationPicked,
@@ -294,12 +301,14 @@ fun EnabledMessageComposer(
                         if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.DrawingMode) {
                             DrawingCanvasBottomSheet(
                                 onDismissSketch = {
-                                    inputStateHolder.handleBackPressed(
-                                        isImeVisible,
-                                        additionalOptionStateHolder.additionalOptionsSubMenuState
-                                    )
+                                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
                                 },
-                                onSendSketch = onSendButtonClicked
+                                onSendSketch = {
+                                    onAttachmentPicked(UriAsset(it))
+                                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
+                                },
+                                conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
+                                tempWritableImageUri = tempWritableImageUri
                             )
                         }
                     }
@@ -310,10 +319,7 @@ fun EnabledMessageComposer(
                 cancelEdit()
             }
             BackHandler(isImeVisible || inputStateHolder.optionsVisible) {
-                inputStateHolder.handleBackPressed(
-                    isImeVisible,
-                    additionalOptionStateHolder.additionalOptionsSubMenuState
-                )
+                inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
             }
         }
     }

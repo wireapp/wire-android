@@ -37,6 +37,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -82,7 +83,7 @@ class SystemMessageContentMapper @Inject constructor(
         return UIMessageContent.SystemMessage.ConversationMessageCreated(
             author = authorName,
             isAuthorSelfUser = sender is SelfUser,
-            date.formatFullDateShortTime().orDefault(date).toUpperCase()
+            date.formatFullDateShortTime().orDefault(date).uppercase(Locale.getDefault())
         )
     }
 

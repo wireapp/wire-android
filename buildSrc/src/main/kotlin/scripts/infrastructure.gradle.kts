@@ -36,7 +36,7 @@ tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
     dependsOn(":app:test${Default.BUILD_VARIANT}UnitTest")
     val buildType =
-        if (Default.BUILD_TYPE == Variants_gradle.BuildTypes.DEBUG) Default.BUILD_TYPE.capitalized()
+        if (Default.resolvedBuildType() == Variants_gradle.BuildTypes.DEBUG) Default.resolvedBuildType().capitalized()
         else Variants_gradle.BuildTypes.RELEASE.capitalized()
 
     // valid submodules path to run unit tests
@@ -50,7 +50,7 @@ tasks.register("runUnitTests") {
 
 tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
-    dependsOn(":app:connected${Default.BUILD_FLAVOR.capitalize()}DebugAndroidTest")
+    dependsOn(":app:connected${Default.resolvedBuildFlavor().capitalize()}DebugAndroidTest")
 }
 
 tasks.register("assembleApp") {
@@ -83,7 +83,7 @@ tasks.register("runApp", Exec::class) {
         val sdkDir = properties["sdk.dir"]
         val adb = "${sdkDir}/platform-tools/adb"
 
-        val applicationPackage = "com.wire.android.${Default.BUILD_FLAVOR}"
+        val applicationPackage = "com.wire.android.${Default.resolvedBuildFlavor()}"
         val launchActivity = "com.wire.android.feature.launch.ui.LauncherActivity"
 
         commandLine(adb, "shell", "am", "start", "-n", "${applicationPackage}/${launchActivity}")

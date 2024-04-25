@@ -15,29 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.home.conversations.media.preview
 
-package scripts
+import android.net.Uri
+import com.wire.kalium.logic.data.id.ConversationId
 
-apply(plugin = "com.diffplug.spotless")
-
-configure<com.diffplug.gradle.spotless.SpotlessExtension> {
-    kotlin {
-        target("**/*.kt")
-        ktlint().userData(
-            mapOf(
-                "disabled_rules" to "import-ordering",
-                "max_line_length" to "140"
-            )
-        )
-        trimTrailingWhitespace()
-        licenseHeaderFile("$rootDir/buildSrc/src/main/kotlin/spotless/class.license")
-    }
-    kotlinGradle {
-        target("*.gradle.kts")
-        ktlint()
-    }
-    format("xml") {
-        target("**/*.xml")
-        trimTrailingWhitespace()
-    }
-}
+data class ImagesPreviewNavArgs(
+    val conversationId: ConversationId,
+    val conversationName: String,
+    val assetUri: Uri
+)

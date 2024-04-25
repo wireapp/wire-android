@@ -25,13 +25,16 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,6 +47,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -55,6 +59,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.PermissionDenialType
+import com.wire.android.util.time.convertTimestampToDateTime
 
 @RootNavGraph
 @Destination
@@ -110,18 +115,15 @@ fun BackupAndRestoreContent(
                 .fillMaxHeight()
                 .padding(internalPadding)
         ) {
-            Column(
+
+            backupAndRestoreText(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(id = R.string.settings_backup_info),
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)
-                )
-            }
+                    .padding(MaterialTheme.wireDimensions.spacing16x)
+                    .fillMaxWidth(),
+                backUpAndRestoreState.lastBackupData
+            )
+
             Surface(
                 color = MaterialTheme.wireColorScheme.background,
                 shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
@@ -200,6 +202,60 @@ fun BackupAndRestoreContent(
         dialogState = permissionPermanentlyDeniedDialogState,
         hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
+}
+
+@Composable
+private fun backupAndRestoreText(modifier: Modifier, lastBackupTime: Long?) {
+    Column(
+        modifier = modifier
+    ) {
+
+        val lastBackupText: AnnotatedString = lastBackupTime?.let { timeStamp ->
+            val applicationContext = LocalContext.current.applicationContext
+            val (date, time) = convertTimestampToDateTime(timeStamp, context = applicationContext)
+
+            val formattedString = stringResource(
+                id = R.string.settings_backup_last_backup_date,
+                date,
+                time
+            )
+            val spannableString = AnnotatedString.Builder(formattedString)
+            val dateStartIndex = formattedString.indexOf(date)
+            spannableString.addStyle(
+                style = SpanStyle(fontWeight = FontWeight.Bold),
+                start = dateStartIndex,
+                end = dateStartIndex + date.length
+            )
+
+            val timeStartIndex = formattedString.indexOf(time)
+            spannableString.addStyle(
+                style = SpanStyle(fontWeight = FontWeight.Bold),
+                start = timeStartIndex,
+                end = timeStartIndex + time.length,
+            )
+
+            spannableString.toAnnotatedString()
+        } ?: AnnotatedString(stringResource(id = R.string.settings_backup_last_backup_date_no_time))
+
+        Text(
+            text = stringResource(id = R.string.settings_backup_info),
+            style = MaterialTheme.wireTypography.body01,
+            color = MaterialTheme.wireColorScheme.onBackground
+        )
+        Text(
+            text = stringResource(id = R.string.settings_backup_last_backup_title),
+            style = MaterialTheme.wireTypography.label01,
+            color = MaterialTheme.wireColorScheme.secondaryText,
+            modifier = Modifier
+                .padding(top = MaterialTheme.wireDimensions.spacing32x)
+        )
+        Text(
+            text = lastBackupText,
+            style = MaterialTheme.wireTypography.body01,
+            color = MaterialTheme.wireColorScheme.onBackground,
+            modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x)
+        )
+    }
 }
 
 @Preview

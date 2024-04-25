@@ -155,7 +155,10 @@ fun RestoreProgressDialog(
                 }
             }
             VerticalSpace.x16()
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = progress)
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.fillMaxWidth(),
+            )
             VerticalSpace.x16()
         }
     }

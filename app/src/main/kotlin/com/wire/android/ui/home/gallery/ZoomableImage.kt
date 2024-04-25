@@ -35,7 +35,7 @@ import androidx.compose.ui.layout.ContentScale
 import com.wire.android.model.ImageAsset
 
 @Composable
-fun ZoomableImage(imageAsset: ImageAsset.Remote, contentDescription: String, imageScale: Float = 1.0f) {
+fun ZoomableImage(imageAsset: ImageAsset.Remote, contentDescription: String) {
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var zoom by remember { mutableStateOf(1f) }

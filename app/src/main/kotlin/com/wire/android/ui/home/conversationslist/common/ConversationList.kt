@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -66,7 +66,7 @@ fun ConversationList(
      *  it so it wants to keep this dummy top item as the first one on list and show all other items below it.
      */
         item("empty-top-header") {
-            Divider(
+            HorizontalDivider(
                 thickness = Dp.Hairline,
                 color = Color.Transparent
             )

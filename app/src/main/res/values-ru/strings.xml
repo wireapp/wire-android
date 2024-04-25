@@ -82,6 +82,7 @@
     <string name="label_user_blocked">Заблокирован(-а)</string>
     <string name="label_and">и</string>
     <string name="label_retry">Повторить</string>
+    <string name="label_draft">*Черновик*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">Логотип приложения</string>
     <string name="content_description_reveal_password">Показать пароль</string>
@@ -106,6 +107,7 @@
     <string name="content_description_conversation_search_icon">Значок поиска</string>
     <string name="content_description_conversation_search_input">Поиск</string>
     <string name="content_description_conversation_enable_rich_text_mode">Кнопка включения режима форматированного текста</string>
+    <string name="content_description_conversation_enable_drawing_mode">Кнопка включения режима рисования</string>
     <string name="content_description_conversation_rich_text_header">Заголовок</string>
     <string name="content_description_conversation_rich_text_bold">Жирный</string>
     <string name="content_description_conversation_rich_text_italic">Курсив</string>
@@ -186,6 +188,7 @@
     <string name="give_feedback_screen_title">Оставить отзыв</string>
     <string name="report_bug_screen_title">Сообщить об ошибке</string>
     <string name="debug_settings_screen_title">Параметры отладки</string>
+    <string name="item_dependencies_title">Зависимости:</string>
     <string name="support_screen_title">Служба поддержки</string>
     <string name="backup_and_restore_screen_title">Резервное копирование и восстановление бесед</string>
     <string name="search_bar_conversations_hint">Поиск бесед</string>
@@ -199,6 +202,9 @@
     <string name="settings_backups_group_title">Резервные копии</string>
     <string name="settings_other_group_title">Другое</string>
     <string name="settings_backup_info">Создайте резервную копию, чтобы сохранить историю бесед. Она пригодится для восстановления истории в случае потери или замены устройства.\n\nВыберите надежный пароль для защиты резервной копии.</string>
+    <string name="settings_backup_last_backup_title">Последнее резервное копирование</string>
+    <string name="settings_backup_last_backup_date">Последняя резервная копия для этого устройства была создана на %1$s в %2$s.</string>
+    <string name="settings_backup_last_backup_date_no_time">Вы еще не создали резервную копию для этого устройства.</string>
     <string name="settings_backup_create">Создать резервную копию</string>
     <string name="settings_backup_restore">Восстановить из резервной копии</string>
     <!-- Welcome -->
@@ -212,6 +218,7 @@
     <string name="welcome_screen_carousel_item_message_5">Компания Wire прошла независимый аудит и соответствует требованиям ISO, CCPA, GDPR, SOX</string>
     <string name="welcome_button_create_team">Создать команду</string>
     <string name="server_details_dialog_body">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s\n\nURL прокси:\n%3$s\n\nПрокси аутентификации:\n%4$s</string>
     <string name="server_details_dialog_title">Внутренний бэкэнд</string>
     <string name="welcome_migration_dialog_title">Добро пожаловать в наше новое приложение для Android 👋</string>
     <string name="welcome_migration_dialog_content">Мы переработали приложение, чтобы сделать его более удобным для всех.\n\nУзнайте больше об обновленном приложении Wire - новые возможности и улучшенная доступность при прежней надежной защите.</string>
@@ -276,7 +283,7 @@
         вашей команды история бесед также была удалена.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Подтвердите учетную запись</string>
-    <string name="second_factor_authentication_instructions_label">Введите код подтверждения, отправленный на email %1$s</string>
+    <string name="second_factor_authentication_instructions_label">Пожалуйста, введите ниже код проверки, отправленный на ваш email %1$s.</string>
     <string name="second_factor_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Удалить устройство</string>
@@ -465,6 +472,17 @@
     <string name="message_details_reactions_empty_learn_more">Узнать больше о реакциях</string>
     <string name="message_details_read_receipts_empty_text">Пока никто не прочитал это сообщение 👀</string>
     <string name="message_details_read_receipts_empty_learn_more">Узнать больше об отчетах о прочтении</string>
+    <!-- Messages Date and Time -->
+    <string name="message_datetime_now">Только что</string>
+    <plurals name="message_datetime_minutes_ago">
+        <item quantity="one">1 минуту назад</item>
+        <item quantity="few">%1$d минуты назад</item>
+        <item quantity="many">%1$d минут назад</item>
+        <item quantity="other">%1$d минуты назад</item>
+    </plurals>
+    <string name="message_datetime_today">Сегодня, %s</string>
+    <string name="message_datetime_yesterday">Вчера, %s</string>
+    <string name="message_datetime_other">%s</string>
     <!-- Attachment options -->
     <string name="attachment_share_file">Файл</string>
     <string name="attachment_share_image">Изображение</string>
@@ -942,7 +960,7 @@
     <string name="settings_network_settings_label">Настройки сети</string>
     <string name="settings_manage_devices_label">Управление устройствами</string>
     <string name="settings_keep_connection_to_websocket">Поддерживать соединение с веб-сокетом</string>
-    <string name="settings_keep_connection_to_websocket_description">Позволяет оптимизировать получение уведомлений, поддерживая постоянное соединение с %1$s. Эта опция заменит службу уведомлений, если Google Services недоступны на устройстве.</string>
+    <string name="settings_keep_connection_to_websocket_description">Обеспечивает более эффективное получение уведомлений, поддерживая постоянное соединение с %1$s. При отсутствии на устройстве Google Services заменит службу уведомлений.</string>
     <string name="settings_service_is_running">активен</string>
     <!--Settings, Appearance -->
     <string name="settings_appearance_label">Внешний вид</string>
@@ -1028,6 +1046,8 @@
     <string name="custom_backend_dialog_body">При продолжении вы будете перенаправлены на следующий локальный бэкэнд:</string>
     <string name="custom_backend_dialog_body_backend_name">Название бэкэнда:</string>
     <string name="custom_backend_dialog_body_backend_api">URL бэкэнда:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">URL прокси:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Прокси аутентификации:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">URL черного списка:</string>
     <string name="custom_backend_dialog_body_backend_teams">URL команды:</string>
     <string name="custom_backend_dialog_body_backend_accounts">URL аккаунта:</string>
@@ -1308,6 +1328,8 @@
     <string name="end_to_end_identity_renew_success_dialog_title">Сертификат обновлен</string>
     <string name="end_to_end_identity_renew_success_dialog_text">Сертификат обновлен, а устройство верифицировано.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Сведения о сертификате</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_title">Не удалось выпустить сертификат</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_text">Пожалуйста, попробуйте еще раз или свяжитесь с администратором вашей команды.</string>
     <string name="end_to_end_identity_ceritifcate">Сведения о сертификате</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">Сертификат сквозной идентификации отозван</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_description">Для снижения рисков безопасности следует осуществить выход. После авторизации получите новый сертификат и сбросьте пароль.\n\nЕсли вы продолжите использование этого устройства, ваши разговоры больше не будут являться верифицированными.</string>
@@ -1317,6 +1339,7 @@
     <string name="record_audio_start_label">Начать запись</string>
     <string name="record_audio_recording_label">Запись аудио…</string>
     <string name="record_audio_send_label">Отправить аудиосообщение</string>
+    <string name="record_audio_apply_filter_label">Применить аудиофильтр</string>
     <string name="record_audio_discard_dialog_title">Отменить аудиосообщение?</string>
     <string name="record_audio_discard_dialog_text">Аудиосообщение будет удалено и не будет отправлено.</string>
     <string name="record_audio_discard_dialog_discard_button">Отменить</string>

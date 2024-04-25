@@ -487,7 +487,7 @@
     <string name="message_details_read_receipts_empty_text">No one read this message yet 👀</string>
     <string name="message_details_read_receipts_empty_learn_more">Learn more about read receipts</string>
     <!-- Messages Date and Time -->
-    <string name="message_datetime_now">now</string>
+    <string name="message_datetime_now">Just now</string>
     <plurals name="message_datetime_minutes_ago">
         <item quantity="one">1 minute ago</item>
         <item quantity="other">%1$d minutes ago</item>

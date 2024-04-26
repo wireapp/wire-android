@@ -86,14 +86,6 @@ fun VerticalCallingPager(
                     val participantsWithCameraOn by rememberUpdatedState(participants.count { it.isCameraOn })
                     val participantsWithScreenShareOn by rememberUpdatedState(participants.count { it.isSharingScreen })
 
-                    LaunchedEffect(
-                        participantsWithCameraOn, // Request video stream when someone turns camera on/off
-                        participantsWithScreenShareOn, // Request video stream when someone starts sharing screen
-                        pagerState.currentPage // Request video stream when swiping to a different page on the grid
-                    ) {
-                        requestVideoStreams(participantsChunkedList[pagerState.currentPage])
-                    }
-
                     if (participantsChunkedList[pageIndex].size <= MAX_ITEMS_FOR_HORIZONTAL_VIEW) {
                         CallingHorizontalView(
                             participants = participantsChunkedList[pageIndex],
@@ -116,6 +108,14 @@ fun VerticalCallingPager(
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
                             onDoubleTap = onDoubleTap
                         )
+                    }
+
+                    LaunchedEffect(
+                        participantsWithCameraOn, // Request video stream when someone turns camera on/off
+                        participantsWithScreenShareOn, // Request video stream when someone starts sharing screen
+                        pagerState.currentPage // Request video stream when swiping to a different page on the grid
+                    ) {
+                        requestVideoStreams(participantsChunkedList[pagerState.currentPage])
                     }
                 }
             }

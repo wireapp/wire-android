@@ -69,7 +69,8 @@ fun <T : Node> T.toContent(isParentDocument: Boolean = false): MarkdownNode {
         is FencedCodeBlock -> MarkdownNode.Block.FencedCode(isParentDocument, literal)
         is IndentedCodeBlock -> MarkdownNode.Block.IntendedCode(isParentDocument, literal)
         is HtmlBlock -> MarkdownNode.Block.Paragraph(
-            children = listOf(MarkdownNode.Inline.Text(this.literal)), isParentDocument
+            children = listOf(MarkdownNode.Inline.Text(this.literal)),
+            isParentDocument
         ) // TODO unsupported html
 
         is TableBlock -> MarkdownNode.Block.Table(convertChildren<MarkdownNode.Block.TableContent>(), isParentDocument)

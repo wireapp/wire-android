@@ -449,28 +449,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-<<<<<<< HEAD
-    fun provideObserveLegalHoldRequestUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).observeLegalHoldRequest
-
-    @ViewModelScoped
-    @Provides
-    fun provideObserveLegalHoldForSelfUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).observeLegalHoldForSelfUser
-
-    @ViewModelScoped
-    @Provides
-    fun provideObserveLegalHoldForUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).observeLegalHoldStateForUser
-
-    @ViewModelScoped
-    @Provides
-    fun provideMembersHavingLegalHoldClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).membersHavingLegalHoldClient
-=======
     fun provideFetchConversationMLSVerificationStatusUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): FetchConversationMLSVerificationStatusUseCase = coreLogic.getSessionScope(currentAccount).fetchConversationMLSVerificationStatus
->>>>>>> 970a49151 (fix: Fetch MLS status on every conversation opening [WPB-8610] (#2884))
 }

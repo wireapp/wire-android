@@ -17,19 +17,52 @@
  */
 package com.wire.android.feature.sketch
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
 import com.wire.android.feature.sketch.model.DrawingPathProperties
 import com.wire.android.feature.sketch.model.DrawingState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
-internal class DrawingCanvasViewModel : ViewModel() {
+@Suppress("TooManyFunctions")
+class DrawingCanvasViewModel : ViewModel() {
 
-    var state: DrawingState by mutableStateOf(DrawingState())
+    internal var state: DrawingState by mutableStateOf(DrawingState())
         private set
+
+    init {
+        initializeCanvas()
+    }
+
+    fun initializeCanvas() {
+        state = DrawingState(currentPath = DrawingPathProperties())
+    }
+
+    fun onShowConfirmationDialog() {
+        state = state.copy(showConfirmationDialog = true)
+    }
+
+    fun onHideConfirmationDialog() {
+        state = state.copy(showConfirmationDialog = false)
+    }
 
     /**
      * Marks the start of the drawing.
@@ -82,6 +115,82 @@ internal class DrawingCanvasViewModel : ViewModel() {
             currentPosition = Offset.Unspecified,
             drawingMotionEvent = DrawingMotionEvent.Idle
         )
+    }
+
+    /**
+     * Sets the canvas size or modifies it if zoom is implemented.
+     */
+    fun onSizeChanged(canvasSize: Size) {
+        state = state.copy(canvasSize = canvasSize)
+    }
+
+    /**
+     * Undoes the last stroke.
+     */
+    fun onUndoLastStroke() {
+        if (state.paths.isNotEmpty()) {
+            state = state.copy(
+                paths = state.paths.dropLast(1),
+                pathsUndone = state.pathsUndone + state.paths.last()
+            )
+        }
+    }
+
+    /**
+     * Saves the image to the provided URI and resets the canvas.
+     *
+     * @param context The context to use to open the file descriptor.
+     * @param tempWritableImageUri The URI to save the image to.
+     *
+     * @return The [Uri] of the saved image.
+     */
+    suspend fun saveImage(context: Context, tempWritableImageUri: Uri?): Uri {
+        val tempSketchFile = tempWritableImageUri.orTempUri(context)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                with(state) {
+                    if (canvasSize == null || state.paths.isEmpty()) return@withContext
+
+                    val bitmap = Bitmap.createBitmap(
+                        canvasSize!!.width.toInt(),
+                        canvasSize!!.height.toInt(),
+                        Bitmap.Config.ARGB_8888
+                    )
+                    val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.White.toArgb() }) }
+                    context.contentResolver.openFileDescriptor(tempSketchFile, "rw")?.use { fileDescriptor ->
+                        FileOutputStream(fileDescriptor.fileDescriptor).use { fileOutputStream ->
+                            paths.forEach { path -> path.drawNative(canvas) }
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY, fileOutputStream)
+                            fileOutputStream.flush()
+                        }.also {
+                            Log.d("DrawingCanvasViewModel", "Image written to: $tempSketchFile")
+                        }
+                    }
+                }
+            }
+        }.join()
+        initializeCanvas()
+        return tempSketchFile
+    }
+
+    fun onColorChanged(selectedColor: Color) {
+        state = state.copy(
+            currentPath = DrawingPathProperties().apply {
+                strokeWidth = state.currentPath.strokeWidth
+                color = selectedColor
+                drawMode = state.currentPath.drawMode
+            }
+        )
+    }
+
+    private fun Uri?.orTempUri(context: Context): Uri = this ?: run {
+        val tempFile = File.createTempFile("temp_sketch", ".jpg", context.cacheDir)
+        tempFile.deleteOnExit()
+        tempFile.toUri()
+    }
+
+    companion object {
+        private const val QUALITY = 50
     }
 
 }

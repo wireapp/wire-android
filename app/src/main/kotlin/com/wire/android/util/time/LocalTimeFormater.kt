@@ -15,14 +15,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.navigation.style
+package com.wire.android.util.time
 
-interface ScreenModeStyle {
-    fun screenMode(): ScreenMode
-}
+import android.content.Context
+import android.text.format.DateFormat
+import androidx.compose.runtime.Stable
+import java.util.Date
+import java.util.TimeZone
 
-enum class ScreenMode {
-    KEEP_ON, // keep screen on while that NavigationItem is visible (i.e CallScreen)
-    WAKE_UP, // wake up the device on navigating to that NavigationItem (i.e IncomingCall)
-    NONE // do not wake up and allow device to sleep
+@Stable
+fun convertTimestampToDateTime(
+    timestampSeconds: Long,
+    context: Context
+): Pair<String, String> {
+
+    val dateFormat = DateFormat.getDateFormat(context)
+    val timeFormat = DateFormat.getTimeFormat(context)
+
+    val timezone = TimeZone.getDefault()
+    dateFormat.timeZone = timezone
+    timeFormat.timeZone = timezone
+
+    val dateTime = Date(timestampSeconds * 1000)
+    val date = dateFormat.format(dateTime)
+    val time = timeFormat.format(dateTime)
+
+    return Pair(date, time)
 }

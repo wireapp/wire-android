@@ -23,6 +23,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.framework.TestConversation
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
@@ -69,7 +70,7 @@ class MessageComposerStateHolderTest {
     fun before() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         messageComposerViewState = mutableStateOf(MessageComposerViewState())
-        messageComposition = mutableStateOf(MessageComposition())
+        messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))
         messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
             messageComposition = messageComposition,
             selfDeletionTimer = mutableStateOf(SelfDeletionTimer.Disabled)

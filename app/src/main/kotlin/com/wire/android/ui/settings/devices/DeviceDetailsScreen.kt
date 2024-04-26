@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -188,7 +188,7 @@ fun DeviceDetailsContent(
             state.device.mlsPublicKeys?.forEach { (mlsProtocolType, mlsThumbprint) ->
                 item {
                     DeviceMLSSignatureItem(mlsThumbprint, mlsProtocolType, screenState::copyMessage)
-                    Divider(color = MaterialTheme.wireColorScheme.background)
+                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
 
@@ -202,7 +202,7 @@ fun DeviceDetailsContent(
                         enrollE2eiCertificate = { enrollE2eiCertificate() },
                         showCertificate = onNavigateToE2eiCertificateDetailsScreen
                     )
-                    Divider(color = colorsScheme().background)
+                    HorizontalDivider(color = colorsScheme().background)
                 }
             }
             item {
@@ -213,7 +213,7 @@ fun DeviceDetailsContent(
                         .fillMaxWidth()
                 )
                 DeviceIdItem(state, screenState::copyMessage)
-                Divider(color = MaterialTheme.wireColorScheme.background)
+                HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
             }
 
             state.device.registrationTime?.deviceDateTimeFormat()?.let {
@@ -222,7 +222,7 @@ fun DeviceDetailsContent(
                         stringResource(id = R.string.label_client_added_time),
                         AnnotatedString(it)
                     )
-                    Divider(color = MaterialTheme.wireColorScheme.background)
+                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
 
@@ -232,13 +232,13 @@ fun DeviceDetailsContent(
                         stringResource(id = R.string.label_client_last_active_label),
                         AnnotatedString(state.device.lastActiveDescription() ?: "")
                     )
-                    Divider(color = MaterialTheme.wireColorScheme.background)
+                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
 
             item {
                 DeviceKeyFingerprintItem(state.fingerPrint, screenState::copyMessage)
-                Divider(color = MaterialTheme.wireColorScheme.background)
+                HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
             }
 
             if (!state.isCurrentDevice) {
@@ -250,7 +250,7 @@ fun DeviceDetailsContent(
                         state.userName,
                         onUpdateClientVerification
                     )
-                    Divider(color = MaterialTheme.wireColorScheme.background)
+                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
         }

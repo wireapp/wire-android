@@ -58,6 +58,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -108,13 +109,16 @@ private fun MessageDetailsScreenContent(
     onReactionsLearnMore: () -> Unit,
     onReadReceiptsLearnMore: () -> Unit
 ) {
-    val tabItems = provideMessageDetailsTabItems(
-        messageDetailsState = messageDetailsState,
-        isSelfMessage = messageDetailsState.isSelfMessage
-    )
+    val tabItems by remember(messageDetailsState) {
+        derivedStateOf {
+            val reactions = MessageDetailsTabItem.Reactions(messageDetailsState.reactionsData.reactions.map { it.value.size }.sum())
+            val readReceipts = MessageDetailsTabItem.ReadReceipts(messageDetailsState.readReceiptsData.readReceipts.size)
+            if (messageDetailsState.isSelfMessage) listOf(reactions, readReceipts) else listOf(reactions)
+        }
+    }
     val scope = rememberCoroutineScope()
-    val lazyListStates: List<LazyListState> = MessageDetailsTab.values().map { rememberLazyListState() }
-    val initialPageIndex = MessageDetailsTab.REACTIONS.ordinal
+    val lazyListStates: List<LazyListState> = tabItems.map { rememberLazyListState() }
+    val initialPageIndex = tabItems.indexOfFirst { it is MessageDetailsTabItem.Reactions }
     val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { tabItems.size })
     val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
@@ -150,14 +154,14 @@ private fun MessageDetailsScreenContent(
                     .fillMaxWidth()
                     .padding(internalPadding)
             ) { pageIndex ->
-                when (MessageDetailsTab.entries[pageIndex]) {
-                    MessageDetailsTab.REACTIONS -> MessageDetailsReactions(
+                when (tabItems[pageIndex]) {
+                    is MessageDetailsTabItem.Reactions -> MessageDetailsReactions(
                         reactionsData = messageDetailsState.reactionsData,
                         lazyListState = lazyListStates[pageIndex],
                         onReactionsLearnMore = onReactionsLearnMore
                     )
 
-                    MessageDetailsTab.READ_RECEIPTS -> MessageDetailsReadReceipts(
+                    is MessageDetailsTabItem.ReadReceipts -> MessageDetailsReadReceipts(
                         readReceiptsData = messageDetailsState.readReceiptsData,
                         lazyListState = lazyListStates[pageIndex],
                         onReadReceiptsLearnMore = onReadReceiptsLearnMore
@@ -176,29 +180,9 @@ private fun MessageDetailsScreenContent(
     }
 }
 
-enum class MessageDetailsTab(@StringRes override val titleResId: Int) : TabItem {
-    REACTIONS(R.string.message_details_reactions_tab),
-    READ_RECEIPTS(R.string.message_details_read_receipts_tab)
+sealed class MessageDetailsTabItem(@StringRes val titleResId: Int, argument: String) : TabItem {
+    override val title: UIText = UIText.StringResource(titleResId, argument)
+
+    data class Reactions(val count: Int) : MessageDetailsTabItem(R.string.message_details_reactions_tab, "$count")
+    data class ReadReceipts(val count: Int) : MessageDetailsTabItem(R.string.message_details_read_receipts_tab, "$count")
 }
-
-/**
- * This method creates a new TabItem (data class) and NOT Enum due to enums not being dynamic and we needing to pass
- * the total reactions count into [WireTabRow]
- */
-private fun provideMessageDetailsTabItems(
-    messageDetailsState: MessageDetailsState,
-    isSelfMessage: Boolean
-): List<TabItem> {
-    val reactions = MessageDetailsTabItem(
-        titleResId = MessageDetailsTab.REACTIONS.titleResId,
-        count = messageDetailsState.reactionsData.reactions.map { it.value.size }.sum()
-    )
-    val readReceipts = MessageDetailsTabItem(
-        titleResId = MessageDetailsTab.READ_RECEIPTS.titleResId,
-        count = messageDetailsState.readReceiptsData.readReceipts.size
-    )
-
-    return if (isSelfMessage) listOf(reactions, readReceipts) else listOf(reactions)
-}
-
-data class MessageDetailsTabItem(@StringRes override val titleResId: Int, val count: Int) : TabItem

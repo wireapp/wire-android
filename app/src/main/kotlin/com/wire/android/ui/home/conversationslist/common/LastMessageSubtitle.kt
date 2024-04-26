@@ -21,44 +21,65 @@ package com.wire.android.ui.home.conversationslist.common
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
 import androidx.compose.ui.text.style.TextOverflow
+import com.wire.android.ui.markdown.MarkdownConstants
+import com.wire.android.ui.markdown.MarkdownInline
+import com.wire.android.ui.markdown.NodeData
+import com.wire.android.ui.markdown.getFirstInlines
+import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun LastMessageSubtitle(text: UIText) {
-    Text(
-        text = text.asString(LocalContext.current.resources),
-        style = MaterialTheme.wireTypography.subline01.copy(
-            color = MaterialTheme.wireColorScheme.secondaryText
-        ),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-    )
+    LastMessageMarkdown(text = text.asString())
 }
 
 @Composable
 fun LastMessageSubtitleWithAuthor(author: UIText, text: UIText, separator: String) {
-    Text(
-        text = "${author.asString(LocalContext.current.resources)}$separator${text.asString(LocalContext.current.resources)}",
-        style = MaterialTheme.wireTypography.subline01.copy(
-            color = MaterialTheme.wireColorScheme.secondaryText
-        ),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-    )
+    LastMessageMarkdown(text = text.asString(), leadingText = "${author.asString()}$separator")
 }
 
 @Composable
 fun LastMultipleMessages(messages: List<UIText>, separator: String) {
-    Text(
-        text = messages.map { it.asString() }.joinToString(separator = separator),
-        style = MaterialTheme.wireTypography.subline01.copy(
-            color = MaterialTheme.wireColorScheme.secondaryText
-        ),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
+    LastMessageMarkdown(text = messages.map { it.asString() }.joinToString(separator = separator))
+}
+
+@Composable
+private fun LastMessageMarkdown(text: String, leadingText: String = "") {
+    val nodeData = NodeData(
+        color = MaterialTheme.wireColorScheme.secondaryText,
+        style = MaterialTheme.wireTypography.subline01,
+        colorScheme = MaterialTheme.wireColorScheme,
+        typography = MaterialTheme.wireTypography,
+        searchQuery = "",
+        mentions = listOf(),
+        disableLinks = true
     )
+
+    val markdownPreview = remember(text) {
+        text.toMarkdownDocument().getFirstInlines()
+    }
+
+    val leadingInlines = remember(leadingText) {
+        leadingText.toMarkdownDocument().getFirstInlines()?.children ?: persistentListOf()
+    }
+
+    if (markdownPreview != null) {
+        MarkdownInline(
+            inlines = leadingInlines.plus(markdownPreview.children),
+            nodeData = nodeData
+        )
+    } else {
+        Text(
+            text = leadingText.replace(MarkdownConstants.NON_BREAKING_SPACE, " ") + text,
+            style = nodeData.style,
+            color = nodeData.color,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }

@@ -179,7 +179,6 @@ object TestMessage {
         conversationId = ConversationId("value", "domain"),
         content = MessagePreviewContent.WithUser.MissedCall(TestUser.OTHER_USER.name),
         isSelfMessage = false,
-        date = "2022-03-30T15:36:00.000Z",
         visibility = Message.Visibility.VISIBLE,
         senderUserId = TestUser.USER_ID
     )

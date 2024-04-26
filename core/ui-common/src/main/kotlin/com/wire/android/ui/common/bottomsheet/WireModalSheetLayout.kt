@@ -30,13 +30,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.edit.ReactionOption
-import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -97,22 +92,4 @@ fun MenuModalSheetContent(
         ModalSheetHeaderItem(header = header)
         buildMenuSheetItems(items = menuItems)
     }
-}
-
-@Preview
-@Composable
-fun PreviewMenuModalSheetContentWithoutHeader() {
-    MenuModalSheetContent(
-        MenuModalSheetHeader.Gone,
-        listOf { ReactionOption({}) }
-    )
-}
-
-@Preview
-@Composable
-fun PreviewMenuModalSheetContentWithHeader() {
-    MenuModalSheetContent(
-        MenuModalSheetHeader.Visible("Title", { GroupConversationAvatar(colorsScheme().primary) }, dimensions().spacing8x),
-        listOf { ReactionOption({}) }
-    )
 }

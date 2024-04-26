@@ -52,6 +52,26 @@ fun LazyListScope.folderWithElements(
 ) = folderWithElements(
     header = header,
     items = items.associateBy { it.id.toString() },
+    animateItemPlacement = false,
+    factory = {
+        ConversationParticipantItem(
+            uiParticipant = it,
+            clickable = remember { Clickable(enabled = true) { onRowItemClicked(it) } },
+            showRightArrow = showRightArrow
+        )
+    },
+    divider = { WireDivider() }
+)
+
+fun LazyListScope.folderWithElements(
+    header: String,
+    items: Map<String, UIParticipant>,
+    onRowItemClicked: (UIParticipant) -> Unit,
+    showRightArrow: Boolean = true
+) = folderWithElements(
+    header = header,
+    items = items,
+    animateItemPlacement = false,
     factory = {
         ConversationParticipantItem(
             uiParticipant = it,

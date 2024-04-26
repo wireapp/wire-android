@@ -15,29 +15,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.markdown
 
-package scripts
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 
-apply(plugin = "com.diffplug.spotless")
-
-configure<com.diffplug.gradle.spotless.SpotlessExtension> {
-    kotlin {
-        target("**/*.kt")
-        ktlint().userData(
-            mapOf(
-                "disabled_rules" to "import-ordering",
-                "max_line_length" to "140"
-            )
-        )
-        trimTrailingWhitespace()
-        licenseHeaderFile("$rootDir/buildSrc/src/main/kotlin/spotless/class.license")
+@Composable
+fun MarkdownInline(
+    inlines: List<MarkdownNode.Inline>,
+    maxLines: Int = 1,
+    nodeData: NodeData
+) {
+    val annotatedString = buildAnnotatedString {
+        pushStyle(nodeData.style.toSpanStyle())
+        inlineNodeChildren(inlines, this, nodeData)
+        pop()
     }
-    kotlinGradle {
-        target("*.gradle.kts")
-        ktlint()
-    }
-    format("xml") {
-        target("**/*.xml")
-        trimTrailingWhitespace()
-    }
+    MarkdownText(
+        annotatedString,
+        style = nodeData.style,
+        color = nodeData.color,
+        clickable = false,
+        maxLines = maxLines,
+        overflow = TextOverflow.Ellipsis
+    )
 }

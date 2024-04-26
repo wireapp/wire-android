@@ -68,11 +68,39 @@ class AccountSwitchUseCase @Inject constructor(
         val current = currentAccount.await()
         appLogger.i("$TAG Switching account invoked: ${params.toLogString()}, current account: ${current?.userId?.toLogString() ?: "-"}")
         return when (params) {
-            is SwitchAccountParam.SwitchToAccount -> switch(params.userId, current)
+            is SwitchAccountParam.SwitchToAccount -> checkAccountAndSwitchIfPossible(params.userId, current)
             SwitchAccountParam.TryToSwitchToNextAccount -> getNextAccountIfPossibleAndSwitch(current)
             SwitchAccountParam.Clear -> switch(null, current)
         }
     }
+
+    private suspend fun checkAccountAndSwitchIfPossible(userId: UserId, current: AccountInfo?): SwitchAccountResult =
+        getSessions().let {
+            when (it) {
+                is GetAllSessionsResult.Success -> {
+                    val isAccountLoggedInAndValid = it.sessions.any {
+                        accountInfo ->
+                            (accountInfo is AccountInfo.Valid) && (accountInfo.userId == userId)
+                    }
+                    if (isAccountLoggedInAndValid) {
+                        switch(userId, current)
+                    } else {
+                        appLogger.i("$TAG Given account is not logged in or invalid: ${userId.toLogString()}")
+                        return SwitchAccountResult.GivenAccountIsInvalid
+                    }
+                }
+
+                is GetAllSessionsResult.Failure.Generic -> {
+                    appLogger.i("$TAG Failure when switching account to: ${userId.toLogString()}")
+                    SwitchAccountResult.Failure
+                }
+
+                GetAllSessionsResult.Failure.NoSessionFound -> {
+                    appLogger.i("$TAG Given account is not found: ${userId.toLogString()}")
+                    SwitchAccountResult.GivenAccountIsInvalid
+                }
+            }
+        }
 
     private suspend fun getNextAccountIfPossibleAndSwitch(current: AccountInfo?): SwitchAccountResult {
         val nextSessionId: UserId? = getSessions().let {
@@ -103,7 +131,10 @@ class AccountSwitchUseCase @Inject constructor(
                 }
                 successResult
             }
-            is UpdateCurrentSessionUseCase.Result.Failure -> SwitchAccountResult.Failure
+            is UpdateCurrentSessionUseCase.Result.Failure -> {
+                appLogger.i("$TAG Failure when switching account to: ${userId?.toLogString() ?: "-"}")
+                SwitchAccountResult.Failure
+            }
         }
     }
 
@@ -161,9 +192,10 @@ sealed class SwitchAccountParam {
 }
 
 sealed class SwitchAccountResult {
-    object Failure : SwitchAccountResult()
-    object SwitchedToAnotherAccount : SwitchAccountResult()
-    object NoOtherAccountToSwitch : SwitchAccountResult()
+    data object Failure : SwitchAccountResult()
+    data object SwitchedToAnotherAccount : SwitchAccountResult()
+    data object NoOtherAccountToSwitch : SwitchAccountResult()
+    data object GivenAccountIsInvalid : SwitchAccountResult()
 
     fun callAction(actions: SwitchAccountActions) = when (this) {
         NoOtherAccountToSwitch -> actions.noOtherAccountToSwitch()

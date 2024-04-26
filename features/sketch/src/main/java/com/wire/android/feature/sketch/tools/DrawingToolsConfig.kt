@@ -15,10 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling
+package com.wire.android.feature.sketch.tools
 
-import com.wire.kalium.logic.data.id.ConversationId
+import androidx.compose.ui.graphics.Color
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
-data class CallingNavArgs(
-    val conversationId: ConversationId
+/**
+ * Configuration for the drawing tools.
+ * ie. colors, stroke width, etc.
+ */
+data class DrawingToolsConfig(
+    val colors: ImmutableList<Color> = persistentListOf(Color.Blue),
+    // todo. later add more configurations, like stroke width, etc.
 )

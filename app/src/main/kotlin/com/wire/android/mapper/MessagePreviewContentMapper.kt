@@ -21,7 +21,9 @@ package com.wire.android.mapper
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
+import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.message.AssetType
 import com.wire.kalium.logic.data.message.MessagePreview
@@ -254,7 +256,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                 is WithUser.Text -> UILastMessageContent.SenderWithMessage(
                     sender = userUIText,
                     message = (content as WithUser.Text).messageBody.let { UIText.DynamicString(it) },
-                    separator = ": "
+                    separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
                 )
 
                 is WithUser.Composite -> {
@@ -263,7 +265,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     UILastMessageContent.SenderWithMessage(
                         sender = userUIText,
                         message = text,
-                        separator = ": "
+                        separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
                     )
                 }
 
@@ -334,6 +336,12 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
 
         MessagePreviewContent.VerificationChanged.DegradedProteus ->
             UILastMessageContent.VerificationChanged(R.string.last_message_conversations_verification_degraded_proteus)
+
+        is MessagePreviewContent.Draft -> UILastMessageContent.SenderWithMessage(
+            UIText.StringResource(R.string.label_draft),
+            (content as MessagePreviewContent.Draft).message.toUIText(),
+            separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
+        )
 
         Unknown -> UILastMessageContent.None
     }

@@ -97,7 +97,7 @@ class CallNotificationManagerTest {
         }
 
     @Test
-    fun `given an outgoing call for one user, when handling notifications,, then show notification for that call`() =
+    fun `given an outgoing call for one user, when handling notifications, then show notification for that call`() =
         runTest(dispatcherProvider.main()) {
             val notification = mockk<Notification>()
             val (arrangement, callNotificationManager) = Arrangement()

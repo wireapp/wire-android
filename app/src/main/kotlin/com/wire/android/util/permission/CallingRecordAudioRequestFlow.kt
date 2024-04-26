@@ -32,7 +32,7 @@ import com.wire.android.util.extension.getActivity
 fun rememberCallingRecordAudioRequestFlow(
     onAudioPermissionGranted: () -> Unit,
     onAudioPermissionDenied: () -> Unit,
-    onAudioPermissionPermanentlyDenied: () -> Unit,
+    onAudioPermissionPermanentlyDenied: () -> Unit
 ): CallingAudioRequestFlow {
     val context = LocalContext.current
 
@@ -64,10 +64,6 @@ class CallingAudioRequestFlow(
     fun launch() {
         val audioPermissionEnabled =
             context.checkPermission(android.Manifest.permission.RECORD_AUDIO)
-
-        val neededPermissions = mutableListOf(
-            android.Manifest.permission.RECORD_AUDIO
-        )
 
         if (audioPermissionEnabled) {
             permissionGranted()

@@ -23,8 +23,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -38,6 +37,7 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.RichTextMarkdown
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.permission.PermissionDenialType
 
 @Composable
 fun AdditionalOptionsMenu(
@@ -55,6 +55,7 @@ fun AdditionalOptionsMenu(
     onRichEditingButtonClicked: () -> Unit,
     onCloseRichEditingButtonClicked: () -> Unit,
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
+    onDrawingModeClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier.background(colorsScheme().messageComposerBackgroundColor)) {
@@ -71,7 +72,8 @@ fun AdditionalOptionsMenu(
                     onGifButtonClicked = onGifOptionClicked ?: {},
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
                     onRichEditingButtonClicked = onRichEditingButtonClicked,
-                    onPingClicked = onPingOptionClicked
+                    onPingClicked = onPingOptionClicked,
+                    onDrawingModeClicked = onDrawingModeClicked
                 )
             }
 
@@ -89,14 +91,15 @@ fun AdditionalOptionsMenu(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdditionalOptionSubMenu(
     isFileSharingEnabled: Boolean,
+    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     onLocationPickerClicked: () -> Unit,
     onCloseAdditionalAttachment: () -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
     additionalOptionsState: AdditionalOptionSubMenuState,
+    onImagePicked: (Uri) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onLocationPicked: (GeoLocatedAddress) -> Unit,
@@ -106,12 +109,14 @@ fun AdditionalOptionSubMenu(
 ) {
     Box(modifier = modifier) {
         AttachmentOptionsComponent(
+            onImagePicked = onImagePicked,
             onAttachmentPicked = onAttachmentPicked,
             tempWritableImageUri = tempWritableImageUri,
             tempWritableVideoUri = tempWritableVideoUri,
             isFileSharingEnabled = isFileSharingEnabled,
             onRecordAudioMessageClicked = onRecordAudioMessageClicked,
-            onLocationPickerClicked = onLocationPickerClicked
+            onLocationPickerClicked = onLocationPickerClicked,
+            onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied
         )
         when (additionalOptionsState) {
             AdditionalOptionSubMenuState.AttachFile -> {
@@ -152,10 +157,11 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     isSelfDeletingActive: Boolean,
     onGifButtonClicked: () -> Unit = {},
     onRichEditingButtonClicked: () -> Unit = {},
+    onDrawingModeClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(modifier.wrapContentSize()) {
-        Divider(color = MaterialTheme.wireColorScheme.outline)
+        HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
         MessageComposeActions(
             isEditing = isEditing,
             selectedOption = selectedOption,
@@ -167,7 +173,8 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
             isSelfDeletingActive = isSelfDeletingActive,
             onGifButtonClicked = onGifButtonClicked,
-            onRichEditingButtonClicked = onRichEditingButtonClicked
+            onRichEditingButtonClicked = onRichEditingButtonClicked,
+            onDrawingModeClicked = onDrawingModeClicked
         )
     }
 }

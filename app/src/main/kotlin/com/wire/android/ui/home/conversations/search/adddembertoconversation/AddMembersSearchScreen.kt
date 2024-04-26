@@ -68,12 +68,13 @@ fun AddMembersSearchScreen(
                 onCompleted = navigator::navigateBack // TODO: move the navigation to the screen not view model
             )
         },
+        isGroupSubmitVisible = true,
         onClose = navigator::navigateBack,
         onServiceClicked = { contact: Contact ->
             ServiceDetailsScreenDestination(BotService(contact.id, contact.domain), navArgs.conversationId)
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         screenType = SearchPeopleScreenType.CONVERSATION_DETAILS,
-        selectedContacts = addMembersToConversationViewModel.newGroupState.selectedContacts
+        selectedContacts = addMembersToConversationViewModel.newGroupState.selectedContacts,
     )
 }

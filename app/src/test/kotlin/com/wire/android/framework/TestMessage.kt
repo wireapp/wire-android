@@ -77,18 +77,14 @@ object TestMessage {
         "name",
         "image/jpg",
         AssetContent.AssetMetadata.Image(100, 100),
-        DUMMY_ASSET_REMOTE_DATA,
-        Message.UploadStatus.NOT_UPLOADED,
-        Message.DownloadStatus.NOT_DOWNLOADED
+        DUMMY_ASSET_REMOTE_DATA
     )
     val GENERIC_ASSET_CONTENT = AssetContent(
         0L,
         "name",
         "application/zip",
         null,
-        DUMMY_ASSET_REMOTE_DATA,
-        Message.UploadStatus.NOT_UPLOADED,
-        Message.DownloadStatus.NOT_DOWNLOADED
+        DUMMY_ASSET_REMOTE_DATA
     )
     val ASSET_MESSAGE = Message.Regular(
         id = "messageID",
@@ -183,7 +179,6 @@ object TestMessage {
         conversationId = ConversationId("value", "domain"),
         content = MessagePreviewContent.WithUser.MissedCall(TestUser.OTHER_USER.name),
         isSelfMessage = false,
-        date = "2022-03-30T15:36:00.000Z",
         visibility = Message.Visibility.VISIBLE,
         senderUserId = TestUser.USER_ID
     )

@@ -20,7 +20,6 @@ package com.wire.android.ui.markdown
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -31,12 +30,9 @@ import androidx.compose.ui.text.font.FontStyle
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import org.commonmark.node.BlockQuote
-import org.commonmark.node.BulletList
-import org.commonmark.node.OrderedList
 
 @Composable
-fun MarkdownBlockQuote(blockQuote: BlockQuote, nodeData: NodeData) {
+fun MarkdownBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: NodeData) {
     val color = MaterialTheme.wireColorScheme.onBackground
     val xOffset = dimensions().spacing12x.value
     Column(modifier = Modifier
@@ -50,25 +46,30 @@ fun MarkdownBlockQuote(blockQuote: BlockQuote, nodeData: NodeData) {
         }
         .padding(start = dimensions().spacing16x, top = dimensions().spacing4x, bottom = dimensions().spacing4x)) {
 
-        var child = blockQuote.firstChild
-        while (child != null) {
+        blockQuote.children.map { child ->
             when (child) {
-                is BlockQuote -> MarkdownBlockQuote(child, nodeData)
-                is BulletList -> MarkdownBulletList(child, nodeData)
-                is OrderedList -> MarkdownOrderedList(child, nodeData)
-                else -> {
+                is MarkdownNode.Block.BlockQuote -> MarkdownBlockQuote(child, nodeData)
+                is MarkdownNode.Block.Paragraph -> {
                     val text = buildAnnotatedString {
                         pushStyle(
                             MaterialTheme.wireTypography.body01.toSpanStyle()
                                 .plus(SpanStyle(fontStyle = FontStyle.Italic))
                         )
-                        inlineChildren(child, this, nodeData)
+                        inlineNodeChildren(child.children, this, nodeData)
                         pop()
                     }
-                    Text(text)
+                    MarkdownText(
+                        text,
+                        onLongClick = nodeData.actions?.onLongClick,
+                        onOpenProfile = nodeData.actions?.onOpenProfile
+                    )
                 }
+
+                else -> MarkdownNodeBlockChildren(
+                    children = child.children.filterIsInstance<MarkdownNode.Block>(),
+                    nodeData = nodeData
+                )
             }
-            child = child.next
         }
     }
 }

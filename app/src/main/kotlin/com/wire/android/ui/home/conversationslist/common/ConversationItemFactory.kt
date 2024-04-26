@@ -42,6 +42,7 @@ import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -60,7 +61,7 @@ fun ConversationItemFactory(
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
     joinCall: (ConversationId) -> Unit,
-    onPermanentPermissionDecline: () -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit = { }
 ) {
     val onConversationItemClick = remember(conversation) {
         Clickable(
@@ -107,7 +108,7 @@ fun ConversationItemFactory(
         onJoinCallClick = {
             joinCall(conversation.conversationId)
         },
-        onPermanentPermissionDecline = onPermanentPermissionDecline
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
     )
 }
 
@@ -122,7 +123,7 @@ private fun GeneralConversationItem(
     subTitle: @Composable () -> Unit = {},
     onConversationItemClick: Clickable,
     onJoinCallClick: () -> Unit,
-    onPermanentPermissionDecline: () -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     when (conversation) {
         is ConversationItem.GroupConversation -> {
@@ -152,7 +153,7 @@ private fun GeneralConversationItem(
                             if (hasOnGoingCall) {
                                 JoinButton(
                                     buttonClick = onJoinCallClick,
-                                    onPermanentPermissionDecline = onPermanentPermissionDecline
+                                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
                                 )
                             } else {
                                 Row(

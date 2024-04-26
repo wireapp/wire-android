@@ -35,6 +35,7 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.DialogState
+import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
@@ -388,6 +389,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             botService = otherUser.botService,
             blockingState = otherUser.BlockState,
             isProteusVerified = otherUser.isProteusVerified,
+            isUnderLegalHold = otherUser.isUnderLegalHold,
             conversationSheetContent = conversation?.let {
                 ConversationSheetContent(
                     title = otherUser.name.orEmpty(),
@@ -403,7 +405,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     isArchived = conversation.archived,
                     protocol = conversation.protocol,
                     mlsVerificationStatus = conversation.mlsVerificationStatus,
-                    proteusVerificationStatus = conversation.proteusVerificationStatus
+                    proteusVerificationStatus = conversation.proteusVerificationStatus,
+                    isUnderLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
                 )
             }
         )

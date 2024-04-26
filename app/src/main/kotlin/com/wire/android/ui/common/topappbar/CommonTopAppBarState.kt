@@ -17,9 +17,6 @@
  */
 package com.wire.android.ui.common.topappbar
 
-import com.wire.android.ui.legalhold.banner.LegalHoldUIState
-
 data class CommonTopAppBarState(
     val connectivityState: ConnectivityUIState = ConnectivityUIState.None,
-    val legalHoldState: LegalHoldUIState = LegalHoldUIState.None,
 )

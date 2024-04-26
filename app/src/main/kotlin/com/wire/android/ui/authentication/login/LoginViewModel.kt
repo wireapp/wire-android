@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
@@ -133,7 +134,8 @@ open class LoginViewModel @Inject constructor(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 capabilities = capabilities,
-                secondFactorVerificationCode = secondFactorVerificationCode
+                secondFactorVerificationCode = secondFactorVerificationCode,
+                modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
             )
         )
     }

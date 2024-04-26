@@ -203,6 +203,42 @@ class OtherUserProfileScreenViewModelTest {
         assertEquals(null, viewModel.state.conversationSheetContent)
     }
 
+    @Test
+    fun `given legal hold enabled, then isUnderLegalHold is true`() = runTest {
+        // given
+        val (_, viewModel) = OtherUserProfileViewModelArrangement()
+            .withUserInfo(
+                GetUserInfoResult.Success(
+                    otherUser = OTHER_USER.copy(
+                        connectionStatus = ConnectionState.NOT_CONNECTED,
+                        isUnderLegalHold = true
+                    ),
+                    team = TEAM
+                )
+            )
+            .arrange()
+        // then
+        assertEquals(true, viewModel.state.isUnderLegalHold)
+    }
+
+    @Test
+    fun `given legal hold disabled, then isUnderLegalHold is false`() = runTest {
+        // given
+        val (_, viewModel) = OtherUserProfileViewModelArrangement()
+            .withUserInfo(
+                GetUserInfoResult.Success(
+                    otherUser = OTHER_USER.copy(
+                        connectionStatus = ConnectionState.NOT_CONNECTED,
+                        isUnderLegalHold = false
+                    ),
+                    team = TEAM
+                )
+            )
+            .arrange()
+        // then
+        assertEquals(false, viewModel.state.isUnderLegalHold)
+    }
+
     companion object {
         val USER_ID = UserId("some_value", "some_domain")
         val CONVERSATION_ID = ConversationId("some_value", "some_domain")

@@ -46,8 +46,8 @@ fun MarkdownText(
     style: TextStyle = LocalTextStyle.current,
     clickable: Boolean = true,
     onClickLink: ((linkText: String) -> Unit)? = null,
-    onLongClick: (() -> Unit)?,
-    onOpenProfile: (String) -> Unit
+    onLongClick: (() -> Unit)? = null,
+    onOpenProfile: ((String) -> Unit)? = null
 ) {
 
     if (clickable) {
@@ -75,7 +75,7 @@ fun MarkdownText(
                     start = offset,
                     end = offset
                 ).firstOrNull()?.let { result ->
-                    onOpenProfile(result.item)
+                    onOpenProfile?.invoke(result.item)
                 }
             },
             onLongClick = onLongClick

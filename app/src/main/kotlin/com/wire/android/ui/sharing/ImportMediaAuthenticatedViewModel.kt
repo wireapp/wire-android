@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.sharing
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
@@ -37,7 +36,9 @@ import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
+import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -45,22 +46,17 @@ import com.wire.android.ui.home.conversationslist.parseConversationEventType
 import com.wire.android.ui.home.conversationslist.parsePrivateConversationEventType
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
-import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
-import com.wire.android.util.getMetadataFromUri
-import com.wire.android.util.getMimeType
-import com.wire.android.util.isImageFile
 import com.wire.android.util.parcelableArrayList
-import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
@@ -69,6 +65,9 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTim
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -83,7 +82,6 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -93,11 +91,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
-    private val fileManager: FileManager,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
+    private val handleUriAsset: HandleUriAssetUseCase,
     private val persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase,
     private val observeSelfDeletionSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
@@ -281,14 +278,14 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     suspend fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
         val incomingIntent = ShareCompat.IntentReader(activity)
-        appLogger.e("Received data from sharing intent ${incomingIntent.streamCount}")
+        appLogger.i("Received data from sharing intent ${incomingIntent.streamCount}")
         importMediaState = importMediaState.copy(isImporting = true)
         if (incomingIntent.streamCount == 0) {
             handleSharedText(incomingIntent.text.toString())
         } else {
             if (incomingIntent.isSingleShare) {
                 // ACTION_SEND
-                handleSingleIntent(incomingIntent, activity)
+                handleSingleIntent(incomingIntent)
             } else {
                 // ACTION_SEND_MULTIPLE
                 handleMultipleActionIntent(activity)
@@ -301,33 +298,30 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         importMediaState = importMediaState.copy(importedText = text)
     }
 
-    private suspend fun handleSingleIntent(
-        incomingIntent: ShareCompat.IntentReader,
-        activity: AppCompatActivity
-    ) {
+    private suspend fun handleSingleIntent(incomingIntent: ShareCompat.IntentReader) {
         incomingIntent.stream?.let { uri ->
-            uri.getMimeType(activity)?.let { mimeType ->
-                handleImportedAsset(activity, mimeType, uri)?.let { importedAsset ->
-                    importMediaState =
-                        importMediaState.copy(importedAssets = mutableListOf(importedAsset))
+            handleImportedAsset(uri)?.let { importedAsset ->
+                if (importedAsset.assetSizeExceeded != null) {
+                    onSnackbarMessage(
+                        ImportMediaSnackbarMessages.MaxAssetSizeExceeded(importedAsset.assetSizeExceeded!!)
+                    )
                 }
+                importMediaState = importMediaState.copy(importedAssets = persistentListOf(importedAsset))
             }
         }
     }
 
     private suspend fun handleMultipleActionIntent(activity: AppCompatActivity) {
-        val importedMediaAssets = mutableListOf<ImportedMediaAsset>()
-        activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.forEach {
+        val importedMediaAssets = activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.mapNotNull {
             val fileUri = it.toString().toUri()
-            handleImportedAsset(
-                activity,
-                fileUri.getMimeType(activity).toString(),
-                fileUri
-            )?.let { importedAsset ->
-                importedMediaAssets.add(importedAsset)
-            }
+            handleImportedAsset(fileUri)
+        } ?: listOf()
+
+        importMediaState = importMediaState.copy(importedAssets = importedMediaAssets.toPersistentList())
+
+        importedMediaAssets.firstOrNull { it.assetSizeExceeded != null }?.let {
+            onSnackbarMessage(ImportMediaSnackbarMessages.MaxAssetSizeExceeded(it.assetSizeExceeded!!))
         }
-        importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
     }
 
     fun checkRestrictionsAndSendImportedMedia(onSent: (ConversationId) -> Unit) =
@@ -352,24 +346,28 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                     val job = viewModelScope.launch {
                         sendAssetMessage(
                             conversationId = conversation.conversationId,
-                            assetDataPath = importedAsset.dataPath,
-                            assetName = importedAsset.name,
-                            assetDataSize = importedAsset.size,
-                            assetMimeType = importedAsset.mimeType,
+                            assetDataPath = importedAsset.assetBundle.dataPath,
+                            assetName = importedAsset.assetBundle.fileName,
+                            assetDataSize = importedAsset.assetBundle.dataSize,
+                            assetMimeType = importedAsset.assetBundle.mimeType,
                             assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
                             assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
                             audioLengthInMs = getAudioLengthInMs(
-                                dataPath = importedAsset.dataPath,
-                                mimeType = importedAsset.mimeType
+                                dataPath = importedAsset.assetBundle.dataPath,
+                                mimeType = importedAsset.assetBundle.mimeType,
                             )
                         ).also {
                             val logConversationId = conversation.conversationId.toLogString()
                             if (it is ScheduleNewAssetMessageResult.Failure) {
-                                appLogger.e("Failed to import asset message to " +
-                                        "conversationId=$logConversationId")
+                                appLogger.e(
+                                    "Failed to import asset message to " +
+                                            "conversationId=$logConversationId"
+                                )
                             } else {
-                                appLogger.d("Success importing asset message to " +
-                                        "conversationId=$logConversationId")
+                                appLogger.d(
+                                    "Success importing asset message to " +
+                                            "conversationId=$logConversationId"
+                                )
                             }
                         }
                     }
@@ -415,68 +413,39 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             )
         }
 
-    private suspend fun handleImportedAsset(
-        context: Context,
-        importedAssetMimeType: String,
-        uri: Uri
-    ): ImportedMediaAsset? = withContext(dispatchers.io()) {
-        val assetKey = UUID.randomUUID().toString()
-        val fileMetadata = uri.getMetadataFromUri(context)
-        val tempAssetPath = kaliumFileSystem.tempFilePath(assetKey)
-        val mimeType = fileMetadata.mimeType.ifEmpty { importedAssetMimeType }
-        return@withContext when {
-            isAboveLimit(isImageFile(mimeType), fileMetadata.sizeInBytes) -> null
-            isImageFile(mimeType) -> {
-                // Only resample the image if it is too large
-                val resampleSize = uri.resampleImageAndCopyToTempPath(
-                    context,
-                    tempAssetPath,
-                    ImageUtil.ImageSizeClass.Medium
-                )
-                if (resampleSize <= 0) return@withContext null
+    private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? = withContext(dispatchers.io()) {
+        when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false, audioPath = null)) {
+            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> mapToImportedAsset(result.assetBundle, result.maxLimitInMB)
 
-                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(
-                    kaliumFileSystem,
-                    tempAssetPath
-                )
-
-                ImportedMediaAsset.Image(
-                    name = fileMetadata.name,
-                    size = fileMetadata.sizeInBytes,
-                    mimeType = mimeType,
-                    dataPath = tempAssetPath,
-                    key = assetKey,
-                    width = imgWidth,
-                    height = imgHeight,
-                    wireSessionImageLoader = wireSessionImageLoader
-                )
-            }
-
-            else -> {
-                fileManager.copyToPath(uri, tempAssetPath)
-                ImportedMediaAsset.GenericAsset(
-                    name = fileMetadata.name,
-                    size = fileMetadata.sizeInBytes,
-                    mimeType = mimeType,
-                    dataPath = tempAssetPath,
-                    key = assetKey
-                )
-            }
+            HandleUriAssetUseCase.Result.Failure.Unknown -> null
+            is HandleUriAssetUseCase.Result.Success -> mapToImportedAsset(result.assetBundle, null)
         }
     }
 
-    private suspend fun isAboveLimit(isImage: Boolean, sizeInBytes: Long): Boolean {
-        val assetLimitInBytesForCurrentUser = getAssetSizeLimit(isImage).toInt()
-        val sizeOf1MB = SIZE_OF_1_MB
-        val isAboveLimit = sizeInBytes > assetLimitInBytesForCurrentUser
-        if (isAboveLimit) {
-            onSnackbarMessage(
-                ImportMediaSnackbarMessages.MaxAssetSizeExceeded(
-                    assetLimitInBytesForCurrentUser.div(sizeOf1MB)
+    private fun mapToImportedAsset(assetBundle: AssetBundle, assetSizeExceeded: Int?): ImportedMediaAsset {
+        return when (assetBundle.assetType) {
+            AttachmentType.IMAGE -> {
+                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(
+                    kaliumFileSystem,
+                    assetBundle.dataPath
                 )
-            )
+                ImportedMediaAsset.Image(
+                    assetBundle = assetBundle,
+                    width = imgWidth,
+                    height = imgHeight,
+                    assetSizeExceeded = assetSizeExceeded
+                )
+            }
+
+            AttachmentType.GENERIC_FILE,
+            AttachmentType.AUDIO,
+            AttachmentType.VIDEO -> {
+                ImportedMediaAsset.GenericAsset(
+                    assetBundle = assetBundle,
+                    assetSizeExceeded = assetSizeExceeded
+                )
+            }
         }
-        return isAboveLimit
     }
 
     fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
@@ -485,14 +454,13 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     private companion object {
         const val MAX_LIMIT_MEDIA_IMPORT = 20
-        const val SIZE_OF_1_MB = 1024 * 1024
     }
 }
 
 @Stable
 data class ImportMediaAuthenticatedState(
     val avatarAsset: ImageAsset.UserAvatarAsset? = null,
-    val importedAssets: List<ImportedMediaAsset> = emptyList(),
+    val importedAssets: PersistentList<ImportedMediaAsset> = persistentListOf(),
     val importedText: String? = null,
     val isImporting: Boolean = false,
     val shareableConversationListState: ShareableConversationListState = ShareableConversationListState(),

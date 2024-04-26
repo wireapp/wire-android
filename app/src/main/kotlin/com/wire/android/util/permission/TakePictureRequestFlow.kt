@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import com.wire.android.util.extension.getActivity
 
 /**
  * Flow that will launch the camera for taking a photo.
@@ -38,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 fun rememberTakePictureFlow(
     onPictureTaken: (Boolean) -> Unit,
     onPermissionDenied: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     targetPictureFileUri: Uri
 ): UseCameraRequestFlow {
     val context = LocalContext.current
@@ -53,7 +55,13 @@ fun rememberTakePictureFlow(
             if (isGranted) {
                 takePictureLauncher.launch(targetPictureFileUri)
             } else {
-                onPermissionDenied()
+                context.getActivity()?.let {
+                    it.checkCameraWithStoragePermission(onPermissionDenied) {
+                        onPermissionPermanentlyDenied(
+                            PermissionDenialType.TakePicture
+                        )
+                    }
+                }
             }
         }
 

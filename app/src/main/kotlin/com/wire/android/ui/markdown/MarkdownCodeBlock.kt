@@ -18,7 +18,6 @@
 package com.wire.android.ui.markdown
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,41 +29,31 @@ import androidx.compose.ui.text.font.FontFamily
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import org.commonmark.node.FencedCodeBlock
-import org.commonmark.node.IndentedCodeBlock
 
 @Composable
-fun MarkdownIndentedCodeBlock(indentedCodeBlock: IndentedCodeBlock) {
+fun MarkdownIndentedCodeBlock(indentedCodeBlock: MarkdownNode.Block.IntendedCode, nodeData: NodeData) {
     Text(
-        text = indentedCodeBlock.literal,
+        text = highlightText(nodeData, indentedCodeBlock.literal),
         style = MaterialTheme.wireTypography.body01,
         fontFamily = FontFamily.Monospace,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(dimensions().spacing4x)
-            .background(MaterialTheme.wireColorScheme.outlineVariant)
-            .border(
-                dimensions().spacing1x, MaterialTheme.wireColorScheme.outline,
-                shape = RoundedCornerShape(dimensions().spacing4x)
-            )
-            .padding(dimensions().spacing4x)
+            .padding(vertical = dimensions().spacing4x)
+            .background(MaterialTheme.wireColorScheme.surfaceVariant, shape = RoundedCornerShape(dimensions().spacing16x))
+            .padding(dimensions().spacing8x)
     )
 }
 
 @Composable
-fun MarkdownFencedCodeBlock(fencedCodeBlock: FencedCodeBlock) {
+fun MarkdownFencedCodeBlock(fencedCodeBlock: MarkdownNode.Block.FencedCode, nodeData: NodeData) {
     Text(
-        text = fencedCodeBlock.literal,
+        text = highlightText(nodeData, fencedCodeBlock.literal),
         style = MaterialTheme.wireTypography.body01,
         fontFamily = FontFamily.Monospace,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(dimensions().spacing4x)
-            .background(MaterialTheme.wireColorScheme.outlineVariant)
-            .border(
-                dimensions().spacing1x, MaterialTheme.wireColorScheme.outline,
-                shape = RoundedCornerShape(dimensions().spacing4x)
-            )
-            .padding(dimensions().spacing4x)
+            .padding(vertical = dimensions().spacing4x)
+            .background(MaterialTheme.wireColorScheme.surfaceVariant, shape = RoundedCornerShape(dimensions().spacing16x))
+            .padding(dimensions().spacing8x)
     )
 }

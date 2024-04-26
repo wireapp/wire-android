@@ -184,7 +184,6 @@ class AccountSwitchUseCaseTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
-        @OptIn(ExperimentalCoroutinesApi::class)
         var accountSwitchUseCase: AccountSwitchUseCase = AccountSwitchUseCase(
             updateCurrentSession,
             getSessions,

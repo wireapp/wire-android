@@ -24,36 +24,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.wire.android.ui.common.dimensions
-import org.commonmark.node.Document
-import org.commonmark.node.Heading
 
 @Composable
 @Suppress("MagicNumber")
-fun MarkdownHeading(heading: Heading, nodeData: NodeData) {
-    val style: TextStyle? = when (heading.level) {
+fun MarkdownHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData) {
+    val style: TextStyle = when (heading.level) {
         1 -> nodeData.typography.title01
         2 -> nodeData.typography.title01
         3 -> nodeData.typography.title01
         4 -> nodeData.typography.title01
         5 -> nodeData.typography.title01
         6 -> nodeData.typography.title01
-        else -> null
+        else -> nodeData.typography.title01
     }
 
-    if (style != null) {
-        val padding = if (heading.parent is Document) dimensions().spacing8x else dimensions().spacing0x
-        Box(modifier = Modifier.padding(bottom = padding)) {
-            val text = buildAnnotatedString {
-                inlineChildren(heading, this, nodeData)
-            }
-            MarkdownText(
-                annotatedString = text,
-                style = style,
-                onLongClick = nodeData.onLongClick,
-                onOpenProfile = nodeData.onOpenProfile
-            )
+    val padding = if (heading.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
+
+    Box(modifier = Modifier.padding(bottom = padding)) {
+        val text = buildAnnotatedString {
+            inlineNodeChildren(heading.children, this, nodeData)
         }
-    } else {
-        MarkdownBlockChildren(heading, nodeData)
+        MarkdownText(
+            annotatedString = text,
+            style = style,
+            onLongClick = nodeData.actions?.onLongClick,
+            onOpenProfile = nodeData.actions?.onOpenProfile
+        )
     }
 }

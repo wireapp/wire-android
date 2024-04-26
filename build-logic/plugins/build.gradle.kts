@@ -35,6 +35,7 @@ tasks.withType<KotlinCompile>().configureEach {
 dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
+    compileOnly(libs.kover.gradlePlugin)
 
     testImplementation(libs.junit4)
     testImplementation(libs.kluent.core)
@@ -53,6 +54,10 @@ gradlePlugin {
         register("wireHiltConventionPlugin") {
             id = libs.plugins.wire.hilt.get().pluginId
             implementationClass = "HiltConventionPlugin"
+        }
+        register("wireKoverConventionPlugin") {
+            id = libs.plugins.wire.kover.get().pluginId
+            implementationClass = "KoverConventionPlugin"
         }
     }
 }

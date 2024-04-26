@@ -38,12 +38,13 @@ import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.UIPagingItem
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.kalium.logic.data.message.MessageAssetStatus
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
@@ -52,6 +53,7 @@ import kotlinx.coroutines.flow.Flow
 fun FileAssetsContent(
     groupedAssetMessageList: Flow<PagingData<UIPagingItem>>,
     audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
+    assetStatuses: PersistentMap<String, MessageAssetStatus>,
     onAudioItemClicked: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit
 ) {
@@ -61,6 +63,7 @@ fun FileAssetsContent(
         AssetMessagesListContent(
             groupedAssetMessageList = lazyPagingMessages,
             audioMessagesState = audioMessagesState,
+            assetStatuses = assetStatuses,
             onAudioItemClicked = onAudioItemClicked,
             onAssetItemClicked = onAssetItemClicked
         )
@@ -75,6 +78,7 @@ fun FileAssetsContent(
 private fun AssetMessagesListContent(
     groupedAssetMessageList: LazyPagingItems<UIPagingItem>,
     audioMessagesState: PersistentMap<String, AudioState>,
+    assetStatuses: PersistentMap<String, MessageAssetStatus>,
     onAudioItemClicked: (String) -> Unit,
     onAssetItemClicked: (String) -> Unit,
 ) {
@@ -112,10 +116,11 @@ private fun AssetMessagesListContent(
                 is UIPagingItem.Message -> {
                     when (val message = uiPagingItem.uiMessage) {
                         is UIMessage.Regular -> {
-                            MessageItem(
+                            MessageContainerItem(
                                 message = message,
                                 conversationDetailsData = ConversationDetailsData.None,
                                 audioMessagesState = audioMessagesState,
+                                assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
                                 onLongClicked = { },
                                 onAssetMessageClicked = onAssetItemClicked,
                                 onAudioClick = onAudioItemClicked,
@@ -128,7 +133,8 @@ private fun AssetMessagesListContent(
                                 onLinkClick = { },
                                 defaultBackgroundColor = colorsScheme().backgroundVariant,
                                 shouldDisplayMessageStatus = false,
-                                shouldDisplayFooter = false
+                                shouldDisplayFooter = false,
+                                onReplyClickable = null
                             )
                         }
 

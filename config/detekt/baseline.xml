@@ -2,140 +2,958 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>CommentSpacing:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:40</ID>
-    <ID>CommentSpacing:com.wire.android.ui.theme.ThemeUtils.kt:47</ID>
-    <ID>CommentSpacing:com.wire.android.ui.theme.ThemeUtils.kt:48</ID>
-    <ID>CommentSpacing:com.wire.android.ui.theme.ThemeUtils.kt:49</ID>
-    <ID>CommentSpacing:com.wire.android.ui.theme.ThemeUtils.kt:50</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:23</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:26</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:28</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:29</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:30</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:31</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:32</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:33</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:34</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:35</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:36</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:37</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:38</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:39</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:40</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:41</ID>
-    <ID>CommentSpacing:com.wire.android.util.debug.FeatureVisibilityFlags.kt:42</ID>
-    <ID>MultiLineIfElse:MutingOptionsSheetContent.kt:65</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.calling.controlbuttons.SpeakerButton.kt:59</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent.kt:75</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent.kt:77</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.dialogs.BlockUserDialogs.kt:59</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.dialogs.BlockUserDialogs.kt:61</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.dialogs.UnblockUserDialogs.kt:60</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.common.dialogs.UnblockUserDialogs.kt:62</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog.kt:55</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog.kt:57</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog.kt:55</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog.kt:57</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog.kt:55</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog.kt:57</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.userprofile.other.RemoveConversationMemberDialog.kt:59</ID>
-    <ID>MultiLineIfElse:com.wire.android.ui.userprofile.other.RemoveConversationMemberDialog.kt:61</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.datastore.UserDataStore.kt:85</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.framework.FakeKaliumFileSystem.kt:108</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.mapper.UserTypeMapper.kt:37</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.mapper.UserTypeMapperTest.kt:53</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.migration.feature.MigrateServerConfigUseCase.kt:77</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState.kt:49</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.common.spacers.VerticalSpace.kt:53</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase.kt:44</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCaseTest.kt:152</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt:76</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:37</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.userprofile.other.RemoveConversationMemberDialog.kt:66</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.ui.userprofile.other.bottomsheet.OtherUserBottomSheetState.kt:62</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.util.EmailComposer.kt:64</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.util.ScreenStateObserverTest.kt:134</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.util.ScreenStateObserverTest.kt:136</ID>
-    <ID>NoBlankLineBeforeRbrace:com.wire.android.util.time.ISOFormatter.kt:34</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.di.CoroutineScope.kt:36</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.di.CoroutineScope.kt:53</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.media.CallRinger.kt:82</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.migration.ScalaServerConfigDAOTest.kt:112</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.migration.ScalaServerConfigDAOTest.kt:122</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.SurfaceBackgroundWrapper.kt:41</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.effects.LaunchedEffects.kt:28</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.textfield.WireTextFieldDefaults.kt:136</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.topappbar.search.SearchTopBar.kt:21</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase.kt:51</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt:33</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:59</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:66</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:71</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem.kt:26</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.home.settings.backup.BackUpAndRestoreStateHolder.kt:59</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.userprofile.self.model.OtherAccount.kt:24</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.util.ScreenStateObserver.kt:65</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.ShakeAnimation.kt:45</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.common.ShakeAnimation.kt:46</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.server.ApiVersioningDialogs.kt:62</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.theme.ThemeUtils.kt:49</ID>
-    <ID>NoMultipleSpaces:com.wire.android.ui.theme.ThemeUtils.kt:50</ID>
-    <ID>NoSemicolons:com.wire.android.media.CallRinger.kt:78</ID>
-    <ID>NoSemicolons:com.wire.android.media.CallRinger.kt:88</ID>
-    <ID>NoSemicolons:com.wire.android.media.CallRinger.kt:94</ID>
-    <ID>NoTrailingSpaces:com.wire.android.migration.ScalaServerConfigDAOTest.kt:112</ID>
-    <ID>NoTrailingSpaces:com.wire.android.migration.ScalaServerConfigDAOTest.kt:53</ID>
-    <ID>NoTrailingSpaces:com.wire.android.migration.ScalaServerConfigDAOTest.kt:60</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.calling.controlbuttons.CameraButton.kt:34</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.calling.controlbuttons.SpeakerButton.kt:30</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt:21</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt:22</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.home.gallery.ZoomableImage.kt:36</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:21</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:22</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:23</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:24</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:26</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:28</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:30</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:32</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.server.ApiVersioningDialogs.kt:38</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.theme.WireTypography.kt:24</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.theme.WireTypography.kt:25</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.theme.WireTypography.kt:26</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.theme.WireTypography.kt:27</ID>
-    <ID>NoUnusedImports:com.wire.android.ui.theme.WireTypography.kt:28</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.calling.controlbuttons.CameraButton.kt:97</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:115</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:116</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:117</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:118</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.common.button.WireButtonDefaults.kt:119</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.theme.WireTypography.kt:33</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.theme.WireTypography.kt:34</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.theme.WireTypography.kt:35</ID>
-    <ID>ParameterListWrapping:com.wire.android.ui.theme.WireTypography.kt:36</ID>
-    <ID>SpacingAroundColon:com.wire.android.migration.MigrateServerConfigUseCaseTest.kt:128</ID>
-    <ID>SpacingAroundColon:com.wire.android.migration.MigrateServerConfigUseCaseTest.kt:132</ID>
-    <ID>SpacingAroundColon:com.wire.android.migration.MigrateServerConfigUseCaseTest.kt:136</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.WireActivityState.kt:23</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.WireActivityState.kt:24</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.WireActivityState.kt:25</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.WireActivityState.kt:26</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState.kt:46</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.authentication.login.LoginError.kt:40</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.authentication.login.LoginError.kt:41</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.common.visbility.VisibilityState.kt:29</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.common.visbility.VisibilityState.kt:39</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.common.visbility.VisibilityState.kt:57</ID>
-    <ID>SpacingAroundColon:com.wire.android.ui.home.conversationslist.model.LastConversationEvent.kt:32</ID>
-    <ID>SpacingAroundColon:com.wire.android.util.SyncStateObserver.kt:26</ID>
-    <ID>SpacingAroundColon:com.wire.android.workmanager.WireForegroundNotificationDetailsProvider.kt:24</ID>
-    <ID>SpacingAroundCurly:com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase.kt:38</ID>
-    <ID>SpacingAroundCurly:com.wire.android.ui.home.conversations.search.widget.SearchFailureWidget.kt:36</ID>
-    <ID>SpacingAroundKeyword:com.wire.android.migration.feature.MigrateServerConfigUseCase.kt:63</ID>
-    <ID>SpacingAroundKeyword:com.wire.android.ui.common.textfield.CodeTextField.kt:149</ID>
-    <ID>SpacingAroundOperators:com.wire.android.ui.common.visbility.VisibilityState.kt:62</ID>
-    <ID>SpacingAroundParens:com.wire.android.ui.settings.devices.model.SelfDevicesState.kt:23</ID>
+    <ID>AnnotationSpacing:ConversationListViewModelTest.kt$ConversationListViewModelTest$@OptIn(ExperimentalCoroutinesApi::class) @ExtendWith(CoroutineTestExtension::class)</ID>
+    <ID>ArgumentListWrapping:AvatarPicker.kt$( { MenuBottomSheetItem( title = stringResource(R.string.profile_image_choose_from_gallery_menu_item), icon = { MenuItemIcon( id = R.drawable.ic_gallery, contentDescription = stringResource(R.string.content_description_choose_from_gallery) ) }, action = { ArrowRightIcon() }, onItemClick = state::openGallery ) }, { MenuBottomSheetItem( title = stringResource(R.string.profile_image_take_a_picture_menu_item), icon = { MenuItemIcon( id = R.drawable.ic_camera, contentDescription = stringResource(R.string.content_description_take_a_picture) ) }, action = { ArrowRightIcon() }, onItemClick = state::openCamera ) } )</ID>
+    <ID>ArgumentListWrapping:Buttons.kt$( modifier = Modifier .fillMaxWidth() .padding( start = MaterialTheme.wireDimensions.spacing16x, end = MaterialTheme.wireDimensions.spacing16x, top = MaterialTheme.wireDimensions.spacing16x, bottom = MaterialTheme.wireDimensions.spacing4x ), text = stringResource(id = R.string.guest_link_button_copy_link), fillMaxWidth = true, onClick = onCopy )</ID>
+    <ID>ArgumentListWrapping:Buttons.kt$( modifier = Modifier .fillMaxWidth() .padding( start = MaterialTheme.wireDimensions.spacing16x, end = MaterialTheme.wireDimensions.spacing16x, top = MaterialTheme.wireDimensions.spacing4x, bottom = MaterialTheme.wireDimensions.spacing4x ), text = stringResource(id = R.string.guest_link_button_share_link), fillMaxWidth = true, onClick = onShare )</ID>
+    <ID>ArgumentListWrapping:CodeTextField.kt$( value = value, onValueChange = { val textDigits = it.text.filter { it.isDigit() } // don't allow characters other than digits to be entered .let { it.substring(0, min(codeLength, it.length)) } // don't allow more digits than required onValueChange( CodeFieldValue( text = TextFieldValue(text = textDigits, selection = TextRange(textDigits.length)), isFullyFilled = textDigits.length == codeLength ) ) }, enabled = enabled, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done), keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }), interactionSource = interactionSource, decorationBox = { Row(horizontalArrangement = Arrangement.SpaceBetween) { repeat(codeLength) { index -&gt; if (index != 0) Spacer(modifier = Modifier .weight(1f, fill = false) .width(maxHorizontalSpacing)) Digit( char = value.text.getOrNull(index), shape = shape, colors = colors, textStyle = textStyle, selected = index == value.text.length, state = state ) } } })</ID>
+    <ID>ArgumentListWrapping:CodeTextField.kt$(modifier = Modifier .weight(1f, fill = false) .width(maxHorizontalSpacing))</ID>
+    <ID>ArgumentListWrapping:ConversationMessagesViewModelArrangement.kt$ConversationMessagesViewModelArrangement$( "key", assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType) )</ID>
+    <ID>ArgumentListWrapping:ConversationScreen.kt$( messageId = compositionState.editMessageId, editMessageText = compositionState.messageText, mentions = compositionState.selectedMentions.map { it.intoMessageMention() })</ID>
+    <ID>ArgumentListWrapping:ConversationTopAppBar.kt$( title = { Row( verticalAlignment = Alignment.CenterVertically, modifier = Modifier .fillMaxWidth() // TopAppBar adds TopAppBarHorizontalPadding = 4.dp to each element, so we need to offset it to retain the desired // spacing between navigation icon button and avatar according to the designs .offset(x = -dimensions().spacing4x) .clip(RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize)) .clickable(onClick = onDropDownClick, enabled = isDropDownEnabled &amp;&amp; isInteractionEnabled) ) { val conversationAvatar: ConversationAvatar = conversationInfoViewState.conversationAvatar Avatar(conversationAvatar, conversationInfoViewState) Text( text = conversationInfoViewState.conversationName.asString(), style = MaterialTheme.wireTypography.title02, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(weight = 1f, fill = false) ) ConversationVerificationIcons( conversationInfoViewState.protocolInfo, conversationInfoViewState.mlsVerificationStatus, conversationInfoViewState.proteusVerificationStatus ) if (conversationInfoViewState.legalHoldStatus == Conversation.LegalHoldStatus.ENABLED) { HorizontalSpace.x4() LegalHoldIndicator() } if (isDropDownEnabled &amp;&amp; isInteractionEnabled) { Icon( painter = painterResource(id = R.drawable.ic_dropdown_icon), contentDescription = stringResource(R.string.content_description_drop_down_icon) ) } } }, navigationIcon = { NavigationIconButton(NavigationIconType.Back, onBackButtonClick) }, actions = { Row( horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x), modifier = Modifier.padding(end = dimensions().spacing4x) ) { if (isSearchEnabled) { WireSecondaryIconButton( onButtonClicked = onSearchButtonClick, iconResource = R.drawable.ic_search, contentDescription = R.string.content_description_conversation_search_icon, minSize = dimensions().buttonSmallMinSize, minClickableSize = DpSize( dimensions().buttonSmallMinSize.width, dimensions().buttonMinClickableSize.height ), ) } CallControlButton( hasOngoingCall = hasOngoingCall, onJoinCallButtonClick = onJoinCallButtonClick, onPhoneButtonClick = onPhoneButtonClick, isCallingEnabled = isInteractionEnabled, onPermissionPermanentlyDenied = onPermissionPermanentlyDenied, ) } }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors( containerColor = MaterialTheme.colorScheme.background, titleContentColor = MaterialTheme.colorScheme.onBackground, actionIconContentColor = MaterialTheme.colorScheme.onBackground, navigationIconContentColor = MaterialTheme.colorScheme.onBackground ) )</ID>
+    <ID>ArgumentListWrapping:ConversationsNavigationItem.kt$ConversationsNavigationItem.All$( R.drawable.ic_conversation, R.string.conversations_all_tab_title, "conversations_all")</ID>
+    <ID>ArgumentListWrapping:ConversationsNavigationItem.kt$ConversationsNavigationItem.Calls$( R.drawable.ic_call, R.string.conversations_calls_tab_title, "conversations_calls")</ID>
+    <ID>ArgumentListWrapping:ConversationsNavigationItem.kt$ConversationsNavigationItem.Mentions$( R.drawable.ic_mention, R.string.conversations_mentions_tab_title, "conversations_mentions")</ID>
+    <ID>ArgumentListWrapping:DebugDataOptions.kt$(modifier = Modifier.wrapContentWidth(), title = { Text( style = MaterialTheme.wireTypography.body01, color = MaterialTheme.wireColorScheme.onBackground, text = stringResource(R.string.label_get_e2ei_cetificate), modifier = Modifier.padding(start = dimensions().spacing8x) ) }, actions = { WirePrimaryButton( onClick = { enrollE2EI() }, text = stringResource(R.string.label_get_e2ei_cetificate), fillMaxWidth = false ) } )</ID>
+    <ID>ArgumentListWrapping:DeclineButton.kt$(interactionSource = remember { MutableInteractionSource() }, indication = rememberRipple(bounded = false, radius = dimensions().initiatingCallHangUpButtonSize / 2), role = Role.Button, onClick = { buttonClicked() })</ID>
+    <ID>ArgumentListWrapping:DeviceItem.kt$( Modifier .wrapContentWidth() .align(Alignment.CenterVertically))</ID>
+    <ID>ArgumentListWrapping:DrawableResultWrapper.kt$DrawableResultWrapper$( source = ImageSource(file = assetPath, diskCacheKey = assetPath.name), mimeType = null, dataSource = DataSource.DISK )</ID>
+    <ID>ArgumentListWrapping:DropDownMentionsSuggestions.kt$(modifier = Modifier .fillMaxWidth() .offset { IntOffset(0, coordinateY) } )</ID>
+    <ID>ArgumentListWrapping:EditGuestAccessScreen.kt$( onConfirm = ::onGuestDialogConfirm, onDialogDismiss = ::onGuestDialogDismiss )</ID>
+    <ID>ArgumentListWrapping:EditGuestAccessScreen.kt$( onConfirm = ::removeGuestLink, onDialogDismiss = ::onRevokeDialogDismiss )</ID>
+    <ID>ArgumentListWrapping:EditSelfDeletingMessagesScreen.kt$( topBar = { WireCenterAlignedTopAppBar( elevation = scrollState.rememberTopBarElevationState().value, onNavigationPressed = navigator::navigateBack, title = stringResource(id = R.string.self_deleting_messages_title) ) })</ID>
+    <ID>ArgumentListWrapping:FileUtil.kt$( this, getProviderAuthority(), it )</ID>
+    <ID>ArgumentListWrapping:FileUtil.kt$( this, getProviderAuthority(), path.toFile(), assetDisplayName )</ID>
+    <ID>ArgumentListWrapping:GetE2EICertificateUI.kt$( context.getActivity()!!.activityResultRegistry, forceLoginFlow = true )</ID>
+    <ID>ArgumentListWrapping:GroupConversationDetailsViewModel.kt$GroupConversationDetailsViewModel$( isServicesAllowed = !enableServices, error = GroupConversationOptionsState.Error.UpdateServicesError(result.cause) )</ID>
+    <ID>ArgumentListWrapping:GroupConversationDetailsViewModel.kt$GroupConversationDetailsViewModel$( leaveGroupState.conversationId, selfUser.id )</ID>
+    <ID>ArgumentListWrapping:GroupConversationDetailsViewModel.kt$GroupConversationDetailsViewModel$( savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata )</ID>
+    <ID>ArgumentListWrapping:GroupConversationOptions.kt$( GroupConversationOptionsState( conversationId = ConversationId("someValue", "someDomain"), groupName = "Normal Group Conversation", areAccessOptionsAvailable = false ), {}, {}, {}, {}, {} )</ID>
+    <ID>ArgumentListWrapping:GroupConversationOptions.kt$( GroupConversationOptionsState( conversationId = ConversationId("someValue", "someDomain"), groupName = "Normal Group Conversation", areAccessOptionsAvailable = true, isUpdatingNameAllowed = false, isUpdatingGuestAllowed = false, isUpdatingServicesAllowed = false, isUpdatingSelfDeletingAllowed = false, isUpdatingReadReceiptAllowed = false, isGuestAllowed = true, isServicesAllowed = true, isReadReceiptAllowed = true, ), {}, {}, {}, {}, {} )</ID>
+    <ID>ArgumentListWrapping:GroupConversationOptions.kt$( GroupConversationOptionsState( conversationId = ConversationId("someValue", "someDomain"), groupName = "Team Group Conversation", areAccessOptionsAvailable = true, isUpdatingNameAllowed = false, isUpdatingGuestAllowed = false, isUpdatingServicesAllowed = true, isUpdatingSelfDeletingAllowed = true, isUpdatingReadReceiptAllowed = true, isGuestAllowed = true, isServicesAllowed = true, isReadReceiptAllowed = true, ), {}, {}, {}, {}, {} )</ID>
+    <ID>ArgumentListWrapping:GroupConversationOptions.kt$( GroupConversationOptionsState( conversationId = ConversationId("someValue", "someDomain"), groupName = "Team Group Conversation", areAccessOptionsAvailable = true, isUpdatingNameAllowed = true, isUpdatingGuestAllowed = false, isUpdatingServicesAllowed = true, isUpdatingSelfDeletingAllowed = true, isUpdatingReadReceiptAllowed = true, isGuestAllowed = true, isServicesAllowed = true, isReadReceiptAllowed = true, ), {}, {}, {}, {}, {} )</ID>
+    <ID>ArgumentListWrapping:GroupConversationOptions.kt$( GroupConversationOptionsState( conversationId = ConversationId("someValue", "someDomain"), groupName = "Team Group Conversation", areAccessOptionsAvailable = true, isUpdatingNameAllowed = true, isUpdatingGuestAllowed = true, isUpdatingServicesAllowed = true, isUpdatingSelfDeletingAllowed = true, isUpdatingReadReceiptAllowed = true, isGuestAllowed = true, isServicesAllowed = true, isReadReceiptAllowed = true, ), {}, {}, {}, {}, {} )</ID>
+    <ID>ArgumentListWrapping:GroupConversationOptions.kt$( enabled = canBeChanged, onClick = onClick, onLongClick = { /* not handled */ })</ID>
+    <ID>ArgumentListWrapping:GroupOptionsScreen.kt$( title = stringResource(R.string.disable_guests_dialog_title), text = stringResource(R.string.disable_guests_dialog_description), onDismiss = onAllowGuestsDialogDismissed, buttonsHorizontalAlignment = false, optionButton1Properties = WireDialogButtonProperties( onClick = onNotAllowGuestsClicked, text = stringResource(id = R.string.disable_guests_dialog_button), type = WireDialogButtonType.Primary ), optionButton2Properties = WireDialogButtonProperties( text = stringResource(R.string.allow_guests), onClick = onAllowGuestsClicked, type = WireDialogButtonType.Primary ), dismissButtonProperties = WireDialogButtonProperties( text = stringResource(R.string.label_cancel), onClick = onAllowGuestsDialogDismissed ) )</ID>
+    <ID>ArgumentListWrapping:GroupOptionsScreen.kt$(value = isAllowGuestEnabled, isOnOffVisible = false, onCheckedChange = { onAllowGuestChanged.invoke(it) })</ID>
+    <ID>ArgumentListWrapping:GroupOptionsScreen.kt$(value = isAllowServicesEnabled, isOnOffVisible = false, onCheckedChange = { onAllowServicesChanged.invoke(it) })</ID>
+    <ID>ArgumentListWrapping:GroupOptionsScreen.kt$(value = isReadReceiptEnabled, isOnOffVisible = false, onCheckedChange = { onReadReceiptChanged.invoke(it) })</ID>
+    <ID>ArgumentListWrapping:HangUpButton.kt$(modifier = Modifier .width(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize) .height(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize), onHangUpButtonClicked = { })</ID>
+    <ID>ArgumentListWrapping:HomeScreen.kt$( onPermissionDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ })</ID>
+    <ID>ArgumentListWrapping:HomeSheetContent.kt$( icon = { MenuItemIcon( id = R.drawable.ic_archive, contentDescription = stringResource( if (conversationSheetContent.isArchived) R.string.content_description_unarchive else R.string.content_description_move_to_archive ), ) }, title = stringResource( if (!conversationSheetContent.isArchived) R.string.label_move_to_archive else R.string.label_unarchive ), onItemClick = { with(conversationSheetContent) { updateConversationArchiveStatus( DialogState( conversationId = conversationId, conversationName = title, conversationTypeDetail = conversationTypeDetail, isArchived = isArchived, isMember = conversationSheetContent.selfRole != null ) ) } })</ID>
+    <ID>ArgumentListWrapping:ImageAssetTest.kt$ImageAssetTest$( imageLoader, userAssetId )</ID>
+    <ID>ArgumentListWrapping:ImageAssetsContent.kt$( uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset )</ID>
+    <ID>ArgumentListWrapping:ImageMessageTypes.kt$(modifier = Modifier.size(MaterialTheme.wireDimensions.spacing24x), contentAlignment = Alignment.Center)</ID>
+    <ID>ArgumentListWrapping:ImportMediaScreen.kt$(text = stringResource(R.string.label_learn_more), tag = "learn_more", annotation = learnMoreUrl, onClick = { CustomTabsHelper.launchUrl(context, learnMoreUrl) } )</ID>
+    <ID>ArgumentListWrapping:LegalHoldRequestedDialog.kt$( LegalHoldRequestedState.Visible( legalHoldDeviceFingerprint = "0123456789ABCDEF", requiresPassword = false, userId = UserId("", ""), ), {}, {}, {} )</ID>
+    <ID>ArgumentListWrapping:LegalHoldRequestedDialog.kt$( LegalHoldRequestedState.Visible( legalHoldDeviceFingerprint = "0123456789ABCDEF", requiresPassword = true, userId = UserId("", ""), ), {}, {}, {} )</ID>
+    <ID>ArgumentListWrapping:LegalHoldSubjectProfileDialog.kt$( title = stringResource(id = R.string.legal_hold_subject_dialog_title, userName), withDefaultInfo = true, cancelText = stringResource(id = R.string.label_close), dialogDismissed = dialogDismissed)</ID>
+    <ID>ArgumentListWrapping:LegalHoldSubjectProfileDialog.kt$( title = stringResource(id = R.string.legal_hold_subject_self_dialog_title), withDefaultInfo = true, cancelText = stringResource(id = R.string.label_close), dialogDismissed = dialogDismissed)</ID>
+    <ID>ArgumentListWrapping:LoginEmailVerificationCodeScreen.kt$(modifier = Modifier .height(dimensions().spacing8x) .weight(1f))</ID>
+    <ID>ArgumentListWrapping:MarkdownBlockQuote.kt$(modifier = Modifier .drawBehind { drawLine( color = color, strokeWidth = 2f, start = Offset(xOffset, 0f), end = Offset(xOffset, size.height) ) } .padding(start = dimensions().spacing16x, top = dimensions().spacing4x, bottom = dimensions().spacing4x))</ID>
+    <ID>ArgumentListWrapping:MarkdownCodeBlock.kt$( dimensions().spacing1x, MaterialTheme.wireColorScheme.outline, shape = RoundedCornerShape(dimensions().spacing4x) )</ID>
+    <ID>ArgumentListWrapping:MarkdownComposer.kt$( paragraph = node, nodeData = updatedNodeData, clickable )</ID>
+    <ID>ArgumentListWrapping:MarkdownHelperTest.kt$MarkdownHelperTest$(TableRow() .apply { appendChild(TableCell().apply { appendChild(Text("Cell")) }) })</ID>
+    <ID>ArgumentListWrapping:MarkdownHelperTest.kt$MarkdownHelperTest$(TableRow() .apply { appendChild(TableCell().apply { appendChild(Text("Header")) }) })</ID>
+    <ID>ArgumentListWrapping:MessageExpiration.kt$&lt;no name provided&gt;$( when (type) { StringResourceType.WEEKS -&gt; R.plurals.weeks_left StringResourceType.DAYS -&gt; R.plurals.days_left StringResourceType.HOURS -&gt; R.plurals.hours_left StringResourceType.MINUTES -&gt; R.plurals.minutes_left StringResourceType.SECONDS -&gt; R.plurals.seconds_left }, quantity, quantity )</ID>
+    <ID>ArgumentListWrapping:MessagePreviewContentMapper.kt$( userUIText, UIText.StringResource( if (isSelfMessage) R.string.last_message_self_user_shared_asset else R.string.last_message_other_user_shared_asset ) )</ID>
+    <ID>ArgumentListWrapping:MessagePreviewContentMapperTest.kt$MessagePreviewContentMapperTest$( content = MessagePreviewContent.WithUser.Asset("admin", AssetType.IMAGE), isSelfMessage = false )</ID>
+    <ID>ArgumentListWrapping:MessagePreviewContentMapperTest.kt$MessagePreviewContentMapperTest$( content = MessagePreviewContent.WithUser.Asset("admin", AssetType.IMAGE), isSelfMessage = true )</ID>
+    <ID>ArgumentListWrapping:MessagePreviewContentMapperTest.kt$MessagePreviewContentMapperTest$( content = MessagePreviewContent.WithUser.Asset("admin", AssetType.VIDEO), isSelfMessage = true )</ID>
+    <ID>ArgumentListWrapping:MessagePreviewContentMapperTest.kt$MessagePreviewContentMapperTest$( content = MessagePreviewContent.WithUser.Knock("admin"), isSelfMessage = false )</ID>
+    <ID>ArgumentListWrapping:MessagePreviewContentMapperTest.kt$MessagePreviewContentMapperTest$( content = MessagePreviewContent.WithUser.Knock("admin"), isSelfMessage = true )</ID>
+    <ID>ArgumentListWrapping:MessagePreviewContentMapperTest.kt$MessagePreviewContentMapperTest$( content = MessagePreviewContent.WithUser.MemberLeft("user"), isSelfMessage = false )</ID>
+    <ID>ArgumentListWrapping:MessagePreviewContentMapperTest.kt$MessagePreviewContentMapperTest$( content = MessagePreviewContent.WithUser.MemberLeft("user"), isSelfMessage = true )</ID>
+    <ID>ArgumentListWrapping:MessageTypes.kt$( color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius) )</ID>
+    <ID>ArgumentListWrapping:MessageTypes.kt$( imgParams.normalizedWidth, imgParams.normalizedHeight, transferStatus == DOWNLOAD_IN_PROGRESS )</ID>
+    <ID>ArgumentListWrapping:MessageTypes.kt$( imgParams.normalizedWidth, imgParams.normalizedHeight, transferStatus == FAILED_DOWNLOAD )</ID>
+    <ID>ArgumentListWrapping:MessageTypes.kt$( imgParams.normalizedWidth, imgParams.normalizedHeight, true )</ID>
+    <ID>ArgumentListWrapping:MessageTypesPreview.kt$( flowStatus = MessageFlowStatus.Delivered, isDeleted = true, expirationStatus = ExpirationStatus.NotExpirable )</ID>
+    <ID>ArgumentListWrapping:MigrateClientsDataUseCase.kt$MigrateClientsDataUseCase$( clientId, RegisterClientParam( password = null, capabilities = null ) )</ID>
+    <ID>ArgumentListWrapping:MigrationManager.kt$MigrationManager$( { when (it) { is NetworkFailure.NoNetworkConnection -&gt; MigrationData.Result.Failure.NoNetwork else -&gt; MigrationData.Result.Failure.Account.Any(report.toFormattedString()) } }, { (migratedAccounts, isFederated) -&gt; onAccountsMigrated(migratedAccounts, isFederated, coroutineScope, updateProgress, migrationDispatcher) } )</ID>
+    <ID>ArgumentListWrapping:Mock.kt$( UserAssetId("a", "domain"), ImageAsset.PrivateAsset(mockImageLoader, ConversationId("id", "domain"), "messageId", true), 800, 600 )</ID>
+    <ID>ArgumentListWrapping:Mock.kt$( flowStatus = MessageFlowStatus.Delivered, isDeleted = true, expirationStatus = ExpirationStatus.NotExpirable )</ID>
+    <ID>ArgumentListWrapping:Mock.kt$(object : ImageLoader { override val components: ComponentRegistry get() = TODO("Not yet implemented") override val defaults: DefaultRequestOptions get() = TODO("Not yet implemented") override val diskCache: DiskCache get() = TODO("Not yet implemented") override val memoryCache: MemoryCache get() = TODO("Not yet implemented") override fun enqueue(request: ImageRequest): Disposable = TODO("Not yet implemented") override suspend fun execute(request: ImageRequest): ImageResult = TODO("Not yet implemented") override fun newBuilder(): ImageLoader.Builder = TODO("Not yet implemented") override fun shutdown() = TODO("Not yet implemented") }, object : NetworkStateObserver { override fun observeNetworkState(): StateFlow&lt;NetworkState&gt; = MutableStateFlow(NetworkState.ConnectedWithInternet) } )</ID>
+    <ID>ArgumentListWrapping:MyAccountScreen.kt$( text = stringResource(R.string.settings_myaccount_reset_password).toTitleCase(), onClick = { CustomTabsHelper.launchUrl(context, forgotPasswordUrl) })</ID>
+    <ID>ArgumentListWrapping:NavigationUtilsTest.kt$NavigationUtilsTest$( mockk(), QualifiedID( value = mockQualifiedIdValue, domain = mockQualifiedIdDomain ), mockMessageId, true, true )</ID>
+    <ID>ArgumentListWrapping:NetworkSettingsScreen.kt$( {}, true, {}, "" )</ID>
+    <ID>ArgumentListWrapping:OAuthUseCase.kt$OAuthUseCase$( OAUTH_ACTIVITY_RESULT_KEY, ActivityResultContracts.StartActivityForResult() )</ID>
+    <ID>ArgumentListWrapping:OAuthUseCase.kt$OAuthUseCase$( authServiceConfig, clientId, ResponseTypeValues.CODE, URL_AUTH_REDIRECT )</ID>
+    <ID>ArgumentListWrapping:OAuthUseCase.kt$OAuthUseCase$( codeVerifier, getCodeChallenge(codeVerifier), CODE_VERIFIER_CHALLENGE_METHOD )</ID>
+    <ID>ArgumentListWrapping:OAuthUseCase.kt$OAuthUseCase$( idToken.toString(), authState.jsonSerializeString() )</ID>
+    <ID>ArgumentListWrapping:OAuthUseCase.kt$OAuthUseCase$( message = "OAuthTokenRefreshManager: Error refreshing tokens, continue with login!", throwable = exception )</ID>
+    <ID>ArgumentListWrapping:ObserveImageAssetMessagesFromConversationUseCaseTest.kt$ObserveImageAssetMessagesFromConversationUseCaseTest$( "asset2", Instant.parse("2023-11-12T10:00:00.671Z") )</ID>
+    <ID>ArgumentListWrapping:ObserveImageAssetMessagesFromConversationUseCaseTest.kt$ObserveImageAssetMessagesFromConversationUseCaseTest.Arrangement$( getAssetMessages, UIAssetMapper(), TestDispatcherProvider(), timeZoneProvider, )</ID>
+    <ID>ArgumentListWrapping:OngoingCallService.kt$OngoingCallService$( { reason -&gt; appLogger.i("$TAG: stopSelf. Reason: $reason") stopSelf() }, { generateForegroundNotification(it.notificationTitle, it.conversationId.toString(), it.userId) } )</ID>
+    <ID>ArgumentListWrapping:OtherUserProfileState.kt$OtherUserProfileState.Companion$( "group name", Member.Role.Member, true, ConversationId("some_user", "domain.com") )</ID>
+    <ID>ArgumentListWrapping:ParticipantTile.kt$( modifier = Modifier .onSizeChanged { size = it } .pointerInput(Unit) { // enable zooming on full screen and when video is on if (isZoomingEnabled) { detectTransformGestures { _, gesturePan, gestureZoom, _ -&gt; zoom = (zoom * gestureZoom).coerceIn(1f, 3f) val maxX = (size.width * (zoom - 1)) / 2 val minX = -maxX offsetX = maxOf(minX, minOf(maxX, offsetX + gesturePan.x)) val maxY = (size.height * (zoom - 1)) / 2 val minY = -maxY offsetY = maxOf(minY, minOf(maxY, offsetY + gesturePan.y)) } } } .graphicsLayer( scaleX = zoom, scaleY = zoom, translationX = offsetX, translationY = offsetY ), factory = { val frameLayout = FrameLayout(it) frameLayout.addView(videoRenderer) frameLayout })</ID>
+    <ID>ArgumentListWrapping:PersistentWebsocketCheckWorker.kt$( NAME, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, PeriodicWorkRequestBuilder&lt;PersistentWebsocketCheckWorker&gt;(WORK_INTERVAL) .addTag(TAG) // adds the tag so we can cancel later all related work. .build() )</ID>
+    <ID>ArgumentListWrapping:QuotedMessage.kt$( senderName = senderName.asString(), style = style, modifier = modifier, centerContent = { MainContentText(locationName) }, startContent = { startContent() }, endContent = { Icon( painter = painterResource(R.drawable.ic_location), contentDescription = null, modifier = modifier .size(dimensions().spacing24x), tint = colorsScheme().secondaryText ) }, footerContent = { QuotedMessageOriginalDate(originalDateTimeText) }, clickable = clickable )</ID>
+    <ID>ArgumentListWrapping:QuotedMessage.kt$( senderName = senderName.asString(), style = style, modifier = modifier, centerContent = { assetName?.let { MainContentText(it) } }, startContent = { startContent() }, endContent = { Icon( painter = painterResource(R.drawable.ic_file), contentDescription = null, modifier = modifier .size(dimensions().spacing24x), tint = colorsScheme().secondaryText ) }, footerContent = { QuotedMessageOriginalDate(originalDateTimeText) }, clickable = clickable )</ID>
+    <ID>ArgumentListWrapping:QuotedMessage.kt$( senderName.asString(), style = style, modifier = modifier, startContent = { startContent() }, centerContent = { StatusBox(stringResource(R.string.deleted_message_text)) }, footerContent = { QuotedMessageOriginalDate(originalDateDescription) }, clickable = clickable )</ID>
+    <ID>ArgumentListWrapping:QuotedMessage.kt$( senderName.asString(), style = style, modifier = modifier, startContent = { startContent() }, centerContent = { editedTimeDescription?.let { if (style == COMPLETE) { StatusBox(it.asString()) } } MainContentText(text) }, footerContent = { QuotedMessageOriginalDate(originalDateTimeDescription) }, clickable = clickable )</ID>
+    <ID>ArgumentListWrapping:RegularMessageContentMapper.kt$RegularMessageMapper$( if (message.isSelfMessage) { UIText.StringResource(messageResourceProvider.memberNameYouTitlecase) } else { sender?.name.orUnknownName() }, message.isSelfMessage )</ID>
+    <ID>ArgumentListWrapping:RemoveDeviceViewModel.kt$RemoveDeviceViewModel$( password, null, modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null )</ID>
+    <ID>ArgumentListWrapping:RichMenuBottomSheetItem.kt$( title = title, color = titleColor, titleStyleUnselected = titleStyleUnselected, titleStyleSelected = titleStyleSelected, state = state )</ID>
+    <ID>ArgumentListWrapping:ScalaMessageDAO.kt$ScalaMessageDAO$( "SELECT *" + // Assets are required, otherwise we get exception "requesting column name with table name". "FROM $MESSAGES_TABLE_NAME AS m " + "LEFT JOIN $ASSETS_TABLE_NAME ON m.$COLUMN_ASSET_ID = $ASSETS_TABLE_NAME.$COLUMN_ID " + "WHERE m.$COLUMN_CONVERSATION_ID = ?" + "ORDER BY m.$COLUMN_TIME ASC ", arrayOf(scalaConversation.id) )</ID>
+    <ID>ArgumentListWrapping:SearchAllPeopleScreen.kt$(header = searchTitle, items = (if (showAllItems) searchResult else searchResult.take( DEFAULT_SEARCH_RESULT_ITEM_SIZE )) .associateBy { it.id })</ID>
+    <ID>ArgumentListWrapping:SearchBar.kt$( modifier = Modifier.padding(start = dimensions().spacing12x), onClick = { onTextTyped(TextFieldValue("")) })</ID>
+    <ID>ArgumentListWrapping:SearchConversationScreen.kt$( horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier .fillMaxWidth() .wrapContentHeight() )</ID>
+    <ID>ArgumentListWrapping:SearchConversationScreen.kt$( horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier .padding(horizontal = dimensions().spacing48x) .wrapContentHeight() )</ID>
+    <ID>ArgumentListWrapping:SearchPeopleRouter.kt$( initialPage = initialPageIndex, pageCount = { if (searchState.isServicesAllowed) SearchPeopleTabItem.entries.size else 1 })</ID>
+    <ID>ArgumentListWrapping:SearchPeopleRouter.kt$( targetState = searchBarState.isSearchActive, label = "" )</ID>
+    <ID>ArgumentListWrapping:SelfUserProfileScreen.kt$( account, clickable = remember { Clickable(enabled = true, onClick = { if (isUserInCall()) { Toast.makeText( context, context.getString(R.string.cant_switch_account_in_call), Toast.LENGTH_SHORT ).show() } else { onOtherAccountClick(account.id) } }) })</ID>
+    <ID>ArgumentListWrapping:SendMessageViewModelTest.kt$SendMessageViewModelTest$( "key", "audio/mp4", assetPath, assetSize, assetName, AttachmentType.AUDIO )</ID>
+    <ID>ArgumentListWrapping:SendMessageViewModelTest.kt$SendMessageViewModelTest$( "key", "image/jpeg", assetPath, assetSize, assetName, AttachmentType.IMAGE )</ID>
+    <ID>ArgumentListWrapping:ServerTitle.kt$(painter = painterResource(id = R.drawable.ic_info), contentDescription = null, modifier = Modifier .constrainAs(infoIcon) { start.linkTo(serverTitle.end) centerVerticallyTo(serverTitle) } .padding(start = dimensions().spacing8x) .size(MaterialTheme.wireDimensions.wireIconButtonSize) .clickable(Clickable(true, onClick = { serverFullDetailsDialogState = true })), tint = MaterialTheme.wireColorScheme.secondaryText )</ID>
+    <ID>ArgumentListWrapping:SetLockCodeScreen.kt$( snackbarHost = {}, topBar = { WireCenterAlignedTopAppBar( onNavigationPressed = onBackPress, navigationIconType = if (state.isEditable) NavigationIconType.Back else null, elevation = dimensions().spacing0x, title = stringResource(id = R.string.settings_set_lock_screen_title) ) })</ID>
+    <ID>ArgumentListWrapping:SettingsScreen.kt$("AppLockConfig " + "isAppLockEditable: ${settingsState.isAppLockEditable} isAppLockEnabled: ${settingsState.isAppLockEnabled}")</ID>
+    <ID>ArgumentListWrapping:SystemMessageContentMapperTest.kt$SystemMessageContentMapperTest$( listOf(userId2, userId3), MessageContent.MemberChange.FailedToAdd.Type.Unknown )</ID>
+    <ID>ArgumentListWrapping:SystemMessageItem.kt$( res, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString, if (usersCount &gt; SINGLE_EXPANDABLE_THRESHOLD) expanded else true )</ID>
+    <ID>ArgumentListWrapping:UsersTypingIndicator.kt$( initialValue = -10f, targetValue = -2f, animationSpec = infiniteRepeatable( animation = tween(ANIMATION_SPEED_MILLIS, easing = FastOutSlowInEasing), repeatMode = RepeatMode.Reverse ), label = infiniteTransition.label )</ID>
+    <ID>ArgumentListWrapping:WelcomeScreen.kt$( isThereActiveSession = false, maxAccountsReached = false, state = ServerConfig.DEFAULT, navigateBack = {}, navigate = {})</ID>
+    <ID>ArgumentListWrapping:WireActivity.kt$WireActivity$( userId = it, actions = NavigationSwitchAccountActions(navigate), onComplete = { navigate(NavigationCommand(SelfDevicesScreenDestination)) })</ID>
+    <ID>ArgumentListWrapping:WireActivityDialogs.kt$( GlobalAppState( customBackendDialog = CustomServerDialogState( ServerConfig.STAGING ) ), {}, {})</ID>
+    <ID>ArgumentListWrapping:WireActivityDialogs.kt$( JoinConversationViaCodeState.Error(CheckConversationInviteCodeUseCase.Result.Failure.InvalidCodeOrKey), {})</ID>
+    <ID>ArgumentListWrapping:WireActivityDialogs.kt$( JoinConversationViaCodeState.Show("convName", "code", "key", "domain", false), {})</ID>
+    <ID>ArgumentListWrapping:WireActivityDialogs.kt$( JoinConversationViaCodeState.Show("convName", "code", "key", "domain", true), {})</ID>
+    <ID>ArgumentListWrapping:WireActivityDialogs.kt$( NewClientsData.CurrentUser(listOf(NewClientInfo("date", UIText.DynamicString("name"))), UserId("id", "domain")), {}, {}, {})</ID>
+    <ID>ArgumentListWrapping:WireActivityDialogs.kt$(id = if (isTeamAppLockEnabled) R.string.team_app_lock_enabled else R.string.team_app_lock_disabled)</ID>
+    <ID>ArgumentListWrapping:WireButton.kt$(modifier = Modifier .align(Alignment.CenterEnd) .onGloballyPositioned { endItemWidth = it.size.width } )</ID>
+    <ID>ArgumentListWrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest$( any(), any(), TestUser.SELF_USER.handle!! )</ID>
+    <ID>ArgumentListWrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest$( listOf(), TestUser.SELF_USER.id, TestUser.SELF_USER.handle!! )</ID>
+    <ID>ArgumentListWrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest$( messageNotifications, TestUser.SELF_USER.id, TestUser.SELF_USER.handle!! )</ID>
+    <ID>ArgumentListWrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest$( newNotifications = any(), userId = any(), userName = TestUser.SELF_USER.handle!! )</ID>
+    <ID>ArgumentListWrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest.Companion$( "message_id", LocalNotificationMessageAuthor("author", null), Instant.DISTANT_FUTURE, "testing text" )</ID>
+    <ID>ArgumentListWrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest.Companion$( id, "name_${id.value}", messages, true )</ID>
+    <ID>ArgumentListWrapping:WirePrimaryIconButton.kt$(40.dp, 40.dp)</ID>
+    <ID>ArgumentListWrapping:WirePrimaryIconButton.kt$(48.dp, 48.dp)</ID>
+    <ID>ArgumentListWrapping:WirePrimaryIconButton.kt$({}, false, com.google.android.material.R.drawable.m3_password_eye, 0, CircleShape, DpSize(40.dp, 40.dp), DpSize(48.dp, 48.dp))</ID>
+    <ID>ArgumentListWrapping:WireTextField.kt$( start = if (leadingIcon == null) 16.dp else 0.dp, end = if (trailingOrStateIcon == null) 16.dp else 0.dp, top = 2.dp, bottom = 2.dp )</ID>
+    <ID>ArgumentListWrapping:WireTextFieldDefaults.kt$&lt;no name provided&gt;$( when (state) { WireTextFieldState.Disabled -&gt; disabledTextColor is WireTextFieldState.Error -&gt; errorColor WireTextFieldState.Success -&gt; successColor else -&gt; textColor })</ID>
+    <ID>ArgumentListWrapping:WireTextFieldDefaults.kt$&lt;no name provided&gt;$( when (state) { is WireTextFieldState.Error -&gt; errorColor else -&gt; descriptionColor })</ID>
+    <ID>ArgumentListWrapping:WireTextFieldDefaults.kt$&lt;no name provided&gt;$( when { state is WireTextFieldState.Error -&gt; errorColor state is WireTextFieldState.Success -&gt; successColor focused -&gt; focusColor else -&gt; borderColor })</ID>
+    <ID>ArgumentListWrapping:WireTextFieldDefaults.kt$&lt;no name provided&gt;$( when { state is WireTextFieldState.Error -&gt; errorColor state is WireTextFieldState.Success -&gt; successColor focused -&gt; focusColor else -&gt; labelColor })</ID>
+    <ID>BlockCommentInitialStarAlignment:ConversationInfoViewModel.kt$ConversationInfoViewModel$/* If this would be collected in the scope of this ViewModel (in `init` for instance) then there would be a race condition. [MessageComposerViewModel] handles the navigating back after removing a group and here it would navigate to home if the group is removed without back params indicating that the user actually have just done that. The info about the group being removed could appear before the back navigation params. That's why it's being observed in the `LaunchedEffect` in the Composable. */</ID>
+    <ID>BlockCommentInitialStarAlignment:ConversationList.kt$/* * When the list is scrolled to top and new items (e.g. new activity section) should appear on top of the list, it appears above * all current items, scroll is preserved so the list still shows the same item as the first one on list so it scrolls * automatically to that item and the newly added section on top is hidden above this previously top item, so for such situation * when the list is scrolled to the top and we want the new section to appear at the top we need a dummy top item which will make * it so it wants to keep this dummy top item as the first one on list and show all other items below it. */</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//ACCEPTANCE CRITERIA</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//As a Beta user I don’t want to press on buttons that don’t have functions yet,</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//Buttons to remove from the UI:</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//Conversation View → + icon → share location</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//Conversation View → :smile: icon</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//Conversation View → @ icon</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//Conversation View → Aa icon</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//Conversation View → GIF icon</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//Conversation View → ping icon</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//Conversation View → search icon</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//Conversation view → + icon → Audio messages</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//Settings → App settings entry</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//Settings → Backup and restore information entry</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//User Profile → Edit icon</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//long press on images → copy</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//long press on images → edit</ID>
+    <ID>CommentSpacing:FeatureVisibilityFlags.kt$//long press on text → edit entry</ID>
+    <ID>CommentSpacing:LastConversationEvent.kt$CallTime$//TODO: This could be a Long timestamp,</ID>
+    <ID>CommentSpacing:Theme.kt$//import com.wire.android.navigation.rememberNavigator</ID>
+    <ID>CommentSpacing:ThemeUtils.kt$ScreenSizeDependent$//sw320dp</ID>
+    <ID>CommentSpacing:ThemeUtils.kt$ScreenSizeDependent$//sw480dp</ID>
+    <ID>CommentSpacing:ThemeUtils.kt$ScreenSizeDependent$//sw600dp</ID>
+    <ID>CommentSpacing:ThemeUtils.kt$ScreenSizeDependent$//sw840dp</ID>
+    <ID>CommentSpacing:Versionizer.kt$Versionizer.Companion$//This is Google Play Max Version Code allowed</ID>
+    <ID>CommentSpacing:Versionizer.kt$Versionizer.Companion$//https://developer.android.com/studio/publish/versioning</ID>
+    <ID>CommentWrapping:ConversationScreen.kt$/* do nothing */</ID>
+    <ID>CommentWrapping:DrawingCanvasComponent.kt$/*, bitmap*/</ID>
+    <ID>CommentWrapping:FileUtil.kt$/* description = */</ID>
+    <ID>CommentWrapping:FileUtil.kt$/* isMediaScannerScannable = */</ID>
+    <ID>CommentWrapping:FileUtil.kt$/* length = */</ID>
+    <ID>CommentWrapping:FileUtil.kt$/* mimeType = */</ID>
+    <ID>CommentWrapping:FileUtil.kt$/* path = */</ID>
+    <ID>CommentWrapping:FileUtil.kt$/* showNotification = */</ID>
+    <ID>CommentWrapping:FileUtil.kt$/* title = */</ID>
+    <ID>CommentWrapping:IncomingCallScreen.kt$/* do nothing */</ID>
+    <ID>CommentWrapping:InitiatingCallScreen.kt$/* do nothing */</ID>
+    <ID>CommentWrapping:MigrationManager.kt$MigrationManager$/* no-op */</ID>
+    <ID>CommentWrapping:OngoingCallScreen.kt$/* do nothing */</ID>
+    <ID>CommentWrapping:RegisterDeviceViewModel.kt$RegisterDeviceViewModel$/* app is already waiting for the user to enter the password */</ID>
+    <ID>CommentWrapping:SendMessageViewModel.kt$SendMessageViewModel$/* do nothing */</ID>
+    <ID>CommentWrapping:VerifyEmailViewModel.kt$VerifyEmailViewModel$/*no-op*/</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:AssetMessageTypes.kt$val ( name, icon, size, message ) = createRefs()</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:CallOptionsControls.kt$val (microphoneIcon, microphoneText, cameraIcon, cameraText, speakerIcon, speakerText) = createRefs()</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:ImageAsset.kt$val (conversationIdString, messageId, isSelfAsset, isEphemeral) = split(":")</ID>
+    <ID>Filename:CallingRecordAudioRequestFlow.kt$com.wire.android.util.permission.CallingRecordAudioRequestFlow.kt</ID>
+    <ID>Filename:WireTextFieldDefaults.kt$com.wire.android.ui.common.textfield.WireTextFieldDefaults.kt</ID>
+    <ID>KdocWrapping:AttachmentOptions.kt$/** Nothing to do here when permission is denied once */</ID>
+    <ID>KdocWrapping:DownloadedAssetDialog.kt$/** Nothing to do **/</ID>
+    <ID>KdocWrapping:HomeScreen.kt$/** TODO: Show a dialog rationale explaining why the permission is needed **/</ID>
+    <ID>KdocWrapping:MediaGalleryScreen.kt$/** Nothing to do **/</ID>
+    <ID>KdocWrapping:RecordAudioComponent.kt$/** Nothing to do **/</ID>
+    <ID>MagicNumber:Versionizer.kt$Versionizer$10</ID>
+    <ID>MaxLineLength:WirePrimaryIconButton.kt$WirePrimaryIconButton({}, false, com.google.android.material.R.drawable.m3_password_eye, 0, CircleShape, DpSize(40.dp, 40.dp), DpSize(48.dp, 48.dp))</ID>
+    <ID>MaximumLineLength:WirePrimaryIconButton.kt$ </ID>
+    <ID>MultiLineIfElse:AccountSwitchUseCase.kt$AccountSwitchUseCase$appLogger.i("$TAG No next account to switch to")</ID>
+    <ID>MultiLineIfElse:AccountSwitchUseCase.kt$AccountSwitchUseCase$appLogger.i("$TAG Switching to next account: ${nextSessionId.toLogString()}")</ID>
+    <ID>MultiLineIfElse:AdditionalOptionButton.kt$WireButtonState.Disabled</ID>
+    <ID>MultiLineIfElse:AssetMessageTypes.kt$Modifier .align(Alignment.Center) .fillMaxWidth()</ID>
+    <ID>MultiLineIfElse:AssetMessageTypes.kt$Modifier .size(dimensions().importedMediaAssetSize) .align(Alignment.Center) .fillMaxSize()</ID>
+    <ID>MultiLineIfElse:AssetTooLargeDialog.kt$it</ID>
+    <ID>MultiLineIfElse:AssetTooLargeDialog.kt$it + "\n" + stringResource(R.string.label_file_saved_to_device)</ID>
+    <ID>MultiLineIfElse:AuthorHeaderHelper.kt$AuthorHeaderHelper$currentMessage is UIMessage.Regular</ID>
+    <ID>MultiLineIfElse:AuthorHeaderHelper.kt$AuthorHeaderHelper$false</ID>
+    <ID>MultiLineIfElse:BackupAndRestoreViewModel.kt$BackupAndRestoreViewModel$kaliumFileSystem.delete(latestImportedBackupTempPath)</ID>
+    <ID>MultiLineIfElse:BlockUserDialogs.kt$WireButtonState.Disabled</ID>
+    <ID>MultiLineIfElse:BlockUserDialogs.kt$WireButtonState.Error</ID>
+    <ID>MultiLineIfElse:BottomNavigation.kt$MaterialTheme.wireDimensions.bottomNavigationBetweenItemsPadding</ID>
+    <ID>MultiLineIfElse:BottomNavigation.kt$MaterialTheme.wireDimensions.bottomNavigationHorizontalPadding</ID>
+    <ID>MultiLineIfElse:Buttons.kt$WireButtonState.Default</ID>
+    <ID>MultiLineIfElse:Buttons.kt$WireButtonState.Disabled</ID>
+    <ID>MultiLineIfElse:CameraButton.kt$R.string.content_description_calling_turn_camera_off</ID>
+    <ID>MultiLineIfElse:CameraButton.kt$R.string.content_description_calling_turn_camera_on</ID>
+    <ID>MultiLineIfElse:CameraFlipButton.kt$R.string.content_description_calling_flip_camera_off</ID>
+    <ID>MultiLineIfElse:CameraFlipButton.kt$R.string.content_description_calling_flip_camera_on</ID>
+    <ID>MultiLineIfElse:ClearConversationContentDialog.kt$WireButtonState.Disabled</ID>
+    <ID>MultiLineIfElse:ClearConversationContentDialog.kt$WireButtonState.Error</ID>
+    <ID>MultiLineIfElse:CodeTextField.kt$Spacer(modifier = Modifier .weight(1f, fill = false) .width(maxHorizontalSpacing))</ID>
+    <ID>MultiLineIfElse:CollapsingTopBarScaffold.kt$&lt;no name provided&gt;$Offset.Zero</ID>
+    <ID>MultiLineIfElse:CollapsingTopBarScaffold.kt$&lt;no name provided&gt;$Velocity.Zero</ID>
+    <ID>MultiLineIfElse:CollapsingTopBarScaffold.kt$&lt;no name provided&gt;$available</ID>
+    <ID>MultiLineIfElse:CollapsingTopBarScaffold.kt$&lt;no name provided&gt;$swipeableState.performDrag(available.y).toOffset()</ID>
+    <ID>MultiLineIfElse:CollapsingTopBarScaffold.kt$it</ID>
+    <ID>MultiLineIfElse:CollapsingTopBarScaffold.kt$it.plus(-collapsingHeight.toFloat() to State.COLLAPSED)</ID>
+    <ID>MultiLineIfElse:CommonTopAppBar.kt$R.drawable.ic_microphone_white</ID>
+    <ID>MultiLineIfElse:CommonTopAppBar.kt$R.drawable.ic_microphone_white_muted</ID>
+    <ID>MultiLineIfElse:CommonTopAppBar.kt$R.string.content_description_calling_call_muted</ID>
+    <ID>MultiLineIfElse:CommonTopAppBar.kt$R.string.content_description_calling_call_unmuted</ID>
+    <ID>MultiLineIfElse:CommonTopAppBar.kt$this</ID>
+    <ID>MultiLineIfElse:ConversationCallViewModel.kt$ConversationCallViewModel$null</ID>
+    <ID>MultiLineIfElse:ConversationListViewModel.kt$ConversationListViewModel$put( ConversationFolder.Predefined.Conversations, remainingConversations )</ID>
+    <ID>MultiLineIfElse:ConversationListViewModel.kt$ConversationListViewModel$put( ConversationFolder.Predefined.NewActivities, unreadConversations )</ID>
+    <ID>MultiLineIfElse:ConversationListViewModel.kt$ConversationListViewModel$put( ConversationFolder.WithoutHeader, this@withFolders )</ID>
+    <ID>MultiLineIfElse:ConversationParticipantItem.kt$uiParticipant.readReceiptDate?.let { it.uiReadReceiptDateTime() } ?: uiParticipant.handle</ID>
+    <ID>MultiLineIfElse:ConversationScreen.kt$(conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId.let { navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(mentionUserId, it))) }</ID>
+    <ID>MultiLineIfElse:ConversationScreen.kt$MenuModalSheetHeader.Gone</ID>
+    <ID>MultiLineIfElse:ConversationScreen.kt$navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))</ID>
+    <ID>MultiLineIfElse:ConversationSheetContent.kt$closeBottomSheet()</ID>
+    <ID>MultiLineIfElse:ConversationSheetContent.kt$conversationSheetState.toHome()</ID>
+    <ID>MultiLineIfElse:ConversationSheetState.kt$conversationInfo.name</ID>
+    <ID>MultiLineIfElse:CreateAccountDetailsScreen.kt$WireTextFieldState.Default</ID>
+    <ID>MultiLineIfElse:CreateAccountDetailsScreen.kt$when (state.error) { CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError -&gt; WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error)) CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError -&gt; WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error)) }</ID>
+    <ID>MultiLineIfElse:CreateAccountEmailScreen.kt$""</ID>
+    <ID>MultiLineIfElse:CreateAccountEmailScreen.kt$WireTextFieldState.Default</ID>
+    <ID>MultiLineIfElse:CreateAccountEmailScreen.kt$WireTextFieldState.Error()</ID>
+    <ID>MultiLineIfElse:CreateAccountEmailScreen.kt$when (error) { CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError -&gt; stringResource(R.string.create_account_email_already_in_use_error) CreateAccountEmailViewState.EmailError.TextFieldError.BlacklistedEmailError -&gt; stringResource(R.string.create_account_email_blacklisted_error) CreateAccountEmailViewState.EmailError.TextFieldError.DomainBlockedError -&gt; stringResource(R.string.create_account_email_domain_blocked_error) CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError -&gt; stringResource(R.string.create_account_email_invalid_error) }</ID>
+    <ID>MultiLineIfElse:CreateAccountEmailViewModel.kt$CreateAccountEmailViewModel$CreateAccountEmailViewState.EmailError.None</ID>
+    <ID>MultiLineIfElse:CreateAccountEmailViewModel.kt$CreateAccountEmailViewModel$CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError</ID>
+    <ID>MultiLineIfElse:CreatePasswordProtectedGuestLinkScreen.kt$WireButtonState.Default</ID>
+    <ID>MultiLineIfElse:CreatePasswordProtectedGuestLinkScreen.kt$WireButtonState.Disabled</ID>
+    <ID>MultiLineIfElse:CurrentScreenManager.kt$CurrentScreenManager$currentScreenState</ID>
+    <ID>MultiLineIfElse:CurrentScreenManager.kt$CurrentScreenManager$flowOf(CurrentScreen.InBackground)</ID>
+    <ID>MultiLineIfElse:DeepLinkProcessor.kt$DeepLinkProcessor$DeepLinkResult.MigrationLogin(String.EMPTY)</ID>
+    <ID>MultiLineIfElse:DeepLinkProcessor.kt$DeepLinkProcessor$DeepLinkResult.MigrationLogin(it)</ID>
+    <ID>MultiLineIfElse:DeleteConversationGroupDialog.kt$WireButtonState.Disabled</ID>
+    <ID>MultiLineIfElse:DeleteConversationGroupDialog.kt$WireButtonState.Error</ID>
+    <ID>MultiLineIfElse:DeviceDetailsScreen.kt$MaterialTheme.wireColorScheme.onBackground</ID>
+    <ID>MultiLineIfElse:DeviceDetailsScreen.kt$MaterialTheme.wireColorScheme.secondaryText</ID>
+    <ID>MultiLineIfElse:DeviceDetailsScreen.kt$navigator.navigateBack()</ID>
+    <ID>MultiLineIfElse:DeviceItem.kt$ProteusVerifiedIcon( Modifier .wrapContentWidth() .align(Alignment.CenterVertically))</ID>
+    <ID>MultiLineIfElse:ElevationScrollExt.kt$maxElevation</ID>
+    <ID>MultiLineIfElse:ElevationScrollExt.kt$minOf((it.offset + it.size - layoutInfo.viewportEndOffset).dp, maxElevation)</ID>
+    <ID>MultiLineIfElse:ElevationScrollExt.kt$minOf(firstVisibleItemScrollOffset.toFloat().dp, maxElevation)</ID>
+    <ID>MultiLineIfElse:FileManager.kt$FileManager$AUDIO_MIME_TYPE</ID>
+    <ID>MultiLineIfElse:FileManager.kt$FileManager$attachmentUri .getMimeType(context) .orDefault(DEFAULT_FILE_MIME_TYPE)</ID>
+    <ID>MultiLineIfElse:ForgotLockCodeScreen.kt$ForgotLockCodeResetDeviceDialog( username = dialogState.username, isPasswordRequired = dialogState.passwordRequired, isPasswordValid = dialogState.passwordValid, isResetDeviceEnabled = dialogState.resetDeviceEnabled, onPasswordChanged = viewModel::onPasswordChanged, onResetDeviceClicked = viewModel::onResetDeviceConfirmed, onDialogDismissed = viewModel::onDialogDismissed, )</ID>
+    <ID>MultiLineIfElse:ForgotLockCodeScreen.kt$ForgotLockCodeResettingDeviceDialog()</ID>
+    <ID>MultiLineIfElse:GetE2eiCertificateButton.kt$WireButtonState.Default</ID>
+    <ID>MultiLineIfElse:GetE2eiCertificateButton.kt$WireButtonState.Disabled</ID>
+    <ID>MultiLineIfElse:GroupConversationDetailsTopBarCollapsing.kt$""</ID>
+    <ID>MultiLineIfElse:GroupConversationDetailsTopBarCollapsing.kt$UIText.StringResource(R.string.group_unavailable_label).asString()</ID>
+    <ID>MultiLineIfElse:GroupConversationDetailsViewModel.kt$GroupConversationDetailsViewModel$throw IllegalStateException( "Unsupported conversation type to clear content, something went wrong?" )</ID>
+    <ID>MultiLineIfElse:GroupConversationNameComponent.kt$when (error) { GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError -&gt; WireTextFieldState.Error(stringResource(id = R.string.empty_group_name_error)) GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError -&gt; WireTextFieldState.Error(stringResource(id = R.string.group_name_exceeded_limit_error)) }</ID>
+    <ID>MultiLineIfElse:HighLightName.kt$MaterialTheme.wireColorScheme.secondaryText</ID>
+    <ID>MultiLineIfElse:HighLightName.kt$MaterialTheme.wireTypography.title02.color</ID>
+    <ID>MultiLineIfElse:HomeScreen.kt$R.string.conversation_content_delete_failure</ID>
+    <ID>MultiLineIfElse:HomeScreen.kt$R.string.error_archiving_conversation</ID>
+    <ID>MultiLineIfElse:HomeScreen.kt$R.string.group_content_delete_failure</ID>
+    <ID>MultiLineIfElse:HomeScreen.kt$R.string.success_archiving_conversation</ID>
+    <ID>MultiLineIfElse:HomeScreen.kt$R.string.success_unarchiving_conversation</ID>
+    <ID>MultiLineIfElse:HomeSheetContent.kt$R.string.content_description_move_to_archive</ID>
+    <ID>MultiLineIfElse:HomeSheetContent.kt$R.string.content_description_unarchive</ID>
+    <ID>MultiLineIfElse:HomeSheetContent.kt$R.string.label_move_to_archive</ID>
+    <ID>MultiLineIfElse:HomeSheetContent.kt$R.string.label_unarchive</ID>
+    <ID>MultiLineIfElse:ImageMessageTypes.kt$R.string.asset_message_download_in_progress_text</ID>
+    <ID>MultiLineIfElse:ImageMessageTypes.kt$R.string.asset_message_upload_in_progress_text</ID>
+    <ID>MultiLineIfElse:ImageMessageTypes.kt$R.string.error_downloading_image_message</ID>
+    <ID>MultiLineIfElse:ImageMessageTypes.kt$R.string.error_uploading_image_message</ID>
+    <ID>MultiLineIfElse:ImageMessageTypes.kt$modifier .fillMaxWidth() .height(dimensions().importedMediaAssetSize)</ID>
+    <ID>MultiLineIfElse:ImageMessageTypes.kt$modifier .width(dimensions().importedMediaAssetSize) .height(dimensions().importedMediaAssetSize)</ID>
+    <ID>MultiLineIfElse:ImportMediaAuthenticatedViewModel.kt$ImportMediaAuthenticatedViewModel$conversations</ID>
+    <ID>MultiLineIfElse:ImportMediaAuthenticatedViewModel.kt$ImportMediaAuthenticatedViewModel$searchShareableConversation( conversations, searchQuery )</ID>
+    <ID>MultiLineIfElse:ImportMediaScreen.kt$dimensions().importedMediaAssetSize + horizontalPadding.times(2)</ID>
+    <ID>MultiLineIfElse:ImportMediaScreen.kt$screenWidth - (horizontalPadding * 2)</ID>
+    <ID>MultiLineIfElse:IncomingCallScreen.kt$stringResource(R.string.calling_label_incoming_call)</ID>
+    <ID>MultiLineIfElse:IncomingCallViewModel.kt$IncomingCallViewModel$null</ID>
+    <ID>MultiLineIfElse:InternalContactSearchResultItem.kt$Clickable { onCheckChange(!isAddedToGroup) }</ID>
+    <ID>MultiLineIfElse:InternalContactSearchResultItem.kt$clickable</ID>
+    <ID>MultiLineIfElse:LaunchedEffects.kt$prevPair</ID>
+    <ID>MultiLineIfElse:LaunchedEffects.kt$prevPair.second to newScrollIndex</ID>
+    <ID>MultiLineIfElse:LeaveConversationGroupDialog.kt$WireButtonState.Disabled</ID>
+    <ID>MultiLineIfElse:LeaveConversationGroupDialog.kt$WireButtonState.Error</ID>
+    <ID>MultiLineIfElse:LoginScreen.kt$E2EIEnrollmentScreenDestination</ID>
+    <ID>MultiLineIfElse:LoginScreen.kt$HomeScreenDestination</ID>
+    <ID>MultiLineIfElse:LoginScreen.kt$InitialSyncScreenDestination</ID>
+    <ID>MultiLineIfElse:LoginScreen.kt$LoginEmailVerificationCodeScreen(onSuccess, loginEmailViewModel)</ID>
+    <ID>MultiLineIfElse:LoginScreen.kt$MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, viewModel, loginEmailViewModel, ssoLoginResult)</ID>
+    <ID>MultiLineIfElse:LoginViewModel.kt$LoginViewModel$false</ID>
+    <ID>MultiLineIfElse:LoginViewModel.kt$LoginViewModel$preFilledUserIdentifier.userIdentifier</ID>
+    <ID>MultiLineIfElse:LoginViewModel.kt$LoginViewModel$savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY</ID>
+    <ID>MultiLineIfElse:LoginViewModel.kt$LoginViewModel$serverConfig.apiProxy?.needsAuthentication!!</ID>
+    <ID>MultiLineIfElse:MarkdownHelper.kt$null</ID>
+    <ID>MultiLineIfElse:MarkdownHelper.kt$this</ID>
+    <ID>MultiLineIfElse:MediaGalleryScreenState.kt$MediaGalleryScreenState$modalBottomSheetState.hide()</ID>
+    <ID>MultiLineIfElse:MediaGalleryScreenState.kt$MediaGalleryScreenState$modalBottomSheetState.show()</ID>
+    <ID>MultiLineIfElse:MessageComposeActions.kt$SelfDeletingMessageAction( isSelected = isSelfDeletingActive, onButtonClicked = onSelfDeletionOptionButtonClicked )</ID>
+    <ID>MultiLineIfElse:MessageCompositionHolder.kt$MessageCompositionHolder$Pair(rangeEnd, rangeEnd)</ID>
+    <ID>MultiLineIfElse:MessageExpiration.kt$SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable$1.toDuration(durationUnit)</ID>
+    <ID>MultiLineIfElse:MessageExpiration.kt$SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable$timeLeftForDurationUnit</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_other_changed_conversation_name</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_other_user_joined_conversation</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_other_user_knock</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_other_user_left_conversation</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_other_user_shared_asset</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_other_user_shared_image</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_other_user_shared_location</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_other_user_shared_video</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_self_changed_conversation_name</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_self_user_joined_conversation</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_self_user_knock</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_self_user_left_conversation</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_self_user_shared_asset</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_self_user_shared_image</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_self_user_shared_location</ID>
+    <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_self_user_shared_video</ID>
+    <ID>MultiLineIfElse:MessageTypes.kt$DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)</ID>
+    <ID>MultiLineIfElse:MessageTypes.kt$ImportedImageMessage(asset, shouldFillMaxWidth)</ID>
+    <ID>MultiLineIfElse:MessageTypes.kt$WireButtonState.Default</ID>
+    <ID>MultiLineIfElse:MessageTypes.kt$WireButtonState.Disabled</ID>
+    <ID>MultiLineIfElse:MessageTypes.kt$WireButtonState.Selected</ID>
+    <ID>MultiLineIfElse:MicrophoneButton.kt$R.string.content_description_calling_mute_call</ID>
+    <ID>MultiLineIfElse:MicrophoneButton.kt$R.string.content_description_calling_unmute_call</ID>
+    <ID>MultiLineIfElse:MigrateClientsDataUseCase.kt$MigrateClientsDataUseCase$listOf()</ID>
+    <ID>MultiLineIfElse:MigrateClientsDataUseCase.kt$MigrateClientsDataUseCase$sessionFileName</ID>
+    <ID>MultiLineIfElse:MigrationManagerTest.kt$MigrationManagerTest.Arrangement$coEvery { markUsersAsNeedToBeMigrated() } returns Unit</ID>
+    <ID>MultiLineIfElse:MigrationManagerTest.kt$MigrationManagerTest.Arrangement$coEvery { markUsersAsNeedToBeMigrated() } throws throwable</ID>
+    <ID>MultiLineIfElse:MigrationMapper.kt$MigrationMapper$BotService(scalaUserData.serviceIntegrationId, scalaUserData.serviceProviderId)</ID>
+    <ID>MultiLineIfElse:MigrationMapper.kt$MigrationMapper$null</ID>
+    <ID>MultiLineIfElse:MigrationScreen.kt$null</ID>
+    <ID>MultiLineIfElse:MigrationScreen.kt$stringResource(R.string.migration_title_step, stepNumber + 1, MigrationData.Progress.steps.size)</ID>
+    <ID>MultiLineIfElse:MutingOptionsSheetContent.kt$RichMenuItemState.DEFAULT</ID>
+    <ID>MultiLineIfElse:MutingOptionsSheetContent.kt$RichMenuItemState.SELECTED</ID>
+    <ID>MultiLineIfElse:MyAccountScreen.kt$Email( email, clickableActionIfPossible(!state.isEditEmailAllowed, navigateToChangeEmail) )</ID>
+    <ID>MultiLineIfElse:MyAccountScreen.kt$null</ID>
+    <ID>MultiLineIfElse:NavigationUtils.kt$this</ID>
+    <ID>MultiLineIfElse:NavigationUtils.kt$this.substring(0, it)</ID>
+    <ID>MultiLineIfElse:OtherUserProfileInfoMessageType.kt$OtherUserProfileInfoMessageType.ArchiveConversationError$R.string.error_archiving_conversation</ID>
+    <ID>MultiLineIfElse:OtherUserProfileInfoMessageType.kt$OtherUserProfileInfoMessageType.ArchiveConversationError$R.string.error_unarchiving_conversation</ID>
+    <ID>MultiLineIfElse:OtherUserProfileInfoMessageType.kt$OtherUserProfileInfoMessageType.ArchiveConversationSuccess$R.string.success_archiving_conversation</ID>
+    <ID>MultiLineIfElse:OtherUserProfileInfoMessageType.kt$OtherUserProfileInfoMessageType.ArchiveConversationSuccess$R.string.success_unarchiving_conversation</ID>
+    <ID>MultiLineIfElse:ParticipantsTiles.kt$pages</ID>
+    <ID>MultiLineIfElse:RegisterDeviceScreen.kt$E2EIEnrollmentScreenDestination</ID>
+    <ID>MultiLineIfElse:RegisterDeviceScreen.kt$HomeScreenDestination</ID>
+    <ID>MultiLineIfElse:RegisterDeviceScreen.kt$InitialSyncScreenDestination</ID>
+    <ID>MultiLineIfElse:RemoveConversationMemberDialog.kt$WireButtonState.Disabled</ID>
+    <ID>MultiLineIfElse:RemoveConversationMemberDialog.kt$WireButtonState.Error</ID>
+    <ID>MultiLineIfElse:RemoveDeviceScreen.kt$E2EIEnrollmentScreenDestination</ID>
+    <ID>MultiLineIfElse:RemoveDeviceScreen.kt$HomeScreenDestination</ID>
+    <ID>MultiLineIfElse:RemoveDeviceScreen.kt$InitialSyncScreenDestination</ID>
+    <ID>MultiLineIfElse:RemoveDeviceViewModel.kt$RemoveDeviceViewModel$state</ID>
+    <ID>MultiLineIfElse:RemoveDeviceViewModel.kt$RemoveDeviceViewModel$state.copy( removeDeviceDialogState = it.copy(password = newText, removeEnabled = newText.text.isNotEmpty()), error = RemoveDeviceError.None )</ID>
+    <ID>MultiLineIfElse:ScalaServerConfigDAO.kt$ScalaServerConfigDAO$ServerConfig.Links(apiBaseUrl, accountsBaseUrl, webSocketBaseUrl, blackListUrl, teamsUrl, websiteUrl, title, false, null)</ID>
+    <ID>MultiLineIfElse:ScalaServerConfigDAO.kt$ScalaServerConfigDAO$null</ID>
+    <ID>MultiLineIfElse:SearchAllPeopleScreen.kt$searchResult</ID>
+    <ID>MultiLineIfElse:SearchAllPeopleScreen.kt$searchResult.take( DEFAULT_SEARCH_RESULT_ITEM_SIZE )</ID>
+    <ID>MultiLineIfElse:SelfDeletionMenuItems.kt$RichMenuItemState.DEFAULT</ID>
+    <ID>MultiLineIfElse:SelfDeletionMenuItems.kt$RichMenuItemState.SELECTED</ID>
+    <ID>MultiLineIfElse:ServiceDetailsViewModel.kt$ServiceDetailsViewModel$serviceNotFound()</ID>
+    <ID>MultiLineIfElse:SettingsScreen.kt$homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE))</ID>
+    <ID>MultiLineIfElse:SettingsScreen.kt$turnAppLockOffDialogState.show(Unit)</ID>
+    <ID>MultiLineIfElse:ShouldStartPersistentWebSocketServiceUseCase.kt$ShouldStartPersistentWebSocketServiceUseCase$Result.Success(false)</ID>
+    <ID>MultiLineIfElse:ShouldStartPersistentWebSocketServiceUseCase.kt$ShouldStartPersistentWebSocketServiceUseCase$Result.Success(true)</ID>
+    <ID>MultiLineIfElse:SpeakerButton.kt$R.drawable.ic_speaker_off</ID>
+    <ID>MultiLineIfElse:SpeakerButton.kt$R.drawable.ic_speaker_on</ID>
+    <ID>MultiLineIfElse:SpeakerButton.kt$R.string.content_description_calling_turn_speaker_off</ID>
+    <ID>MultiLineIfElse:SpeakerButton.kt$R.string.content_description_calling_turn_speaker_on</ID>
+    <ID>MultiLineIfElse:StyledStringUtil.kt$append(text)</ID>
+    <ID>MultiLineIfElse:StyledStringUtil.kt$bold { append(text) }</ID>
+    <ID>MultiLineIfElse:SystemMessageContentMapper.kt$SystemMessageContentMapper$others(members.map { mapMemberName(user = userList.findUser(userId = it), type = SelfNameType.ResourceLowercase) })</ID>
+    <ID>MultiLineIfElse:SystemMessageContentMapper.kt$SystemMessageContentMapper$self()</ID>
+    <ID>MultiLineIfElse:Theme.kt$emptyArray()</ID>
+    <ID>MultiLineIfElse:UIMessage.kt$UIMessageContent.SystemMessage.ConversationDegraded$R.drawable.ic_conversation_degraded_mls</ID>
+    <ID>MultiLineIfElse:UIMessage.kt$UIMessageContent.SystemMessage.ConversationDegraded$R.drawable.ic_shield_holo</ID>
+    <ID>MultiLineIfElse:UIMessage.kt$UIMessageContent.SystemMessage.ConversationDegraded$R.string.label_system_message_conversation_degraded_mls</ID>
+    <ID>MultiLineIfElse:UIMessage.kt$UIMessageContent.SystemMessage.ConversationDegraded$R.string.label_system_message_conversation_degraded_proteus</ID>
+    <ID>MultiLineIfElse:UIMessage.kt$UIMessageContent.SystemMessage.ConversationVerified$R.drawable.ic_certificate_valid_mls</ID>
+    <ID>MultiLineIfElse:UIMessage.kt$UIMessageContent.SystemMessage.ConversationVerified$R.drawable.ic_certificate_valid_proteus</ID>
+    <ID>MultiLineIfElse:UIMessage.kt$UIMessageContent.SystemMessage.ConversationVerified$R.string.label_system_message_conversation_verified_mls</ID>
+    <ID>MultiLineIfElse:UIMessage.kt$UIMessageContent.SystemMessage.ConversationVerified$R.string.label_system_message_conversation_verified_proteus</ID>
+    <ID>MultiLineIfElse:UnblockUserDialogs.kt$WireButtonState.Default</ID>
+    <ID>MultiLineIfElse:UnblockUserDialogs.kt$WireButtonState.Disabled</ID>
+    <ID>MultiLineIfElse:UpdateE2eiCertificateButton.kt$WireButtonState.Default</ID>
+    <ID>MultiLineIfElse:UpdateE2eiCertificateButton.kt$WireButtonState.Disabled</ID>
+    <ID>MultiLineIfElse:UserProfileAvatar.kt$ColorPainter(Color.Transparent)</ID>
+    <ID>MultiLineIfElse:UserProfileAvatar.kt$getDefaultAvatar(membership = data.membership)</ID>
+    <ID>MultiLineIfElse:UserProfileAvatar.kt$it</ID>
+    <ID>MultiLineIfElse:UserProfileAvatar.kt$it .clip(CircleShape) .clickable(clickable)</ID>
+    <ID>MultiLineIfElse:UserProfileInfo.kt$""</ID>
+    <ID>MultiLineIfElse:UserProfileInfo.kt$MaterialTheme.colorScheme.onBackground</ID>
+    <ID>MultiLineIfElse:UserProfileInfo.kt$MaterialTheme.wireColorScheme.labelText</ID>
+    <ID>MultiLineIfElse:UserProfileInfo.kt$UIText.StringResource(R.string.username_unavailable_label).asString()</ID>
+    <ID>MultiLineIfElse:UsernameTextField.kt$WireTextFieldState.Default</ID>
+    <ID>MultiLineIfElse:UsernameTextField.kt$when (errorState) { HandleUpdateErrorState.TextFieldError.UsernameTakenError -&gt; WireTextFieldState.Error(stringResource(id = R.string.create_account_username_taken_error)) HandleUpdateErrorState.TextFieldError.UsernameInvalidError -&gt; WireTextFieldState.Error(stringResource(id = R.string.create_account_username_description)) }</ID>
+    <ID>MultiLineIfElse:VerificationCode.kt$WireTextFieldState.Default</ID>
+    <ID>MultiLineIfElse:VerificationCode.kt$WireTextFieldState.Error( stringResource(id = R.string.second_factor_code_error) )</ID>
+    <ID>MultiLineIfElse:WelcomeScreen.kt$pageState.animateScrollToPage(scrollToPage)</ID>
+    <ID>MultiLineIfElse:WelcomeScreen.kt$pageState.scrollToPage(scrollToPage)</ID>
+    <ID>MultiLineIfElse:WireActivityDialogs.kt$R.string.team_app_lock_disabled</ID>
+    <ID>MultiLineIfElse:WireActivityDialogs.kt$R.string.team_app_lock_enabled</ID>
+    <ID>MultiLineIfElse:WireActivityViewModel.kt$WireActivityViewModel$flowOf(NewClientResult.Empty)</ID>
+    <ID>MultiLineIfElse:WireActivityViewModel.kt$WireActivityViewModel$observeNewClients()</ID>
+    <ID>MultiLineIfElse:WireButton.kt$BorderStroke( width = borderWidth, color = colors.outlineColor(state, interactionSource).value )</ID>
+    <ID>MultiLineIfElse:WireButton.kt$it.fillMaxWidth()</ID>
+    <ID>MultiLineIfElse:WireButton.kt$it.wrapContentWidth()</ID>
+    <ID>MultiLineIfElse:WireButton.kt$null</ID>
+    <ID>MultiLineIfElse:WireDropDown.kt$MaterialTheme.wireColorScheme.onSecondaryButtonEnabled</ID>
+    <ID>MultiLineIfElse:WireDropDown.kt$MaterialTheme.wireColorScheme.onSecondaryButtonSelected</ID>
+    <ID>MultiLineIfElse:WireDropDown.kt$MaterialTheme.wireColorScheme.secondaryButtonSelected</ID>
+    <ID>MultiLineIfElse:WireDropDown.kt$MaterialTheme.wireColorScheme.secondaryText</ID>
+    <ID>MultiLineIfElse:WireDropDown.kt$MaterialTheme.wireColorScheme.tertiaryButtonEnabled</ID>
+    <ID>MultiLineIfElse:WireDropDown.kt$stringResource(R.string.wire_dropdown_placeholder)</ID>
+    <ID>MultiLineIfElse:WireNotificationManager.kt$WireNotificationManager$servicesManager.startOngoingCallService()</ID>
+    <ID>MultiLineIfElse:WireNotificationManager.kt$WireNotificationManager$servicesManager.stopOngoingCallService()</ID>
+    <ID>MultiLineIfElse:WirePasswordTextField.kt$R.string.content_description_hide_password</ID>
+    <ID>MultiLineIfElse:WirePasswordTextField.kt$R.string.content_description_reveal_password</ID>
+    <ID>MultiLineIfElse:WireTextField.kt$it</ID>
+    <ID>MultiLineIfElse:WriteStorageRequestFlow.kt$onGranted()</ID>
+    <ID>NoBlankLineBeforeRbrace:CreateAccountEmailViewState.kt$CreateAccountEmailViewState$ </ID>
+    <ID>NoBlankLineBeforeRbrace:DrawingCanvasViewModel.kt$DrawingCanvasViewModel$ </ID>
+    <ID>NoBlankLineBeforeRbrace:EmailComposer.kt$EmailComposer$ </ID>
+    <ID>NoBlankLineBeforeRbrace:FakeKaliumFileSystem.kt$FakeKaliumFileSystem$ </ID>
+    <ID>NoBlankLineBeforeRbrace:ISOFormatter.kt$ISOFormatter$ </ID>
+    <ID>NoBlankLineBeforeRbrace:LastConversationEvent.kt$ConversationLastEvent$ </ID>
+    <ID>NoBlankLineBeforeRbrace:ObserveConversationMembersByTypesUseCase.kt$ObserveConversationMembersByTypesUseCase$ </ID>
+    <ID>NoBlankLineBeforeRbrace:ObserveConversationMembersByTypesUseCaseTest.kt$ObserveConversationMembersByTypesUseCaseTest$ </ID>
+    <ID>NoBlankLineBeforeRbrace:OtherUserBottomSheetState.kt$OtherUserBottomSheetState$ </ID>
+    <ID>NoBlankLineBeforeRbrace:RemoveConversationMemberDialog.kt$ </ID>
+    <ID>NoBlankLineBeforeRbrace:ScreenStateObserverTest.kt$ScreenStateObserverTest$ </ID>
+    <ID>NoBlankLineBeforeRbrace:ScreenStateObserverTest.kt$ScreenStateObserverTest.Arrangement$ </ID>
+    <ID>NoBlankLineBeforeRbrace:SearchPeopleScreenState.kt$SearchPeopleScreenState$ </ID>
+    <ID>NoBlankLineBeforeRbrace:UserDataStore.kt$UserDataStore$ </ID>
+    <ID>NoBlankLineBeforeRbrace:UserTypeMapper.kt$UserTypeMapper$ </ID>
+    <ID>NoBlankLineBeforeRbrace:UserTypeMapperTest.kt$UserTypeMapperTest$ </ID>
+    <ID>NoBlankLineBeforeRbrace:VerticalSpace.kt$VerticalSpace$ </ID>
+    <ID>NoConsecutiveBlankLines:CallRinger.kt$CallRinger$ </ID>
+    <ID>NoConsecutiveBlankLines:ConversationsNavigationItem.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:CoroutineScope.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:LastConversationEvent.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:LaunchedEffects.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:OtherAccount.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:ScalaServerConfigDAOTest.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:ScalaServerConfigDAOTest.kt$ScalaServerConfigDAOTest.Arrangement$ </ID>
+    <ID>NoConsecutiveBlankLines:ScreenStateObserver.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:SearchPeopleScreenState.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:SearchTopBar.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:StartupBenchmarkWithLogin.kt$StartupBenchmarkWithLogin$ </ID>
+    <ID>NoConsecutiveBlankLines:SurfaceBackgroundWrapper.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:VersionizerTest.kt$VersionizerTest$ </ID>
+    <ID>NoConsecutiveBlankLines:WireTextFieldDefaults.kt$ </ID>
+    <ID>NoMultipleSpaces:ApiVersioningDialogs.kt$ </ID>
+    <ID>NoMultipleSpaces:ShakeAnimation.kt$ </ID>
+    <ID>NoMultipleSpaces:ThemeUtils.kt$ScreenSizeDependent$ </ID>
+    <ID>NoSemicolons:AdditionalOptionMenuState.kt$AdditionalOptionSubMenuState.Gif$;</ID>
+    <ID>NoSemicolons:CallRinger.kt$CallRinger$;</ID>
+    <ID>NoSemicolons:CollapsingTopBarScaffold.kt$State.COLLAPSED$;</ID>
+    <ID>NoSemicolons:ConversationMediaScreen.kt$ConversationMediaScreenTabItem.FILES$;</ID>
+    <ID>NoSemicolons:ConversationRouter.kt$ConversationItemType.SEARCH$;</ID>
+    <ID>NoSemicolons:GroupConversationDetailsScreen.kt$GroupConversationDetailsTabItem.PARTICIPANTS$;</ID>
+    <ID>NoSemicolons:LastConversationEvent.kt$CallEvent.NoAnswerCall$;</ID>
+    <ID>NoSemicolons:LoginScreen.kt$LoginTabItem.SSO$;</ID>
+    <ID>NoSemicolons:NavigationCommand.kt$BackStackMode.NONE$;</ID>
+    <ID>NoSemicolons:OtherUserProfileScreen.kt$OtherUserProfileTabItem.DEVICES$;</ID>
+    <ID>NoSemicolons:SearchPeopleRouter.kt$SearchPeopleTabItem.SERVICES$;</ID>
+    <ID>NoSemicolons:WireDestinationStyleAnimated.kt$TransitionAnimationType.POP_UP$;</ID>
+    <ID>NoTrailingSpaces:AvatarPicker.kt$// TODO: Mateusz: I think we should refactor this, it takes some values from the ViewModel, part of the logic is executed inside </ID>
+    <ID>NoTrailingSpaces:ScalaServerConfigDAOTest.kt$ScalaServerConfigDAOTest$ </ID>
+    <ID>NoTrailingSpaces:ScalaServerConfigDAOTest.kt$ScalaServerConfigDAOTest.Arrangement$ </ID>
+    <ID>NoUnusedImports:ApiVersioningDialogs.kt$com.wire.android.ui.server.ApiVersioningDialogs.kt</ID>
+    <ID>NoUnusedImports:CreateAccountDetailsScreen.kt$import com.wire.android.ui.common.scaffold.WireScaffold</ID>
+    <ID>NoUnusedImports:SearchPeopleScreenState.kt$com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt</ID>
+    <ID>NoUnusedImports:SpeakerButton.kt$com.wire.android.ui.calling.controlbuttons.SpeakerButton.kt</ID>
+    <ID>NoUnusedImports:ZoomableImage.kt$com.wire.android.ui.home.gallery.ZoomableImage.kt</ID>
+    <ID>NoWildcardImports:ExampleInstrumentedTest.kt$import org.junit.Assert.*</ID>
+    <ID>NoWildcardImports:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+    <ID>ParameterListWrapping:WireButtonDefaults.kt$( enabled: Color, onEnabled: Color, enabledOutline: Color, disabled: Color, onDisabled: Color, disabledOutline: Color, selected: Color, onSelected: Color, selectedOutline: Color, error: Color, onError: Color, errorOutline: Color, positive: Color, onPositive: Color, positiveOutline: Color, ripple: Color )</ID>
+    <ID>ParameterListWrapping:WireTypography.kt$WireTypography$( val title01: TextStyle, val title02: TextStyle, val title03: TextStyle, val title04: TextStyle, val body01: TextStyle, val body02: TextStyle, val body03: TextStyle, val body04: TextStyle, val body05: TextStyle, val button01: TextStyle, val button02: TextStyle, val button03: TextStyle, val button04: TextStyle, val button05: TextStyle, val label01: TextStyle, val label02: TextStyle, val label03: TextStyle, val label04: TextStyle, val label05: TextStyle, val badge01: TextStyle, val subline01: TextStyle, val code01: TextStyle )</ID>
+    <ID>ParameterWrapping:ConversationScreen.kt$groupDetailsScreenResultRecipient: ResultRecipient&lt;GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs&gt;</ID>
+    <ID>ParameterWrapping:CurrentLocationRequestFlow.kt$CurrentLocationRequestFlow$private val locationPermissionLauncher: ManagedActivityResultLauncher&lt;Array&lt;String&gt;, Map&lt;String, @JvmSuppressWildcards Boolean&gt;&gt;</ID>
+    <ID>ParameterWrapping:GroupConversationOptionsItem.kt$clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ })</ID>
+    <ID>ParameterWrapping:HomeScreen.kt$groupDetailsScreenResultRecipient: ResultRecipient&lt;ConversationScreenDestination, GroupConversationDetailsNavBackArgs&gt;</ID>
+    <ID>ParameterWrapping:HomeStateHolder.kt$navController: NavHostController = rememberTrackingAnimatedNavController() { HomeDestination.fromRoute(it)?.itemName }</ID>
+    <ID>ParameterWrapping:RecordAudioRequestFlow.kt$RecordAudioRequestFlow$private val audioRecordPermissionLauncher: ManagedActivityResultLauncher&lt;Array&lt;String&gt;, Map&lt;String, @JvmSuppressWildcards Boolean&gt;&gt;</ID>
+    <ID>ParameterWrapping:UseCameraAndWriteStorageRequestFlow.kt$UseCameraAndWriteStorageRequestFlow$private val cameraPermissionLauncher: ManagedActivityResultLauncher&lt;Array&lt;String&gt;, Map&lt;String, @JvmSuppressWildcards Boolean&gt;&gt;</ID>
+    <ID>ParameterWrapping:UsersTypingIndicator.kt$viewModel: TypingIndicatorViewModel = hiltViewModelScoped&lt;TypingIndicatorViewModelImpl, TypingIndicatorViewModel, TypingIndicatorArgs&gt;( TypingIndicatorArgs(conversationId) )</ID>
+    <ID>ParameterWrapping:WireActivityViewModel.kt$WireActivityViewModel$private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory</ID>
+    <ID>ParameterWrapping:WireActivityViewModel.kt$WireActivityViewModel$private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory</ID>
+    <ID>ParameterWrapping:WireItemLabel.kt$contentPadding: PaddingValues = PaddingValues(horizontal = dimensions().spacing6x, vertical = dimensions().spacing2x)</ID>
+    <ID>ParameterWrapping:WireTextField.kt$keyboardOptions: KeyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, autoCorrect = true)</ID>
+    <ID>PropertyWrapping:CaptureVideoRequestFlow.kt$val requestVideoPermissionLauncher: ManagedActivityResultLauncher&lt;Array&lt;String&gt;, Map&lt;String, @JvmSuppressWildcards Boolean&gt;&gt; = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { areGranted -&gt; if (areGranted.all { it.value }) { captureVideoLauncher.launch(targetVideoFileUri) } else { context.getActivity()?.let { it.checkCameraWithStoragePermission(onPermissionDenied) { onPermissionPermanentlyDenied( PermissionDenialType.CaptureVideo ) } } } }</ID>
+    <ID>PropertyWrapping:ConversationMediaScreen.kt$val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { ConversationMediaScreenTabItem.entries.size })</ID>
+    <ID>PropertyWrapping:CurrentLocationRequestFlow.kt$val requestPermissionLauncher: ManagedActivityResultLauncher&lt;Array&lt;String&gt;, Map&lt;String, @JvmSuppressWildcards Boolean&gt;&gt; = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions -&gt; val allPermissionGranted = permissions.all { it.value } if (allPermissionGranted) { onPermissionAllowed() } else { context.getActivity()?.let { if (it.shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_FINE_LOCATION) || it.shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_COARSE_LOCATION) ) { onPermissionDenied() } else { onPermissionPermanentlyDenied() } } } }</ID>
+    <ID>PropertyWrapping:EditSelfDeletingMessagesViewModelTest.kt$EditSelfDeletingMessagesViewModelTest.Arrangement$@MockK private lateinit var observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase</ID>
+    <ID>PropertyWrapping:EnterLockScreenViewModel.kt$EnterLockScreenViewModel$val storedPasscode = withContext(dispatchers.io()) { globalDataStore.getAppLockPasscodeFlow().firstOrNull() }</ID>
+    <ID>PropertyWrapping:GroupConversationDetailsScreen.kt$val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { GroupConversationDetailsTabItem.entries.size })</ID>
+    <ID>PropertyWrapping:GroupConversationDetailsScreen.kt$val showSnackbarMessage: (UIText) -&gt; Unit = remember { { scope.launch { snackbarHostState.showSnackbar(it.asString(resources)) } } }</ID>
+    <ID>PropertyWrapping:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelArrangement$private val observeParticipantsForConversationChannel = Channel&lt;ConversationParticipantsData&gt;(capacity = Channel.UNLIMITED)</ID>
+    <ID>PropertyWrapping:HomeScreen.kt$val maxWidth = min(this.maxWidth - dimensions().homeDrawerSheetEndPadding, DrawerDefaults.MaximumDrawerWidth)</ID>
+    <ID>PropertyWrapping:MessageComposerViewModelArrangement.kt$MessageComposerViewModelArrangement$@MockK private lateinit var observeConversationInteractionAvailabilityUseCase: ObserveConversationInteractionAvailabilityUseCase</ID>
+    <ID>PropertyWrapping:MessagePreviewContentMapperTest.kt$MessagePreviewContentMapperTest$val unreadEventCount = mapOf(UnreadEventType.MENTION to mentionCount, UnreadEventType.MISSED_CALL to missedCallCount)</ID>
+    <ID>PropertyWrapping:NavigationGraph.kt$val parentEntry = remember(navBackStackEntry) { navController.getBackStackEntry(NavGraphs.newConversation.route) }</ID>
+    <ID>PropertyWrapping:ObserveParticipantsForConversationUseCaseTest.kt$ObserveParticipantsForConversationUseCaseTest$val memberNotUnderLegalHold = MemberDetails(testOtherUser(1).copy(userType = UserType.INTERNAL), Member.Role.Member)</ID>
+    <ID>PropertyWrapping:ObserveParticipantsForConversationUseCaseTest.kt$ObserveParticipantsForConversationUseCaseTest$val memberUnderLegalHold = MemberDetails(testOtherUser(0).copy(userType = UserType.INTERNAL), Member.Role.Member)</ID>
+    <ID>PropertyWrapping:RecordAudioRequestFlow.kt$val requestPermissionLauncher: ManagedActivityResultLauncher&lt;Array&lt;String&gt;, Map&lt;String, @JvmSuppressWildcards Boolean&gt;&gt; = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions -&gt; val allPermissionGranted = permissions.all { it.value } if (allPermissionGranted) { onPermissionAllowed() } else { context.getActivity()?.let { if (it.shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO) || (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.TIRAMISU &amp;&amp; it.shouldShowRequestPermissionRationale( android.Manifest.permission.READ_EXTERNAL_STORAGE )) ) { onPermissionDenied() } else { onAudioPermissionPermanentlyDenied() } } } }</ID>
+    <ID>PropertyWrapping:WelcomeScreen.kt$val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState&lt;FeatureDisabledWithProxyDialogState&gt;()</ID>
+    <ID>PropertyWrapping:WireActivityViewModelTest.kt$WireActivityViewModelTest.Arrangement$@MockK private lateinit var observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory</ID>
+    <ID>PropertyWrapping:WireActivityViewModelTest.kt$WireActivityViewModelTest.Arrangement$@MockK private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory</ID>
+    <ID>SpacingAroundColon:CreateAccountCodeViewState.kt$CreateAccountCodeViewState.CodeError.DialogError.UserAlreadyExists$:</ID>
+    <ID>SpacingAroundColon:LastConversationEvent.kt$ConversationLastEvent.Mention$:</ID>
+    <ID>SpacingAroundColon:LoginError.kt$LoginError.DialogError.ClientUpdateRequired$:</ID>
+    <ID>SpacingAroundColon:LoginError.kt$LoginError.DialogError.ServerVersionNotSupported$:</ID>
+    <ID>SpacingAroundColon:SyncStateObserver.kt$SyncStateObserver$:</ID>
+    <ID>SpacingAroundColon:VisibilityState.kt$:</ID>
+    <ID>SpacingAroundColon:VisibilityState.kt$VisibilityState$:</ID>
+    <ID>SpacingAroundColon:VisibilityState.kt$VisibilityState.Companion$:</ID>
+    <ID>SpacingAroundColon:WireForegroundNotificationDetailsProvider.kt$WireForegroundNotificationDetailsProvider$:</ID>
+    <ID>SpacingAroundCurly:ObserveConversationMembersByTypesUseCase.kt$ObserveConversationMembersByTypesUseCase${</ID>
+    <ID>SpacingAroundCurly:ObserveConversationMembersByTypesUseCase.kt$ObserveConversationMembersByTypesUseCase$}</ID>
+    <ID>SpacingAroundKeyword:CodeTextField.kt$&lt;no name provided&gt;$if</ID>
+    <ID>SpacingAroundKeyword:MigrateServerConfigUseCase.kt$MigrateServerConfigUseCase$when</ID>
+    <ID>SpacingAroundOperators:VisibilityState.kt$VisibilityState.Companion$=</ID>
+    <ID>SpacingAroundParens:SelfDevicesState.kt$SelfDevicesState$(</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:CallNotificationManager.kt$CallNotificationManager.Companion$@VisibleForTesting internal const val DEBOUNCE_TIME = 200L</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:CreateGroupErrorDialog.kt$@PreviewMultipleThemes @Composable private fun PreviewCreateGroupErrorDialogConflictedBackends()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:CreateGroupErrorDialog.kt$@PreviewMultipleThemes @Composable private fun PreviewCreateGroupErrorDialogUnknown()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:CustomTabsHelper.kt$CustomTabsHelper$@JvmStatic fun launchUri(context: Context, uri: Uri)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:Dialogs.kt$@Composable fun DisableGuestConfirmationDialog(onConfirm: () -&gt; Unit, onDialogDismiss: () -&gt; Unit)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest$@Test fun `given deleting client returns failure, when deleting current client, then return failure`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest$@Test fun `given deleting client returns invalid credentials, when deleting current client, then return InvalidPassword`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest$@Test fun `given deleting client returns success, when deleting current client, then return Success`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest$@Test fun `given no sessions, when logging out, then make all required actions other than logout and return success`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest$@Test fun `given no valid sessions, when logging out, then make all required actions other than logout and return success`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest$@Test fun `given password required and valid, when validating password, then return Success with given password`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest$@Test fun `given password required but invalid, when validating password, then return InvalidPassword`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest$@Test fun `given password required but not provided, when validating password, then return PasswordRequired`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest$@Test fun `given password required returns failure, when validating password, then return failure`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest$@Test fun `given sessions return failure, when hard-logging out sessions, then return failure`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest$@Test fun `given valid sessions, when logging out, then make all required actions with logout and return success`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var accountSwitchUseCase: AccountSwitchUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var deleteClientUseCase: DeleteClientUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var endCallUseCase: EndCallUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var getSelfUserUseCase: GetSelfUserUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var getSessionsUseCase: GetSessionsUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var globalDataStore: GlobalDataStore</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var isPasswordRequiredUseCase: IsPasswordRequiredUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var logoutUseCase: LogoutUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var notificationChannelsManager: NotificationChannelsManager</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var notificationManager: WireNotificationManager</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var observeCurrentClientIdUseCase: ObserveCurrentClientIdUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var userDataStore: UserDataStore</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var userDataStoreProvider: UserDataStoreProvider</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var userSessionScope: UserSessionScope</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ForgotLockScreenViewModelTest.kt$ForgotLockScreenViewModelTest.Arrangement$@MockK lateinit var validatePasswordUseCase: ValidatePasswordUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is admin and internal team member, when init group options, then group name update is allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is admin and member of group owner team, when init group options, then guests update is allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is admin and not member of group owner team, when init group options, then guests update is not allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is admin and not team group, when init group options, then read receipts update is not allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is admin and team group, when init group options, then read receipts update is allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is admin, when init group options, then self deleting update is allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is admin, when init group options, then services update is allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is not admin and external team member, when init group options, then group name update is not allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is not admin and internal team member, when init group options, then group name update is not allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is not admin and member of group owner team, when init group options, then guests update is not allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is not admin and not member of group owner team, when init group options, then guests update is not allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is not admin and not team group, when init group options, then read receipts update is not allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is not admin and team group, when init group options, then read receipts update is not allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is not admin, when init group options, then self deleting update is not allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$@Test fun `given user is not admin, when init group options, then services update is not allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:HomeViewModelTest.kt$HomeViewModelTest$@Test fun `given legal hold disabled and no request available, then shouldDisplayLegalHoldIndicator is false`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:HomeViewModelTest.kt$HomeViewModelTest$@Test fun `given legal hold enabled, then shouldDisplayLegalHoldIndicator is true`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:HomeViewModelTest.kt$HomeViewModelTest$@Test fun `given legal hold enabled, when user status changes, then shouldDisplayLegalHoldIndicator should keep the same`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:HomeViewModelTest.kt$HomeViewModelTest.Arrangement$@MockK lateinit var getSelf: GetSelfUserUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:HomeViewModelTest.kt$HomeViewModelTest.Arrangement$@MockK lateinit var globalDataStore: GlobalDataStore</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:HomeViewModelTest.kt$HomeViewModelTest.Arrangement$@MockK lateinit var needsToRegisterClient: NeedsToRegisterClientUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:HomeViewModelTest.kt$HomeViewModelTest.Arrangement$@MockK lateinit var observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:HomeViewModelTest.kt$HomeViewModelTest.Arrangement$@MockK lateinit var shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:HomeViewModelTest.kt$HomeViewModelTest.Arrangement$@MockK lateinit var wireSessionImageLoader: WireSessionImageLoader</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:InitialSyncViewModelTest.kt$InitialSyncViewModelTest.Arrangement$@MockK lateinit var observeSyncState: ObserveSyncStateUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:InitialSyncViewModelTest.kt$InitialSyncViewModelTest.Arrangement$@MockK lateinit var userDataStore: UserDataStore</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:InitialSyncViewModelTest.kt$InitialSyncViewModelTest.Arrangement$@MockK lateinit var userDataStoreProvider: UserDataStoreProvider</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:InternalContactSearchResultItem.kt$@PreviewMultipleThemes @Composable fun PreviewInternalContactSearchResultItemClickable()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:LegalHoldDeactivatedViewModelTest.kt$LegalHoldDeactivatedViewModelTest$@Test fun givenAlreadyNotified_whenGettingState_thenStateShouldBeHidden()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:LegalHoldDeactivatedViewModelTest.kt$LegalHoldDeactivatedViewModelTest$@Test fun givenLegalHoldRequestReturnsFailure_whenGettingState_thenStateShouldBeHidden()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:LegalHoldDeactivatedViewModelTest.kt$LegalHoldDeactivatedViewModelTest$@Test fun givenSessionReturnsFailure_whenGettingState_thenStateShouldBeHidden()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:LegalHoldDeactivatedViewModelTest.kt$LegalHoldDeactivatedViewModelTest$@Test fun givenShouldNotify_whenDismissing_thenStateShouldBeChangedToHidden()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:LegalHoldDeactivatedViewModelTest.kt$LegalHoldDeactivatedViewModelTest$@Test fun givenShouldNotify_whenGettingState_thenStateShouldBeVisible()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:LegalHoldSubjectProfileDialog.kt$@Composable @PreviewMultipleThemes fun PreviewLegalHoldSubjectProfileSelfDialog()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:LegalHoldSubjectProfileDialog.kt$@Composable fun LegalHoldSubjectProfileSelfDialog(dialogDismissed: () -&gt; Unit)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:MigrateClientsDataUseCaseTest.kt$MigrateClientsDataUseCaseTest.Arrangement$@MockK lateinit var scalaCryptoBoxDirectoryProvider: ScalaCryptoBoxDirectoryProvider</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:MigrateClientsDataUseCaseTest.kt$MigrateClientsDataUseCaseTest.Arrangement$@MockK lateinit var scalaUserDAO: ScalaUserDAO</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:MigrateClientsDataUseCaseTest.kt$MigrateClientsDataUseCaseTest.Arrangement$@MockK lateinit var scalaUserDBProvider: ScalaUserDatabaseProvider</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:MigrateClientsDataUseCaseTest.kt$MigrateClientsDataUseCaseTest.Arrangement$@MockK lateinit var userDataStoreProvider: UserDataStoreProvider</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:NewConversationViewModelTest.kt$NewConversationViewModelTest$@Test fun `given self is internal team member, when creating group, then creating group should be allowed`()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ScalaBackendPreferences.kt$ScalaBackendPreferences.Companion$@VisibleForTesting const val ACCOUNTS_URL_PREF = "CUSTOM_BACKEND_ACCOUNTS_URL"</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ScalaBackendPreferences.kt$ScalaBackendPreferences.Companion$@VisibleForTesting const val API_VERSION_INFORMATION = "API_VERSION_INFORMATION"</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ScalaBackendPreferences.kt$ScalaBackendPreferences.Companion$@VisibleForTesting const val BASE_URL_PREF = "CUSTOM_BACKEND_BASE_URL"</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ScalaBackendPreferences.kt$ScalaBackendPreferences.Companion$@VisibleForTesting const val BLACKLIST_HOST_PREF = "CUSTOM_BACKEND_BLACKLIST_HOST"</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ScalaBackendPreferences.kt$ScalaBackendPreferences.Companion$@VisibleForTesting const val CONFIG_URL_PREF = "CUSTOM_BACKEND_CONFIG_URL"</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ScalaBackendPreferences.kt$ScalaBackendPreferences.Companion$@VisibleForTesting const val TEAMS_URL_PREF = "CUSTOM_BACKEND_TEAMS_URL"</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ScalaBackendPreferences.kt$ScalaBackendPreferences.Companion$@VisibleForTesting const val WEBSITE_URL_PREF = "CUSTOM_BACKEND_WEBSITE_URL"</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ScalaBackendPreferences.kt$ScalaBackendPreferences.Companion$@VisibleForTesting const val WEBSOCKET_URL_PREF = "CUSTOM_BACKEND_WEBSOCKET_URL"</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:ScalaBackendPreferencesTest.kt$ScalaBackendPreferencesTest.Arrangement$@MockK lateinit var context: Context</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfDevicesScreen.kt$@Suppress("LongParameterList") private fun LazyListScope.folderDeviceItems( header: String, items: List&lt;Device&gt;, shouldShowVerifyLabel: Boolean, isCurrentClient: Boolean, isE2EIEnabled: Boolean, onDeviceClick: (Device) -&gt; Unit = {} )</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var accountSwitch: AccountSwitchUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var authServerConfigProvider: AuthServerConfigProvider</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var dispatchers: DispatcherProvider</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var endCall: EndCallUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var getSelf: GetSelfUserUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var getSelfTeam: GetUpdatedSelfTeamUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var globalDataStore: GlobalDataStore</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var isReadOnlyAccount: IsReadOnlyAccountUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var logout: LogoutUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var notificationChannelsManager: NotificationChannelsManager</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var notificationManager: WireNotificationManager</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var observeValidAccounts: ObserveValidAccountsUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var otherAccountMapper: OtherAccountMapper</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var qualifiedIdMapper: QualifiedIdMapper</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var selfServerLinks: SelfServerConfigUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var updateStatus: UpdateSelfAvailabilityStatusUseCase</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:SelfUserProfileViewModelArrangement.kt$SelfUserProfileViewModelArrangement$@MockK lateinit var wireSessionImageLoader: WireSessionImageLoader</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:UpdateReceiver.kt$UpdateReceiver$@Inject lateinit var migrationManager: MigrationManager</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:UpdateReceiver.kt$UpdateReceiver$@Inject lateinit var workManager: WorkManager</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:UriUtilTest.kt$UriUtilTest$@Test fun givenLinkWithoutParams_whenCallingFindParameterValue_thenReturnsParamValue()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Chocolate = Color(0xFF622F00)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber100 = Color(0xFFFFF6D4)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber200 = Color(0xFFFFEEA8)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber300 = Color(0xFFFFE57D)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber400 = Color(0xFFFFDD51)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber500 = Color(0xFFFFD426)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber600 = Color(0xFFCCAA1E)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber700 = Color(0xFF997F17)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber800 = Color(0xFF66550F)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber900 = Color(0xFF4D400B)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkBlue100 = Color(0xFFDDEDFF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkBlue200 = Color(0xFFBBDBFF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkBlue300 = Color(0xFF98CAFF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkBlue400 = Color(0xFF76B8FF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkBlue500 = Color(0xFF54A6FF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkBlue600 = Color(0xFF4385CC)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkBlue700 = Color(0xFF326499)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkBlue800 = Color(0xFF224266)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkBlue900 = Color(0xFF19324D)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkGreen100 = Color(0xFFD6F8DE)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkGreen200 = Color(0xFFACF1BD)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkGreen300 = Color(0xFF83E99D)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkGreen400 = Color(0xFF59E27C)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkGreen500 = Color(0xFF30DB5B)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkGreen600 = Color(0xFF26AF49)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkGreen700 = Color(0xFF1D8337)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkGreen800 = Color(0xFF135824)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkGreen900 = Color(0xFF0E421B)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPetrol100 = Color(0xFFDFFAFF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPetrol200 = Color(0xFFBEF5FF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPetrol300 = Color(0xFF9EF0FF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPetrol400 = Color(0xFF7DEBFF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPetrol500 = Color(0xFF5DE6FF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPetrol600 = Color(0xFF4AB8CC)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPetrol700 = Color(0xFF388A99)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPetrol800 = Color(0xFF255C66)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPetrol900 = Color(0xFF1C454D)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPurple100 = Color(0xFFF8E9FF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPurple200 = Color(0xFFF0D2FF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPurple300 = Color(0xFFE9BCFF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPurple400 = Color(0xFFE1A5FF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPurple500 = Color(0xFFDA8FFF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPurple600 = Color(0xFFAE72CC)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPurple700 = Color(0xFF835699)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPurple800 = Color(0xFF573966)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkPurple900 = Color(0xFF412B4D)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkRed100 = Color(0xFFFFE4E2)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkRed200 = Color(0xFFFFC9C6)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkRed300 = Color(0xFFFFADA9)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkRed400 = Color(0xFFFF928D)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkRed500 = Color(0xFFFF7770)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkRed600 = Color(0xFFCC5F5A)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkRed700 = Color(0xFF994743)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkRed800 = Color(0xFF66302D)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkRed900 = Color(0xFF4D2422)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Gray100 = Color(0xFF17181A)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Gray20 = Color(0xFFEDEFF0)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Gray30 = Color(0xFFE5E8EA)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Gray40 = Color(0xFFDCE0E3)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Gray50 = Color(0xFFCBCED1)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Gray60 = Color(0xFF9FA1A7)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Gray70 = Color(0xFF676B71)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Gray80 = Color(0xFF54585F)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Gray90 = Color(0xFF34373D)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Gray95 = Color(0xFF26272C)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightAmber100 = Color(0xFFE5E0DA)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightAmber200 = Color(0xFFCCC1B5)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightAmber300 = Color(0xFFB2A38F)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightAmber400 = Color(0xFF99846A)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightAmber500 = Color(0xFF7F6545)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightAmber600 = Color(0xFF665137)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightAmber700 = Color(0xFF4C3D29)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightAmber800 = Color(0xFF4C3D29)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightAmber900 = Color(0xFF261E15)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightBlue100 = Color(0xFFCDE1F4)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightBlue200 = Color(0xFF9BC2E9)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightBlue300 = Color(0xFF6AA4DE)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightBlue400 = Color(0xFF3885D3)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightBlue500 = Color(0xFF0667C8)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightBlue600 = Color(0xFF0552A0)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightBlue700 = Color(0xFF043E78)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightBlue800 = Color(0xFF022950)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightBlue900 = Color(0xFF021F3C)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightGreen100 = Color(0xFFD2E5D7)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightGreen200 = Color(0xFFA6CBAF)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightGreen300 = Color(0xFF79B087)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightGreen400 = Color(0xFF4D965F)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightGreen500 = Color(0xFF207C37)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightGreen550 = Color(0xFF1D7833)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightGreen600 = Color(0xFF1A632C)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightGreen700 = Color(0xFF134A21)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightGreen800 = Color(0xFF0D3216)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightGreen900 = Color(0xFF0A2511)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPetrol100 = Color(0xFFCCE6EB)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPetrol200 = Color(0xFF99CDD8)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPetrol300 = Color(0xFF67B3C4)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPetrol400 = Color(0xFF349AB1)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPetrol500 = Color(0xFF01819D)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPetrol600 = Color(0xFF01677E)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPetrol700 = Color(0xFF014D5E)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPetrol800 = Color(0xFF00343F)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPetrol900 = Color(0xFF00272F)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPurple100 = Color(0xFFE7DAEE)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPurple200 = Color(0xFFD0B4DD)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPurple300 = Color(0xFFB88FCD)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPurple400 = Color(0xFFA169BC)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPurple500 = Color(0xFF8944AB)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPurple600 = Color(0xFF6E3689)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPurple700 = Color(0xFF522967)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPurple800 = Color(0xFF371B44)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightPurple900 = Color(0xFF291433)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed100 = Color(0xFFF3CCD0)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed200 = Color(0xFFE799A1)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed300 = Color(0xFFDA6671)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed400 = Color(0xFFCE3342)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed500 = Color(0xFFC20013)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed600 = Color(0xFF9B000F)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed700 = Color(0xFF74000B)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed800 = Color(0xFF4E0008)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed900 = Color(0xFF3A0006)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Orange = Color(0xFFFD8312)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Pink = Color(0xFFEB239B)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Turquoise = Color(0xFF01718E)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WirePrimaryIconButton.kt$@Preview @Composable fun PreviewWirePrimaryIconButtonLoading()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WirePrimaryIconButton.kt$@Preview @Composable fun PreviewWirePrimaryIconButtonRound()</ID>
+    <ID>SpreadOperator:ViewModelScopedPreview.kt$ViewModelScopedPreviewProcessor$(aggregating = true, *items.mapNotNull { it.containingFile }.toTypedArray())</ID>
+    <ID>SpreadOperator:ViewModelScopedPreview.kt$ViewModelScopedPreviewProcessor$(aggregating = true, *listOfNotNull(item.containingFile).toTypedArray())</ID>
+    <ID>UnnecessaryParenthesesBeforeTrailingLambda:ChangeHandleScreen.kt$()</ID>
+    <ID>UnnecessaryParenthesesBeforeTrailingLambda:EndOngoingCallReceiver.kt$EndOngoingCallReceiver$()</ID>
+    <ID>UnnecessaryParenthesesBeforeTrailingLambda:GroupOptionsScreen.kt$()</ID>
+    <ID>UnnecessaryParenthesesBeforeTrailingLambda:HomeScreen.kt$()</ID>
+    <ID>UnnecessaryParenthesesBeforeTrailingLambda:HomeStateHolder.kt$()</ID>
+    <ID>UnusedParameter:CallsScreen.kt$openConversationNotificationsSettings: (ConversationItem) -&gt; Unit</ID>
+    <ID>UnusedParameter:ConversationListViewModel.kt$ConversationListViewModel$id: String = ""</ID>
+    <ID>UnusedParameter:ConversationSheetContent.kt$addConversationToFavourites: () -&gt; Unit</ID>
+    <ID>UnusedParameter:ConversationSheetContent.kt$moveConversationToFolder: () -&gt; Unit</ID>
+    <ID>UnusedParameter:ExternalLoggerManager.kt$ExternalLoggerManager$context: Context</ID>
+    <ID>UnusedParameter:ExternalLoggerManager.kt$ExternalLoggerManager$globalDataStore: GlobalDataStore</ID>
+    <ID>UnusedParameter:LoginSSOScreen.kt$serverTitle: String</ID>
+    <ID>UnusedParameter:MentionScreen.kt$openConversationNotificationsSettings: (ConversationItem) -&gt; Unit</ID>
+    <ID>UnusedParameter:ShouldTriggerMigrationForUserUserCaseTest.kt$ShouldTriggerMigrationForUserUserCaseTest.Arrangement$version: Int?</ID>
+    <ID>UnusedParameter:TrackingNavController.kt$nameFromRoute: (String) -&gt; String?</ID>
+    <ID>UnusedParameter:WireButtonDefaults.kt$WireButtonColors$interactionSource: InteractionSource</ID>
+    <ID>UnusedParameter:WireItemLabel.kt$minHeight: Dp = dimensions().badgeSmallMinSize.height</ID>
+    <ID>UnusedParameter:WireItemLabel.kt$minWidth: Dp = dimensions().badgeSmallMinSize.height</ID>
+    <ID>UnusedParameter:ZoomableImage.kt$imageScale: Float = 1.0f</ID>
+    <ID>UnusedPrivateProperty:AndroidExampleView.kt$AndroidExampleView$private val view: View = View(context)</ID>
+    <ID>UnusedPrivateProperty:ConnectionPolicyManagerTest.kt$ConnectionPolicyManagerTest.Companion$private val USER_ID_2 = UserId("user2", "domain2")</ID>
+    <ID>UnusedPrivateProperty:ConversationListViewModelTest.kt$ConversationListViewModelTest.Companion$private val testConversations = TestConversationDetails.CONVERSATION_ONE_ONE</ID>
+    <ID>UnusedPrivateProperty:DropDownMentionsSuggestions.kt$i</ID>
+    <ID>UnusedPrivateProperty:ForgotLockScreenViewModel.kt$ForgotLockScreenViewModel$private val notificationChannelsManager: NotificationChannelsManager</ID>
+    <ID>UnusedPrivateProperty:MigrateClientsDataUseCaseTest.kt$MigrateClientsDataUseCaseTest$val sessionFileWithDomain = File(sessionsDir, "1@domain.com_123").apply { createNewFile() }</ID>
+    <ID>UnusedPrivateProperty:PendingIntents.kt$private const val CALL_REQUEST_CODE_PREFIX = "call_"</ID>
+    <ID>UnusedPrivateProperty:SearchQueryStateFlow.kt$SearchQueryStateFlow$private val coroutineDispatcher: CoroutineDispatcher</ID>
+    <ID>UnusedPrivateProperty:SelfUserProfileViewModel.kt$SelfUserProfileViewModel$private val notificationChannelsManager: NotificationChannelsManager</ID>
+    <ID>UnusedPrivateProperty:SendMessageViewModel.kt$SendMessageViewModel.Companion$private const val sizeOf1MB = 1024 * 1024</ID>
+    <ID>UnusedPrivateProperty:SendMessageViewModelArrangement.kt$SendMessageViewModelArrangement$@MockK private lateinit var savedStateHandle: SavedStateHandle</ID>
+    <ID>UnusedPrivateProperty:WireNotificationManagerTest.kt$WireNotificationManagerTest.Companion$private val TEST_SERVER_CONFIG: ServerConfig = newServerConfig(1)</ID>
+    <ID>Wrapping:AddMembersToConversationViewModel.kt$AddMembersToConversationViewModel$(</ID>
+    <ID>Wrapping:AssetImageFetcherTest.kt$AssetImageFetcherTest.Arrangement$( data = imageData, options ?: Options( context = mockContext, parameters = Parameters.Builder().set(key = OPTION_PARAMETER_RETRY_KEY, value = 0, memoryCacheKey = null).build() ) )</ID>
+    <ID>Wrapping:AutoFillTextField.kt$(</ID>
+    <ID>Wrapping:AvatarPickerViewModelTest.kt$AvatarPickerViewModelTest.Arrangement$uploadUserAvatarUseCase(any(), any())</ID>
+    <ID>Wrapping:BackupAndRestoreViewModelTest.kt$BackupAndRestoreViewModelTest.Arrangement$createBackupFile(eq(password))</ID>
+    <ID>Wrapping:Buttons.kt$( modifier = Modifier .fillMaxWidth() .padding( start = MaterialTheme.wireDimensions.spacing16x, end = MaterialTheme.wireDimensions.spacing16x, top = MaterialTheme.wireDimensions.spacing16x, bottom = MaterialTheme.wireDimensions.spacing4x ), text = stringResource(id = R.string.guest_link_button_copy_link), fillMaxWidth = true, onClick = onCopy )</ID>
+    <ID>Wrapping:CaptureVideoRequestFlow.kt$(</ID>
+    <ID>Wrapping:ChangeEmailViewModel.kt$ChangeEmailViewModel$-&gt;</ID>
+    <ID>Wrapping:ChangeHandleViewModel.kt$ChangeHandleViewModel$-&gt;</ID>
+    <ID>Wrapping:CodeTextField.kt$(</ID>
+    <ID>Wrapping:ConnectionPolicyManagerTest.kt$ConnectionPolicyManagerTest$arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)</ID>
+    <ID>Wrapping:ConversationCallViewModel.kt$ConversationCallViewModel$(</ID>
+    <ID>Wrapping:ConversationInfoViewModel.kt$ConversationInfoViewModel$-&gt;</ID>
+    <ID>Wrapping:ConversationListViewModel.kt$ConversationListViewModel$(</ID>
+    <ID>Wrapping:ConversationMediaScreen.kt$ConversationMediaScreenTabItem.entries.size</ID>
+    <ID>Wrapping:ConversationMediaScreen.kt$derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) }</ID>
+    <ID>Wrapping:ConversationMediaScreen.kt$lazyListStates[currentTabState].topBarElevation(maxAppBarElevation)</ID>
+    <ID>Wrapping:ConversationMessagesViewModel.kt$ConversationMessagesViewModel$(</ID>
+    <ID>Wrapping:ConversationRouter.kt${ conversationId -&gt; navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId))) }</ID>
+    <ID>Wrapping:ConversationRouter.kt${ conversationId -&gt; navigator.navigate(NavigationCommand(OngoingCallScreenDestination(conversationId))) }</ID>
+    <ID>Wrapping:ConversationRouter.kt${ conversationItem -&gt; openConversationBottomSheet( conversationItem = conversationItem ) }</ID>
+    <ID>Wrapping:ConversationRouter.kt${ conversationItem -&gt; openConversationBottomSheet( conversationItem = conversationItem, conversationOptionNavigation = ConversationOptionNavigation.MutingNotificationOption ) }</ID>
+    <ID>Wrapping:ConversationRouter.kt${ userId -&gt; navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId))) }</ID>
+    <ID>Wrapping:ConversationScreen.kt$(</ID>
+    <ID>Wrapping:ConversationScreen.kt${ /* do nothing */ }</ID>
+    <ID>Wrapping:ConversationSheetContent.kt$ConversationSheetContent$(</ID>
+    <ID>Wrapping:ConversationTopAppBar.kt$( title = { Row( verticalAlignment = Alignment.CenterVertically, modifier = Modifier .fillMaxWidth() // TopAppBar adds TopAppBarHorizontalPadding = 4.dp to each element, so we need to offset it to retain the desired // spacing between navigation icon button and avatar according to the designs .offset(x = -dimensions().spacing4x) .clip(RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize)) .clickable(onClick = onDropDownClick, enabled = isDropDownEnabled &amp;&amp; isInteractionEnabled) ) { val conversationAvatar: ConversationAvatar = conversationInfoViewState.conversationAvatar Avatar(conversationAvatar, conversationInfoViewState) Text( text = conversationInfoViewState.conversationName.asString(), style = MaterialTheme.wireTypography.title02, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(weight = 1f, fill = false) ) ConversationVerificationIcons( conversationInfoViewState.protocolInfo, conversationInfoViewState.mlsVerificationStatus, conversationInfoViewState.proteusVerificationStatus ) if (conversationInfoViewState.legalHoldStatus == Conversation.LegalHoldStatus.ENABLED) { HorizontalSpace.x4() LegalHoldIndicator() } if (isDropDownEnabled &amp;&amp; isInteractionEnabled) { Icon( painter = painterResource(id = R.drawable.ic_dropdown_icon), contentDescription = stringResource(R.string.content_description_drop_down_icon) ) } } }, navigationIcon = { NavigationIconButton(NavigationIconType.Back, onBackButtonClick) }, actions = { Row( horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x), modifier = Modifier.padding(end = dimensions().spacing4x) ) { if (isSearchEnabled) { WireSecondaryIconButton( onButtonClicked = onSearchButtonClick, iconResource = R.drawable.ic_search, contentDescription = R.string.content_description_conversation_search_icon, minSize = dimensions().buttonSmallMinSize, minClickableSize = DpSize( dimensions().buttonSmallMinSize.width, dimensions().buttonMinClickableSize.height ), ) } CallControlButton( hasOngoingCall = hasOngoingCall, onJoinCallButtonClick = onJoinCallButtonClick, onPhoneButtonClick = onPhoneButtonClick, isCallingEnabled = isInteractionEnabled, onPermissionPermanentlyDenied = onPermissionPermanentlyDenied, ) } }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors( containerColor = MaterialTheme.colorScheme.background, titleContentColor = MaterialTheme.colorScheme.onBackground, actionIconContentColor = MaterialTheme.colorScheme.onBackground, navigationIconContentColor = MaterialTheme.colorScheme.onBackground ) )</ID>
+    <ID>Wrapping:ConversationsNavigationItem.kt$ConversationsNavigationItem.All$(</ID>
+    <ID>Wrapping:ConversationsNavigationItem.kt$ConversationsNavigationItem.Calls$(</ID>
+    <ID>Wrapping:ConversationsNavigationItem.kt$ConversationsNavigationItem.Mentions$(</ID>
+    <ID>Wrapping:CreateAccountCodeScreen.kt$</ID>
+    <ID>Wrapping:CreateAccountDetailsScreen.kt$</ID>
+    <ID>Wrapping:CreateAccountEmailScreen.kt$(</ID>
+    <ID>Wrapping:CreateAccountSummaryScreen.kt$navigator.navigate(NavigationCommand(CreateAccountUsernameScreenDestination, BackStackMode.CLEAR_WHOLE))</ID>
+    <ID>Wrapping:CreateAccountUsernameViewModelTest.kt$CreateAccountUsernameViewModelTest$setUserHandleUseCase.invoke(any())</ID>
+    <ID>Wrapping:CreatePasswordProtectedGuestLinkScreen.kt$</ID>
+    <ID>Wrapping:DebugDataOptions.kt$(</ID>
+    <ID>Wrapping:DeclineButton.kt$(</ID>
+    <ID>Wrapping:DeleteMessageDialog.kt$</ID>
+    <ID>Wrapping:DeviceDetailsViewModel.kt$DeviceDetailsViewModel$-&gt;</ID>
+    <ID>Wrapping:DeviceItem.kt$(</ID>
+    <ID>Wrapping:DrawingCanvasViewModel.kt$DrawingCanvasViewModel$( currentPath = DrawingPathProperties().apply { strokeWidth = state.currentPath.strokeWidth color = state.currentPath.color drawMode = state.currentPath.drawMode }, pathsUndone = emptyList(), currentPosition = Offset.Unspecified, drawingMotionEvent = DrawingMotionEvent.Idle )</ID>
+    <ID>Wrapping:DropDownMentionsSuggestions.kt$(</ID>
+    <ID>Wrapping:E2EIEnrollmentScreen.kt$viewModel.onCancelEnrollmentClicked(NavigationSwitchAccountActions(navigator::navigate))</ID>
+    <ID>Wrapping:EditGuestAccessScreen.kt${ isPasswordProtected -&gt; coroutineScope.launch { sheetState.hide() } if (isPasswordProtected) { navigator.navigate( NavigationCommand( CreatePasswordProtectedGuestLinkScreenDestination( CreatePasswordGuestLinkNavArgs( conversationId = editGuestAccessViewModel.conversationId ) ) ) ) } else { editGuestAccessViewModel.onRequestGuestRoomLink() } }</ID>
+    <ID>Wrapping:EditMessageMenuItems.kt${ emoji: String -&gt; hideEditMessageMenu { onReactionClick(message.header.messageId, emoji) } }</ID>
+    <ID>Wrapping:EditSelfDeletingMessagesScreen.kt$(</ID>
+    <ID>Wrapping:EditSelfDeletingMessagesViewModel.kt$EditSelfDeletingMessagesViewModel$(</ID>
+    <ID>Wrapping:FeatureFlagNotificationViewModelTest.kt$FeatureFlagNotificationViewModelTest.Arrangement$coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged</ID>
+    <ID>Wrapping:FileManager.kt$FileManager$context.getFileName(it)</ID>
+    <ID>Wrapping:GroupConversationDetailsScreen.kt$GroupConversationDetailsTabItem.entries.size</ID>
+    <ID>Wrapping:GroupConversationDetailsScreen.kt$derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) }</ID>
+    <ID>Wrapping:GroupConversationDetailsScreen.kt$lazyListStates[currentTabState].topBarElevation(maxAppBarElevation)</ID>
+    <ID>Wrapping:GroupConversationDetailsScreen.kt$scope.launch { snackbarHostState.showSnackbar(it.asString(resources)) }</ID>
+    <ID>Wrapping:GroupConversationDetailsScreen.kt$snackbarHostState.showSnackbar(it.asString(resources))</ID>
+    <ID>Wrapping:GroupConversationDetailsScreen.kt${ scope.launch { snackbarHostState.showSnackbar(it.asString(resources)) } }</ID>
+    <ID>Wrapping:GroupConversationDetailsViewModel.kt$GroupConversationDetailsViewModel$GroupConversationParticipantsViewModel( savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata ), GroupConversationDetailsBottomSheetEventsHandler</ID>
+    <ID>Wrapping:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelArrangement$observeParticipantsForConversationUseCase(any())</ID>
+    <ID>Wrapping:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelArrangement$savedStateHandle.navArgs&lt;GroupConversationAllParticipantsNavArgs&gt;()</ID>
+    <ID>Wrapping:GroupConversationDetailsViewModelTest.kt$GroupConversationDetailsViewModelTest$remove(Conversation.AccessRole.NON_TEAM_MEMBER)</ID>
+    <ID>Wrapping:GroupConversationOptions.kt$(</ID>
+    <ID>Wrapping:GroupConversationOptionsItem.kt$</ID>
+    <ID>Wrapping:GroupConversationOptionsItem.kt$WireSecondaryButton(text = "Copy link", onClick = {}, modifier = Modifier.height(32.dp), fillMaxWidth = false)</ID>
+    <ID>Wrapping:GroupConversationParticipantsViewModelTest.kt$GroupConversationParticipantsViewModelArrangement$savedStateHandle.navArgs&lt;GroupConversationAllParticipantsNavArgs&gt;()</ID>
+    <ID>Wrapping:GroupOptionsScreen.kt$(</ID>
+    <ID>Wrapping:GroupOptionsScreen.kt$( title = stringResource(R.string.disable_guests_dialog_title), text = stringResource(R.string.disable_guests_dialog_description), onDismiss = onAllowGuestsDialogDismissed, buttonsHorizontalAlignment = false, optionButton1Properties = WireDialogButtonProperties( onClick = onNotAllowGuestsClicked, text = stringResource(id = R.string.disable_guests_dialog_button), type = WireDialogButtonType.Primary ), optionButton2Properties = WireDialogButtonProperties( text = stringResource(R.string.allow_guests), onClick = onAllowGuestsClicked, type = WireDialogButtonType.Primary ), dismissButtonProperties = WireDialogButtonProperties( text = stringResource(R.string.label_cancel), onClick = onAllowGuestsDialogDismissed ) )</ID>
+    <ID>Wrapping:HangUpButton.kt$(</ID>
+    <ID>Wrapping:HangUpButton.kt$(modifier = Modifier .width(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize) .height(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize), onHangUpButtonClicked = { })</ID>
+    <ID>Wrapping:HomeScreen.kt$(</ID>
+    <ID>Wrapping:HomeSheetContent.kt$(</ID>
+    <ID>Wrapping:ImageMessageTypes.kt$(</ID>
+    <ID>Wrapping:ImportMediaAuthenticatedViewModel.kt$ImportMediaAuthenticatedViewModel$(</ID>
+    <ID>Wrapping:ImportMediaScreen.kt$(</ID>
+    <ID>Wrapping:IncomingCallScreen.kt${ /* do nothing */ }</ID>
+    <ID>Wrapping:InitiatingCallScreen.kt${ /* do nothing */ }</ID>
+    <ID>Wrapping:LegalHoldRequestedDialog.kt$( LegalHoldRequestedState.Visible( legalHoldDeviceFingerprint = "0123456789ABCDEF", requiresPassword = false, userId = UserId("", ""), ), {}, {}, {} )</ID>
+    <ID>Wrapping:LegalHoldRequestedDialog.kt$( LegalHoldRequestedState.Visible( legalHoldDeviceFingerprint = "0123456789ABCDEF", requiresPassword = true, userId = UserId("", ""), ), {}, {}, {} )</ID>
+    <ID>Wrapping:LegalHoldRequestedViewModelTest.kt$LegalHoldRequestedViewModelTest$it.error shouldBeInstanceOf LegalHoldRequestedError.InvalidCredentialsError::class</ID>
+    <ID>Wrapping:LegalHoldSubjectProfileDialog.kt$(</ID>
+    <ID>Wrapping:LoginEmailVerificationCodeScreen.kt$(</ID>
+    <ID>Wrapping:LoginEmailViewModelTest.kt$LoginEmailViewModelTest$addAuthenticatedUserUseCase(any(), any(), any(), any())</ID>
+    <ID>Wrapping:LoginEmailViewModelTest.kt$LoginEmailViewModelTest$loginUseCase(any(), any(), any(), any(), any())</ID>
+    <ID>Wrapping:LoginEmailViewModelTest.kt$LoginEmailViewModelTest$requestSecondFactorCodeUseCase(any(), any())</ID>
+    <ID>Wrapping:LoginScreen.kt$TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition)</ID>
+    <ID>Wrapping:MarkdownBlockQuote.kt$(</ID>
+    <ID>Wrapping:MarkdownHelperTest.kt$MarkdownHelperTest$(</ID>
+    <ID>Wrapping:MediaGalleryViewModelTest.kt$MediaGalleryViewModelTest.Arrangement$getConversationDetails(any())</ID>
+    <ID>Wrapping:MessageCompositionHolder.kt$MessageCompositionHolder$(</ID>
+    <ID>Wrapping:MessageDetailsScreen.kt$derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) }</ID>
+    <ID>Wrapping:MessageDetailsScreen.kt$lazyListStates[currentTabState].topBarElevation(maxAppBarElevation)</ID>
+    <ID>Wrapping:MessageExpiration.kt$&lt;no name provided&gt;$( when (type) { StringResourceType.WEEKS -&gt; R.plurals.weeks_left StringResourceType.DAYS -&gt; R.plurals.days_left StringResourceType.HOURS -&gt; R.plurals.hours_left StringResourceType.MINUTES -&gt; R.plurals.minutes_left StringResourceType.SECONDS -&gt; R.plurals.seconds_left }, quantity, quantity )</ID>
+    <ID>Wrapping:MessageMapperTest.kt$MessageMapperTest$(</ID>
+    <ID>Wrapping:MessagePreviewContentMapper.kt$( userUIText, UIText.StringResource( if (isSelfMessage) R.string.last_message_self_user_shared_asset else R.string.last_message_other_user_shared_asset ) )</ID>
+    <ID>Wrapping:MigrateActiveAccountsUseCase.kt$MigrateActiveAccountsUseCase$it.users(listOf(activeAccount.id))</ID>
+    <ID>Wrapping:MigrateClientsDataUseCase.kt$MigrateClientsDataUseCase$(</ID>
+    <ID>Wrapping:MigrateClientsDataUseCase.kt$MigrateClientsDataUseCase$( clientId, RegisterClientParam( password = null, capabilities = null ) )</ID>
+    <ID>Wrapping:MigrationManager.kt$MigrationManager${ /* no-op */ }</ID>
+    <ID>Wrapping:MigrationViewModel.kt$MigrationViewModel$MigrationType.SingleUser(it)</ID>
+    <ID>Wrapping:MigrationWorker.kt$it.firstOrNull()?.state == WorkInfo.State.RUNNING</ID>
+    <ID>Wrapping:Mock.kt$(</ID>
+    <ID>Wrapping:MyAccountScreen.kt$(</ID>
+    <ID>Wrapping:NavigationIconButton.kt${ NavigationIconButton(NavigationIconType.Back, onBackButtonClick) }</ID>
+    <ID>Wrapping:NavigationUtilsTest.kt$NavigationUtilsTest$( mockk(), QualifiedID( value = mockQualifiedIdValue, domain = mockQualifiedIdDomain ), mockMessageId, true, true )</ID>
+    <ID>Wrapping:NewConversationSearchPeopleScreen.kt$navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))</ID>
+    <ID>Wrapping:NewConversationViewModel.kt$NewConversationViewModel$(</ID>
+    <ID>Wrapping:NewConversationViewModelArrangement.kt$NewConversationViewModelArrangement$(</ID>
+    <ID>Wrapping:NewConversationViewModelArrangement.kt$NewConversationViewModelArrangement$createGroupConversation(any(), any(), any())</ID>
+    <ID>Wrapping:OngoingCallScreen.kt${ /* do nothing */ }</ID>
+    <ID>Wrapping:OtherUserProfileScreen.kt$(</ID>
+    <ID>Wrapping:OtherUserProfileScreen.kt$navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED))</ID>
+    <ID>Wrapping:OtherUserProfileScreen.kt$navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(navArgs.userId, it.clientId)))</ID>
+    <ID>Wrapping:OtherUserProfileScreenViewModel.kt$OtherUserProfileScreenViewModel$(</ID>
+    <ID>Wrapping:OtherUserProfileState.kt$OtherUserProfileState$(</ID>
+    <ID>Wrapping:OtherUserProfileViewModelArrangement.kt$OtherUserProfileViewModelArrangement$getUserE2eiCertificateStatus.invoke(any())</ID>
+    <ID>Wrapping:ParticipantTile.kt$(</ID>
+    <ID>Wrapping:RecordAudioRequestFlow.kt$(</ID>
+    <ID>Wrapping:RegisterDeviceScreen.kt$clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate))</ID>
+    <ID>Wrapping:RegisterDeviceViewModel.kt$RegisterDeviceViewModel$(</ID>
+    <ID>Wrapping:RegisterDeviceViewModel.kt$RegisterDeviceViewModel${ /* app is already waiting for the user to enter the password */ }</ID>
+    <ID>Wrapping:RegularMessageContentMapper.kt$RegularMessageMapper$( if (message.isSelfMessage) { UIText.StringResource(messageResourceProvider.memberNameYouTitlecase) } else { sender?.name.orUnknownName() }, message.isSelfMessage )</ID>
+    <ID>Wrapping:RemoveDeviceScreen.kt$clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate))</ID>
+    <ID>Wrapping:ScalaMessageDAO.kt$ScalaMessageDAO$( "SELECT *" + // Assets are required, otherwise we get exception "requesting column name with table name". "FROM $MESSAGES_TABLE_NAME AS m " + "LEFT JOIN $ASSETS_TABLE_NAME ON m.$COLUMN_ASSET_ID = $ASSETS_TABLE_NAME.$COLUMN_ID " + "WHERE m.$COLUMN_CONVERSATION_ID = ?" + "ORDER BY m.$COLUMN_TIME ASC ", arrayOf(scalaConversation.id) )</ID>
+    <ID>Wrapping:SearchAllPeopleScreen.kt$(</ID>
+    <ID>Wrapping:SearchBar.kt$(</ID>
+    <ID>Wrapping:SearchBarViewModel.kt$SearchBarViewModel$(</ID>
+    <ID>Wrapping:SearchConversationScreen.kt$( horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier .fillMaxWidth() .wrapContentHeight() )</ID>
+    <ID>Wrapping:SearchConversationScreen.kt$( horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier .padding(horizontal = dimensions().spacing48x) .wrapContentHeight() )</ID>
+    <ID>Wrapping:SearchPeopleRouter.kt$(</ID>
+    <ID>Wrapping:SelectParticipantsButtonsRow.kt$</ID>
+    <ID>Wrapping:SelfDevicesScreen.kt$navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(viewModel.currentAccountId, it.clientId)))</ID>
+    <ID>Wrapping:SelfUserProfileScreen.kt$(</ID>
+    <ID>Wrapping:SelfUserProfileScreen.kt${ logoutOptionsDialogState.show(logoutOptionsDialogState.savedState ?: LogoutOptionsDialogState()) }</ID>
+    <ID>Wrapping:SendMessageViewModel.kt$SendMessageViewModel$(</ID>
+    <ID>Wrapping:SendMessageViewModel.kt$SendMessageViewModel${ /* do nothing */ }</ID>
+    <ID>Wrapping:ServerTitle.kt$(</ID>
+    <ID>Wrapping:SetLockCodeScreen.kt$(</ID>
+    <ID>Wrapping:SettingsScreen.kt$(</ID>
+    <ID>Wrapping:SettingsScreen.kt${ isChecked -&gt; if (isChecked) homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE)) else turnAppLockOffDialogState.show(Unit) }</ID>
+    <ID>Wrapping:SingleUserMigrationWorker.kt$it.firstOrNull()?.state == WorkInfo.State.RUNNING</ID>
+    <ID>Wrapping:SystemMessageContentMapper.kt$SystemMessageContentMapper$UIText.DynamicString(it)</ID>
+    <ID>Wrapping:TextWithLearnMore.kt$append("This is text with a learn more link")</ID>
+    <ID>Wrapping:TypingIndicatorViewModelTest.kt$TypingIndicatorViewModelTest.Arrangement$savedStateHandle.scopedArgs&lt;TypingIndicatorArgs&gt;()</ID>
+    <ID>Wrapping:UIMessage.kt$DeliveryStatusContent.PartialDelivery$failedRecipients.filter { it !in noClients.values.flatten() }.toImmutableList()</ID>
+    <ID>Wrapping:UIMessage.kt$DeliveryStatusContent.PartialDelivery$it !in noClients.values.flatten()</ID>
+    <ID>Wrapping:UIParticipantMapperTest.kt$UIParticipantMapperTest$(</ID>
+    <ID>Wrapping:VerifyEmailViewModel.kt$VerifyEmailViewModel${ /*no-op*/ }</ID>
+    <ID>Wrapping:WelcomeScreen.kt$(</ID>
+    <ID>Wrapping:WireActivity.kt$WireActivity$(</ID>
+    <ID>Wrapping:WireActivityDialogs.kt$(</ID>
+    <ID>Wrapping:WireActivityDialogs.kt$( GlobalAppState( customBackendDialog = CustomServerDialogState( ServerConfig.STAGING ) ), {}, {})</ID>
+    <ID>Wrapping:WireActivityViewModel.kt$WireActivityViewModel$-&gt;</ID>
+    <ID>Wrapping:WireActivityViewModelTest.kt$WireActivityViewModelTest.Arrangement$observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin()</ID>
+    <ID>Wrapping:WireButton.kt$(</ID>
+    <ID>Wrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest$arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_TOKEN.userId, any())</ID>
+    <ID>Wrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest.Arrangement$markMessagesAsNotified(any&lt;MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation&gt;())</ID>
+    <ID>Wrapping:WirePrimaryIconButton.kt$</ID>
+    <ID>Wrapping:WireTextFieldDefaults.kt$&lt;no name provided&gt;$(</ID>
   </CurrentIssues>
 </SmellBaseline>

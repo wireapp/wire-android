@@ -33,10 +33,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import com.wire.android.model.ImageAsset
-import com.wire.android.util.ui.WireSessionImageLoader
 
 @Composable
-fun ZoomableImage(imageAsset: ImageAsset, contentDescription: String, imageScale: Float = 1.0f) {
+fun ZoomableImage(imageAsset: ImageAsset.Remote, contentDescription: String) {
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var zoom by remember { mutableStateOf(1f) }
@@ -47,7 +46,8 @@ fun ZoomableImage(imageAsset: ImageAsset, contentDescription: String, imageScale
         Image(
             painter = imageAsset.paint(),
             contentDescription = contentDescription,
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier
+                .align(Alignment.Center)
                 .graphicsLayer(
                     scaleX = zoom,
                     scaleY = zoom,

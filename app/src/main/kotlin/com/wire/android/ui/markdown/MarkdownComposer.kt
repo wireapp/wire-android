@@ -18,6 +18,7 @@
 package com.wire.android.ui.markdown
 
 import android.text.util.Linkify
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -29,180 +30,174 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.ui.common.LinkSpannableString
-import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownConstants.TAG_URL
 import com.wire.android.util.MatchQueryResult
 import com.wire.android.util.QueryMatchExtractor
 import com.wire.kalium.logic.data.message.mention.MessageMention
-import org.commonmark.ext.gfm.strikethrough.Strikethrough
-import org.commonmark.ext.gfm.tables.TableBlock
-import org.commonmark.node.BlockQuote
-import org.commonmark.node.BulletList
-import org.commonmark.node.Code
-import org.commonmark.node.Document
-import org.commonmark.node.Emphasis
-import org.commonmark.node.FencedCodeBlock
-import org.commonmark.node.HardLineBreak
-import org.commonmark.node.Heading
-import org.commonmark.node.Image
-import org.commonmark.node.IndentedCodeBlock
-import org.commonmark.node.Link
-import org.commonmark.node.Node
-import org.commonmark.node.OrderedList
-import org.commonmark.node.Paragraph
-import org.commonmark.node.SoftLineBreak
-import org.commonmark.node.StrongEmphasis
-import org.commonmark.node.Text
-import org.commonmark.node.ThematicBreak
 import kotlin.math.max
 import kotlin.math.min
-import org.commonmark.node.Text as nodeText
 
 @Composable
 fun MarkdownDocument(
-    document: Document,
+    document: MarkdownNode.Document,
     nodeData: NodeData,
     clickable: Boolean
 ) {
-    MarkdownBlockChildren(
-        document,
-        nodeData,
-        clickable
-    )
+    val filteredDocument = if (nodeData.searchQuery.isNotBlank()) {
+        document.filterNodesContainingQuery(nodeData.searchQuery)
+    } else {
+        document
+    }
+    if (filteredDocument != null) {
+        MarkdownNodeBlockChildren(
+            (filteredDocument as MarkdownNode.Document).children,
+            nodeData,
+            clickable
+        )
+    }
 }
 
 @Composable
-fun MarkdownBlockChildren(
-    parent: Node,
+fun MarkdownNodeBlockChildren(
+    children: List<MarkdownNode.Block>,
     nodeData: NodeData,
     clickable: Boolean = true
 ) {
-    var child = parent.firstChild
-
     var updateMentions = nodeData.mentions
+    val updatedNodeData = nodeData.copy(mentions = updateMentions)
 
-    while (child != null) {
-        val updatedNodeData = nodeData.copy(mentions = updateMentions)
-        when (child) {
-            is Document -> MarkdownDocument(child, updatedNodeData, clickable)
-            is BlockQuote -> MarkdownBlockQuote(child, updatedNodeData)
-            is ThematicBreak -> MarkdownThematicBreak()
-            is Heading -> MarkdownHeading(child, updatedNodeData)
-            is Paragraph -> MarkdownParagraph(child, updatedNodeData, clickable) {
-                updateMentions = it
-            }
+    Column {
+        children.map { node ->
+            when (node) {
+                is MarkdownNode.Block.BlockQuote -> MarkdownBlockQuote(node, updatedNodeData)
+                is MarkdownNode.Block.IntendedCode -> MarkdownIndentedCodeBlock(indentedCodeBlock = node, nodeData = updatedNodeData)
+                is MarkdownNode.Block.FencedCode -> MarkdownFencedCodeBlock(fencedCodeBlock = node, nodeData = updatedNodeData)
+                is MarkdownNode.Block.Heading -> MarkdownHeading(heading = node, nodeData = updatedNodeData)
+                is MarkdownNode.Block.ListBlock.Ordered -> MarkdownOrderedList(orderedList = node, nodeData = updatedNodeData)
+                is MarkdownNode.Block.ListBlock.Bullet -> MarkdownBulletList(bulletList = node, nodeData = updatedNodeData)
 
-            is FencedCodeBlock -> MarkdownFencedCodeBlock(child)
-            is IndentedCodeBlock -> MarkdownIndentedCodeBlock(child)
-            is BulletList -> MarkdownBulletList(child, updatedNodeData)
-            is OrderedList -> MarkdownOrderedList(child, updatedNodeData)
-            is TableBlock -> MarkdownTable(child, updatedNodeData) {
-                updateMentions = it
+                is MarkdownNode.Block.Paragraph -> MarkdownParagraph(
+                    paragraph = node, nodeData = updatedNodeData,
+                    clickable
+                ) {
+                    updateMentions = it
+                }
+
+                is MarkdownNode.Block.Table -> MarkdownTable(node, updatedNodeData) {
+                    updateMentions = it
+                }
+
+                is MarkdownNode.Block.ThematicBreak -> MarkdownThematicBreak()
+
+                // Not used Blocks here
+                is MarkdownNode.Block.TableContent.Body -> {}
+                is MarkdownNode.Block.ListItem -> {}
+                is MarkdownNode.Block.TableContent.Head -> {}
             }
         }
-        child = child.next
     }
 }
 
 @Suppress("LongMethod")
-fun inlineChildren(
-    parent: Node,
+fun inlineNodeChildren(
+    children: List<MarkdownNode.Inline>,
     annotatedString: AnnotatedString.Builder,
     nodeData: NodeData
 ): List<DisplayMention> {
-    var child = parent.firstChild
 
     var updatedMentions = nodeData.mentions
 
-    while (child != null) {
+    children.forEach { child ->
         when (child) {
-            is Paragraph ->
-                updatedMentions = inlineChildren(
-                    child,
-                    annotatedString,
-                    nodeData.copy(mentions = updatedMentions),
-                )
-
-            is nodeText -> {
-                updatedMentions = appendLinksAndMentions(
-                    annotatedString,
-                    convertTypoGraphs(child),
-                    nodeData.copy(mentions = updatedMentions)
-                )
+            is MarkdownNode.Inline.Text -> {
+                if (nodeData.disableLinks) {
+                    annotatedString.append(convertTypoGraphs(child.literal))
+                } else {
+                    updatedMentions = appendLinksAndMentions(
+                        annotatedString,
+                        convertTypoGraphs(child.literal),
+                        nodeData.copy(mentions = updatedMentions)
+                    )
+                }
             }
 
-            is Image -> {
-                updatedMentions = appendLinksAndMentions(
-                    annotatedString,
-                    child.destination,
-                    nodeData.copy(mentions = updatedMentions)
-                )
+            is MarkdownNode.Inline.Image -> {
+                if (nodeData.disableLinks) {
+                    annotatedString.append(child.destination)
+                } else {
+                    updatedMentions = appendLinksAndMentions(
+                        annotatedString,
+                        child.destination,
+                        nodeData.copy(mentions = updatedMentions)
+                    )
+                }
             }
 
-            is Emphasis -> {
+            is MarkdownNode.Inline.Emphasis -> {
                 annotatedString.pushStyle(
                     SpanStyle(
                         fontFamily = nodeData.typography.body05.fontFamily,
                         fontStyle = FontStyle.Italic
                     )
                 )
-                updatedMentions = inlineChildren(
-                    child,
+                updatedMentions = inlineNodeChildren(
+                    child.children,
                     annotatedString,
                     nodeData
                 )
                 annotatedString.pop()
             }
 
-            is StrongEmphasis -> {
+            is MarkdownNode.Inline.StrongEmphasis -> {
                 annotatedString.pushStyle(
                     SpanStyle(
                         fontFamily = nodeData.typography.body02.fontFamily,
                         fontWeight = FontWeight.Bold
                     )
                 )
-                updatedMentions = inlineChildren(
-                    child,
+                updatedMentions = inlineNodeChildren(
+                    child.children,
                     annotatedString,
                     nodeData
                 )
                 annotatedString.pop()
             }
 
-            is Code -> {
+            is MarkdownNode.Inline.Code -> {
                 annotatedString.pushStyle(TextStyle(fontFamily = FontFamily.Monospace).toSpanStyle())
-                annotatedString.append(child.literal)
+                annotatedString.append(highlightText(nodeData, child.literal))
                 annotatedString.pop()
             }
 
-            is HardLineBreak, is SoftLineBreak -> {
-                annotatedString.append("\n")
-            }
-
-            is Link -> {
-                annotatedString.pushStyle(
-                    SpanStyle(
-                        color = nodeData.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline
+            is MarkdownNode.Inline.Link -> {
+                if (nodeData.disableLinks) {
+                    annotatedString.append(child.destination)
+                } else {
+                    annotatedString.pushStyle(
+                        SpanStyle(
+                            color = nodeData.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        )
                     )
-                )
-                annotatedString.pushStringAnnotation(TAG_URL, child.destination)
-                updatedMentions = inlineChildren(
-                    child,
-                    annotatedString,
-                    nodeData
-                )
-                annotatedString.pop()
+                    annotatedString.pushStringAnnotation(TAG_URL, child.destination)
+                    updatedMentions = inlineNodeChildren(
+                        child.children,
+                        annotatedString,
+                        nodeData
+                    )
+                    annotatedString.pop()
+                    annotatedString.pop()
+                }
+            }
+
+            is MarkdownNode.Inline.Strikethrough -> {
+                annotatedString.pushStyle(SpanStyle(textDecoration = TextDecoration.LineThrough))
+                updatedMentions = inlineNodeChildren(child.children, annotatedString, nodeData)
                 annotatedString.pop()
             }
 
-            is Strikethrough -> {
-                annotatedString.pushStyle(SpanStyle(textDecoration = TextDecoration.LineThrough))
-                updatedMentions = inlineChildren(child, annotatedString, nodeData)
-                annotatedString.pop()
-            }
+            is MarkdownNode.Inline.Break -> annotatedString.append("\n")
         }
-        child = child.next
     }
 
     return updatedMentions
@@ -220,10 +215,18 @@ fun appendLinksAndMentions(
     var highlightIndexes = emptyList<MatchQueryResult>()
 
     // get mentions from text, remove mention marks and update position of mentions
-    val mentionList: List<MessageMention> = if (stringBuilder.contains(MENTION_MARK) && updatedMentions.isNotEmpty()) {
+    val mentionList: List<MessageMention> = if (stringBuilder.contains(MarkdownConstants.MENTION_MARK) && updatedMentions.isNotEmpty()) {
         nodeData.mentions.mapNotNull { displayMention ->
-            val markedMentionLength = (MENTION_MARK + displayMention.mentionUserName + MENTION_MARK).length
-            val startIndex = stringBuilder.indexOf(MENTION_MARK + displayMention.mentionUserName + MENTION_MARK)
+            val markedMentionLength = (
+                    MarkdownConstants.MENTION_MARK
+                            + displayMention.mentionUserName
+                            + MarkdownConstants.MENTION_MARK
+                    ).length
+            val startIndex = stringBuilder.indexOf(
+                MarkdownConstants.MENTION_MARK
+                        + displayMention.mentionUserName
+                        + MarkdownConstants.MENTION_MARK
+            )
             val endIndex = startIndex + markedMentionLength
 
             if (startIndex != -1) {
@@ -253,7 +256,7 @@ fun appendLinksAndMentions(
 
     val linkInfos = LinkSpannableString.getLinkInfos(stringBuilder.toString(), Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
 
-    val append = buildAnnotatedString {
+    val updatedAnnotatedString = buildAnnotatedString {
         append(stringBuilder)
         with(nodeData.colorScheme) {
             linkInfos.forEach {
@@ -318,11 +321,41 @@ fun appendLinksAndMentions(
                 }
         }
     }
-    annotatedString.append(append)
+    annotatedString.append(updatedAnnotatedString)
     return updatedMentions
 }
 
-private fun convertTypoGraphs(child: Text) = child.literal
+fun highlightText(nodeData: NodeData, text: String): AnnotatedString {
+    var highlightIndexes = emptyList<MatchQueryResult>()
+
+    if (nodeData.searchQuery.isNotBlank()) {
+        highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
+            matchText = nodeData.searchQuery,
+            text = text
+        )
+    }
+
+    return buildAnnotatedString {
+        append(text)
+        highlightIndexes
+            .forEach { highLightIndex ->
+                if (highLightIndex.endIndex <= length) {
+                    addStyle(
+                        style = SpanStyle(
+                            background = nodeData.colorScheme.highlight,
+                            color = nodeData.colorScheme.onHighlight,
+                            fontFamily = nodeData.typography.body02.fontFamily,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        start = highLightIndex.startIndex,
+                        end = highLightIndex.endIndex
+                    )
+                }
+            }
+    }
+}
+
+private fun convertTypoGraphs(literal: String) = literal
     .replace("(c)", "©")
     .replace("(C)", "©")
     .replace("(r)", "®")

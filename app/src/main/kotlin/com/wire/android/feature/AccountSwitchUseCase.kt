@@ -79,7 +79,8 @@ class AccountSwitchUseCase @Inject constructor(
             when (it) {
                 is GetAllSessionsResult.Success -> {
                     val isAccountLoggedInAndValid = it.sessions.any {
-                        accountInfo -> (accountInfo is AccountInfo.Valid) && (accountInfo.userId == userId)
+                        accountInfo ->
+                            (accountInfo is AccountInfo.Valid) && (accountInfo.userId == userId)
                     }
                     if (isAccountLoggedInAndValid) {
                         switch(userId, current)

@@ -17,9 +17,19 @@
  */
 package com.wire.android.ui.markdown
 
+import org.commonmark.Extension
+import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
+import org.commonmark.ext.gfm.tables.TablesExtension
+
 object MarkdownConstants {
     const val TAG_URL = "linkTag"
     const val TAG_MENTION = "mentionTag"
     const val MENTION_MARK = "&&"
     const val BULLET_MARK = "\u2022"
+    const val NON_BREAKING_SPACE = "&nbsp;"
+
+    val supportedExtensions: List<Extension> = listOf(
+        StrikethroughExtension.builder().requireTwoTildes(true).build(),
+        TablesExtension.create()
+    )
 }

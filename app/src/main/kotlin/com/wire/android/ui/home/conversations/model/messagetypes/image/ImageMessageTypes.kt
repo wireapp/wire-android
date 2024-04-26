@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
@@ -52,7 +53,7 @@ import okio.Path
 
 @Composable
 fun DisplayableImageMessage(
-    imageData: ImageAsset,
+    imageData: ImageAsset.Remote,
     width: Dp,
     height: Dp,
     modifier: Modifier = Modifier
@@ -82,8 +83,10 @@ fun AsyncImageMessage(
             .width(width)
             .height(height),
         loading = { _ ->
-            Box(modifier = Modifier.size(MaterialTheme.wireDimensions.spacing24x),
-                contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier.size(MaterialTheme.wireDimensions.spacing24x),
+                contentAlignment = Alignment.Center
+            ) {
                 WireCircularProgressIndicator(
                     progressColor = MaterialTheme.wireColorScheme.primary,
                     modifier = Modifier.padding(dimensions().spacing24x)
@@ -97,12 +100,12 @@ fun AsyncImageMessage(
 
 @Composable
 fun ImportedImageMessage(
-    imageData: ImageAsset,
+    imageData: ImageAsset.Local,
     shouldFillMaxWidth: Boolean,
     modifier: Modifier = Modifier
 ) {
-    Image(
-        painter = imageData.paint(),
+    AsyncImage(
+        model = imageData.dataPath.toFile(),
         contentDescription = stringResource(R.string.content_description_image_message),
         modifier = if (!shouldFillMaxWidth) modifier
             .width(dimensions().importedMediaAssetSize)
@@ -165,15 +168,15 @@ fun ImageMessageFailed(width: Dp, height: Dp, isDownloadFailure: Boolean) {
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier
             )
-                Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))
-                Text(
-                    text = stringResource(
-                        id = if (isDownloadFailure) R.string.error_downloading_image_message
-                        else R.string.error_uploading_image_message
-                    ),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.wireTypography.subline01.copy(color = MaterialTheme.wireColorScheme.error)
-                )
-            }
+            Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing8x))
+            Text(
+                text = stringResource(
+                    id = if (isDownloadFailure) R.string.error_downloading_image_message
+                    else R.string.error_uploading_image_message
+                ),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.wireTypography.subline01.copy(color = MaterialTheme.wireColorScheme.error)
+            )
+        }
     }
 }

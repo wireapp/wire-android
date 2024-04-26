@@ -58,7 +58,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.LegalHoldStatus
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -207,18 +206,6 @@ class ConversationListViewModel @Inject constructor(
                     conversationListState = it
                 }
         }
-    }
-
-    fun showCallingPermissionDialog() {
-        conversationListCallState = conversationListCallState.copy(
-            shouldShowCallingPermissionDialog = true
-        )
-    }
-
-    fun dismissCallingPermissionDialog() {
-        conversationListCallState = conversationListCallState.copy(
-            shouldShowCallingPermissionDialog = false
-        )
     }
 
     // Mateusz : First iteration, just filter stuff

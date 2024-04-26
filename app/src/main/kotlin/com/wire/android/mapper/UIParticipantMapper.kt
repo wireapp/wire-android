@@ -36,7 +36,11 @@ class UIParticipantMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader
 ) {
-    fun toUIParticipant(user: User, mlsCertificateStatus: CertificateStatus? = null): UIParticipant = with(user) {
+    fun toUIParticipant(
+        user: User,
+        mlsCertificateStatus: CertificateStatus? = null,
+        isUnderLegalHold: Boolean = false,
+    ): UIParticipant = with(user) {
         val (userType, connectionState, unavailable) = when (this) {
             is OtherUser -> Triple(this.userType, this.connectionStatus, this.isUnavailableUser)
             // TODO(refactor): does self user need a type ? to false
@@ -57,7 +61,8 @@ class UIParticipantMapper @Inject constructor(
             isDefederated = (user is OtherUser && user.defederated),
             isProteusVerified = (user is OtherUser && user.isProteusVerified),
             isMLSVerified = mlsCertificateStatus == CertificateStatus.VALID,
-            supportedProtocolList = supportedProtocols.orEmpty().toList()
+            supportedProtocolList = supportedProtocols.orEmpty().toList(),
+            isUnderLegalHold = isUnderLegalHold,
         )
     }
 

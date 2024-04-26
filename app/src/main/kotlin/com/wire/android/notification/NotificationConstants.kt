@@ -33,6 +33,7 @@ object NotificationConstants {
 
     private const val MESSAGE_CHANNEL_ID = "com.wire.android.notification_channel"
     const val MESSAGE_CHANNEL_NAME = "Messages"
+
     private const val PING_CHANNEL_ID = "com.wire.android.notification_ping_channel"
     const val PING_CHANNEL_NAME = "Pings"
     private const val MESSAGE_GROUP_KEY_PREFIX = "wire_reloaded_notification_group_"

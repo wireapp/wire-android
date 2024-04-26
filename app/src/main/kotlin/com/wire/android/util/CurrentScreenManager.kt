@@ -38,19 +38,15 @@ import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
-import com.wire.android.ui.destinations.IncomingCallScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
-import com.wire.android.ui.destinations.InitiatingCallScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -153,17 +149,6 @@ sealed class CurrentScreen {
     // Another User Profile Screen is opened
     data class OtherUserProfile(val id: ConversationId) : CurrentScreen()
 
-    sealed class CallScreen(open val id: QualifiedID) : CurrentScreen()
-
-    // Ongoing call screen is opened
-    class OngoingCallScreen(override val id: QualifiedID) : CallScreen(id)
-
-    // Incoming call screen is opened
-    class IncomingCallScreen(override val id: QualifiedID) : CallScreen(id)
-
-    // Initiating call screen is opened
-    class InitiatingCallScreen(override val id: QualifiedID) : CallScreen(id)
-
     // Import media screen is opened
     object ImportMedia : CurrentScreen()
 
@@ -180,7 +165,6 @@ sealed class CurrentScreen {
     object InBackground : CurrentScreen()
 
     companion object {
-
         @Suppress("ComplexMethod")
         fun fromDestination(destination: Destination?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
             if (!isAppVisible) {
@@ -193,15 +177,6 @@ sealed class CurrentScreen {
 
                 is OtherUserProfileScreenDestination ->
                     destination.argsFrom(arguments).conversationId?.let { OtherUserProfile(it) } ?: SomeOther
-
-                is OngoingCallScreenDestination ->
-                    OngoingCallScreen(destination.argsFrom(arguments).conversationId)
-
-                is IncomingCallScreenDestination ->
-                    IncomingCallScreen(destination.argsFrom(arguments).conversationId)
-
-                is InitiatingCallScreenDestination ->
-                    InitiatingCallScreen(destination.argsFrom(arguments).conversationId)
 
                 is ImportMediaScreenDestination -> ImportMedia
 

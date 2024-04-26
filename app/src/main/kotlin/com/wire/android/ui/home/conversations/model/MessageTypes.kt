@@ -56,23 +56,21 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedI
 import com.wire.android.ui.markdown.DisplayMention
 import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
+import com.wire.android.ui.markdown.NodeActions
 import com.wire.android.ui.markdown.NodeData
+import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.NOT_FOUND
-import com.wire.kalium.logic.data.message.Message.UploadStatus.FAILED_UPLOAD
-import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOAD_IN_PROGRESS
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.DOWNLOAD_IN_PROGRESS
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_FOUND
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOAD_IN_PROGRESS
+import kotlinx.collections.immutable.PersistentList
 import okio.Path
-import org.commonmark.Extension
-import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
-import org.commonmark.ext.gfm.tables.TablesExtension
-import org.commonmark.node.Document
-import org.commonmark.parser.Parser
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 //       waiting for the backend to implement mapping logic for the MessageBody
@@ -84,7 +82,7 @@ internal fun MessageBody(
     searchQuery: String = "",
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
-    buttonList: List<MessageButton>?,
+    buttonList: PersistentList<MessageButton>?,
     onLinkClick: (String) -> Unit,
     clickable: Boolean = true
 ) {
@@ -100,18 +98,20 @@ internal fun MessageBody(
         typography = MaterialTheme.wireTypography,
         searchQuery = searchQuery,
         mentions = displayMentions,
-        onLongClick = onLongClick,
-        onOpenProfile = onOpenProfile,
-        onLinkClick = onLinkClick
+        actions = NodeActions(
+            onLongClick = onLongClick,
+            onOpenProfile = onOpenProfile,
+            onLinkClick = onLinkClick
+        )
     )
 
-    val extensions: List<Extension> = listOf(
-        StrikethroughExtension.builder().requireTwoTildes(true).build(),
-        TablesExtension.create()
-    )
-    text?.also {
+    val markdownDocument = remember(text) {
+        text?.toMarkdownDocument()
+    }
+
+    markdownDocument?.also {
         MarkdownDocument(
-            Parser.builder().extensions(extensions).build().parse(it) as Document,
+            it,
             nodeData,
             clickable
         )
@@ -171,18 +171,17 @@ fun MessageButtonsContent(
 fun MessageImage(
     asset: ImageAsset?,
     imgParams: ImageMessageParams,
-    uploadStatus: Message.UploadStatus,
-    downloadStatus: Message.DownloadStatus,
+    transferStatus: AssetTransferStatus,
     onImageClick: Clickable,
     shouldFillMaxWidth: Boolean = false,
-    isImportedMediaAsset: Boolean = false
 ) {
     Box(
         Modifier
             .padding(top = MaterialTheme.wireDimensions.spacing4x)
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
             .background(
-                color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                color = MaterialTheme.wireColorScheme.onPrimary,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
             .border(
                 width = dimensions().spacing1x,
@@ -196,32 +195,33 @@ fun MessageImage(
                 onLongClick = onImageClick.onLongClick,
             )
     ) {
+        // TODO Kubaz make progress in box, but then remember to not load image with isIncompleteImage
         when {
             // Trying to upload the asset
-            uploadStatus == UPLOAD_IN_PROGRESS || downloadStatus == DOWNLOAD_IN_PROGRESS -> {
+            transferStatus == UPLOAD_IN_PROGRESS || transferStatus == DOWNLOAD_IN_PROGRESS -> {
                 ImageMessageInProgress(
                     imgParams.normalizedWidth, imgParams.normalizedHeight,
-                    downloadStatus == DOWNLOAD_IN_PROGRESS
+                    transferStatus == DOWNLOAD_IN_PROGRESS
                 )
             }
 
-            downloadStatus == NOT_FOUND -> {
+            transferStatus == NOT_FOUND -> {
                 ImageMessageFailed(
                     imgParams.normalizedWidth, imgParams.normalizedHeight,
                     true
                 )
             }
 
-            asset != null -> {
-                if (isImportedMediaAsset) ImportedImageMessage(asset, shouldFillMaxWidth)
-                else DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
+            asset != null -> when (asset) {
+                is ImageAsset.Local -> ImportedImageMessage(asset, shouldFillMaxWidth)
+                is ImageAsset.Remote -> DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
             }
 
             // Show error placeholder
-            uploadStatus == FAILED_UPLOAD || downloadStatus == FAILED_DOWNLOAD -> {
+            transferStatus == FAILED_UPLOAD || transferStatus == FAILED_DOWNLOAD -> {
                 ImageMessageFailed(
                     imgParams.normalizedWidth, imgParams.normalizedHeight,
-                    downloadStatus == FAILED_DOWNLOAD
+                    transferStatus == FAILED_DOWNLOAD
                 )
             }
         }
@@ -230,10 +230,10 @@ fun MessageImage(
 
 @Composable
 fun MediaAssetImage(
-    asset: ImageAsset?,
+    asset: ImageAsset.Remote?,
     width: Dp,
     height: Dp,
-    downloadStatus: Message.DownloadStatus,
+    transferStatus: AssetTransferStatus?,
     assetPath: Path? = null,
     onImageClick: Clickable
 ) {
@@ -254,7 +254,7 @@ fun MediaAssetImage(
     ) {
         when {
             // Trying to upload the asset
-            downloadStatus == DOWNLOAD_IN_PROGRESS -> {
+            transferStatus == DOWNLOAD_IN_PROGRESS -> {
                 ImageMessageInProgress(
                     width = width,
                     height = height,
@@ -272,7 +272,7 @@ fun MediaAssetImage(
             }
 
             // Show error placeholder
-            downloadStatus == FAILED_DOWNLOAD -> {
+            transferStatus == FAILED_DOWNLOAD -> {
                 ImageMessageFailed(
                     width = width,
                     height = height,
@@ -280,7 +280,7 @@ fun MediaAssetImage(
                 )
             }
 
-            downloadStatus == NOT_FOUND -> {
+            transferStatus == NOT_FOUND -> {
                 ImageMessageFailed(
                     width = width,
                     height = height,
@@ -297,8 +297,7 @@ internal fun MessageGenericAsset(
     assetExtension: String,
     assetSizeInBytes: Long,
     onAssetClick: Clickable,
-    assetUploadStatus: Message.UploadStatus,
-    assetDownloadStatus: Message.DownloadStatus,
+    assetTransferStatus: AssetTransferStatus,
     shouldFillMaxWidth: Boolean = true,
     isImportedMediaAsset: Boolean = false
 ) {
@@ -307,8 +306,7 @@ internal fun MessageGenericAsset(
         assetExtension,
         assetSizeInBytes,
         onAssetClick,
-        assetUploadStatus,
-        assetDownloadStatus,
+        assetTransferStatus,
         shouldFillMaxWidth,
         isImportedMediaAsset
     )

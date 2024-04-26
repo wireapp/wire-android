@@ -28,12 +28,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.ProtocolLabel
@@ -45,10 +45,12 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.uiReadReceiptDateTime
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
@@ -69,6 +71,7 @@ fun ConversationParticipantItem(
                 )
             )
         },
+        titleStartPadding = dimensions().spacing0x,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 HighlightName(
@@ -106,6 +109,9 @@ fun ConversationParticipantItem(
                         )
                     }
                 }
+                if (uiParticipant.isUnderLegalHold) {
+                    LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
+                }
             }
         },
         subtitle = {
@@ -134,21 +140,25 @@ fun ConversationParticipantItem(
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationParticipantItem() {
-    ConversationParticipantItem(
-        UIParticipant(
-            UserId("0", ""),
-            "name",
-            "handle",
-            false,
-            false,
-            UserAvatarData(),
-            Membership.Guest,
-            isMLSVerified = true,
-            isProteusVerified = true,
-            supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS)),
-        clickable = Clickable(enabled = true) {}
-    )
+    WireTheme {
+        ConversationParticipantItem(
+            UIParticipant(
+                UserId("0", ""),
+                "name",
+                "handle",
+                false,
+                false,
+                UserAvatarData(),
+                Membership.Guest,
+                isMLSVerified = true,
+                isProteusVerified = true,
+                isUnderLegalHold = true,
+                supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS)
+            ),
+            clickable = Clickable(enabled = true) {}
+        )
+    }
 }

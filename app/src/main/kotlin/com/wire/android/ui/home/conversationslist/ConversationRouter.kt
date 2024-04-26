@@ -26,17 +26,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.ui.calling.common.MicrophonePermissionDeniedDialog
+import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.getOngoingCallIntent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.topappbar.search.SearchBarState
@@ -44,9 +46,9 @@ import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
@@ -59,7 +61,7 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.isArchive
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
-import com.wire.android.util.extension.openAppInfoScreen
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -80,20 +82,16 @@ fun ConversationRouterHomeBridge(
     isBottomSheetVisible: () -> Boolean,
     conversationsSource: ConversationsSource = ConversationsSource.MAIN
 ) {
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
     val viewModel: ConversationListViewModel = hiltViewModel()
-    val context = LocalContext.current
+
+    val activity = LocalActivity.current
 
     LaunchedEffect(conversationsSource) {
         viewModel.updateConversationsSource(conversationsSource)
     }
-
-    MicrophonePermissionDeniedDialog(
-        shouldShow = viewModel.conversationListCallState.shouldShowCallingPermissionDialog,
-        onDismiss = viewModel::dismissCallingPermissionDialog,
-        onOpenSettings = {
-            context.openAppInfoScreen()
-        }
-    )
 
     val conversationRouterHomeState = rememberConversationRouterState(
         initialConversationItemType = conversationItemType,
@@ -203,7 +201,11 @@ fun ConversationRouterHomeBridge(
             { userId -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId))) }
         }
         val onJoinedCall: (ConversationId) -> Unit = remember(navigator) {
-            { conversationId -> navigator.navigate(NavigationCommand(OngoingCallScreenDestination(conversationId))) }
+            {
+                getOngoingCallIntent(activity, it.toString()).run {
+                    activity.startActivity(this)
+                }
+            }
         }
 
         with(viewModel.conversationListState) {
@@ -217,7 +219,16 @@ fun ConversationRouterHomeBridge(
                         onOpenConversation = onOpenConversation,
                         onOpenUserProfile = onOpenUserProfile,
                         onJoinedCall = onJoinedCall,
-                        onPermanentPermissionDecline = viewModel::showCallingPermissionDialog
+                        onPermissionPermanentlyDenied = {
+                            if (it == PermissionDenialType.CallingMicrophone) {
+                                permissionPermanentlyDeniedDialogState.show(
+                                    PermissionPermanentlyDeniedDialogState.Visible(
+                                        R.string.app_permission_dialog_title,
+                                        R.string.call_permission_dialog_description
+                                    )
+                                )
+                            }
+                        }
                     )
 
                 ConversationItemType.CALLS ->
@@ -226,8 +237,7 @@ fun ConversationRouterHomeBridge(
                         callHistory = callHistory,
                         onCallItemClick = onOpenConversation,
                         onEditConversationItem = onEditConversationItem,
-                        onOpenUserProfile = onOpenUserProfile,
-                        openConversationNotificationsSettings = onEditNotifications
+                        onOpenUserProfile = onOpenUserProfile
                     )
 
                 ConversationItemType.MENTIONS ->
@@ -249,11 +259,16 @@ fun ConversationRouterHomeBridge(
                         onEditConversation = onEditConversationItem,
                         onOpenUserProfile = onOpenUserProfile,
                         onJoinCall = { viewModel.joinOngoingCall(it, onJoinedCall) },
-                        onPermanentPermissionDecline = viewModel::showCallingPermissionDialog
+                        onPermissionPermanentlyDenied = { }
                     )
                 }
             }
         }
+
+        PermissionPermanentlyDeniedDialog(
+            dialogState = permissionPermanentlyDeniedDialogState,
+            hideDialog = permissionPermanentlyDeniedDialogState::dismiss
+        )
 
         BlockUserDialogContent(
             isLoading = requestInProgress,

@@ -35,7 +35,7 @@ plugins {
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
-    id(ScriptPlugins.spotless)
+    id(libs.plugins.wire.kover.get().pluginId)
 }
 
 repositories {
@@ -84,12 +84,17 @@ android {
     }
 }
 
-
-
-
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
+
+    // features
+    implementation(project(":features:sketch"))
+    implementation(project(":core:ui-common"))
+
+    // kover
+    kover(project(":features:sketch"))
+    kover(project(":core:ui-common"))
 
     // Application dependencies
     implementation(libs.androidx.appcompat)
@@ -169,10 +174,10 @@ dependencies {
     implementation(libs.resaca.hilt)
     implementation(libs.bundlizer.core)
 
-    // firebase
     var fdroidBuild = isFossSourceSet()
 
     if (!fdroidBuild) {
+        // firebase
         implementation(platform(libs.firebase.bom))
         implementation(libs.firebase.fcm)
         implementation(libs.googleGms.location)
@@ -199,6 +204,8 @@ dependencies {
     testImplementation(libs.kluent.core)
     testImplementation(libs.turbine)
     testImplementation(libs.okio.fakeFileSystem)
+    testImplementation(libs.robolectric)
+    testRuntimeOnly(libs.junit5.vintage.engine)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.androidx.paging.testing)
 

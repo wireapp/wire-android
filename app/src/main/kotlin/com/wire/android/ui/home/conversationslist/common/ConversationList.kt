@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
@@ -49,7 +50,7 @@ fun ConversationList(
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onJoinCall: (ConversationId) -> Unit,
-    onPermanentPermissionDecline: () -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -65,7 +66,7 @@ fun ConversationList(
      *  it so it wants to keep this dummy top item as the first one on list and show all other items below it.
      */
         item("empty-top-header") {
-            Divider(
+            HorizontalDivider(
                 thickness = Dp.Hairline,
                 color = Color.Transparent
             )
@@ -91,7 +92,7 @@ fun ConversationList(
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
                     joinCall = onJoinCall,
-                    onPermanentPermissionDecline = onPermanentPermissionDecline
+                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
                 )
             }
         }

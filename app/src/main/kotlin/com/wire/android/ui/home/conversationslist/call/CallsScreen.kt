@@ -61,8 +61,7 @@ fun CallsScreenContent(
     callHistory: List<ConversationItem> = emptyList(),
     onCallItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
-    onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onOpenUserProfile: (UserId) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -72,8 +71,7 @@ fun CallsScreenContent(
         callHistory = callHistory,
         onCallItemClick = onCallItemClick,
         onEditConversationItem = onEditConversationItem,
-        onOpenUserProfile = onOpenUserProfile,
-        openConversationNotificationsSettings = openConversationNotificationsSettings,
+        onOpenUserProfile = onOpenUserProfile
     )
 }
 
@@ -84,8 +82,7 @@ fun CallContent(
     callHistory: List<ConversationItem>,
     onCallItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
-    onOpenUserProfile: (UserId) -> Unit,
-    openConversationNotificationsSettings: (ConversationItem) -> Unit
+    onOpenUserProfile: (UserId) -> Unit
 ) {
     val context = LocalContext.current
     LazyColumn(
@@ -102,7 +99,7 @@ fun CallContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 joinCall = { },
-                onPermanentPermissionDecline = {},
+                onPermissionPermanentlyDenied = {},
                 searchQuery = ""
             )
         }
@@ -117,7 +114,7 @@ fun CallContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 joinCall = { },
-                onPermanentPermissionDecline = {},
+                onPermissionPermanentlyDenied = {},
                 searchQuery = " "
             )
         }

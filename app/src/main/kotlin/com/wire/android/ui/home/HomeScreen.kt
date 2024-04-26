@@ -112,7 +112,7 @@ fun HomeScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { source, event ->
+        val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 appSyncViewModel.startSyncingAppConfig()
             }
@@ -263,6 +263,7 @@ fun HomeContent(
                                     status = homeState.status,
                                     title = stringResource(currentNavigationItem.title),
                                     elevation = elevation,
+                                    withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,
                                     onHamburgerMenuClick = ::openDrawer,
                                     onNavigateToSelfUserProfile = onSelfUserClick
                                 )
@@ -280,6 +281,7 @@ fun HomeContent(
                             )
                         }
                     },
+                    isSwipeable = !searchBarState.isSearchActive,
                     content = {
                         /**
                          * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.

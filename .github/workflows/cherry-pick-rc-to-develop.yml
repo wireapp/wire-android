@@ -30,6 +30,7 @@ on:
             - closed
 
 env:
+
     TARGET_BRANCH: develop
     SUBMODULE_NAME: kalium
 
@@ -128,11 +129,8 @@ jobs:
                   git checkout -b ${{ env.newBranchName }}
                   OUTPUT=$(git cherry-pick ${{ env.cherryPickCommit }} || true)
                   
-                  # Handle conflicts
-                  CONFLICTED_FILES=$(git diff --name-only --diff-filter=U | awk 'ORS="\\\\n"' | sed 's/\\\\n$/\\n/')
-                  echo "Captured conflicted files: $CONFLICTED_FILES"
+                  # If conflicts exist, resolve them
                   if [[ "$OUTPUT" == *"CONFLICT"* ]]; then
-                      # Commit the remaining conflicts
                       git add .
                       git commit --author "${{ env.originalAuthor }}" -am "Commit with unresolved merge conflicts outside of ${{ env.SUBMODULE_NAME }}"
                   else

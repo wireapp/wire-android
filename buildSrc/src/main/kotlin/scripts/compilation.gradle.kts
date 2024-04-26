@@ -18,8 +18,8 @@
 
 package scripts
 
-import WriteKeyValuesToFileTask
 import IncludeGitBuildTask
+import WriteKeyValuesToFileTask
 
 plugins {
     id("com.android.application") apply false
@@ -45,10 +45,9 @@ project.afterEvaluate {
     project.tasks.matching {
         it.name.startsWith("merge") &&
                 it.name.endsWith("Assets") ||
-                it.name.startsWith("lintVitalAnalyze")
+                it.name.contains("LintVital", true)
+    }.configureEach {
+        dependsOn(gitIdTask)
+        dependsOn(dependenciesVersionTask)
     }
-        .configureEach {
-            dependsOn(gitIdTask)
-            dependsOn(dependenciesVersionTask)
-        }
 }

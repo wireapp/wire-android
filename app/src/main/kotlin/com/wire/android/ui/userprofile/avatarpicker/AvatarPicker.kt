@@ -29,7 +29,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,13 +54,17 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
 import com.wire.android.util.ImageUtil
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -76,6 +80,9 @@ fun AvatarPickerScreen(
     viewModel: AvatarPickerViewModel = hiltViewModel(),
     resultNavigator: ResultBackNavigator<String?>
 ) {
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
     val context = LocalContext.current
 
     val targetAvatarPath = viewModel.defaultAvatarPath
@@ -89,7 +96,24 @@ fun AvatarPickerScreen(
         onPictureTaken = {
             onNewAvatarPicked(targetAvatarUri, targetAvatarPath, scope, context, viewModel)
         },
-        targetPictureFileUri = targetAvatarUri
+        targetPictureFileUri = targetAvatarUri,
+        onPermissionPermanentlyDenied = {
+            val (title, description) = when (it) {
+                PermissionDenialType.Gallery -> {
+                    R.string.app_permission_dialog_title to R.string.open_gallery_permission_dialog_description
+                }
+                PermissionDenialType.TakePicture -> {
+                    R.string.app_permission_dialog_title to R.string.take_picture_permission_dialog_description
+                }
+                else -> { 0 to 0 }
+            }
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = title,
+                    description = description
+                )
+            )
+        }
     )
 
     AvatarPickerContent(
@@ -102,6 +126,11 @@ fun AvatarPickerScreen(
                 resultNavigator.navigateBack()
             }
         }
+    )
+
+    PermissionPermanentlyDeniedDialog(
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 }
 
@@ -149,7 +178,7 @@ private fun AvatarPickerContent(
                         AvatarPreview(viewModel.pictureState)
                     }
                 }
-                Divider()
+                HorizontalDivider()
                 Spacer(Modifier.height(4.dp))
                 AvatarPickerActionButtons(
                     pictureState = viewModel.pictureState,

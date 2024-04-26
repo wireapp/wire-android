@@ -23,14 +23,15 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.framework.TestConversation
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
+import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
-import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
@@ -69,13 +70,14 @@ class MessageComposerStateHolderTest {
     fun before() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         messageComposerViewState = mutableStateOf(MessageComposerViewState())
-        messageComposition = mutableStateOf(MessageComposition())
+        messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))
         messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
             messageComposition = messageComposition,
             selfDeletionTimer = mutableStateOf(SelfDeletionTimer.Disabled)
         )
         messageCompositionHolder = MessageCompositionHolder(
-            context = context
+            messageComposition = messageComposition,
+            {}
         )
         additionalOptionStateHolder = AdditionalOptionStateHolder()
         modalBottomSheetState = WireModalSheetState()

@@ -22,6 +22,7 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.wire.android.ui.userprofile.avatarpicker.ImageSource
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
@@ -43,22 +44,21 @@ class AvatarPickerFlow(
 fun rememberPickPictureState(
     onImageSelected: (Uri) -> Unit,
     onPictureTaken: () -> Unit,
-    targetPictureFileUri: Uri
+    targetPictureFileUri: Uri,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ): AvatarPickerFlow {
 
     val takePictureFLow = rememberTakePictureFlow(
         onPictureTaken = { wasSaved -> if (wasSaved) onPictureTaken() },
-        onPermissionDenied = {
-            // TODO: Implement denied permission rationale
-        },
+        onPermissionDenied = { /* Nothing to do */ },
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         targetPictureFileUri = targetPictureFileUri
     )
 
     val openGalleryFlow = rememberOpenGalleryFlow(
         onGalleryItemPicked = { pickedPictureUri -> onImageSelected(pickedPictureUri) },
-        onPermissionDenied = {
-            // TODO: Implement denied permission rationale
-        }
+        onPermissionDenied = { /* Nothing to do */ },
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
     )
 
     return remember {

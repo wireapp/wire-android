@@ -21,8 +21,8 @@ package com.wire.android.ui.home.conversations.info
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
-import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOne
+import com.wire.android.ui.home.conversations.composer.mockConversationDetailsGroup
+import com.wire.android.ui.home.conversations.composer.withMockConversationDetailsOneOnOne
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.StorageFailure

@@ -60,8 +60,8 @@ class ImageAssetTest {
     private fun createLocalAsset(
         dataPath: Path,
         imageKey: String
-    ): ImageAsset.LocalImageAsset {
-        return ImageAsset.LocalImageAsset(imageLoader, dataPath, imageKey)
+    ): ImageAsset.Local {
+        return ImageAsset.Local(dataPath, imageKey)
     }
 
     @Test
@@ -150,7 +150,7 @@ class ImageAssetTest {
             assetKey,
         )
 
-        subject1.uniqueKey shouldBeEqualTo subject2.uniqueKey
+        subject1.idKey shouldBeEqualTo subject2.idKey
     }
 
     @Test
@@ -167,7 +167,7 @@ class ImageAssetTest {
             "someOtherAssetKey",
         )
 
-        baseSubject.uniqueKey shouldNotBeEqualTo alteredAssetKeySubject.uniqueKey
+        baseSubject.idKey shouldNotBeEqualTo alteredAssetKeySubject.idKey
     }
 
     @Test
@@ -185,6 +185,6 @@ class ImageAssetTest {
             assetKey
         )
 
-        baseSubject.uniqueKey shouldBeEqualTo alteredUriSubject.uniqueKey
+        baseSubject.idKey shouldBeEqualTo alteredUriSubject.idKey
     }
 }

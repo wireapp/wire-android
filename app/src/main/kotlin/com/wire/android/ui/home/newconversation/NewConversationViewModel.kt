@@ -35,11 +35,13 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
-import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,7 +49,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
     private val createGroupConversation: CreateGroupConversationUseCase,
-    private val isSelfATeamMember: IsSelfATeamMemberUseCase,
+    private val getSelfUser: GetSelfUserUseCase,
     getDefaultProtocol: GetDefaultProtocolUseCase
 ) : ViewModel() {
 
@@ -65,8 +67,13 @@ class NewConversationViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val isSelfTeamMember = isSelfATeamMember()
-            newGroupState = newGroupState.copy(isSelfTeamMember = isSelfTeamMember)
+            val selfUser = getSelfUser().first()
+            val isSelfTeamMember = selfUser.teamId != null
+            val isSelfExternalTeamMember = selfUser.userType == UserType.EXTERNAL
+            newGroupState = newGroupState.copy(
+                isSelfTeamMember = isSelfTeamMember,
+                isGroupCreatingAllowed = !isSelfExternalTeamMember
+            )
         }
     }
 

@@ -24,16 +24,20 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.legalhold.ApproveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldRequestUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -114,6 +118,7 @@ class LegalHoldRequestedViewModelTest {
         state shouldBeInstanceOf LegalHoldRequestedState.Visible::class
         state as LegalHoldRequestedState.Visible
         state.requiresPassword shouldBeEqualTo true
+        state.acceptEnabled shouldBeEqualTo false
     }
 
     @Test
@@ -129,6 +134,7 @@ class LegalHoldRequestedViewModelTest {
         state shouldBeInstanceOf LegalHoldRequestedState.Visible::class
         state as LegalHoldRequestedState.Visible
         state.requiresPassword shouldBeEqualTo false
+        state.acceptEnabled shouldBeEqualTo true
     }
 
     private fun arrangeWithLegalHoldRequest(isPasswordRequired: Boolean = true) = Arrangement()
@@ -234,18 +240,75 @@ class LegalHoldRequestedViewModelTest {
         viewModel.state shouldBeInstanceOf LegalHoldRequestedState.Hidden::class
     }
 
+    @Test
+    fun givenPasswordNotRequired_whenApproving_thenShouldNotValidatePasswordAndExecuteWithEmptyPassword() = runTest {
+        val (arrangement, viewModel) = arrangeWithLegalHoldRequest(isPasswordRequired = false)
+            .withApproveLegalHoldRequestResult(ApproveLegalHoldRequestUseCase.Result.Success)
+            .arrange()
+        advanceUntilIdle()
+        viewModel.acceptClicked()
+        verify { arrangement.validatePassword(any()) wasNot Called }
+        coVerify { arrangement.userSessionScope.approveLegalHoldRequest(matchNullable { it == null }) }
+    }
+
+    @Test
+    fun givenPasswordRequired_whenApproving_thenShouldValidatePasswordAndNotExecuteWithEmptyPassword() = runTest {
+        val (arrangement, viewModel) = arrangeWithLegalHoldRequest(isPasswordRequired = true)
+            .withValidatePasswordResult(ValidatePasswordResult.Invalid())
+            .withApproveLegalHoldRequestResult(ApproveLegalHoldRequestUseCase.Result.Success)
+            .arrange()
+        val password = "invalidpassword"
+        viewModel.passwordChanged(TextFieldValue(password))
+        advanceUntilIdle()
+        viewModel.acceptClicked()
+        verify { arrangement.validatePassword(password) }
+        coVerify { arrangement.userSessionScope.approveLegalHoldRequest(matchNullable { it.isNullOrEmpty() }) wasNot Called }
+    }
+
+    @Test
+    fun givenPasswordRequiredAndInvalidPassword_whenApproving_thenShouldNotExecuteWithInvalidPassword() = runTest {
+        val (arrangement, viewModel) = arrangeWithLegalHoldRequest(isPasswordRequired = true)
+            .withValidatePasswordResult(ValidatePasswordResult.Invalid())
+            .withApproveLegalHoldRequestResult(ApproveLegalHoldRequestUseCase.Result.Success)
+            .arrange()
+        val password = "invalidpassword"
+        viewModel.passwordChanged(TextFieldValue(password))
+        advanceUntilIdle()
+        viewModel.acceptClicked()
+        coVerify { arrangement.userSessionScope.approveLegalHoldRequest(password) wasNot Called }
+    }
+
+    @Test
+    fun givenPasswordRequiredAndValidPassword_whenApproving_thenShouldExecuteWithValidPassword() = runTest {
+        val (arrangement, viewModel) = arrangeWithLegalHoldRequest(isPasswordRequired = true)
+            .withValidatePasswordResult(ValidatePasswordResult.Valid)
+            .withApproveLegalHoldRequestResult(ApproveLegalHoldRequestUseCase.Result.Success)
+            .arrange()
+        val password = "ValidPassword123!"
+        viewModel.passwordChanged(TextFieldValue(password))
+        advanceUntilIdle()
+        viewModel.acceptClicked()
+        coVerify { arrangement.userSessionScope.approveLegalHoldRequest(password) }
+    }
+
     private class Arrangement {
 
         @MockK
-        private lateinit var validatePassword: ValidatePasswordUseCase
+        lateinit var validatePassword: ValidatePasswordUseCase
 
         @MockK
-        private lateinit var coreLogic: CoreLogic
+        lateinit var coreLogic: CoreLogic
+
+        @MockK
+        lateinit var userSessionScope: UserSessionScope
+
+        val userId = UserId("userId", "domain")
 
         val viewModel by lazy { LegalHoldRequestedViewModel(validatePassword, coreLogic) }
 
         init {
             MockKAnnotations.init(this)
+            every { coreLogic.getSessionScope(userId) } returns userSessionScope
         }
         fun withNotCurrentSession() = apply {
             every { coreLogic.globalScope { session.currentSessionFlow() } } returns
@@ -257,22 +320,22 @@ class LegalHoldRequestedViewModelTest {
         }
         fun withCurrentSessionExists() = apply {
             every { coreLogic.globalScope { session.currentSessionFlow() } } returns
-                    flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("userId", "domain"))))
+                    flowOf(CurrentSessionResult.Success(AccountInfo.Valid(userId)))
         }
         fun withLegalHoldRequestResult(result: ObserveLegalHoldRequestUseCase.Result) = apply {
-            every { coreLogic.getSessionScope(any()).observeLegalHoldRequest() } returns flowOf(result)
+            every { userSessionScope.observeLegalHoldRequest() } returns flowOf(result)
         }
         fun withIsPasswordRequiredResult(result: IsPasswordRequiredUseCase.Result) = apply {
-            coEvery { coreLogic.getSessionScope(any()).users.isPasswordRequired() } returns result
+            coEvery { userSessionScope.users.isPasswordRequired() } returns result
         }
         fun withValidatePasswordResult(result: ValidatePasswordResult) = apply {
             coEvery { validatePassword(any()) } returns result
         }
         fun withApproveLegalHoldRequestResult(result: ApproveLegalHoldRequestUseCase.Result) = apply {
-            coEvery { coreLogic.getSessionScope(any()).approveLegalHoldRequest(any()) } returns result
+            coEvery { userSessionScope.approveLegalHoldRequest(any()) } returns result
         }
 
-        fun arrange() = this to viewModel
+        fun arrange() = this to viewModel.apply { observeLegalHoldRequest() }
 
         companion object {
             val UNKNOWN_ERROR = CoreFailure.Unknown(RuntimeException("error"))

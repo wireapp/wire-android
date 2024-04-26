@@ -23,7 +23,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.mapper.testUIParticipant
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
@@ -32,13 +31,14 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -54,23 +54,25 @@ class GroupConversationParticipantsViewModelTest {
                 add(testUIParticipant(i))
             }
         }
-        val (_, viewModel) = GroupConversationParticipantsViewModelArrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withConversationParticipantsUpdate(members)
-            .arrange()
+            .arrange(expectedParticipantsSize)
+        advanceUntilIdle()
         // When - Then
-        assert(viewModel.groupParticipantsState.data.participants.size == expectedParticipantsSize)
-        assert(viewModel.groupParticipantsState.data.allParticipantsCount == members.size)
+        coVerify { arrangement.observeParticipantsForConversationUseCase.invoke(any(), eq(expectedParticipantsSize)) }
+        assertEquals(expectedParticipantsSize, viewModel.groupParticipantsState.data.participants.size)
+        assertEquals(members.size, viewModel.groupParticipantsState.data.allParticipantsCount)
     }
 
     @Test
     fun `given a group members, when solving the participants list, then right sizes are passed`() {
-        val maxNumber = GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS
+        val maxNumber = 4
         testSize(givenParticipantsSize = maxNumber + 1, expectedParticipantsSize = maxNumber)
         testSize(givenParticipantsSize = maxNumber - 1, expectedParticipantsSize = maxNumber - 1)
     }
 }
 
-internal class GroupConversationParticipantsViewModelArrangement {
+internal class Arrangement {
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
@@ -80,14 +82,6 @@ internal class GroupConversationParticipantsViewModelArrangement {
 
     @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
-    private val conversationMembersChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
-    private val viewModel by lazy {
-        GroupConversationParticipantsViewModel(
-            savedStateHandle,
-            observeParticipantsForConversationUseCase,
-            refreshUsersWithoutMetadata,
-        )
-    }
 
     val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
@@ -95,23 +89,31 @@ internal class GroupConversationParticipantsViewModelArrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>() } returns GroupConversationAllParticipantsNavArgs(
-            conversationId = conversationId
-        )
+        every {
+            savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>()
+        } returns GroupConversationAllParticipantsNavArgs(conversationId = conversationId)
         // Default empty values
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
     }
 
-    suspend fun withConversationParticipantsUpdate(participants: List<UIParticipant>): GroupConversationParticipantsViewModelArrangement {
-        coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns conversationMembersChannel.consumeAsFlow()
-        conversationMembersChannel.send(
-            ConversationParticipantsData(
-                participants = participants.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
-                allParticipantsCount = participants.size
+    suspend fun withConversationParticipantsUpdate(participants: List<UIParticipant>): Arrangement {
+        coEvery { observeParticipantsForConversationUseCase(any(), any()) } answers {
+            flowOf(
+                ConversationParticipantsData(
+                    participants = participants.take(this.secondArg() as Int),
+                    allParticipantsCount = participants.size
+                )
             )
-        )
+        }
         return this
     }
 
-    fun arrange() = this to viewModel
+    fun arrange(maxNumberOfItems: Int = -1): Pair<Arrangement, GroupConversationParticipantsViewModel> =
+            this to object : GroupConversationParticipantsViewModel(
+                savedStateHandle,
+                observeParticipantsForConversationUseCase,
+                refreshUsersWithoutMetadata,
+            ) {
+                override val maxNumberOfItems: Int get() = maxNumberOfItems
+            }
 }

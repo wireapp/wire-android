@@ -38,43 +38,49 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.style.KeepOnScreenPopUpNavigationAnimation
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
+import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallState
-import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
 
-@RootNavGraph
-@Destination(
-    navArgsDelegate = CallingNavArgs::class,
-    style = KeepOnScreenPopUpNavigationAnimation::class
-)
+@Suppress("ParameterWrapping")
 @Composable
 fun InitiatingCallScreen(
-    navigator: Navigator,
-    navArgs: CallingNavArgs,
-    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
-    initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel()
+    conversationId: ConversationId,
+    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+        creationCallback = { factory -> factory.create(conversationId = conversationId) }
+    ),
+    initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel<InitiatingCallViewModel, InitiatingCallViewModel.Factory>(
+        creationCallback = { factory -> factory.create(conversationId = conversationId) }
+    ),
+    onCallAccepted: () -> Unit
 ) {
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+
+    val activity = LocalActivity.current
+
     LaunchedEffect(initiatingCallViewModel.state.flowState) {
         when (initiatingCallViewModel.state.flowState) {
-            InitiatingCallState.FlowState.CallClosed -> navigator.navigateBack()
-            InitiatingCallState.FlowState.CallEstablished ->
-                navigator.navigate(NavigationCommand(OngoingCallScreenDestination(navArgs.conversationId), BackStackMode.REMOVE_CURRENT))
+            InitiatingCallState.FlowState.CallClosed -> {
+                activity.finish()
+            }
+
+            InitiatingCallState.FlowState.CallEstablished -> {
+                onCallAccepted()
+            }
 
             InitiatingCallState.FlowState.Default -> { /* do nothing */
             }
@@ -88,9 +94,24 @@ fun InitiatingCallScreen(
             toggleVideo = ::toggleVideo,
             onHangUpCall = initiatingCallViewModel::hangUpCall,
             onVideoPreviewCreated = ::setVideoPreview,
-            onSelfClearVideoPreview = ::clearVideoPreview
+            onSelfClearVideoPreview = ::clearVideoPreview,
+            onPermissionPermanentlyDenied = {
+                if (it is PermissionDenialType.CallingCamera) {
+                    permissionPermanentlyDeniedDialogState.show(
+                        PermissionPermanentlyDeniedDialogState.Visible(
+                            title = R.string.app_permission_dialog_title,
+                            description = R.string.camera_permission_dialog_description
+                        )
+                    )
+                }
+            }
         )
     }
+
+    PermissionPermanentlyDeniedDialog(
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,7 +123,8 @@ private fun InitiatingCallContent(
     toggleVideo: () -> Unit,
     onHangUpCall: () -> Unit,
     onVideoPreviewCreated: (view: View) -> Unit,
-    onSelfClearVideoPreview: () -> Unit
+    onSelfClearVideoPreview: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     BackHandler {
         // DO NOTHING
@@ -126,7 +148,8 @@ private fun InitiatingCallContent(
                     isSpeakerOn = callState.isSpeakerOn,
                     toggleSpeaker = toggleSpeaker,
                     toggleMute = toggleMute,
-                    toggleVideo = toggleVideo
+                    toggleVideo = toggleVideo,
+                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
                 )
                 Spacer(
                     modifier = Modifier
@@ -168,5 +191,5 @@ private fun InitiatingCallContent(
 @Preview
 @Composable
 fun PreviewInitiatingCallScreen() {
-    InitiatingCallContent(CallState(ConversationId("value", "domain")), {}, {}, {}, {}, {}, {})
+    InitiatingCallContent(CallState(ConversationId("value", "domain")), {}, {}, {}, {}, {}, {}, {})
 }

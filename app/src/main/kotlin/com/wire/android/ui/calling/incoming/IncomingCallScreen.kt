@@ -33,61 +33,64 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.WakeUpScreenPopUpNavigationAnimation
+import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallState
-import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
-import com.wire.android.ui.calling.common.MicrophonePermissionDeniedDialog
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
+import com.wire.android.ui.calling.openAppLockActivity
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.extension.openAppInfoScreen
+import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.id.ConversationId
 
-@RootNavGraph
-@Destination(
-    navArgsDelegate = CallingNavArgs::class,
-    style = WakeUpScreenPopUpNavigationAnimation::class
-)
+@Suppress("ParameterWrapping")
 @Composable
 fun IncomingCallScreen(
-    navigator: Navigator,
-    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
-    incomingCallViewModel: IncomingCallViewModel = hiltViewModel()
+    conversationId: ConversationId,
+    incomingCallViewModel: IncomingCallViewModel = hiltViewModel<IncomingCallViewModel, IncomingCallViewModel.Factory>(
+        creationCallback = { factory -> factory.create(conversationId = conversationId) }
+    ),
+    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
+        creationCallback = { factory -> factory.create(conversationId = conversationId) }
+    ),
+    onCallAccepted: () -> Unit
 ) {
-    val context = LocalContext.current
+    val activity = LocalActivity.current
+
+    val permissionPermanentlyDeniedDialogState =
+        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val audioPermissionCheck = AudioPermissionCheckFlow(
-        incomingCallViewModel::acceptCall,
-        incomingCallViewModel::showPermissionDialog
-    )
-
-    MicrophonePermissionDeniedDialog(
-        shouldShow = incomingCallViewModel.incomingCallState.shouldShowPermissionDialog,
-        onDismiss = incomingCallViewModel::dismissPermissionDialog,
-        onOpenSettings = {
-            context.openAppInfoScreen()
+        onAcceptCall = {
+            incomingCallViewModel.acceptCall {
+                (activity as CallActivity).openAppLockActivity()
+            }
+        },
+        onPermanentPermissionDecline = {
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = R.string.app_permission_dialog_title,
+                    description = R.string.call_permission_dialog_description
+                )
+            )
         }
     )
 
@@ -95,19 +98,23 @@ fun IncomingCallScreen(
         if (incomingCallState.shouldShowJoinCallAnywayDialog) {
             JoinAnywayDialog(
                 onDismiss = ::dismissJoinCallAnywayDialog,
-                onConfirm = ::acceptCallAnyway
+                onConfirm = {
+                    acceptCallAnyway {
+                        (activity as CallActivity).openAppLockActivity()
+                    }
+                }
             )
         }
     }
     LaunchedEffect(incomingCallViewModel.incomingCallState.flowState) {
-        when (val flowState = incomingCallViewModel.incomingCallState.flowState) {
-            is IncomingCallState.FlowState.CallClosed -> navigator.navigateBack()
-            is IncomingCallState.FlowState.CallAccepted -> navigator.navigate(
-                NavigationCommand(
-                    OngoingCallScreenDestination(flowState.conversationId),
-                    BackStackMode.REMOVE_CURRENT_AND_REPLACE
-                )
-            )
+        when (incomingCallViewModel.incomingCallState.flowState) {
+            is IncomingCallState.FlowState.CallClosed -> {
+                activity.finish()
+            }
+
+            is IncomingCallState.FlowState.CallAccepted -> {
+                onCallAccepted()
+            }
 
             is IncomingCallState.FlowState.Default -> { /* do nothing */
             }
@@ -119,12 +126,36 @@ fun IncomingCallScreen(
             toggleMute = { sharedCallingViewModel.toggleMute(true) },
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
-            declineCall = incomingCallViewModel::declineCall,
+            declineCall = {
+                incomingCallViewModel.declineCall(
+                    onAppLocked = {
+                        (activity as CallActivity).openAppLockActivity()
+                    },
+                    onCallRejected = {
+                        activity.finish()
+                    }
+                )
+            },
             acceptCall = audioPermissionCheck::launch,
             onVideoPreviewCreated = ::setVideoPreview,
-            onSelfClearVideoPreview = ::clearVideoPreview
+            onSelfClearVideoPreview = ::clearVideoPreview,
+            onPermissionPermanentlyDenied = {
+                if (it is PermissionDenialType.CallingCamera) {
+                    permissionPermanentlyDeniedDialogState.show(
+                        PermissionPermanentlyDeniedDialogState.Visible(
+                            title = R.string.app_permission_dialog_title,
+                            description = R.string.camera_permission_dialog_description
+                        )
+                    )
+                }
+            }
         )
     }
+
+    PermissionPermanentlyDeniedDialog(
+        dialogState = permissionPermanentlyDeniedDialogState,
+        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,7 +168,8 @@ private fun IncomingCallContent(
     declineCall: () -> Unit,
     acceptCall: () -> Unit,
     onVideoPreviewCreated: (view: View) -> Unit,
-    onSelfClearVideoPreview: () -> Unit
+    onSelfClearVideoPreview: () -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     BackHandler {
         // DO NOTHING
@@ -156,7 +188,8 @@ private fun IncomingCallContent(
                 isSpeakerOn = callState.isSpeakerOn,
                 toggleSpeaker = toggleSpeaker,
                 toggleMute = toggleMute,
-                toggleVideo = toggleVideo
+                toggleVideo = toggleVideo,
+                onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
             )
             Box(
                 modifier = Modifier
@@ -242,12 +275,22 @@ fun AudioPermissionCheckFlow(
         appLogger.d("IncomingCall - Audio permission granted")
         onAcceptCall()
     },
-    onAudioPermissionDenied = { },
+    onAudioPermissionDenied = { /* Nothing to do */ },
     onAudioPermissionPermanentlyDenied = onPermanentPermissionDecline
 )
 
 @Preview
 @Composable
 fun PreviewIncomingCallScreen() {
-    IncomingCallContent(CallState(ConversationId("value", "domain")), {}, {}, {}, {}, {}, {}, {})
+    IncomingCallContent(
+        callState = CallState(ConversationId("value", "domain")),
+        toggleMute = { },
+        toggleSpeaker = { },
+        toggleVideo = { },
+        declineCall = { },
+        acceptCall = { },
+        onVideoPreviewCreated = { },
+        onSelfClearVideoPreview = { },
+        onPermissionPermanentlyDenied = { },
+    )
 }

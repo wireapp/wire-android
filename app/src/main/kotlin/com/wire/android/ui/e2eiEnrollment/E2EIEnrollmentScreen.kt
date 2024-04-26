@@ -89,7 +89,7 @@ fun E2EIEnrollmentScreen(
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         openCertificateDetails = {
-            navigator.navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(state.certificate)))
+            navigator.navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(state.certificate, true)))
         },
         onBackButtonClicked = viewModel::onBackButtonClicked,
         onCancelEnrollmentClicked = { viewModel.onCancelEnrollmentClicked(NavigationSwitchAccountActions(navigator::navigate)) },

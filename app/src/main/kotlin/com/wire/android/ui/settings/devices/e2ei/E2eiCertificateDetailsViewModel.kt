@@ -45,7 +45,7 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
     private val e2eiCertificateDetailsScreenNavArgs: E2eiCertificateDetailsScreenNavArgs =
         savedStateHandle.navArgs()
 
-    private var selfUserHandle: String? = null
+    private var selfUserName: String? = null
 
     init {
         getSelfUserId()
@@ -53,7 +53,7 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
 
     private fun getSelfUserId() {
         viewModelScope.launch {
-            selfUserHandle = observerSelfUser().first().handle
+            selfUserName = observerSelfUser().first().name
         }
     }
 
@@ -61,7 +61,8 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
 
     fun getCertificateName(): String {
         val date = DateTimeUtil.currentInstant().fileDateTime()
-        return "wire-certificate-$selfUserHandle-$date.txt"
+        val userName = if(e2eiCertificateDetailsScreenNavArgs.isSelfUser) selfUserName else e2eiCertificateDetailsScreenNavArgs.otherUserName
+        return "wire-certificate-$userName-$date.txt"
     }
 }
 

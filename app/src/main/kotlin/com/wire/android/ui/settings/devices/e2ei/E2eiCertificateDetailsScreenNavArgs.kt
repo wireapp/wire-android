@@ -18,5 +18,7 @@
 package com.wire.android.ui.settings.devices.e2ei
 
 data class E2eiCertificateDetailsScreenNavArgs(
-    val certificateString: String
+    val certificateString: String,
+    val isSelfUser: Boolean,
+    val otherUserName: String? = null
 )

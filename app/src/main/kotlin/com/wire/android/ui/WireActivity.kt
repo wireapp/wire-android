@@ -388,7 +388,7 @@ class WireActivity : AppCompatActivity() {
                         result = e2EIResult,
                         updateCertificate = featureFlagNotificationViewModel::enrollE2EICertificate,
                         snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog,
-                        openCertificateDetails = { navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(it))) },
+                        openCertificateDetails = { navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(it, true))) },
                         dismissSuccessDialog = featureFlagNotificationViewModel::dismissSuccessE2EIdDialog,
                         isE2EILoading = isE2EILoading
                     )

@@ -83,10 +83,10 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
-import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -117,7 +117,9 @@ fun DeviceDetailsScreen(
             handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
             onNavigateToE2eiCertificateDetailsScreen = {
                 navigator.navigate(
-                    NavigationCommand(E2eiCertificateDetailsScreenDestination(it))
+                    NavigationCommand(
+                        E2eiCertificateDetailsScreenDestination(it, viewModel.state.isSelfClient, viewModel.state.userName)
+                    )
                 )
             },
             onEnrollE2EIErrorDismiss = viewModel::hideEnrollE2EICertificateError,

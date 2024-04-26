@@ -61,7 +61,12 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
 
     fun getCertificateName(): String {
         val date = DateTimeUtil.currentInstant().fileDateTime()
-        val userName = if(e2eiCertificateDetailsScreenNavArgs.isSelfUser) selfUserName else e2eiCertificateDetailsScreenNavArgs.otherUserName
+        val userName =
+            if (e2eiCertificateDetailsScreenNavArgs.isSelfUser) {
+                selfUserName
+            } else {
+                e2eiCertificateDetailsScreenNavArgs.otherUserName
+            }
         return "wire-certificate-$userName-$date.txt"
     }
 }

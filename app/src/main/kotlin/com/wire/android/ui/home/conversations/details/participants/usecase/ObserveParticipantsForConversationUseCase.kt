@@ -72,8 +72,11 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                 // only fetch certificate statuses for newly emitted users and get the rest from previous iterations
                 val newlyEmittedVisibleUserIds = visibleUserIds - previousMlsVerificationMap.keys
                 val mlsVerificationMap = previousMlsVerificationMap.plus(
-                    if (newlyEmittedVisibleUserIds.isEmpty()) emptyMap()
-                    else getMembersE2EICertificateStatuses(conversationId, newlyEmittedVisibleUserIds)
+                    if (newlyEmittedVisibleUserIds.isEmpty()) {
+                        emptyMap()
+                    } else {
+                        getMembersE2EICertificateStatuses(conversationId, newlyEmittedVisibleUserIds)
+                    }
                 )
                 val legalHoldList = membersHavingLegalHoldClientUseCase(conversationId).getOrElse(emptyList())
 

@@ -89,7 +89,6 @@ class ObserveParticipantsForConversationUseCaseTest {
     }
 
     @Test
-<<<<<<< HEAD
     fun givenGroupMembersUnderLegalHold_whenSolvingTheParticipantsList_thenPassCorrectLegalHoldValues() = runTest {
         // Given
         val memberUnderLegalHold = MemberDetails(testOtherUser(0).copy(userType = UserType.INTERNAL), Member.Role.Member)
@@ -105,7 +104,10 @@ class ObserveParticipantsForConversationUseCaseTest {
                 val expected = participant.id == memberUnderLegalHold.user.id
                 assertEquals(expected, participant.isUnderLegalHold)
             }
-=======
+        }
+    }
+
+    @Test
     fun givenGroup_whenVisibleMembersListChanges_thenGetE2EICertificateOnlyForNewOnes() = runTest {
         // Given
         val members: List<MemberDetails> = buildList {
@@ -195,7 +197,6 @@ class ObserveParticipantsForConversationUseCaseTest {
 
             // executed only once for visible members list even if the same list was emitted twice
             coVerify(exactly = 1) { arrangement.getMembersE2EICertificateStatuses(any(), eq(members.map { it.user.id })) }
->>>>>>> dcfe4f07f (fix: get identities only for newly emitted members [WPB-8753] (#2942))
         }
     }
 }
@@ -230,12 +231,8 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         // Default empty values
         coEvery { observeConversationMembersUseCase(any()) } returns flowOf()
-<<<<<<< HEAD
-        coEvery { getMembersE2EICertificateStatuses(any(), any()) } returns mapOf()
         coEvery { membersHavingLegalHoldClientUseCase(any()) } returns Either.Right(emptyList())
-=======
         coEvery { getMembersE2EICertificateStatuses(any(), any()) } answers { secondArg<List<UserId>>().associateWith { null } }
->>>>>>> dcfe4f07f (fix: get identities only for newly emitted members [WPB-8753] (#2942))
     }
 
     suspend fun withConversationParticipantsUpdate(members: List<MemberDetails>): ObserveParticipantsForConversationUseCaseArrangement {

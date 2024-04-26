@@ -449,6 +449,26 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveLegalHoldRequestUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).observeLegalHoldRequest
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveLegalHoldForSelfUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).observeLegalHoldForSelfUser
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveLegalHoldForUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).observeLegalHoldStateForUser
+
+    @ViewModelScoped
+    @Provides
+    fun provideMembersHavingLegalHoldClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).membersHavingLegalHoldClient
+
+    @ViewModelScoped
+    @Provides
     fun provideFetchConversationMLSVerificationStatusUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId

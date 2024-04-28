@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,6 +55,7 @@ import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -206,6 +209,7 @@ private fun InputContent(
     onPlusClick: () -> Unit,
     onTextCollapse: () -> Unit,
     modifier: Modifier,
+    enterToSend: Boolean = true
 ) {
     if (!showOptions && inputType is MessageCompositionType.Composing) {
         AdditionalOptionButton(
@@ -215,6 +219,20 @@ private fun InputContent(
             },
             modifier = Modifier.padding(start = dimensions().spacing8x)
         )
+    }
+
+    val (keyboardActions, keyboardOptions) = remember(enterToSend) {
+        if (enterToSend) {
+            KeyboardActions(
+                onSend = {
+                    if (inputType is MessageCompositionType.Composing) {
+                        onSendButtonClicked()
+                    }
+                }
+            ) to KeyboardOptions.Default.copy(imeAction = ImeAction.Send)
+        } else {
+            KeyboardActions() to KeyboardOptions.Default
+        }
     }
 
     MessageComposerTextInput(
@@ -229,7 +247,9 @@ private fun InputContent(
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
         onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
         onTextCollapse = onTextCollapse,
-        modifier = modifier
+        modifier = modifier,
+        keyboardActions = keyboardActions,
+        keyboardOptions = keyboardOptions
     )
 
     Box(contentAlignment = Alignment.BottomEnd, modifier = if (isTextExpanded) Modifier.fillMaxWidth() else Modifier) {
@@ -276,6 +296,8 @@ private fun MessageComposerTextInput(
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
     onTextCollapse: () -> Unit,
+    keyboardActions: KeyboardActions,
+    keyboardOptions: KeyboardOptions,
     modifier: Modifier = Modifier
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -332,7 +354,9 @@ private fun MessageComposerTextInput(
             },
         interactionSource = interactionSource,
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
-        onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
+        onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
+        keyboardActions = keyboardActions,
+        keyboardOptions = keyboardOptions
     )
 }
 

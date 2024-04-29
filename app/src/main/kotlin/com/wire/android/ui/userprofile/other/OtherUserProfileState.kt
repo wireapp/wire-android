@@ -49,7 +49,8 @@ data class OtherUserProfileState(
     val otherUserDevices: List<Device> = listOf(),
     val blockingState: BlockingState = BlockingState.CAN_NOT_BE_BLOCKED,
     val isProteusVerified: Boolean = false,
-    val isMLSVerified: Boolean = false
+    val isMLSVerified: Boolean = false,
+    val isConversationStarted: Boolean = false
 ) {
     fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
         return conversationSheetContent?.let {

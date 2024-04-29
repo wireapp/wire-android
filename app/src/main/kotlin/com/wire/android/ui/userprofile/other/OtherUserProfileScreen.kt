@@ -531,7 +531,9 @@ private fun ContentFooter(
                     ConnectionActionButton(
                         state.userId,
                         state.userName,
+                        state.fullName,
                         state.connectionState,
+                        state.isConversationStarted,
                         onIgnoreConnectionRequest,
                         onOpenConversation
                     )

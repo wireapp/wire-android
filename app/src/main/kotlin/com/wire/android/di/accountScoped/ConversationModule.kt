@@ -293,11 +293,11 @@ class ConversationModule {
 
     @ViewModelScoped
     @Provides
-<<<<<<< HEAD
     fun provideSyncConversationCodeUseCase(conversationScope: ConversationScope): SyncConversationCodeUseCase =
         conversationScope.syncConversationCode
-=======
+
+    @ViewModelScoped
+    @Provides
     fun provideIsOneToOneConversationCreatedUseCase(conversationScope: ConversationScope): IsOneToOneConversationCreatedUseCase =
         conversationScope.isOneToOneConversationCreatedUseCase
->>>>>>> 7b0fa7bcc (fix: Handle 1o1 conversations when no key packages [WPB-6936] (#2936))
 }

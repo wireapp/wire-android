@@ -828,6 +828,7 @@
     <string name="notification_group_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Incoming group call</string>
+    <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>
@@ -862,6 +863,8 @@
     <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s is calling…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">Calling %1$s…</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
     <!-- Connections -->

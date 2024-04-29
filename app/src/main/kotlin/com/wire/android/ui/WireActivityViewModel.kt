@@ -257,7 +257,7 @@ class WireActivityViewModel @Inject constructor(
         return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
     }
 
-    private suspend fun canLoginThrowDeepLinks() = observeEstablishedCalls().first().isEmpty()
+    private suspend fun canLoginThroughDeepLinks() = observeEstablishedCalls().first().isEmpty()
 
     @Suppress("ComplexMethod")
     fun handleDeepLink(
@@ -276,7 +276,7 @@ class WireActivityViewModel @Inject constructor(
             val result = intent?.data?.let { deepLinkProcessor(it) }
             when {
                 result is DeepLinkResult.SSOLogin -> {
-                    if (canLoginThrowDeepLinks()) {
+                    if (canLoginThroughDeepLinks()) {
                         onResult(result)
                     } else {
                         onCannotLoginDuringACall()
@@ -284,7 +284,7 @@ class WireActivityViewModel @Inject constructor(
                 }
                 result is DeepLinkResult.MigrationLogin -> onResult(result)
                 result is DeepLinkResult.CustomServerConfig -> {
-                    if (canLoginThrowDeepLinks()) {
+                    if (canLoginThroughDeepLinks()) {
                         onCustomServerConfig(result)
                     } else {
                         onCannotLoginDuringACall()

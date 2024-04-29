@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.media.CallRinger
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -116,7 +117,10 @@ class OutgoingCallViewModel @AssistedInject constructor(
                         isIncomingCall = false
                     )
 
-                    StartCallUseCase.Result.SyncFailure -> {} // TODO: handle case where start call fails
+                    StartCallUseCase.Result.SyncFailure -> {
+                        // TODO: handle case where start call fails
+                        appLogger.i("Failed to start call")
+                    }
                 }
             }
         }

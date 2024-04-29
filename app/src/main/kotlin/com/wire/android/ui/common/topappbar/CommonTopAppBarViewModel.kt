@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.VisibleForTesting
 import javax.inject.Inject
 
 @HiltViewModel
@@ -68,14 +69,15 @@ class CommonTopAppBarViewModel @Inject constructor(
             }
         }
 
-    private suspend fun activeCallFlow(userId: UserId): Flow<Call?> =
+    @VisibleForTesting
+    internal suspend fun activeCallFlow(userId: UserId): Flow<Call?> =
         coreLogic.sessionScope(userId) {
             combine(
                 calls.establishedCall(),
                 calls.getIncomingCalls(),
                 calls.observeOutgoingCall(),
             ) { establishedCall, incomingCalls, outgoingCalls ->
-                incomingCalls + outgoingCalls + establishedCall
+                establishedCall + incomingCalls + outgoingCalls
             }.map { calls ->
                 calls.firstOrNull()
             }.distinctUntilChanged()

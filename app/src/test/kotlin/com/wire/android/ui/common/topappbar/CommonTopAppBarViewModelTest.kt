@@ -223,6 +223,24 @@ class CommonTopAppBarViewModelTest {
         state.connectivityState shouldBeInstanceOf ConnectivityUIState.None::class
     }
 
+    @Test
+    fun givenEstablishedAndIncomingCall_whenActiveCallFlowIsCalled_thenEmitEstablishedCallOnly() = runTest {
+        val (_, commonTopAppBarViewModel) = Arrangement()
+            .withCurrentSessionExist()
+            .withOngoingCall(isMuted = true)
+            .withIncomingCall()
+            .withOutgoingCall()
+            .withCurrentScreen(CurrentScreen.Home)
+            .withSyncState(SyncState.Waiting)
+            .arrange()
+
+        val flow = commonTopAppBarViewModel.activeCallFlow(userId)
+
+        flow.collect {
+            it shouldBeEqualTo ongoingCall
+        }
+    }
+
     private class Arrangement {
 
         @MockK
@@ -334,7 +352,7 @@ class CommonTopAppBarViewModelTest {
         fun withCurrentSessionExist() = apply {
             every { coreLogic.globalScope { session.currentSessionFlow() } } returns flowOf(
                 CurrentSessionResult.Success(
-                    AccountInfo.Valid(UserId("userId", "domain"))
+                    AccountInfo.Valid(userId)
                 )
             )
         }
@@ -349,6 +367,7 @@ class CommonTopAppBarViewModelTest {
     }
 
     companion object {
+        val userId = UserId("userId", "domain")
         val conversationId = ConversationId("first", "domain")
         val ongoingCall = Call(
             conversationId,

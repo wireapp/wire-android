@@ -77,14 +77,13 @@ class CallNotificationManager @Inject constructor(
                 if (it.isEmpty()) {
                     hideOutgoingCallNotification()
                 } else {
-                    it[it.keys.first()]?.let { call ->
-                        showOutgoingCallNotification(
-                            conversationId = call.conversationId,
-                            userId = it.keys.first(),
-                            conversationName = call.conversationName
-                                ?: context.getString(R.string.calling_participant_tile_default_user_name)
-                        )
-                    }
+                    val call = it.values.first()
+                    showOutgoingCallNotification(
+                        conversationId = call.conversationId,
+                        userId = it.keys.first(),
+                        conversationName = call.conversationName
+                            ?: context.getString(R.string.calling_participant_tile_default_user_name)
+                    )
                 }
             }
         }

@@ -154,7 +154,11 @@ fun SelectParticipantsButtonsRow(
                 .padding(horizontal = dimensions().spacing16x)
                 .height(dimensions().groupButtonHeight),
         ) {
-            val countText = pluralStringResource(R.plurals.label_x_participants, selectedParticipantsCount, selectedParticipantsCount)
+            val countText = pluralStringResource(
+                R.plurals.label_x_participants,
+                selectedParticipantsCount,
+                selectedParticipantsCount
+            )
             val buttonText = if (showTotalSelectedItemsCount) "$mainButtonText ($countText)" else mainButtonText
             WirePrimaryButton(
                 text = buttonText,

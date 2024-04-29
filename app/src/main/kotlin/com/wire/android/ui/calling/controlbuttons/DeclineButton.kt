@@ -38,15 +38,20 @@ import com.wire.android.ui.common.dimensions
 @Composable
 fun DeclineButton(buttonClicked: () -> Unit) {
     IconButton(
-        modifier = Modifier.size(dimensions().initiatingCallHangUpButtonSize),
+        modifier = Modifier.size(dimensions().outgoingCallHangUpButtonSize),
         onClick = { }
     ) {
         Icon(
             modifier = Modifier
-                .clickable(interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(bounded = false, radius = dimensions().initiatingCallHangUpButtonSize / 2),
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(
+                        bounded = false,
+                        radius = dimensions().outgoingCallHangUpButtonSize / 2
+                    ),
                     role = Role.Button,
-                    onClick = { buttonClicked() }),
+                    onClick = { buttonClicked() }
+                ),
             painter = painterResource(id = R.drawable.ic_decline),
             contentDescription = stringResource(id = R.string.content_description_calling_decline_call),
             tint = Color.Unspecified

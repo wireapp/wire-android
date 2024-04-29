@@ -82,7 +82,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.getInitiatingCallIntent
+import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.getOngoingCallIntent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
@@ -266,7 +266,7 @@ fun ConversationScreen(
         ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
             OngoingActiveCallDialog(onJoinAnyways = {
                 conversationCallViewModel.endEstablishedCallIfAny {
-                    getInitiatingCallIntent(activity, conversationCallViewModel.conversationId.toString()).run {
+                    getOutgoingCallIntent(activity, conversationCallViewModel.conversationId.toString()).run {
                         activity.startActivity(this)
                     }
                 }
@@ -291,8 +291,8 @@ fun ConversationScreen(
                         showDialog,
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
-                        onOpenInitiatingCallScreen = {
-                            getInitiatingCallIntent(activity, it.toString()).run {
+                        onOpenOutgoingCallScreen = {
+                            getOutgoingCallIntent(activity, it.toString()).run {
                                 activity.startActivity(this)
                             }
                         }
@@ -323,8 +323,8 @@ fun ConversationScreen(
                         showDialog,
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
-                        onOpenInitiatingCallScreen = {
-                            getInitiatingCallIntent(activity, it.toString()).run {
+                        onOpenOutgoingCallScreen = {
+                            getOutgoingCallIntent(activity, it.toString()).run {
                                 activity.startActivity(this)
                             }
                         }
@@ -397,8 +397,8 @@ fun ConversationScreen(
                 showDialog,
                 coroutineScope,
                 conversationInfoViewModel.conversationInfoViewState.conversationType,
-                onOpenInitiatingCallScreen = {
-                    getInitiatingCallIntent(activity, it.toString()).run {
+                onOpenOutgoingCallScreen = {
+                    getOutgoingCallIntent(activity, it.toString()).run {
                         activity.startActivity(this)
                     }
                 }
@@ -623,7 +623,7 @@ private fun startCallIfPossible(
     showDialog: MutableState<ConversationScreenDialogType>,
     coroutineScope: CoroutineScope,
     conversationType: Conversation.Type,
-    onOpenInitiatingCallScreen: (ConversationId) -> Unit,
+    onOpenOutgoingCallScreen: (ConversationId) -> Unit,
     onOpenOngoingCallScreen: (ConversationId) -> Unit
 ) {
     coroutineScope.launch {
@@ -641,7 +641,7 @@ private fun startCallIfPossible(
                         ConversationScreenDialogType.CALL_CONFIRMATION
                     } else {
                         conversationCallViewModel.endEstablishedCallIfAny {
-                            onOpenInitiatingCallScreen(conversationCallViewModel.conversationId)
+                            onOpenOutgoingCallScreen(conversationCallViewModel.conversationId)
                         }
                         ConversationScreenDialogType.NONE
                     }

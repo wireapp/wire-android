@@ -27,6 +27,7 @@ import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
@@ -53,6 +54,7 @@ class CallNotificationManager @Inject constructor(
     private val notificationManager = NotificationManagerCompat.from(context)
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val incomingCallsForUsers = MutableStateFlow<List<Pair<UserId, Call>>>(emptyList())
+    private val outgoingCallForUsers = MutableStateFlow<Map<UserId, Call>>(mapOf())
 
     init {
         scope.launch {
@@ -70,13 +72,39 @@ class CallNotificationManager @Inject constructor(
                     }
                 }
         }
+        scope.launch {
+            outgoingCallForUsers.collectLatest {
+                if (it.isEmpty()) {
+                    hideOutgoingCallNotification()
+                } else {
+                    val call = it.values.first()
+                    showOutgoingCallNotification(
+                        conversationId = call.conversationId,
+                        userId = it.keys.first(),
+                        conversationName = call.conversationName
+                            ?: context.getString(R.string.calling_participant_tile_default_user_name)
+                    )
+                }
+            }
+        }
     }
 
     fun handleIncomingCallNotifications(calls: List<Call>, userId: UserId) {
         if (calls.isEmpty()) {
-            incomingCallsForUsers.update { it.filter { it.first != userId } }
+            incomingCallsForUsers.update {
+                it.filter {
+                    it.first != userId
+                }
+            }
         } else {
             incomingCallsForUsers.update { it.filter { it.first != userId } + (userId to calls.first()) }
+        }
+    }
+    fun handleOutgoingCallNotifications(calls: List<Call>, userId: UserId) {
+        if (calls.isEmpty()) {
+            outgoingCallForUsers.update { it.filter { it.key != userId } }
+        } else {
+            outgoingCallForUsers.update { it.filter { it.key != userId } + (userId to calls.first()) }
         }
     }
 
@@ -94,12 +122,34 @@ class CallNotificationManager @Inject constructor(
         TimeUnit.MILLISECONDS.sleep(CANCEL_CALL_NOTIFICATION_DELAY)
         notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
     }
+    private fun hideOutgoingCallNotification() {
+        appLogger.i("$TAG: hiding outgoing call")
+        notificationManager.cancel(NotificationConstants.CALL_OUTGOING_NOTIFICATION_ID)
+    }
 
     @VisibleForTesting
     internal fun showIncomingCallNotification(call: Call, userId: QualifiedID) {
-        appLogger.i("$TAG: showing incoming call for user ${userId.toLogString()}")
+        appLogger.i("$TAG: showing incoming call notification for user ${userId.toLogString()}")
         val notification = builder.getIncomingCallNotification(call, userId)
-        notificationManager.notify(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID, notification)
+        notificationManager.notify(
+            NotificationConstants.CALL_INCOMING_NOTIFICATION_ID,
+            notification
+        )
+    }
+
+    @VisibleForTesting
+    internal fun showOutgoingCallNotification(
+        conversationId: ConversationId,
+        userId: UserId,
+        conversationName: String
+    ) {
+        appLogger.i("$TAG: showing outgoing call notification for user ${userId.toLogString()}")
+        val notification =
+            builder.getOutgoingCallNotification(conversationId, userId, conversationName)
+        notificationManager.notify(
+            NotificationConstants.CALL_OUTGOING_NOTIFICATION_ID,
+            notification
+        )
     }
 
     // Notifications
@@ -120,6 +170,38 @@ class CallNotificationManager @Inject constructor(
 class CallNotificationBuilder @Inject constructor(
     private val context: Context,
 ) {
+
+    fun getOutgoingCallNotification(
+        conversationId: ConversationId,
+        userId: UserId,
+        conversationName: String
+    ): Notification {
+        val conversationIdString = conversationId.toString()
+        val channelId = NotificationConstants.getOutgoingChannelId(userId)
+
+        return NotificationCompat.Builder(context, channelId)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setSmallIcon(R.drawable.notification_icon_small)
+            .setContentTitle(conversationName)
+            .setContentText(context.getString(R.string.notification_outgoing_call_tap_to_return))
+            .setAutoCancel(false)
+            .setOngoing(true)
+            .setFullScreenIntent(
+                outgoingCallPendingIntent(context, conversationIdString),
+                true
+            )
+            .addAction(getHangUpCallAction(context, conversationIdString, userId.toString()))
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setContentIntent(
+                outgoingCallPendingIntent(
+                    context,
+                    conversationIdString,
+                )
+            )
+            .build()
+    }
+
     fun getIncomingCallNotification(call: Call, userId: QualifiedID): Notification {
         val conversationIdString = call.conversationId.toString()
         val userIdString = userId.toString()
@@ -133,16 +215,14 @@ class CallNotificationBuilder @Inject constructor(
             .setSmallIcon(R.drawable.notification_icon_small)
             .setContentTitle(title)
             .setContentText(content)
-            .setAutoCancel(true)
+            .setAutoCancel(false)
             .setOngoing(true)
             .setVibrate(VIBRATE_PATTERN)
-            .setTimeoutAfter(INCOMING_CALL_TIMEOUT)
-            .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString), true)
+            .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString), true)
             .addAction(getDeclineCallAction(context, conversationIdString, userIdString))
-            .addAction(getOpenIncomingCallAction(context, conversationIdString, userIdString))
+            .addAction(getOpenIncomingCallAction(context, conversationIdString))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString))
-            .setDeleteIntent(declineCallPendingIntent(context, conversationIdString, userIdString))
+            .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString))
             .build()
 
         // Added FLAG_INSISTENT so the ringing sound repeats itself until an action is done.
@@ -210,7 +290,6 @@ class CallNotificationBuilder @Inject constructor(
         }
 
     companion object {
-        private const val INCOMING_CALL_TIMEOUT: Long = 30 * 1000
         private val VIBRATE_PATTERN = longArrayOf(0, 1000, 1000)
     }
 }

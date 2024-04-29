@@ -748,6 +748,11 @@
     <!-- Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
+    <string name="label_create_new_group">Create New Group</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d Participant</item>
+        <item quantity="other">%1$d Participants</item>
+    </plurals>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
     <string name="label_public_wire">PUBLIC WIRE</string>
@@ -803,6 +808,7 @@
     <string name="animation_label_typing_indicator_horizontal_transition" translatable="false">HorizontalBouncingWritingPen transition</string>
     <string name="animation_label_button_rotation_degree_transition" translatable="false">Collapse button rotation degree transition</string>
     <string name="label_open_conversation">Open Conversation</string>
+    <string name="label_start_conversation">Start Conversation</string>
     <string name="email_label">Email</string>
     <string name="phone_label">Phone</string>
     <!-- Notifications -->
@@ -827,6 +833,7 @@
     <string name="notification_group_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Incoming group call</string>
+    <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>
@@ -861,6 +868,8 @@
     <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s is calling…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">Calling %1$s…</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
     <!-- Connections -->
@@ -885,6 +894,9 @@
     <string name="connection_label_ignore">Ignore</string>
     <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
+    <string name="missing_keypackage_dialog_body">You can’t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>

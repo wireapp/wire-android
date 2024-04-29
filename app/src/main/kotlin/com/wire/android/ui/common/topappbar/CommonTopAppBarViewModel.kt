@@ -28,6 +28,7 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -41,6 +42,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.VisibleForTesting
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,23 +55,33 @@ class CommonTopAppBarViewModel @Inject constructor(
     var state by mutableStateOf(CommonTopAppBarState())
         private set
 
-    private suspend fun currentScreenFlow() = currentScreenManager.observeCurrentScreen(viewModelScope)
+    private suspend fun currentScreenFlow() =
+        currentScreenManager.observeCurrentScreen(viewModelScope)
 
-    private fun connectivityFlow(userId: UserId): Flow<Connectivity> = coreLogic.sessionScope(userId) {
-        observeSyncState().map {
-            when (it) {
-                is SyncState.Failed, SyncState.Waiting -> Connectivity.WAITING_CONNECTION
-                SyncState.GatheringPendingEvents, SyncState.SlowSync -> Connectivity.CONNECTING
-                SyncState.Live -> Connectivity.CONNECTED
+    private fun connectivityFlow(userId: UserId): Flow<Connectivity> =
+        coreLogic.sessionScope(userId) {
+            observeSyncState().map {
+                when (it) {
+                    is SyncState.Failed, SyncState.Waiting -> Connectivity.WAITING_CONNECTION
+                    SyncState.GatheringPendingEvents, SyncState.SlowSync -> Connectivity.CONNECTING
+                    SyncState.Live -> Connectivity.CONNECTED
+                }
             }
         }
-    }
 
-    private suspend fun activeCallFlow(userId: UserId): Flow<Call?> = coreLogic.sessionScope(userId) {
-        calls.establishedCall().distinctUntilChanged().map { calls ->
-            calls.firstOrNull()
+    @VisibleForTesting
+    internal suspend fun activeCallFlow(userId: UserId): Flow<Call?> =
+        coreLogic.sessionScope(userId) {
+            combine(
+                calls.establishedCall(),
+                calls.getIncomingCalls(),
+                calls.observeOutgoingCall(),
+            ) { establishedCall, incomingCalls, outgoingCalls ->
+                establishedCall + incomingCalls + outgoingCalls
+            }.map { calls ->
+                calls.firstOrNull()
+            }.distinctUntilChanged()
         }
-    }
 
     init {
         viewModelScope.launch {
@@ -77,7 +89,9 @@ class CommonTopAppBarViewModel @Inject constructor(
                 session.currentSessionFlow().flatMapLatest {
                     when (it) {
                         is CurrentSessionResult.Failure.Generic,
-                        is CurrentSessionResult.Failure.SessionNotFound -> flowOf(ConnectivityUIState.None)
+                        is CurrentSessionResult.Failure.SessionNotFound -> flowOf(
+                            ConnectivityUIState.None
+                        )
 
                         is CurrentSessionResult.Success -> {
                             val userId = it.accountInfo.userId
@@ -116,7 +130,13 @@ class CommonTopAppBarViewModel @Inject constructor(
         val canDisplayConnectivityIssues = currentScreen !is CurrentScreen.AuthRelated
 
         if (activeCall != null) {
-            return ConnectivityUIState.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
+            return if (activeCall.status == CallStatus.INCOMING) {
+                ConnectivityUIState.IncomingCall(activeCall.conversationId, activeCall.callerName)
+            } else if (activeCall.status == CallStatus.STARTED) {
+                ConnectivityUIState.OutgoingCall(activeCall.conversationId, activeCall.callerName)
+            } else {
+                ConnectivityUIState.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
+            }
         }
 
         return if (canDisplayConnectivityIssues) {

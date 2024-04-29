@@ -36,6 +36,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -44,6 +48,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -52,9 +57,12 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.textfield.WirePasswordTextField
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Stable
 fun wireDialogPropertiesBuilder(
@@ -154,7 +162,7 @@ fun WireDialog(
 }
 
 @Composable
-fun WireDialogContent(
+private fun WireDialogContent(
     title: String,
     titleLoading: Boolean = false,
     text: AnnotatedString? = null,
@@ -283,6 +291,161 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
 
                 WireDialogButtonType.Tertiary ->
                     WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
+            }
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireDialog() {
+    var password by remember { mutableStateOf(TextFieldValue("")) }
+    WireTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireDialogContent(
+                optionButton1Properties = WireDialogButtonProperties(
+                    text = "OK",
+                    onClick = { },
+                    type = WireDialogButtonType.Primary,
+                    state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
+                ),
+                dismissButtonProperties = WireDialogButtonProperties(
+                    text = "Cancel",
+                    onClick = { }
+                ),
+                title = "title",
+                text = buildAnnotatedString {
+                    val style = SpanStyle(
+                        color = colorsScheme().onBackground,
+                        fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                        fontSize = MaterialTheme.wireTypography.body01.fontSize,
+                        fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
+                        fontStyle = MaterialTheme.wireTypography.body01.fontStyle
+                    )
+                    withStyle(style) { append("text\nsecond line\nthirdLine\nfourth line\nfifth line\nsixth line\nseventh line") }
+                },
+            ) {
+                WirePasswordTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    autofill = false
+                )
+            }
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireDialogWithSuffixLink() {
+    WireTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireDialogContent(
+                dismissButtonProperties = WireDialogButtonProperties(
+                    text = "OK",
+                    onClick = { }
+                ),
+                title = "title",
+                text = AnnotatedString("This is a long text with a link on a second line.\nThis is a second line."),
+                textSuffixLink = DialogTextSuffixLink("link", "https://www.wire.com"),
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireDialogWith2OptionButtons() {
+    var password by remember { mutableStateOf(TextFieldValue("")) }
+    WireTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireDialogContent(
+                optionButton1Properties = WireDialogButtonProperties(
+                    text = "OK",
+                    onClick = { },
+                    type = WireDialogButtonType.Primary,
+                    state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
+                ),
+                optionButton2Properties = WireDialogButtonProperties(
+                    text = "Later",
+                    onClick = { },
+                    type = WireDialogButtonType.Primary,
+                    state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
+                ),
+                dismissButtonProperties = WireDialogButtonProperties(
+                    text = "Cancel",
+                    onClick = { }
+                ),
+                title = "title",
+                text = buildAnnotatedString {
+                    val style = SpanStyle(
+                        color = colorsScheme().onBackground,
+                        fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                        fontSize = MaterialTheme.wireTypography.body01.fontSize,
+                        fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
+                        fontStyle = MaterialTheme.wireTypography.body01.fontStyle
+                    )
+                    withStyle(style) { append("text") }
+                },
+                buttonsHorizontalAlignment = false
+            ) {
+                WirePasswordTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    autofill = true
+                )
+            }
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewWireDialogCentered() {
+    var password by remember { mutableStateOf(TextFieldValue("")) }
+    WireTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            WireDialogContent(
+                optionButton1Properties = WireDialogButtonProperties(
+                    text = "OK",
+                    onClick = { },
+                    type = WireDialogButtonType.Primary,
+                    state = if (password.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Error,
+                ),
+                dismissButtonProperties = WireDialogButtonProperties(
+                    text = "Cancel",
+                    onClick = { }
+                ),
+                centerContent = true,
+                title = "title",
+                text = buildAnnotatedString {
+                    val style = SpanStyle(
+                        color = colorsScheme().onBackground,
+                        fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                        fontSize = MaterialTheme.wireTypography.body01.fontSize,
+                        fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
+                        fontStyle = MaterialTheme.wireTypography.body01.fontStyle
+                    )
+                    withStyle(style) { append("text\nsecond line\nthirdLine\nfourth line\nfifth line\nsixth line\nseventh line") }
+                },
+            ) {
+                WirePasswordTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    autofill = false
+                )
             }
         }
     }

@@ -77,6 +77,10 @@ sealed interface UIMessage {
         val isAssetMessage = messageContent is UIMessageContent.AssetMessage
                 || messageContent is UIMessageContent.ImageMessage
                 || messageContent is UIMessageContent.AudioAssetMessage
+        val isReplyable = messageContent is UIMessageContent.TextMessage &&
+                (header.messageStatus.flowStatus is MessageFlowStatus.Delivered ||
+                        header.messageStatus.flowStatus is MessageFlowStatus.Sent ||
+                        header.messageStatus.flowStatus is MessageFlowStatus.Read)
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
         val isLocation: Boolean = messageContent is UIMessageContent.Location
     }
@@ -133,8 +137,8 @@ sealed class MessageEditStatus {
 
 sealed class MessageFlowStatus {
 
-    object Sending : MessageFlowStatus()
-    object Sent : MessageFlowStatus()
+    data object Sending : MessageFlowStatus()
+    data object Sent : MessageFlowStatus()
     sealed class Failure(val errorText: UIText) : MessageFlowStatus() {
         sealed class Send(errorText: UIText) : Failure(errorText) {
             data class Locally(val isEdited: Boolean) : Send(
@@ -165,7 +169,7 @@ sealed class MessageFlowStatus {
         )
     }
 
-    object Delivered : MessageFlowStatus()
+    data object Delivered : MessageFlowStatus()
 
     data class Read(val count: Long) : MessageFlowStatus()
 }

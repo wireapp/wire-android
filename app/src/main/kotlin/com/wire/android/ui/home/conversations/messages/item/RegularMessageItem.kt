@@ -18,16 +18,26 @@
 
 package com.wire.android.ui.home.conversations.messages.item
 
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,14 +46,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -84,8 +98,10 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlin.math.min
 
 // TODO: a definite candidate for a refactor and cleanup
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("ComplexMethod")
 @Composable
 fun RegularMessageItem(
@@ -96,6 +112,7 @@ fun RegularMessageItem(
     audioMessagesState: PersistentMap<String, AudioState>,
     assetStatus: AssetTransferStatus? = null,
     onLongClicked: (UIMessage.Regular) -> Unit,
+    onSwipedToReply: (UIMessage.Regular) -> Unit = {},
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
@@ -114,8 +131,12 @@ fun RegularMessageItem(
     useSmallBottomPadding: Boolean = false,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable
-) {
-    with(message) {
+): Unit = with(message) {
+    val onSwipe = remember(message) { { onSwipedToReply(message) } }
+    SwipableToReplyBox(
+        isSwipable = isReplyable,
+        onSwipedToReply = onSwipe
+    ) {
         MessageItemTemplate(
             showAuthor,
             useSmallBottomPadding = useSmallBottomPadding,
@@ -238,6 +259,70 @@ fun RegularMessageItem(
             }
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SwipableToReplyBox(
+    isSwipable: Boolean,
+    modifier: Modifier = Modifier,
+    onSwipedToReply: () -> Unit = {},
+    content: @Composable RowScope.() -> Unit
+) {
+    val density = LocalDensity.current
+    val dismissState = remember {
+        SwipeToDismissBoxState(
+            SwipeToDismissBoxValue.Settled,
+            density,
+            positionalThreshold = { distance: Float -> distance * 0.33f },
+            confirmValueChange = { changedValue ->
+                if (changedValue == SwipeToDismissBoxValue.EndToStart) {
+                    onSwipedToReply()
+                }
+                // Go back to rest position
+                changedValue == SwipeToDismissBoxValue.Settled
+            }
+        )
+    }
+    SwipeToDismissBox(
+        state = dismissState,
+        modifier = modifier,
+        enableDismissFromStartToEnd = false,
+        content = content,
+        enableDismissFromEndToStart = isSwipable,
+        backgroundContent = {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+            ) {
+                if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart
+                    && dismissState.progress < 1f
+                ) {
+                    // Finish the animation in the first 33% of the drag
+                    val progressUntilAnimationCompletion = 0.33f
+                    val adjustedProgress = min(1f, (dismissState.progress / progressUntilAnimationCompletion))
+                    val iconSize = dimensions().fabIconSize
+                    val spacing = dimensions().spacing16x
+                    val progress = FastOutLinearInEasing.transform(adjustedProgress)
+                    val xOffset = with(LocalDensity.current) {
+                        val offsetFromScreenEnd = spacing.toPx()
+                        val offsetAfterScreenEnd = iconSize.toPx()
+                        val totalTravelDistance = offsetFromScreenEnd + offsetAfterScreenEnd
+                        offsetAfterScreenEnd - (totalTravelDistance * progress)
+                    }
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_reply),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .size(iconSize)
+                            .offset { IntOffset(xOffset.toInt(), 0) },
+                        tint = colorsScheme().onBackground
+                    )
+                }
+            }
+        }
+    )
 }
 
 @Composable

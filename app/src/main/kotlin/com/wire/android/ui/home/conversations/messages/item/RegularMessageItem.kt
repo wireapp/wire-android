@@ -51,7 +51,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -59,7 +58,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
@@ -280,8 +278,6 @@ private fun SwipableToReplyBox(
 ) {
     val density = LocalDensity.current
     val haptic = LocalHapticFeedback.current
-    val configuration = LocalConfiguration.current
-    val screenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }
     var didVibrateOnCurrentDrag by remember { mutableStateOf(false) }
 
     // Finish the animation in the first 25% of the drag

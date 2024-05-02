@@ -77,10 +77,11 @@ sealed interface UIMessage {
         val isAssetMessage = messageContent is UIMessageContent.AssetMessage
                 || messageContent is UIMessageContent.ImageMessage
                 || messageContent is UIMessageContent.AudioAssetMessage
-        val isReplyable = messageContent is UIMessageContent.TextMessage &&
-                (header.messageStatus.flowStatus is MessageFlowStatus.Delivered ||
+        val isReplyable = messageContent is UIMessageContent.TextMessage && (
+                header.messageStatus.flowStatus is MessageFlowStatus.Delivered ||
                         header.messageStatus.flowStatus is MessageFlowStatus.Sent ||
-                        header.messageStatus.flowStatus is MessageFlowStatus.Read)
+                        header.messageStatus.flowStatus is MessageFlowStatus.Read
+                )
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
         val isLocation: Boolean = messageContent is UIMessageContent.Location
     }

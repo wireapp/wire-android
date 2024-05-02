@@ -34,11 +34,12 @@ fun MessageItemTemplate(
     showAuthor: Boolean = true,
     useSmallBottomPadding: Boolean = false,
     fullAvatarOuterPadding: Dp,
+    modifier: Modifier = Modifier,
     leading: @Composable () -> Unit,
     content: @Composable () -> Unit
 ) {
     Row(
-        Modifier
+        modifier
             .fillMaxWidth()
             .padding(
                 end = dimensions().messageItemHorizontalPadding,

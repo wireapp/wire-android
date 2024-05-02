@@ -128,8 +128,8 @@ fun outgoingCallPendingIntent(context: Context, conversationId: String): Pending
     )
 }
 
-fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
-    val intent = getIncomingCallIntent(context, conversationId)
+fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String, userId: String): PendingIntent {
+    val intent = getIncomingCallIntent(context, conversationId, userId)
 
     return PendingIntent.getActivity(
         context,

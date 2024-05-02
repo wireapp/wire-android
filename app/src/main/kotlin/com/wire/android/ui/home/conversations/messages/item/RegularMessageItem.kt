@@ -42,15 +42,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
@@ -98,10 +107,10 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlin.math.absoluteValue
 import kotlin.math.min
 
 // TODO: a definite candidate for a refactor and cleanup
-@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("ComplexMethod")
 @Composable
 fun RegularMessageItem(
@@ -270,6 +279,13 @@ private fun SwipableToReplyBox(
     content: @Composable RowScope.() -> Unit
 ) {
     val density = LocalDensity.current
+    val haptic = LocalHapticFeedback.current
+    val configuration = LocalConfiguration.current
+    val screenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }
+    var didVibrateOnCurrentDrag by remember { mutableStateOf(false) }
+
+    // Finish the animation in the first 25% of the drag
+    val progressUntilAnimationCompletion = 0.25f
     val dismissState = remember {
         SwipeToDismissBoxState(
             SwipeToDismissBoxValue.Settled,
@@ -279,11 +295,18 @@ private fun SwipableToReplyBox(
                 if (changedValue == SwipeToDismissBoxValue.EndToStart) {
                     onSwipedToReply()
                 }
+                if (changedValue == SwipeToDismissBoxValue.Settled) {
+                    // Reset the haptic feedback when drag is stopped
+                    didVibrateOnCurrentDrag = false
+                }
                 // Go back to rest position
                 changedValue == SwipeToDismissBoxValue.Settled
             }
         )
     }
+    val primaryColor = colorsScheme().primary
+    // TODO: RTL is currently broken https://issuetracker.google.com/issues/321600474
+    //       Maybe addressed in compose3 1.3.0 (currently in alpha)
     SwipeToDismissBox(
         state = dismissState,
         modifier = modifier,
@@ -292,24 +315,37 @@ private fun SwipableToReplyBox(
         enableDismissFromEndToStart = isSwipable,
         backgroundContent = {
             Row(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
+                    .drawBehind {
+                        // TODO(RTL): Might need adjusting once RTL is supported (also lacking in SwipeToDismissBox)
+                        drawRect(
+                            color = primaryColor,
+                            topLeft = Offset(screenWidth + dismissState.requireOffset(), 0f),
+                            size = Size(dismissState.requireOffset().absoluteValue, size.height),
+                        )
+                    },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ) {
                 if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart
+                    // Sometimes this is called with progress 1f when the user stops the interaction, causing a blink.
+                    // Ignore these cases as it doesn't make any difference
                     && dismissState.progress < 1f
                 ) {
-                    // Finish the animation in the first 33% of the drag
-                    val progressUntilAnimationCompletion = 0.33f
                     val adjustedProgress = min(1f, (dismissState.progress / progressUntilAnimationCompletion))
                     val iconSize = dimensions().fabIconSize
                     val spacing = dimensions().spacing16x
                     val progress = FastOutLinearInEasing.transform(adjustedProgress)
-                    val xOffset = with(LocalDensity.current) {
+                    val xOffset = with(density) {
                         val offsetFromScreenEnd = spacing.toPx()
                         val offsetAfterScreenEnd = iconSize.toPx()
                         val totalTravelDistance = offsetFromScreenEnd + offsetAfterScreenEnd
                         offsetAfterScreenEnd - (totalTravelDistance * progress)
+                    }
+                    // Got to the end, user can release to
+                    if (progress == 1f && !didVibrateOnCurrentDrag) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        didVibrateOnCurrentDrag = true
                     }
                     Icon(
                         painter = painterResource(id = R.drawable.ic_reply),
@@ -317,7 +353,7 @@ private fun SwipableToReplyBox(
                         modifier = Modifier
                             .size(iconSize)
                             .offset { IntOffset(xOffset.toInt(), 0) },
-                        tint = colorsScheme().onBackground
+                        tint = colorsScheme().onPrimary
                     )
                 }
             }

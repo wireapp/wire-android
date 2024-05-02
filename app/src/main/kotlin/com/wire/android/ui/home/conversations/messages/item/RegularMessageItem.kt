@@ -286,7 +286,7 @@ private fun SwipableToReplyBox(
         SwipeToDismissBoxState(
             SwipeToDismissBoxValue.Settled,
             density,
-            positionalThreshold = { distance: Float -> distance * 0.33f },
+            positionalThreshold = { distance: Float -> distance * progressUntilAnimationCompletion },
             confirmValueChange = { changedValue ->
                 if (changedValue == SwipeToDismissBoxValue.StartToEnd) {
                     onSwipedToReply()

@@ -289,13 +289,14 @@ private fun SwipableToReplyBox(
             positionalThreshold = { distance: Float -> distance * progressUntilAnimationCompletion },
             confirmValueChange = { changedValue ->
                 if (changedValue == SwipeToDismissBoxValue.StartToEnd) {
+                    // Attempt to finish dismiss, notify reply intention
                     onSwipedToReply()
                 }
                 if (changedValue == SwipeToDismissBoxValue.Settled) {
                     // Reset the haptic feedback when drag is stopped
                     didVibrateOnCurrentDrag = false
                 }
-                // Go back to rest position
+                // Reject state change, only allow returning back to rest position
                 changedValue == SwipeToDismissBoxValue.Settled
             }
         )

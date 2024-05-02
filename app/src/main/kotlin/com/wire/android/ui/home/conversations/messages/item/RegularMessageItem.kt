@@ -292,7 +292,7 @@ private fun SwipableToReplyBox(
             density,
             positionalThreshold = { distance: Float -> distance * 0.33f },
             confirmValueChange = { changedValue ->
-                if (changedValue == SwipeToDismissBoxValue.EndToStart) {
+                if (changedValue == SwipeToDismissBoxValue.StartToEnd) {
                     onSwipedToReply()
                 }
                 if (changedValue == SwipeToDismissBoxValue.Settled) {
@@ -310,9 +310,9 @@ private fun SwipableToReplyBox(
     SwipeToDismissBox(
         state = dismissState,
         modifier = modifier,
-        enableDismissFromStartToEnd = false,
+        enableDismissFromStartToEnd = isSwipable,
         content = content,
-        enableDismissFromEndToStart = isSwipable,
+        enableDismissFromEndToStart = false,
         backgroundContent = {
             Row(
                 modifier = Modifier.fillMaxSize()
@@ -320,14 +320,14 @@ private fun SwipableToReplyBox(
                         // TODO(RTL): Might need adjusting once RTL is supported (also lacking in SwipeToDismissBox)
                         drawRect(
                             color = primaryColor,
-                            topLeft = Offset(screenWidth + dismissState.requireOffset(), 0f),
+                            topLeft = Offset(0f, 0f),
                             size = Size(dismissState.requireOffset().absoluteValue, size.height),
                         )
                     },
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.Start
             ) {
-                if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart
+                if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd
                     // Sometimes this is called with progress 1f when the user stops the interaction, causing a blink.
                     // Ignore these cases as it doesn't make any difference
                     && dismissState.progress < 1f
@@ -337,10 +337,10 @@ private fun SwipableToReplyBox(
                     val spacing = dimensions().spacing16x
                     val progress = FastOutLinearInEasing.transform(adjustedProgress)
                     val xOffset = with(density) {
-                        val offsetFromScreenEnd = spacing.toPx()
-                        val offsetAfterScreenEnd = iconSize.toPx()
-                        val totalTravelDistance = offsetFromScreenEnd + offsetAfterScreenEnd
-                        offsetAfterScreenEnd - (totalTravelDistance * progress)
+                        val offsetBeforeScreenStart = iconSize.toPx()
+                        val offsetAfterScreenStart = spacing.toPx()
+                        val totalTravelDistance = offsetBeforeScreenStart + offsetAfterScreenStart
+                        -offsetBeforeScreenStart + (totalTravelDistance * progress)
                     }
                     // Got to the end, user can release to
                     if (progress == 1f && !didVibrateOnCurrentDrag) {

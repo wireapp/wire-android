@@ -35,7 +35,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 sealed class DeepLinkResult {
-    object Unknown : DeepLinkResult()
+    data object Unknown : DeepLinkResult()
     data class CustomServerConfig(val url: String) : DeepLinkResult()
 
     @Serializable

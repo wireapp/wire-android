@@ -74,15 +74,34 @@ sealed interface UIMessage {
         val isAvailable: Boolean = !isDeleted && !sendingFailed && !decryptionFailed
         override val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val isMyMessage = source == MessageSource.Self
+
         val isAssetMessage = messageContent is UIMessageContent.AssetMessage
                 || messageContent is UIMessageContent.ImageMessage
                 || messageContent is UIMessageContent.AudioAssetMessage
-        val isReplyable = messageContent is UIMessageContent.TextMessage && (
-                header.messageStatus.flowStatus is MessageFlowStatus.Delivered ||
-                        header.messageStatus.flowStatus is MessageFlowStatus.Sent ||
-                        header.messageStatus.flowStatus is MessageFlowStatus.Read
-                )
+
+        private val isReplyableContent: Boolean
+            get() = messageContent is UIMessageContent.TextMessage ||
+                    messageContent is UIMessageContent.AssetMessage ||
+                    messageContent is UIMessageContent.AudioAssetMessage ||
+                    messageContent is UIMessageContent.Location ||
+                    messageContent is UIMessageContent.Regular
+
+        /**
+         * The message was sent from the sender (either self or others), and is available for other users
+         * to retrieve from the backend, or is already retrieved.
+         */
+        private val isTheMessageAvailableToOtherUsers: Boolean
+            get() = header.messageStatus.flowStatus is MessageFlowStatus.Delivered ||
+                    header.messageStatus.flowStatus is MessageFlowStatus.Sent ||
+                    header.messageStatus.flowStatus is MessageFlowStatus.Read
+
+        val isReplyable: Boolean
+            get() = isReplyableContent &&
+                    isTheMessageAvailableToOtherUsers &&
+                    header.messageStatus.expirationStatus is ExpirationStatus.NotExpirable
+
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
+
         val isLocation: Boolean = messageContent is UIMessageContent.Location
     }
 

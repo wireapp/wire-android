@@ -60,6 +60,7 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -117,6 +118,7 @@ class WireActivityViewModel @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
     private val workManager: WorkManager,
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -255,12 +257,15 @@ class WireActivityViewModel @Inject constructor(
         return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
     }
 
+    private suspend fun canLoginThroughDeepLinks() = observeEstablishedCalls().first().isEmpty()
+
     @Suppress("ComplexMethod")
     fun handleDeepLink(
         intent: Intent?,
         onIsSharingIntent: () -> Unit,
         onOpenConversation: (ConversationId) -> Unit,
-        onResult: (DeepLinkResult) -> Unit
+        onResult: (DeepLinkResult) -> Unit,
+        onCannotLoginDuringACall: () -> Unit
     ) {
         if (shouldMigrate()) {
             // means User is Logged in, but didn't finish the migration yet.
@@ -270,9 +275,21 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch {
             val result = intent?.data?.let { deepLinkProcessor(it) }
             when {
-                result is DeepLinkResult.SSOLogin -> onResult(result)
+                result is DeepLinkResult.SSOLogin -> {
+                    if (canLoginThroughDeepLinks()) {
+                        onResult(result)
+                    } else {
+                        onCannotLoginDuringACall()
+                    }
+                }
                 result is DeepLinkResult.MigrationLogin -> onResult(result)
-                result is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
+                result is DeepLinkResult.CustomServerConfig -> {
+                    if (canLoginThroughDeepLinks()) {
+                        onCustomServerConfig(result)
+                    } else {
+                        onCannotLoginDuringACall()
+                    }
+                }
                 isSharingIntent(intent) -> onIsSharingIntent()
                 shouldLogIn() -> {
                     // to handle the deepLinks above user needs to be Logged in

@@ -193,8 +193,9 @@ fun getOutgoingCallIntent(
     putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Outgoing.name)
 }
 
-fun getIncomingCallIntent(context: Context, conversationId: String) =
+fun getIncomingCallIntent(context: Context, conversationId: String, userId: String?) =
     Intent(context.applicationContext, CallActivity::class.java).apply {
+        putExtra(CallActivity.EXTRA_USER_ID, userId)
         putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
         putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Incoming.name)
     }

@@ -219,7 +219,7 @@ class WireActivity : AppCompatActivity() {
                                 }
                             },
                             onReturnToIncomingCallClick = {
-                                getIncomingCallIntent(this@WireActivity, it.conversationId.toString()).run {
+                                getIncomingCallIntent(this@WireActivity, it.conversationId.toString(), null).run {
                                     startActivity(this)
                                 }
                             },

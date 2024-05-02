@@ -218,11 +218,11 @@ class CallNotificationBuilder @Inject constructor(
             .setAutoCancel(false)
             .setOngoing(true)
             .setVibrate(VIBRATE_PATTERN)
-            .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString), true)
+            .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString), true)
             .addAction(getDeclineCallAction(context, conversationIdString, userIdString))
-            .addAction(getOpenIncomingCallAction(context, conversationIdString))
+            .addAction(getOpenIncomingCallAction(context, conversationIdString, userIdString))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString))
+            .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString, userIdString))
             .build()
 
         // Added FLAG_INSISTENT so the ringing sound repeats itself until an action is done.

@@ -210,7 +210,7 @@ class NewConversationViewModel @Inject constructor(
             }
 
             is CreateGroupConversationUseCase.Result.UnknownFailure -> {
-                appLogger.w("Error while creating a group ${result.cause}")
+                appLogger.e("Error while creating a group ${result.cause}")
                 groupOptionsState = groupOptionsState.copy(isLoading = false)
                 newGroupState = newGroupState.copy(isLoading = false)
                 createGroupState = createGroupState.copy(error = CreateGroupState.Error.Unknown)

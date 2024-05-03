@@ -109,7 +109,7 @@ fun IncomingCallScreen(
     LaunchedEffect(incomingCallViewModel.incomingCallState.flowState) {
         when (incomingCallViewModel.incomingCallState.flowState) {
             is IncomingCallState.FlowState.CallClosed -> {
-                activity.finish()
+                activity.finishAndRemoveTask()
             }
 
             is IncomingCallState.FlowState.CallAccepted -> {
@@ -132,7 +132,7 @@ fun IncomingCallScreen(
                         (activity as CallActivity).openAppLockActivity()
                     },
                     onCallRejected = {
-                        activity.finish()
+                        activity.finishAndRemoveTask()
                     }
                 )
             },
@@ -150,7 +150,7 @@ fun IncomingCallScreen(
                 }
             },
             onMinimiseScreen = {
-                activity.finish()
+                activity.moveTaskToBack(true)
             }
         )
     }

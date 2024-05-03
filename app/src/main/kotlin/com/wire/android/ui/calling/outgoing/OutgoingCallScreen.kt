@@ -75,7 +75,7 @@ fun OutgoingCallScreen(
     LaunchedEffect(outgoingCallViewModel.state.flowState) {
         when (outgoingCallViewModel.state.flowState) {
             OutgoingCallState.FlowState.CallClosed -> {
-                activity.finish()
+                activity.finishAndRemoveTask()
             }
 
             OutgoingCallState.FlowState.CallEstablished -> {
@@ -105,7 +105,7 @@ fun OutgoingCallScreen(
                 }
             },
             onMinimiseScreen = {
-                activity.finish()
+                activity.moveTaskToBack(true)
             }
         )
     }

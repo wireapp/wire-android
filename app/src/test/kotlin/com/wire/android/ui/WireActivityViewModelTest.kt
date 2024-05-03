@@ -598,6 +598,39 @@ class WireActivityViewModelTest {
         advanceUntilIdle()
         assertEquals(ThemeOption.DARK, viewModel.globalAppState.themeOption)
     }
+    @Test
+    fun `given no active session, when canLoginThroughDeepLinks is called, then return true`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .arrange()
+
+        val result = viewModel.canLoginThroughDeepLinks()
+
+        result.await() `should be equal to` true
+    }
+
+    @Test
+    fun `given an established call, when canLoginThroughDeepLinks is called, then return false`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withOngoingCall()
+            .arrange()
+
+        val result = viewModel.canLoginThroughDeepLinks()
+
+        result.await() `should be equal to` false
+    }
+    @Test
+    fun `given no established call, when canLoginThroughDeepLinks is called, then return true`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withNoOngoingCall()
+            .arrange()
+
+        val result = viewModel.canLoginThroughDeepLinks()
+
+        result.await() `should be equal to` true
+    }
 
     private class Arrangement {
 
@@ -722,8 +755,7 @@ class WireActivityViewModelTest {
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
                 globalDataStore = globalDataStore,
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
-                workManager = workManager,
-                observeEstablishedCalls = observeEstablishedCalls
+                workManager = workManager
             )
         }
 
@@ -746,10 +778,12 @@ class WireActivityViewModelTest {
         }
 
         fun withNoOngoingCall(): Arrangement {
+            coEvery { coreLogic.getSessionScope(any()).calls.establishedCall } returns observeEstablishedCalls
             coEvery { observeEstablishedCalls() } returns flowOf(emptyList())
             return this
         }
         fun withOngoingCall(): Arrangement {
+            coEvery { coreLogic.getSessionScope(any()).calls.establishedCall } returns observeEstablishedCalls
             coEvery { observeEstablishedCalls() } returns flowOf(listOf(ongoingCall))
             return this
         }

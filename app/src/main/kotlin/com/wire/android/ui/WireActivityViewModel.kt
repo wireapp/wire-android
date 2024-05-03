@@ -19,6 +19,7 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -60,7 +61,6 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -257,7 +257,8 @@ class WireActivityViewModel @Inject constructor(
         return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
     }
 
-    private suspend fun canLoginThroughDeepLinks() = viewModelScope.async {
+    @VisibleForTesting
+    internal suspend fun canLoginThroughDeepLinks() = viewModelScope.async {
         coreLogic.getGlobalScope().session.currentSession().takeIf {
             it is CurrentSessionResult.Success
         }?.let {

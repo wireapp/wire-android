@@ -84,10 +84,10 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
-import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -127,7 +127,7 @@ fun DeviceDetailsScreen(
         )
     }
 }
-
+@Suppress("ComplexMethod")
 @Composable
 fun DeviceDetailsContent(
     state: DeviceDetailsState,
@@ -194,7 +194,7 @@ fun DeviceDetailsContent(
                 }
             }
 
-            if (state.isE2EIEnabled && state.e2eiCertificate !=null) {
+            if (state.isE2EIEnabled && state.e2eiCertificate != null) {
                 item {
                     EndToEndIdentityCertificateItem(
                         isE2eiCertificateActivated = state.isE2eiCertificateActivated,
@@ -288,7 +288,7 @@ fun DeviceDetailsContent(
             )
         }
 
-        if (state.isE2EICertificateEnrollSuccess && state.e2eiCertificate !=null) {
+        if (state.isE2EICertificateEnrollSuccess && state.e2eiCertificate != null) {
             E2EISuccessDialog(
                 openCertificateDetails = { onNavigateToE2eiCertificateDetailsScreen(state.e2eiCertificate) },
                 dismissDialog = onEnrollE2EISuccessDismiss

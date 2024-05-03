@@ -49,9 +49,9 @@ fun getActionReply(
     }
 }
 
-fun getOpenIncomingCallAction(context: Context, conversationId: String) = getAction(
+fun getOpenIncomingCallAction(context: Context, conversationId: String, userId: String) = getAction(
     context.getString(R.string.notification_action_open_call),
-    fullScreenIncomingCallPendingIntent(context, conversationId)
+    fullScreenIncomingCallPendingIntent(context, conversationId, userId)
 )
 
 fun getDeclineCallAction(context: Context, conversationId: String, userId: String) = getAction(

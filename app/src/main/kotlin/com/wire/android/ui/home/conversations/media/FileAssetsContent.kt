@@ -134,7 +134,8 @@ private fun AssetMessagesListContent(
                                 defaultBackgroundColor = colorsScheme().backgroundVariant,
                                 shouldDisplayMessageStatus = false,
                                 shouldDisplayFooter = false,
-                                onReplyClickable = null
+                                onReplyClickable = null,
+                                onSwipedToReply = { }
                             )
                         }
 

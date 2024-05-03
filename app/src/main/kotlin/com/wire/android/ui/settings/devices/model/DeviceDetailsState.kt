@@ -20,9 +20,7 @@ package com.wire.android.ui.settings.devices.model
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
-import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
-import kotlinx.datetime.Instant
 
 data class DeviceDetailsState(
     val device: Device = Device(),

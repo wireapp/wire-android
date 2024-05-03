@@ -17,6 +17,13 @@
  */
 package com.wire.android.ui.settings.devices.e2ei
 
-data class E2eiCertificateDetailsScreenNavArgs(
-    val certificateString: String
-)
+import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
+import kotlinx.serialization.Serializable
+
+data class E2eiCertificateDetailsScreenNavArgs(val certificateDetails: E2EICertificateDetails)
+
+@Serializable
+sealed class E2EICertificateDetails() {
+    data class AfterLoginCertificateDetails(val certificate: E2eiCertificate) : E2EICertificateDetails()
+    data class DuringLoginCertificateDetails(val certificate: String) : E2EICertificateDetails()
+}

@@ -78,6 +78,7 @@ import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.home.E2EIUpdateErrorWithDismissDialog
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -90,6 +91,7 @@ import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.functional.Either
 
@@ -117,7 +119,7 @@ fun DeviceDetailsScreen(
             handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
             onNavigateToE2eiCertificateDetailsScreen = {
                 navigator.navigate(
-                    NavigationCommand(E2eiCertificateDetailsScreenDestination(it))
+                    NavigationCommand(E2eiCertificateDetailsScreenDestination(E2EICertificateDetails.AfterLoginCertificateDetails(it)))
                 )
             },
             onEnrollE2EIErrorDismiss = viewModel::hideEnrollE2EICertificateError,
@@ -131,7 +133,7 @@ fun DeviceDetailsContent(
     state: DeviceDetailsState,
     onDeleteDevice: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
-    onNavigateToE2eiCertificateDetailsScreen: (String) -> Unit = {},
+    onNavigateToE2eiCertificateDetailsScreen: (E2eiCertificate) -> Unit = {},
     onPasswordChange: (TextFieldValue) -> Unit = {},
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
@@ -192,7 +194,7 @@ fun DeviceDetailsContent(
                 }
             }
 
-            if (state.isE2EIEnabled) {
+            if (state.isE2EIEnabled && state.e2eiCertificate !=null) {
                 item {
                     EndToEndIdentityCertificateItem(
                         isE2eiCertificateActivated = state.isE2eiCertificateActivated,
@@ -286,9 +288,9 @@ fun DeviceDetailsContent(
             )
         }
 
-        if (state.isE2EICertificateEnrollSuccess) {
+        if (state.isE2EICertificateEnrollSuccess && state.e2eiCertificate !=null) {
             E2EISuccessDialog(
-                openCertificateDetails = { onNavigateToE2eiCertificateDetailsScreen(state.e2eiCertificate.certificateDetail) },
+                openCertificateDetails = { onNavigateToE2eiCertificateDetailsScreen(state.e2eiCertificate) },
                 dismissDialog = onEnrollE2EISuccessDismiss
             )
         }

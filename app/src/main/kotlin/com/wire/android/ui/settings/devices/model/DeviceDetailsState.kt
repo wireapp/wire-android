@@ -33,12 +33,7 @@ data class DeviceDetailsState(
     val isSelfClient: Boolean = false,
     val userName: String? = null,
     val isE2eiCertificateActivated: Boolean = false,
-    val e2eiCertificate: E2eiCertificate = E2eiCertificate(
-        status = CertificateStatus.EXPIRED,
-        serialNumber = "",
-        certificateDetail = "",
-        endAt = Instant.DISTANT_FUTURE
-    ),
+    val e2eiCertificate: E2eiCertificate? = null,
     val canBeRemoved: Boolean = false,
     val isLoadingCertificate: Boolean = false,
     val isE2EICertificateEnrollSuccess: Boolean = false,

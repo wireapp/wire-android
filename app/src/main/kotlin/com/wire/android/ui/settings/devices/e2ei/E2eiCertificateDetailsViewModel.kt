@@ -42,7 +42,7 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
     var state: E2eiCertificateDetailsState by mutableStateOf(E2eiCertificateDetailsState())
         private set
 
-    private val e2eiCertificateDetailsScreenNavArgs: E2eiCertificateDetailsScreenNavArgs =
+    private val navArgs: E2eiCertificateDetailsScreenNavArgs =
         savedStateHandle.navArgs()
 
     private var selfUserHandle: String? = null
@@ -57,11 +57,27 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
         }
     }
 
-    fun getCertificate() = e2eiCertificateDetailsScreenNavArgs.certificateString
+    fun getCertificate() =
+        when (navArgs.certificateDetails) {
+            is E2EICertificateDetails.DuringLoginCertificateDetails ->
+                navArgs.certificateDetails.certificate
+
+            is E2EICertificateDetails.AfterLoginCertificateDetails ->
+                navArgs.certificateDetails.certificate.certificateDetail
+        }
+
+    fun userHandle() =
+        when (navArgs.certificateDetails) {
+            is E2EICertificateDetails.DuringLoginCertificateDetails ->
+                selfUserHandle
+
+            is E2EICertificateDetails.AfterLoginCertificateDetails ->
+                navArgs.certificateDetails.certificate.userHandle
+        }
 
     fun getCertificateName(): String {
         val date = DateTimeUtil.currentInstant().fileDateTime()
-        return "wire-certificate-$selfUserHandle-$date.txt"
+        return "wire-certificate-${userHandle()}-$date.txt"
     }
 }
 

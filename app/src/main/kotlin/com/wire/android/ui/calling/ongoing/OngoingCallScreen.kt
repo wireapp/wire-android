@@ -145,7 +145,7 @@ fun OngoingCallScreen(
                 sharedCallingViewModel.clearVideoPreview()
                 ongoingCallViewModel.stopSendingVideoFeed()
             },
-            navigateBack = { activity.finish() },
+            onCollapse = { activity.moveTaskToBack(true) },
             requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
             hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
             onPermissionPermanentlyDenied = {
@@ -160,7 +160,7 @@ fun OngoingCallScreen(
             }
         )
         BackHandler {
-            activity.finish()
+            activity.moveTaskToBack(true)
         }
     }
 
@@ -173,7 +173,8 @@ fun OngoingCallScreen(
         isCameraOn = sharedCallingViewModel.callState.isCameraOn,
         callStatus = sharedCallingViewModel.callState.callStatus,
         startSendingVideoFeed = ongoingCallViewModel::startSendingVideoFeed,
-        pauseSendingVideoFeed = ongoingCallViewModel::pauseSendingVideoFeed
+        pauseSendingVideoFeed = ongoingCallViewModel::pauseSendingVideoFeed,
+        onClearVideoPreview = sharedCallingViewModel::clearVideoPreview
     )
 }
 
@@ -186,7 +187,8 @@ private fun handleVideoPreviewOnLifecycleChange(
     isCameraOn: Boolean,
     callStatus: CallStatus,
     startSendingVideoFeed: () -> Unit,
-    pauseSendingVideoFeed: () -> Unit
+    pauseSendingVideoFeed: () -> Unit,
+    onClearVideoPreview: () -> Unit
 ) {
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, isCameraOn, callStatus) {
@@ -197,6 +199,9 @@ private fun handleVideoPreviewOnLifecycleChange(
             }
             if (event == Lifecycle.Event.ON_RESUME && callStatus == CallStatus.ESTABLISHED && isCameraOn) {
                 startSendingVideoFeed()
+            }
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                onClearVideoPreview()
             }
         }
 
@@ -230,7 +235,7 @@ private fun OngoingCallContent(
     flipCamera: () -> Unit,
     setVideoPreview: (view: View) -> Unit,
     clearVideoPreview: () -> Unit,
-    navigateBack: () -> Unit,
+    onCollapse: () -> Unit,
     hideDoubleTapToast: () -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
@@ -258,7 +263,7 @@ private fun OngoingCallContent(
                     else -> ""
                 },
                 isCbrEnabled = isCbrEnabled,
-                onCollapse = navigateBack,
+                onCollapse = onCollapse,
                 protocolInfo = protocolInfo,
                 mlsVerificationStatus = mlsVerificationStatus,
                 proteusVerificationStatus = proteusVerificationStatus

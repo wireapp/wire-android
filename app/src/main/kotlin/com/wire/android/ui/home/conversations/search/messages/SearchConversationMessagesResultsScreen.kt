@@ -71,6 +71,7 @@ fun SearchConversationMessagesResultsScreen(
                         shouldDisplayMessageStatus = false,
                         shouldDisplayFooter = false,
                         onReplyClickable = null,
+                        onSwipedToReply = {}
                     )
                 }
 

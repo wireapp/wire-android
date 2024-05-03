@@ -598,39 +598,44 @@ class WireActivityViewModelTest {
         advanceUntilIdle()
         assertEquals(ThemeOption.DARK, viewModel.globalAppState.themeOption)
     }
-    @Test
-    fun `given no active session, when canLoginThroughDeepLinks is called, then return true`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withNoCurrentSession()
-            .arrange()
-
-        val result = viewModel.canLoginThroughDeepLinks()
-
-        result.await() `should be equal to` true
-    }
 
     @Test
-    fun `given an established call, when canLoginThroughDeepLinks is called, then return false`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withSomeCurrentSession()
-            .withOngoingCall()
-            .arrange()
+    fun `given no active session, when canLoginThroughDeepLinks is called, then return true`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withNoCurrentSession()
+                .arrange()
 
-        val result = viewModel.canLoginThroughDeepLinks()
+            val result = viewModel.canLoginThroughDeepLinks()
 
-        result.await() `should be equal to` false
-    }
+            result.await() `should be equal to` true
+        }
+
     @Test
-    fun `given no established call, when canLoginThroughDeepLinks is called, then return true`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withNoCurrentSession()
-            .withNoOngoingCall()
-            .arrange()
+    fun `given an established call, when canLoginThroughDeepLinks is called, then return false`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withSomeCurrentSession()
+                .withOngoingCall()
+                .arrange()
 
-        val result = viewModel.canLoginThroughDeepLinks()
+            val result = viewModel.canLoginThroughDeepLinks()
 
-        result.await() `should be equal to` true
-    }
+            result.await() `should be equal to` false
+        }
+
+    @Test
+    fun `given no established call, when canLoginThroughDeepLinks is called, then return true`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withNoCurrentSession()
+                .withNoOngoingCall()
+                .arrange()
+
+            val result = viewModel.canLoginThroughDeepLinks()
+
+            result.await() `should be equal to` true
+        }
 
     private class Arrangement {
 

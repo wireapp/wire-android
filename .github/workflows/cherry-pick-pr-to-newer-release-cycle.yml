@@ -40,9 +40,9 @@ jobs:
                   fetch-depth: 0
 
             - name: Cherry pick to `RC`
-              uses: wireapp/action-auto-cherry-pick@v1.0.0
+              uses: wireapp/action-auto-cherry-pick@v1.0.1
               with:
                   target-branch: release/candidate
-                  submodule-name: kalium
+                  submodules-target-branch: release/candidate
                   pr-title-suffix: 🍒
                   labels: cherry-pick

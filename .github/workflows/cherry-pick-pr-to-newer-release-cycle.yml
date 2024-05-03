@@ -40,9 +40,9 @@ jobs:
                   fetch-depth: 0
 
             - name: Cherry pick to `develop`
-              uses: wireapp/action-auto-cherry-pick@v1.0.0
+              uses: wireapp/action-auto-cherry-pick@v1.0.1
               with:
                   target-branch: develop
-                  submodule-name: kalium
+                  submodules-target-branch: develop
                   pr-title-suffix: 🍒
-                  labels: cherry-pick
+                  pr-labels: cherry-pick

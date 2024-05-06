@@ -174,10 +174,16 @@ fun OngoingCallScreen(
     DisposableEffect(lifecycleOwner) {
 
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_PAUSE && sharedCallingViewModel.callState.callStatus == CallStatus.ESTABLISHED && sharedCallingViewModel.callState.isCameraOn) {
+            if (event == Lifecycle.Event.ON_PAUSE &&
+                sharedCallingViewModel.callState.callStatus == CallStatus.ESTABLISHED &&
+                sharedCallingViewModel.callState.isCameraOn
+            ) {
                 ongoingCallViewModel.pauseSendingVideoFeed()
             }
-            if (event == Lifecycle.Event.ON_RESUME && sharedCallingViewModel.callState.callStatus == CallStatus.ESTABLISHED && sharedCallingViewModel.callState.isCameraOn) {
+            if (event == Lifecycle.Event.ON_RESUME &&
+                sharedCallingViewModel.callState.callStatus == CallStatus.ESTABLISHED &&
+                sharedCallingViewModel.callState.isCameraOn
+            ) {
                 ongoingCallViewModel.startSendingVideoFeed()
             }
             if (event == Lifecycle.Event.ON_DESTROY) {

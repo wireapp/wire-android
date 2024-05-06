@@ -20,7 +20,6 @@
 
 package com.wire.android.util
 
-import android.text.format.DateUtils
 import com.wire.android.appLogger
 import kotlinx.datetime.Instant
 import java.text.DateFormat
@@ -43,11 +42,8 @@ private val longDateShortTimeFormat = DateFormat
     .getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
 private val mediumOnlyDateTimeFormat = DateFormat
     .getDateInstance(DateFormat.MEDIUM)
-val messageTimeFormatter = DateFormat
+private val messageTimeFormatter = DateFormat
     .getTimeInstance(DateFormat.SHORT)
-    .apply { timeZone = TimeZone.getDefault() }
-private val messageDateTimeFormatter = DateFormat
-    .getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
     .apply { timeZone = TimeZone.getDefault() }
 private const val ONE_MINUTE_FROM_MILLIS = 60 * 1000
 private const val THIRTY_MINUTES = 30
@@ -181,10 +177,7 @@ sealed interface MessageDateTimeGroup {
 
 fun String.uiMessageDateTime(): String? = this
     .serverDate()?.let { serverDate ->
-        when (DateUtils.isToday(serverDate.time)) {
-            true -> messageTimeFormatter.format(serverDate)
-            false -> messageDateTimeFormatter.format(serverDate)
-        }
+        messageTimeFormatter.format(serverDate)
     }
 
 fun String.groupedUIMessageDateTime(now: Long): MessageDateTimeGroup? = this

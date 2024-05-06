@@ -60,6 +60,7 @@ import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.home.E2EIEnrollmentErrorWithDismissDialog
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.markdown.MarkdownConstants
+import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -89,7 +90,15 @@ fun E2EIEnrollmentScreen(
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         openCertificateDetails = {
-            navigator.navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(state.certificate)))
+            navigator.navigate(
+                NavigationCommand(
+                    E2eiCertificateDetailsScreenDestination(
+                        E2EICertificateDetails.DuringLoginCertificateDetails(
+                            state.certificate
+                        )
+                    )
+                )
+            )
         },
         onBackButtonClicked = viewModel::onBackButtonClicked,
         onCancelEnrollmentClicked = { viewModel.onCancelEnrollmentClicked(NavigationSwitchAccountActions(navigator::navigate)) },

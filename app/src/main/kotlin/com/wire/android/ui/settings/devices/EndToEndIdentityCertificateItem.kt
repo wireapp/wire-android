@@ -51,7 +51,7 @@ fun EndToEndIdentityCertificateItem(
     isCurrentDevice: Boolean,
     isLoadingCertificate: Boolean,
     enrollE2eiCertificate: () -> Unit,
-    showCertificate: (String) -> Unit
+    showCertificate: (E2eiCertificate) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -124,7 +124,7 @@ fun EndToEndIdentityCertificateItem(
                     enabled = true,
                     isLoading = false,
                     onShowCertificateClicked = {
-                        showCertificate(certificate.certificateDetail)
+                        showCertificate(certificate)
                     }
                 )
             } else {
@@ -199,9 +199,11 @@ fun PreviewEndToEndIdentityCertificateItem() {
         isE2eiCertificateActivated = true,
         isCurrentDevice = false,
         certificate = E2eiCertificate(
+            userHandle = "userHandle",
             status = CertificateStatus.VALID,
             serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
             certificateDetail = "",
+            thumbprint = "thumbprint",
             endAt = Instant.DISTANT_FUTURE
         ),
         isLoadingCertificate = false,
@@ -217,9 +219,11 @@ fun PreviewEndToEndIdentityCertificateSelfItem() {
         isE2eiCertificateActivated = true,
         isCurrentDevice = true,
         certificate = E2eiCertificate(
+            userHandle = "userHandle",
             status = CertificateStatus.VALID,
             serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
             certificateDetail = "",
+            thumbprint = "thumbprint",
             endAt = Instant.DISTANT_FUTURE
         ),
         isLoadingCertificate = false,

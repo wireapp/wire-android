@@ -19,6 +19,7 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -60,7 +61,6 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -78,6 +78,7 @@ import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSo
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -117,8 +118,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: GlobalDataStore,
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
-    private val workManager: WorkManager,
-    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase
+    private val workManager: WorkManager
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -257,7 +257,15 @@ class WireActivityViewModel @Inject constructor(
         return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
     }
 
-    private suspend fun canLoginThroughDeepLinks() = observeEstablishedCalls().first().isEmpty()
+    @VisibleForTesting
+    internal suspend fun canLoginThroughDeepLinks() = viewModelScope.async {
+        coreLogic.getGlobalScope().session.currentSession().takeIf {
+            it is CurrentSessionResult.Success
+        }?.let {
+            val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
+            coreLogic.getSessionScope(currentUserId).calls.establishedCall().first().isEmpty()
+        } ?: true
+    }
 
     @Suppress("ComplexMethod")
     fun handleDeepLink(
@@ -276,7 +284,7 @@ class WireActivityViewModel @Inject constructor(
             val result = intent?.data?.let { deepLinkProcessor(it) }
             when {
                 result is DeepLinkResult.SSOLogin -> {
-                    if (canLoginThroughDeepLinks()) {
+                    if (canLoginThroughDeepLinks().await()) {
                         onResult(result)
                     } else {
                         onCannotLoginDuringACall()
@@ -284,7 +292,7 @@ class WireActivityViewModel @Inject constructor(
                 }
                 result is DeepLinkResult.MigrationLogin -> onResult(result)
                 result is DeepLinkResult.CustomServerConfig -> {
-                    if (canLoginThroughDeepLinks()) {
+                    if (canLoginThroughDeepLinks().await()) {
                         onCustomServerConfig(result)
                     } else {
                         onCannotLoginDuringACall()

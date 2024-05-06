@@ -116,9 +116,7 @@ class MessageComposerStateHolderTest {
         runTest {
             // given
             // when
-            state.toReply(
-                message = mockMessageWithText
-            )
+            state.toReply(mockMessageWithText)
 
             // then
             assertEquals(
@@ -132,6 +130,22 @@ class MessageComposerStateHolderTest {
                     .value
             )
         }
+
+    @Test
+    fun `given some message was being composed, when setting toReply, then input continues with the current text`() = runTest {
+        // given
+        val currentTextField = TextFieldValue("Potato")
+        messageCompositionHolder.setMessageText(currentTextField, {}, {}, {})
+
+        // when
+        state.toReply(mockMessageWithText)
+
+        // then
+        assertEquals(
+            currentTextField.text,
+            messageCompositionHolder.messageComposition.value.messageTextFieldValue.text
+        )
+    }
 
     @Test
     fun `given state, when input focus change to false, then clear focus`() = runTest {

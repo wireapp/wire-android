@@ -95,6 +95,12 @@ class OngoingCallViewModel @AssistedInject constructor(
         }
     }
 
+    fun pauseSendingVideoFeed() {
+        viewModelScope.launch {
+            setVideoSendState(conversationId, VideoState.PAUSED)
+        }
+    }
+
     fun stopSendingVideoFeed() {
         viewModelScope.launch {
             setVideoSendState(conversationId, VideoState.STOPPED)

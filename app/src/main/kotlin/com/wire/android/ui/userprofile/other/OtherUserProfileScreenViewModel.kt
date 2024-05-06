@@ -64,6 +64,7 @@ import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
@@ -108,6 +109,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     private val getUserE2eiCertificateStatus: GetUserE2eiCertificateStatusUseCase,
     private val getUserE2eiCertificates: GetUserE2eiCertificatesUseCase,
+    private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
@@ -135,6 +137,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         observeUserInfoAndUpdateViewState()
         persistClients()
         getMLSVerificationStatus()
+        getIfConversationExist()
+    }
+
+    private fun getIfConversationExist() {
+        viewModelScope.launch {
+            state = state.copy(isConversationStarted = isOneToOneConversationCreated(userId))
+        }
     }
 
     private fun getMLSVerificationStatus() {

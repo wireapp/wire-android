@@ -23,7 +23,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -161,7 +161,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     modifier: Modifier = Modifier
 ) {
     Column(modifier.wrapContentSize()) {
-        Divider(color = MaterialTheme.wireColorScheme.outline)
+        HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
         MessageComposeActions(
             isEditing = isEditing,
             selectedOption = selectedOption,

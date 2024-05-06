@@ -112,7 +112,7 @@ fun HomeScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { source, event ->
+        val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 appSyncViewModel.startSyncingAppConfig()
             }

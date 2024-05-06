@@ -85,7 +85,6 @@ fun LoginSSOScreen(
         // TODO: replace with retrieved ServerConfig from sso login
         onLoginButtonClick = loginSSOViewModel::login,
         ssoLoginResult = ssoLoginResult,
-        serverTitle = loginSSOViewModel.serverConfig.title,
         onCustomServerDialogDismiss = loginSSOViewModel::onCustomServerDialogDismiss,
         onCustomServerDialogConfirm = loginSSOViewModel::onCustomServerDialogConfirm
     )
@@ -105,8 +104,7 @@ private fun LoginSSOContent(
     onLoginButtonClick: () -> Unit,
     onCustomServerDialogDismiss: () -> Unit,
     onCustomServerDialogConfirm: () -> Unit,
-    ssoLoginResult: DeepLinkResult.SSOLogin?,
-    serverTitle: String
+    ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
     Column(
         modifier = Modifier
@@ -188,6 +186,6 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Composable
 fun PreviewLoginSSOScreen() {
     WireTheme {
-        LoginSSOContent(rememberScrollState(), LoginState(), {}, {}, {}, {}, {}, {}, null, "Test Server")
+        LoginSSOContent(rememberScrollState(), LoginState(), {}, {}, {}, {}, {}, {}, null)
     }
 }

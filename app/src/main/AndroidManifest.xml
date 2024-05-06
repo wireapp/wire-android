@@ -92,8 +92,10 @@
         <activity
             android:name=".ui.calling.CallActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
+            android:taskAffinity="wire.call"
             android:theme="@style/AppTheme" />
 
         <activity

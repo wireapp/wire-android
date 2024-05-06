@@ -1,6 +1,6 @@
-/**
+/*
  * Wire
- * Copyright (C) $YEAR Wire Swiss GmbH
+ * Copyright (C) 2024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,5 +13,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.calling.outgoing
+
+data class OutgoingCallState(
+    val flowState: FlowState = FlowState.Default
+) {
+    sealed interface FlowState {
+        data object Default : FlowState
+        data object CallClosed : FlowState
+        data object CallEstablished : FlowState
+    }
+}

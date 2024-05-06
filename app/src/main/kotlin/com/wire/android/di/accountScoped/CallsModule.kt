@@ -31,6 +31,7 @@ import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
@@ -97,6 +98,13 @@ class CallsModule {
         callsScope: CallsScope
     ): ObserveEstablishedCallsUseCase =
         callsScope.establishedCall
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveOutgoingCallUseCase(
+        callsScope: CallsScope
+    ): ObserveOutgoingCallUseCase =
+        callsScope.observeOutgoingCall
 
     @ViewModelScoped
     @Provides

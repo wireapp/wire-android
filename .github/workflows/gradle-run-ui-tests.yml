@@ -32,7 +32,7 @@ jobs:
           cache: gradle
 
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@460a3ca55fc5d559238a0efc7fa9f7465df8585d
+        uses: gradle/wrapper-validation-action@216d1ad2b3710bf005dc39237337b9673fd8fcd5
 
       - name: AVD cache
         uses: buildjet/cache@v4

@@ -33,7 +33,7 @@ import com.wire.android.ui.common.dimensions
 
 @Composable
 fun AcceptButton(
-    modifier: Modifier = Modifier.size(dimensions().initiatingCallHangUpButtonSize),
+    modifier: Modifier = Modifier.size(dimensions().outgoingCallHangUpButtonSize),
     buttonClicked: () -> Unit
 ) {
     WirePrimaryButton(

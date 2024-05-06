@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,11 +47,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.wire.android.R
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.ConversationName
@@ -81,6 +86,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
@@ -139,7 +145,7 @@ fun OngoingCallScreen(
                 sharedCallingViewModel.clearVideoPreview()
                 ongoingCallViewModel.stopSendingVideoFeed()
             },
-            navigateBack = { activity.finish() },
+            onCollapse = { activity.moveTaskToBack(true) },
             requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
             hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
             onPermissionPermanentlyDenied = {
@@ -154,7 +160,7 @@ fun OngoingCallScreen(
             }
         )
         BackHandler {
-            activity.finish()
+            activity.moveTaskToBack(true)
         }
     }
 
@@ -162,6 +168,49 @@ fun OngoingCallScreen(
         dialogState = permissionPermanentlyDeniedDialogState,
         hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
+
+    handleVideoPreviewOnLifecycleChange(
+        isCameraOn = sharedCallingViewModel.callState.isCameraOn,
+        callStatus = sharedCallingViewModel.callState.callStatus,
+        startSendingVideoFeed = ongoingCallViewModel::startSendingVideoFeed,
+        pauseSendingVideoFeed = ongoingCallViewModel::pauseSendingVideoFeed,
+        onClearVideoPreview = sharedCallingViewModel::clearVideoPreview
+    )
+}
+
+/**
+ * This function is responsible for handling the lifecycle changes of the video preview.
+ * It will pause the video feed when the lifecycle is paused and resume it when the lifecycle is resumed.
+ */
+@Composable
+private fun handleVideoPreviewOnLifecycleChange(
+    isCameraOn: Boolean,
+    callStatus: CallStatus,
+    startSendingVideoFeed: () -> Unit,
+    pauseSendingVideoFeed: () -> Unit,
+    onClearVideoPreview: () -> Unit
+) {
+    val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, isCameraOn, callStatus) {
+
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE && callStatus == CallStatus.ESTABLISHED && isCameraOn) {
+                pauseSendingVideoFeed()
+            }
+            if (event == Lifecycle.Event.ON_RESUME && callStatus == CallStatus.ESTABLISHED && isCameraOn) {
+                startSendingVideoFeed()
+            }
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                onClearVideoPreview()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -186,7 +235,7 @@ private fun OngoingCallContent(
     flipCamera: () -> Unit,
     setVideoPreview: (view: View) -> Unit,
     clearVideoPreview: () -> Unit,
-    navigateBack: () -> Unit,
+    onCollapse: () -> Unit,
     hideDoubleTapToast: () -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
@@ -214,7 +263,7 @@ private fun OngoingCallContent(
                     else -> ""
                 },
                 isCbrEnabled = isCbrEnabled,
-                onCollapse = navigateBack,
+                onCollapse = onCollapse,
                 protocolInfo = protocolInfo,
                 mlsVerificationStatus = mlsVerificationStatus,
                 proteusVerificationStatus = proteusVerificationStatus

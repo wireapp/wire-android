@@ -45,6 +45,13 @@ class NotificationChannelsManager @Inject constructor(
         )
     }
 
+    private val outgoingCallSoundUri by lazy {
+        Uri.parse(
+            "${ContentResolver.SCHEME_ANDROID_RESOURCE}://" +
+                    "${context.packageName}/raw/ringing_from_me"
+        )
+    }
+
     private val knockSoundUri by lazy {
         Uri.parse(
             "${ContentResolver.SCHEME_ANDROID_RESOURCE}://" +
@@ -64,6 +71,7 @@ class NotificationChannelsManager @Inject constructor(
             val groupId = createNotificationChannelGroup(user.id, user.handle ?: user.name ?: user.id.value)
 
             createIncomingCallsChannel(groupId, user.id)
+            createOutgoingCallChannel(groupId, user.id)
             createMessagesNotificationChannel(user.id, groupId)
             createPingNotificationChannel(user.id, groupId)
         }
@@ -114,6 +122,26 @@ class NotificationChannelsManager @Inject constructor(
             .setName(NotificationConstants.INCOMING_CALL_CHANNEL_NAME)
             .setImportance(NotificationManagerCompat.IMPORTANCE_MAX)
             .setSound(incomingCallSoundUri, audioAttributes)
+            .setShowBadge(false)
+            .setVibrationPattern(VIBRATE_PATTERN)
+            .setGroup(groupId)
+            .build()
+
+        notificationManagerCompat.createNotificationChannel(notificationChannel)
+    }
+
+    private fun createOutgoingCallChannel(groupId: String, userId: UserId) {
+        val audioAttributes = AudioAttributes.Builder()
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .setUsage(getAudioAttributeUsageByOsLevel())
+            .build()
+
+        val channelId = NotificationConstants.getOutgoingChannelId(userId)
+        val notificationChannel = NotificationChannelCompat
+            .Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+            .setName(NotificationConstants.OUTGOING_CALL_CHANNEL_NAME)
+            .setImportance(NotificationManagerCompat.IMPORTANCE_DEFAULT)
+            .setSound(outgoingCallSoundUri, audioAttributes)
             .setShowBadge(false)
             .setVibrationPattern(VIBRATE_PATTERN)
             .setGroup(groupId)

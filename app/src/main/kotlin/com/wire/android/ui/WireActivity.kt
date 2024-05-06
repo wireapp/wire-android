@@ -23,6 +23,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -51,6 +52,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
@@ -62,6 +64,8 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.calling.getIncomingCallIntent
+import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.getOngoingCallIntent
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
@@ -214,6 +218,16 @@ class WireActivity : AppCompatActivity() {
                                     startActivity(this)
                                 }
                             },
+                            onReturnToIncomingCallClick = {
+                                getIncomingCallIntent(this@WireActivity, it.conversationId.toString(), null).run {
+                                    startActivity(this)
+                                }
+                            },
+                            onReturnToOutgoingCallClick = {
+                                getOutgoingCallIntent(this@WireActivity, it.conversationId.toString()).run {
+                                    startActivity(this)
+                                }
+                            }
                         )
                         CompositionLocalProvider(LocalNavigator provides navigator) {
                             NavigationGraph(
@@ -254,7 +268,7 @@ class WireActivity : AppCompatActivity() {
         }
 
         DisposableEffect(navController) {
-            val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, navDestination, _ ->
+            val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, _, _ ->
                 currentKeyboardController?.hide()
             }
             navController.addOnDestinationChangedListener(updateScreenSettingsListener)
@@ -495,8 +509,29 @@ class WireActivity : AppCompatActivity() {
             viewModel.handleDeepLink(
                 intent = intent,
                 onResult = ::handleDeepLinkResult,
-                onOpenConversation = { navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.CLEAR_TILL_START)) },
-                onIsSharingIntent = { navigate(NavigationCommand(ImportMediaScreenDestination, BackStackMode.UPDATE_EXISTED)) }
+                onOpenConversation = {
+                    navigate(
+                        NavigationCommand(
+                            ConversationScreenDestination(it),
+                            BackStackMode.CLEAR_TILL_START
+                        )
+                    )
+                },
+                onIsSharingIntent = {
+                    navigate(
+                        NavigationCommand(
+                            ImportMediaScreenDestination,
+                            BackStackMode.UPDATE_EXISTED
+                        )
+                    )
+                },
+                onCannotLoginDuringACall = {
+                    Toast.makeText(
+                        this,
+                        resources.getString(R.string.cant_switch_account_in_call),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             )
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
         }

@@ -28,14 +28,18 @@ import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
 import com.wire.kalium.logic.feature.legalhold.MembersHavingLegalHoldClientUseCase
 import com.wire.kalium.logic.functional.getOrElse
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.scan
 import javax.inject.Inject
 
 class ObserveParticipantsForConversationUseCase @Inject constructor(
@@ -54,7 +58,9 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                     isAdmin && !isService
                 }
             }
-            .map { sortedMemberList ->
+            .scan(
+                ConversationParticipantsData() to emptyMap<UserId, CertificateStatus?>()
+            ) { (_, previousMlsVerificationMap), sortedMemberList ->
                 val allAdminsWithoutServices = sortedMemberList.getOrDefault(true, listOf())
                 val visibleAdminsWithoutServices = allAdminsWithoutServices.limit(limit)
                 val allParticipants = sortedMemberList.getOrDefault(false, listOf())
@@ -63,7 +69,15 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                 val visibleUserIds = visibleParticipants.map { it.userId }
                     .plus(visibleAdminsWithoutServices.map { it.userId })
 
-                val mlsVerificationMap = getMembersE2EICertificateStatuses(conversationId, visibleUserIds)
+                // only fetch certificate statuses for newly emitted users and get the rest from previous iterations
+                val newlyEmittedVisibleUserIds = visibleUserIds - previousMlsVerificationMap.keys
+                val mlsVerificationMap = previousMlsVerificationMap.plus(
+                    if (newlyEmittedVisibleUserIds.isEmpty()) {
+                        emptyMap()
+                    } else {
+                        getMembersE2EICertificateStatuses(conversationId, newlyEmittedVisibleUserIds)
+                    }
+                )
                 val legalHoldList = membersHavingLegalHoldClientUseCase(conversationId).getOrElse(emptyList())
 
                 fun List<MemberDetails>.toUIParticipants() = this.map {
@@ -78,8 +92,10 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                     allParticipantsCount = allParticipants.size,
                     isSelfAnAdmin = allAdminsWithoutServices.any { it.user is SelfUser },
                     isSelfExternalMember = selfUser?.user?.userType == UserType.EXTERNAL,
-                )
+                ) to mlsVerificationMap
             }
+            .drop(1) // ignore the initial value from scan
+            .map { (data, _) -> data }
             .flowOn(dispatchers.io())
 
     private fun <T> List<T>.limit(limit: Int = -1) = when {

@@ -1175,7 +1175,10 @@ private fun MessageGroupDateTime(
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(bottom = dimensions().spacing8x)
+            .padding(
+                top = dimensions().spacing4x,
+                bottom = dimensions().spacing8x
+            )
             .background(color = colorsScheme().divider)
             .padding(
                 top = dimensions().spacing6x,

@@ -20,11 +20,14 @@
 
 package com.wire.android.util
 
+import android.text.format.DateUtils
 import com.wire.android.appLogger
 import kotlinx.datetime.Instant
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -40,21 +43,12 @@ private val longDateShortTimeFormat = DateFormat
     .getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
 private val mediumOnlyDateTimeFormat = DateFormat
     .getDateInstance(DateFormat.MEDIUM)
-private val messageTimeFormatter = DateFormat
+val messageTimeFormatter = DateFormat
     .getTimeInstance(DateFormat.SHORT)
     .apply { timeZone = TimeZone.getDefault() }
-private val messageWeekDayFormatter = SimpleDateFormat(
-    "EEEE MMM dd, hh:mm a",
-    Locale.getDefault()
-)
-private val messageLongerThanWeekAndSameYearFormatter = SimpleDateFormat(
-    "MMM dd, hh:mm a",
-    Locale.getDefault()
-)
-private val messageMonthDayAndYear = SimpleDateFormat(
-    "MMM dd yyyy, hh:mm a",
-    Locale.getDefault()
-)
+private val messageDateTimeFormatter = DateFormat
+    .getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+    .apply { timeZone = TimeZone.getDefault() }
 private const val ONE_MINUTE_FROM_MILLIS = 60 * 1000
 private const val THIRTY_MINUTES = 30
 private const val ONE_WEEK_IN_DAYS = 7
@@ -171,18 +165,31 @@ private fun isDatesWithinWeek(date: Long, now: Long): Boolean =
 private fun isDatesSameYear(date: Long, now: Long): Boolean =
     date.getCalendar().get(Calendar.YEAR) == now.getCalendar().get(Calendar.YEAR)
 
-sealed interface MessageDateTime {
-    data object Now : MessageDateTime
-    data class Within30Minutes(val minutes: Int) : MessageDateTime
-    data class Today(val time: String) : MessageDateTime
-    data class Yesterday(val time: String) : MessageDateTime
-    data class WithinWeek(val date: String) : MessageDateTime
-    data class NotWithinWeekButSameYear(val date: String) : MessageDateTime
-    data class Other(val date: String) : MessageDateTime
+sealed interface MessageDateTimeGroup {
+    data object Now : MessageDateTimeGroup
+    data object Within30Minutes : MessageDateTimeGroup
+    data class Daily(val type: Type, val date: LocalDate) : MessageDateTimeGroup {
+        enum class Type {
+            Today,
+            Yesterday,
+            WithinWeek,
+            NotWithinWeekButSameYear,
+            Other
+        }
+    }
 }
 
-fun String.uiMessageDateTime(now: Long): MessageDateTime? = this
+fun String.uiMessageDateTime(): String? = this
     .serverDate()?.let { serverDate ->
+        when (DateUtils.isToday(serverDate.time)) {
+            true -> messageTimeFormatter.format(serverDate)
+            false -> messageDateTimeFormatter.format(serverDate)
+        }
+    }
+
+fun String.groupedUIMessageDateTime(now: Long): MessageDateTimeGroup? = this
+    .serverDate()?.let { serverDate ->
+        val localDate = serverDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
         val serverDateInMillis = serverDate.time
         val differenceBetweenServerDateAndNow = now - serverDateInMillis
         val differenceInMinutes: Long = differenceBetweenServerDateAndNow / ONE_MINUTE_FROM_MILLIS
@@ -191,23 +198,28 @@ fun String.uiMessageDateTime(now: Long): MessageDateTime? = this
         val isSameYear = isDatesSameYear(date = serverDateInMillis, now = now)
 
         when {
-            differenceBetweenServerDateAndNow < ONE_MINUTE_FROM_MILLIS -> MessageDateTime.Now
-            differenceInMinutes <= THIRTY_MINUTES -> MessageDateTime.Within30Minutes(
-                minutes = differenceInMinutes.toInt()
+            differenceBetweenServerDateAndNow < ONE_MINUTE_FROM_MILLIS -> MessageDateTimeGroup.Now
+            differenceInMinutes <= THIRTY_MINUTES -> MessageDateTimeGroup.Within30Minutes
+            differenceInMinutes > THIRTY_MINUTES && isSameDay -> MessageDateTimeGroup.Daily(
+                type = MessageDateTimeGroup.Daily.Type.Today,
+                date = localDate
             )
-            differenceInMinutes > THIRTY_MINUTES && isSameDay -> MessageDateTime.Today(
-                time = messageTimeFormatter.format(serverDateInMillis)
+            isYesterday(serverDateInMillis, now) -> MessageDateTimeGroup.Daily(
+                type = MessageDateTimeGroup.Daily.Type.Yesterday,
+                date = localDate
             )
-            isYesterday(serverDateInMillis, now) -> MessageDateTime.Yesterday(
-                time = messageTimeFormatter.format(serverDateInMillis)
+            withinWeek -> MessageDateTimeGroup.Daily(
+                type = MessageDateTimeGroup.Daily.Type.WithinWeek,
+                date = localDate
             )
-            withinWeek -> MessageDateTime.WithinWeek(
-                date = messageWeekDayFormatter.format(serverDate)
+            !withinWeek && isSameYear -> MessageDateTimeGroup.Daily(
+                type = MessageDateTimeGroup.Daily.Type.NotWithinWeekButSameYear,
+                date = localDate
             )
-            !withinWeek && isSameYear -> MessageDateTime.NotWithinWeekButSameYear(
-                date = messageLongerThanWeekAndSameYearFormatter.format(serverDate)
+            else -> MessageDateTimeGroup.Daily(
+                type = MessageDateTimeGroup.Daily.Type.Other,
+                date = localDate
             )
-            else -> MessageDateTime.Other(date = messageMonthDayAndYear.format(serverDate))
         }
     }
 

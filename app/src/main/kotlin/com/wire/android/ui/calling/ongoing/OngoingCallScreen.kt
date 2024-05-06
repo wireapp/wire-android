@@ -110,7 +110,7 @@ fun OngoingCallScreen(
     LaunchedEffect(ongoingCallViewModel.state.flowState) {
         when (ongoingCallViewModel.state.flowState) {
             OngoingCallState.FlowState.CallClosed -> {
-                activity.finish()
+                activity.finishAndRemoveTask()
             }
 
             OngoingCallState.FlowState.Default -> { /* do nothing */
@@ -134,7 +134,7 @@ fun OngoingCallScreen(
             shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
             toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
             toggleMute = sharedCallingViewModel::toggleMute,
-            hangUpCall = { sharedCallingViewModel.hangUpCall { activity.finish() } },
+            hangUpCall = { sharedCallingViewModel.hangUpCall { activity.finishAndRemoveTask() } },
             toggleVideo = sharedCallingViewModel::toggleVideo,
             flipCamera = sharedCallingViewModel::flipCamera,
             setVideoPreview = {

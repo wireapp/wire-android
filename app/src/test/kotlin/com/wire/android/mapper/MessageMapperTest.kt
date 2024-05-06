@@ -30,7 +30,6 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.TextMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.util.MessageDateTime
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -80,12 +79,15 @@ class MessageMapperTest {
     @Suppress("LongMethod")
     fun givenMessageList_whenMappingToUIMessages_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
-        val (arrangement, mapper) = Arrangement().arrange()
+        val serverDateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            .apply { timeZone = TimeZone.getTimeZone("UTC") }
 
-        val now = arrangement.serverDateFormatter.format(arrangement.dateNow)
+        val now = serverDateFormatter.format(Date())
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DATE, -1)
-        val yesterday = arrangement.serverDateFormatter.format(calendar.time)
+        val yesterday = serverDateFormatter.format(calendar.time)
+
+        val (arrangement, mapper) = Arrangement().arrange()
 
         val userId1 = UserId("user-id1", "user-domain")
         val userId2 = UserId("user-id2", "user-domain")
@@ -110,16 +112,16 @@ class MessageMapperTest {
         // Then
         assertEquals(
             true,
-            arrangement.checkMessageData(
+            checkMessageData(
                 uiMessage = uiMessage1,
-                time = message1.date.uiMessageDateTime(arrangement.dateNow.time)
+                time = message1.date.uiMessageDateTime()
             )
         )
         assertEquals(
             true,
-            arrangement.checkMessageData(
+            checkMessageData(
                 uiMessage = uiMessage2,
-                time = message2.date.uiMessageDateTime(arrangement.dateNow.time),
+                time = message2.date.uiMessageDateTime(),
                 source = MessageSource.OtherUser,
                 membership = Membership.Guest,
                 status = MessageStatus(
@@ -130,21 +132,21 @@ class MessageMapperTest {
         )
         assertEquals(
             true,
-            arrangement.checkMessageData(
+            checkMessageData(
                 uiMessage = uiMessage3,
-                time = message3.date.uiMessageDateTime(arrangement.dateNow.time),
+                time = message3.date.uiMessageDateTime(),
                 status = MessageStatus(
                     flowStatus = MessageFlowStatus.Sent,
-                    editStatus = MessageEditStatus.Edited(now),
+                    editStatus = MessageEditStatus.Edited(now.uiMessageDateTime() ?: ""),
                     expirationStatus = ExpirationStatus.NotExpirable
                 )
             )
         )
         assertEquals(
             true,
-            arrangement.checkMessageData(
+            checkMessageData(
                 uiMessage = uiMessage4,
-                time = message4.date.uiMessageDateTime(arrangement.dateNow.time),
+                time = message4.date.uiMessageDateTime(),
                 status = MessageStatus(
                     flowStatus = MessageFlowStatus.Sent,
                     isDeleted = true,
@@ -155,9 +157,9 @@ class MessageMapperTest {
 
         assertEquals(
             true,
-            arrangement.checkMessageData(
+            checkMessageData(
                 uiMessage = uiMessage5,
-                time = message5.date.uiMessageDateTime(arrangement.dateNow.time),
+                time = message5.date.uiMessageDateTime(),
                 status = MessageStatus(
                     flowStatus = MessageFlowStatus.Failure.Decryption(false),
                     isDeleted = false,
@@ -168,9 +170,9 @@ class MessageMapperTest {
 
         assertEquals(
             true,
-            arrangement.checkMessageData(
+            checkMessageData(
                 uiMessage = uiMessage6,
-                time = message6.date.uiMessageDateTime(arrangement.dateNow.time),
+                time = message6.date.uiMessageDateTime(),
                 status = MessageStatus(
                     flowStatus = MessageFlowStatus.Failure.Decryption(true),
                     isDeleted = false,
@@ -199,96 +201,28 @@ class MessageMapperTest {
         val result = mapper.toUIMessage(members, message)?.header?.messageStatus?.flowStatus
 
         // then
-        assertEquals(
-            true,
-            result != null
-        )
-        assertEquals(
-            true,
-            result!! is MessageFlowStatus.Read
-        )
-        assertEquals(
-            true,
-            (result as MessageFlowStatus.Read).count == 10L
-        )
+        assert(result != null)
+        assert(result!! is MessageFlowStatus.Read)
+        assert((result as MessageFlowStatus.Read).count == 10L)
     }
 
-    @Suppress("LongMethod")
-    @Test
-    fun givenMessageWithDate_whenCheckingFormattedUIDates_thenReturnCorrectMessageDateTime() = runTest {
-        // given
-        val (arrangement, _) = Arrangement().arrange()
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.SECOND, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.HOUR, 7)
-            set(Calendar.AM_PM, Calendar.AM)
-            set(Calendar.MONTH, Calendar.JANUARY)
-            set(Calendar.DAY_OF_MONTH, 20)
-            set(Calendar.YEAR, 2024)
-        }
-        val tempCalendar: Calendar = calendar.clone() as Calendar
-        val now = arrangement.serverDateFormatter.format(calendar.time)
-
-        val userId1 = UserId("user-id1", "user-domain")
-        val message = arrangement.testMessage(senderUserId = userId1, date = now)
-
-        // when
-        val resultNow = message.date.uiMessageDateTime(tempCalendar.timeInMillis)
-
-        val resultWithin30Minutes = message.date.uiMessageDateTime(
-            tempCalendar.apply { add(Calendar.MINUTE, 10) }.timeInMillis
+    private fun checkMessageData(
+        uiMessage: UIMessage?,
+        time: String?,
+        source: MessageSource = MessageSource.Self,
+        membership: Membership = Membership.None,
+        status: MessageStatus = MessageStatus(
+            flowStatus = MessageFlowStatus.Sent,
+            expirationStatus = ExpirationStatus.NotExpirable
         )
-
-        val resultToday = message.date.uiMessageDateTime(
-            tempCalendar.apply { add(Calendar.MINUTE, 31) }.timeInMillis
-        )
-
-        val resultYesterday = message.date.uiMessageDateTime(
-            tempCalendar.apply { add(Calendar.DATE, 1) }.timeInMillis
-        )
-
-        val resultWithinWeek = message.date.uiMessageDateTime(
-            tempCalendar.apply { add(Calendar.DATE, 3) }.timeInMillis
-        )
-
-        val resultNotWithinWeekButSameYear = message.date.uiMessageDateTime(
-            tempCalendar.apply { add(Calendar.DATE, 10) }.timeInMillis
-        )
-
-        val resultOther = message.date.uiMessageDateTime(
-            tempCalendar.apply { set(Calendar.YEAR, 2025) }.timeInMillis
-        )
-
-        // then
-        assertEquals(
-            MessageDateTime.Now,
-            resultNow
-        )
-        assertEquals(
-            MessageDateTime.Within30Minutes(10),
-            resultWithin30Minutes
-        )
-        assertEquals(
-            MessageDateTime.Today("7:00 AM"),
-            resultToday
-        )
-        assertEquals(
-            MessageDateTime.Yesterday("7:00 AM"),
-            resultYesterday
-        )
-        assertEquals(
-            MessageDateTime.WithinWeek("Saturday Jan 20, 07:00 AM"),
-            resultWithinWeek
-        )
-        assertEquals(
-            MessageDateTime.NotWithinWeekButSameYear("Jan 20, 07:00 AM"),
-            resultNotWithinWeekButSameYear
-        )
-        assertEquals(
-            MessageDateTime.Other("Jan 20 2024, 07:00 AM"),
-            resultOther
-        )
+    ): Boolean {
+        return (uiMessage?.source == source && uiMessage.header.membership == membership
+                && uiMessage.header.messageTime.formattedDate == time
+                && uiMessage.header.messageStatus.flowStatus == status.flowStatus
+                && uiMessage.header.messageStatus.isDeleted == status.isDeleted
+                && uiMessage.header.messageStatus.editStatus == status.editStatus
+                && uiMessage.header.messageStatus.expirationStatus == status.expirationStatus
+                )
     }
 
     private class Arrangement {
@@ -308,19 +242,13 @@ class MessageMapperTest {
             MessageMapper(userTypeMapper, messageContentMapper, isoFormatter, wireSessionImageLoader)
         }
 
-        val serverDateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-            .apply { timeZone = TimeZone.getTimeZone("UTC") }
-        val dateNow = Date()
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { userTypeMapper.toMembership(any()) } returns Membership.Guest
             coEvery { messageContentMapper.fromMessage(any(), any()) } returns TextMessage(
                 MessageBody(UIText.DynamicString("some message text"))
             )
-            every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers {
-                serverDateFormatter.format(dateNow)
-            }
+            every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers { firstArg<String>().uiMessageDateTime() ?: "" }
         }
 
         fun arrange() = this to messageMapper
@@ -338,24 +266,6 @@ class MessageMapperTest {
             visibility = visibility,
             editStatus = editStatus
         )
-
-        fun checkMessageData(
-            uiMessage: UIMessage?,
-            time: MessageDateTime?,
-            source: MessageSource = MessageSource.Self,
-            membership: Membership = Membership.None,
-            status: MessageStatus = MessageStatus(
-                flowStatus = MessageFlowStatus.Sent,
-                expirationStatus = ExpirationStatus.NotExpirable
-            )
-        ): Boolean {
-            return uiMessage?.source == source && uiMessage.header.membership == membership
-                    && uiMessage.header.messageTime.formattedDate(dateNow.time) == time
-                    && uiMessage.header.messageStatus.flowStatus == status.flowStatus
-                    && uiMessage.header.messageStatus.isDeleted == status.isDeleted
-                    && uiMessage.header.messageStatus.editStatus == status.editStatus
-                    && uiMessage.header.messageStatus.expirationStatus == status.expirationStatus
-        }
     }
 }
 

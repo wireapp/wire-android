@@ -207,7 +207,7 @@ class SharedCallingViewModel @AssistedInject constructor(
         if (callState.isCameraOn) {
             flipToFrontCamera(conversationId)
         }
-        if (callState.isCameraOn || callState.isSpeakerOn) {
+        if (callState.isSpeakerOn) {
             turnLoudSpeakerOff()
         }
     }

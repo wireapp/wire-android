@@ -1058,10 +1058,9 @@ fun MessageList(
                     val showAuthor = rememberShouldShowHeader(index, message, lazyPagingMessages)
                     val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
 
+                    val currentGroup = message.header.messageTime.getFormattedDateGroup(now = currentTime)
                     if (index > 0) {
                         val previousMessage = lazyPagingMessages[index - 1] ?: message
-
-                        val currentGroup = message.header.messageTime.getFormattedDateGroup(now = currentTime)
                         val previousGroup = previousMessage.header.messageTime.getFormattedDateGroup(now = currentTime)
 
                         if (currentGroup != previousGroup) {
@@ -1104,6 +1103,16 @@ fun MessageList(
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
                         isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED
                     )
+
+                    if ((index == 0 && lazyPagingMessages.itemCount == 1) || (index + 1) == lazyPagingMessages.itemCount) {
+                        message.header.messageTime.utcISO.serverDate()?.let { serverDate ->
+                            MessageGroupDateTime(
+                                messageDateTime = serverDate,
+                                messageDateTimeGroup = currentGroup,
+                                now = currentTime
+                            )
+                        }
+                    }
                 }
             }
             JumpToLastMessageButton(lazyListState = lazyListState)

@@ -102,7 +102,7 @@
                 android:name=".ui.WireActivity"
                 android:exported="true"
                 android:hardwareAccelerated="true"
-                android:launchMode="singleTop"
+                android:launchMode="singleTask"
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.SplashScreen"
                 android:windowSoftInputMode="adjustResize|stateHidden">

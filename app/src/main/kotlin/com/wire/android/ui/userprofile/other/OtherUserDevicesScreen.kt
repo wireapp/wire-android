@@ -50,7 +50,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
-import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 
 @Composable
 fun OtherUserDevicesScreen(
@@ -124,7 +123,7 @@ private fun OtherUserDevicesContent(
                     onClickAction = onDeviceClick,
                     icon = Icons.Filled.ChevronRight.Icon(),
                     shouldShowVerifyLabel = true,
-                    shouldShowE2EIInfo = item.e2eiCertificateStatus == CertificateStatus.VALID
+                    shouldShowE2EIInfo = item.e2eiCertificateStatus != null
                 )
                 if (index < otherUserDevices.lastIndex) WireDivider()
             }

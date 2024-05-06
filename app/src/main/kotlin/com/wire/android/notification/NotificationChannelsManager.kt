@@ -143,7 +143,6 @@ class NotificationChannelsManager @Inject constructor(
             .setImportance(NotificationManagerCompat.IMPORTANCE_DEFAULT)
             .setSound(outgoingCallSoundUri, audioAttributes)
             .setShowBadge(false)
-            .setVibrationPattern(VIBRATE_PATTERN)
             .setGroup(groupId)
             .build()
 

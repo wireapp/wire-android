@@ -27,6 +27,7 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -49,6 +50,8 @@ private const val ONE_MINUTE_FROM_MILLIS = 60 * 1000
 private const val THIRTY_MINUTES = 30
 private const val ONE_WEEK_IN_DAYS = 7
 private const val ONE_DAY = 1
+private const val FORTY_FIVE_MINUTES_DIFFERENCE = 45
+private const val MINIMUM_DAYS_DIFFERENCE = 1
 
 private val readReceiptDateTimeFormat = SimpleDateFormat(
     "MMM dd yyyy,  hh:mm a",
@@ -179,6 +182,25 @@ fun String.uiMessageDateTime(): String? = this
     .serverDate()?.let { serverDate ->
         messageTimeFormatter.format(serverDate)
     }
+
+fun String.shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean {
+    val currentDate = this@shouldDisplayDatesDifferenceDivider
+
+    val currentLocalDateTime = currentDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
+    val previousLocalDateTime = previousDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
+
+    val differenceInMinutes = ChronoUnit.MINUTES.between(
+        currentLocalDateTime,
+        previousLocalDateTime
+    )
+
+    val differenceInDays = ChronoUnit.DAYS.between(
+        currentLocalDateTime,
+        previousLocalDateTime
+    )
+
+    return differenceInMinutes > FORTY_FIVE_MINUTES_DIFFERENCE || differenceInDays >= MINIMUM_DAYS_DIFFERENCE
+}
 
 fun String.groupedUIMessageDateTime(now: Long): MessageDateTimeGroup? = this
     .serverDate()?.let { serverDate ->

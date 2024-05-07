@@ -169,39 +169,25 @@ fun OngoingCallScreen(
         hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 
-    handleVideoPreviewOnLifecycleChange(
-        isCameraOn = sharedCallingViewModel.callState.isCameraOn,
-        callStatus = sharedCallingViewModel.callState.callStatus,
-        startSendingVideoFeed = ongoingCallViewModel::startSendingVideoFeed,
-        pauseSendingVideoFeed = ongoingCallViewModel::pauseSendingVideoFeed,
-        onClearVideoPreview = sharedCallingViewModel::clearVideoPreview
-    )
-}
-
-/**
- * This function is responsible for handling the lifecycle changes of the video preview.
- * It will pause the video feed when the lifecycle is paused and resume it when the lifecycle is resumed.
- */
-@Composable
-private fun handleVideoPreviewOnLifecycleChange(
-    isCameraOn: Boolean,
-    callStatus: CallStatus,
-    startSendingVideoFeed: () -> Unit,
-    pauseSendingVideoFeed: () -> Unit,
-    onClearVideoPreview: () -> Unit
-) {
+    // Pause the video feed when the lifecycle is paused and resume it when the lifecycle is resumed.
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner, isCameraOn, callStatus) {
+    DisposableEffect(lifecycleOwner) {
 
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_PAUSE && callStatus == CallStatus.ESTABLISHED && isCameraOn) {
-                pauseSendingVideoFeed()
+            if (event == Lifecycle.Event.ON_PAUSE &&
+                sharedCallingViewModel.callState.callStatus == CallStatus.ESTABLISHED &&
+                sharedCallingViewModel.callState.isCameraOn
+            ) {
+                ongoingCallViewModel.pauseSendingVideoFeed()
             }
-            if (event == Lifecycle.Event.ON_RESUME && callStatus == CallStatus.ESTABLISHED && isCameraOn) {
-                startSendingVideoFeed()
+            if (event == Lifecycle.Event.ON_RESUME &&
+                sharedCallingViewModel.callState.callStatus == CallStatus.ESTABLISHED &&
+                sharedCallingViewModel.callState.isCameraOn
+            ) {
+                ongoingCallViewModel.startSendingVideoFeed()
             }
             if (event == Lifecycle.Event.ON_DESTROY) {
-                onClearVideoPreview()
+                sharedCallingViewModel.clearVideoPreview()
             }
         }
 

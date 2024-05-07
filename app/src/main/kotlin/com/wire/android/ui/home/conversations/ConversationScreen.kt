@@ -1104,7 +1104,9 @@ fun MessageList(
                         isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED
                     )
 
-                    if ((index == 0 && lazyPagingMessages.itemCount == 1) || (index + 1) == lazyPagingMessages.itemCount) {
+                    val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1
+                    val isTheLastItem = (index + 1) == lazyPagingMessages.itemCount
+                    if (isTheOnlyItem || isTheLastItem) {
                         message.header.messageTime.utcISO.serverDate()?.let { serverDate ->
                             MessageGroupDateTime(
                                 messageDateTime = serverDate,

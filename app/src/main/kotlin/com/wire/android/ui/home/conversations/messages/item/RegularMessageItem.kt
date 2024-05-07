@@ -40,6 +40,7 @@ import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -114,7 +115,7 @@ fun RegularMessageItem(
     audioMessagesState: PersistentMap<String, AudioState>,
     assetStatus: AssetTransferStatus? = null,
     onLongClicked: (UIMessage.Regular) -> Unit,
-    onSwipedToReply: (UIMessage.Regular) -> Unit = {},
+    swipableMessageConfiguration: SwipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
@@ -133,11 +134,8 @@ fun RegularMessageItem(
     useSmallBottomPadding: Boolean = false,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable
 ): Unit = with(message) {
-    val onSwipe = remember(message) { { onSwipedToReply(message) } }
-    SwipableToReplyBox(
-        isSwipable = isReplyable,
-        onSwipedToReply = onSwipe
-    ) {
+    @Composable
+    fun messageContent() {
         MessageItemTemplate(
             showAuthor,
             useSmallBottomPadding = useSmallBottomPadding,
@@ -260,6 +258,23 @@ fun RegularMessageItem(
             }
         )
     }
+    if (swipableMessageConfiguration is SwipableMessageConfiguration.SwipableToReply) {
+        val onSwipe = remember(message) { { swipableMessageConfiguration.onSwipedToReply(message) } }
+        SwipableToReplyBox(
+            isSwipable = isReplyable,
+            onSwipedToReply = onSwipe
+        ) {
+            messageContent()
+        }
+    } else {
+        messageContent()
+    }
+}
+
+@Stable
+sealed interface SwipableMessageConfiguration {
+    data object NotSwipable : SwipableMessageConfiguration
+    class SwipableToReply(val onSwipedToReply: (uiMessage: UIMessage.Regular) -> Unit) : SwipableMessageConfiguration
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -275,7 +290,7 @@ private fun SwipableToReplyBox(
     var didVibrateOnCurrentDrag by remember { mutableStateOf(false) }
 
     // Finish the animation in the first 25% of the drag
-    val progressUntilAnimationCompletion = 0.25f
+    val progressUntilAnimationCompletion = 0.33f
     val dismissState = remember {
         SwipeToDismissBoxState(
             SwipeToDismissBoxValue.Settled,
@@ -306,7 +321,8 @@ private fun SwipableToReplyBox(
         enableDismissFromEndToStart = false,
         backgroundContent = {
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .drawBehind {
                         // TODO(RTL): Might need adjusting once RTL is supported (also lacking in SwipeToDismissBox)
                         drawRect(

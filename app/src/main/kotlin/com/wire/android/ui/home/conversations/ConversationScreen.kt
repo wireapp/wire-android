@@ -86,8 +86,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.getOngoingCallIntent
+import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -131,6 +131,7 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewM
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
+import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -1074,6 +1075,11 @@ fun MessageList(
                             }
                         }
                     }
+                    val swipableConfiguration = remember(message) {
+                        SwipableMessageConfiguration.SwipableToReply {
+                            onSwipedToReply(it)
+                        }
+                    }
 
                     MessageContainerItem(
                         message = message,
@@ -1085,7 +1091,7 @@ fun MessageList(
                         onAudioClick = onAudioItemClicked,
                         onChangeAudioPosition = onChangeAudioPosition,
                         onLongClicked = onShowEditingOption,
-                        onSwipedToReply = onSwipedToReply,
+                        swipableMessageConfiguration = swipableConfiguration,
                         onAssetMessageClicked = onAssetItemClicked,
                         onImageMessageClicked = onImageFullScreenMode,
                         onOpenProfile = onOpenProfile,
@@ -1126,6 +1132,7 @@ private fun MessageGroupDateTime(
             now,
             DateUtils.MINUTE_IN_MILLIS
         ).toString()
+
         is MessageDateTimeGroup.Daily -> {
             when (messageDateTimeGroup.type) {
                 MessageDateTimeGroup.Daily.Type.Today -> DateUtils.getRelativeDateTimeString(
@@ -1135,6 +1142,7 @@ private fun MessageGroupDateTime(
                     DateUtils.DAY_IN_MILLIS,
                     0
                 ).toString()
+
                 MessageDateTimeGroup.Daily.Type.Yesterday ->
                     DateUtils.getRelativeDateTimeString(
                         context,
@@ -1143,16 +1151,19 @@ private fun MessageGroupDateTime(
                         DateUtils.DAY_IN_MILLIS * 2,
                         0
                     ).toString()
+
                 MessageDateTimeGroup.Daily.Type.WithinWeek -> DateUtils.formatDateTime(
                     context,
                     messageDateTime.time,
                     DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
                 )
+
                 MessageDateTimeGroup.Daily.Type.NotWithinWeekButSameYear -> DateUtils.formatDateTime(
                     context,
                     messageDateTime.time,
                     DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
                 )
+
                 MessageDateTimeGroup.Daily.Type.Other -> DateUtils.formatDateTime(
                     context,
                     messageDateTime.time,
@@ -1160,6 +1171,7 @@ private fun MessageGroupDateTime(
                 )
             }
         }
+
         null -> ""
     }
 

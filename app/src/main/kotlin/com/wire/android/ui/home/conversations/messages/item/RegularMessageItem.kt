@@ -258,12 +258,9 @@ fun RegularMessageItem(
             }
         )
     }
-    if (swipableMessageConfiguration is SwipableMessageConfiguration.SwipableToReply) {
+    if (swipableMessageConfiguration is SwipableMessageConfiguration.SwipableToReply && isReplyable) {
         val onSwipe = remember(message) { { swipableMessageConfiguration.onSwipedToReply(message) } }
-        SwipableToReplyBox(
-            isSwipable = isReplyable,
-            onSwipedToReply = onSwipe
-        ) {
+        SwipableToReplyBox(onSwipedToReply = onSwipe) {
             messageContent()
         }
     } else {
@@ -280,7 +277,6 @@ sealed interface SwipableMessageConfiguration {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipableToReplyBox(
-    isSwipable: Boolean,
     modifier: Modifier = Modifier,
     onSwipedToReply: () -> Unit = {},
     content: @Composable RowScope.() -> Unit
@@ -316,7 +312,6 @@ private fun SwipableToReplyBox(
     SwipeToDismissBox(
         state = dismissState,
         modifier = modifier,
-        enableDismissFromStartToEnd = isSwipable,
         content = content,
         enableDismissFromEndToStart = false,
         backgroundContent = {

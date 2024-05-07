@@ -99,6 +99,7 @@ sealed interface UIMessage {
         val isReplyable: Boolean
             get() = isReplyableContent &&
                     isTheMessageAvailableToOtherUsers &&
+                    !isDeleted &&
                     header.messageStatus.expirationStatus is ExpirationStatus.NotExpirable
 
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null

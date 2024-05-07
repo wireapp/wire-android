@@ -33,6 +33,7 @@ import com.wire.android.ui.theme.Accent
 import com.wire.android.util.Copyable
 import com.wire.android.util.MessageDateTimeGroup
 import com.wire.android.util.groupedUIMessageDateTime
+import com.wire.android.util.shouldDisplayDatesDifferenceDivider
 import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
@@ -625,6 +626,8 @@ enum class MessageSource {
 data class MessageTime(val utcISO: String) {
     val formattedDate: String = utcISO.uiMessageDateTime() ?: ""
     fun getFormattedDateGroup(now: Long): MessageDateTimeGroup? = utcISO.groupedUIMessageDateTime(now = now)
+    fun shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean =
+        utcISO.shouldDisplayDatesDifferenceDivider(previousDate = previousDate)
 }
 
 @Stable

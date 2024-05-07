@@ -1058,12 +1058,14 @@ fun MessageList(
                     val showAuthor = rememberShouldShowHeader(index, message, lazyPagingMessages)
                     val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
 
-                    val currentGroup = message.header.messageTime.getFormattedDateGroup(now = currentTime)
                     if (index > 0) {
                         val previousMessage = lazyPagingMessages[index - 1] ?: message
-                        val previousGroup = previousMessage.header.messageTime.getFormattedDateGroup(now = currentTime)
+                        val shouldDisplayDateTimeDivider = message.header.messageTime.shouldDisplayDatesDifferenceDivider(
+                            previousDate = previousMessage.header.messageTime.utcISO
+                        )
 
-                        if (currentGroup != previousGroup) {
+                        if (shouldDisplayDateTimeDivider) {
+                            val previousGroup = previousMessage.header.messageTime.getFormattedDateGroup(now = currentTime)
                             previousMessage.header.messageTime.utcISO.serverDate()?.let { serverDate ->
                                 MessageGroupDateTime(
                                     messageDateTime = serverDate,
@@ -1107,6 +1109,7 @@ fun MessageList(
                     val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1
                     val isTheLastItem = (index + 1) == lazyPagingMessages.itemCount
                     if (isTheOnlyItem || isTheLastItem) {
+                        val currentGroup = message.header.messageTime.getFormattedDateGroup(now = currentTime)
                         message.header.messageTime.utcISO.serverDate()?.let { serverDate ->
                             MessageGroupDateTime(
                                 messageDateTime = serverDate,

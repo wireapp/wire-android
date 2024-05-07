@@ -27,6 +27,7 @@ import androidx.paging.compose.itemKey
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
+import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.WireTheme
@@ -71,7 +72,7 @@ fun SearchConversationMessagesResultsScreen(
                         shouldDisplayMessageStatus = false,
                         shouldDisplayFooter = false,
                         onReplyClickable = null,
-                        onSwipedToReply = {}
+                        swipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable
                     )
                 }
 

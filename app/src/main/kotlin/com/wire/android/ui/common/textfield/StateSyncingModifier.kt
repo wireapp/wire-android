@@ -44,8 +44,10 @@ internal class StateSyncingModifier(
     override fun update(node: StateSyncingModifierNode) {
         node.update(value, onValueChanged)
     }
+    @Suppress("EqualsAlwaysReturnsTrueOrFalse")
     override fun equals(other: Any?): Boolean = false
     override fun hashCode(): Int = state.hashCode()
+    @Suppress("EmptyFunctionBlock")
     override fun InspectorInfo.inspectableProperties() {}
 }
 

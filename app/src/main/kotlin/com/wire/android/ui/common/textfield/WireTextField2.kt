@@ -83,7 +83,10 @@ internal fun WireTextField2(
     maxLines: Int = 1,
     singleLine: Boolean = true,
     maxTextLength: Int = 8000,
-    keyboardOptions: KeyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, autoCorrect = true),
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        capitalization = KeyboardCapitalization.Sentences,
+        autoCorrect = true
+    ),
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     scrollState: ScrollState = rememberScrollState(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },

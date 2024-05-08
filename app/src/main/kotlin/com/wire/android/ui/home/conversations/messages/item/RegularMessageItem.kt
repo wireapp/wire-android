@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
@@ -307,7 +308,8 @@ private fun SwipableToReplyBox(
             initialValue = SwipeAnchor.CENTERED,
             positionalThreshold = { dragWidth },
             velocityThreshold = { screenWidth },
-            animationSpec = tween(),
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = splineBasedDecay(density),
             confirmValueChange = { changedValue ->
                 if (changedValue == SwipeAnchor.START_TO_END) {
                     // Attempt to finish dismiss, notify reply intention

@@ -1061,11 +1061,12 @@ fun MessageList(
 
                     if (index > 0) {
                         val previousMessage = lazyPagingMessages[index - 1] ?: message
+                        val shouldDisplayDateTimeDivider = message.header.messageTime.shouldDisplayDatesDifferenceDivider(
+                            previousDate = previousMessage.header.messageTime.utcISO
+                        )
 
-                        val currentGroup = message.header.messageTime.getFormattedDateGroup(now = currentTime)
-                        val previousGroup = previousMessage.header.messageTime.getFormattedDateGroup(now = currentTime)
-
-                        if (currentGroup != previousGroup) {
+                        if (shouldDisplayDateTimeDivider) {
+                            val previousGroup = previousMessage.header.messageTime.getFormattedDateGroup(now = currentTime)
                             previousMessage.header.messageTime.utcISO.serverDate()?.let { serverDate ->
                                 MessageGroupDateTime(
                                     messageDateTime = serverDate,
@@ -1110,6 +1111,19 @@ fun MessageList(
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
                         isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED
                     )
+
+                    val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1
+                    val isTheLastItem = (index + 1) == lazyPagingMessages.itemCount
+                    if (isTheOnlyItem || isTheLastItem) {
+                        val currentGroup = message.header.messageTime.getFormattedDateGroup(now = currentTime)
+                        message.header.messageTime.utcISO.serverDate()?.let { serverDate ->
+                            MessageGroupDateTime(
+                                messageDateTime = serverDate,
+                                messageDateTimeGroup = currentGroup,
+                                now = currentTime
+                            )
+                        }
+                    }
                 }
             }
             JumpToLastMessageButton(lazyListState = lazyListState)
@@ -1178,6 +1192,10 @@ private fun MessageGroupDateTime(
     Row(
         Modifier
             .fillMaxWidth()
+            .padding(
+                top = dimensions().spacing4x,
+                bottom = dimensions().spacing8x
+            )
             .background(color = colorsScheme().divider)
             .padding(
                 top = dimensions().spacing6x,

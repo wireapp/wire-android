@@ -77,6 +77,7 @@ import com.wire.android.ui.common.Tint
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
+import io.github.esentsov.PackagePrivate
 
 @Composable
 internal fun WireTextField(
@@ -156,7 +157,7 @@ internal fun WireTextField(
             decorationBox = { innerTextField ->
                 InnerText(
                     innerTextField,
-                    value,
+                    value.text.isEmpty(),
                     leadingIcon,
                     trailingIcon,
                     placeholderText,
@@ -219,10 +220,11 @@ fun Label(
     }
 }
 
+@PackagePrivate
 @Composable
-private fun InnerText(
+internal fun InnerText(
     innerTextField: @Composable () -> Unit,
-    value: TextFieldValue,
+    shouldShowPlaceholder: Boolean,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     placeholderText: String? = null,
@@ -232,12 +234,12 @@ private fun InnerText(
     inputMinHeight: Dp = 48.dp,
     colors: WireTextFieldColors = wireTextFieldColors(),
     shouldDetectTaps: Boolean = false,
-    onClick: (Offset) -> Unit = { }
+    onTap: (Offset) -> Unit = { }
 ) {
     var modifier: Modifier = Modifier
     if (shouldDetectTaps) {
         modifier = modifier.pointerInput(Unit) {
-            detectTapGestures(onTap = onClick)
+            detectTapGestures(onTap = onTap)
         }
     }
 
@@ -266,7 +268,7 @@ private fun InnerText(
                     top = 2.dp, bottom = 2.dp
                 )
         ) {
-            if (value.text.isEmpty() && placeholderText != null) {
+            if (shouldShowPlaceholder && placeholderText != null) {
                 Text(
                     text = placeholderText,
                     style = placeholderTextStyle,

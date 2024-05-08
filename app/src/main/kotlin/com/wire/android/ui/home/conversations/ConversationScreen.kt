@@ -86,8 +86,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.getOngoingCallIntent
+import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -131,6 +131,7 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewM
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
+import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -1060,11 +1061,12 @@ fun MessageList(
 
                     if (index > 0) {
                         val previousMessage = lazyPagingMessages[index - 1] ?: message
+                        val shouldDisplayDateTimeDivider = message.header.messageTime.shouldDisplayDatesDifferenceDivider(
+                            previousDate = previousMessage.header.messageTime.utcISO
+                        )
 
-                        val currentGroup = message.header.messageTime.getFormattedDateGroup(now = currentTime)
-                        val previousGroup = previousMessage.header.messageTime.getFormattedDateGroup(now = currentTime)
-
-                        if (currentGroup != previousGroup) {
+                        if (shouldDisplayDateTimeDivider) {
+                            val previousGroup = previousMessage.header.messageTime.getFormattedDateGroup(now = currentTime)
                             previousMessage.header.messageTime.utcISO.serverDate()?.let { serverDate ->
                                 MessageGroupDateTime(
                                     messageDateTime = serverDate,
@@ -1072,6 +1074,11 @@ fun MessageList(
                                     now = currentTime
                                 )
                             }
+                        }
+                    }
+                    val swipableConfiguration = remember(message) {
+                        SwipableMessageConfiguration.SwipableToReply {
+                            onSwipedToReply(it)
                         }
                     }
 
@@ -1085,7 +1092,7 @@ fun MessageList(
                         onAudioClick = onAudioItemClicked,
                         onChangeAudioPosition = onChangeAudioPosition,
                         onLongClicked = onShowEditingOption,
-                        onSwipedToReply = onSwipedToReply,
+                        swipableMessageConfiguration = swipableConfiguration,
                         onAssetMessageClicked = onAssetItemClicked,
                         onImageMessageClicked = onImageFullScreenMode,
                         onOpenProfile = onOpenProfile,
@@ -1104,6 +1111,19 @@ fun MessageList(
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
                         isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED
                     )
+
+                    val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1
+                    val isTheLastItem = (index + 1) == lazyPagingMessages.itemCount
+                    if (isTheOnlyItem || isTheLastItem) {
+                        val currentGroup = message.header.messageTime.getFormattedDateGroup(now = currentTime)
+                        message.header.messageTime.utcISO.serverDate()?.let { serverDate ->
+                            MessageGroupDateTime(
+                                messageDateTime = serverDate,
+                                messageDateTimeGroup = currentGroup,
+                                now = currentTime
+                            )
+                        }
+                    }
                 }
             }
             JumpToLastMessageButton(lazyListState = lazyListState)
@@ -1126,6 +1146,7 @@ private fun MessageGroupDateTime(
             now,
             DateUtils.MINUTE_IN_MILLIS
         ).toString()
+
         is MessageDateTimeGroup.Daily -> {
             when (messageDateTimeGroup.type) {
                 MessageDateTimeGroup.Daily.Type.Today -> DateUtils.getRelativeDateTimeString(
@@ -1135,6 +1156,7 @@ private fun MessageGroupDateTime(
                     DateUtils.DAY_IN_MILLIS,
                     0
                 ).toString()
+
                 MessageDateTimeGroup.Daily.Type.Yesterday ->
                     DateUtils.getRelativeDateTimeString(
                         context,
@@ -1143,16 +1165,19 @@ private fun MessageGroupDateTime(
                         DateUtils.DAY_IN_MILLIS * 2,
                         0
                     ).toString()
+
                 MessageDateTimeGroup.Daily.Type.WithinWeek -> DateUtils.formatDateTime(
                     context,
                     messageDateTime.time,
                     DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
                 )
+
                 MessageDateTimeGroup.Daily.Type.NotWithinWeekButSameYear -> DateUtils.formatDateTime(
                     context,
                     messageDateTime.time,
                     DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
                 )
+
                 MessageDateTimeGroup.Daily.Type.Other -> DateUtils.formatDateTime(
                     context,
                     messageDateTime.time,
@@ -1160,12 +1185,17 @@ private fun MessageGroupDateTime(
                 )
             }
         }
+
         null -> ""
     }
 
     Row(
         Modifier
             .fillMaxWidth()
+            .padding(
+                top = dimensions().spacing4x,
+                bottom = dimensions().spacing8x
+            )
             .background(color = colorsScheme().divider)
             .padding(
                 top = dimensions().spacing6x,

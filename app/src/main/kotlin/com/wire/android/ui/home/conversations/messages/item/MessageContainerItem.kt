@@ -77,7 +77,7 @@ fun MessageContainerItem(
     shouldDisplayFooter: Boolean = true,
     onReplyClickable: Clickable? = null,
     isSelectedMessage: Boolean = false,
-    isInteractionAvailable: Boolean = true
+    isInteractionAvailable: Boolean = true,
 ) {
     val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
     if (

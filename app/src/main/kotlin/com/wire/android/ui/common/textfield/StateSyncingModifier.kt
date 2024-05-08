@@ -40,13 +40,18 @@ internal class StateSyncingModifier(
     private val value: TextFieldValue,
     private val onValueChanged: (TextFieldValue) -> Unit,
 ) : ModifierNodeElement<StateSyncingModifierNode>() {
+
     override fun create(): StateSyncingModifierNode = StateSyncingModifierNode(state, onValueChanged)
+
     override fun update(node: StateSyncingModifierNode) {
         node.update(value, onValueChanged)
     }
+
     @Suppress("EqualsAlwaysReturnsTrueOrFalse")
     override fun equals(other: Any?): Boolean = false
+
     override fun hashCode(): Int = state.hashCode()
+
     @Suppress("EmptyFunctionBlock")
     override fun InspectorInfo.inspectableProperties() {}
 }
@@ -59,6 +64,7 @@ internal class StateSyncingModifierNode(
 ) : Modifier.Node(), ObserverModifierNode {
     override val shouldAutoInvalidate: Boolean
         get() = false
+
     fun update(value: TextFieldValue, onValueChanged: (TextFieldValue) -> Unit) {
         this.onValueChanged = onValueChanged
         if (value.text != state.text.toString() || value.selection != state.text.selection) {
@@ -73,12 +79,15 @@ internal class StateSyncingModifierNode(
             onValueChanged(value)
         }
     }
+
     override fun onAttach() {
         observeTextState(fireOnValueChanged = false)
     }
+
     override fun onObservedReadsChanged() {
         observeTextState()
     }
+
     private fun observeTextState(fireOnValueChanged: Boolean = true) {
         lateinit var text: TextFieldCharSequence
         observeReads {

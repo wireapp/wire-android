@@ -29,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme

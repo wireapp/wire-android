@@ -18,6 +18,7 @@
 package com.wire.android.ui.common.snackbar
 
 import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
@@ -89,7 +90,8 @@ fun SwipeableSnackbar(
             anchors = anchors,
             positionalThreshold = positionalThreshold,
             velocityThreshold = velocityThreshold,
-            animationSpec = SpringSpec(),
+            snapAnimationSpec = SpringSpec(),
+            decayAnimationSpec = splineBasedDecay(density),
             confirmValueChange = { true }
         )
     }

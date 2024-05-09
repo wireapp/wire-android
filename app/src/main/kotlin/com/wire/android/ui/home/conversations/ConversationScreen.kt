@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.text.format.DateUtils
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandIn
@@ -28,6 +29,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,9 +48,11 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,8 +86,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.getOngoingCallIntent
+import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -127,6 +131,7 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewM
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
+import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -142,8 +147,11 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.MessageDateTimeGroup
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.permission.PermissionDenialType
+import com.wire.android.util.serverDate
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.openDownloadFolder
 import com.wire.kalium.logic.NetworkFailure
@@ -164,6 +172,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
+import java.util.Date
+import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -799,6 +809,7 @@ private fun ConversationScreen(
                     onOpenProfile = onOpenProfile,
                     onUpdateConversationReadDate = onUpdateConversationReadDate,
                     onShowEditingOptions = conversationScreenState::showEditContextMenu,
+                    onSwipedToReply = messageComposerStateHolder::toReply,
                     onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                     onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,
@@ -847,6 +858,7 @@ private fun ConversationScreenContent(
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onShowEditingOptions: (UIMessage.Regular) -> Unit,
+    onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
@@ -888,6 +900,7 @@ private fun ConversationScreenContent(
                 onResetSessionClicked = onResetSessionClicked,
                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                 onShowEditingOption = onShowEditingOptions,
+                onSwipedToReply = onSwipedToReply,
                 conversationDetailsData = conversationDetailsData,
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked,
@@ -961,6 +974,7 @@ fun MessageList(
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onShowEditingOption: (UIMessage.Regular) -> Unit,
+    onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
@@ -973,6 +987,7 @@ fun MessageList(
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
+    val currentTime by currentTimeInMillisFlow.collectAsState(initial = System.currentTimeMillis())
 
     LaunchedEffect(lazyPagingMessages.itemCount) {
         if (lazyPagingMessages.itemCount > prevItemCount.value && selectedMessageId == null) {
@@ -1044,6 +1059,29 @@ fun MessageList(
                     val showAuthor = rememberShouldShowHeader(index, message, lazyPagingMessages)
                     val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
 
+                    if (index > 0) {
+                        val previousMessage = lazyPagingMessages[index - 1] ?: message
+                        val shouldDisplayDateTimeDivider = message.header.messageTime.shouldDisplayDatesDifferenceDivider(
+                            previousDate = previousMessage.header.messageTime.utcISO
+                        )
+
+                        if (shouldDisplayDateTimeDivider) {
+                            val previousGroup = previousMessage.header.messageTime.getFormattedDateGroup(now = currentTime)
+                            previousMessage.header.messageTime.utcISO.serverDate()?.let { serverDate ->
+                                MessageGroupDateTime(
+                                    messageDateTime = serverDate,
+                                    messageDateTimeGroup = previousGroup,
+                                    now = currentTime
+                                )
+                            }
+                        }
+                    }
+                    val swipableConfiguration = remember(message) {
+                        SwipableMessageConfiguration.SwipableToReply {
+                            onSwipedToReply(it)
+                        }
+                    }
+
                     MessageContainerItem(
                         message = message,
                         conversationDetailsData = conversationDetailsData,
@@ -1054,6 +1092,7 @@ fun MessageList(
                         onAudioClick = onAudioItemClicked,
                         onChangeAudioPosition = onChangeAudioPosition,
                         onLongClicked = onShowEditingOption,
+                        swipableMessageConfiguration = swipableConfiguration,
                         onAssetMessageClicked = onAssetItemClicked,
                         onImageMessageClicked = onImageFullScreenMode,
                         onOpenProfile = onOpenProfile,
@@ -1070,14 +1109,106 @@ fun MessageList(
                             }
                         ),
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
-                        isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
-                        currentTimeInMillisFlow = currentTimeInMillisFlow
+                        isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED
                     )
+
+                    val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1
+                    val isTheLastItem = (index + 1) == lazyPagingMessages.itemCount
+                    if (isTheOnlyItem || isTheLastItem) {
+                        val currentGroup = message.header.messageTime.getFormattedDateGroup(now = currentTime)
+                        message.header.messageTime.utcISO.serverDate()?.let { serverDate ->
+                            MessageGroupDateTime(
+                                messageDateTime = serverDate,
+                                messageDateTimeGroup = currentGroup,
+                                now = currentTime
+                            )
+                        }
+                    }
                 }
             }
             JumpToLastMessageButton(lazyListState = lazyListState)
         }
     )
+}
+
+@Composable
+private fun MessageGroupDateTime(
+    now: Long,
+    messageDateTime: Date,
+    messageDateTimeGroup: MessageDateTimeGroup?
+) {
+    val context = LocalContext.current
+
+    val timeString = when (messageDateTimeGroup) {
+        is MessageDateTimeGroup.Now -> context.resources.getString(R.string.message_datetime_now)
+        is MessageDateTimeGroup.Within30Minutes -> DateUtils.getRelativeTimeSpanString(
+            messageDateTime.time,
+            now,
+            DateUtils.MINUTE_IN_MILLIS
+        ).toString()
+
+        is MessageDateTimeGroup.Daily -> {
+            when (messageDateTimeGroup.type) {
+                MessageDateTimeGroup.Daily.Type.Today -> DateUtils.getRelativeDateTimeString(
+                    context,
+                    messageDateTime.time,
+                    DateUtils.DAY_IN_MILLIS,
+                    DateUtils.DAY_IN_MILLIS,
+                    0
+                ).toString()
+
+                MessageDateTimeGroup.Daily.Type.Yesterday ->
+                    DateUtils.getRelativeDateTimeString(
+                        context,
+                        messageDateTime.time,
+                        DateUtils.DAY_IN_MILLIS,
+                        DateUtils.DAY_IN_MILLIS * 2,
+                        0
+                    ).toString()
+
+                MessageDateTimeGroup.Daily.Type.WithinWeek -> DateUtils.formatDateTime(
+                    context,
+                    messageDateTime.time,
+                    DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
+                )
+
+                MessageDateTimeGroup.Daily.Type.NotWithinWeekButSameYear -> DateUtils.formatDateTime(
+                    context,
+                    messageDateTime.time,
+                    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
+                )
+
+                MessageDateTimeGroup.Daily.Type.Other -> DateUtils.formatDateTime(
+                    context,
+                    messageDateTime.time,
+                    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_TIME
+                )
+            }
+        }
+
+        null -> ""
+    }
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(
+                top = dimensions().spacing4x,
+                bottom = dimensions().spacing8x
+            )
+            .background(color = colorsScheme().divider)
+            .padding(
+                top = dimensions().spacing6x,
+                bottom = dimensions().spacing6x,
+                start = dimensions().spacing56x
+            )
+    ) {
+        Text(
+            text = timeString.uppercase(Locale.getDefault()),
+            color = colorsScheme().secondaryText,
+            style = MaterialTheme.wireTypography.title03,
+        )
+    }
 }
 
 private fun updateLastReadMessage(

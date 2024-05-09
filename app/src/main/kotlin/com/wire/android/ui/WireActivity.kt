@@ -23,6 +23,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -51,6 +52,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
@@ -217,7 +219,7 @@ class WireActivity : AppCompatActivity() {
                                 }
                             },
                             onReturnToIncomingCallClick = {
-                                getIncomingCallIntent(this@WireActivity, it.conversationId.toString()).run {
+                                getIncomingCallIntent(this@WireActivity, it.conversationId.toString(), null).run {
                                     startActivity(this)
                                 }
                             },
@@ -507,8 +509,29 @@ class WireActivity : AppCompatActivity() {
             viewModel.handleDeepLink(
                 intent = intent,
                 onResult = ::handleDeepLinkResult,
-                onOpenConversation = { navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.CLEAR_TILL_START)) },
-                onIsSharingIntent = { navigate(NavigationCommand(ImportMediaScreenDestination, BackStackMode.UPDATE_EXISTED)) }
+                onOpenConversation = {
+                    navigate(
+                        NavigationCommand(
+                            ConversationScreenDestination(it),
+                            BackStackMode.CLEAR_TILL_START
+                        )
+                    )
+                },
+                onIsSharingIntent = {
+                    navigate(
+                        NavigationCommand(
+                            ImportMediaScreenDestination,
+                            BackStackMode.UPDATE_EXISTED
+                        )
+                    )
+                },
+                onCannotLoginDuringACall = {
+                    Toast.makeText(
+                        this,
+                        resources.getString(R.string.cant_switch_account_in_call),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             )
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
         }

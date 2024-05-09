@@ -40,6 +40,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
+import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.UIPagingItem
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
@@ -134,7 +135,8 @@ private fun AssetMessagesListContent(
                                 defaultBackgroundColor = colorsScheme().backgroundVariant,
                                 shouldDisplayMessageStatus = false,
                                 shouldDisplayFooter = false,
-                                onReplyClickable = null
+                                onReplyClickable = null,
+                                swipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable
                             )
                         }
 

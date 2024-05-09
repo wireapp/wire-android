@@ -109,7 +109,6 @@ class MessageComposerStateHolder(
     }
 
     fun toReply(message: UIMessage.Regular) {
-        messageCompositionHolder.clearMessage()
         messageCompositionHolder.setReply(message)
         messageCompositionInputStateHolder.toComposing()
     }

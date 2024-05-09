@@ -19,7 +19,6 @@
 package com.wire.android.ui.home.conversations.messages.item
 
 import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi

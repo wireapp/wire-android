@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -126,7 +127,7 @@ internal fun WireTextField2(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(color = colors.backgroundColor(state).value, shape = shape)
-                .border(width = 1.dp, color = colors.borderColor(state, interactionSource).value, shape = shape)
+                .border(width = dimensions().spacing1x, color = colors.borderColor(state, interactionSource).value, shape = shape)
                 .semantics {
                     (labelText ?: placeholderText ?: descriptionText)?.let {
                         contentDescription = it
@@ -177,7 +178,7 @@ internal fun WireTextField2(
                 style = MaterialTheme.wireTypography.label04,
                 textAlign = TextAlign.Start,
                 color = colors.descriptionColor(state).value,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = dimensions().spacing4x)
             )
         }
     }

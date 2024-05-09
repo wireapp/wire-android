@@ -141,8 +141,10 @@ private fun InnerTextLayout(
     onTap: ((Offset) -> Unit)? = null
 ) {
     val modifier: Modifier = Modifier.apply {
-        if (onTap != null) pointerInput(Unit) {
-            detectTapGestures(onTap = onTap)
+        if (onTap != null) {
+            pointerInput(Unit) {
+                detectTapGestures(onTap = onTap)
+            }
         }
     }
 
@@ -167,7 +169,8 @@ private fun InnerTextLayout(
                 .padding(
                     start = if (leadingIcon == null) dimensions().spacing16x else dimensions().spacing0x,
                     end = if (trailingOrStateIcon == null) dimensions().spacing16x else dimensions().spacing0x,
-                    top = dimensions().spacing2x, bottom = dimensions().spacing2x
+                    top = dimensions().spacing2x,
+                    bottom = dimensions().spacing2x,
                 )
         ) {
             if (shouldShowPlaceholder && placeholderText != null) {

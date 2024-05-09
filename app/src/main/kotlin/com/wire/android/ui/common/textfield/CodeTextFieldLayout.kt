@@ -135,7 +135,7 @@ private fun Digit(
     val interactionSource = object : InteractionSource {
         private val focusInteraction: FocusInteraction.Focus = FocusInteraction.Focus()
         override val interactions: Flow<Interaction> = flow {
-            emit(if(selected) focusInteraction else FocusInteraction.Unfocus(focusInteraction))
+            emit(if (selected) focusInteraction else FocusInteraction.Unfocus(focusInteraction))
         }
     }
     Column(

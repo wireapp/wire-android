@@ -45,7 +45,9 @@ internal fun Modifier.autoFill(type: WireAutoFillType, onFill: ((String) -> Unit
         modifier
             .fillBounds(autofillNode)
             .defaultOnFocusAutoFill(LocalAutofill.current, autofillNode)
-    } else modifier
+    } else {
+        modifier
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -54,13 +56,16 @@ private fun Modifier.fillBounds(autofillNode: AutofillNode) = this.then(
 )
 
 private fun Modifier.defaultOnFocusAutoFill(autofill: Autofill?, autofillNode: AutofillNode): Modifier =
-    then(Modifier.onFocusChanged { focusState ->
-        if (focusState.isFocused) {
-            autofill?.requestAutofillForNode(autofillNode)
-        } else {
-            autofill?.cancelAutofillForNode(autofillNode)
+    then(
+        Modifier.onFocusChanged {
+            focusState ->
+                if (focusState.isFocused) {
+                    autofill?.requestAutofillForNode(autofillNode)
+                } else {
+                    autofill?.cancelAutofillForNode(autofillNode)
+                }
         }
-    })
+    )
 
 @Composable
 fun clearAutofillTree() = LocalAutofillTree.current.children.clear()

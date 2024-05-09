@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.common.textfield
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -26,7 +28,6 @@ import androidx.compose.foundation.text.input.then
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.core.text.isDigitsOnly
-
 
 @OptIn(ExperimentalFoundationApi::class)
 class MaxLengthDigitsFilter(private val maxLength: Int) : InputTransformation {

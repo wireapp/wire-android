@@ -137,6 +137,7 @@ class AvatarPickerViewModel @Inject constructor(
                     }
                 }
             } catch (e: FileNotFoundException) {
+                appLogger.e("[AvatarPickerViewModel] Could not find a file", e)
                 showInfoMessage(InfoMessageType.ImageProcessError)
             }
         }

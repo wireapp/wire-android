@@ -93,14 +93,15 @@ fun WireButton(
     val border =
         if (borderWidth > 0.dp) BorderStroke(
             width = borderWidth,
-            color = colors.outlineColor(state, interactionSource).value
+            color = colors.outlineColor(state).value
         )
         else null
     val baseColors = ButtonDefaults.buttonColors(
-        containerColor = colors.containerColor(state, interactionSource).value,
-        contentColor = colors.rippleColor(), // actual content color is set directly for the children, here it's only used for the ripple
-        disabledContainerColor = colors.containerColor(state, interactionSource).value,
-        disabledContentColor = colors.rippleColor(),
+        containerColor = colors.containerColor(state).value,
+        // actual content color is set directly for the children, here it's only used for the ripple
+        contentColor = colors.rippleColor(state).value,
+        disabledContainerColor = colors.containerColor(state).value,
+        disabledContentColor = colors.rippleColor(state).value,
     )
     val onClickWithSyncObserver = rememberClickBlockAction(clickBlockParams, onClick)
     CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
@@ -141,7 +142,6 @@ fun WireButton(
                 textStyle = textStyle,
                 state = state,
                 colors = colors,
-                interactionSource = interactionSource
             )
         }
     }
@@ -159,9 +159,8 @@ private fun InnerButtonBox(
     textStyle: TextStyle = MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
     colors: WireButtonColors = wirePrimaryButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
-    val contentColor = colors.contentColor(state, interactionSource).value
+    val contentColor = colors.contentColor(state).value
     val leadingItem: (@Composable () -> Unit) = { leadingIcon?.let { Tint(contentColor = contentColor, content = it) } }
     val trailingItem: (@Composable () -> Unit) = {
         Crossfade(targetState = trailingIcon to loading) { (trailingIcon, loading) ->
@@ -212,11 +211,5 @@ private fun InnerButtonBox(
         ) { if (trailingIconAlignment == IconAlignment.Border) trailingItem() }
     }
 }
-
-@Composable
-fun getMinTouchMargins(minSize: DpSize) = PaddingValues(
-    horizontal = (LocalViewConfiguration.current.minimumTouchTargetSize.width - minSize.width) / 2,
-    vertical = (LocalViewConfiguration.current.minimumTouchTargetSize.height - minSize.height) / 2
-)
 
 enum class IconAlignment { Border, Center }

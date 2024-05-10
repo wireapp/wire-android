@@ -19,50 +19,48 @@
 package com.wire.android.ui.calling.controlbuttons
 
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import com.wire.android.R
-import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.wirePrimaryButtonColors
-import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun HangUpButton(
-    modifier: Modifier = Modifier.size(dimensions().defaultCallingHangUpButtonSize),
-    onHangUpButtonClicked: () -> Unit
+    onHangUpButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: Dp = dimensions().bigCallingControlsSize,
+    iconSize: Dp = dimensions().bigCallingHangUpButtonIconSize,
 ) {
-    WirePrimaryButton(
+    WirePrimaryIconButton(
+        iconResource = R.drawable.ic_call_reject,
+        contentDescription = R.string.content_description_calling_hang_up_call,
+        state = WireButtonState.Error,
         shape = CircleShape,
+        minSize = DpSize(size, size),
+        minClickableSize = DpSize(size, size),
+        iconSize = iconSize,
+        onButtonClicked = onHangUpButtonClicked,
         modifier = modifier,
-        colors = wirePrimaryButtonColors().copy(enabled = colorsScheme().callingHangupButtonColor),
-        onClick = onHangUpButtonClicked,
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_call_reject),
-                contentDescription = stringResource(id = R.string.content_description_calling_hang_up_call),
-                tint = colorsScheme().onCallingHangupButtonColor
-            )
-        }
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewComposableHangUpButton() {
+fun PreviewComposableHangUpButton() = WireTheme {
     HangUpButton(
         modifier = Modifier
-            .width(MaterialTheme.wireDimensions.outgoingCallHangUpButtonSize)
-            .height(MaterialTheme.wireDimensions.outgoingCallHangUpButtonSize),
+            .width(MaterialTheme.wireDimensions.bigCallingControlsSize)
+            .height(MaterialTheme.wireDimensions.bigCallingControlsSize),
         onHangUpButtonClicked = { }
     )
 }

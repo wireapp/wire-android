@@ -32,6 +32,7 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
@@ -88,7 +89,7 @@ private fun AudioPermissionCheckFlow(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewStartCallButton() {
+fun PreviewStartCallButton() = WireTheme {
     StartCallButton(
         onPhoneButtonClick = {},
         onPermissionPermanentlyDenied = {},

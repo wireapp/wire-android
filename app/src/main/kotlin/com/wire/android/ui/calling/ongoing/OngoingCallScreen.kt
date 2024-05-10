@@ -484,7 +484,6 @@ fun PreviewOngoingCallScreen() = WireTheme {
         onPermissionPermanentlyDenied = {},
         requestVideoStreams = {},
     )
-
 }
 
 @PreviewMultipleThemes

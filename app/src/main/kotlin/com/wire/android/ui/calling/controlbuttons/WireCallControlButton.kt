@@ -66,4 +66,3 @@ fun WireCallControlButton(
         modifier = modifier.size(size),
     )
 }
-

@@ -104,6 +104,7 @@ fun wireTertiaryButtonColors() = wireButtonColors(
     positiveRipple = MaterialTheme.wireColorScheme.tertiaryButtonRipple,
 )
 
+@Suppress("ParameterListWrapping")
 @Composable
 private fun wireButtonColors(
     enabled: Color, onEnabled: Color, enabledOutline: Color, enabledRipple: Color,

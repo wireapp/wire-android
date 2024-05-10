@@ -14,6 +14,7 @@ dependencies {
     implementation(composeBom)
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
+    implementation(libs.compose.material.android)
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.material.core)
     implementation(libs.compose.material3)

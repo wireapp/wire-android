@@ -21,5 +21,5 @@ package com.wire.android.ui.calling
 enum class CallScreenType {
     Incoming,
     Ongoing,
-    Initiating
+    Outgoing
 }

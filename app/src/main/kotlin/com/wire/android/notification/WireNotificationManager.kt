@@ -257,6 +257,9 @@ class WireNotificationManager @Inject constructor(
                     incomingCallsJob = scope.launch(dispatcherProvider.default()) {
                         observeIncomingCalls(userId)
                     },
+                    outgoingCallJob = scope.launch(dispatcherProvider.default()) {
+                        observeOutgoingCalls(userId)
+                    },
                     messagesJob = scope.launch(dispatcherProvider.default()) {
                         observeMessageNotifications(userId, currentScreenState)
                     },
@@ -334,6 +337,15 @@ class WireNotificationManager @Inject constructor(
             .collect { calls ->
                 callNotificationManager.handleIncomingCallNotifications(calls, userId)
             }
+    }
+
+    private suspend fun observeOutgoingCalls(
+        userId: UserId
+    ) {
+        appLogger.d("$TAG observing outgoing calls")
+        coreLogic.getSessionScope(userId).calls.observeOutgoingCall().collect {
+            callNotificationManager.handleOutgoingCallNotifications(it, userId)
+        }
     }
 
     /**
@@ -489,16 +501,18 @@ class WireNotificationManager @Inject constructor(
     private data class UserObservingJobs(
         val currentScreenJob: Job,
         val incomingCallsJob: Job,
+        val outgoingCallJob: Job,
         val messagesJob: Job,
     ) {
         fun cancelAll() {
             currentScreenJob.cancel()
             incomingCallsJob.cancel()
+            outgoingCallJob.cancel()
             messagesJob.cancel()
         }
 
         fun isAllActive(): Boolean =
-            currentScreenJob.isActive && incomingCallsJob.isActive && messagesJob.isActive
+            currentScreenJob.isActive && incomingCallsJob.isActive && messagesJob.isActive && outgoingCallJob.isActive
     }
 
     private data class ObservingJobs(

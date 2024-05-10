@@ -109,7 +109,7 @@ fun IncomingCallScreen(
     LaunchedEffect(incomingCallViewModel.incomingCallState.flowState) {
         when (incomingCallViewModel.incomingCallState.flowState) {
             is IncomingCallState.FlowState.CallClosed -> {
-                activity.finish()
+                activity.finishAndRemoveTask()
             }
 
             is IncomingCallState.FlowState.CallAccepted -> {
@@ -132,7 +132,7 @@ fun IncomingCallScreen(
                         (activity as CallActivity).openAppLockActivity()
                     },
                     onCallRejected = {
-                        activity.finish()
+                        activity.finishAndRemoveTask()
                     }
                 )
             },
@@ -148,6 +148,9 @@ fun IncomingCallScreen(
                         )
                     )
                 }
+            },
+            onMinimiseScreen = {
+                activity.moveTaskToBack(true)
             }
         )
     }
@@ -169,7 +172,8 @@ private fun IncomingCallContent(
     acceptCall: () -> Unit,
     onVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onMinimiseScreen: () -> Unit
 ) {
     BackHandler {
         // DO NOTHING
@@ -205,7 +209,7 @@ private fun IncomingCallContent(
                     modifier = Modifier.align(alignment = Alignment.CenterStart)
                 ) {
                     HangUpButton(
-                        modifier = Modifier.size(dimensions().initiatingCallHangUpButtonSize),
+                        modifier = Modifier.size(dimensions().outgoingCallHangUpButtonSize),
                         onHangUpButtonClicked = { declineCall() }
                     )
                     Text(
@@ -260,7 +264,8 @@ private fun IncomingCallContent(
                 callingLabel = isCallingString,
                 protocolInfo = callState.protocolInfo,
                 mlsVerificationStatus = callState.mlsVerificationStatus,
-                proteusVerificationStatus = callState.proteusVerificationStatus
+                proteusVerificationStatus = callState.proteusVerificationStatus,
+                onMinimiseScreen = onMinimiseScreen
             )
         }
     }
@@ -292,5 +297,6 @@ fun PreviewIncomingCallScreen() {
         onVideoPreviewCreated = { },
         onSelfClearVideoPreview = { },
         onPermissionPermanentlyDenied = { },
+        onMinimiseScreen = { }
     )
 }

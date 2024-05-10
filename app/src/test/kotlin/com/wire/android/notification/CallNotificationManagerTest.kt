@@ -55,8 +55,29 @@ class CallNotificationManagerTest {
             callNotificationManager.handleIncomingCallNotifications(listOf(), TEST_USER_ID1)
             advanceUntilIdle()
             // then
-            verify(exactly = 0) { arrangement.notificationManager.notify(any(), any()) }
-            verify(exactly = 1) { arrangement.notificationManager.cancel(any()) }
+            verify(exactly = 0) {
+                arrangement.notificationManager.notify(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID, any())
+            }
+            verify(exactly = 1) {
+                arrangement.notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
+            }
+        }
+
+    @Test
+    fun `given no outgoing calls, when handling notifications, then hide outgoing call notification`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val (arrangement, callNotificationManager) = Arrangement()
+                .arrange()
+            callNotificationManager.handleOutgoingCallNotifications(listOf(), TEST_USER_ID1)
+            advanceUntilIdle()
+            // then
+            verify(exactly = 0) {
+                arrangement.notificationManager.notify(NotificationConstants.CALL_OUTGOING_NOTIFICATION_ID, any())
+            }
+            verify(exactly = 1) {
+                arrangement.notificationManager.cancel(NotificationConstants.CALL_OUTGOING_NOTIFICATION_ID)
+            }
         }
 
     @Test
@@ -73,6 +94,31 @@ class CallNotificationManagerTest {
             // then
             verify(exactly = 1) { arrangement.notificationManager.notify(any(), notification) }
             verify(exactly = 0) { arrangement.notificationManager.cancel(any()) }
+        }
+
+    @Test
+    fun `given an outgoing call for one user, when handling notifications, then show notification for that call`() =
+        runTest(dispatcherProvider.main()) {
+            val notification = mockk<Notification>()
+            val (arrangement, callNotificationManager) = Arrangement()
+                .withOutgoingNotificationForUserAndCall(
+                    notification,
+                    TEST_USER_ID1,
+                    TEST_CALL1.conversationId,
+                    TEST_CALL1.conversationName!!
+                )
+                .arrange()
+
+            arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call
+            callNotificationManager.handleOutgoingCallNotifications(listOf(TEST_CALL1), TEST_USER_ID1)
+            advanceUntilIdle()
+
+            verify(exactly = 1) {
+                arrangement.notificationManager.notify(NotificationConstants.CALL_OUTGOING_NOTIFICATION_ID, notification)
+            }
+            verify(exactly = 0) {
+                arrangement.notificationManager.cancel(NotificationConstants.CALL_OUTGOING_NOTIFICATION_ID)
+            }
         }
 
     @Test
@@ -155,7 +201,7 @@ class CallNotificationManagerTest {
             callNotificationManager.handleIncomingCallNotifications(listOf(), TEST_USER_ID1)
             // then
             verify(exactly = 0) { arrangement.notificationManager.notify(any(), notification) }
-            verify(exactly = 1) { arrangement.notificationManager.cancel(any()) }
+            verify(exactly = 1) { arrangement.notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID) }
         }
 
     @Test
@@ -209,6 +255,20 @@ class CallNotificationManagerTest {
 
         fun withIncomingNotificationForUserAndCall(notification: Notification, forUser: UserId, forCall: Call) = apply {
             every { callNotificationBuilder.getIncomingCallNotification(eq(forCall), eq(forUser)) } returns notification
+        }
+        fun withOutgoingNotificationForUserAndCall(
+            notification: Notification,
+            forUser: UserId,
+            conversationId: ConversationId,
+            conversationName: String
+        ) = apply {
+            every {
+                callNotificationBuilder.getOutgoingCallNotification(
+                    eq(conversationId),
+                    eq(forUser),
+                    eq(conversationName)
+                )
+            } returns notification
         }
 
         fun arrange() = this to callNotificationManager

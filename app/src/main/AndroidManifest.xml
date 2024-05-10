@@ -92,15 +92,17 @@
         <activity
             android:name=".ui.calling.CallActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
+            android:taskAffinity="wire.call"
             android:theme="@style/AppTheme" />
 
         <activity
                 android:name=".ui.WireActivity"
                 android:exported="true"
                 android:hardwareAccelerated="true"
-                android:launchMode="singleTop"
+                android:launchMode="singleTask"
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.SplashScreen"
                 android:windowSoftInputMode="adjustResize|stateHidden">

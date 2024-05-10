@@ -45,8 +45,6 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
 @OptIn(ExperimentalFoundationApi::class)
 @Suppress("ComplexMethod")
@@ -60,6 +58,7 @@ fun MessageContainerItem(
     audioMessagesState: PersistentMap<String, AudioState>,
     assetStatus: AssetTransferStatus? = null,
     onLongClicked: (UIMessage.Regular) -> Unit,
+    swipableMessageConfiguration: SwipableMessageConfiguration,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
@@ -79,7 +78,6 @@ fun MessageContainerItem(
     onReplyClickable: Clickable? = null,
     isSelectedMessage: Boolean = false,
     isInteractionAvailable: Boolean = true,
-    currentTimeInMillisFlow: Flow<Long> = flow { },
 ) {
     val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
     if (
@@ -142,6 +140,7 @@ fun MessageContainerItem(
                 onAudioClick = onAudioClick,
                 onChangeAudioPosition = onChangeAudioPosition,
                 onLongClicked = onLongClicked,
+                swipableMessageConfiguration = swipableMessageConfiguration,
                 onAssetMessageClicked = onAssetMessageClicked,
                 onImageMessageClicked = onImageMessageClicked,
                 onOpenProfile = onOpenProfile,
@@ -156,8 +155,7 @@ fun MessageContainerItem(
                 shouldDisplayMessageStatus = shouldDisplayMessageStatus,
                 shouldDisplayFooter = shouldDisplayFooter,
                 selfDeletionTimerState = selfDeletionTimerState,
-                useSmallBottomPadding = useSmallBottomPadding,
-                currentTimeInMillisFlow = currentTimeInMillisFlow
+                useSmallBottomPadding = useSmallBottomPadding
             )
         }
     }

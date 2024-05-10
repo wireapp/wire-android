@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.calling.initiating
+package com.wire.android.ui.calling.outgoing
 
 import android.view.View
 import androidx.activity.compose.BackHandler
@@ -57,12 +57,12 @@ import com.wire.kalium.logic.data.id.ConversationId
 
 @Suppress("ParameterWrapping")
 @Composable
-fun InitiatingCallScreen(
+fun OutgoingCallScreen(
     conversationId: ConversationId,
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel<SharedCallingViewModel, SharedCallingViewModel.Factory>(
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
-    initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel<InitiatingCallViewModel, InitiatingCallViewModel.Factory>(
+    outgoingCallViewModel: OutgoingCallViewModel = hiltViewModel<OutgoingCallViewModel, OutgoingCallViewModel.Factory>(
         creationCallback = { factory -> factory.create(conversationId = conversationId) }
     ),
     onCallAccepted: () -> Unit
@@ -72,27 +72,26 @@ fun InitiatingCallScreen(
 
     val activity = LocalActivity.current
 
-    LaunchedEffect(initiatingCallViewModel.state.flowState) {
-        when (initiatingCallViewModel.state.flowState) {
-            InitiatingCallState.FlowState.CallClosed -> {
-                activity.finish()
+    LaunchedEffect(outgoingCallViewModel.state.flowState) {
+        when (outgoingCallViewModel.state.flowState) {
+            OutgoingCallState.FlowState.CallClosed -> {
+                activity.finishAndRemoveTask()
             }
 
-            InitiatingCallState.FlowState.CallEstablished -> {
+            OutgoingCallState.FlowState.CallEstablished -> {
                 onCallAccepted()
             }
 
-            InitiatingCallState.FlowState.Default -> { /* do nothing */
-            }
+            OutgoingCallState.FlowState.Default -> { /* do nothing */ }
         }
     }
     with(sharedCallingViewModel) {
-        InitiatingCallContent(
+        OutgoingCallContent(
             callState = callState,
             toggleMute = ::toggleMute,
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
-            onHangUpCall = initiatingCallViewModel::hangUpCall,
+            onHangUpCall = outgoingCallViewModel::hangUpCall,
             onVideoPreviewCreated = ::setVideoPreview,
             onSelfClearVideoPreview = ::clearVideoPreview,
             onPermissionPermanentlyDenied = {
@@ -104,6 +103,9 @@ fun InitiatingCallScreen(
                         )
                     )
                 }
+            },
+            onMinimiseScreen = {
+                activity.moveTaskToBack(true)
             }
         )
     }
@@ -116,7 +118,7 @@ fun InitiatingCallScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun InitiatingCallContent(
+private fun OutgoingCallContent(
     callState: CallState,
     toggleMute: () -> Unit,
     toggleSpeaker: () -> Unit,
@@ -124,7 +126,8 @@ private fun InitiatingCallContent(
     onHangUpCall: () -> Unit,
     onVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onMinimiseScreen: () -> Unit
 ) {
     BackHandler {
         // DO NOTHING
@@ -136,7 +139,7 @@ private fun InitiatingCallContent(
         sheetDragHandle = null,
         scaffoldState = scaffoldState,
         sheetSwipeEnabled = false,
-        sheetPeekHeight = dimensions().defaultInitiatingCallSheetPeekHeight,
+        sheetPeekHeight = dimensions().defaultOutgoingCallSheetPeekHeight,
         sheetContent = {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -158,8 +161,8 @@ private fun InitiatingCallContent(
                 )
                 HangUpButton(
                     modifier = Modifier
-                        .width(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize)
-                        .height(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize),
+                        .width(MaterialTheme.wireDimensions.outgoingCallHangUpButtonSize)
+                        .height(MaterialTheme.wireDimensions.outgoingCallHangUpButtonSize),
                     onHangUpButtonClicked = onHangUpCall
                 )
             }
@@ -183,6 +186,7 @@ private fun InitiatingCallContent(
                 protocolInfo = callState.protocolInfo,
                 mlsVerificationStatus = callState.mlsVerificationStatus,
                 proteusVerificationStatus = callState.proteusVerificationStatus,
+                onMinimiseScreen = onMinimiseScreen
             )
         }
     }
@@ -190,6 +194,6 @@ private fun InitiatingCallContent(
 
 @Preview
 @Composable
-fun PreviewInitiatingCallScreen() {
-    InitiatingCallContent(CallState(ConversationId("value", "domain")), {}, {}, {}, {}, {}, {}, {})
+fun PreviewOutgoingCallScreen() {
+    OutgoingCallContent(CallState(ConversationId("value", "domain")), {}, {}, {}, {}, {}, {}, {}, {})
 }

@@ -53,7 +53,7 @@ fun NewConversationSearchPeopleScreen(
         userSearchSignal = userSearchSignal,
         serviceSearchSignal = serviceSearchSignal,
         searchTitle = stringResource(id = R.string.label_new_conversation),
-        actionButtonTitle = stringResource(id = R.string.label_new_group),
+        actionButtonTitle = stringResource(id = R.string.label_create_new_group),
         onServicesSearchQueryChanged = searchBarViewModel::onServiceSearchQueryChanged,
         onUsersSearchQueryChanged = searchBarViewModel::onUserSearchQueryChanged,
         onOpenUserProfile = { contact ->

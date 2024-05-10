@@ -372,4 +372,17 @@ class MessagePreviewContentMapperTest {
             previewString.count shouldBeEqualTo otherRemovedUsers.size
             previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_other_users
         }
+
+    @Test
+    fun givenLastMessageIsDeleted_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
+        runTest {
+            val messagePreview = TestMessage.PREVIEW.copy(
+                content = MessagePreviewContent.WithUser.Deleted("admin"), isSelfMessage = false
+            )
+
+            val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+            val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
+
+            result.resId shouldBeEqualTo R.string.deleted_message_text
+        }
 }

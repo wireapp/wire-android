@@ -24,7 +24,7 @@ object DeviceUtil {
     private const val BYTES_IN_KILOBYTE = 1024
     private const val BYTES_IN_MEGABYTE = BYTES_IN_KILOBYTE * 1024
     private const val BYTES_IN_GIGABYTE = BYTES_IN_MEGABYTE * 1024
-    private const val DIGITS_GROUP_SIZE = 3  // Number of digits between commas in formatted size.
+    private const val DIGITS_GROUP_SIZE = 3 // Number of digits between commas in formatted size.
 
     fun getAvailableInternalMemorySize(): String = try {
         val path = Environment.getDataDirectory()

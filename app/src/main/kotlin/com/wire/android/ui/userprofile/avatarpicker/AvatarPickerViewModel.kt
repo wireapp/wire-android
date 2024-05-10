@@ -49,6 +49,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okio.Path
+import java.io.FileNotFoundException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -113,24 +114,31 @@ class AvatarPickerViewModel @Inject constructor(
             pictureState = PictureState.Uploading(imgUri)
 
             val avatarPath = defaultAvatarPath
-            val imageDataSize = imgUri.toByteArray(appContext, dispatchers).size.toLong()
-            when (val result = uploadUserAvatar(avatarPath, imageDataSize)) {
-                is UploadAvatarResult.Success -> {
-                    dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
-                    onComplete(dataStore.avatarAssetId.first())
-                }
-                is UploadAvatarResult.Failure -> {
-                    when (result.coreFailure) {
-                        is NetworkFailure.NoNetworkConnection -> showInfoMessage(InfoMessageType.NoNetworkError)
-                        else -> showInfoMessage(InfoMessageType.UploadAvatarError)
+            try {
+                val imageDataSize = imgUri.toByteArray(appContext, dispatchers).size.toLong()
+
+                when (val result = uploadUserAvatar(avatarPath, imageDataSize)) {
+                    is UploadAvatarResult.Success -> {
+                        dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
+                        onComplete(dataStore.avatarAssetId.first())
                     }
-                    with(initialPictureLoadingState) {
-                        pictureState = when (this) {
-                            is InitialPictureLoadingState.Loaded -> PictureState.Initial(avatarUri)
-                            else -> PictureState.Empty
+
+                    is UploadAvatarResult.Failure -> {
+                        when (result.coreFailure) {
+                            is NetworkFailure.NoNetworkConnection -> showInfoMessage(InfoMessageType.NoNetworkError)
+                            else -> showInfoMessage(InfoMessageType.UploadAvatarError)
+                        }
+                        with(initialPictureLoadingState) {
+                            pictureState = when (this) {
+                                is InitialPictureLoadingState.Loaded -> PictureState.Initial(avatarUri)
+                                else -> PictureState.Empty
+                            }
                         }
                     }
                 }
+            } catch (e: FileNotFoundException) {
+                appLogger.e("[AvatarPickerViewModel] Could not find a file", e)
+                showInfoMessage(InfoMessageType.ImageProcessError)
             }
         }
     }
@@ -157,5 +165,6 @@ class AvatarPickerViewModel @Inject constructor(
     sealed class InfoMessageType(override val uiText: UIText) : SnackBarMessage {
         data object UploadAvatarError : InfoMessageType(UIText.StringResource(R.string.error_uploading_user_avatar))
         data object NoNetworkError : InfoMessageType(UIText.StringResource(R.string.error_no_network_message))
+        data object ImageProcessError : InfoMessageType(UIText.StringResource(R.string.error_process_user_avatar))
     }
 }

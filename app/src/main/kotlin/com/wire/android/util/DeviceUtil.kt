@@ -20,55 +20,58 @@ package com.wire.android.util
 import android.os.Environment
 import android.os.StatFs
 
-class DeviceUtil {
-    companion object {
-        fun getAvailableInternalMemorySize(): String {
-            return try {
-                val path = Environment.getDataDirectory()
-                val stat = StatFs(path.path)
-                val blockSize = stat.blockSizeLong
-                val availableBlocks = stat.availableBlocksLong
-                formatSize(availableBlocks * blockSize)
-            } catch (e: IllegalArgumentException) {
-                ""
-            }
-        }
+object DeviceUtil {
+    private const val BYTES_IN_KILOBYTE = 1024
+    private const val BYTES_IN_MEGABYTE = BYTES_IN_KILOBYTE * 1024
+    private const val BYTES_IN_GIGABYTE = BYTES_IN_MEGABYTE * 1024
+    private const val DIGITS_GROUP_SIZE = 3  // Number of digits between commas in formatted size.
 
-        fun getTotalInternalMemorySize(): String {
-            return try {
-                val path = Environment.getDataDirectory()
-                val stat = StatFs(path.path)
-                val blockSize = stat.blockSizeLong
-                val totalBlocks = stat.blockCountLong
-                formatSize(totalBlocks * blockSize)
-            } catch (e: IllegalArgumentException) {
-                ""
-            }
-        }
+    fun getAvailableInternalMemorySize(): String = try {
+        val path = Environment.getDataDirectory()
+        val stat = StatFs(path.path)
+        val blockSize = stat.blockSizeLong
+        val availableBlocks = stat.availableBlocksLong
+        formatSize(availableBlocks * blockSize)
+    } catch (e: IllegalArgumentException) {
+        ""
+    }
 
-        private fun formatSize(sizeInBytes: Long): String {
-            var size = sizeInBytes
-            var suffix: String? = null
-            if (size >= 1024) {
+    fun getTotalInternalMemorySize(): String = try {
+        val path = Environment.getDataDirectory()
+        val stat = StatFs(path.path)
+        val blockSize = stat.blockSizeLong
+        val totalBlocks = stat.blockCountLong
+        formatSize(totalBlocks * blockSize)
+    } catch (e: IllegalArgumentException) {
+        ""
+    }
+
+    private fun formatSize(sizeInBytes: Long): String {
+        var size = sizeInBytes
+        var suffix: String? = null
+        when {
+            size >= BYTES_IN_GIGABYTE -> {
+                suffix = "GB"
+                size /= BYTES_IN_GIGABYTE
+            }
+
+            size >= BYTES_IN_MEGABYTE -> {
+                suffix = "MB"
+                size /= BYTES_IN_MEGABYTE
+            }
+
+            size >= BYTES_IN_KILOBYTE -> {
                 suffix = "KB"
-                size /= 1024
-                if (size >= 1024) {
-                    suffix = "MB"
-                    size /= 1024
-                    if (size >= 1024) {
-                        suffix = "GB"
-                        size /= 1024
-                    }
-                }
+                size /= BYTES_IN_KILOBYTE
             }
-            val resultBuffer = StringBuilder(size.toString())
-            var commaOffset = resultBuffer.length - 3
-            while (commaOffset > 0) {
-                resultBuffer.insert(commaOffset, ',')
-                commaOffset -= 3
-            }
-            if (suffix != null) resultBuffer.append(suffix)
-            return resultBuffer.toString()
         }
+        val resultBuffer = StringBuilder(size.toString())
+        var commaOffset = resultBuffer.length - DIGITS_GROUP_SIZE
+        while (commaOffset > 0) {
+            resultBuffer.insert(commaOffset, ',')
+            commaOffset -= DIGITS_GROUP_SIZE
+        }
+        suffix?.let { resultBuffer.append(it) }
+        return resultBuffer.toString()
     }
 }

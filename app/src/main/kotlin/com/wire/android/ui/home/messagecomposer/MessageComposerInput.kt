@@ -59,7 +59,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextField2
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
@@ -301,7 +301,7 @@ private fun MessageComposerTextInput(
         }
     }
 
-    WireTextField(
+    WireTextField2(
         value = messageText,
         onValueChange = onMessageTextChanged,
         colors = colors,

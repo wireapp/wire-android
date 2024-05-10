@@ -21,7 +21,7 @@ package com.wire.android.ui.calling.controlbuttons
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.ripple
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -46,7 +46,7 @@ fun CameraFlipButton(
                 .wrapContentSize()
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(bounded = false, radius = dimensions().defaultCallingControlsSize / 2),
+                    indication = ripple(bounded = false, radius = dimensions().defaultCallingControlsSize / 2),
                     role = Role.Button,
                     onClick = onCameraFlipButtonClicked
 

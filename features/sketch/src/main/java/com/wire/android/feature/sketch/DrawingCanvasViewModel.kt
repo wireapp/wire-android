@@ -157,7 +157,7 @@ class DrawingCanvasViewModel : ViewModel() {
                         Bitmap.Config.ARGB_8888
                     )
                     val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.White.toArgb() }) }
-                    context.contentResolver.openFileDescriptor(tempSketchFile, "rw")?.use { fileDescriptor ->
+                    context.contentResolver.openFileDescriptor(tempSketchFile, "rwt")?.use { fileDescriptor ->
                         FileOutputStream(fileDescriptor.fileDescriptor).use { fileOutputStream ->
                             paths.forEach { path -> path.drawNative(canvas) }
                             bitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY, fileOutputStream)

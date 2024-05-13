@@ -282,6 +282,12 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         else R.string.last_message_other_user_shared_location
                     )
                 )
+
+                is WithUser.Deleted -> UILastMessageContent.SenderWithMessage(
+                    sender = userUIText,
+                    message = UIText.StringResource(R.string.deleted_message_text),
+                    separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
+                )
             }
         }
 

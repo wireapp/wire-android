@@ -297,7 +297,7 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() {
             lastMessageContent = UILastMessageContent.SenderWithMessage(
                 "John".toUIText(),
                 UIText.StringResource(R.string.deleted_message_text),
-                ": ${MarkdownConstants.NON_BREAKING_SPACE}"
+                ":${MarkdownConstants.NON_BREAKING_SPACE}"
             ),
             badgeEventType = BadgeEventType.None,
             selfMemberRole = null,

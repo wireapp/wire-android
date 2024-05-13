@@ -377,7 +377,8 @@ class MessagePreviewContentMapperTest {
     fun givenLastMessageIsDeleted_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
         runTest {
             val messagePreview = TestMessage.PREVIEW.copy(
-                content = MessagePreviewContent.WithUser.Deleted("admin"), isSelfMessage = false
+                content = MessagePreviewContent.WithUser.Deleted("admin"),
+                isSelfMessage = false
             )
 
             val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()

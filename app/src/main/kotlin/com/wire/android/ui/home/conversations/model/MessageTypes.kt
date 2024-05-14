@@ -46,13 +46,11 @@ import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.AsyncImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
-import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
 import com.wire.android.ui.markdown.DisplayMention
 import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
@@ -284,27 +282,6 @@ fun MediaAssetImage(
             }
         }
     }
-}
-
-@Composable
-internal fun MessageGenericAsset(
-    assetName: String,
-    assetExtension: String,
-    assetSizeInBytes: Long,
-    onAssetClick: Clickable,
-    assetTransferStatus: AssetTransferStatus,
-    shouldFillMaxWidth: Boolean = true,
-    isImportedMediaAsset: Boolean = false
-) {
-    MessageAsset(
-        assetName,
-        assetExtension,
-        assetSizeInBytes,
-        onAssetClick,
-        assetTransferStatus,
-        shouldFillMaxWidth,
-        isImportedMediaAsset
-    )
 }
 
 /**

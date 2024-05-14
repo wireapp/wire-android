@@ -161,7 +161,27 @@ fun FileBrowserFlow(
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ): UseStorageRequestFlow<Uri?> {
     return rememberOpenFileBrowserFlow(
-        onFileBrowserItemPicked = onFilePicked,
+        contract = ActivityResultContracts.GetContent(),
+        onFileBrowserItemPicked = { uri ->
+            uri?.let(onFilePicked)
+        },
+        onPermissionDenied = { /* Nothing to do */ },
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+    )
+}
+
+@Composable
+fun MultipleFileBrowserFlow(
+    onFilesPicked: (List<Uri>) -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+): UseStorageRequestFlow<List<Uri>> {
+    return rememberOpenFileBrowserFlow(
+        contract = ActivityResultContracts.GetMultipleContents(),
+        onFileBrowserItemPicked = { uris ->
+            if (uris.isNotEmpty()) {
+                onFilesPicked(uris)
+            }
+        },
         onPermissionDenied = { /* Nothing to do */ },
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
     )
@@ -233,8 +253,8 @@ private fun buildAttachmentOptionItems(
     onLocationPickerClicked: () -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ): List<AttachmentOptionItem> {
-    val fileFlow = FileBrowserFlow(
-        remember { { onFilePicked(UriAsset(it, false)) } },
+    val fileFlow = MultipleFileBrowserFlow(
+        remember { { onImagesPicked(it) } },
         onPermissionPermanentlyDenied
     )
     val galleryFlow = MultipleGalleryFlow(

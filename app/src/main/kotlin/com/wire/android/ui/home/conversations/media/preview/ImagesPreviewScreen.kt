@@ -21,7 +21,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +28,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -45,11 +43,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -95,6 +93,7 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 
 @RootNavGraph
@@ -134,7 +133,8 @@ fun ImagesPreviewScreen(
         sendState = sendMessageViewModel.viewState,
         onNavigationPressed = { navigator.navigateBack() },
         onSendMessages = sendMessageViewModel::trySendMessages,
-        onSelected = imagesPreviewViewModel::onSelected
+        onSelected = imagesPreviewViewModel::onSelected,
+        onRemoveAsset = imagesPreviewViewModel::onRemove
     )
 
     AssetTooLargeDialog(
@@ -165,19 +165,23 @@ private fun Content(
     sendState: SendMessageState,
     onNavigationPressed: () -> Unit = {},
     onSendMessages: (List<MessageBundle>) -> Unit,
-    onSelected: (index: Int) -> Unit
+    onSelected: (index: Int) -> Unit,
+    onRemoveAsset: (index: Int) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val pagerState = rememberPagerState(pageCount = { previewState.assetBundleList.size })
+    val scope = rememberCoroutineScope()
     LaunchedEffect(key1 = previewState.selectedIndex) {
-        if (previewState.selectedIndex != pagerState.currentPage) {
-            pagerState.animateScrollToPage(previewState.selectedIndex)
+        if (previewState.selectedIndex != pagerState.settledPage) {
+            scope.launch {
+                pagerState.animateScrollToPage(previewState.selectedIndex)
+            }
         }
     }
 
-    LaunchedEffect(key1 = pagerState.currentPage) {
-        if (previewState.selectedIndex != pagerState.currentPage) {
-            onSelected(pagerState.currentPage)
+    LaunchedEffect(key1 = pagerState.settledPage) {
+        if (previewState.selectedIndex != pagerState.settledPage) {
+            onSelected(pagerState.settledPage)
         }
     }
 
@@ -251,22 +255,33 @@ private fun Content(
                         .width(configuration.screenWidthDp.dp)
                         .fillMaxHeight(),
                 ) { index ->
-                    WireImage(
-                        modifier = Modifier
-                            .width(configuration.screenWidthDp.dp)
-                            .fillMaxHeight(),
-                        model = previewState.assetBundleList[index].assetBundle.dataPath.toFile(),
-                        contentDescription = previewState.assetBundleList[index].assetBundle.fileName
-                    )
+                    val assetBundle = previewState.assetBundleList[index].assetBundle
+
+                    when (assetBundle.assetType) {
+                        AttachmentType.IMAGE -> WireImage(
+                            modifier = Modifier
+                                .width(configuration.screenWidthDp.dp)
+                                .fillMaxHeight(),
+                            model = previewState.assetBundleList[index].assetBundle.dataPath.toFile(),
+                            contentDescription = previewState.assetBundleList[index].assetBundle.fileName
+                        )
+
+                        AttachmentType.GENERIC_FILE,
+                        AttachmentType.AUDIO,
+                        AttachmentType.VIDEO -> AssetFilePreview(
+                            assetName = assetBundle.fileName,
+                            sizeInBytes = assetBundle.dataSize
+                        )
+                    }
                 }
             }
 
             LazyRow(
                 modifier = Modifier
                     .padding(bottom = dimensions().spacing8x)
-                    .height(dimensions().spacing72x)
+                    .height(dimensions().spacing80x)
                     .align(Alignment.BottomCenter),
-                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
+                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
                 contentPadding = PaddingValues(start = dimensions().spacing16x, end = dimensions().spacing16x)
             ) {
                 items(
@@ -274,64 +289,31 @@ private fun Content(
                 ) { index ->
                     Box(
                         modifier = Modifier
-                            .width(dimensions().spacing72x)
+                            .width(dimensions().spacing80x)
                             .fillMaxHeight()
                     ) {
-                        AssetPreview(
+                        AssetTilePreview(
                             modifier = Modifier
                                 .size(dimensions().spacing64x)
-                                .align(Alignment.BottomStart),
-                            asset = previewState.assetBundleList[index],
+                                .align(Alignment.Center),
+                            assetBundle = previewState.assetBundleList[index].assetBundle,
                             isSelected = previewState.selectedIndex == index,
+                            showOnlyExtension = true,
                             onClick = { onSelected(index) }
                         )
-                        RemoveAssetButton(modifier = Modifier.align(Alignment.TopEnd), onClick = {})
+
+                        if (previewState.assetBundleList.size > 1) {
+                            RemoveAssetButton(modifier = Modifier.align(Alignment.TopEnd), onClick = {
+                                onRemoveAsset(index)
+                            })
+                        }
+                        if (previewState.assetBundleList[index].assetSizeExceeded != null) {
+                            ErrorIcon(modifier = Modifier.align(Alignment.Center))
+                        }
                     }
                 }
             }
         }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun AssetPreview(
-    modifier: Modifier = Modifier,
-    asset: ImportedMediaAsset,
-    isSelected: Boolean = false,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier
-            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
-            .background(
-                color = MaterialTheme.wireColorScheme.onPrimary,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .border(
-                width = if (isSelected) {
-                    dimensions().spacing2x
-                } else {
-                    dimensions().spacing1x
-                },
-                color = if (isSelected) {
-                    MaterialTheme.wireColorScheme.primary
-                } else {
-                    MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline
-                },
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = {},
-            )
-    ) {
-        WireImage(
-            modifier = Modifier.fillMaxSize(),
-            model = asset.assetBundle.dataPath.toFile(),
-            contentScale = ContentScale.Crop,
-            contentDescription = asset.assetBundle.fileName
-        )
     }
 }
 
@@ -343,12 +325,29 @@ fun RemoveAssetButton(
 ) {
     Icon(
         modifier = modifier
+            .size(dimensions().spacing24x)
             .combinedClickable(onClick = onClick)
             .clip(shape = CircleShape)
             .background(color = MaterialTheme.wireColorScheme.inverseSurface)
             .padding(dimensions().spacing6x),
-        painter = painterResource(id = R.drawable.ic_close), contentDescription = "test",
+        painter = painterResource(id = R.drawable.ic_close),
+        contentDescription = stringResource(id = R.string.asset_preview_remove_asset_description),
         tint = MaterialTheme.wireColorScheme.inverseOnSurface
+    )
+}
+
+@Composable
+private fun ErrorIcon(
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        modifier = modifier
+            .clip(shape = RoundedCornerShape(dimensions().spacing4x))
+            .background(color = MaterialTheme.wireColorScheme.error)
+            .padding(dimensions().spacing6x),
+        painter = painterResource(id = R.drawable.ic_attention),
+        contentDescription = stringResource(id = R.string.asset_preview_asset_attention_description),
+        tint = MaterialTheme.wireColorScheme.onError
     )
 }
 
@@ -374,25 +373,60 @@ fun PreviewImagesPreviewScreen() {
         Content(
             previewState = ImagesPreviewState(
                 ConversationId("value", "domain"),
-                "Conversation",
-                persistentListOf(
+                selectedIndex = 0,
+                conversationName = "Conversation",
+                assetBundleList = persistentListOf(
                     ImportedMediaAsset(
                         AssetBundle(
                             "key",
                             "image/png",
                             "".toPath(),
                             20,
-                            "preview",
+                            "preview.png",
                             assetType = AttachmentType.IMAGE
+                        ),
+                        assetSizeExceeded = null
+                    ),
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key1",
+                            "video/mp4",
+                            "".toPath(),
+                            20,
+                            "preview.mp4",
+                            assetType = AttachmentType.VIDEO
+                        ),
+                        assetSizeExceeded = null
+                    ),
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key2",
+                            "audio/mp3",
+                            "".toPath(),
+                            20,
+                            "preview.mp3",
+                            assetType = AttachmentType.AUDIO
+                        ),
+                        assetSizeExceeded = 20
+                    ),
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key3",
+                            "document/pdf",
+                            "".toPath(),
+                            20,
+                            "preview.pdf",
+                            assetType = AttachmentType.GENERIC_FILE
                         ),
                         assetSizeExceeded = null
                     )
                 ),
             ),
-            sendState = SendMessageState(inProgress = false),
+            sendState = SendMessageState(inProgress = true),
             onNavigationPressed = {},
             onSendMessages = {},
-            onSelected = {}
+            onSelected = {},
+            onRemoveAsset = {}
         )
     }
 }

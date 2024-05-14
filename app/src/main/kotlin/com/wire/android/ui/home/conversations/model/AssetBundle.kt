@@ -19,8 +19,10 @@
 package com.wire.android.ui.home.conversations.model
 
 import android.net.Uri
+import androidx.compose.runtime.Stable
 import com.wire.kalium.logic.data.asset.AttachmentType
 import okio.Path
+import kotlin.math.roundToInt
 
 /**
  * Represents a set of metadata information of an asset message
@@ -32,7 +34,24 @@ data class AssetBundle(
     val dataSize: Long,
     val fileName: String,
     val assetType: AttachmentType
-)
+) {
+
+    @Stable
+    val extensionWithSize: String
+        get() {
+            val assetExtension = fileName.split(".").last()
+            val oneKB = 1024L
+            val oneMB = oneKB * oneKB
+            return when {
+                dataSize < oneKB -> "${assetExtension.uppercase()} ($dataSize B)"
+                dataSize in oneKB..oneMB -> "${assetExtension.uppercase()} (${dataSize / oneKB} KB)"
+                else -> "${assetExtension.uppercase()} (${((dataSize / oneMB) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
+            }
+        }
+
+    val assetName: String
+        get() = fileName.split(".").first()
+}
 
 /**
  * @param uri Uri of the asset

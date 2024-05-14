@@ -17,15 +17,14 @@
  */
 package com.wire.android.ui.sharing
 
-import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -56,6 +55,8 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
@@ -68,30 +69,36 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.home.FeatureFlagState
-import com.wire.android.ui.home.conversations.media.preview.AssetPreview
-import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.conversations.media.preview.AssetTilePreview
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
+import com.wire.android.ui.home.conversations.sendmessage.SendMessageAction
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
-import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.getActivity
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import okio.Path.Companion.toPath
 
 @RootNavGraph
 @Destination
@@ -122,6 +129,28 @@ fun ImportMediaScreen(
             val importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
             val sendMessageViewModel: SendMessageViewModel = hiltViewModel()
 
+            LaunchedEffect(sendMessageViewModel.viewState.afterMessageSendAction) {
+                when (val action = sendMessageViewModel.viewState.afterMessageSendAction) {
+                    SendMessageAction.NavigateBack -> navigator.navigateBack()
+                    is SendMessageAction.NavigateToConversation -> navigator.navigate(
+                        NavigationCommand(
+                            ConversationScreenDestination(action.conversationId),
+                            BackStackMode.REMOVE_CURRENT
+                        )
+                    )
+
+                    SendMessageAction.NavigateToHome -> navigator.navigate(
+                        NavigationCommand(
+                            HomeScreenDestination(),
+                            BackStackMode.REMOVE_CURRENT
+                        )
+                    )
+
+                    SendMessageAction.None -> {
+                    }
+                }
+            }
+
             ImportMediaRegularContent(
                 importMediaAuthenticatedState = importMediaViewModel.importMediaState,
                 onSearchQueryChanged = importMediaViewModel::onSearchQueryChanged,
@@ -133,15 +162,6 @@ fun ImportMediaScreen(
                             it.assetBundle
                         )
                     })
-                    // TODO KBX
-//                    importMediaViewModel.checkRestrictionsAndSendImportedMedia {
-//                        navigator.navigate(
-//                            NavigationCommand(
-//                                ConversationScreenDestination(it),
-//                                BackStackMode.REMOVE_CURRENT
-//                            )
-//                        )
-//                    }
                 },
                 onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
                 infoMessage = importMediaViewModel.infoMessage,
@@ -360,7 +380,6 @@ private fun ImportMediaBottomBar(
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 private fun ImportMediaContent(
     state: ImportMediaAuthenticatedState,
     internalPadding: PaddingValues,
@@ -393,10 +412,16 @@ private fun ImportMediaContent(
                 )
             }
         } else if (!isMultipleImport) {
-            Box(modifier = Modifier
-                .padding(horizontal = dimensions().spacing16x)
-                .height(dimensions().spacing120x)) {
-                AssetPreview(asset = importedItemsList.first(), onClick = {})
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = dimensions().spacing16x)
+                    .height(dimensions().spacing120x)
+            ) {
+                AssetTilePreview(
+                    modifier = Modifier.fillMaxHeight(),
+                    assetBundle = importedItemsList.first().assetBundle,
+                    showOnlyExtension = false,
+                    onClick = {})
             }
         } else {
             LazyRow(
@@ -409,9 +434,12 @@ private fun ImportMediaContent(
                 items(
                     count = importedItemsList.size,
                 ) { index ->
-                    AssetPreview(
-                        modifier = Modifier.width(dimensions().spacing120x),
-                        asset = importedItemsList[index],
+                    AssetTilePreview(
+                        modifier = Modifier
+                            .width(dimensions().spacing120x)
+                            .fillMaxHeight(),
+                        assetBundle = importedItemsList[index].assetBundle,
+                        showOnlyExtension = false,
                         onClick = {}
                     )
                 }
@@ -475,33 +503,88 @@ private fun SnackBarMessage(
 @Preview(showBackground = true)
 @Composable
 fun PreviewImportMediaScreenLoggedOut() {
-    ImportMediaLoggedOutContent(FeatureFlagState.SharingRestrictedState.NO_USER) {}
+    WireTheme {
+        ImportMediaLoggedOutContent(FeatureFlagState.SharingRestrictedState.NO_USER) {}
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewImportMediaScreenRestricted() {
-    ImportMediaRestrictedContent(
-        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
-        ImportMediaAuthenticatedState()
-    ) {}
+    WireTheme {
+        ImportMediaRestrictedContent(
+            FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
+            ImportMediaAuthenticatedState()
+        ) {}
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewImportMediaScreenRegular() {
-    ImportMediaRegularContent(
-        ImportMediaAuthenticatedState(),
-        {},
-        {},
-        {},
-        {},
-        MutableSharedFlow()
-    ) {}
+    WireTheme {
+        ImportMediaRegularContent(
+            ImportMediaAuthenticatedState(
+                importedAssets = persistentListOf(
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key",
+                            "image/png",
+                            "".toPath(),
+                            20,
+                            "preview.png",
+                            assetType = AttachmentType.IMAGE
+                        ),
+                        assetSizeExceeded = null
+                    ),
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key1",
+                            "video/mp4",
+                            "".toPath(),
+                            20,
+                            "preview.mp4",
+                            assetType = AttachmentType.VIDEO
+                        ),
+                        assetSizeExceeded = null
+                    ),
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key2",
+                            "audio/mp3",
+                            "".toPath(),
+                            24000000,
+                            "preview.mp3",
+                            assetType = AttachmentType.AUDIO
+                        ),
+                        assetSizeExceeded = 20
+                    ),
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key3",
+                            "document/pdf",
+                            "".toPath(),
+                            20,
+                            "preview.pdf",
+                            assetType = AttachmentType.GENERIC_FILE
+                        ),
+                        assetSizeExceeded = null
+                    )
+                ),
+            ),
+            {},
+            {},
+            {},
+            {},
+            MutableSharedFlow()
+        ) {}
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewImportMediaBottomBar() {
-    ImportMediaBottomBar(ImportMediaAuthenticatedState(), rememberImportMediaScreenState()) {}
+    WireTheme {
+        ImportMediaBottomBar(ImportMediaAuthenticatedState(), rememberImportMediaScreenState()) {}
+    }
 }

@@ -69,9 +69,7 @@ internal fun MessageAsset(
     assetExtension: String,
     assetSizeInBytes: Long,
     onAssetClick: Clickable,
-    assetTransferStatus: AssetTransferStatus,
-    shouldFillMaxWidth: Boolean,
-    isImportedMediaAsset: Boolean
+    assetTransferStatus: AssetTransferStatus
 ) {
     val assetDescription = provideAssetDescription(assetExtension, assetSizeInBytes)
     Box(
@@ -91,25 +89,21 @@ internal fun MessageAsset(
         if (assetTransferStatus == AssetTransferStatus.UPLOAD_IN_PROGRESS) {
             UploadInProgressAssetMessage()
         } else {
-            val assetModifier = if (shouldFillMaxWidth) Modifier
+            val assetModifier = Modifier
                 .align(Alignment.Center)
                 .fillMaxWidth()
-            else Modifier
-                .size(dimensions().importedMediaAssetSize)
-                .align(Alignment.Center)
-                .fillMaxSize()
             Column(modifier = assetModifier.padding(dimensions().spacing8x)) {
                 Text(
                     text = assetName,
                     style = MaterialTheme.wireTypography.body02,
                     fontSize = 15.sp,
-                    maxLines = if (shouldFillMaxWidth) 2 else 4,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 val descriptionModifier = Modifier
                     .padding(top = dimensions().spacing8x)
                     .fillMaxWidth()
-                ConstraintLayout(modifier = (if (!shouldFillMaxWidth) descriptionModifier.fillMaxHeight() else descriptionModifier)) {
+                ConstraintLayout(modifier = descriptionModifier) {
                     val (icon, description, downloadStatus) = createRefs()
                     Image(
                         modifier = Modifier
@@ -137,26 +131,24 @@ internal fun MessageAsset(
                         fontSize = 12.sp,
                         style = MaterialTheme.wireTypography.subline01
                     )
-                    if (!isImportedMediaAsset) {
-                        Row(
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .constrainAs(downloadStatus) {
-                                    top.linkTo(parent.top)
-                                    end.linkTo(parent.end)
-                                    bottom.linkTo(parent.bottom)
-                                }
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(end = dimensions().spacing4x),
-                                text = getDownloadStatusText(assetTransferStatus),
-                                color = MaterialTheme.wireColorScheme.run {
-                                    if (assetTransferStatus.isFailed()) error else secondaryText
-                                },
-                                style = MaterialTheme.wireTypography.subline01
-                            )
-                            DownloadStatusIcon(assetTransferStatus)
-                        }
+                    Row(
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .constrainAs(downloadStatus) {
+                                top.linkTo(parent.top)
+                                end.linkTo(parent.end)
+                                bottom.linkTo(parent.bottom)
+                            }
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(end = dimensions().spacing4x),
+                            text = getDownloadStatusText(assetTransferStatus),
+                            color = MaterialTheme.wireColorScheme.run {
+                                if (assetTransferStatus.isFailed()) error else secondaryText
+                            },
+                            style = MaterialTheme.wireTypography.subline01
+                        )
+                        DownloadStatusIcon(assetTransferStatus)
                     }
                 }
             }

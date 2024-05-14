@@ -58,6 +58,10 @@ class ImagesPreviewViewModel @Inject constructor(
         viewState = viewState.copy(selectedIndex = index)
     }
 
+    fun onRemove(index: Int) {
+        viewState = viewState.copy(assetBundleList = viewState.assetBundleList.removeAt(index))
+    }
+
     private fun handleAssets() {
         viewModelScope.launch {
             val assets = navArgs.assetUriList.map { handleImportedAsset(it) }

@@ -125,7 +125,7 @@ class SendMessageViewModel @Inject constructor(
 
     fun trySendMessages(messageBundleList: List<MessageBundle>) {
         if (messageBundleList.size > MAX_LIMIT_MESSAGE_SEND) {
-            onSnackbarMessage(SendMessagesSnackbarMessages.MaxAmountOfAssetsReached)
+            onSnackbarMessage(SendMessagesSnackbarMessages.MaxAmountOfAssetsReached(MAX_LIMIT_MESSAGE_SEND))
         } else {
             val messageBundleMap = messageBundleList.groupBy { it.conversationId }
             messageBundleMap.forEach { (conversationId, bundles) ->
@@ -151,6 +151,7 @@ class SendMessageViewModel @Inject constructor(
 
     private suspend fun sendMessages(messageBundleList: List<MessageBundle>) {
         val jobs: MutableCollection<Job> = mutableListOf()
+        beforeSendingMessage()
         messageBundleList.forEach {
             val job = viewModelScope.launch {
                 sendMessage(it)
@@ -251,7 +252,7 @@ class SendMessageViewModel @Inject constructor(
             audioPath = audioPath
         )) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
-                assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
+                assetTooLargeDialogState = AssetTooLargeDialogState.SingleVisible(
                     assetType = result.assetBundle.assetType,
                     maxLimitInMB = result.maxLimitInMB,
                     savedToDevice = attachmentUri.saveToDeviceIfInvalid
@@ -263,7 +264,6 @@ class SendMessageViewModel @Inject constructor(
             }
 
             is HandleUriAssetUseCase.Result.Success -> {
-                println("KBX attachment ${result.assetBundle.assetType} ${result.assetBundle.dataPath}")
                 sendAttachment(result.assetBundle, conversationId)
             }
         }

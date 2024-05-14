@@ -24,6 +24,8 @@ data class E2eiCertificateDetailsScreenNavArgs(val certificateDetails: E2EICerti
 
 @Serializable
 sealed class E2EICertificateDetails {
+    @Serializable
     data class AfterLoginCertificateDetails(val certificate: E2eiCertificate) : E2EICertificateDetails()
+    @Serializable
     data class DuringLoginCertificateDetails(val certificate: String) : E2EICertificateDetails()
 }

@@ -31,7 +31,6 @@ import io.github.esentsov.PackagePrivate
 /**
  * Enables us to temporarily still use TextFieldValue and onValueChanged callback instead of TextFieldState directly,
  * also allows us to get selection updates as by default BasicTextField2 callback only gives a String without selection.
- * @sample androidx.compose.foundation.samples.BasicTextFieldWithValueOnValueChangeSample
  * TODO: Remove this class once all WireTextField usages are migrated to use TextFieldState.
  */
 @PackagePrivate

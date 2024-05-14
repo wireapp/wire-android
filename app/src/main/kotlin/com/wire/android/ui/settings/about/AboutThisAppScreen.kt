@@ -47,6 +47,8 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.settings.SettingsItem
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
 @Destination
@@ -182,4 +184,14 @@ data class AboutThisAppContentState(
             Toast.LENGTH_SHORT
         ).show()
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewAboutThisAppScreen() = WireTheme {
+    AboutThisAppContent(
+        state = AboutThisAppState(commitish = "abcd-1234"),
+        onBackPressed = { },
+        onItemClicked = { }
+    )
 }

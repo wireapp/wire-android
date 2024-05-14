@@ -194,7 +194,7 @@ fun DeviceDetailsContent(
                 }
             }
 
-            if (state.isE2EIEnabled && state.e2eiCertificate != null) {
+            if (state.isE2EIEnabled) {
                 item {
                     EndToEndIdentityCertificateItem(
                         isE2eiCertificateActivated = state.isE2eiCertificateActivated,

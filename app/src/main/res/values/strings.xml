@@ -203,7 +203,7 @@
     <string name="settings_privacy_policy_label">Privacy Policy</string>
     <string name="settings_terms_of_use_label">Terms of Use</string>
     <string name="label_copyright">Copyright</string>
-    <string name="label_copyright_value">© Wire Swiss GmbH</string>
+    <string translatable="false" name="label_copyright_value">© Wire Swiss GmbH</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
     <string name="debug_settings_api_versioning_title" translatable="false">API VERSIONING</string>
     <string name="debug_settings_e2ei_enrollment_title" translatable="false">E2EI Manual Enrollment</string>

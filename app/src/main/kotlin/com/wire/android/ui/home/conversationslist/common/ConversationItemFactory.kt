@@ -42,8 +42,10 @@ import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
+import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -269,6 +271,33 @@ fun PreviewGroupConversationItemWithNoBadges() {
             mutedStatus = MutedConversationStatus.AllAllowed,
             lastMessageContent = UILastMessageContent.TextMessage(
                 MessageBody(UIText.DynamicString("Very looooooooooooooooooooooong messageeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"))
+            ),
+            badgeEventType = BadgeEventType.None,
+            selfMemberRole = null,
+            teamId = null,
+            isArchived = false,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+        ),
+        searchQuery = "",
+        isSelectableItem = false,
+        isChecked = false,
+        {}, {}, {}, {}, {}, {},
+    )
+}
+
+@Preview
+@Composable
+fun PreviewGroupConversationItemWithLastDeletedMessage() {
+    ConversationItemFactory(
+        conversation = ConversationItem.GroupConversation(
+            "groupName looooooooooooooooooooooooooooooooooooong",
+            conversationId = QualifiedID("value", "domain"),
+            mutedStatus = MutedConversationStatus.AllAllowed,
+            lastMessageContent = UILastMessageContent.SenderWithMessage(
+                "John".toUIText(),
+                UIText.StringResource(R.string.deleted_message_text),
+                ":${MarkdownConstants.NON_BREAKING_SPACE}"
             ),
             badgeEventType = BadgeEventType.None,
             selfMemberRole = null,

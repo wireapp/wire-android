@@ -17,8 +17,10 @@
  */
 package com.wire.android.ui.home.settings.account.email
 
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailState
@@ -34,12 +36,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okio.IOException
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalFoundationApi::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class ChangeEmailViewModelTest {
 
     @Test
@@ -53,9 +56,8 @@ class ChangeEmailViewModelTest {
 
             viewModel.onSaveClicked()
 
-            assertTrue {
-                viewModel.state.flowState is ChangeEmailState.FlowState.Success
-                        && (viewModel.state.flowState as ChangeEmailState.FlowState.Success).newEmail == newEmail
+            assertInstanceOf(ChangeEmailState.FlowState.Success::class.java, viewModel.state.flowState).also {
+                assertEquals(newEmail, it.newEmail)
             }
         }
 
@@ -68,7 +70,7 @@ class ChangeEmailViewModelTest {
 
         viewModel.onSaveClicked()
 
-        assertTrue { viewModel.state.flowState is ChangeEmailState.FlowState.NoChange }
+        assertInstanceOf(ChangeEmailState.FlowState.NoChange::class.java, viewModel.state.flowState)
     }
 
     @Test
@@ -80,7 +82,7 @@ class ChangeEmailViewModelTest {
 
         viewModel.onSaveClicked()
 
-        assertTrue { viewModel.state.flowState is ChangeEmailState.FlowState.Error.TextFieldError.AlreadyInUse }
+        assertInstanceOf(ChangeEmailState.FlowState.Error.TextFieldError.AlreadyInUse::class.java, viewModel.state.flowState)
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }
     }
 
@@ -93,7 +95,7 @@ class ChangeEmailViewModelTest {
 
         viewModel.onSaveClicked()
 
-        assertTrue { viewModel.state.flowState is ChangeEmailState.FlowState.Error.TextFieldError.Generic }
+        assertInstanceOf(ChangeEmailState.FlowState.Error.TextFieldError.Generic::class.java, viewModel.state.flowState)
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }
     }
 
@@ -106,7 +108,7 @@ class ChangeEmailViewModelTest {
 
         viewModel.onSaveClicked()
 
-        assertTrue { viewModel.state.flowState is ChangeEmailState.FlowState.Error.TextFieldError.InvalidEmail }
+        assertInstanceOf(ChangeEmailState.FlowState.Error.TextFieldError.InvalidEmail::class.java, viewModel.state.flowState)
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }
     }
 
@@ -131,7 +133,7 @@ class ChangeEmailViewModelTest {
         )
 
         fun withNewEmail(newEmail: String) = apply {
-            viewModel.state = viewModel.state.copy(email = TextFieldValue(newEmail))
+            viewModel.textState.setTextAndPlaceCursorAtEnd(newEmail)
         }
 
         fun withUpdateEmailResult(result: UpdateEmailUseCase.Result) = apply {

@@ -18,10 +18,13 @@
 package com.wire.android.ui.home.settings.account.handle
 
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.text.input.textAsFlow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
@@ -31,10 +34,12 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalFoundationApi::class)
 @HiltViewModel
 class ChangeHandleViewModel @Inject constructor(
     private val updateHandle: SetUserHandleUseCase,
@@ -42,44 +47,34 @@ class ChangeHandleViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase
 ) : ViewModel() {
 
+    val textState: TextFieldState = TextFieldState()
     var state: ChangeHandleState by mutableStateOf(ChangeHandleState())
         @VisibleForTesting
         set
 
-    private var currentHandle: String? = null
-
     init {
         viewModelScope.launch {
-            getSelf().firstOrNull()?.handle.let {
-                currentHandle = it
-                state = state.copy(handle = TextFieldValue(it.orEmpty()))
-            }
-        }
-    }
-
-    fun onHandleChanged(newHandle: TextFieldValue) {
-        state = state.copy(handle = newHandle)
-        viewModelScope.launch {
-            state = when (validateHandle(newHandle.text)) {
-                is ValidateUserHandleResult.Invalid.InvalidCharacters,
-                is ValidateUserHandleResult.Invalid.TooLong,
-                is ValidateUserHandleResult.Invalid.TooShort -> state.copy(
-                    error = HandleUpdateErrorState.TextFieldError.UsernameInvalidError,
-                    animatedHandleError = true,
-                    isSaveButtonEnabled = false
-                )
-
-                is ValidateUserHandleResult.Valid -> state.copy(
-                    error = HandleUpdateErrorState.None,
-                    isSaveButtonEnabled = newHandle.text != currentHandle
-                )
+            getSelf().firstOrNull()?.handle.orEmpty().let { currentHandle ->
+                textState.setTextAndPlaceCursorAtEnd(currentHandle)
+                textState.textAsFlow().collectLatest { newHandle ->
+                    state = when (validateHandle(newHandle.toString())) {
+                        is ValidateUserHandleResult.Invalid -> state.copy(
+                            error = HandleUpdateErrorState.TextFieldError.UsernameInvalidError,
+                            isSaveButtonEnabled = false
+                        )
+                        is ValidateUserHandleResult.Valid -> state.copy(
+                            error = HandleUpdateErrorState.None,
+                            isSaveButtonEnabled = newHandle.toString() != currentHandle
+                        )
+                    }
+                }
             }
         }
     }
 
     fun onSaveClicked(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            when (val result = updateHandle(state.handle.text)) {
+            when (val result = updateHandle(textState.text.toString().trim())) {
                 is SetUserHandleResult.Failure.Generic -> state =
                     state.copy(error = HandleUpdateErrorState.DialogError.GenericError(result.error))
 
@@ -92,10 +87,6 @@ class ChangeHandleViewModel @Inject constructor(
                 SetUserHandleResult.Success -> onSuccess()
             }
         }
-    }
-
-    fun onHandleErrorAnimated() {
-        state = state.copy(animatedHandleError = false)
     }
 
     fun onErrorDismiss() {

@@ -17,8 +17,11 @@
  */
 package com.wire.android.ui.home.settings.account.handle
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 import com.wire.kalium.logic.NetworkFailure
@@ -40,13 +43,14 @@ import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalFoundationApi::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class ChangeHandleViewModelTest {
 
     @Test
     fun `given updateHandle returns Success, when onHandleChanged is called, then navigate back`() = runTest {
         val (arrangement, viewModel) = Arrangement()
+            .withValidateHandleResult(ValidateUserHandleResult.Valid("handle"))
             .withHandle("handle")
             .withUpdateHandleResult(SetUserHandleResult.Success)
             .arrange()
@@ -62,6 +66,7 @@ class ChangeHandleViewModelTest {
     @Test
     fun `given updateHandle returns HandleExists Error, when onSaveClicked is called, then update error state`() = runTest {
         val (arrangement, viewModel) = Arrangement()
+            .withValidateHandleResult(ValidateUserHandleResult.Valid("handle"))
             .withHandle("handle")
             .withUpdateHandleResult(SetUserHandleResult.Failure.HandleExists)
             .arrange()
@@ -74,6 +79,7 @@ class ChangeHandleViewModelTest {
     @Test
     fun `given updateHandle returns InvalidHandle Error, when onSaveClicked is called, then update error state`() = runTest {
         val (arrangement, viewModel) = Arrangement()
+            .withValidateHandleResult(ValidateUserHandleResult.Valid("handle"))
             .withHandle("handle")
             .withUpdateHandleResult(SetUserHandleResult.Failure.InvalidHandle)
             .arrange()
@@ -90,6 +96,7 @@ class ChangeHandleViewModelTest {
     fun `given updateHandle returns generic Error, when onSaveClicked is called, then update error state`() = runTest {
         val expectedError = NetworkFailure.NoNetworkConnection(IOException())
         val (arrangement, viewModel) = Arrangement()
+            .withValidateHandleResult(ValidateUserHandleResult.Valid("handle"))
             .withHandle("handle")
             .withUpdateHandleResult(SetUserHandleResult.Failure.Generic(expectedError))
             .arrange()
@@ -108,9 +115,9 @@ class ChangeHandleViewModelTest {
             .withValidateHandleResult(ValidateUserHandleResult.Valid("handle"))
             .arrange()
 
-        viewModel.onHandleChanged(TextFieldValue("handle"))
+        viewModel.textState.setTextAndPlaceCursorAtEnd("handle")
 
-        assertEquals(viewModel.state.handle, TextFieldValue("handle"))
+        assertEquals(viewModel.textState.text.toString(), "handle")
         assertEquals(viewModel.state.error, HandleUpdateErrorState.None)
 
         coVerify(exactly = 1) {
@@ -129,9 +136,9 @@ class ChangeHandleViewModelTest {
             )
             .arrange()
 
-        viewModel.onHandleChanged(TextFieldValue("@handle"))
+        viewModel.textState.setTextAndPlaceCursorAtEnd("@handle")
 
-        assertEquals(viewModel.state.handle, TextFieldValue("@handle"))
+        assertEquals(viewModel.textState.text.toString(), "@handle")
         assertEquals(viewModel.state.error, HandleUpdateErrorState.TextFieldError.UsernameInvalidError)
 
         coVerify(exactly = 1) {
@@ -157,10 +164,10 @@ class ChangeHandleViewModelTest {
             coEvery { getSelf() } returns flowOf(TestUser.SELF_USER)
         }
 
-        private val viewModel = ChangeHandleViewModel(setHandle, validateHandle, getSelf)
+        private val viewModel by lazy { ChangeHandleViewModel(setHandle, validateHandle, getSelf) }
 
         fun withHandle(handle: String) = apply {
-            viewModel.state = viewModel.state.copy(handle = TextFieldValue(handle))
+            viewModel.textState.setTextAndPlaceCursorAtEnd(handle)
         }
 
         fun withUpdateHandleResult(result: SetUserHandleResult) = apply {

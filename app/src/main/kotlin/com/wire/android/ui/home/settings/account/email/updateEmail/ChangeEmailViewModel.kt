@@ -18,41 +18,47 @@
 package com.wire.android.ui.home.settings.account.email.updateEmail
 
 import androidx.annotation.VisibleForTesting
-import android.util.Patterns
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.text.input.textAsFlow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.util.Patterns
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalFoundationApi::class)
 @HiltViewModel
 class ChangeEmailViewModel @Inject constructor(
     private val updateEmail: UpdateEmailUseCase,
     private val getSelf: GetSelfUserUseCase,
 ) : ViewModel() {
 
-    var state: ChangeEmailState by mutableStateOf(
-        ChangeEmailState(
-            isEmailTextEditEnabled = true
-        )
-    )
+    val textState: TextFieldState = TextFieldState()
+    var state: ChangeEmailState by mutableStateOf(ChangeEmailState())
         @VisibleForTesting
         set
 
-    private var currentEmail: String? = null
-
     init {
         viewModelScope.launch {
-            getSelf().firstOrNull()?.email?.let {
-                currentEmail = it
-                state = state.copy(email = TextFieldValue(it))
+            getSelf().firstOrNull()?.email?.let { currentEmail ->
+                textState.setTextAndPlaceCursorAtEnd(currentEmail)
+                textState.textAsFlow().collectLatest {
+                    val isValidEmail = Patterns.EMAIL_ADDRESS.matcher(it.trim()).matches()
+                    state = state.copy(
+                        saveEnabled = it.trim().isNotEmpty() && isValidEmail && it.trim() != currentEmail,
+                        flowState = ChangeEmailState.FlowState.Default
+                    )
+                }
             } ?: run {
                 state = state.copy(flowState = ChangeEmailState.FlowState.Error.SelfUserNotFound)
             }
@@ -60,63 +66,33 @@ class ChangeEmailViewModel @Inject constructor(
     }
 
     fun onSaveClicked() {
-        state = state.copy(saveEnabled = false, isEmailTextEditEnabled = false, flowState = ChangeEmailState.FlowState.Loading)
+        state = state.copy(saveEnabled = false, flowState = ChangeEmailState.FlowState.Loading)
         viewModelScope.launch {
-            when (updateEmail(state.email.text)) {
+            val email = textState.text.trim().toString()
+            when (updateEmail(email)) {
                 UpdateEmailUseCase.Result.Failure.EmailAlreadyInUse -> state =
                     state.copy(
-                        isEmailTextEditEnabled = true,
                         saveEnabled = false,
                         flowState = ChangeEmailState.FlowState.Error.TextFieldError.AlreadyInUse,
                     )
 
                 UpdateEmailUseCase.Result.Failure.InvalidEmail -> state =
                     state.copy(
-                        isEmailTextEditEnabled = true,
                         saveEnabled = false,
                         flowState = ChangeEmailState.FlowState.Error.TextFieldError.InvalidEmail
                     )
 
                 is UpdateEmailUseCase.Result.Failure.GenericFailure -> state =
                     state.copy(
-                        isEmailTextEditEnabled = true,
                         saveEnabled = false,
                         flowState = ChangeEmailState.FlowState.Error.TextFieldError.Generic
                     )
 
                 is UpdateEmailUseCase.Result.Success.VerificationEmailSent ->
-                    state = state.copy(flowState = ChangeEmailState.FlowState.Success(state.email.text))
+                    state = state.copy(flowState = ChangeEmailState.FlowState.Success(email))
                 is UpdateEmailUseCase.Result.Success.NoChange ->
                     state = state.copy(flowState = ChangeEmailState.FlowState.NoChange)
             }
         }
-    }
-
-    fun onEmailChange(newEmail: TextFieldValue) {
-        val cleanEmail = newEmail.text.trim()
-        val isValidEmail = Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()
-        when {
-            cleanEmail.isBlank() -> state =
-                state.copy(
-                    saveEnabled = false,
-                    email = newEmail,
-                )
-
-            cleanEmail == currentEmail -> state = state.copy(
-                saveEnabled = false,
-                email = newEmail,
-                flowState = ChangeEmailState.FlowState.Default
-            )
-
-            else -> state = state.copy(
-                saveEnabled = isValidEmail,
-                email = newEmail,
-                flowState = ChangeEmailState.FlowState.Default
-            )
-        }
-    }
-
-    fun onEmailErrorAnimated() {
-        state = state.copy(animatedEmailError = false)
     }
 }

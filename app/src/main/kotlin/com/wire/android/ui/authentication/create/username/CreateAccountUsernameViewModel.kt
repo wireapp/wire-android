@@ -18,10 +18,13 @@
 
 package com.wire.android.ui.authentication.create.username
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.text.input.textAsFlow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
@@ -30,47 +33,46 @@ import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalFoundationApi::class)
 @HiltViewModel
 class CreateAccountUsernameViewModel @Inject constructor(
     private val validateUserHandleUseCase: ValidateUserHandleUseCase,
     private val setUserHandleUseCase: SetUserHandleUseCase
 ) : ViewModel() {
+
+    val textState: TextFieldState = TextFieldState()
     var state: CreateAccountUsernameViewState by mutableStateOf(CreateAccountUsernameViewState())
         private set
 
-    fun onUsernameChange(newText: TextFieldValue) {
-        state = validateUserHandleUseCase(newText.text).let { textState ->
-            when (textState) {
-                is ValidateUserHandleResult.Valid -> state.copy(
-                    username = newText.copy(text = textState.handle),
-                    error = HandleUpdateErrorState.None,
-                    continueEnabled = !state.loading,
-                    animateUsernameError = false
-                )
+    init {
+        viewModelScope.launch {
+            textState.textAsFlow().collectLatest { newHandle ->
+                validateUserHandleUseCase(newHandle.toString()).let { validateResult ->
+                    if (validateResult.handle != newHandle.toString()) {
+                        textState.setTextAndPlaceCursorAtEnd(validateResult.handle)
+                    }
+                    state = when (validateResult) {
+                        is ValidateUserHandleResult.Valid -> state.copy(
+                                error = HandleUpdateErrorState.None,
+                                continueEnabled = !state.loading,
+                            )
 
-                is ValidateUserHandleResult.Invalid.InvalidCharacters -> state.copy(
-                    username = newText.copy(text = textState.handle),
-                    error = HandleUpdateErrorState.None,
-                    continueEnabled = !state.loading,
-                    animateUsernameError = true
-                )
+                        is ValidateUserHandleResult.Invalid.InvalidCharacters -> state.copy(
+                                error = HandleUpdateErrorState.None,
+                                continueEnabled = !state.loading,
+                            )
 
-                is ValidateUserHandleResult.Invalid.TooLong -> state.copy(
-                    username = newText.copy(text = textState.handle),
-                    error = HandleUpdateErrorState.None,
-                    continueEnabled = false,
-                    animateUsernameError = false
-                )
-
-                is ValidateUserHandleResult.Invalid.TooShort -> state.copy(
-                    username = newText.copy(text = textState.handle),
-                    error = HandleUpdateErrorState.None,
-                    continueEnabled = false,
-                    animateUsernameError = false
-                )
+                        is ValidateUserHandleResult.Invalid.TooLong,
+                        is ValidateUserHandleResult.Invalid.TooShort -> state.copy(
+                                error = HandleUpdateErrorState.TextFieldError.UsernameInvalidError,
+                                continueEnabled = false,
+                            )
+                    }
+                }
             }
         }
     }
@@ -82,31 +84,16 @@ class CreateAccountUsernameViewModel @Inject constructor(
     fun onContinue(onSuccess: () -> Unit) {
         state = state.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
-            // FIXME: no need to check the handle again since it's checked every time the text change
-            val usernameError = if (validateUserHandleUseCase(state.username.text.trim()) is ValidateUserHandleResult.Invalid) {
-                HandleUpdateErrorState.TextFieldError.UsernameInvalidError
-            } else {
-                when (val result = setUserHandleUseCase(state.username.text.trim())) {
-                    is SetUserHandleResult.Failure.Generic ->
-                        HandleUpdateErrorState.DialogError.GenericError(result.error)
-
-                    SetUserHandleResult.Failure.HandleExists ->
-                        HandleUpdateErrorState.TextFieldError.UsernameTakenError
-
-                    SetUserHandleResult.Failure.InvalidHandle ->
-                        HandleUpdateErrorState.TextFieldError.UsernameInvalidError
-
-                    SetUserHandleResult.Success -> HandleUpdateErrorState.None
-                }
+            val usernameError = when (val result = setUserHandleUseCase(textState.text.toString().trim())) {
+                is SetUserHandleResult.Failure.Generic -> HandleUpdateErrorState.DialogError.GenericError(result.error)
+                SetUserHandleResult.Failure.HandleExists -> HandleUpdateErrorState.TextFieldError.UsernameTakenError
+                SetUserHandleResult.Failure.InvalidHandle -> HandleUpdateErrorState.TextFieldError.UsernameInvalidError
+                SetUserHandleResult.Success -> HandleUpdateErrorState.None
             }
             state = state.copy(loading = false, continueEnabled = true, error = usernameError)
             if (usernameError is HandleUpdateErrorState.None) {
                 onSuccess()
             }
         }
-    }
-
-    fun onUsernameErrorAnimated() {
-        state = state.copy(animateUsernameError = false)
     }
 }

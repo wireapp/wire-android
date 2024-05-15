@@ -28,6 +28,7 @@ import androidx.compose.foundation.text.input.then
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.core.text.isDigitsOnly
+import java.util.regex.Pattern
 
 @OptIn(ExperimentalFoundationApi::class)
 class MaxLengthDigitsFilter(private val maxLength: Int) : InputTransformation {
@@ -46,3 +47,37 @@ class MaxLengthDigitsFilter(private val maxLength: Int) : InputTransformation {
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
 fun InputTransformation.maxLengthDigits(maxLength: Int): InputTransformation = this.then(MaxLengthDigitsFilter(maxLength))
+
+@OptIn(ExperimentalFoundationApi::class)
+class MaxLengthFilterWithCallback(private val maxLength: Int, private val onIncorrectChangesFound: () -> Unit) : InputTransformation {
+    init {
+        require(maxLength >= 0) { "maxLength must be at least zero, was $maxLength" }
+    }
+    override fun transformInput(originalValue: TextFieldCharSequence, valueWithChanges: TextFieldBuffer) {
+        val newLength = valueWithChanges.length
+        if (newLength > maxLength) {
+            valueWithChanges.revertAllChanges()
+            onIncorrectChangesFound()
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Stable
+fun InputTransformation.maxLengthWithCallback(maxLength: Int, onIncorrectChangesFound: () -> Unit): InputTransformation =
+    this.then(MaxLengthFilterWithCallback(maxLength, onIncorrectChangesFound))
+
+@OptIn(ExperimentalFoundationApi::class)
+class PatternFilterWithCallback(private val pattern: Pattern, private val onIncorrectChangesFound: () -> Unit) : InputTransformation {
+    override fun transformInput(originalValue: TextFieldCharSequence, valueWithChanges: TextFieldBuffer) {
+        if (pattern.matcher(valueWithChanges.asCharSequence()).matches()) {
+            valueWithChanges.revertAllChanges()
+            onIncorrectChangesFound()
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Stable
+fun InputTransformation.patternWithCallback(pattern: Pattern, onIncorrectChangesFound: () -> Unit): InputTransformation =
+    this.then(PatternFilterWithCallback(pattern, onIncorrectChangesFound))

@@ -49,7 +49,7 @@ import java.util.Locale
 fun AssetFilePreview(
     modifier: Modifier = Modifier,
     assetName: String,
-    sizeInBytes: Long,
+    sizeInBytes: Long
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -79,13 +79,15 @@ fun AssetFilePreview(
             assetName,
             style = MaterialTheme.wireTypography.title02.copy(color = MaterialTheme.colorScheme.onBackground),
             textAlign = TextAlign.Center,
-            maxLines = 2, overflow = TextOverflow.Ellipsis
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
         VerticalSpace.x8()
         Text(sizeInBytes.toFileSize(), style = MaterialTheme.wireTypography.body01.copy(MaterialTheme.wireColorScheme.secondaryText))
     }
 }
 
+@Suppress("MagicNumber")
 private fun Long.toFileSize(): String {
     val kilobyte = 1024.0
     val megabyte = kilobyte * 1024

@@ -58,9 +58,7 @@ fun AssetTooLargeDialog(dialogState: AssetTooLargeDialogState, hideDialog: () ->
             )
         }
 
-        AssetTooLargeDialogState.Hidden -> {
-
-        }
+        AssetTooLargeDialogState.Hidden -> {}
     }
 }
 
@@ -90,7 +88,6 @@ private fun getLabel(dialogState: AssetTooLargeDialogState) = when (dialogState)
         else it
     }
 }
-
 
 @Preview
 @Composable

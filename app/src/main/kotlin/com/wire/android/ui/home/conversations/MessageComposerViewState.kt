@@ -54,7 +54,8 @@ sealed class SureAboutMessagingDialogState {
     data object Hidden : SureAboutMessagingDialogState()
     sealed class Visible(open val conversationId: ConversationId) : SureAboutMessagingDialogState() {
         data class ConversationVerificationDegraded(
-            override val conversationId: ConversationId, val messageBundleListToSend: List<MessageBundle>
+            override val conversationId: ConversationId,
+            val messageBundleListToSend: List<MessageBundle>
         ) : Visible(conversationId)
 
         sealed class ConversationUnderLegalHold(override val conversationId: ConversationId) : Visible(conversationId) {
@@ -64,7 +65,8 @@ sealed class SureAboutMessagingDialogState {
             ) : ConversationUnderLegalHold(conversationId)
 
             data class AfterSending(
-                val messageIdList: List<MessageId>, override val conversationId: ConversationId
+                override val conversationId: ConversationId,
+                val messageIdList: List<MessageId>
             ) : ConversationUnderLegalHold(conversationId)
         }
     }

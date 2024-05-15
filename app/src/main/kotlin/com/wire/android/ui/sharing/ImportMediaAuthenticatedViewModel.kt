@@ -48,14 +48,11 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.parcelableArrayList
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
-import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -84,9 +81,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
-    private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
-    private val sendTextMessage: SendTextMessageUseCase,
-    private val kaliumFileSystem: KaliumFileSystem,
     private val handleUriAsset: HandleUriAssetUseCase,
     private val persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase,
     private val observeSelfDeletionSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,

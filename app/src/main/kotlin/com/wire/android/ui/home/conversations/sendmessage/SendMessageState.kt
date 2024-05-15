@@ -26,7 +26,7 @@ data class SendMessageState(
 
 sealed class SendMessageAction {
     data object None : SendMessageAction()
-    data object NavigateBack: SendMessageAction()
+    data object NavigateBack : SendMessageAction()
     data class NavigateToConversation(val conversationId: ConversationId) : SendMessageAction()
     data object NavigateToHome : SendMessageAction()
 }

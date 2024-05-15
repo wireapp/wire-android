@@ -421,7 +421,8 @@ private fun ImportMediaContent(
                     modifier = Modifier.fillMaxHeight(),
                     assetBundle = importedItemsList.first().assetBundle,
                     showOnlyExtension = false,
-                    onClick = {})
+                    onClick = {}
+                )
             }
         } else {
             LazyRow(

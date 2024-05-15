@@ -365,7 +365,6 @@ private fun SnackBarMessage(infoMessages: SharedFlow<SnackBarMessage>) {
     }
 }
 
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewImagesPreviewScreen() {

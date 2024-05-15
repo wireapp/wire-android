@@ -335,7 +335,7 @@ class SendMessageViewModel @Inject constructor(
                 SureAboutMessagingDialogState.Hidden,
                 is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending,
                 is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
-                    SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(listOf(messageId), conversationId)
+                    SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(conversationId, listOf(messageId))
             }
         }
     }
@@ -415,7 +415,8 @@ class SendMessageViewModel @Inject constructor(
                 SendMessageAction.None // TODO KBX pass action
             } else {
                 SendMessageAction.None
-            }, inProgress = false
+            },
+            inProgress = false
         )
     }
 

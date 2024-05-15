@@ -497,7 +497,7 @@ class SendMessageViewModelTest {
             // then
             coVerify(exactly = 0) { arrangement.retryFailedMessageUseCase.invoke(eq(messageId), any()) }
             assertEquals(
-                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(listOf(messageId), conversationId),
+                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(conversationId, listOf(messageId)),
                 viewModel.sureAboutMessagingDialogState
             )
         }

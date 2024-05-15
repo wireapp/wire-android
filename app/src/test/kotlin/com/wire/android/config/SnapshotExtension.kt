@@ -26,7 +26,7 @@ import org.junit.jupiter.api.extension.ReflectiveInvocationContext
 import java.lang.reflect.Method
 
 @ExperimentalCoroutinesApi
-class SnapshotExtension() : InvocationInterceptor {
+class SnapshotExtension : InvocationInterceptor {
     override fun interceptTestMethod(
         invocation: InvocationInterceptor.Invocation<Void>?,
         invocationContext: ReflectiveInvocationContext<Method>?,

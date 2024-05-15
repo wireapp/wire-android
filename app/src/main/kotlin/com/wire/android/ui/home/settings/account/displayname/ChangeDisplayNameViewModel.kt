@@ -63,7 +63,6 @@ class ChangeDisplayNameViewModel @Inject constructor(
                 }
             }
         }
-
     }
 
     fun saveDisplayName(

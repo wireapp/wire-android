@@ -179,13 +179,16 @@ class CreateAccountUsernameViewModelTest {
         createAccountUsernameViewModel.state.error shouldBe HandleUpdateErrorState.None
     }
 
-    private class Arrangement() {
+    private class Arrangement {
         @MockK
         lateinit var validateUserHandleUseCase: ValidateUserHandleUseCase
+
         @MockK
         lateinit var setUserHandleUseCase: SetUserHandleUseCase
+
         @MockK(relaxed = true)
         lateinit var onSuccess: () -> Unit
+
         private val viewModel by lazy { CreateAccountUsernameViewModel(validateUserHandleUseCase, setUserHandleUseCase) }
 
         init {

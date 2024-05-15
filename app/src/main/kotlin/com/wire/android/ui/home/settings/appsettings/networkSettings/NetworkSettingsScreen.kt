@@ -79,7 +79,7 @@ fun NetworkSettingsScreenContent(
             val isWebSocketEnforcedByDefault = remember {
                 isWebsocketEnabledByDefault(appContext)
             }
-            val switchState = remember {
+            val switchState = remember(isWebSocketEnabled) {
                 if (isWebSocketEnforcedByDefault) {
                     SwitchState.TextOnly(true)
                 } else {

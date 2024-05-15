@@ -12,6 +12,7 @@ dependencies {
     implementation(composeBom)
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
+    implementation(libs.compose.material.android)
 
     testImplementation(libs.junit4)
     androidTestImplementation(libs.androidx.test.extJunit)

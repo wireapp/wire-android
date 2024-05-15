@@ -135,7 +135,8 @@ class PrivacySettingsViewModelTest {
             coEvery { persistReadReceiptsStatusConfig.invoke(true) } returns ReadReceiptStatusConfigResult.Success
             coEvery { observeReadReceiptsEnabled() } returns flowOf(true)
             coEvery { persistScreenshotCensoringConfig.invoke(true) } returns PersistScreenshotCensoringConfigResult.Success
-            coEvery { observeScreenshotCensoringConfig() } returns flowOf(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)
+            coEvery { observeScreenshotCensoringConfig() } returns
+                    flowOf(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)
             coEvery { persistTypingIndicatorStatusConfig.invoke(true) } returns TypingIndicatorConfigResult.Success
             coEvery { observeTypingIndicatorEnabled() } returns flowOf(true)
             coEvery { globalDataStore.setAnonymousUsageDataEnabled(any()) } returns Unit

@@ -107,7 +107,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     fun isAnonymousUsageDataEnabled(): Flow<Boolean> =
         getBooleanPreference(ANONYMOUS_USAGE_DATA_STATUS, true)
-    
+
     suspend fun setAnonymousUsageDataEnabled(enabled: Boolean) {
         context.dataStore.edit { it[ANONYMOUS_USAGE_DATA_STATUS] = enabled }
     }

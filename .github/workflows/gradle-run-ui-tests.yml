@@ -86,9 +86,11 @@ jobs:
         id: get_commit_hash
         run: echo "::set-output name=commit_hash::$(git rev-parse HEAD)"
 
-      - name: Archive test results
+      - name: Zip test results
         run: |
           zip -r integration-tests-android_${{ steps.get_commit_hash.outputs.commit_hash }}.zip app/build/reports/androidTests/connected/debug/flavors/${{ github.event.inputs.FLAVOR }}
+
+      - name: Upload zipped test results
         uses: actions/upload-artifact@v4
         with:
           name: integration-tests-android_${{ steps.get_commit_hash.outputs.commit_hash }}

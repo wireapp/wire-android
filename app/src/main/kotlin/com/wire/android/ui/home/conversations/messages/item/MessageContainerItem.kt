@@ -58,7 +58,7 @@ fun MessageContainerItem(
     audioMessagesState: PersistentMap<String, AudioState>,
     assetStatus: AssetTransferStatus? = null,
     onLongClicked: (UIMessage.Regular) -> Unit,
-    onSwipedToReply: (UIMessage.Regular) -> Unit,
+    swipableMessageConfiguration: SwipableMessageConfiguration,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
@@ -77,7 +77,7 @@ fun MessageContainerItem(
     shouldDisplayFooter: Boolean = true,
     onReplyClickable: Clickable? = null,
     isSelectedMessage: Boolean = false,
-    isInteractionAvailable: Boolean = true
+    isInteractionAvailable: Boolean = true,
 ) {
     val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
     if (
@@ -140,7 +140,7 @@ fun MessageContainerItem(
                 onAudioClick = onAudioClick,
                 onChangeAudioPosition = onChangeAudioPosition,
                 onLongClicked = onLongClicked,
-                onSwipedToReply = onSwipedToReply,
+                swipableMessageConfiguration = swipableMessageConfiguration,
                 onAssetMessageClicked = onAssetMessageClicked,
                 onImageMessageClicked = onImageMessageClicked,
                 onOpenProfile = onOpenProfile,

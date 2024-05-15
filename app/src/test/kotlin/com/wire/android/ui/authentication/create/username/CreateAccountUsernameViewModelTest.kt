@@ -51,7 +51,7 @@ class CreateAccountUsernameViewModelTest {
     @Test
     fun `given empty string, when entering username, then button is disabled`() {
         val username = String.EMPTY
-        val (arrangement, createAccountUsernameViewModel) = Arrangement()
+        val (_, createAccountUsernameViewModel) = Arrangement()
             .withValidateHandleResult(ValidateUserHandleResult.Invalid.TooShort(username))
             .arrange()
         createAccountUsernameViewModel.textState.setTextAndPlaceCursorAtEnd(username)
@@ -62,7 +62,7 @@ class CreateAccountUsernameViewModelTest {
     @Test
     fun `given non-empty string, when entering username, then button is disabled`() {
         val username = "abc"
-        val (arrangement, createAccountUsernameViewModel) = Arrangement()
+        val (_, createAccountUsernameViewModel) = Arrangement()
             .withValidateHandleResult(ValidateUserHandleResult.Valid(username))
             .arrange()
         createAccountUsernameViewModel.textState.setTextAndPlaceCursorAtEnd(username)
@@ -74,15 +74,15 @@ class CreateAccountUsernameViewModelTest {
     fun `given forbidden character, when entering username, then forbidden character is ignored`() {
         val usernameValid = "a1_"
         val usernameInvalid = "a1_$"
-        val (arrangement, createAccountUsernameViewModel) = Arrangement()
+        val (_, createAccountUsernameViewModel) = Arrangement()
             .withValidateHandleResult(ValidateUserHandleResult.Invalid.TooShort(String.EMPTY), String.EMPTY)
             .withValidateHandleResult(ValidateUserHandleResult.Valid(usernameValid), usernameValid)
             .withValidateHandleResult(ValidateUserHandleResult.Invalid.InvalidCharacters(usernameValid, "$".toList()), usernameInvalid)
             .arrange()
-        createAccountUsernameViewModel.textState.setTextAndPlaceCursorAtEnd("a1_")
-        createAccountUsernameViewModel.textState.text.toString() shouldBeEqualTo "a1_"
-        createAccountUsernameViewModel.textState.setTextAndPlaceCursorAtEnd("a1_$")
-        createAccountUsernameViewModel.textState.text.toString() shouldBeEqualTo "a1_"
+        createAccountUsernameViewModel.textState.setTextAndPlaceCursorAtEnd(usernameValid)
+        createAccountUsernameViewModel.textState.text.toString() shouldBeEqualTo usernameValid
+        createAccountUsernameViewModel.textState.setTextAndPlaceCursorAtEnd(usernameInvalid)
+        createAccountUsernameViewModel.textState.text.toString() shouldBeEqualTo usernameValid
     }
 
     @Test

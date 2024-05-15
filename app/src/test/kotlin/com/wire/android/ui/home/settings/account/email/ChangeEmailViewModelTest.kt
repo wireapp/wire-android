@@ -49,7 +49,7 @@ class ChangeEmailViewModelTest {
     fun `given updateEmail returns success with VerificationEmailSent, when updateEmail is called, then navigate to VerifyEmail`() =
         runTest {
             val newEmail = "newEmail"
-            val (arrangement, viewModel) = Arrangement()
+            val (_, viewModel) = Arrangement()
                 .withNewEmail(newEmail)
                 .withUpdateEmailResult(UpdateEmailUseCase.Result.Success.VerificationEmailSent)
                 .arrange()
@@ -63,7 +63,7 @@ class ChangeEmailViewModelTest {
 
     @Test
     fun `given updateEmail returns success with NoChange, when updateEmail is called, then navigate back`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withNewEmail("newEmail")
             .withUpdateEmailResult(UpdateEmailUseCase.Result.Success.NoChange)
             .arrange()

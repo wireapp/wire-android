@@ -33,11 +33,14 @@ import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.GiveFeedbackDestination
+import com.wire.android.navigation.PrivacyPolicyScreenDestination
 import com.wire.android.navigation.ReportBugDestination
 import com.wire.android.navigation.SupportScreenDestination
+import com.wire.android.navigation.TermsOfUseScreenDestination
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.destinations.AboutThisAppScreenDestination
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
 import com.wire.android.ui.destinations.AppearanceScreenDestination
 import com.wire.android.ui.destinations.BackupAndRestoreScreenDestination
@@ -147,6 +150,18 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
         direction = PrivacySettingsConfigScreenDestination
     )
 
+    data object TermsOfUse : DirectionItem(
+        id = "terms_of_use",
+        title = UIText.StringResource(R.string.settings_terms_of_use_label),
+        direction = TermsOfUseScreenDestination
+    )
+
+    data object PrivacyPolicy : DirectionItem(
+        id = "privacy_policy",
+        title = UIText.StringResource(R.string.settings_privacy_policy_label),
+        direction = PrivacyPolicyScreenDestination
+    )
+
     data object Licenses : DirectionItem(
         id = "other_licenses",
         title = UIText.StringResource(R.string.settings_licenses_settings_label),
@@ -187,6 +202,12 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
         switchState = switchState,
         id = "app_lock",
         title = UIText.StringResource(R.string.settings_app_lock_title),
+    )
+
+    data object AboutApp : DirectionItem(
+        id = "about_app",
+        title = UIText.StringResource(R.string.about_app_screen_title),
+        direction = AboutThisAppScreenDestination
     )
 }
 

@@ -24,13 +24,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -55,6 +52,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
 import com.wire.android.ui.common.dialogs.CancelLoginDialogState
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
@@ -183,7 +181,6 @@ private fun RegisterDeviceContent(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (TextFieldValue) -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -197,7 +194,7 @@ private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (Tex
             else -> WireTextFieldState.Default
         },
         imeAction = ImeAction.Done,
-        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+        onImeAction = { keyboardController?.hide() },
         modifier = Modifier
             .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
             .testTag("password field"),

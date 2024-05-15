@@ -18,14 +18,12 @@
 package com.wire.android.ui.home.appLock.forgot
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -48,7 +46,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ForgotLockCodeResetDeviceDialog(
     username: String,
@@ -111,7 +108,7 @@ fun ForgotLockCodeResetDeviceDialog(
                     onPasswordChanged(it)
                 },
                 autofill = false,
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                onImeAction = { keyboardController?.hide() },
                 modifier = Modifier.padding(bottom = dimensions().spacing16x)
             )
         }

@@ -125,7 +125,7 @@ class SendMessageViewModel @Inject constructor(
 
     fun trySendMessages(messageBundleList: List<MessageBundle>) {
         if (messageBundleList.size > MAX_LIMIT_MESSAGE_SEND) {
-            onSnackbarMessage(SendMessagesSnackbarMessages.MaxAmountOfAssetsReached(MAX_LIMIT_MESSAGE_SEND))
+            onSnackbarMessage(SendMessagesSnackbarMessages.MaxAmountOfAssetsReached)
         } else {
             val messageBundleMap = messageBundleList.groupBy { it.conversationId }
             messageBundleMap.forEach { (conversationId, bundles) ->

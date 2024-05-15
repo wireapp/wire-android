@@ -22,7 +22,7 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.util.ui.UIText
 
 sealed class SendMessagesSnackbarMessages(override val uiText: UIText) : SnackBarMessage {
-    class MaxAmountOfAssetsReached(maxAmount: Int) : // TODO add max amount to string resource
+    data object MaxAmountOfAssetsReached : // TODO add max amount to string resource
         SendMessagesSnackbarMessages(UIText.StringResource(R.string.error_limit_number_assets_imported_exceeded))
     class MaxAssetSizeExceeded(assetSizeLimit: Int) :
         SendMessagesSnackbarMessages(UIText.StringResource(R.string.error_conversation_max_asset_size_limit, assetSizeLimit))

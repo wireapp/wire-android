@@ -92,15 +92,14 @@ jobs:
           path: app/build/reports/androidTests/connected/debug/flavors/${{ github.event.inputs.FLAVOR }}/*.html
 
       - name: Get commit hash
-        id: get_commit_hash
-        run: echo "::set-output name=commit_hash::$(git rev-parse HEAD)"
+        run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
       - name: Zip test results
         run: |
-          zip -r integration-tests-android_${{ steps.get_commit_hash.outputs.commit_hash }}.zip app/build/reports/androidTests/connected/debug/flavors/${{ github.event.inputs.FLAVOR }}
+          zip -r integration-tests-android_${{ env.COMMIT_HASH }}.zip app/build/reports/androidTests/connected/debug/flavors/${{ github.event.inputs.FLAVOR }}
 
       - name: Upload zipped test results
         uses: actions/upload-artifact@v4
         with:
-          name: integration-tests-android_${{ steps.get_commit_hash.outputs.commit_hash }}
-          path: integration-tests-android_${{ steps.get_commit_hash.outputs.commit_hash }}.zip
+          name: integration-tests-android_${{ env.COMMIT_HASH }}
+          path: integration-tests-android_${{ env.COMMIT_HASH }}.zip

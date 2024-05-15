@@ -20,14 +20,12 @@
 package com.wire.android.ui.joinConversation
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -68,7 +66,6 @@ sealed interface JoinConversationViaCodeState {
     data class Error(val error: CheckConversationInviteCodeUseCase.Result.Failure) : JoinConversationViaCodeState
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun JoinConversationViaDeepLinkDialog(
     name: String?,
@@ -160,7 +157,7 @@ fun JoinConversationViaDeepLinkDialog(
                         else -> WireTextFieldState.Default
                     },
                     imeAction = ImeAction.Done,
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                    onImeAction = { keyboardController?.hide() },
                     modifier = Modifier
                         .focusRequester(focusRequester)
                         .padding(bottom = MaterialTheme.wireDimensions.spacing8x)

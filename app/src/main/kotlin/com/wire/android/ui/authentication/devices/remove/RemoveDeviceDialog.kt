@@ -18,12 +18,10 @@
 package com.wire.android.ui.authentication.devices.remove
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -43,7 +41,6 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.deviceDateTimeFormat
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RemoveDeviceDialog(
     errorState: RemoveDeviceError,
@@ -97,7 +94,7 @@ fun RemoveDeviceDialog(
                     else -> WireTextFieldState.Default
                 },
                 imeAction = ImeAction.Done,
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                onImeAction = { keyboardController?.hide() },
                 modifier = Modifier
                     .focusRequester(focusRequester)
                     .padding(bottom = MaterialTheme.wireDimensions.spacing8x)

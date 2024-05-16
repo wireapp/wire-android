@@ -25,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import com.wire.android.R
@@ -33,10 +32,12 @@ import com.wire.android.appLogger
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun JoinButton(
@@ -87,9 +88,9 @@ private fun AudioPermissionCheckFlow(
     onAudioPermissionPermanentlyDenied = onPermanentPermissionDecline
 )
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewJoinButton() {
+fun PreviewJoinButton() = WireTheme {
     JoinButton(
         buttonClick = {},
         onPermissionPermanentlyDenied = {}

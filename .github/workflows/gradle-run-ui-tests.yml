@@ -77,6 +77,9 @@ jobs:
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get commit hash
+        run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
       - name: Copy test results to simplified directory
         run: |
           mkdir -p acceptanceTests/flavors

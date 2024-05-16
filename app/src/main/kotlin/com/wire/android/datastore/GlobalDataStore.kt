@@ -60,6 +60,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
+        val ANONYMOUS_USAGE_DATA_STATUS = booleanPreferencesKey("anonymous_usage_data_status")
 
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
 
@@ -102,6 +103,13 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun setRecordAudioEffectsCheckboxEnabled(enabled: Boolean) {
         context.dataStore.edit { it[RECORD_AUDIO_EFFECTS_CHECKBOX] = enabled }
+    }
+
+    fun isAnonymousUsageDataEnabled(): Flow<Boolean> =
+        getBooleanPreference(ANONYMOUS_USAGE_DATA_STATUS, true)
+
+    suspend fun setAnonymousUsageDataEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[ANONYMOUS_USAGE_DATA_STATUS] = enabled }
     }
 
     fun isEncryptedProteusStorageEnabled(): Flow<Boolean> =

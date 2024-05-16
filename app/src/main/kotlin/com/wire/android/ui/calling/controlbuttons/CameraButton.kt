@@ -18,31 +18,24 @@
 
 package com.wire.android.ui.calling.controlbuttons
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.ripple
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.rememberCallingCameraRequestFlow
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun CameraButton(
-    modifier: Modifier = Modifier.size(dimensions().defaultCallingControlsSize),
     isCameraOn: Boolean = false,
     onCameraButtonClicked: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    size: Dp = dimensions().defaultCallingControlsSize,
+    modifier: Modifier = Modifier,
 ) {
     val cameraPermissionCheck = CameraPermissionCheckFlow(
         onPermissionGranted = onCameraButtonClicked,
@@ -55,34 +48,18 @@ fun CameraButton(
 
     WireCallControlButton(
         isSelected = isCameraOn,
-        modifier = modifier
-    ) { iconColor ->
-        Icon(
-            modifier = Modifier
-                .wrapContentSize()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(
-                        bounded = false,
-                        radius = dimensions().defaultCallingControlsSize / 2
-                    ),
-                    role = Role.Button,
-                    onClick = cameraPermissionCheck::launch,
-                ),
-            painter = painterResource(
-                id = if (isCameraOn) {
-                    R.drawable.ic_camera_on
-                } else {
-                    R.drawable.ic_camera_off
-                }
-            ),
-            contentDescription = stringResource(
-                id = if (isCameraOn) R.string.content_description_calling_turn_camera_off
-                else R.string.content_description_calling_turn_camera_on
-            ),
-            tint = iconColor
-        )
-    }
+        iconResId = when (isCameraOn) {
+            true -> R.drawable.ic_camera_on
+            false -> R.drawable.ic_camera_off
+        },
+        contentDescription = when (isCameraOn) {
+            true -> R.string.content_description_calling_turn_camera_off
+            false -> R.string.content_description_calling_turn_camera_on
+        },
+        onClick = cameraPermissionCheck::launch,
+        size = size,
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -98,8 +75,14 @@ private fun CameraPermissionCheckFlow(
     onPermissionPermanentlyDenied = onPermanentPermissionDecline
 )
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewComposableCameraButton() {
-    CameraButton(onCameraButtonClicked = { }, onPermissionPermanentlyDenied = { })
+fun PreviewComposableCameraButtonOn() = WireTheme {
+    CameraButton(isCameraOn = true, onCameraButtonClicked = { }, onPermissionPermanentlyDenied = { })
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewComposableCameraButtonOff() = WireTheme {
+    CameraButton(isCameraOn = false, onCameraButtonClicked = { }, onPermissionPermanentlyDenied = { })
 }

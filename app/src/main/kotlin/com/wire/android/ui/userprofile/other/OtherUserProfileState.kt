@@ -23,8 +23,10 @@ import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.event.Event
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -50,7 +52,8 @@ data class OtherUserProfileState(
     val blockingState: BlockingState = BlockingState.CAN_NOT_BE_BLOCKED,
     val isProteusVerified: Boolean = false,
     val isMLSVerified: Boolean = false,
-    val isConversationStarted: Boolean = false
+    val isConversationStarted: Boolean = false,
+    val oneOnOneProtocol: Conversation.ProtocolInfo? = null,
 ) {
     fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
         return conversationSheetContent?.let {

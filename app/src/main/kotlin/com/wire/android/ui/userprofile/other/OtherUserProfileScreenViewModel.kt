@@ -383,6 +383,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
 
         state = state.copy(
+            oneOnOneProtocol = conversation?.protocol,
             isDataLoading = false,
             isAvatarLoading = false,
             userAvatarAsset = userAvatarAsset,

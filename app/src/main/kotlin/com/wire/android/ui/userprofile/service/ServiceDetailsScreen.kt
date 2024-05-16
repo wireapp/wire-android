@@ -143,7 +143,8 @@ private fun ServiceDetailsProfileInfo(
             teamName = null,
             membership = Membership.Service,
             editableState = EditableState.NotEditable,
-            modifier = Modifier.padding(bottom = dimensions().spacing16x)
+            modifier = Modifier.padding(bottom = dimensions().spacing16x),
+            oneOnOneProtocol = null
         )
     }
 }

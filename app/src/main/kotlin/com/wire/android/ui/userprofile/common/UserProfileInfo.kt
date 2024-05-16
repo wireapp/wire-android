@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.userprofile.common
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
@@ -45,9 +46,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
@@ -69,6 +72,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.delay
@@ -93,8 +97,10 @@ fun UserProfileInfo(
     isMLSVerified: Boolean = false,
     onSearchConversationMessagesClick: () -> Unit = {},
     onConversationMediaClick: () -> Unit = {},
-    shouldShowSearchButton: Boolean = false
+    shouldShowSearchButton: Boolean = false,
+    oneOnOneProtocol: Conversation.ProtocolInfo?
 ) {
+    val context = LocalContext.current
     Column(
         horizontalAlignment = CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -126,9 +132,18 @@ fun UserProfileInfo(
                     avatarData = userAvatarData,
                     clickable = remember(editableState) {
                         Clickable(
-                            enabled = editableState is EditableState.IsEditable,
+                            enabled = (editableState is EditableState.IsEditable) || BuildConfig.PRIVATE_BUILD,
                             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-                        ) { onUserProfileClick?.invoke() }
+                        ) {
+                            onUserProfileClick?.invoke() ?: if (BuildConfig.PRIVATE_BUILD) {
+                                Toast.makeText(
+                                    context,
+                                    oneOnOneProtocol.toString(),
+                                    Toast.LENGTH_SHORT
+
+                                ).show()
+                            } else Unit
+                        }
                     },
                     showPlaceholderIfNoAsset = showPlaceholderIfNoAsset,
                     withCrossfadeAnimation = true,
@@ -284,6 +299,7 @@ fun PreviewUserProfileInfo() {
         teamName = "Wire",
         connection = ConnectionState.ACCEPTED,
         isProteusVerified = true,
-        isMLSVerified = true
+        isMLSVerified = true,
+        oneOnOneProtocol = null
     )
 }

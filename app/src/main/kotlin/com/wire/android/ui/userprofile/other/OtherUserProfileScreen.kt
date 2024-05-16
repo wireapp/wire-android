@@ -58,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -92,6 +93,7 @@ import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestinat
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -405,7 +407,8 @@ private fun TopBarCollapsing(
             isMLSVerified = targetState.isMLSVerified,
             onSearchConversationMessagesClick = onSearchConversationMessagesClick,
             shouldShowSearchButton = state.shouldShowSearchButton(),
-            onConversationMediaClick = onConversationMediaClick
+            onConversationMediaClick = onConversationMediaClick,
+            oneOnOneProtocol = state.oneOnOneProtocol,
         )
     }
 }

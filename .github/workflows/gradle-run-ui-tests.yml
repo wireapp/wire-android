@@ -43,6 +43,15 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Check KVM support
+        run: |
+          echo "Checking KVM module..."
+          lsmod | grep kvm
+          echo "Checking /dev/kvm permissions..."
+          ls -la /dev/kvm
+          echo "Checking CPU virtualization support..."
+          egrep -c '(vmx|svm)' /proc/cpuinfo      
+
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -50,7 +59,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm 
 
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@216d1ad2b3710bf005dc39237337b9673fd8fcd5
+        uses: gradle/actions/wrapper-validation@v3
 
       - name: AVD cache
         uses: buildjet/cache@v4
@@ -87,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Acceptance Test Report
-          path: app/build/reports/androidTests/connected/debug/flavors/${{ github.event.inputs.FLAVOR }}/*.html
+          path: app/build/reports/androidTests/connected/debug/flavors/*/*.html
 
       - name: Get commit hash
         run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV

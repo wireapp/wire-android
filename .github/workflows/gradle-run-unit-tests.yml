@@ -48,17 +48,19 @@ jobs:
       - name: Install Pip for test result publishing
         run: sudo apt-get install -y python3-pip
 
+      - name: Get commit hash
+        run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Zip test results
+        run: zip -r test-results_${{ env.COMMIT_HASH }}.zip **/build/test-results/testDevDebugUnitTest/**/*.xml **/build/test-results/**/*.xml **/build/outputs/androidTest-results/**/*.xml
+
       # Uploads test results as GitHub artifacts, so publish-test-results can find them later.
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          # This name is referenced in the publish-test-results workflow.
-          name: test-results
-          path: |
-            **/build/test-results/testDevDebugUnitTest/**/*.xml
-            **/build/test-results/**/*.xml
-            **/build/outputs/androidTest-results/**/*.xml
+          name: test-results_${{ env.COMMIT_HASH }}
+          path: test-results_${{ env.COMMIT_HASH }}.zip
 
       - name: Generate report
         uses: actions/upload-artifact@v4

@@ -84,7 +84,8 @@ fun AssetFilePreview(
         VerticalSpace.x8()
         Text(
             DeviceUtil.formatSize(sizeInBytes),
-            style = MaterialTheme.wireTypography.body01.copy(MaterialTheme.wireColorScheme.secondaryText)
+            style = MaterialTheme.wireTypography.body01,
+            color = MaterialTheme.wireColorScheme.secondaryText
         )
     }
 }

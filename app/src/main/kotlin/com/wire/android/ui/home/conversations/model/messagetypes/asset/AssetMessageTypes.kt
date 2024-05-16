@@ -56,10 +56,10 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.DeviceUtil
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isFailed
 import com.wire.kalium.logic.data.asset.isInProgress
-import kotlin.math.roundToInt
 
 @Composable
 internal fun MessageAsset(
@@ -317,11 +317,5 @@ private fun isNotClickable(assetTransferStatus: AssetTransferStatus) =
 @Suppress("MagicNumber")
 @Stable
 private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {
-    val oneKB = 1024L
-    val oneMB = oneKB * oneKB
-    return when {
-        assetSizeInBytes < oneKB -> "${assetExtension.uppercase()} ($assetSizeInBytes B)"
-        assetSizeInBytes in oneKB..oneMB -> "${assetExtension.uppercase()} (${assetSizeInBytes / oneKB} KB)"
-        else -> "${assetExtension.uppercase()} (${((assetSizeInBytes / oneMB) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
-    }
+    return "${assetExtension.uppercase()} (${DeviceUtil.formatSize(assetSizeInBytes)})"
 }

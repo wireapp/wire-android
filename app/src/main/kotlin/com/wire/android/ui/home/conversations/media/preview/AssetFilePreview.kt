@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -43,6 +42,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.DeviceUtil
 import java.util.Locale
 
 @Composable
@@ -68,36 +68,24 @@ fun AssetFilePreview(
             Text(
                 modifier = Modifier.padding(bottom = dimensions().spacing8x),
                 text = assetName.split(".").last().uppercase(Locale.getDefault()),
-                style = MaterialTheme.wireTypography.title01.copy(
-                    fontWeight = FontWeight.W900,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.wireTypography.title05
             )
         }
         VerticalSpace.x16()
         Text(
             assetName,
-            style = MaterialTheme.wireTypography.title02.copy(color = MaterialTheme.colorScheme.onBackground),
+            style = MaterialTheme.wireTypography.title02,
+            color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
         VerticalSpace.x8()
-        Text(sizeInBytes.toFileSize(), style = MaterialTheme.wireTypography.body01.copy(MaterialTheme.wireColorScheme.secondaryText))
-    }
-}
-
-@Suppress("MagicNumber")
-private fun Long.toFileSize(): String {
-    val kilobyte = 1024.0
-    val megabyte = kilobyte * 1024
-    val gigabyte = megabyte * 1024
-
-    return when {
-        this < kilobyte -> "$this B"
-        this < megabyte -> String.format("%.2f KB", this / kilobyte)
-        this < gigabyte -> String.format("%.2f MB", this / megabyte)
-        else -> String.format("%.2f GB", this / gigabyte)
+        Text(
+            DeviceUtil.formatSize(sizeInBytes),
+            style = MaterialTheme.wireTypography.body01.copy(MaterialTheme.wireColorScheme.secondaryText)
+        )
     }
 }
 

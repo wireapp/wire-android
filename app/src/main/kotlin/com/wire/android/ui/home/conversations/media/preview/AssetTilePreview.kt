@@ -111,10 +111,8 @@ fun AssetTilePreview(
 fun AssetExtensionPreviewTile(assetName: String) {
     Text(
         text = assetName.split(".").last().uppercase(Locale.getDefault()),
-        style = MaterialTheme.wireTypography.title01.copy(
-            fontWeight = FontWeight.W900,
-            color = MaterialTheme.wireColorScheme.secondaryText
-        )
+        style = MaterialTheme.wireTypography.title05,
+        color = MaterialTheme.wireColorScheme.secondaryText
     )
 }
 
@@ -141,7 +139,6 @@ fun AssetFilePreviewTile(assetBundle: AssetBundle, modifier: Modifier = Modifier
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.wireColorScheme.secondaryText,
-                fontSize = 12.sp,
                 style = MaterialTheme.wireTypography.subline01
             )
         }

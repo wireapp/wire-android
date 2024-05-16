@@ -30,20 +30,7 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 @Composable
 fun AssetTooLargeDialog(dialogState: AssetTooLargeDialogState, hideDialog: () -> Unit) {
     when (dialogState) {
-        is AssetTooLargeDialogState.SingleVisible -> {
-            WireDialog(
-                title = getTitle(dialogState),
-                text = getLabel(dialogState),
-                buttonsHorizontalAlignment = false,
-                onDismiss = hideDialog,
-                optionButton1Properties = WireDialogButtonProperties(
-                    text = stringResource(R.string.label_ok),
-                    type = WireDialogButtonType.Primary,
-                    onClick = hideDialog
-                )
-            )
-        }
-
+        is AssetTooLargeDialogState.SingleVisible,
         is AssetTooLargeDialogState.MultipleVisible -> {
             WireDialog(
                 title = getTitle(dialogState),

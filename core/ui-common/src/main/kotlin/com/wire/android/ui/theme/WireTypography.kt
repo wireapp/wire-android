@@ -25,7 +25,7 @@ import io.github.esentsov.PackagePrivate
 
 @Immutable
 data class WireTypography(
-    val title01: TextStyle, val title02: TextStyle, val title03: TextStyle, val title04: TextStyle,
+    val title01: TextStyle, val title02: TextStyle, val title03: TextStyle, val title04: TextStyle, val title05: TextStyle,
     val body01: TextStyle, val body02: TextStyle, val body03: TextStyle, val body04: TextStyle, val body05: TextStyle,
     val button01: TextStyle, val button02: TextStyle, val button03: TextStyle, val button04: TextStyle, val button05: TextStyle,
     val label01: TextStyle, val label02: TextStyle, val label03: TextStyle, val label04: TextStyle, val label05: TextStyle,
@@ -45,6 +45,7 @@ private val DefaultWireTypography = WireTypography(
     title02 = WireTypographyBase.Title02,
     title03 = WireTypographyBase.Title03,
     title04 = WireTypographyBase.Title04,
+    title05 = WireTypographyBase.Title05,
     body01 = WireTypographyBase.Body01,
     body02 = WireTypographyBase.Body02,
     body03 = WireTypographyBase.Body03,

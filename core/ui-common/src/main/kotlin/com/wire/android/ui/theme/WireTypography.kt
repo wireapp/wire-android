@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("ParameterListWrapping")
+
 package com.wire.android.ui.theme
 
 import androidx.compose.material3.Typography

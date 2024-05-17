@@ -47,7 +47,7 @@ jobs:
                   commit: ${{ github.event.workflow_run.head_sha }}
                   event_file: artifacts/Event File/event.json
                   event_name: ${{ github.event.workflow_run.event }}
-                  files: "artifacts/test-results*/**/*.xml"
+                  files: "artifacts/test-results/**/*.xml"
 
             - uses: fregante/setup-git-user@v2
 

@@ -1,8 +1,10 @@
 name: "Testing Test Build App"
 
 on:
-    pull_request_target:
-        types: [ opened, edited, synchronize ]
+    merge_group:
+    pull_request:
+        types: [ opened, synchronize ] # Don't rerun on `edited` to save time
+    workflow_call:
 
 jobs:
   testing-build-app:

@@ -186,7 +186,7 @@ fun ConversationProtocolDetails(
             if (protocolInfo is Conversation.ProtocolInfo.MLS) {
                 ProtocolDetails(
                     label = UIText.StringResource(R.string.cipher_suite),
-                    text = UIText.DynamicString(protocolInfo.cipherSuite.name)
+                    text = UIText.DynamicString(protocolInfo.cipherSuite.toString())
                 )
 
                 if (BuildConfig.PRIVATE_BUILD) {

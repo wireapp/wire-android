@@ -74,25 +74,29 @@ android {
     if (enableSigning) {
         signingConfigs {
             maybeCreate(BuildTypes.RELEASE).apply {
-                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_RELEASE"))
+                val keystorePath = System.getProperty("user.home") + "/work/_temp/keystore/"
+                storeFile = file("$keystorePath/key.keystore")
                 storePassword = System.getenv("KEYSTOREPWD_RELEASE")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_RELEASE")
                 keyPassword = System.getenv("KEYPWD_RELEASE")
             }
             maybeCreate(BuildTypes.DEBUG).apply {
-                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_DEBUG"))
+                val keystorePath = System.getProperty("user.home") + "/work/_temp/keystore/"
+                storeFile = file("$keystorePath/key.keystore")
                 storePassword = System.getenv("KEYSTOREPWD_DEBUG")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")
                 keyPassword = System.getenv("KEYPWD_DEBUG")
             }
             maybeCreate(BuildTypes.COMPAT).apply {
-                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_COMPAT"))
+                val keystorePath = System.getProperty("user.home") + "/work/_temp/keystore/"
+                storeFile = file("$keystorePath/key.keystore")
                 storePassword = System.getenv("KEYSTOREPWD_COMPAT")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_COMPAT")
                 keyPassword = System.getenv("KEYPWD_COMPAT")
             }
             maybeCreate(BuildTypes.COMPAT_RELEASE).apply {
-                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_COMPAT_RELEASE"))
+                val keystorePath = System.getProperty("user.home") + "/work/_temp/keystore/"
+                storeFile = file("$keystorePath/key.keystore")
                 storePassword = System.getenv("KEYSTOREPWD_COMPAT_RELEASE")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_COMPAT_RELEASE")
                 keyPassword = System.getenv("KEYPWD_COMPAT_RELEASE")

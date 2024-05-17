@@ -29,7 +29,7 @@ jobs:
         ./gradlew assembleStagingCompat -p ./ --no-daemon
     - name: Upload APK staging compat
       if: success()
-      uses: ./.github/workflows/upload-aws-s3.yml
+      uses: ./.github/workflows/upload-aws-s3.yml@feat/github-actions-upload-to-s3
       with:
           flavour: "staging"
           buildType: "compat"

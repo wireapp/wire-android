@@ -24,17 +24,19 @@ on:
                 type: string
 
 jobs:
-    deploy:
-        needs: [ build-app ]
+    deploy-to-s3:
+        needs: [ testing-build-app ]
         runs-on: ubuntu-latest
         steps:
-            -   uses: jakejarvis/s3-sync-action@master
+            -   name: Uploading
+                uses: hkusu/s3-upload-action@v2
                 with:
-                    args: --acl public-read --follow-symlinks --delete
-                env:
-                    AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-                    DEST_DIR: "megazord/android/reloaded/${inputs.flavour}/${inputs.buildType}/"
-                    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                    AWS_REGION: 'us-west-1'
-                    SOURCE_DIR: "app/build/outputs/apk/${inputs.flavour}/${inputs.buildType}/com.wire.*.apk"
+                    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                    aws-region: 'us-west-1'
+                    aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
+                    destination-dir: "megazord/android/reloaded/${inputs.flavour}/${inputs.buildType}/"
+                    file-path: './app/build/outputs/apk/${inputs.flavour}/${inputs.buildType}/com.wire.*.apk'
+                    output-file-url: 'true'
+            -   name: Show URL
+                run: echo '${{ steps.upload.outputs.file-url }}'

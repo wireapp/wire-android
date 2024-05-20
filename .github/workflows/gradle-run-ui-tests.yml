@@ -1,6 +1,7 @@
 name: "Run UI Tests"
 
 on:
+  merge_group:
   push:
     branches:
       - develop

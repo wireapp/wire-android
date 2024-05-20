@@ -81,6 +81,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -429,7 +430,7 @@ private fun CallingControls(
                 .fillMaxWidth()
                 .height(dimensions().spacing56x)
         ) {
-            MicrophoneButton(isMuted = isMuted) { toggleMute() }
+            MicrophoneButton(isMuted = isMuted, onMicrophoneButtonClicked = toggleMute)
             CameraButton(
                 isCameraOn = isCameraOn,
                 onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
@@ -446,7 +447,7 @@ private fun CallingControls(
             }
 
             HangUpButton(
-                modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
+                modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
                 onHangUpButtonClicked = onHangUpCall
             )
         }
@@ -457,6 +458,36 @@ private fun CallingControls(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewOngoingCallTopBar() {
+fun PreviewOngoingCallScreen() = WireTheme {
+    OngoingCallContent(
+        conversationId = ConversationId("conversationId", "domain"),
+        conversationName = ConversationName.Known("Conversation Name"),
+        participants = emptyList(),
+        isMuted = false,
+        isCameraOn = false,
+        isOnFrontCamera = false,
+        isSpeakerOn = false,
+        isCbrEnabled = false,
+        shouldShowDoubleTapToast = false,
+        protocolInfo = null,
+        mlsVerificationStatus = null,
+        proteusVerificationStatus = null,
+        toggleSpeaker = {},
+        toggleMute = {},
+        hangUpCall = {},
+        toggleVideo = {},
+        flipCamera = {},
+        setVideoPreview = {},
+        clearVideoPreview = {},
+        onCollapse = {},
+        hideDoubleTapToast = {},
+        onPermissionPermanentlyDenied = {},
+        requestVideoStreams = {},
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewOngoingCallTopBar() = WireTheme {
     OngoingCallTopBar("Default", true, null, null, null) { }
 }

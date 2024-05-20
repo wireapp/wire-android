@@ -19,7 +19,6 @@
 package com.wire.android.ui.common.button
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -32,19 +31,23 @@ fun wirePrimaryButtonColors() = wireButtonColors(
     enabled = MaterialTheme.wireColorScheme.primaryButtonEnabled,
     onEnabled = MaterialTheme.wireColorScheme.onPrimaryButtonEnabled,
     enabledOutline = MaterialTheme.wireColorScheme.primaryButtonEnabled,
+    enabledRipple = MaterialTheme.wireColorScheme.primaryButtonRipple,
     disabled = MaterialTheme.wireColorScheme.primaryButtonDisabled,
     onDisabled = MaterialTheme.wireColorScheme.onPrimaryButtonDisabled,
     disabledOutline = MaterialTheme.wireColorScheme.primaryButtonDisabled,
+    disabledRipple = MaterialTheme.wireColorScheme.primaryButtonRipple,
     selected = MaterialTheme.wireColorScheme.primaryButtonSelected,
     onSelected = MaterialTheme.wireColorScheme.onPrimaryButtonSelected,
     selectedOutline = MaterialTheme.wireColorScheme.primaryButtonSelected,
+    selectedRipple = MaterialTheme.wireColorScheme.primaryButtonRipple,
     error = MaterialTheme.wireColorScheme.error,
     onError = MaterialTheme.wireColorScheme.onError,
     errorOutline = MaterialTheme.wireColorScheme.error,
+    errorRipple = MaterialTheme.wireColorScheme.primaryButtonRipple,
     positive = MaterialTheme.wireColorScheme.positive,
     onPositive = MaterialTheme.wireColorScheme.onPositive,
     positiveOutline = MaterialTheme.wireColorScheme.positive,
-    ripple = MaterialTheme.wireColorScheme.primaryButtonRipple
+    positiveRipple = MaterialTheme.wireColorScheme.primaryButtonRipple,
 )
 
 @Composable
@@ -54,40 +57,27 @@ fun wireSendPrimaryButtonColors() = wirePrimaryButtonColors().copy(
 )
 
 @Composable
-fun wireSecondaryButtonColors(
-    enabled: Color = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
-    onEnabled: Color = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
-    enabledOutline: Color = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
-    disabled: Color = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
-    onDisabled: Color = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
-    disabledOutline: Color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-    selected: Color = MaterialTheme.wireColorScheme.secondaryButtonSelected,
-    onSelected: Color = MaterialTheme.wireColorScheme.onSecondaryButtonSelected,
-    selectedOutline: Color = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline,
-    error: Color = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
-    onError: Color = MaterialTheme.wireColorScheme.error,
-    errorOutline: Color = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
-    positive: Color = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
-    onPositive: Color = MaterialTheme.wireColorScheme.positive,
-    positiveOutline: Color = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
-    ripple: Color = MaterialTheme.wireColorScheme.secondaryButtonRipple
-) = wireButtonColors(
-    enabled = enabled,
-    onEnabled = onEnabled,
-    enabledOutline = enabledOutline,
-    disabled = disabled,
-    onDisabled = onDisabled,
-    disabledOutline = disabledOutline,
-    selected = selected,
-    onSelected = onSelected,
-    selectedOutline = selectedOutline,
-    error = error,
-    onError = onError,
-    errorOutline = errorOutline,
-    positive = positive,
-    onPositive = onPositive,
-    positiveOutline = positiveOutline,
-    ripple = ripple
+fun wireSecondaryButtonColors() = wireButtonColors(
+    enabled = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
+    onEnabled = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
+    enabledOutline = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
+    enabledRipple = MaterialTheme.wireColorScheme.secondaryButtonRipple,
+    disabled = MaterialTheme.wireColorScheme.secondaryButtonDisabled,
+    onDisabled = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
+    disabledOutline = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+    disabledRipple = MaterialTheme.wireColorScheme.secondaryButtonRipple,
+    selected = MaterialTheme.wireColorScheme.secondaryButtonSelected,
+    onSelected = MaterialTheme.wireColorScheme.onSecondaryButtonSelected,
+    selectedOutline = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline,
+    selectedRipple = MaterialTheme.wireColorScheme.secondaryButtonRipple,
+    error = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
+    onError = MaterialTheme.wireColorScheme.error,
+    errorOutline = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
+    errorRipple = MaterialTheme.wireColorScheme.secondaryButtonRipple,
+    positive = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
+    onPositive = MaterialTheme.wireColorScheme.positive,
+    positiveOutline = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline,
+    positiveRipple = MaterialTheme.wireColorScheme.secondaryButtonRipple,
 )
 
 @Composable
@@ -95,36 +85,39 @@ fun wireTertiaryButtonColors() = wireButtonColors(
     enabled = MaterialTheme.wireColorScheme.tertiaryButtonEnabled,
     onEnabled = MaterialTheme.wireColorScheme.onTertiaryButtonEnabled,
     enabledOutline = MaterialTheme.wireColorScheme.tertiaryButtonEnabled,
+    enabledRipple = MaterialTheme.wireColorScheme.tertiaryButtonRipple,
     disabled = MaterialTheme.wireColorScheme.tertiaryButtonDisabled,
     onDisabled = MaterialTheme.wireColorScheme.onTertiaryButtonDisabled,
     disabledOutline = MaterialTheme.wireColorScheme.tertiaryButtonDisabled,
+    disabledRipple = MaterialTheme.wireColorScheme.tertiaryButtonRipple,
     selected = MaterialTheme.wireColorScheme.tertiaryButtonSelected,
     onSelected = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
     selectedOutline = MaterialTheme.wireColorScheme.tertiaryButtonSelectedOutline,
+    selectedRipple = MaterialTheme.wireColorScheme.tertiaryButtonRipple,
     error = MaterialTheme.wireColorScheme.tertiaryButtonEnabled,
     onError = MaterialTheme.wireColorScheme.error,
     errorOutline = MaterialTheme.wireColorScheme.tertiaryButtonEnabled,
+    errorRipple = MaterialTheme.wireColorScheme.tertiaryButtonRipple,
     positive = MaterialTheme.wireColorScheme.tertiaryButtonEnabled,
     onPositive = MaterialTheme.wireColorScheme.positive,
     positiveOutline = MaterialTheme.wireColorScheme.tertiaryButtonEnabled,
-    ripple = MaterialTheme.wireColorScheme.tertiaryButtonRipple
+    positiveRipple = MaterialTheme.wireColorScheme.tertiaryButtonRipple,
 )
 
+@Suppress("ParameterListWrapping")
 @Composable
 private fun wireButtonColors(
-    enabled: Color, onEnabled: Color, enabledOutline: Color,
-    disabled: Color, onDisabled: Color, disabledOutline: Color,
-    selected: Color, onSelected: Color, selectedOutline: Color,
-    error: Color, onError: Color, errorOutline: Color,
-    positive: Color, onPositive: Color, positiveOutline: Color,
-    ripple: Color
+    enabled: Color, onEnabled: Color, enabledOutline: Color, enabledRipple: Color,
+    disabled: Color, onDisabled: Color, disabledOutline: Color, disabledRipple: Color,
+    selected: Color, onSelected: Color, selectedOutline: Color, selectedRipple: Color,
+    error: Color, onError: Color, errorOutline: Color, errorRipple: Color,
+    positive: Color, onPositive: Color, positiveOutline: Color, positiveRipple: Color,
 ) = WireButtonColors(
-    enabled, onEnabled, enabledOutline,
-    disabled, onDisabled, disabledOutline,
-    selected, onSelected, selectedOutline,
-    error, onError, errorOutline,
-    positive, onPositive, positiveOutline,
-    ripple
+    enabled, onEnabled, enabledOutline, enabledRipple,
+    disabled, onDisabled, disabledOutline, disabledRipple,
+    selected, onSelected, selectedOutline, selectedRipple,
+    error, onError, errorOutline, errorRipple,
+    positive, onPositive, positiveOutline, positiveRipple,
 )
 
 @Stable
@@ -132,23 +125,27 @@ data class WireButtonColors(
     val enabled: Color,
     val onEnabled: Color,
     val enabledOutline: Color,
+    val enabledRipple: Color,
     val disabled: Color,
     val onDisabled: Color,
     val disabledOutline: Color,
+    val disabledRipple: Color,
     val selected: Color,
     val onSelected: Color,
     val selectedOutline: Color,
+    val selectedRipple: Color,
     val error: Color,
     val onError: Color,
     val errorOutline: Color,
+    val errorRipple: Color,
     val positive: Color,
     val onPositive: Color,
     val positiveOutline: Color,
-    val ripple: Color
+    val positiveRipple: Color,
 ) {
 
     @Composable
-    fun containerColor(state: WireButtonState, interactionSource: InteractionSource): State<Color> = animateColorAsState(
+    fun containerColor(state: WireButtonState): State<Color> = animateColorAsState(
         when (state) {
             WireButtonState.Default -> enabled
             WireButtonState.Disabled -> disabled
@@ -159,7 +156,7 @@ data class WireButtonColors(
     )
 
     @Composable
-    fun outlineColor(state: WireButtonState, interactionSource: InteractionSource): State<Color> = animateColorAsState(
+    fun outlineColor(state: WireButtonState): State<Color> = animateColorAsState(
         when (state) {
             WireButtonState.Default -> enabledOutline
             WireButtonState.Disabled -> disabledOutline
@@ -170,7 +167,7 @@ data class WireButtonColors(
     )
 
     @Composable
-    fun contentColor(state: WireButtonState, interactionSource: InteractionSource): State<Color> = animateColorAsState(
+    fun contentColor(state: WireButtonState): State<Color> = animateColorAsState(
         when (state) {
             WireButtonState.Default -> onEnabled
             WireButtonState.Disabled -> onDisabled
@@ -181,7 +178,15 @@ data class WireButtonColors(
     )
 
     @Composable
-    fun rippleColor(): Color = ripple
+    fun rippleColor(state: WireButtonState): State<Color> = animateColorAsState(
+        when (state) {
+            WireButtonState.Default -> enabledRipple
+            WireButtonState.Disabled -> disabledRipple
+            WireButtonState.Selected -> selectedRipple
+            WireButtonState.Error -> errorRipple
+            WireButtonState.Positive -> positiveRipple
+        }
+    )
 }
 
 sealed class WireButtonState {

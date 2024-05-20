@@ -108,28 +108,26 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
     @Suppress("TooGenericExceptionCaught")
     suspend fun getAssetBundleFromUri(
         attachmentUri: Uri,
-        tempCachePath: Path,
-        audioPath: Path? = null,
+        assetDestinationPath: Path,
+        specifiedMimeType: String? = null, // specify a particular mimetype, otherwise it will be taken from the uri / file extension
         dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     ): AssetBundle? = withContext(dispatcher.io()) {
         try {
             val assetKey = UUID.randomUUID().toString()
             val assetFileName = context.getFileName(attachmentUri)
                 ?: throw IOException("The selected asset has an invalid name")
-            val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
-            val assetPath = audioPath ?: fullTempAssetPath
-            val mimeType = if (audioPath != null) AUDIO_MIME_TYPE else attachmentUri
+            val mimeType = specifiedMimeType ?: attachmentUri
                 .getMimeType(context)
                 .orDefault(DEFAULT_FILE_MIME_TYPE)
             val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
             val assetSize = if (attachmentType == AttachmentType.IMAGE) {
-                attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
+                attachmentUri.resampleImageAndCopyToTempPath(context, assetDestinationPath)
             } else {
                 // TODO: We should add also a video resampling logic soon, that way we could drastically reduce as well the number
                 //  of video assets hitting the max limit.
-                copyToPath(attachmentUri, fullTempAssetPath)
+                copyToPath(attachmentUri, assetDestinationPath)
             }
-            AssetBundle(assetKey, mimeType, assetPath, assetSize, assetFileName, attachmentType)
+            AssetBundle(assetKey, mimeType, assetDestinationPath, assetSize, assetFileName, attachmentType)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)
             null

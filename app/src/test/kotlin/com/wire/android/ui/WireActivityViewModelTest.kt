@@ -863,14 +863,14 @@ class WireActivityViewModelTest {
         val ongoingCall = Call(
             CommonTopAppBarViewModelTest.conversationId,
             CallStatus.ESTABLISHED,
-            true,
-            false,
-            false,
-            "caller-id",
-            "ONE_ON_ONE Name",
-            Conversation.Type.ONE_ON_ONE,
-            "otherUsername",
-            "team1"
+            isMuted = true,
+            isCameraOn = false,
+            isCbrEnabled = false,
+            callerId = "caller-id",
+            conversationName = "ONE_ON_ONE Name",
+            conversationType = Conversation.Type.ONE_ON_ONE,
+            callerName = "otherUsername",
+            callerTeamName = "team1"
         )
     }
 }

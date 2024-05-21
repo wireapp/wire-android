@@ -230,9 +230,8 @@ private fun Content(
 
             if (previewState.isLoading) {
                 WireCircularProgressIndicator(
-                    progressColor = MaterialTheme.wireColorScheme.onBackground, modifier = Modifier.align(
-                        Alignment.Center
-                    ),
+                    progressColor = MaterialTheme.wireColorScheme.onBackground,
+                    modifier = Modifier.align(Alignment.Center),
                     size = dimensions().spacing24x
                 )
             }

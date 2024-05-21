@@ -43,7 +43,7 @@ class CheckAssetRestrictionsViewModel @Inject constructor() : ViewModel() {
                 savedToDevice = false,
                 multipleAssets = true
             )
-        }?: onSuccess(importedMediaList.map { it.assetBundle })
+        } ?: onSuccess(importedMediaList.map { it.assetBundle })
     }
 
     fun hideDialog() {

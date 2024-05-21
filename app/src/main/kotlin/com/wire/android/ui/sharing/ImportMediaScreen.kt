@@ -452,9 +452,8 @@ private fun ImportMediaContent(
 
                         if (importedItemsList.size > 1) {
                             RemoveIcon(
-                                modifier = Modifier.align(Alignment.TopEnd), onClick = {
-                                    onRemoveAsset(index)
-                                },
+                                modifier = Modifier.align(Alignment.TopEnd),
+                                onClick = { onRemoveAsset(index) },
                                 contentDescription = stringResource(id = R.string.remove_asset_description)
                             )
                         }

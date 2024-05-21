@@ -1,0 +1,79 @@
+name: Publish Test Results
+
+# Takes the artifacts uploaded by run-unit-tests and publishes them in PRs as a comment.
+# This is needed in order to support PRs created from forks, as PRs from Forks or Dependabot
+# run in read-only mode and can't comment on PRs, for example.
+# More context here: https://github.blog/changelog/2021-02-19-github-actions-workflows-triggered-by-dependabot-prs-will-run-with-read-only-permissions/
+# This work-around makes it so that:
+#   - this workflow is triggered by the end of the test workflow, instead
+#     of being triggered directly by the PR
+#   - we can control the permissions to only have what's needed to write comments, etc.
+
+on:
+    workflow_run:
+        workflows: [Run Unit Tests]
+        types:
+            - completed
+permissions: {}
+
+jobs:
+    test-results:
+        name: Publish Test Results
+        runs-on: ubuntu-latest
+        if: github.event.workflow_run.conclusion != 'skipped'
+
+        # Limit permissions to only what's needed
+        permissions:
+            checks: write
+
+            # needed to write the PR comment with the results
+            pull-requests: write
+            # required in order to download step to access artifacts API
+            actions: read
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Download and Extract Artifacts
+              uses: dawidd6/action-download-artifact@v3
+              with:
+                  run_id: ${{ github.event.workflow_run.id }}
+                  path: artifacts
+
+            - name: Publish Test Results
+              uses: EnricoMi/publish-unit-test-result-action@v2
+              with:
+                  commit: ${{ github.event.workflow_run.head_sha }}
+                  event_file: artifacts/Event File/event.json
+                  event_name: ${{ github.event.workflow_run.event }}
+                  files: "artifacts/test-results/**/*.xml"
+
+            - uses: fregante/setup-git-user@v2
+
+            - name: Post link to apks
+              if: github.event.workflow_run.conclusion == 'success'
+              env:
+                  EVENT_FILE_PATH: artifacts/Event File/event.json
+                  GITHUB_USER: ${{ github.actor }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  # Get the PR number based on the event file uploaded by the test workflow.
+                  # The event file is a JSON containing the data of the event that triggered the tests.
+                  # In this case, it will contain information about the PR.
+              run: |
+                  CHECKS_LINK="https://github.com/wireapp/wire-android/actions/runs/${{ github.event.workflow_run.id }}"
+                  PR_NUMBER=$(jq --raw-output .pull_request.number "$EVENT_FILE_PATH")
+                  gh pr comment "$PR_NUMBER" --body "APKs built during tests are available [here]($CHECKS_LINK). Scroll down to **Artifacts**!"
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 18
+            - name: Install datadog-ci
+              run: npm install -g @datadog/datadog-ci
+            - name: "Upload results"
+              env:
+                  DATADOG_API_KEY: ${{ secrets.DD_API_KEY }}
+                  DD_ENV: ci
+                  DATADOG_SITE: datadoghq.eu
+              run: |
+                  find ./artifacts -name "*.xml" -type f | tr '\n' ' ' | xargs -L 1 datadog-ci junit upload --service wire-android-reloaded .

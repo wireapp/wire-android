@@ -1,6 +1,7 @@
 name: "Upload builds"
 
 on:
+    workflow_dispatch: 
     workflow_call:
         inputs:
             flavour:

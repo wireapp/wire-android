@@ -4,6 +4,7 @@ on:
     merge_group:
     pull_request:
         types: [ opened, synchronize, edited ]
+    workflow_call:
 
 jobs:
     testing-build-app:
@@ -26,10 +27,10 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
                     ./gradlew assembleStagingCompat -p ./ --no-daemon
-    uplod-to-s3:
-        needs: [ testing-build-app ]
-        name: "Upload APK staging compat"
-        uses: ./.github/workflows/upload-aws-s3.yml
-        with:
-            flavour: "staging"
-            buildType: "compat"
+#    uplod-to-s3:
+#        needs: [ testing-build-app ]
+#        name: "Upload APK staging compat"
+#        uses: ./.github/workflows/upload-aws-s3.yml
+#        with:
+#            flavour: "staging"
+#            buildType: "compat"

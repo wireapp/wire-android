@@ -27,9 +27,10 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
                     ./gradlew assembleStagingCompat -p ./ --no-daemon
-            -   name: Upload APK staging compat
-                if: success()
-                uses: ./.github/workflows/upload-aws-s3.yml
-                with:
-                    flavour: "staging"
-                    buildType: "compat"
+    uplod-to-s3:
+        name: "Upload APK staging compat"
+        needs: [ testing-build-app ]
+        uses: ./.github/workflows/upload-aws-s3.yml
+        with:
+            flavour: "staging"
+            buildType: "compat"

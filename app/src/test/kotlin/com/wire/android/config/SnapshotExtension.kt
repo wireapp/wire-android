@@ -26,10 +26,20 @@ import org.junit.jupiter.api.extension.ReflectiveInvocationContext
 import java.lang.reflect.Method
 
 /**
- * This extension is used to test [androidx.compose.foundation.text.input.TextFieldState] as it's a specific mutable state,
- * it's needed to manually accept changes to it, which in a running app is normally done by the compose runtime.
+ * This extension provides a way to test [androidx.compose.foundation.text.input.TextFieldState].
+ * It's needed to manually accept changes to this specific mutable state, which in a running app is normally done by the compose runtime.
  * There is no official guide on how to write tests for the TextFieldState, but this is how it's done in the compose source code.
  * Take a look at: https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/compose/foundation/foundation/src/androidUnitTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt#715
+ *
+ * Add this JUnit 5 extension to your test class using
+ * @JvmField
+ * @RegisterExtension
+ * val snapshotExtension = SnapshotExtension()
+ *
+ * or:
+ *
+ * Annotating the class with
+ * @ExtendWith(SnapshotExtension::class)
  */
 @ExperimentalCoroutinesApi
 class SnapshotExtension : InvocationInterceptor {

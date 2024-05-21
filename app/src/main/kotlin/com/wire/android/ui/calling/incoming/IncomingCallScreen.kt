@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -209,7 +208,8 @@ private fun IncomingCallContent(
                     modifier = Modifier.align(alignment = Alignment.CenterStart)
                 ) {
                     HangUpButton(
-                        modifier = Modifier.size(dimensions().outgoingCallHangUpButtonSize),
+                        size = dimensions().bigCallingControlsSize,
+                        iconSize = dimensions().bigCallingHangUpButtonIconSize,
                         onHangUpButtonClicked = { declineCall() }
                     )
                     Text(
@@ -228,6 +228,8 @@ private fun IncomingCallContent(
                         .align(alignment = Alignment.CenterEnd)
                 ) {
                     AcceptButton(
+                        size = dimensions().bigCallingControlsSize,
+                        iconSize = dimensions().bigCallingAcceptButtonIconSize,
                         buttonClicked = acceptCall
                     )
                     Text(

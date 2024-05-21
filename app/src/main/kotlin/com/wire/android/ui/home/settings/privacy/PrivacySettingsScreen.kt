@@ -46,12 +46,14 @@ fun PrivacySettingsConfigScreen(
 ) {
     with(viewModel) {
         PrivacySettingsScreenContent(
+            isAnonymousUsageDataEnabled = state.isAnonymousUsageDataEnabled,
             areReadReceiptsEnabled = state.areReadReceiptsEnabled,
             setReadReceiptsState = ::setReadReceiptsState,
             isTypingIndicatorEnabled = state.isTypingIndicatorEnabled,
             setTypingIndicatorState = ::setTypingIndicatorState,
             screenshotCensoringConfig = state.screenshotCensoringConfig,
             setScreenshotCensoringConfig = ::setScreenshotCensoringConfig,
+            setAnonymousUsageDataEnabled = ::setAnonymousUsageDataEnabled,
             onBackPressed = navigator::navigateBack,
         )
     }
@@ -59,12 +61,14 @@ fun PrivacySettingsConfigScreen(
 
 @Composable
 fun PrivacySettingsScreenContent(
+    isAnonymousUsageDataEnabled: Boolean,
     areReadReceiptsEnabled: Boolean,
     setReadReceiptsState: (Boolean) -> Unit,
     isTypingIndicatorEnabled: Boolean,
     setTypingIndicatorState: (Boolean) -> Unit,
     screenshotCensoringConfig: ScreenshotCensoringConfig,
     setScreenshotCensoringConfig: (Boolean) -> Unit,
+    setAnonymousUsageDataEnabled: (Boolean) -> Unit,
     onBackPressed: () -> Unit,
 ) {
     WireScaffold(topBar = {
@@ -79,6 +83,12 @@ fun PrivacySettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
+            GroupConversationOptionsItem(
+                title = stringResource(id = R.string.settings_send_anonymous_usage_data_title),
+                switchState = SwitchState.Enabled(value = isAnonymousUsageDataEnabled, onCheckedChange = setAnonymousUsageDataEnabled),
+                arrowType = ArrowType.NONE,
+                subtitle = stringResource(id = R.string.settings_send_anonymous_usage_data_description)
+            )
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_send_read_receipts),
                 switchState = SwitchState.Enabled(value = areReadReceiptsEnabled, onCheckedChange = setReadReceiptsState),
@@ -119,12 +129,14 @@ fun PrivacySettingsScreenContent(
 @Preview
 fun PreviewSendReadReceipts() {
     PrivacySettingsScreenContent(
+        isAnonymousUsageDataEnabled = true,
         areReadReceiptsEnabled = true,
         setReadReceiptsState = {},
         isTypingIndicatorEnabled = true,
         setTypingIndicatorState = {},
         screenshotCensoringConfig = ScreenshotCensoringConfig.DISABLED,
         setScreenshotCensoringConfig = {},
+        setAnonymousUsageDataEnabled = {},
         onBackPressed = {},
     )
 }

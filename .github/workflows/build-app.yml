@@ -40,7 +40,7 @@ jobs:
         cp app/build/outputs/apk/dev/debug/com.wire.*.apk wire-android-${{inputs.flavour}}-pr-${{ github.event.pull_request.number }}.apk
     - name: Upload APK
       if: success()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
           name: wire-android-${{inputs.flavour}}-pr-${{ github.event.pull_request.number }}.apk
           path: ./wire-android-${{inputs.flavour}}-pr-${{ github.event.pull_request.number }}.apk

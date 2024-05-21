@@ -18,59 +18,45 @@
 
 package com.wire.android.ui.calling.controlbuttons
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.ripple
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun MicrophoneButton(
-    modifier: Modifier = Modifier.size(dimensions().defaultCallingControlsSize),
     isMuted: Boolean,
-    onMicrophoneButtonClicked: () -> Unit
+    onMicrophoneButtonClicked: () -> Unit,
+    size: Dp = dimensions().defaultCallingControlsSize,
+    modifier: Modifier = Modifier,
 ) {
     WireCallControlButton(
         isSelected = !isMuted,
+        iconResId = when (isMuted) {
+            true -> R.drawable.ic_microphone_off
+            false -> R.drawable.ic_microphone_on
+        },
+        contentDescription = when (isMuted) {
+            true -> R.string.content_description_calling_unmute_call
+            false -> R.string.content_description_calling_mute_call
+        },
+        onClick = onMicrophoneButtonClicked,
+        size = size,
         modifier = modifier
-    ) { iconColor ->
-        Icon(
-            modifier = modifier
-                .wrapContentSize()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(bounded = false, radius = dimensions().defaultCallingControlsSize / 2),
-                    role = Role.Button,
-                    onClick = { onMicrophoneButtonClicked() }
-                ),
-            painter = painterResource(
-                id = if (isMuted) {
-                    R.drawable.ic_microphone_off
-                } else {
-                    R.drawable.ic_microphone_on
-                }
-            ),
-            contentDescription = stringResource(
-                id = if (isMuted) R.string.content_description_calling_unmute_call
-                else R.string.content_description_calling_mute_call
-            ),
-            tint = iconColor
-        )
-    }
+    )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewComposableMicrophoneButton() {
+fun PreviewComposableMicrophoneButtonOn() = WireTheme {
     MicrophoneButton(isMuted = true, onMicrophoneButtonClicked = { })
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewComposableMicrophoneButtonOff() = WireTheme {
+    MicrophoneButton(isMuted = false, onMicrophoneButtonClicked = { })
 }

@@ -18,57 +18,45 @@
 
 package com.wire.android.ui.calling.controlbuttons
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.ripple
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun CameraFlipButton(
     isOnFrontCamera: Boolean = false,
-    onCameraFlipButtonClicked: () -> Unit
+    onCameraFlipButtonClicked: () -> Unit,
+    size: Dp = dimensions().defaultCallingControlsSize,
+    modifier: Modifier = Modifier,
 ) {
     WireCallControlButton(
-        isSelected = !isOnFrontCamera
-    ) { iconColor ->
-        Icon(
-            modifier = Modifier
-                .wrapContentSize()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(bounded = false, radius = dimensions().defaultCallingControlsSize / 2),
-                    role = Role.Button,
-                    onClick = onCameraFlipButtonClicked
-
-                ),
-            painter = painterResource(
-                id = if (isOnFrontCamera) {
-                    R.drawable.ic_camera_flipped
-                } else {
-                    R.drawable.ic_camera_flip
-                }
-            ),
-            tint = iconColor,
-            contentDescription = stringResource(
-                id = if (isOnFrontCamera) R.string.content_description_calling_flip_camera_on
-                else R.string.content_description_calling_flip_camera_off
-            )
-        )
-    }
+        isSelected = !isOnFrontCamera,
+        iconResId = when (isOnFrontCamera) {
+            true -> R.drawable.ic_camera_flipped
+            false -> R.drawable.ic_camera_flip
+        },
+        contentDescription = when (isOnFrontCamera) {
+            true -> R.string.content_description_calling_flip_camera_on
+            false -> R.string.content_description_calling_flip_camera_off
+        },
+        onClick = onCameraFlipButtonClicked,
+        size = size,
+        modifier = modifier,
+    )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewCameraFlipButton() {
-    CameraFlipButton(onCameraFlipButtonClicked = { })
+fun PreviewCameraFlipButtonOn() = WireTheme {
+    CameraFlipButton(isOnFrontCamera = true, onCameraFlipButtonClicked = { })
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCameraFlipButtonOff() = WireTheme {
+    CameraFlipButton(isOnFrontCamera = false, onCameraFlipButtonClicked = { })
 }

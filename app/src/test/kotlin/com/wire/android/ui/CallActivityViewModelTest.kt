@@ -34,6 +34,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -87,6 +88,7 @@ class CallActivityViewModelTest {
                 .arrange()
 
             viewModel.switchAccountIfNeeded(userId)
+            advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.accountSwitch(any()) }
         }
@@ -100,6 +102,7 @@ class CallActivityViewModelTest {
                 .arrange()
 
             viewModel.switchAccountIfNeeded(UserId("anotherUserId", "domain"))
+            advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.accountSwitch(any()) }
         }

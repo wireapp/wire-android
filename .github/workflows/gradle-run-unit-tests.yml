@@ -1,4 +1,4 @@
-name: "Run unit tests"
+name: "Run Unit Tests"
 
 on: [ workflow_call ]
 
@@ -22,7 +22,7 @@ jobs:
           distribution: 'temurin'
           cache: gradle
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@216d1ad2b3710bf005dc39237337b9673fd8fcd5
+        uses: gradle/actions/wrapper-validation@v3
 
       - name: Test Build Logic
         run: |
@@ -38,15 +38,26 @@ jobs:
       - name: Install Pip for test result publishing
         run: sudo apt-get install -y python3-pip
 
+      - name: Get commit hash
+        run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Zip test results
+        run: |
+          zip -r unit-tests-android_${{ env.COMMIT_HASH }}.zip **/build/test-results/**/*.xml **/build/outputs/androidTest-results/**/*.xml
+
+      - name: Upload zipped test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-tests-android_${{ env.COMMIT_HASH }}
+          path: unit-tests-android_${{ env.COMMIT_HASH }}.zip
+
       # Uploads test results as GitHub artifacts, so publish-test-results can find them later.
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          # This name is referenced in the publish-test-results workflow.
           name: test-results
           path: |
-            **/build/test-results/testDevDebugUnitTest/**/*.xml
             **/build/test-results/**/*.xml
             **/build/outputs/androidTest-results/**/*.xml
 

@@ -29,7 +29,7 @@ jobs:
                     ./gradlew assembleStagingCompat -p ./ --no-daemon
     uplod-to-s3:
         runs-on: buildjet-8vcpu-ubuntu-2204
-        needs: [ testing-build-app ]
+        needs: [testing-build-app]
         steps:
             -   name: Upload APK staging compat
                 uses: ./.github/workflows/upload-aws-s3.yml

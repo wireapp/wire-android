@@ -102,7 +102,8 @@ android {
                 keyPassword = System.getenv("KEYPWD_COMPAT_RELEASE")
             }
             maybeCreate(BuildTypes.BENCHMARK).apply {
-                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_DEBUG"))
+                val keystorePath = System.getProperty("user.home") + "/work/_temp/keystore/"
+                storeFile = file("$keystorePath/key.keystore")
                 storePassword = System.getenv("KEYSTOREPWD_DEBUG")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")
                 keyPassword = System.getenv("KEYPWD_DEBUG")

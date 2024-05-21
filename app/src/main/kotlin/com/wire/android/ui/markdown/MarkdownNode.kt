@@ -143,6 +143,8 @@ sealed class MarkdownNode {
         override val children: List<Inline> = listOf(),
         override val isParentDocument: Boolean = false
     ) : MarkdownNode()
+
+    data class Unsupported(override val children: List<MarkdownNode> = listOf(), override val isParentDocument: Boolean) : MarkdownNode()
 }
 
 data class MarkdownPreview(val children: PersistentList<MarkdownNode.Inline>)

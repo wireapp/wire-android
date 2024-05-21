@@ -1,6 +1,7 @@
 name: "Testing Test Build App"
 
 on:
+    # just for testing, remove after pr is ready to merge
     merge_group:
     pull_request:
         types: [ opened, synchronize, edited ]

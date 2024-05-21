@@ -4,6 +4,8 @@ permissions:
     contents: read
 
 on:
+    # just for testing, remove after pr is ready to merge
+    workflow_dispatch:
     workflow_call:
         inputs:
             flavour:

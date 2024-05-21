@@ -1,5 +1,8 @@
 name: "Upload builds"
 
+permissions:
+    contents: read
+
 on:
     workflow_call:
         inputs:

@@ -92,7 +92,7 @@ fun <T : Node> T.toContent(isParentDocument: Boolean = false): MarkdownNode {
         is Strikethrough -> MarkdownNode.Inline.Strikethrough(convertChildren<MarkdownNode.Inline>())
         is HardLineBreak, is SoftLineBreak -> MarkdownNode.Inline.Break(convertChildren<MarkdownNode.Inline>())
         is LinkReferenceDefinition -> MarkdownNode.Block.Paragraph(
-            listOf(MarkdownNode.Inline.Text("[${label}]: ${this.destination} ${this.title}")),
+            listOf(MarkdownNode.Inline.Text("[$label]: $destination $title")),
             isParentDocument
         )
 

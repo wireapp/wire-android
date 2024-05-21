@@ -264,7 +264,8 @@ private fun Content(
 
                         if (previewState.assetBundleList.size > 1) {
                             RemoveIcon(
-                                modifier = Modifier.align(Alignment.TopEnd), onClick = {
+                                modifier = Modifier.align(Alignment.TopEnd),
+                                onClick = {
                                     onRemoveAsset(index)
                                 },
                                 contentDescription = stringResource(id = R.string.remove_asset_description)

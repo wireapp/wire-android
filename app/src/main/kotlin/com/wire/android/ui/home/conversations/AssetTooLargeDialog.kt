@@ -30,8 +30,7 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 @Composable
 fun AssetTooLargeDialog(dialogState: AssetTooLargeDialogState, hideDialog: () -> Unit) {
     when (dialogState) {
-        is AssetTooLargeDialogState.SingleVisible,
-        is AssetTooLargeDialogState.MultipleVisible -> {
+        is AssetTooLargeDialogState.Visible -> {
             WireDialog(
                 title = getTitle(dialogState),
                 text = getLabel(dialogState),
@@ -52,38 +51,43 @@ fun AssetTooLargeDialog(dialogState: AssetTooLargeDialogState, hideDialog: () ->
 @Composable
 private fun getTitle(dialogState: AssetTooLargeDialogState) = when (dialogState) {
     AssetTooLargeDialogState.Hidden -> ""
-    is AssetTooLargeDialogState.MultipleVisible -> stringResource(id = R.string.title_assets_could_not_be_sent)
-    is AssetTooLargeDialogState.SingleVisible -> when (dialogState.assetType) {
-        AttachmentType.IMAGE -> stringResource(R.string.title_image_could_not_be_sent)
-        AttachmentType.VIDEO -> stringResource(R.string.title_video_could_not_be_sent)
-        AttachmentType.AUDIO, // TODO
-        AttachmentType.GENERIC_FILE -> stringResource(R.string.title_file_could_not_be_sent)
-    }
+    is AssetTooLargeDialogState.Visible ->
+        if (dialogState.multipleAssets) {
+            stringResource(id = R.string.title_assets_could_not_be_sent)
+        } else {
+            when (dialogState.assetType) {
+                AttachmentType.IMAGE -> stringResource(R.string.title_image_could_not_be_sent)
+                AttachmentType.VIDEO -> stringResource(R.string.title_video_could_not_be_sent)
+                AttachmentType.AUDIO, // TODO
+                AttachmentType.GENERIC_FILE -> stringResource(R.string.title_file_could_not_be_sent)
+            }
+        }
 }
 
 @Composable
 private fun getLabel(dialogState: AssetTooLargeDialogState) = when (dialogState) {
     AssetTooLargeDialogState.Hidden -> ""
-    is AssetTooLargeDialogState.MultipleVisible -> stringResource(id = R.string.label_shared_asset_too_large, dialogState.maxLimitInMB)
-    is AssetTooLargeDialogState.SingleVisible -> when (dialogState.assetType) {
+    is AssetTooLargeDialogState.Visible -> when (dialogState.assetType) {
         AttachmentType.IMAGE -> stringResource(R.string.label_shared_image_too_large, dialogState.maxLimitInMB)
         AttachmentType.VIDEO -> stringResource(R.string.label_shared_video_too_large, dialogState.maxLimitInMB)
         AttachmentType.AUDIO, // TODO
         AttachmentType.GENERIC_FILE -> stringResource(R.string.label_shared_file_too_large, dialogState.maxLimitInMB)
     }.let {
-        if (dialogState.savedToDevice) it + "\n" + stringResource(R.string.label_file_saved_to_device)
-        else it
+        var label = it
+        if (dialogState.multipleAssets) label = label + "\n" + stringResource(R.string.label_shared_multiple_assets_error)
+        if (dialogState.savedToDevice) label = label + "\n" + stringResource(R.string.label_file_saved_to_device)
+        label
     }
 }
 
 @Preview
 @Composable
 fun PreviewAssetTooLargeDialog() {
-    AssetTooLargeDialog(AssetTooLargeDialogState.SingleVisible(AttachmentType.VIDEO, 100, true)) {}
+    AssetTooLargeDialog(AssetTooLargeDialogState.Visible(AttachmentType.VIDEO, 100, true)) {}
 }
 
 @Preview
 @Composable
 fun PreviewMultipleAssetTooLargeDialog() {
-    AssetTooLargeDialog(AssetTooLargeDialogState.MultipleVisible(20)) {}
+    AssetTooLargeDialog(AssetTooLargeDialogState.Visible(AttachmentType.VIDEO, 100, false, true)) {}
 }

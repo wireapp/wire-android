@@ -21,15 +21,25 @@ package com.wire.android.ui.home.conversations.model
 import android.net.Uri
 import androidx.compose.runtime.Stable
 import com.wire.kalium.logic.data.asset.AttachmentType
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import okio.Path
+import okio.Path.Companion.toPath
 import kotlin.math.roundToInt
 
 /**
  * Represents a set of metadata information of an asset message
  */
+@Serializable
 data class AssetBundle(
     val key: String,
     val mimeType: String,
+    @Serializable(with = PathAsStringSerializer::class)
     val dataPath: Path,
     val dataSize: Long,
     val fileName: String,
@@ -61,3 +71,15 @@ data class UriAsset(
     val uri: Uri,
     val saveToDeviceIfInvalid: Boolean = false
 )
+
+private object PathAsStringSerializer : KSerializer<Path> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Path", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: Path) {
+        encoder.encodeString(value.toString())
+    }
+
+    override fun deserialize(decoder: Decoder): Path {
+        return decoder.decodeString().toPath()
+    }
+}

@@ -106,6 +106,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
     }
 
+    fun onRemove(index: Int) {
+        importMediaState = importMediaState.copy(importedAssets = importMediaState.importedAssets.removeAt(index))
+    }
+
     private fun loadUserAvatar() = viewModelScope.launch(dispatchers.io()) {
         getSelf().collect { selfUser ->
             withContext(dispatchers.main()) {
@@ -354,10 +358,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
-    }
-
-    private companion object {
-        const val MAX_LIMIT_MEDIA_IMPORT = 20
     }
 }
 

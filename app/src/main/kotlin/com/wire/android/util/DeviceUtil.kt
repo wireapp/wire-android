@@ -21,7 +21,7 @@ import android.os.Environment
 import android.os.StatFs
 
 object DeviceUtil {
-    private const val BYTES_IN_KILOBYTE = 1024
+    private const val BYTES_IN_KILOBYTE = 1024L
     private const val BYTES_IN_MEGABYTE = BYTES_IN_KILOBYTE * 1024
     private const val BYTES_IN_GIGABYTE = BYTES_IN_MEGABYTE * 1024
 
@@ -48,9 +48,9 @@ object DeviceUtil {
     fun formatSize(sizeInBytes: Long): String {
         return when {
             sizeInBytes < BYTES_IN_KILOBYTE -> "$sizeInBytes B"
-            sizeInBytes < BYTES_IN_MEGABYTE -> String.format("%.2f KB", sizeInBytes / BYTES_IN_KILOBYTE)
-            sizeInBytes < BYTES_IN_GIGABYTE -> String.format("%.2f MB", sizeInBytes / BYTES_IN_MEGABYTE)
-            else -> String.format("%.2f GB", sizeInBytes / BYTES_IN_GIGABYTE)
+            sizeInBytes < BYTES_IN_MEGABYTE -> String.format("%.2f KB", sizeInBytes.toDouble() / BYTES_IN_KILOBYTE)
+            sizeInBytes < BYTES_IN_GIGABYTE -> String.format("%.2f MB", sizeInBytes.toDouble() / BYTES_IN_MEGABYTE)
+            else -> String.format("%.2f GB", sizeInBytes.toDouble() / BYTES_IN_GIGABYTE)
         }
     }
 }

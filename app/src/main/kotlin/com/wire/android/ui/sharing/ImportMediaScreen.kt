@@ -63,25 +63,26 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.error.ErrorIcon
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.remove.RemoveIcon
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.home.FeatureFlagState
+import com.wire.android.ui.home.conversations.AssetTooLargeDialog
+import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
 import com.wire.android.ui.home.conversations.media.preview.AssetTilePreview
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
-import com.wire.android.ui.home.conversations.sendmessage.SendMessageAction
-import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
-import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.theme.WireTheme
@@ -127,46 +128,42 @@ fun ImportMediaScreen(
 
         FeatureFlagState.SharingRestrictedState.NONE -> {
             val importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
-            val sendMessageViewModel: SendMessageViewModel = hiltViewModel()
-
-            LaunchedEffect(sendMessageViewModel.viewState.afterMessageSendAction) {
-                when (val action = sendMessageViewModel.viewState.afterMessageSendAction) {
-                    SendMessageAction.NavigateBack -> navigator.navigateBack()
-                    is SendMessageAction.NavigateToConversation -> navigator.navigate(
-                        NavigationCommand(
-                            ConversationScreenDestination(action.conversationId),
-                            BackStackMode.REMOVE_CURRENT
-                        )
-                    )
-
-                    SendMessageAction.NavigateToHome -> navigator.navigate(
-                        NavigationCommand(
-                            HomeScreenDestination(),
-                            BackStackMode.REMOVE_CURRENT
-                        )
-                    )
-
-                    SendMessageAction.None -> {
-                    }
-                }
-            }
+            val checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel()
 
             ImportMediaRegularContent(
                 importMediaAuthenticatedState = importMediaViewModel.importMediaState,
                 onSearchQueryChanged = importMediaViewModel::onSearchQueryChanged,
                 onConversationClicked = importMediaViewModel::onConversationClicked,
                 checkRestrictionsAndSendImportedMedia = {
-                    sendMessageViewModel.trySendMessages(importMediaViewModel.importMediaState.importedAssets.map {
-                        ComposableMessageBundle.AttachmentPickedBundle(
-                            importMediaViewModel.importMediaState.selectedConversationItem.first().conversationId,
-                            it.assetBundle
+                    importMediaViewModel.importMediaState.selectedConversationItem.firstOrNull()?.let { conversationItem ->
+                        checkAssetRestrictionsViewModel.checkRestrictions(
+                            importedMediaList = importMediaViewModel.importMediaState.importedAssets,
+                            onSuccess = {
+                                navigator.navigate(
+                                    NavigationCommand(
+                                        ConversationScreenDestination(
+                                            ConversationNavArgs(
+                                                conversationId = conversationItem.conversationId,
+                                                pendingBundles = ArrayList(it)
+                                            )
+                                        ),
+                                        BackStackMode.UPDATE_EXISTED
+                                    ),
+                                )
+                            }
                         )
-                    })
+                    }
                 },
                 onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
                 infoMessage = importMediaViewModel.infoMessage,
                 navigateBack = navigator.finish,
+                onRemoveAsset = importMediaViewModel::onRemove
             )
+            AssetTooLargeDialog(
+                dialogState = checkAssetRestrictionsViewModel.assetTooLargeDialogState,
+                hideDialog = checkAssetRestrictionsViewModel::hideDialog
+            )
+
             val context = LocalContext.current
             LaunchedEffect(importMediaViewModel.importMediaState.importedAssets) {
                 if (importMediaViewModel.importMediaState.importedAssets.isEmpty()) {
@@ -227,6 +224,7 @@ fun ImportMediaRegularContent(
     onNewSelfDeletionTimerPicked: (selfDeletionDuration: SelfDeletionDuration) -> Unit,
     infoMessage: SharedFlow<SnackBarMessage>,
     navigateBack: () -> Unit,
+    onRemoveAsset: (index: Int) -> Unit,
 ) {
 
     val importMediaScreenState = rememberImportMediaScreenState()
@@ -254,7 +252,8 @@ fun ImportMediaRegularContent(
                     internalPadding = internalPadding,
                     onSearchQueryChanged = onSearchQueryChanged,
                     onConversationClicked = onConversationClicked,
-                    searchBarState = importMediaScreenState.searchBarState
+                    searchBarState = importMediaScreenState.searchBarState,
+                    onRemoveAsset = onRemoveAsset
                 )
             },
             bottomBar = {
@@ -385,6 +384,7 @@ private fun ImportMediaContent(
     internalPadding: PaddingValues,
     onSearchQueryChanged: (searchQuery: TextFieldValue) -> Unit,
     onConversationClicked: (conversationId: ConversationId) -> Unit,
+    onRemoveAsset: (index: Int) -> Unit,
     searchBarState: SearchBarState
 ) {
     val importedItemsList: PersistentList<ImportedMediaAsset> = state.importedAssets
@@ -429,20 +429,42 @@ private fun ImportMediaContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(dimensions().spacing120x),
-                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x),
-                contentPadding = PaddingValues(start = dimensions().spacing16x, end = dimensions().spacing16x)
+                contentPadding = PaddingValues(start = dimensions().spacing8x, end = dimensions().spacing8x)
             ) {
                 items(
                     count = importedItemsList.size,
                 ) { index ->
-                    AssetTilePreview(
+                    Box(
                         modifier = Modifier
                             .width(dimensions().spacing120x)
-                            .fillMaxHeight(),
-                        assetBundle = importedItemsList[index].assetBundle,
-                        showOnlyExtension = false,
-                        onClick = {}
-                    )
+                            .fillMaxHeight()
+                    ) {
+                        val assetSize = dimensions().spacing120x - dimensions().spacing16x
+                        AssetTilePreview(
+                            modifier = Modifier
+                                .width(assetSize)
+                                .height(assetSize)
+                                .align(Alignment.Center),
+                            assetBundle = importedItemsList[index].assetBundle,
+                            showOnlyExtension = false,
+                            onClick = {}
+                        )
+
+                        if (importedItemsList.size > 1) {
+                            RemoveIcon(
+                                modifier = Modifier.align(Alignment.TopEnd), onClick = {
+                                    onRemoveAsset(index)
+                                },
+                                contentDescription = stringResource(id = R.string.remove_asset_description)
+                            )
+                        }
+                        if (importedItemsList[index].assetSizeExceeded != null) {
+                            ErrorIcon(
+                                modifier = Modifier.align(Alignment.Center),
+                                stringResource(id = R.string.asset_attention_description)
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -577,7 +599,8 @@ fun PreviewImportMediaScreenRegular() {
             {},
             {},
             {},
-            MutableSharedFlow()
+            MutableSharedFlow(),
+            {}
         ) {}
     }
 }

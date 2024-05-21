@@ -21,7 +21,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,9 +35,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -46,45 +42,35 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
-import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.ArgsSerializer
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
+import com.wire.android.ui.common.error.ErrorIcon
 import com.wire.android.ui.common.image.WireImage
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.remove.RemoveIcon
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.destinations.ConversationScreenDestination
-import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.home.conversations.AssetTooLargeDialog
-import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
+import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.sendmessage.SendMessageAction
-import com.wire.android.ui.home.conversations.sendmessage.SendMessageState
-import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
-import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
-import com.wire.android.ui.home.messagecomposer.model.MessageBundle
-import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -92,7 +78,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 
@@ -105,66 +90,42 @@ import okio.Path.Companion.toPath
 fun ImagesPreviewScreen(
     navigator: Navigator,
     imagesPreviewViewModel: ImagesPreviewViewModel = hiltViewModel(),
-    sendMessageViewModel: SendMessageViewModel = hiltViewModel()
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel(),
+    resultNavigator: ResultBackNavigator<String>
+
 ) {
-    LaunchedEffect(sendMessageViewModel.viewState.afterMessageSendAction) {
-        when (val action = sendMessageViewModel.viewState.afterMessageSendAction) {
-            SendMessageAction.NavigateBack -> navigator.navigateBack()
-            is SendMessageAction.NavigateToConversation -> navigator.navigate(
-                NavigationCommand(
-                    ConversationScreenDestination(action.conversationId),
-                    BackStackMode.REMOVE_CURRENT
-                )
-            )
-
-            SendMessageAction.NavigateToHome -> navigator.navigate(
-                NavigationCommand(
-                    HomeScreenDestination(),
-                    BackStackMode.REMOVE_CURRENT
-                )
-            )
-
-            SendMessageAction.None -> {}
-        }
-    }
-
     Content(
         previewState = imagesPreviewViewModel.viewState,
-        sendState = sendMessageViewModel.viewState,
         onNavigationPressed = { navigator.navigateBack() },
-        onSendMessages = sendMessageViewModel::trySendMessages,
+        onSendMessages = { mediaAssets ->
+            checkAssetRestrictionsViewModel.checkRestrictions(
+                importedMediaList = mediaAssets,
+                onSuccess = {
+                    val result = ArgsSerializer().encodeToString(
+                        serializer = ImagesPreviewNavBackArgs.serializer(),
+                        value = ImagesPreviewNavBackArgs(pendingBundles = ArrayList(it))
+                    )
+                    resultNavigator.setResult(result)
+                    resultNavigator.navigateBack()
+                }
+            )
+        },
         onSelected = imagesPreviewViewModel::onSelected,
         onRemoveAsset = imagesPreviewViewModel::onRemove
     )
 
     AssetTooLargeDialog(
-        dialogState = sendMessageViewModel.assetTooLargeDialogState,
-        hideDialog = sendMessageViewModel::hideAssetTooLargeError
+        dialogState = checkAssetRestrictionsViewModel.assetTooLargeDialogState,
+        hideDialog = checkAssetRestrictionsViewModel::hideDialog
     )
-
-    SureAboutMessagingInDegradedConversationDialog(
-        dialogState = sendMessageViewModel.sureAboutMessagingDialogState,
-        sendAnyway = sendMessageViewModel::acceptSureAboutSendingMessage,
-        hideDialog = sendMessageViewModel::dismissSureAboutSendingMessage
-    )
-
-    (sendMessageViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
-        LegalHoldSubjectMessageDialog(
-            dialogDismissed = sendMessageViewModel::dismissSureAboutSendingMessage,
-            sendAnywayClicked = sendMessageViewModel::acceptSureAboutSendingMessage,
-        )
-    }
-
-    SnackBarMessage(sendMessageViewModel.infoMessage)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Content(
     previewState: ImagesPreviewState,
-    sendState: SendMessageState,
     onNavigationPressed: () -> Unit = {},
-    onSendMessages: (List<MessageBundle>) -> Unit,
+    onSendMessages: (List<ImportedMediaAsset>) -> Unit,
     onSelected: (index: Int) -> Unit,
     onRemoveAsset: (index: Int) -> Unit
 ) {
@@ -214,7 +175,6 @@ private fun Content(
                     )
                     HorizontalSpace.x16()
                     WirePrimaryButton(
-                        loading = sendState.inProgress,
                         modifier = Modifier.weight(1F),
                         text = stringResource(id = R.string.import_media_send_button_title),
                         leadingIcon = {
@@ -226,15 +186,7 @@ private fun Content(
                             )
                         },
                         onClick = {
-                            onSendMessages(
-                                previewState.assetBundleList.map {
-                                    ComposableMessageBundle.AttachmentPickedBundle(
-                                        previewState.conversationId,
-                                        it.assetBundle
-                                    )
-                                }
-
-                            )
+                            onSendMessages(previewState.assetBundleList)
                         }
                     )
                     HorizontalSpace.x16()
@@ -276,6 +228,15 @@ private fun Content(
                 }
             }
 
+            if (previewState.isLoading) {
+                WireCircularProgressIndicator(
+                    progressColor = MaterialTheme.wireColorScheme.onBackground, modifier = Modifier.align(
+                        Alignment.Center
+                    ),
+                    size = dimensions().spacing24x
+                )
+            }
+
             LazyRow(
                 modifier = Modifier
                     .padding(bottom = dimensions().spacing8x)
@@ -303,64 +264,22 @@ private fun Content(
                         )
 
                         if (previewState.assetBundleList.size > 1) {
-                            RemoveAssetButton(modifier = Modifier.align(Alignment.TopEnd), onClick = {
-                                onRemoveAsset(index)
-                            })
+                            RemoveIcon(
+                                modifier = Modifier.align(Alignment.TopEnd), onClick = {
+                                    onRemoveAsset(index)
+                                },
+                                contentDescription = stringResource(id = R.string.remove_asset_description)
+                            )
                         }
                         if (previewState.assetBundleList[index].assetSizeExceeded != null) {
-                            ErrorIcon(modifier = Modifier.align(Alignment.Center))
+                            ErrorIcon(
+                                modifier = Modifier.align(Alignment.Center),
+                                stringResource(id = R.string.asset_attention_description)
+                            )
                         }
                     }
                 }
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun RemoveAssetButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    Icon(
-        modifier = modifier
-            .size(dimensions().spacing24x)
-            .combinedClickable(onClick = onClick)
-            .clip(shape = CircleShape)
-            .background(color = MaterialTheme.wireColorScheme.inverseSurface)
-            .padding(dimensions().spacing6x),
-        painter = painterResource(id = R.drawable.ic_close),
-        contentDescription = stringResource(id = R.string.asset_preview_remove_asset_description),
-        tint = MaterialTheme.wireColorScheme.inverseOnSurface
-    )
-}
-
-@Composable
-private fun ErrorIcon(
-    modifier: Modifier = Modifier,
-) {
-    Icon(
-        modifier = modifier
-            .clip(shape = RoundedCornerShape(dimensions().spacing4x))
-            .background(color = MaterialTheme.wireColorScheme.error)
-            .padding(dimensions().spacing6x),
-        painter = painterResource(id = R.drawable.ic_attention),
-        contentDescription = stringResource(id = R.string.asset_preview_asset_attention_description),
-        tint = MaterialTheme.wireColorScheme.onError
-    )
-}
-
-@Composable
-private fun SnackBarMessage(infoMessages: SharedFlow<SnackBarMessage>) {
-    val context = LocalContext.current
-    val snackbarHostState = LocalSnackbarHostState.current
-
-    LaunchedEffect(Unit) {
-        infoMessages.collect {
-            snackbarHostState.showSnackbar(
-                message = it.uiText.asString(context.resources)
-            )
         }
     }
 }
@@ -421,7 +340,6 @@ fun PreviewImagesPreviewScreen() {
                     )
                 ),
             ),
-            sendState = SendMessageState(inProgress = true),
             onNavigationPressed = {},
             onSendMessages = {},
             onSelected = {},

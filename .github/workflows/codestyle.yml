@@ -22,6 +22,9 @@ jobs:
           cache: gradle
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@5188e9b5527a0a094cee21e2fe9a8ca44b4629af
+      - name: Run Linter
+        run: |
+            ./gradlew lint
       - name: Run Detekt
         run: |
             ./gradlew detektAll

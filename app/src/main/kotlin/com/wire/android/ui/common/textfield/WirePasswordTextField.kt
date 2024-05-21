@@ -58,6 +58,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -208,7 +209,7 @@ private fun VisibilityIconButton(isVisible: Boolean, onVisibleChange: (Boolean) 
                 else R.string.content_description_reveal_password
             ),
             modifier = Modifier
-                .size(20.dp)
+                .size(dimensions().spacing20x)
                 .testTag("hidePassword")
         )
     }

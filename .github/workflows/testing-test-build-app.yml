@@ -3,7 +3,7 @@ name: "Testing Test Build App"
 on:
     merge_group:
     pull_request:
-        types: [ opened, synchronize ] # Don't rerun on `edited` to save time
+        types: [ opened, synchronize, edited ]
     workflow_call:
 
 jobs:

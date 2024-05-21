@@ -4,6 +4,7 @@ on:
     merge_group:
     pull_request:
         types: [ opened, synchronize, edited ]
+    workflow_dispatch:
 
 jobs:
     testing-build-app:

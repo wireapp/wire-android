@@ -1,7 +1,7 @@
 name: "Upload builds"
 
 on:
-    workflow_dispatch: 
+    workflow_dispatch:
     workflow_call:
         inputs:
             flavour:
@@ -13,7 +13,6 @@ on:
 
 jobs:
     deploy-to-s3:
-        needs: [ testing-build-app ]
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout

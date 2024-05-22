@@ -36,9 +36,9 @@ jobs:
         # Then:
         # For the app we need lintDevDebug. For the other modules we use lintDebug.
         run: |
-            ./gradlew collectDependencies -q
-            ./gradlew lintDebug
-            ./gradlew lintDevDebug
+            ./gradlew collectDependencies -q --no-daemon
+            ./gradlew lintDebug --no-daemon
+            ./gradlew lintDevDebug --no-daemon
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.

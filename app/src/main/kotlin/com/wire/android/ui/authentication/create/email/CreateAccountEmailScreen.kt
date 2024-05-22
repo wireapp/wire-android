@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -177,7 +176,7 @@ private fun EmailContent(
                 state = if (state.error is CreateAccountEmailViewState.EmailError.None) WireTextFieldState.Default
                 else WireTextFieldState.Error(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                onKeyboardAction = { keyboardController?.hide() },
                 modifier = Modifier
                     .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                     .testTag("emailField")

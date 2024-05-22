@@ -18,16 +18,15 @@
 package com.wire.android.ui.home.settings.account.handle
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.foundation.text.input.textAsFlow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -39,7 +38,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(ExperimentalFoundationApi::class)
 @HiltViewModel
 class ChangeHandleViewModel @Inject constructor(
     private val updateHandle: SetUserHandleUseCase,

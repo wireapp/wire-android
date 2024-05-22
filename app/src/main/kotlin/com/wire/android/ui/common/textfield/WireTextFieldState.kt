@@ -17,10 +17,13 @@
  */
 package com.wire.android.ui.common.textfield
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.graphics.vector.ImageVector
+import kotlinx.coroutines.flow.Flow
 
 sealed class WireTextFieldState {
     data object Default : WireTextFieldState()
@@ -35,3 +38,5 @@ sealed class WireTextFieldState {
         else -> null
     }
 }
+
+fun TextFieldState.textAsFlow(): Flow<CharSequence> = snapshotFlow { text }

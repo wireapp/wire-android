@@ -18,15 +18,14 @@
 package com.wire.android.ui.home.settings.account.email.updateEmail
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.foundation.text.input.textAsFlow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.Patterns
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
@@ -36,7 +35,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(ExperimentalFoundationApi::class)
 @HiltViewModel
 class ChangeEmailViewModel @Inject constructor(
     private val updateEmail: UpdateEmailUseCase,

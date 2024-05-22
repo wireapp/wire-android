@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
@@ -38,8 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -55,6 +52,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.textfield.DefaultEmail
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.patternWithCallback
@@ -137,11 +135,8 @@ fun ChangeEmailContent(
                             labelText = stringResource(R.string.email_label).uppercase(),
                             inputTransformation = InputTransformation.patternWithCallback(Patterns.EMAIL_ADDRESS, animate),
                             state = computeEmailErrorState(state.flowState),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Text,
-                                imeAction = ImeAction.Done
-                            ),
-                            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                            keyboardOptions = KeyboardOptions.DefaultEmail,
+                            onKeyboardAction = { keyboardController?.hide() },
                             modifier = Modifier.padding(
                                 horizontal = MaterialTheme.wireDimensions.spacing16x
                             )

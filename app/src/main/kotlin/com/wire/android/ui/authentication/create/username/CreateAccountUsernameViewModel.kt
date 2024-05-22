@@ -18,26 +18,24 @@
 
 package com.wire.android.ui.authentication.create.username
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.foundation.text.input.textAsFlow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(ExperimentalFoundationApi::class)
 @HiltViewModel
 class CreateAccountUsernameViewModel @Inject constructor(
     private val validateUserHandleUseCase: ValidateUserHandleUseCase,
@@ -45,35 +43,28 @@ class CreateAccountUsernameViewModel @Inject constructor(
 ) : ViewModel() {
 
     val textState: TextFieldState = TextFieldState()
-    var state: CreateAccountUsernameViewState by mutableStateOf(CreateAccountUsernameViewState())
+    var state: CreateAccountUsernameViewState by mutableStateOf(CreateAccountUsernameViewState(continueEnabled = false))
         private set
 
     init {
         viewModelScope.launch {
-            textState.textAsFlow().collectLatest { newHandle ->
-                validateUserHandleUseCase(newHandle.toString()).let { validateResult ->
-                    if (validateResult.handle != newHandle.toString()) {
-                        textState.setTextAndPlaceCursorAtEnd(validateResult.handle)
-                    }
-                    state = when (validateResult) {
-                        is ValidateUserHandleResult.Valid -> state.copy(
+            textState.textAsFlow()
+                .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
+                .collectLatest { newHandle ->
+                    validateUserHandleUseCase(newHandle.toString()).let { validateResult ->
+                        state = when (validateResult) {
+                            is ValidateUserHandleResult.Valid -> state.copy(
                                 error = HandleUpdateErrorState.None,
                                 continueEnabled = !state.loading,
                             )
 
-                        is ValidateUserHandleResult.Invalid.InvalidCharacters -> state.copy(
-                                error = HandleUpdateErrorState.None,
-                                continueEnabled = !state.loading,
-                            )
-
-                        is ValidateUserHandleResult.Invalid.TooLong,
-                        is ValidateUserHandleResult.Invalid.TooShort -> state.copy(
+                            is ValidateUserHandleResult.Invalid -> state.copy(
                                 error = HandleUpdateErrorState.TextFieldError.UsernameInvalidError,
                                 continueEnabled = false,
                             )
+                        }
                     }
                 }
-            }
         }
     }
 

@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -53,6 +52,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.textfield.DefaultText
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.maxLengthWithCallback
@@ -143,12 +143,9 @@ fun ChangeDisplayNameContent(
                                 inputTransformation = InputTransformation.maxLengthWithCallback(NAME_MAX_COUNT, animate),
                                 lineLimits = TextFieldLineLimits.SingleLine,
                                 state = computeNameErrorState(error),
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
-                                    imeAction = androidx.compose.ui.text.input.ImeAction.Done
-                                ),
+                                keyboardOptions = KeyboardOptions.DefaultText,
                                 descriptionText = stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error),
-                                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                                onKeyboardAction =  { keyboardController?.hide() },
                                 modifier = Modifier.padding(
                                     horizontal = MaterialTheme.wireDimensions.spacing16x
                                 )

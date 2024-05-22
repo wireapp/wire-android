@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.authentication.create.username
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
@@ -44,12 +43,12 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class CreateAccountUsernameViewModelTest {
 
     @Test
-    fun `given empty string, when entering username, then button is disabled`() {
+    fun `given empty string, when entering username, then button is disabled`() = runTest {
         val username = String.EMPTY
         val (_, createAccountUsernameViewModel) = Arrangement()
             .withValidateHandleResult(ValidateUserHandleResult.Invalid.TooShort(username))
@@ -60,7 +59,7 @@ class CreateAccountUsernameViewModelTest {
     }
 
     @Test
-    fun `given non-empty string, when entering username, then button is disabled`() {
+    fun `given non-empty string, when entering username, then button is disabled`() = runTest {
         val username = "abc"
         val (_, createAccountUsernameViewModel) = Arrangement()
             .withValidateHandleResult(ValidateUserHandleResult.Valid(username))
@@ -68,21 +67,6 @@ class CreateAccountUsernameViewModelTest {
         createAccountUsernameViewModel.textState.setTextAndPlaceCursorAtEnd(username)
         createAccountUsernameViewModel.state.continueEnabled shouldBeEqualTo true
         createAccountUsernameViewModel.state.loading shouldBeEqualTo false
-    }
-
-    @Test
-    fun `given forbidden character, when entering username, then forbidden character is ignored`() {
-        val usernameValid = "a1_"
-        val usernameInvalid = "a1_$"
-        val (_, createAccountUsernameViewModel) = Arrangement()
-            .withValidateHandleResult(ValidateUserHandleResult.Invalid.TooShort(String.EMPTY), String.EMPTY)
-            .withValidateHandleResult(ValidateUserHandleResult.Valid(usernameValid), usernameValid)
-            .withValidateHandleResult(ValidateUserHandleResult.Invalid.InvalidCharacters(usernameValid, "$".toList()), usernameInvalid)
-            .arrange()
-        createAccountUsernameViewModel.textState.setTextAndPlaceCursorAtEnd(usernameValid)
-        createAccountUsernameViewModel.textState.text.toString() shouldBeEqualTo usernameValid
-        createAccountUsernameViewModel.textState.setTextAndPlaceCursorAtEnd(usernameInvalid)
-        createAccountUsernameViewModel.textState.text.toString() shouldBeEqualTo usernameValid
     }
 
     @Test

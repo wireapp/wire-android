@@ -40,8 +40,8 @@ jobs:
                     aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
                     aws-region: 'us-west-1'
                     aws-bucket: ${{ secrets.aws-bucket }}
-                    destination-dir: "megazord/android/reloaded/${inputs.flavour}/${inputs.buildType}/"
-                    file-path: './app/build/outputs/apk/${inputs.flavour}/${inputs.buildType}/com.wire.*.apk'
+                    destination-dir: "megazord/android/reloaded/${{inputs.flavour}}/${{inputs.buildType}}/"
+                    file-path: './app/build/outputs/apk/${{inputs.flavour}}/${{inputs.buildType}}/com.wire.*.apk'
                     output-file-url: 'true'
 
             -   name: Show URL

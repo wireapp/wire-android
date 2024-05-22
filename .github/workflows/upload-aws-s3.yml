@@ -9,6 +9,13 @@ on:
             buildType:
                 required: true
                 type: string
+        secrets:
+            aws-access-key-id:
+                required: true
+            aws-secret-access-key:
+                required: true
+            aws-bucket:
+                required: true
 
 jobs:
     deploy-to-s3:
@@ -23,28 +30,13 @@ jobs:
                     submodules: recursive # Needed in order to fetch Kalium sources for building
                     fetch-depth: 0
 
-            -   name: Print secret 1
-                run: |
-                    echo "Secrets: ${{ secrets.AWS_ACCESS_KEY_ID }} "
-                    env
-
-            -   name: Print secret 2
-                run: |
-                    echo "Secrets: ${{ secrets.AWS_SECRET_ACCESS_KEY }} "
-                    env
-
-            -   name: Print secret 3
-                run: |
-                    echo "Secrets: ${{ secrets.AWS_S3_BUCKET }} "
-                    env
-
             -   name: Uploading
                 uses: hkusu/s3-upload-action@v2.1.0
                 with:
-                    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                    aws-access-key-id: ${{ secrets.aws-access-key-id }}
+                    aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
                     aws-region: 'us-west-1'
-                    aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
+                    aws-bucket: ${{ secrets.aws-bucket }}
                     destination-dir: "megazord/android/reloaded/${inputs.flavour}/${inputs.buildType}/"
                     file-path: './app/build/outputs/apk/${inputs.flavour}/${inputs.buildType}/com.wire.*.apk'
                     output-file-url: 'true'

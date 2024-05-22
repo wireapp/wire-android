@@ -185,6 +185,10 @@
     <string name="app_settings_screen_title">Impostazioni App</string>
     <string name="give_feedback_screen_title">Invia Feedback</string>
     <string name="report_bug_screen_title">Segnala un Problema</string>
+    <string name="about_app_screen_title">About This App</string>
+    <string name="settings_privacy_policy_label">Privacy Policy</string>
+    <string name="settings_terms_of_use_label">Terms of Use</string>
+    <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Impostazioni di Debug</string>
     <string name="item_dependencies_title">Dependencies:</string>
     <string name="support_screen_title">Supporto</string>
@@ -729,6 +733,11 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTATTI</string>
     <string name="label_new_group">Nuovo Gruppo</string>
+    <string name="label_create_new_group">Create New Group</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d Participant</item>
+        <item quantity="other">%1$d Participants</item>
+    </plurals>
     <string name="label_new_conversation">Nuova Conversazione</string>
     <string name="label_search_people">Cerca persone</string>
     <string name="label_public_wire">TELAIO PUBBLICO</string>
@@ -750,6 +759,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="error_no_network_message">Controlla la tua connessione Internet e riprova.</string>
     <string name="error_downloading_self_user_profile_picture">C\'&#232; stato un errore nel caricare la tua immagine del profilo. Controlla la tua connessione Internet.</string>
     <string name="error_uploading_user_avatar">L\'immagine non pu&#242; essere caricata.</string>
+    <string name="error_process_user_avatar">Picture could not be processed</string>
     <string name="error_uploading_image_message">Caricamento immagine non riuscito.</string>
     <string name="error_downloading_image_message">Download dell\'immagine non riuscito.</string>
     <string name="error_updating_muting_setting">Non &#232; stato possibile aggiornare le notifiche.</string>
@@ -781,6 +791,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="dialog_archive_conversation_option">Archivia</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Apri la conversazione.</string>
+    <string name="label_start_conversation">Start Conversation</string>
     <string name="email_label">E-mail</string>
     <string name="phone_label">Telefono</string>
     <!-- Notifications -->
@@ -805,6 +816,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="notification_group_call_content">%s sta chiamando...</string>
     <string name="notification_call_default_caller_name">Qualcuno</string>
     <string name="notification_call_default_group_name">Chiamata di gruppo in entrata</string>
+    <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Bit Rate Costante</string>
     <string name="calling_button_label_microphone">Microfono</string>
@@ -840,6 +852,8 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="calling_participant_tile_default_user_name">Predefinito</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Ritorna alla chiamata</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s is calling…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">Calling %1$s…</string>
     <string name="connectivity_status_bar_connecting">Decrittografando i messaggi</string>
     <string name="connectivity_status_bar_waiting_for_network">Attesa rete</string>
     <!-- Connections -->
@@ -864,6 +878,9 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="connection_label_ignore">Ignora</string>
     <string name="connection_label_send_unverified_warning">Ottieni la certezza sull\'identtà di %s, prima di connetterti.</string>
     <string name="connection_label_received_unverified_warning">Ti preghiamo di verificare l\'identità della persona prima di accettare la richiesta di connessione.</string>
+    <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
+    <string name="missing_keypackage_dialog_body">You can’t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galleria multimediale</string>
     <string name="media_gallery_on_image_downloaded">Salvato nella cartella Download</string>
@@ -955,6 +972,8 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="settings_show_typing_indicator_title">Indicatore di digitazione</string>
     <string name="settings_show_typing_indicator_description">Quando è disattivato, non potrai vedere quando le altre persone stanno scrivendo, e gli altri non vedranno quando stai scrivendo. Quest\'impostazione si applica a tutte le conversazioni su questo dispositivo.</string>
     <string name="settings_app_lock_title">Blocca con codice d\'accesso</string>
+    <string name="settings_send_anonymous_usage_data_title">Send anonymous usage data</string>
+    <string name="settings_send_anonymous_usage_data_description">Usage data allows Wire to understand how the app is being used and how it can be improved. The data is anonymous and does not include the content of your communications (such as messages, files, locations, or calls).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Imposta il codice d\'accesso del blocco dell\'applicazione</string>
     <string name="settings_set_lock_screen_description">L\'app si bloccherà dopo %1$s di inattività. Per sbloccare l\'app devi inserire questo codice d\'accesso o utilizzare l\'autenticazione biometrica.\n\nAssicurati di ricordare questo codice d\'accesso, poiché non vi è modo per recuperarlo.</string>

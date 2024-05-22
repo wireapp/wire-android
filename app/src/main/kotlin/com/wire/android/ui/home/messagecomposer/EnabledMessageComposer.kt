@@ -301,11 +301,11 @@ fun EnabledMessageComposer(
                         if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.DrawingMode) {
                             DrawingCanvasBottomSheet(
                                 onDismissSketch = {
-                                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
+                                    showAdditionalOptionsMenu()
                                 },
                                 onSendSketch = {
                                     onAttachmentPicked(UriAsset(it))
-                                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
+                                    showAdditionalOptionsMenu()
                                 },
                                 conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
                                 tempWritableImageUri = tempWritableImageUri

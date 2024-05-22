@@ -288,22 +288,6 @@
     </issue>
 
     <issue
-        id="StringFormatMatches"
-        message="Inconsistent formatting types for argument #1 in format string `record_audio_max_file_size_reached_text` (&apos;%1$s&apos;): Found both &apos;`s`&apos; here and &apos;`d`&apos; in values\strings.xml"
-        errorLine1="    &lt;string name=&quot;record_audio_max_file_size_reached_text&quot;>Le dimensioni dei file per i messaggi vocali sono limitate a %1$s MB.&lt;/string>"
-        errorLine2="                                                                                                                        ~~~~">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="1288"
-            column="121"/>
-        <location
-            file="src/main/res/values/strings.xml"
-            line="1327"
-            column="5"
-            message="Conflicting argument type (`d&apos;) here"/>
-    </issue>
-
-    <issue
         id="MissingTranslation"
         message="&quot;message_datetime_minutes_ago&quot; is not translated in &quot;af&quot; (Afrikaans)"
         errorLine1="    &lt;plurals name=&quot;message_datetime_minutes_ago&quot;>"

@@ -17,6 +17,9 @@ on:
             aws-bucket:
                 required: true
 
+permissions:
+    contents: read
+
 jobs:
     deploy-to-s3:
         runs-on: buildjet-8vcpu-ubuntu-2204

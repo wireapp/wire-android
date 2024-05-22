@@ -27,6 +27,8 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
                     ./gradlew assembleStagingCompat -p ./ --no-daemon
+            -   name: Copy Staging Compat
+                run: |
                     cp app/build/outputs/apk/staging/compat/com.wire.*.apk wire-android-staging-pr-${{ github.event.pull_request.number }}.apk
     uplod-to-s3:
         needs: [ testing-build-app ]

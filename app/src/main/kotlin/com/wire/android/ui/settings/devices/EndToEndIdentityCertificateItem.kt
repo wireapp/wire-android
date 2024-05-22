@@ -47,7 +47,7 @@ import kotlinx.datetime.Instant
 @Composable
 fun EndToEndIdentityCertificateItem(
     isE2eiCertificateActivated: Boolean,
-    certificate: E2eiCertificate,
+    certificate: E2eiCertificate?,
     isCurrentDevice: Boolean,
     isLoadingCertificate: Boolean,
     enrollE2eiCertificate: () -> Unit,
@@ -77,7 +77,7 @@ fun EndToEndIdentityCertificateItem(
             color = MaterialTheme.wireColorScheme.secondaryText,
         )
         Column {
-            if (isE2eiCertificateActivated) {
+            if (isE2eiCertificateActivated && certificate != null) {
                 when (certificate.status) {
                     CertificateStatus.REVOKED -> {
                         E2EIStatusRow(

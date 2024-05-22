@@ -11,8 +11,8 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-  code-style:
-    uses: ./.github/workflows/codestyle.yml
+  code-analysis:
+    uses: ./.github/workflows/code-analysis.yml
   unit-tests:
     runs-on: buildjet-8vcpu-ubuntu-2204
 
@@ -88,14 +88,14 @@ jobs:
 
   build-beta:
     if: ${{ github.event_name == 'pull_request' }}
-    needs: [unit-tests]
+    needs: [unit-tests, code-analysis]
     uses: ./.github/workflows/build-app.yml
     with:
       flavour: "beta-debug"
 
   build-dev:
     if: ${{ github.event_name == 'pull_request' }}
-    needs: [unit-tests]
+    needs: [unit-tests, code-analysis]
     uses: ./.github/workflows/build-app.yml
     with:
       flavour: "dev-debug"

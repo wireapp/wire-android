@@ -18,7 +18,6 @@
 package com.wire.android.ui.common.textfield
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.FocusInteraction
@@ -58,7 +57,6 @@ import io.github.esentsov.PackagePrivate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-@OptIn(ExperimentalFoundationApi::class)
 @PackagePrivate
 @Composable
 internal fun CodeTextFieldLayout(

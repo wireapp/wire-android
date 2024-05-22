@@ -7,7 +7,7 @@ permissions:
 
 jobs:
   static-code-analysis:
-    runs-on: buildjet-2vcpu-ubuntu-2204
+    runs-on: buildjet-4vcpu-ubuntu-2204
 
     # Add a bit more Metaspace size as it tends to fail on GH runner when running linter,
     # Reduce a bit the memory allocation pool, as the 8GB set in gradle.properties is too much for CI

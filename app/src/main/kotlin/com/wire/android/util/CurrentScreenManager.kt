@@ -141,7 +141,7 @@ class CurrentScreenManager @Inject constructor(
 sealed class CurrentScreen {
 
     // Home Screen is being displayed
-    object Home : CurrentScreen()
+    data object Home : CurrentScreen()
 
     // Some Conversation is opened
     data class Conversation(val id: ConversationId) : CurrentScreen()
@@ -150,19 +150,19 @@ sealed class CurrentScreen {
     data class OtherUserProfile(val id: ConversationId) : CurrentScreen()
 
     // Import media screen is opened
-    object ImportMedia : CurrentScreen()
+    data object ImportMedia : CurrentScreen()
 
     // SelfDevices screen is opened
-    object DeviceManager : CurrentScreen()
+    data object DeviceManager : CurrentScreen()
 
     // Auth related screen is opened
-    object AuthRelated : CurrentScreen()
+    data object AuthRelated : CurrentScreen()
 
     // Some other screen is opened, kinda "do nothing screen"
-    object SomeOther : CurrentScreen()
+    data object SomeOther : CurrentScreen()
 
     // App is in background (screen is turned off, or covered by another app), non of the screens is visible
-    object InBackground : CurrentScreen()
+    data object InBackground : CurrentScreen()
 
     companion object {
         @Suppress("ComplexMethod")

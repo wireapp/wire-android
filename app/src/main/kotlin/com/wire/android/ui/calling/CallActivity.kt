@@ -46,6 +46,7 @@ import com.wire.android.ui.calling.ongoing.OngoingCallScreen
 import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -56,6 +57,9 @@ class CallActivity : AppCompatActivity() {
 
     @Inject
     lateinit var callNotificationManager: CallNotificationManager
+
+    @Inject
+    lateinit var currentScreenManager: CurrentScreenManager
 
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
@@ -85,6 +89,7 @@ class CallActivity : AppCompatActivity() {
 
         setUpCallingFlags()
         setUpScreenShootPreventionFlag()
+        lifecycle.addObserver(currentScreenManager)
 
         appLogger.i("$TAG Initializing proximity sensor..")
         proximitySensorManager.initialize()

@@ -28,8 +28,6 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.calling.model.UICallParticipant
-import com.wire.android.util.CurrentScreen
-import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.call.VideoState
@@ -57,8 +55,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     private val globalDataStore: GlobalDataStore,
     private val establishedCalls: ObserveEstablishedCallsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
-    private val setVideoSendState: SetVideoSendStateUseCase,
-    private val currentScreenManager: CurrentScreenManager
+    private val setVideoSendState: SetVideoSendStateUseCase
 ) : ViewModel() {
     var shouldShowDoubleTapToast: Boolean by mutableStateOf(false)
         private set
@@ -112,10 +109,7 @@ class OngoingCallViewModel @AssistedInject constructor(
             .distinctUntilChanged()
             .collect { calls ->
                 val currentCall = calls.find { call -> call.conversationId == conversationId }
-                val currentScreen =
-                    currentScreenManager.observeCurrentScreen(viewModelScope).first()
-                val isOnBackground = currentScreen is CurrentScreen.InBackground
-                if (currentCall == null && isOnBackground) {
+                if (currentCall == null) {
                     state = state.copy(flowState = OngoingCallState.FlowState.CallClosed)
                 }
             }

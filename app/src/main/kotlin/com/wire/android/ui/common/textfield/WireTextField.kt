@@ -18,17 +18,16 @@
 
 package com.wire.android.ui.common.textfield
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -42,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +50,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
@@ -62,7 +64,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun WireTextField(
     textState: TextFieldState,
@@ -77,8 +78,8 @@ internal fun WireTextField(
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     inputTransformation: InputTransformation = InputTransformation.maxLength(8000),
     outputTransformation: OutputTransformation? = null,
-    keyboardOptions: KeyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, autoCorrect = true),
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.DefaultText,
+    onKeyboardAction: KeyboardActionHandler? = null,
     scrollState: ScrollState = rememberScrollState(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = MaterialTheme.wireTypography.body01,
@@ -116,7 +117,7 @@ internal fun WireTextField(
                 state = textState,
                 textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
                 keyboardOptions = keyboardOptions,
-                keyboardActions = keyboardActions,
+                onKeyboardAction = onKeyboardAction,
                 lineLimits = lineLimits,
                 inputTransformation = inputTransformation,
                 outputTransformation = outputTransformation,
@@ -138,7 +139,6 @@ TODO: BasicTextField2 (value, onValueChange) overload is removed completely in c
       for now we can use our custom StateSyncingModifier to sync TextFieldValue with TextFieldState,
       but eventually we should migrate and remove this function when all usages are replaced with the TextFieldState.
 */
-@OptIn(ExperimentalFoundationApi::class)
 @Deprecated("Use the new one with TextFieldState.")
 @Composable
 internal fun WireTextField(
@@ -156,8 +156,8 @@ internal fun WireTextField(
     maxLines: Int = 1,
     singleLine: Boolean = true,
     maxTextLength: Int = 8000,
-    keyboardOptions: KeyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, autoCorrect = true),
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.DefaultText,
+    onKeyboardAction: KeyboardActionHandler? = null,
     scrollState: ScrollState = rememberScrollState(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = MaterialTheme.wireTypography.body01,
@@ -197,7 +197,7 @@ internal fun WireTextField(
                 state = textState,
                 textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
                 keyboardOptions = keyboardOptions,
-                keyboardActions = keyboardActions,
+                onKeyboardAction = onKeyboardAction,
                 lineLimits = lineLimits,
                 inputTransformation = InputTransformation.maxLength(maxTextLength),
                 scrollState = scrollState,
@@ -213,21 +213,37 @@ internal fun WireTextField(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun onTextLayout(
     state: TextFieldState,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
 ): (Density.(getResult: () -> TextLayoutResult?) -> Unit) = {
     it()?.let {
-        val lineOfText = it.getLineForOffset(state.text.selection.end)
+        val lineOfText = it.getLineForOffset(state.selection.end)
         val bottomYCoordinate = it.getLineBottom(lineOfText)
         onSelectedLineIndexChanged(lineOfText)
         onLineBottomYCoordinateChanged(bottomYCoordinate)
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@Stable
+val KeyboardOptions.Companion.DefaultText: KeyboardOptions
+    get() = Default.copy(
+        keyboardType = KeyboardType.Text,
+        imeAction = ImeAction.Done,
+        autoCorrectEnabled = true,
+        capitalization = KeyboardCapitalization.Sentences,
+    )
+
+@Stable
+val KeyboardOptions.Companion.DefaultEmail: KeyboardOptions
+    get() = Default.copy(
+        keyboardType = KeyboardType.Email,
+        imeAction = ImeAction.Done,
+        autoCorrectEnabled = false,
+        capitalization = KeyboardCapitalization.None,
+    )
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewWireTextField() = WireTheme {
@@ -237,7 +253,6 @@ fun PreviewWireTextField() = WireTheme {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @PreviewMultipleThemes
 @Composable
 fun PreviewWireTextFieldLabels() = WireTheme {
@@ -250,7 +265,6 @@ fun PreviewWireTextFieldLabels() = WireTheme {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @PreviewMultipleThemes
 @Composable
 fun PreviewWireTextFieldDenseSearch() = WireTheme {
@@ -264,7 +278,6 @@ fun PreviewWireTextFieldDenseSearch() = WireTheme {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @PreviewMultipleThemes
 @Composable
 fun PreviewWireTextFieldDisabled() = WireTheme {
@@ -275,7 +288,6 @@ fun PreviewWireTextFieldDisabled() = WireTheme {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @PreviewMultipleThemes
 @Composable
 fun PreviewWireTextFieldError() = WireTheme {
@@ -286,7 +298,6 @@ fun PreviewWireTextFieldError() = WireTheme {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @PreviewMultipleThemes
 @Composable
 fun PreviewWireTextFieldSuccess() = WireTheme {

@@ -18,14 +18,10 @@
 
 package com.wire.android.ui.home.settings.account.displayname
 
-import androidx.compose.ui.text.input.TextFieldValue
-
 data class DisplayNameState(
-    val originalDisplayName: String = "",
-    val displayName: TextFieldValue = TextFieldValue(""),
+    val loading: Boolean = false,
+    val saveEnabled: Boolean = false,
     val error: NameError = NameError.None,
-    val animatedNameError: Boolean = false,
-    val continueEnabled: Boolean = false
 ) {
     sealed interface NameError {
         object None : NameError

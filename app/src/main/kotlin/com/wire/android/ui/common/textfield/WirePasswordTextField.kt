@@ -18,15 +18,14 @@
 
 package com.wire.android.ui.common.textfield
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicSecureTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.maxLength
@@ -41,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,6 +52,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
@@ -65,7 +67,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WirePasswordTextField(
     textState: TextFieldState,
@@ -76,9 +77,8 @@ fun WirePasswordTextField(
     state: WireTextFieldState = WireTextFieldState.Default,
     autoFill: Boolean = false,
     inputTransformation: InputTransformation = InputTransformation.maxLength(8000),
-    imeAction: ImeAction = ImeAction.Default,
-    onImeAction: (() -> Unit)? = null,
-    scrollState: ScrollState = rememberScrollState(),
+    keyboardOptions: KeyboardOptions = KeyboardOptions.DefaultPassword,
+    onKeyboardAction: KeyboardActionHandler? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = MaterialTheme.wireTypography.body01.copy(textAlign = TextAlign.Start),
     placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01.copy(textAlign = TextAlign.Start),
@@ -113,11 +113,10 @@ fun WirePasswordTextField(
             BasicSecureTextField(
                 state = textState,
                 textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
-                imeAction = imeAction,
-                onSubmit = { onImeAction?.invoke().let { onImeAction != null } },
+                keyboardOptions = keyboardOptions,
+                onKeyboardAction = onKeyboardAction,
                 inputTransformation = inputTransformation,
                 textObfuscationMode = if (passwordVisibility) TextObfuscationMode.Visible else TextObfuscationMode.RevealLastTyped,
-                scrollState = scrollState,
                 enabled = state !is WireTextFieldState.Disabled,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 interactionSource = interactionSource,
@@ -134,7 +133,6 @@ TODO: BasicSecureTextField (value, onValueChange) overload is removed completely
       but eventually we should migrate and remove this function when all usages are replaced with the TextFieldState.
 */
 @Deprecated("Use the new one with TextFieldState.")
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WirePasswordTextField(
     value: TextFieldValue,
@@ -147,8 +145,7 @@ fun WirePasswordTextField(
     autofill: Boolean,
     maxTextLength: Int = 8000,
     imeAction: ImeAction = ImeAction.Default,
-    onImeAction: (() -> Unit)? = null,
-    scrollState: ScrollState = rememberScrollState(),
+    onImeAction: KeyboardActionHandler? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = MaterialTheme.wireTypography.body01.copy(textAlign = TextAlign.Start),
     placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01.copy(textAlign = TextAlign.Start),
@@ -184,11 +181,10 @@ fun WirePasswordTextField(
             BasicSecureTextField(
                 state = textState,
                 textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
-                imeAction = imeAction,
-                onSubmit = { onImeAction?.invoke().let { onImeAction != null } },
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = imeAction),
+                onKeyboardAction = onImeAction,
                 inputTransformation = InputTransformation.maxLength(maxTextLength),
                 textObfuscationMode = if (passwordVisibility) TextObfuscationMode.Visible else TextObfuscationMode.RevealLastTyped,
-                scrollState = scrollState,
                 enabled = state !is WireTextFieldState.Disabled,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 interactionSource = interactionSource,
@@ -215,7 +211,15 @@ private fun VisibilityIconButton(isVisible: Boolean, onVisibleChange: (Boolean) 
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@Stable
+val KeyboardOptions.Companion.DefaultPassword: KeyboardOptions
+    get() = Default.copy(
+        keyboardType = KeyboardType.Password,
+        imeAction = ImeAction.Done,
+        autoCorrectEnabled = false,
+        capitalization = KeyboardCapitalization.None
+    )
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewWirePasswordTextField() = WireTheme {

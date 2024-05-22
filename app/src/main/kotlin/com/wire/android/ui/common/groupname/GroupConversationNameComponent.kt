@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -114,7 +113,7 @@ fun GroupNameScreen(
                                 labelText = stringResource(R.string.group_name_title).uppercase(),
                                 state = computeGroupMetadataState(error),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
-                                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                                onKeyboardAction = { keyboardController?.hide() },
                                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                             )
                         }

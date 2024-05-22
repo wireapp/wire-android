@@ -9,9 +9,12 @@ jobs:
   static-code-analysis:
     runs-on: buildjet-2vcpu-ubuntu-2204
 
-    # Add a bit more Metaspace size as it tends to fail on GH runner when running linter
+    # Add a bit more Metaspace size as it tends to fail on GH runner when running linter,
+    # Reduce a bit the memory allocation pool, as the 8GB set in gradle.properties is too much for CI
+    # AboutLibraries seems to go crazy when running lint checks. So we explicitly don't run it.
     env:
-      GRADLE_OPTS: -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g"
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Xmx2G"'
+      DISABLE_ABOUT_LIBRARIES: TRUE
 
     steps:
       - name: Checkout
@@ -31,14 +34,8 @@ jobs:
         run: |
             ./gradlew detektAll
       - name: Run Linter
-        # AboutLibraries seems to output tons of false warnings because of Kalium.
-        # Run it quietly first to clear up the logs.
-        # Then:
-        # For the app we need lintDevDebug. For the other modules we use lintDebug.
         run: |
-            ./gradlew collectDependencies -q --no-daemon
-            ./gradlew lintDebug --no-daemon
-            ./gradlew lintDevDebug --no-daemon
+            ./gradlew lint
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.

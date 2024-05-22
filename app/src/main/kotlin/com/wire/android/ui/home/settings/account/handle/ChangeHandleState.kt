@@ -17,12 +17,9 @@
  */
 package com.wire.android.ui.home.settings.account.handle
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 
 data class ChangeHandleState(
-    val handle: TextFieldValue = TextFieldValue(""),
     val error: HandleUpdateErrorState = HandleUpdateErrorState.None,
     val isSaveButtonEnabled: Boolean = false,
-    val animatedHandleError: Boolean = false,
 )

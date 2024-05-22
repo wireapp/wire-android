@@ -17,27 +17,22 @@
  */
 package com.wire.android.ui.home.settings.account.email.updateEmail
 
-import androidx.compose.ui.text.input.TextFieldValue
-
 data class ChangeEmailState(
-    val email: TextFieldValue = TextFieldValue(""),
-    val isEmailTextEditEnabled: Boolean = true,
-    val animatedEmailError: Boolean = false,
     val saveEnabled: Boolean = false,
     val flowState: FlowState = FlowState.Default,
 ) {
 
     sealed interface FlowState {
-        object Default : FlowState
-        object Loading : FlowState
+        data object Default : FlowState
+        data object Loading : FlowState
         data class Success(val newEmail: String) : FlowState
-        object NoChange : FlowState
+        data object NoChange : FlowState
         sealed interface Error : FlowState {
-            object SelfUserNotFound : Error
+            data object SelfUserNotFound : Error
             sealed interface TextFieldError : Error {
-                object AlreadyInUse : TextFieldError
-                object InvalidEmail : TextFieldError
-                object Generic : TextFieldError
+                data object AlreadyInUse : TextFieldError
+                data object InvalidEmail : TextFieldError
+                data object Generic : TextFieldError
             }
         }
     }

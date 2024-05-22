@@ -23,15 +23,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -43,10 +41,13 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.handle.UsernameTextField
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
 @Destination
@@ -56,25 +57,23 @@ fun CreateAccountUsernameScreen(
     viewModel: CreateAccountUsernameViewModel = hiltViewModel()
 ) {
     UsernameContent(
+        textState = viewModel.textState,
         state = viewModel.state,
-        onUsernameChange = viewModel::onUsernameChange,
         onContinuePressed = {
             viewModel.onContinue {
                 navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
             }
         },
         onErrorDismiss = viewModel::onErrorDismiss,
-        onUsernameErrorAnimated = viewModel::onUsernameErrorAnimated
     )
 }
 
 @Composable
 private fun UsernameContent(
+    textState: TextFieldState,
     state: CreateAccountUsernameViewState,
-    onUsernameChange: (TextFieldValue) -> Unit,
     onContinuePressed: () -> Unit,
     onErrorDismiss: () -> Unit,
-    onUsernameErrorAnimated: () -> Unit
 ) {
     WireScaffold(
         topBar = {
@@ -102,11 +101,8 @@ private fun UsernameContent(
             )
 
             UsernameTextField(
-                username = state.username,
+                username = textState,
                 errorState = state.error,
-                animateUsernameError = state.animateUsernameError,
-                onUsernameChange = onUsernameChange,
-                onUsernameErrorAnimated = onUsernameErrorAnimated,
                 onErrorDismiss = onErrorDismiss,
             )
 
@@ -126,7 +122,7 @@ private fun UsernameContent(
 }
 
 @Composable
-@Preview
-private fun PreviewCreateAccountUsernameScreen() {
-    UsernameContent(CreateAccountUsernameViewState(), {}, {}, {}, {})
+@PreviewMultipleThemes
+private fun PreviewCreateAccountUsernameScreen() = WireTheme {
+    UsernameContent(TextFieldState(), CreateAccountUsernameViewState(), {}, {})
 }

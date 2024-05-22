@@ -18,12 +18,9 @@
 
 package com.wire.android.ui.authentication.create.username
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 
 data class CreateAccountUsernameViewState(
-    val username: TextFieldValue = TextFieldValue(""),
-    val animateUsernameError: Boolean = false,
     val continueEnabled: Boolean = false,
     val loading: Boolean = false,
     val error: HandleUpdateErrorState = HandleUpdateErrorState.None

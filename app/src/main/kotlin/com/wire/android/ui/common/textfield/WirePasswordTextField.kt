@@ -22,6 +22,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicSecureTextField
@@ -31,14 +32,23 @@ import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -48,6 +58,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -65,7 +76,6 @@ fun WirePasswordTextField(
     state: WireTextFieldState = WireTextFieldState.Default,
     autoFill: Boolean = false,
     inputTransformation: InputTransformation = InputTransformation.maxLength(8000),
-    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
     imeAction: ImeAction = ImeAction.Default,
     onImeAction: (() -> Unit)? = null,
     scrollState: ScrollState = rememberScrollState(),
@@ -81,6 +91,7 @@ fun WirePasswordTextField(
     testTag: String = String.EMPTY,
 ) {
     val autoFillType = if (autoFill) WireAutoFillType.Password else WireAutoFillType.None
+    var passwordVisibility by remember { mutableStateOf(false) }
     WireTextFieldLayout(
         shouldShowPlaceholder = textState.text.isEmpty(),
         placeholderText = placeholderText,
@@ -94,6 +105,7 @@ fun WirePasswordTextField(
         inputMinHeight = inputMinHeight,
         shape = shape,
         colors = colors,
+        trailingIcon = { VisibilityIconButton(passwordVisibility) { passwordVisibility = it } },
         modifier = modifier.autoFill(autoFillType, textState::setTextAndPlaceCursorAtEnd),
         testTag = testTag,
         onTap = onTap,
@@ -104,7 +116,7 @@ fun WirePasswordTextField(
                 imeAction = imeAction,
                 onSubmit = { onImeAction?.invoke().let { onImeAction != null } },
                 inputTransformation = inputTransformation,
-                textObfuscationMode = textObfuscationMode,
+                textObfuscationMode = if (passwordVisibility) TextObfuscationMode.Visible else TextObfuscationMode.RevealLastTyped,
                 scrollState = scrollState,
                 enabled = state !is WireTextFieldState.Disabled,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
@@ -150,6 +162,7 @@ fun WirePasswordTextField(
 ) {
     val textState = remember { TextFieldState(value.text, value.selection) }
     val autoFillType = if (autofill) WireAutoFillType.Password else WireAutoFillType.None
+    var passwordVisibility by remember { mutableStateOf(false) }
     WireTextFieldLayout(
         shouldShowPlaceholder = textState.text.isEmpty(),
         placeholderText = placeholderText,
@@ -163,6 +176,7 @@ fun WirePasswordTextField(
         inputMinHeight = inputMinHeight,
         shape = shape,
         colors = colors,
+        trailingIcon = { VisibilityIconButton(passwordVisibility) { passwordVisibility = it } },
         modifier = modifier.autoFill(autoFillType, textState::setTextAndPlaceCursorAtEnd),
         testTag = testTag,
         onTap = onTap,
@@ -173,6 +187,7 @@ fun WirePasswordTextField(
                 imeAction = imeAction,
                 onSubmit = { onImeAction?.invoke().let { onImeAction != null } },
                 inputTransformation = InputTransformation.maxLength(maxTextLength),
+                textObfuscationMode = if (passwordVisibility) TextObfuscationMode.Visible else TextObfuscationMode.RevealLastTyped,
                 scrollState = scrollState,
                 enabled = state !is WireTextFieldState.Disabled,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
@@ -182,6 +197,22 @@ fun WirePasswordTextField(
             )
         }
     )
+}
+
+@Composable
+private fun VisibilityIconButton(isVisible: Boolean, onVisibleChange: (Boolean) -> Unit) {
+    IconButton(onClick = { onVisibleChange(!isVisible) }) {
+        Icon(
+            imageVector = if (isVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+            contentDescription = stringResource(
+                if (isVisible) R.string.content_description_hide_password
+                else R.string.content_description_reveal_password
+            ),
+            modifier = Modifier
+                .size(dimensions().spacing20x)
+                .testTag("hidePassword")
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

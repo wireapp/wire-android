@@ -33,10 +33,6 @@ jobs:
 #                    submodules: recursive # Needed in order to fetch Kalium sources for building
 #                    fetch-depth: 0
 
-            -   name: Checking 5
-                run: |
-                    ls -la 
-
             -   name: Checking 4
                 run: |
                     ls -la ./

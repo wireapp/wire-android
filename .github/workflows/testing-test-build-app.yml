@@ -27,6 +27,11 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
                     ./gradlew assembleStagingCompat -p ./ --no-daemon
+
+            -   name: Print secret 0
+                run: |
+                    echo "Secrets: ${{ secrets.AWS_ACCESS_KEY_ID }} "
+                    env
     uplod-to-s3:
         needs: [ testing-build-app ]
         uses: ./.github/workflows/upload-aws-s3.yml

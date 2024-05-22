@@ -31,10 +31,9 @@ jobs:
         run: |
             ./gradlew detektAll
       - name: Run Linter
+        # For the other modules we use lintDebug. For the app we need lintDevDebug
         run: |
-        # For the other modules
             ./gradlew lintDebug
-        # For the app
             ./gradlew lintDevDebug
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.

@@ -1304,7 +1304,7 @@ registrato. Sei pregato di riprovare.</string>
     <string name="record_audio_permission_denied_dialog_text">Wire necessita dell\'autorizzazione a utilizzare il tuo microfono per registrare i messaggi vocali. Consenti l\'accesso nelle impostazioni del tuo dispositivo.</string>
     <string name="record_audio_permission_denied_dialog_settings_button">Impostazioni</string>
     <string name="record_audio_max_file_size_reached_title">Registrazione arrestata</string>
-    <string name="record_audio_max_file_size_reached_text">Le dimensioni dei file per i messaggi vocali sono limitate a %1$s MB.</string>
+    <string name="record_audio_max_file_size_reached_text">Le dimensioni dei file per i messaggi vocali sono limitate a %1$d MB.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Non puoi registrare un messaggio vocale durante una chiamata.</string>
     <string name="record_audio_unable_due_to_error">Qualcosa è andato storto provando a registrare il messaggio audio. Ti preghiamo di riprovare.</string>
     <string name="label_not_now">Non adesso</string>

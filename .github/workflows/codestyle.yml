@@ -31,8 +31,12 @@ jobs:
         run: |
             ./gradlew detektAll
       - name: Run Linter
-        # For the other modules we use lintDebug. For the app we need lintDevDebug
+        # AboutLibraries seems to output tons of false warnings because of Kalium.
+        # Run it quietly first to clear up the logs.
+        # Then:
+        # For the app we need lintDevDebug. For the other modules we use lintDebug.
         run: |
+            ./gradlew collectDependencies -q
             ./gradlew lintDebug
             ./gradlew lintDevDebug
       - name: Cleanup Gradle Cache

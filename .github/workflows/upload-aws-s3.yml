@@ -22,6 +22,9 @@ jobs:
 
             -   name: Uploading
                 uses: hkusu/s3-upload-action@v2
+                env:
+                    GITHUB_USER: ${{ github.actor }}
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 with:
                     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
                     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

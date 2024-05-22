@@ -1,4 +1,4 @@
-name: "Build beta app"
+name: "Bbeta app"
 
 on:
   push:

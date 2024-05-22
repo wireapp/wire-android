@@ -33,6 +33,18 @@ jobs:
                     submodules: recursive # Needed in order to fetch Kalium sources for building
                     fetch-depth: 0
 
+            -   name: Checking 2
+                run: |
+                    ls -la ./app/build/outputs/apk
+
+            -   name: Checking 1
+                run: |
+                    ls -la ./app/build/outputs/apk/${{inputs.flavour}}
+
+            -   name: Checking 0
+                run: |
+                    ls -la ./app/build/outputs/apk/${{inputs.flavour}}/${{inputs.buildType}}/
+
             -   name: Uploading
                 uses: hkusu/s3-upload-action@v2.1.0
                 with:

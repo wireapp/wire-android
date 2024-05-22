@@ -18,17 +18,16 @@
 
 package com.wire.android.ui.common.textfield
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,8 +75,8 @@ fun CodeTextField(
                 state = textState,
                 textStyle = textStyle,
                 enabled = enabled,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                keyboardOptions = KeyboardOptions.DefaultCode,
+                onKeyboardAction = { keyboardController?.hide() },
                 interactionSource = interactionSource,
                 inputTransformation = InputTransformation.maxLengthDigits(codeLength),
                 decorator = decorator,
@@ -126,8 +125,8 @@ fun CodeTextField(
                 state = textState,
                 textStyle = textStyle,
                 enabled = enabled,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                keyboardOptions = KeyboardOptions.DefaultCode,
+                onKeyboardAction = { keyboardController?.hide() },
                 interactionSource = interactionSource,
                 inputTransformation = MaxLengthDigitsFilter(codeLength),
                 decorator = decorator,
@@ -139,14 +138,20 @@ fun CodeTextField(
 
 data class CodeFieldValue(val text: TextFieldValue, val isFullyFilled: Boolean)
 
-@OptIn(ExperimentalFoundationApi::class)
+@Stable
+val KeyboardOptions.Companion.DefaultCode: KeyboardOptions
+    get() = Default.copy(
+        keyboardType = KeyboardType.Number,
+        imeAction = ImeAction.Done,
+        autoCorrectEnabled = false,
+    )
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewCodeTextFieldSuccess() = WireTheme {
     CodeTextField(textState = rememberTextFieldState("123"))
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @PreviewMultipleThemes
 @Composable
 fun PreviewCodeTextFieldError() = WireTheme {

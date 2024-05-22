@@ -18,35 +18,32 @@
 package com.wire.android.ui.authentication.create.common.handle
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
 import com.wire.android.ui.common.ShakeAnimation
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
+import com.wire.android.ui.common.textfield.DefaultEmail
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.maxLengthWithCallback
+import com.wire.android.ui.common.textfield.patternWithCallback
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.Patterns
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun UsernameTextField(
-    animateUsernameError: Boolean,
     errorState: HandleUpdateErrorState,
-    username: TextFieldValue,
+    username: TextFieldState,
     onErrorDismiss: () -> Unit,
-    onUsernameChange: (TextFieldValue) -> Unit,
-    onUsernameErrorAnimated: () -> Unit
 ) {
     if (errorState is HandleUpdateErrorState.DialogError.GenericError) {
         CoreFailureErrorDialog(errorState.coreFailure, onErrorDismiss)
@@ -54,15 +51,13 @@ fun UsernameTextField(
 
     val keyboardController = LocalSoftwareKeyboardController.current
     ShakeAnimation { animate ->
-        if (animateUsernameError) {
-            animate()
-            onUsernameErrorAnimated()
-        }
         WireTextField(
-            value = username,
-            onValueChange = onUsernameChange,
+            textState = username,
             placeholderText = stringResource(R.string.create_account_username_placeholder),
             labelText = stringResource(R.string.create_account_username_label),
+            inputTransformation = InputTransformation
+                .patternWithCallback(Patterns.HANDLE, animate)
+                .maxLengthWithCallback(255, animate),
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_mention),
@@ -81,8 +76,8 @@ fun UsernameTextField(
                     WireTextFieldState.Error(stringResource(id = R.string.create_account_username_description))
             } else WireTextFieldState.Default,
             descriptionText = stringResource(id = R.string.create_account_username_description),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+            keyboardOptions = KeyboardOptions.DefaultEmail,
+            onKeyboardAction = { keyboardController?.hide() },
             modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
         )
     }

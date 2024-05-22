@@ -19,30 +19,63 @@
 
 package com.wire.android.ui.common.textfield
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
-import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.then
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.maxTextLength
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.core.text.isDigitsOnly
+import java.util.regex.Pattern
 
-@OptIn(ExperimentalFoundationApi::class)
 class MaxLengthDigitsFilter(private val maxLength: Int) : InputTransformation {
     override val keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     init {
         require(maxLength >= 0) { "maxLength must be at least zero, was $maxLength" }
     }
-    override fun transformInput(originalValue: TextFieldCharSequence, valueWithChanges: TextFieldBuffer) {
-        val newLength = valueWithChanges.length
-        if (newLength > maxLength || !valueWithChanges.asCharSequence().isDigitsOnly()) {
-            valueWithChanges.revertAllChanges()
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        maxTextLength = maxLength
+    }
+    override fun TextFieldBuffer.transformInput() {
+        if (length > maxLength || !asCharSequence().isDigitsOnly()) {
+            revertAllChanges()
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Stable
 fun InputTransformation.maxLengthDigits(maxLength: Int): InputTransformation = this.then(MaxLengthDigitsFilter(maxLength))
+
+class MaxLengthFilterWithCallback(private val maxLength: Int, private val onIncorrectChangesFound: () -> Unit) : InputTransformation {
+    init {
+        require(maxLength >= 0) { "maxLength must be at least zero, was $maxLength" }
+    }
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        maxTextLength = maxLength
+    }
+    override fun TextFieldBuffer.transformInput() {
+        if (length > maxLength) {
+            revertAllChanges()
+            onIncorrectChangesFound()
+        }
+    }
+}
+
+@Stable
+fun InputTransformation.maxLengthWithCallback(maxLength: Int, onIncorrectChangesFound: () -> Unit): InputTransformation =
+    this.then(MaxLengthFilterWithCallback(maxLength, onIncorrectChangesFound))
+
+class PatternFilterWithCallback(private val pattern: Pattern, private val onIncorrectChangesFound: () -> Unit) : InputTransformation {
+    override fun TextFieldBuffer.transformInput() {
+        if (!pattern.matcher(asCharSequence()).matches()) {
+            revertAllChanges()
+            onIncorrectChangesFound()
+        }
+    }
+}
+
+@Stable
+fun InputTransformation.patternWithCallback(pattern: Pattern, onIncorrectChangesFound: () -> Unit): InputTransformation =
+    this.then(PatternFilterWithCallback(pattern, onIncorrectChangesFound))

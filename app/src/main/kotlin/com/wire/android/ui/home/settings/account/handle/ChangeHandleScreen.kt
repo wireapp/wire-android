@@ -24,18 +24,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -49,10 +47,13 @@ import com.wire.android.ui.common.button.WireButtonState.Disabled
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.rememberTopBarElevationState
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
 @Destination
@@ -63,9 +64,8 @@ fun ChangeHandleScreen(
     viewModel: ChangeHandleViewModel = hiltViewModel()
 ) {
     ChangeHandleContent(
+        textState = viewModel.textState,
         state = viewModel.state,
-        onHandleChanged = viewModel::onHandleChanged,
-        onHandleErrorAnimated = viewModel::onHandleErrorAnimated,
         onBackPressed = navigator::navigateBack,
         onSaveClicked = {
             viewModel.onSaveClicked() {
@@ -79,10 +79,9 @@ fun ChangeHandleScreen(
 
 @Composable
 fun ChangeHandleContent(
+    textState: TextFieldState,
     state: ChangeHandleState,
-    onHandleChanged: (TextFieldValue) -> Unit,
     onSaveClicked: () -> Unit,
-    onHandleErrorAnimated: () -> Unit,
     onErrorDismiss: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
@@ -122,13 +121,9 @@ fun ChangeHandleContent(
 
                 Box {
                     UsernameTextField(
-                        username = state.handle,
+                        username = textState,
                         errorState = state.error,
-                        onUsernameChange = onHandleChanged,
-                        animateUsernameError = state.animatedHandleError,
-                        onUsernameErrorAnimated = onHandleErrorAnimated,
                         onErrorDismiss = onErrorDismiss
-
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
@@ -153,15 +148,14 @@ fun ChangeHandleContent(
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewChangeHandleContent() {
+fun PreviewChangeHandleContent() = WireTheme {
     ChangeHandleContent(
+        textState = TextFieldState(),
         state = ChangeHandleState(),
         onBackPressed = { },
         onSaveClicked = { },
-        onHandleChanged = { },
-        onHandleErrorAnimated = { },
         onErrorDismiss = { }
     )
 }

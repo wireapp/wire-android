@@ -47,9 +47,9 @@ jobs:
         run:
           ./gradlew app:assembleDevDebug -p ./ --no-daemon
         env:
-          KEYSTORE_KEY_NAME_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
-          KEYPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
-          KEYSTOREPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
+          KEYSTORE_KEY_NAME_DEBUG: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
+          KEYPWD_DEBUG: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
+          KEYSTOREPWD_DEBUG: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
       - name: build staging flavour
         run:

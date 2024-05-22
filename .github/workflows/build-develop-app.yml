@@ -34,7 +34,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-      - name: Decode Keystore
+      - name: Decode debug Keystore
         env:
           ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
         run: |
@@ -51,6 +51,13 @@ jobs:
           KEYPWD_DEBUG: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
           KEYSTOREPWD_DEBUG: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+      - name: Decode release Keystore
+        env:
+          ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
+        run: |
+          TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+          mkdir "${TMP_KEYSTORE_FILE_PATH}"
+          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/key.keystore
       - name: build staging flavour
         run:
           ./gradlew app:assembleStagingRelease -p ./ --no-daemon

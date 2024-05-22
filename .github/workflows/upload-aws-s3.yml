@@ -17,11 +17,6 @@ jobs:
     deploy-to-s3:
         runs-on: ubuntu-latest
         steps:
-            -   name: Checkout
-                uses: actions/checkout@v4
-                with:
-                    submodules: recursive # Needed in order to fetch Kalium sources for building
-                    fetch-depth: 0
             -   name: Uploading
                 uses: hkusu/s3-upload-action@v2
                 with:

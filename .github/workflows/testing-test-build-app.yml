@@ -31,6 +31,11 @@ jobs:
         needs: [ testing-build-app ]
         runs-on: buildjet-8vcpu-ubuntu-2204
         steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+                with:
+                    submodules: recursive # Needed in order to fetch Kalium sources for building
+                    fetch-depth: 0
             -   name: Upload APK staging compat
                 uses: ./.github/workflows/upload-aws-s3.yml
                 with:

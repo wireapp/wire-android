@@ -57,8 +57,7 @@ fun UsernameTextField(
             labelText = stringResource(R.string.create_account_username_label),
             inputTransformation = InputTransformation
                 .patternWithCallback(Patterns.HANDLE, animate)
-                .maxLengthWithCallback(255, animate)
-            ,
+                .maxLengthWithCallback(255, animate),
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_mention),

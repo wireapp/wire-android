@@ -145,7 +145,7 @@ fun ChangeDisplayNameContent(
                                 state = computeNameErrorState(error),
                                 keyboardOptions = KeyboardOptions.DefaultText,
                                 descriptionText = stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error),
-                                onKeyboardAction =  { keyboardController?.hide() },
+                                onKeyboardAction = { keyboardController?.hide() },
                                 modifier = Modifier.padding(
                                     horizontal = MaterialTheme.wireDimensions.spacing16x
                                 )

@@ -77,7 +77,6 @@ fun WirePasswordTextField(
     state: WireTextFieldState = WireTextFieldState.Default,
     autoFill: Boolean = false,
     inputTransformation: InputTransformation = InputTransformation.maxLength(8000),
-    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
     keyboardOptions: KeyboardOptions = KeyboardOptions.DefaultPassword,
     onKeyboardAction: KeyboardActionHandler? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },

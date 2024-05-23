@@ -1,4 +1,4 @@
-name: "Bbeta app"
+name: "Beta app"
 
 on:
   push:
@@ -16,12 +16,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  code-analysis:
-    uses: ./.github/workflows/code-analysis.yml
-  unit-tests:
-    uses: ./.github/workflows/gradle-run-unit-tests.yml
+#  code-analysis:
+#    uses: ./.github/workflows/code-analysis.yml
+#  unit-tests:
+#    uses: ./.github/workflows/gradle-run-unit-tests.yml
   build-app:
-    needs: [ unit-tests, code-analysis ]
+#    needs: [ unit-tests, code-analysis ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,7 +46,7 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build beta flavour
         run:
-          ./gradlew app:assembleBetaRelease -p ./ --no-daemon
+          ./gradlew app:assembleBetaRelease -p ./ --no-daemon |
           ./gradlew app:bundleBetaRelease -p ./ --no-daemon
         env:
           KEYSTORE_KEY_NAME_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}

@@ -1,5 +1,4 @@
 name: "Develop app"
-
 on:
   push:
     branches:
@@ -8,18 +7,18 @@ on:
     branches:
       - develop
     types: [ opened, synchronize ]
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
-
 jobs:
-#  code-analysis:
-#    needs: [ detekt ]
-#    uses: ./.github/workflows/code-analysis.yml
+  #  code-analysis:
+  #    uses: ./.github/workflows/code-analysis.yml
+  #  unit-tests:
+  #    needs: [ detekt ]
+  #    uses: ./.github/workflows/gradle-run-unit-tests.yml
   build-app:
-#    needs: [ detekt ]
-    runs-on: buildjet-8vcpu-ubuntu-2204
+    needs: [ detekt ]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,21 +31,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-#      - name: Decode release Keystore
-#        env:
-#          ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
-#        run: |
-#          TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
-#          mkdir "${TMP_KEYSTORE_FILE_PATH}"
-#          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/key.keystore
-#      - name: build staging flavour
-#        run:
-#          ./gradlew app:assembleStagingRelease -p ./ --no-daemon
-#        env:
-#          KEYSTORE_KEY_NAME_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}
-#          KEYPWD_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}
-#          KEYSTOREPWD_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}
-#          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
       - name: Decode debug Keystore
         env:
           ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
@@ -63,6 +47,20 @@ jobs:
           KEYSTORE_KEY_NAME_DEBUG: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
           KEYPWD_DEBUG: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
           KEYSTOREPWD_DEBUG: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
+          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+      - name: Decode release Keystore
+        env:
+          ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
+        run: |
+          TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/key.keystore
+      - name: build staging flavour
+        run:
+          ./gradlew app:assembleStagingRelease -p ./ --no-daemon
+        env:
+          KEYSTORE_KEY_NAME_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}
+          KEYPWD_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}
+          KEYSTOREPWD_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
       - name: Upload
         if: success()

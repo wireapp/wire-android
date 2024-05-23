@@ -16,10 +16,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  detekt:
-    uses: ./.github/workflows/codestyle.yml
+  code-analysis:
+    uses: ./.github/workflows/code-analysis.yml
   unit-tests:
-    needs: [ detekt ]
+    needs: [ code-analysis ]
     uses: ./.github/workflows/gradle-run-unit-tests.yml
   build-app:
     needs: [ unit-tests ]

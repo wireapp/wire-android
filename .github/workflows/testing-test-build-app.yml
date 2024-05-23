@@ -27,16 +27,18 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
                     ./gradlew assembleStagingCompat -p ./ --no-daemon
-            -   name: Copy Staging Compat
-                run: |
-                    cp app/build/outputs/apk/staging/compat/com.wire.*.apk wire-android-staging-pr-${{ github.event.pull_request.number }}.apk
-    uplod-to-s3:
-        needs: [ testing-build-app ]
-        uses: ./.github/workflows/upload-aws-s3.yml
-        with:
-            flavour: "staging"
-            buildType: "compat"
-        secrets:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
+
+            -   name: Uploading to S3
+                id: upload
+                uses: hkusu/s3-upload-action@v2.1.0
+                with:
+                    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                    aws-region: 'us-west-1'
+                    aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
+                    destination-dir: "megazord/android/reloaded/staging/compat/"
+                    file-path: './app/build/outputs/apk/staging/compat/com.wire.*.apk'
+                    output-file-url: 'true'
+
+            -   name: Show URL
+                run: echo '${{ steps.upload.outputs.file-url }}'

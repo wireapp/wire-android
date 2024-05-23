@@ -54,6 +54,7 @@ jobs:
                     ls -la ./app/build/outputs/apk/${{inputs.flavour}}/${{inputs.buildType}}/
 
             -   name: Uploading
+                id: upload
                 uses: hkusu/s3-upload-action@v2.1.0
                 with:
                     aws-access-key-id: ${{ secrets.aws-access-key-id }}

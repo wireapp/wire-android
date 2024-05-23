@@ -31,7 +31,7 @@ jobs:
 
             -   name: Checking ...
                 run: |
-                    ls -la ./
+                    echo "AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}"
 
             -   name: Uploading to S3
                 id: upload
@@ -51,4 +51,4 @@ jobs:
                     GITHUB_USER: ${{ github.actor }}
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
-                    gh pr comment "$PR_NUMBER" --body "APKs built during build-by-boris are available [here](${{ steps.upload.outputs.file-url }})"
+                    gh pr comment "${{ github.event.pull_request.number }}" --body "APKs built during build-by-boris are available [here](${{ steps.upload.outputs.file-url }})"

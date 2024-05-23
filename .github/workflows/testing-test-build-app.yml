@@ -27,32 +27,11 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
                     ./gradlew assembleStagingCompat -p ./ --no-daemon
+                    cp app/build/outputs/apk/staging/compat/com.wire.*.apk wire-android-staging-pr-${{ github.event.pull_request.number }}.apk
 
-
-
-
-            -   name: Checking 4
+            -   name: Checking ...
                 run: |
                     ls -la ./
-
-            -   name: Checking 3
-                run: |
-                    ls -la ./app
-
-            -   name: Checking 2
-                run: |
-                    ls -la ./app/build/outputs/apk
-
-            -   name: Checking 1
-                run: |
-                    ls -la ./app/build/outputs/apk/staging
-
-            -   name: Checking 0
-                run: |
-                    ls -la ./app/build/outputs/apk/staging/compat/        
-
-
-
 
             -   name: Uploading to S3
                 id: upload
@@ -63,7 +42,7 @@ jobs:
                     aws-region: 'us-west-1'
                     aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
                     destination-dir: "megazord/android/reloaded/staging/compat/"
-                    file-path: './app/build/outputs/apk/staging/compat/com.wire.*.apk'
+                    file-path: './wire-android-staging-pr-${{ github.event.pull_request.number }}.apk'
                     output-file-url: 'true'
 
             -   name: Show URL

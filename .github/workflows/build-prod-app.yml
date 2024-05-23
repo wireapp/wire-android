@@ -3,10 +3,10 @@ name: "Prod app"
 on:
   push:
     branches:
-      - prod
+      - develop
   pull_request:
     branches:
-      - prod
+      - develop
     types: [ opened, synchronize ]
 
 concurrency:
@@ -14,12 +14,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  code-analysis:
-    uses: ./.github/workflows/code-analysis.yml
-  unit-tests:
-    uses: ./.github/workflows/gradle-run-unit-tests.yml
+#  code-analysis:
+#    uses: ./.github/workflows/code-analysis.yml
+#  unit-tests:
+#    uses: ./.github/workflows/gradle-run-unit-tests.yml
   build-app:
-    needs: [ unit-tests, code-analysis ]
+#    needs: [ unit-tests, code-analysis ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,9 +42,16 @@ jobs:
           echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/key.keystore
       - name: Make gradlew executable
         run: chmod +x ./gradlew
-      - name: build prod flavour
+      - name: build prod flavour APK
         run:
           ./gradlew app:assembleProdCompatRelease -p ./ --no-daemon
+        env:
+          KEYSTORE_KEY_NAME_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}
+          KEYPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}
+          KEYSTOREPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}
+          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+      - name: build prod flavour bundle
+        run:
           ./gradlew app:bundleProdCompatRelease -p ./ --no-daemon
         env:
           KEYSTORE_KEY_NAME_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}

@@ -25,7 +25,7 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import kotlinx.coroutines.withContext
-import okio.Path
+import java.util.UUID
 import javax.inject.Inject
 
 class HandleUriAssetUseCase @Inject constructor(
@@ -38,14 +38,13 @@ class HandleUriAssetUseCase @Inject constructor(
     suspend fun invoke(
         uri: Uri,
         saveToDeviceIfInvalid: Boolean = false,
-        audioPath: Path? = null,
+        specifiedMimeType: String? = null, // specify a particular mimetype, otherwise it will be taken from the uri / file extension
     ): Result = withContext(dispatchers.io()) {
-
-        val tempCachePath = kaliumFileSystem.rootCachePath
+        val tempAssetPath = kaliumFileSystem.tempFilePath(UUID.randomUUID().toString())
         val assetBundle = fileManager.getAssetBundleFromUri(
             attachmentUri = uri,
-            tempCachePath = tempCachePath,
-            audioPath = audioPath
+            assetDestinationPath = tempAssetPath,
+            specifiedMimeType = specifiedMimeType,
         )
         if (assetBundle != null) {
             // The max limit for sending assets changes between user and asset types.

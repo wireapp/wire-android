@@ -414,7 +414,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
 
     private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? = withContext(dispatchers.io()) {
-        when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false, audioPath = null)) {
+        when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> mapToImportedAsset(result.assetBundle, result.maxLimitInMB)
 
             HandleUriAssetUseCase.Result.Failure.Unknown -> null

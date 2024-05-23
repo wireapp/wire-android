@@ -84,6 +84,11 @@ android {
     }
 }
 
+aboutLibraries {
+    val isAboutLibrariesDisabled = System.getenv("DISABLE_ABOUT_LIBRARIES")?.equals("true", true) ?: false
+    registerAndroidTasks = !isAboutLibrariesDisabled
+}
+
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")

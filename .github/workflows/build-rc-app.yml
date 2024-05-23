@@ -1,13 +1,13 @@
-name: "Internal app"
+name: "Release candidate app"
 
 on:
   push:
     branches:
-      - release/candidate
+      - develop
   merge_group:
   pull_request:
     branches:
-      - release/candidate
+      - develop
     types: [ opened, synchronize ]
   workflow_call:
 
@@ -16,12 +16,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  code-analysis:
-    uses: ./.github/workflows/code-analysis.yml
-  unit-tests:
-    uses: ./.github/workflows/gradle-run-unit-tests.yml
+#  code-analysis:
+#    uses: ./.github/workflows/code-analysis.yml
+#  unit-tests:
+#    uses: ./.github/workflows/gradle-run-unit-tests.yml
   build-app:
-    needs: [ unit-tests, code-analysis ]
+#    needs: [ unit-tests, code-analysis ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -44,9 +44,16 @@ jobs:
           echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/key.keystore
       - name: Make gradlew executable
         run: chmod +x ./gradlew
-      - name: Build internal flavour
+      - name: Build internal flavour APK
         run:
           ./gradlew app:assembleInternalCompat -p ./ --no-daemon
+        env:
+          KEYSTORE_KEY_NAME_COMPAT: ${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}
+          KEYPWD_COMPAT: ${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}
+          KEYSTOREPWD_COMPAT: ${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}
+          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+      - name: Build internal flavour bundle
+        run:
           ./gradlew app:bundleInternalCompat -p ./ --no-daemon
         env:
           KEYSTORE_KEY_NAME_COMPAT: ${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}
@@ -56,7 +63,6 @@ jobs:
       - name: Build Staging flavour
         run:
           ./gradlew app:assembleStagingCompat -p ./ --no-daemon
-          ./gradlew app:bundleStagingCompat -p ./ --no-daemon
         env:
           KEYSTORE_KEY_NAME_COMPAT: ${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}
           KEYPWD_COMPAT: ${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}

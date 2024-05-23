@@ -3,10 +3,10 @@ name: "Prod app"
 on:
   push:
     branches:
-      - develop
+      - prod
   pull_request:
     branches:
-      - develop
+      - prod
     types: [ opened, synchronize ]
 
 concurrency:
@@ -14,12 +14,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-#  code-analysis:
-#    uses: ./.github/workflows/code-analysis.yml
-#  unit-tests:
-#    uses: ./.github/workflows/gradle-run-unit-tests.yml
+  code-analysis:
+    uses: ./.github/workflows/code-analysis.yml
+  unit-tests:
+    uses: ./.github/workflows/gradle-run-unit-tests.yml
   build-app:
-#    needs: [ unit-tests, code-analysis ]
+    needs: [ unit-tests, code-analysis ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

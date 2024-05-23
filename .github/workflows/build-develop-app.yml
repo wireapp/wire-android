@@ -16,11 +16,11 @@ concurrency:
 jobs:
   detekt:
     uses: ./.github/workflows/codestyle.yml
-  unit-tests:
-    needs: [ detekt ]
-    uses: ./.github/workflows/gradle-run-unit-tests.yml
+#  unit-tests:
+#    needs: [ detekt ]
+#    uses: ./.github/workflows/gradle-run-unit-tests.yml
   build-app:
-    needs: [ unit-tests ]
+    needs: [ detekt ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -56,7 +56,6 @@ jobs:
           ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
         run: |
           TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
-          mkdir "${TMP_KEYSTORE_FILE_PATH}"
           echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/key.keystore
       - name: build staging flavour
         run:

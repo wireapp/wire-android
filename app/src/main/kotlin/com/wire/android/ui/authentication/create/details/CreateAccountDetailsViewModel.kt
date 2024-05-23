@@ -17,19 +17,22 @@
  */
 package com.wire.android.ui.authentication.create.details
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,22 +46,32 @@ class CreateAccountDetailsViewModel @Inject constructor(
 
     val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 
+    val firstNameTextState: TextFieldState = TextFieldState()
+    val lastNameTextState: TextFieldState = TextFieldState()
+    val passwordTextState: TextFieldState = TextFieldState()
+    val confirmPasswordTextState: TextFieldState = TextFieldState()
+    val teamNameTextState: TextFieldState = TextFieldState()
     var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(createAccountNavArgs.flowType))
 
     val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
 
-    fun onDetailsChange(newText: TextFieldValue, fieldType: DetailsFieldType) {
-        detailsState = when (fieldType) {
-            DetailsFieldType.FirstName -> detailsState.copy(firstName = newText)
-            DetailsFieldType.LastName -> detailsState.copy(lastName = newText)
-            DetailsFieldType.Password -> detailsState.copy(password = newText)
-            DetailsFieldType.ConfirmPassword -> detailsState.copy(confirmPassword = newText)
-            DetailsFieldType.TeamName -> detailsState.copy(teamName = newText)
-        }.let {
-            it.copy(
-                error = CreateAccountDetailsViewState.DetailsError.None,
-                continueEnabled = it.fieldsNotEmpty() && !it.loading
-            )
+    init {
+        viewModelScope.launch {
+            combine(
+                firstNameTextState.textAsFlow(),
+                lastNameTextState.textAsFlow(),
+                passwordTextState.textAsFlow(),
+                confirmPasswordTextState.textAsFlow(),
+                teamNameTextState.textAsFlow(),
+            ) { firstName, lastName, password, confirmPassword, teamName ->
+                firstName.isNotBlank() && lastName.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
+                        && (detailsState.type == CreateAccountFlowType.CreatePersonalAccount || teamName.isNotBlank())
+            }.collect { fieldsNotEmpty ->
+                detailsState = detailsState.copy(
+                    error = CreateAccountDetailsViewState.DetailsError.None,
+                    continueEnabled = fieldsNotEmpty && !detailsState.loading
+                )
+            }
         }
     }
 
@@ -66,10 +79,10 @@ class CreateAccountDetailsViewModel @Inject constructor(
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val detailsError = when {
-                !validatePasswordUseCase(detailsState.password.text).isValid ->
+                !validatePasswordUseCase(passwordTextState.text.toString()).isValid ->
                     CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError
 
-                detailsState.password.text != detailsState.confirmPassword.text ->
+                passwordTextState.text.toString() != confirmPasswordTextState.text.toString() ->
                     CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError
 
                 else -> CreateAccountDetailsViewState.DetailsError.None
@@ -85,9 +98,5 @@ class CreateAccountDetailsViewModel @Inject constructor(
 
     fun onDetailsErrorDismiss() {
         detailsState = detailsState.copy(error = CreateAccountDetailsViewState.DetailsError.None)
-    }
-
-    enum class DetailsFieldType {
-        FirstName, LastName, Password, ConfirmPassword, TeamName
     }
 }

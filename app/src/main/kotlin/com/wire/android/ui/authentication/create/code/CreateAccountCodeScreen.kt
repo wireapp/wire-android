@@ -25,14 +25,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -58,7 +57,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.common.textfield.CodeFieldValue
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -89,29 +88,44 @@ fun CreateAccountCodeScreen(
 
         CodeContent(
             state = codeState,
-            onCodeChange = { onCodeChange(it, ::navigateToSummaryScreen) },
+            textState = codeTextState,
             onResendCodePressed = ::resendCode,
             onBackPressed = navigator::navigateBack,
-            onErrorDismiss = ::clearCodeError,
-            onRemoveDeviceOpen = {
+            serverConfig = serverConfig
+        )
+
+        (codeState.result as? CreateAccountCodeViewState.Result.Error.DialogError)?.let {
+            val (title, message) = it.getResources(type = codeState.type)
+            WireDialog(
+                title = title,
+                text = message,
+                onDismiss = ::clearCodeError,
+                optionButton1Properties = WireDialogButtonProperties(
+                    onClick = ::clearCodeError,
+                    text = stringResource(id = R.string.label_ok),
+                    type = WireDialogButtonType.Primary,
+                )
+            )
+        }
+        LaunchedEffect(codeState.result) {
+            if (codeState.result is CreateAccountCodeViewState.Result.Success) {
+                navigateToSummaryScreen()
+            }
+            if (codeState.result is CreateAccountCodeViewState.Result.Error.TooManyDevicesError) {
                 clearCodeError()
                 clearCodeField()
                 navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
-            },
-            serverConfig = serverConfig
-        )
+            }
+        }
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun CodeContent(
     state: CreateAccountCodeViewState,
-    onCodeChange: (CodeFieldValue) -> Unit,
+    textState: TextFieldState,
     onResendCodePressed: () -> Unit,
     onBackPressed: () -> Unit,
-    onErrorDismiss: () -> Unit,
-    onRemoveDeviceOpen: () -> Unit,
     serverConfig: ServerConfig.Links
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -151,10 +165,10 @@ private fun CodeContent(
             Spacer(modifier = Modifier.weight(1f))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 CodeTextField(
-                    value = state.code.text,
-                    onValueChange = onCodeChange,
-                    state = when (state.error) {
-                        is CreateAccountCodeViewState.CodeError.TextFieldError.InvalidActivationCodeError ->
+                    codeLength = state.codeLength,
+                    textState = textState,
+                    state = when (state.result) {
+                        is CreateAccountCodeViewState.Result.Error.TextFieldError.InvalidActivationCodeError ->
                             WireTextFieldState.Error(stringResource(id = R.string.create_account_code_error))
 
                         else -> WireTextFieldState.Default
@@ -177,51 +191,36 @@ private fun CodeContent(
         focusRequester.requestFocus()
         keyboardController?.show()
     }
-    if (state.error is CreateAccountCodeViewState.CodeError.DialogError) {
-        val (title, message) = state.error.getResources(type = state.type)
-        WireDialog(
-            title = title,
-            text = message,
-            onDismiss = onErrorDismiss,
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = onErrorDismiss,
-                text = stringResource(id = R.string.label_ok),
-                type = WireDialogButtonType.Primary,
-            )
-        )
-    } else if (state.error is CreateAccountCodeViewState.CodeError.TooManyDevicesError) {
-        onRemoveDeviceOpen()
-    }
 }
 
 @Composable
-private fun CreateAccountCodeViewState.CodeError.DialogError.getResources(type: CreateAccountFlowType) = when (this) {
-    CreateAccountCodeViewState.CodeError.DialogError.AccountAlreadyExistsError -> DialogErrorStrings(
+private fun CreateAccountCodeViewState.Result.Error.DialogError.getResources(type: CreateAccountFlowType) = when (this) {
+    CreateAccountCodeViewState.Result.Error.DialogError.AccountAlreadyExistsError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_already_in_use_error)
     )
 
-    CreateAccountCodeViewState.CodeError.DialogError.BlackListedError -> DialogErrorStrings(
+    CreateAccountCodeViewState.Result.Error.DialogError.BlackListedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_blacklisted_error)
     )
 
-    CreateAccountCodeViewState.CodeError.DialogError.EmailDomainBlockedError -> DialogErrorStrings(
+    CreateAccountCodeViewState.Result.Error.DialogError.EmailDomainBlockedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_domain_blocked_error)
     )
 
-    CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError -> DialogErrorStrings(
+    CreateAccountCodeViewState.Result.Error.DialogError.InvalidEmailError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_invalid_error)
     )
 
-    CreateAccountCodeViewState.CodeError.DialogError.TeamMembersLimitError -> DialogErrorStrings(
+    CreateAccountCodeViewState.Result.Error.DialogError.TeamMembersLimitError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_code_error_team_members_limit_reached)
     )
 
-    CreateAccountCodeViewState.CodeError.DialogError.CreationRestrictedError -> DialogErrorStrings(
+    CreateAccountCodeViewState.Result.Error.DialogError.CreationRestrictedError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(
             id = when (type) {
@@ -231,15 +230,21 @@ private fun CreateAccountCodeViewState.CodeError.DialogError.getResources(type: 
         )
     )
     // TODO: sync with design about the error message
-    CreateAccountCodeViewState.CodeError.DialogError.UserAlreadyExists ->
+    CreateAccountCodeViewState.Result.Error.DialogError.UserAlreadyExistsError ->
         DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
 
-    is CreateAccountCodeViewState.CodeError.DialogError.GenericError ->
+    is CreateAccountCodeViewState.Result.Error.DialogError.GenericError ->
         this.coreFailure.dialogErrorStrings(LocalContext.current.resources)
 }
 
 @Composable
 @Preview
 fun PreviewCreateAccountCodeScreen() {
-    CodeContent(CreateAccountCodeViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, ServerConfig.DEFAULT)
+    CodeContent(
+        textState = TextFieldState(),
+        state = CreateAccountCodeViewState(CreateAccountFlowType.CreatePersonalAccount),
+        onResendCodePressed = {},
+        onBackPressed = {},
+        serverConfig = ServerConfig.DEFAULT
+    )
 }

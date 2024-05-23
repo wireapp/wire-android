@@ -17,16 +17,17 @@
  */
 package com.wire.android.ui.authentication.create.email
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -34,6 +35,7 @@ import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -48,6 +50,7 @@ class CreateAccountEmailViewModel @Inject constructor(
 
     val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 
+    val emailTextState: TextFieldState = TextFieldState()
     var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(createAccountNavArgs.flowType))
         private set
 
@@ -55,20 +58,25 @@ class CreateAccountEmailViewModel @Inject constructor(
 
     fun tosUrl(): String = authServerConfigProvider.authServer.value.tos
 
-    fun onEmailChange(newText: TextFieldValue) {
-        emailState = emailState.copy(
-            email = newText,
-            error = CreateAccountEmailViewState.EmailError.None,
-            continueEnabled = newText.text.isNotEmpty() && !emailState.loading
-        )
+    init {
+        viewModelScope.launch {
+            emailTextState.textAsFlow().collectLatest {
+                emailState = emailState.copy(
+                    error = CreateAccountEmailViewState.EmailError.None,
+                    continueEnabled = it.isNotEmpty() && !emailState.loading
+                )
+            }
+        }
     }
 
     fun onEmailContinue(onSuccess: () -> Unit) {
         emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
-            val emailError =
-                if (validateEmail(emailState.email.text.trim().lowercase())) CreateAccountEmailViewState.EmailError.None
-                else CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
+            val email = emailTextState.text.toString().trim().lowercase()
+            val emailError = when (validateEmail(email)) {
+                true -> CreateAccountEmailViewState.EmailError.None
+                false -> CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
+            }
             emailState = emailState.copy(
                 loading = false,
                 continueEnabled = true,
@@ -104,7 +112,8 @@ class CreateAccountEmailViewModel @Inject constructor(
                 }
             }
 
-            val emailError = authScope.registerScope.requestActivationCode(emailState.email.text.trim().lowercase()).toEmailError()
+            val email = emailTextState.text.toString().trim().lowercase()
+            val emailError = authScope.registerScope.requestActivationCode(email).toEmailError()
             emailState = emailState.copy(loading = false, continueEnabled = true, error = emailError)
             if (emailError is CreateAccountEmailViewState.EmailError.None) onSuccess()
         }

@@ -30,11 +30,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -48,18 +50,18 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.rememberBottomBarElevationState
+import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WireAutoFillType
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
@@ -82,36 +84,47 @@ fun LoginEmailScreen(
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
-    val loginEmailState: LoginState = loginEmailViewModel.loginState
 
     clearAutofillTree()
 
     LoginEmailContent(
         scrollState = scrollState,
-        loginState = loginEmailState,
-        onUserIdentifierChange = loginEmailViewModel::onUserIdentifierChange,
-        onPasswordChange = loginEmailViewModel::onPasswordChange,
-        onDialogDismiss = loginEmailViewModel::onDialogDismiss,
+        loginEmailState = loginEmailViewModel.loginState,
+        userIdentifierTextState = loginEmailViewModel.userIdentifierTextState,
+        proxyIdentifierState = loginEmailViewModel.proxyIdentifierTextState,
+        proxyPasswordState = loginEmailViewModel.proxyPasswordTextState,
+        passwordTextState = loginEmailViewModel.passwordTextState,
+        isProxyAuthRequired = loginEmailViewModel.serverConfig.isProxyAuthRequired,
+        apiProxyUrl = loginEmailViewModel.serverConfig.apiProxy?.host,
+        onDialogDismiss = loginEmailViewModel::clearLoginErrors,
         onRemoveDeviceOpen = {
             loginEmailViewModel.clearLoginErrors()
             onRemoveDeviceNeeded()
         },
-        onLoginButtonClick = {
-            loginEmailViewModel.login(onSuccess)
-        },
+        onLoginButtonClick = loginEmailViewModel::login,
         onUpdateApp = loginEmailViewModel::updateTheApp,
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
         scope = scope
     )
+
+    LaunchedEffect(loginEmailViewModel.loginState.flowState) {
+        (loginEmailViewModel.loginState.flowState as? LoginState.Success)?.let {
+            onSuccess(it.initialSyncCompleted, it.isE2EIRequired)
+        }
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoginEmailContent(
     scrollState: ScrollState,
-    loginState: LoginState,
-    onUserIdentifierChange: (TextFieldValue) -> Unit,
-    onPasswordChange: (TextFieldValue) -> Unit,
+    userIdentifierTextState: TextFieldState,
+    passwordTextState: TextFieldState,
+    proxyIdentifierState: TextFieldState,
+    proxyPasswordState: TextFieldState,
+    loginEmailState: LoginEmailState,
+    isProxyAuthRequired: Boolean,
+    apiProxyUrl: String?,
     onDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: () -> Unit,
@@ -133,7 +146,7 @@ private fun LoginEmailContent(
                     testTagsAsResourceId = true
                 }
         ) {
-            if (loginState.isProxyAuthRequired) {
+            if (isProxyAuthRequired) {
                 Text(
                     text = stringResource(R.string.label_wire_credentials),
                     style = MaterialTheme.wireTypography.title03.copy(
@@ -150,20 +163,18 @@ private fun LoginEmailContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-                userIdentifier = loginState.userIdentifier,
-                onUserIdentifierChange = onUserIdentifierChange,
-                error = when (loginState.loginError) {
-                    LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
+                userIdentifierState = userIdentifierTextState,
+                error = when (loginEmailState.flowState) {
+                    is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                     else -> null
                 },
-                isEnabled = loginState.userIdentifierEnabled
+                isEnabled = loginEmailState.userIdentifierEnabled,
             )
             PasswordInput(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-                password = loginState.password,
-                onPasswordChange = onPasswordChange
+                passwordState = passwordTextState,
             )
             ForgotPasswordLabel(
                 modifier = Modifier
@@ -171,8 +182,13 @@ private fun LoginEmailContent(
                     .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
                 forgotPasswordUrl = forgotPasswordUrl
             )
-            if (loginState.isProxyAuthRequired) {
-                ProxyScreen()
+            if (isProxyAuthRequired) {
+                ProxyContent(
+                    proxyIdentifierState = proxyIdentifierState,
+                    proxyPasswordState = proxyPasswordState,
+                    proxyState = loginEmailState,
+                    apiProxyUrl = apiProxyUrl,
+                )
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -188,8 +204,8 @@ private fun LoginEmailContent(
             Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                 LoginButton(
                     modifier = Modifier.fillMaxWidth(),
-                    loading = loginState.emailLoginLoading,
-                    enabled = loginState.emailLoginEnabled
+                    loading = loginEmailState.flowState is LoginState.Loading,
+                    enabled = loginEmailState.loginEnabled,
                 ) {
                     scope.launch {
                         onLoginButtonClick()
@@ -199,9 +215,9 @@ private fun LoginEmailContent(
         }
     }
 
-    if (loginState.loginError is LoginError.DialogError) {
-        LoginErrorDialog(loginState.loginError, onDialogDismiss, onUpdateApp)
-    } else if (loginState.loginError is LoginError.TooManyDevicesError) {
+    if (loginEmailState.flowState is LoginState.Error.DialogError) {
+        LoginErrorDialog(loginEmailState.flowState, onDialogDismiss, onUpdateApp)
+    } else if (loginEmailState.flowState is LoginState.Error.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }
 }
@@ -209,15 +225,13 @@ private fun LoginEmailContent(
 @Composable
 private fun UserIdentifierInput(
     modifier: Modifier,
-    userIdentifier: TextFieldValue,
+    userIdentifierState: TextFieldState,
     error: String?,
-    onUserIdentifierChange: (TextFieldValue) -> Unit,
     isEnabled: Boolean,
 ) {
     WireTextField(
         autoFillType = WireAutoFillType.Login,
-        value = userIdentifier,
-        onValueChange = onUserIdentifierChange,
+        textState = userIdentifierState,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
         labelText = stringResource(R.string.login_user_identifier_label),
         state = when {
@@ -232,15 +246,14 @@ private fun UserIdentifierInput(
 }
 
 @Composable
-private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswordChange: (TextFieldValue) -> Unit) {
+private fun PasswordInput(modifier: Modifier, passwordState: TextFieldState) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
-        value = password,
-        onValueChange = onPasswordChange,
-        imeAction = ImeAction.Done,
-        onImeAction = { keyboardController?.hide() },
+        textState = passwordState,
+        keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
+        onKeyboardAction = { keyboardController?.hide() },
         modifier = modifier.testTag("passwordField"),
-        autofill = true,
+        autoFill = true,
         testTag = "PasswordInput"
     )
 }
@@ -293,20 +306,21 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewLoginEmailScreen() {
-    val scope = rememberCoroutineScope()
-    WireTheme {
-        LoginEmailContent(
-            scrollState = rememberScrollState(),
-            loginState = LoginState(),
-            onUserIdentifierChange = { },
-            onPasswordChange = { },
-            onDialogDismiss = { },
-            onRemoveDeviceOpen = { },
-            onLoginButtonClick = { },
-            onUpdateApp = {},
-            forgotPasswordUrl = "",
-            scope = scope
-        )
-    }
+fun PreviewLoginEmailScreen() = WireTheme {
+    LoginEmailContent(
+        scrollState = rememberScrollState(),
+        loginEmailState = LoginEmailState(),
+        userIdentifierTextState = TextFieldState(),
+        passwordTextState = TextFieldState(),
+        proxyIdentifierState = TextFieldState(),
+        proxyPasswordState = TextFieldState(),
+        isProxyAuthRequired = true,
+        apiProxyUrl = "",
+        onDialogDismiss = { },
+        onRemoveDeviceOpen = { },
+        onLoginButtonClick = { },
+        onUpdateApp = {},
+        forgotPasswordUrl = "",
+        scope = rememberCoroutineScope()
+    )
 }

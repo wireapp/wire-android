@@ -22,6 +22,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -30,22 +31,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun VerificationCode(
     codeLength: Int,
-    currentCode: TextFieldValue,
+    codeState: TextFieldState,
     isLoading: Boolean,
     isCurrentCodeInvalid: Boolean,
-    onCodeChange: (CodeFieldValue) -> Unit,
     onResendCode: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -61,9 +61,8 @@ fun VerificationCode(
 
         CodeTextField(
             codeLength = codeLength,
-            value = currentCode,
+            textState = codeState,
             state = state,
-            onValueChange = onCodeChange,
             modifier = Modifier.focusRequester(focusRequester)
         )
 
@@ -80,4 +79,16 @@ fun VerificationCode(
             clickEnabled = !isLoading
         )
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewVerificationCode() = WireTheme {
+    VerificationCode(
+        codeLength = 6,
+        codeState = TextFieldState(),
+        isLoading = false,
+        isCurrentCodeInvalid = false,
+        onResendCode = {}
+    )
 }

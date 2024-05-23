@@ -25,21 +25,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.verificationcode.VerificationCode
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
@@ -48,21 +48,20 @@ import com.wire.android.util.ui.UIText
 
 @Composable
 fun LoginEmailVerificationCodeScreen(
-    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     viewModel: LoginEmailViewModel = hiltViewModel()
 ) = LoginEmailVerificationCodeContent(
+    viewModel.secondFactorVerificationCodeTextState,
     viewModel.secondFactorVerificationCodeState,
-    viewModel.loginState.emailLoginLoading,
-    { viewModel.onCodeChange(it, onSuccess) },
+    viewModel.loginState.flowState is LoginState.Loading,
     viewModel::onCodeResend,
     viewModel::onCodeVerificationBackPress
 )
 
 @Composable
 private fun LoginEmailVerificationCodeContent(
+    verificationCodeTextState: TextFieldState,
     verificationCodeState: VerificationCodeState,
     isLoading: Boolean,
-    onCodeChange: (CodeFieldValue) -> Unit,
     onCodeResend: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
@@ -77,9 +76,9 @@ private fun LoginEmailVerificationCodeContent(
         }
     ) { internalPadding ->
         MainContent(
+            codeTextState = verificationCodeTextState,
             codeState = verificationCodeState,
             isLoading = isLoading,
-            onCodeChange = onCodeChange,
             onResendCode = onCodeResend,
             modifier = Modifier
                 .fillMaxSize()
@@ -91,9 +90,9 @@ private fun LoginEmailVerificationCodeContent(
 
 @Composable
 private fun MainContent(
+    codeTextState: TextFieldState,
     codeState: VerificationCodeState,
     isLoading: Boolean,
-    onCodeChange: (CodeFieldValue) -> Unit,
     onResendCode: () -> Unit,
     modifier: Modifier = Modifier
 ) = Column(
@@ -115,10 +114,9 @@ private fun MainContent(
         .weight(1f))
     VerificationCode(
         codeLength = codeState.codeLength,
-        currentCode = codeState.codeInput.text,
+        codeState = codeTextState,
         isLoading = isLoading,
         isCurrentCodeInvalid = codeState.isCurrentCodeInvalid,
-        onCodeChange = onCodeChange,
         onResendCode = onResendCode,
     )
     Spacer(modifier = Modifier
@@ -130,15 +128,14 @@ private fun MainContent(
 @Composable
 internal fun LoginEmailVerificationCodeScreenPreview() = WireTheme {
     LoginEmailVerificationCodeContent(
-        VerificationCodeState(
+        verificationCodeTextState = TextFieldState(),
+        verificationCodeState = VerificationCodeState(
             codeLength = 6,
-            codeInput = CodeFieldValue(TextFieldValue("12"), false),
             isCurrentCodeInvalid = false,
             emailUsed = ""
         ),
-        false,
-        {},
-        {},
-        {},
+        isLoading = false,
+        onCodeResend = {},
+        onBackPressed = {},
     )
 }

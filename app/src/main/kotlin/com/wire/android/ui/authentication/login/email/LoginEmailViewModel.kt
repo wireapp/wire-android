@@ -18,24 +18,31 @@
 
 package com.wire.android.ui.authentication.login.email
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.ui.authentication.login.LoginError
+import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
+import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
+import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.login.toLoginError
-import com.wire.android.ui.authentication.login.updateEmailLoginEnabled
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
-import com.wire.android.ui.common.textfield.CodeFieldValue
+import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.android.ui.navArgs
+import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
@@ -44,6 +51,10 @@ import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScop
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -65,22 +76,75 @@ class LoginEmailViewModel @Inject constructor(
     userDataStoreProvider,
     coreLogic
 ) {
+    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
+    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
+        if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
+    }
 
-    var secondFactorVerificationCodeState by mutableStateOf(
-        VerificationCodeState()
-    )
+    val userIdentifierTextState: TextFieldState = TextFieldState()
+    val passwordTextState: TextFieldState = TextFieldState()
+    val proxyIdentifierTextState: TextFieldState = TextFieldState()
+    val proxyPasswordTextState: TextFieldState = TextFieldState()
+    var loginState by mutableStateOf(LoginEmailState(preFilledUserIdentifier is PreFilledUserIdentifierType.None))
+
+    val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
+    var secondFactorVerificationCodeState by mutableStateOf(VerificationCodeState())
+
+    init {
+        userIdentifierTextState.setTextAndPlaceCursorAtEnd(
+            if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) preFilledUserIdentifier.userIdentifier
+            else savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+        )
+        viewModelScope.launch {
+            combine(
+                userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
+                    savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
+                },
+                passwordTextState.textAsFlow(),
+                proxyIdentifierTextState.textAsFlow(),
+                proxyPasswordTextState.textAsFlow()
+            ) { _, _, _, _ -> }.collectLatest {
+                if (loginState.flowState != LoginState.Loading) {
+                    updateEmailFlowState(LoginState.Default)
+                }
+            }
+        }
+        viewModelScope.launch {
+            secondFactorVerificationCodeTextState.textAsFlow().collectLatest {
+                secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCurrentCodeInvalid = false)
+                if (it.length == VerificationCodeState.DEFAULT_VERIFICATION_CODE_LENGTH) {
+                    login()
+                }
+            }
+        }
+    }
+
+    private fun updateEmailFlowState(flowState: LoginState) {
+        val proxyFieldsNotEmpty = proxyIdentifierTextState.text.isNotEmpty() && proxyPasswordTextState.text.isNotEmpty()
+        loginState = loginState.copy(
+            flowState = flowState,
+            loginEnabled = userIdentifierTextState.text.isNotEmpty()
+                    && passwordTextState.text.isNotEmpty()
+                    && (!serverConfig.isProxyAuthRequired || proxyFieldsNotEmpty)
+                    && flowState !is LoginState.Loading
+        )
+    }
+
+    fun clearLoginErrors() {
+        updateEmailFlowState(LoginState.Default)
+    }
 
     @Suppress("LongMethod")
-    fun login(onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
-        loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
+    fun login() {
+        updateEmailFlowState(LoginState.Loading)
         viewModelScope.launch {
             val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
 
-            val secondFactorVerificationCode = secondFactorVerificationCodeState.codeInput.text.text
+            val secondFactorVerificationCode = secondFactorVerificationCodeTextState.text.toString()
             val loginResult = withContext(dispatchers.io()) {
                 authScope.login(
-                    userIdentifier = loginState.userIdentifier.text,
-                    password = loginState.password.text,
+                    userIdentifier = userIdentifierTextState.text.toString(),
+                    password = passwordTextState.text.toString(),
                     shouldPersistClient = true,
                     secondFactorVerificationCode = secondFactorVerificationCode
                 )
@@ -102,7 +166,7 @@ class LoginEmailViewModel @Inject constructor(
             }.let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {
-                        updateEmailLoginError(it.toLoginError())
+                        updateEmailFlowState(it.toLoginError())
                         return@launch
                     }
 
@@ -112,21 +176,21 @@ class LoginEmailViewModel @Inject constructor(
             withContext(dispatchers.io()) {
                 registerClient(
                     userId = storedUserId,
-                    password = loginState.password.text,
+                    password = passwordTextState.text.toString(),
                 )
             }.let {
                 when (it) {
                     is RegisterClientResult.Failure -> {
-                        updateEmailLoginError(it.toLoginError())
+                        updateEmailFlowState(it.toLoginError())
                         return@launch
                     }
 
                     is RegisterClientResult.Success -> {
-                        onSuccess(isInitialSyncCompleted(storedUserId), false)
+                        updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false))
                     }
 
                     is RegisterClientResult.E2EICertificateRequired -> {
-                        onSuccess(isInitialSyncCompleted(storedUserId), true)
+                        updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), true))
                         return@launch
                     }
                 }
@@ -134,25 +198,30 @@ class LoginEmailViewModel @Inject constructor(
         }
     }
 
+    private fun getProxyCredentials(): ProxyCredentials? =
+        if (proxyIdentifierTextState.text.isNotBlank() && proxyPasswordTextState.text.isNotBlank()) {
+            ProxyCredentials(proxyIdentifierTextState.text.toString(), proxyPasswordTextState.text.toString())
+        } else {
+            null
+        }
+
     private suspend fun resolveCurrentAuthScope(): AuthenticationScope? =
-        coreLogic.versionedAuthenticationScope(serverConfig).invoke(
-            loginState.getProxyCredentials()
-        ).let {
+        coreLogic.versionedAuthenticationScope(serverConfig).invoke(getProxyCredentials()).let {
             when (it) {
                 is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
                 is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
-                    updateEmailLoginError(LoginError.DialogError.ServerVersionNotSupported)
+                    updateEmailFlowState(LoginState.Error.DialogError.ServerVersionNotSupported)
                     return null
                 }
 
                 is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
-                    updateEmailLoginError(LoginError.DialogError.ClientUpdateRequired)
+                    updateEmailFlowState(LoginState.Error.DialogError.ClientUpdateRequired)
                     return null
                 }
 
                 is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
-                    updateEmailLoginError(LoginError.DialogError.GenericError(it.genericFailure))
+                    updateEmailFlowState(LoginState.Error.DialogError.GenericError(it.genericFailure))
                     return null
                 }
             }
@@ -161,21 +230,21 @@ class LoginEmailViewModel @Inject constructor(
     private suspend fun handleAuthenticationFailure(it: AuthenticationResult.Failure, authScope: AuthenticationScope) {
         when (it) {
             is AuthenticationResult.Failure.InvalidCredentials.Missing2FA -> {
-                loginState = loginState.copy(emailLoginLoading = false).updateEmailLoginEnabled()
+                updateEmailFlowState(LoginState.Default)
                 request2FACode(authScope)
             }
 
             is AuthenticationResult.Failure.InvalidCredentials.Invalid2FA -> {
-                loginState = loginState.copy(emailLoginLoading = false).updateEmailLoginEnabled()
+                updateEmailFlowState(LoginState.Default)
                 secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCurrentCodeInvalid = true)
             }
 
-            else -> updateEmailLoginError(it.toLoginError())
+            else -> updateEmailFlowState(it.toLoginError())
         }
     }
 
     private suspend fun request2FACode(authScope: AuthenticationScope) {
-        val email = loginState.userIdentifier.text.trim()
+        val email = userIdentifierTextState.text.trim().toString()
         val result = authScope.requestSecondFactorVerificationCode(
             email = email,
             verifiableAction = VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION
@@ -187,46 +256,18 @@ class LoginEmailViewModel @Inject constructor(
                     isCodeInputNecessary = true,
                     emailUsed = email,
                 )
-                updateEmailLoginError(LoginError.None)
+                updateEmailFlowState(LoginState.Default)
             }
 
             is RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic -> {
-                updateEmailLoginError(LoginError.DialogError.GenericError(result.cause))
+                updateEmailFlowState(LoginState.Error.DialogError.GenericError(result.cause))
             }
-        }
-    }
-
-    fun onUserIdentifierChange(newText: TextFieldValue) {
-        // in case an error is showing e.g. inline error it should be cleared
-        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.userIdentifier) {
-            clearEmailLoginError()
-        }
-        loginState = loginState.copy(userIdentifier = newText).updateEmailLoginEnabled()
-        savedStateHandle.set(USER_IDENTIFIER_SAVED_STATE_KEY, newText.text)
-    }
-
-    fun onPasswordChange(newText: TextFieldValue) {
-        loginState = loginState.copy(password = newText).updateEmailLoginEnabled()
-    }
-
-    fun onProxyIdentifierChange(newText: TextFieldValue) {
-        loginState = loginState.copy(proxyIdentifier = newText).updateEmailLoginEnabled()
-    }
-
-    fun onProxyPasswordChange(newText: TextFieldValue) {
-        loginState = loginState.copy(proxyPassword = newText).updateEmailLoginEnabled()
-    }
-
-    fun onCodeChange(newValue: CodeFieldValue, onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {
-        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(codeInput = newValue, isCurrentCodeInvalid = false)
-        if (newValue.isFullyFilled) {
-            login(onSuccess)
         }
     }
 
     fun onCodeVerificationBackPress() {
+        secondFactorVerificationCodeTextState.clearText()
         secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
-            codeInput = CodeFieldValue(TextFieldValue(""), false),
             isCodeInputNecessary = false,
             emailUsed = "",
         )
@@ -238,5 +279,9 @@ class LoginEmailViewModel @Inject constructor(
                 request2FACode(it)
             }
         }
+    }
+
+    companion object {
+        const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
     }
 }

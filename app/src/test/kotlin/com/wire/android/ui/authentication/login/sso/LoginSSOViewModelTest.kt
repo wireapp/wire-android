@@ -18,15 +18,16 @@
 
 package com.wire.android.ui.authentication.login.sso
 
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestClient
-import com.wire.android.ui.authentication.login.LoginError
+import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -59,7 +60,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -68,15 +68,14 @@ import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.amshove.kluent.shouldNotBeInstanceOf
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class LoginSSOViewModelTest {
 
     @MockK
@@ -120,9 +119,6 @@ class LoginSSOViewModelTest {
     @MockK
     private lateinit var fetchSSOSettings: FetchSSOSettingsUseCase
 
-    @MockK(relaxed = true)
-    private lateinit var onSuccess: (Boolean, Boolean) -> Unit
-
     private lateinit var loginViewModel: LoginSSOViewModel
 
     private val userId: QualifiedID = QualifiedID("userId", "domain")
@@ -161,16 +157,16 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given empty string, when entering code, then button is disabled`() {
-        loginViewModel.onSSOCodeChange(TextFieldValue(String.EMPTY))
-        loginViewModel.loginState.ssoLoginEnabled shouldBeEqualTo false
-        loginViewModel.loginState.ssoLoginLoading shouldBeEqualTo false
+        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
+        loginViewModel.loginState.loginEnabled shouldBeEqualTo false
+        loginViewModel.loginState.flowState shouldNotBeInstanceOf LoginState.Loading::class
     }
 
     @Test
     fun `given non-empty string, when entering code, then button is enabled`() {
-        loginViewModel.onSSOCodeChange(TextFieldValue("abc"))
-        loginViewModel.loginState.ssoLoginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.ssoLoginLoading shouldBeEqualTo false
+        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd("abc")
+        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.flowState shouldNotBeInstanceOf LoginState.Loading::class
     }
 
     @Test
@@ -180,7 +176,7 @@ class LoginSSOViewModelTest {
         val url = "https://wire.com/sso"
         coEvery { ssoInitiateLoginUseCase(param) } returns SSOInitiateLoginResult.Success(url)
         every { validateEmailUseCase(any()) } returns false
-        loginViewModel.onSSOCodeChange(TextFieldValue(ssoCode))
+        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd(ssoCode)
         loginViewModel.login()
         advanceUntilIdle()
         // loginViewModel.openWebUrl.firstOrNull() shouldBe url
@@ -195,7 +191,7 @@ class LoginSSOViewModelTest {
 
             loginViewModel.login()
             advanceUntilIdle()
-            loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.TextFieldError.InvalidValue>()
         }
 
     @Test
@@ -206,7 +202,7 @@ class LoginSSOViewModelTest {
         loginViewModel.login()
         advanceUntilIdle()
 
-        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCodeError::class
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidSSOCodeError>()
     }
 
     @Test
@@ -218,11 +214,9 @@ class LoginSSOViewModelTest {
             loginViewModel.login()
             advanceUntilIdle()
 
-            loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.GenericError::class
-            with(loginViewModel.loginState.loginError as LoginError.DialogError.GenericError) {
-                coreFailure shouldBeInstanceOf CoreFailure.Unknown::class
-                with(coreFailure as CoreFailure.Unknown) {
-                    this.rootCause shouldBeInstanceOf IllegalArgumentException::class
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+                it.coreFailure.shouldBeInstanceOf<CoreFailure.Unknown>().let {
+                    it.rootCause.shouldBeInstanceOf<IllegalArgumentException>()
                 }
             }
         }
@@ -236,8 +230,9 @@ class LoginSSOViewModelTest {
         loginViewModel.login()
         advanceUntilIdle()
 
-        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.GenericError::class
-        (loginViewModel.loginState.loginError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+            it.coreFailure shouldBe networkFailure
+        }
     }
 
     @Test
@@ -256,13 +251,16 @@ class LoginSSOViewModelTest {
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(false)
 
-        loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id, onSuccess)
+        loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id)
         advanceUntilIdle()
 
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-        coVerify(exactly = 1) { onSuccess(false, false) }
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
+            it.initialSyncCompleted shouldBe false
+            it.isE2EIRequired shouldBe false
+        }
     }
 
     @Test
@@ -282,14 +280,17 @@ class LoginSSOViewModelTest {
             coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
             every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
 
-            loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id, onSuccess)
+            loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id)
             advanceUntilIdle()
 
-        coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-        coVerify(exactly = 1) { onSuccess(true, false) }
-    }
+            coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
+            coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
+            coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
+                it.initialSyncCompleted shouldBe true
+                it.isE2EIRequired shouldBe false
+            }
+        }
 
     @Test
     fun `given establishSSOSession is called, when SSOLoginSessionResult return InvalidCookie, then SSOLoginResult fails`() = runTest {
@@ -306,31 +307,30 @@ class LoginSSOViewModelTest {
         )
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
 
-        loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id, onSuccess)
+        loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id)
         advanceUntilIdle()
-        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidSSOCookie>()
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
         coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-        verify(exactly = 0) { onSuccess(any(), any()) }
     }
 
     @Test
     fun `given HandleSSOResult is called, when ssoResult is null, then loginSSOError state should be none`() =
         runTest {
-            loginViewModel.handleSSOResult(null, onSuccess)
+            loginViewModel.handleSSOResult(null)
             advanceUntilIdle()
-            loginViewModel.loginState.loginError shouldBeEqualTo LoginError.None
+            loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Error>()
         }
 
     @Test
     fun `given HandleSSOResult is called, when ssoResult is failure, then loginSSOError state should be dialog error`() =
         runTest {
-            loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown), onSuccess)
+            loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown))
             advanceUntilIdle()
-            loginViewModel.loginState.loginError shouldBeEqualTo LoginError.DialogError.SSOResultError(
-                SSOFailureCodes.Unknown
-            )
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.SSOResultError>().let {
+                it.result shouldBe SSOFailureCodes.Unknown
+            }
         }
 
     @Test
@@ -350,10 +350,10 @@ class LoginSSOViewModelTest {
             coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
             every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
 
-            loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", ""), onSuccess)
+            loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", ""))
             advanceUntilIdle()
 
-            verify(exactly = 1) { onSuccess(any(), any()) }
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
         }
 
     @Test
@@ -369,14 +369,13 @@ class LoginSSOViewModelTest {
                 )
             } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
-            loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id, onSuccess)
+            loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id)
             advanceUntilIdle()
 
-            loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.UserAlreadyExists>()
             coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
             coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
             coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-            verify(exactly = 0) { onSuccess(any(), any()) }
         }
 
     @Test
@@ -397,23 +396,22 @@ class LoginSSOViewModelTest {
                 getOrRegisterClientUseCase(any())
             } returns RegisterClientResult.Failure.TooManyClients
 
-            loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id, onSuccess)
+            loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id)
             advanceUntilIdle()
 
-            loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.TooManyDevicesError::class
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.TooManyDevicesError>()
 
-        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-        verify(exactly = 0) { onSuccess(any(), any()) }
-    }
+            coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
+            coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
+            coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
+        }
 
     @Test
     fun `given email, when clicking login, then start the domain lookup flow`() = runTest {
         val expected = newServerConfig(2).links
         every { validateEmailUseCase(any()) } returns true
         coEvery { authenticationScope.domainLookup(any()) } returns DomainLookupUseCase.Result.Success(expected)
-        loginViewModel.onSSOCodeChange(TextFieldValue("email@wire.com"))
+        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd("email@wire.com")
 
         loginViewModel.domainLookupFlow()
         advanceUntilIdle()
@@ -491,16 +489,16 @@ class LoginSSOViewModelTest {
         val expected = CoreFailure.Unknown(IOException())
         every { validateEmailUseCase(any()) } returns true
         coEvery { authenticationScope.domainLookup(any()) } returns DomainLookupUseCase.Result.Failure(expected)
-        loginViewModel.onSSOCodeChange(TextFieldValue("email@wire.com"))
+        loginViewModel.ssoTextState.setTextAndPlaceCursorAtEnd("email@wire.com")
 
         loginViewModel.domainLookupFlow()
         advanceUntilIdle()
 
         coVerify(exactly = 1) { authenticationScope.domainLookup("email@wire.com") }
         loginViewModel.loginState.customServerDialogState shouldBe null
-        assertTrue(loginViewModel.loginState.loginError is LoginError.DialogError.GenericError)
-        assertEquals(expected, (loginViewModel.loginState.loginError as LoginError.DialogError.GenericError).coreFailure)
-        assertFalse(loginViewModel.loginState.ssoLoginLoading)
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+            it.coreFailure shouldBe expected
+        }
     }
 
     companion object {

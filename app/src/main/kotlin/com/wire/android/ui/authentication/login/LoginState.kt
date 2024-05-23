@@ -18,39 +18,30 @@
 
 package com.wire.android.ui.authentication.login
 
-import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.android.ui.common.dialogs.CustomServerDialogState
-import com.wire.kalium.logic.data.auth.login.ProxyCredentials
+import com.wire.android.util.deeplink.SSOFailureCodes
+import com.wire.kalium.logic.CoreFailure
 
-data class LoginState(
-    val userIdentifier: TextFieldValue = TextFieldValue(""),
-    val userIdentifierEnabled: Boolean = true,
-    val password: TextFieldValue = TextFieldValue(""),
-    val userInput: TextFieldValue = TextFieldValue(""),
-    val proxyIdentifier: TextFieldValue = TextFieldValue(""),
-    val proxyPassword: TextFieldValue = TextFieldValue(""),
-    val ssoLoginLoading: Boolean = false,
-    val emailLoginLoading: Boolean = false,
-    val ssoLoginEnabled: Boolean = false,
-    val emailLoginEnabled: Boolean = false,
-    val isProxyAuthRequired: Boolean = false,
-    val loginError: LoginError = LoginError.None,
-    val isProxyEnabled: Boolean = false,
-    val customServerDialogState: CustomServerDialogState? = null,
-) {
-    fun getProxyCredentials(): ProxyCredentials? =
-        if (proxyIdentifier.text.isNotBlank() && proxyPassword.text.isNotBlank()) {
-            ProxyCredentials(proxyIdentifier.text, proxyPassword.text)
-        } else {
-            null
+sealed class LoginState {
+    data object Default : LoginState()
+    data object Loading : LoginState()
+    data class Success(val initialSyncCompleted: Boolean, val isE2EIRequired: Boolean) : LoginState()
+    sealed class Error : LoginState() {
+        sealed class TextFieldError : Error() {
+            data object InvalidValue : TextFieldError()
         }
+        sealed class DialogError : Error() {
+            data class GenericError(val coreFailure: CoreFailure) : DialogError()
+            data object InvalidCredentialsError : DialogError()
+            data object ProxyError : DialogError()
+            data object InvalidSSOCookie : DialogError()
+            data object InvalidSSOCodeError : DialogError()
+            data object UserAlreadyExists : DialogError()
+            data object PasswordNeededToRegisterClient : DialogError()
+            data class SSOResultError(val result: SSOFailureCodes) :
+                DialogError()
+            data object ServerVersionNotSupported: DialogError()
+            data object ClientUpdateRequired: DialogError()
+        }
+        data object TooManyDevicesError : Error()
+    }
 }
-
-fun LoginState.updateEmailLoginEnabled() =
-    copy(
-        emailLoginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !emailLoginLoading &&
-                (!isProxyAuthRequired || (isProxyAuthRequired && proxyIdentifier.text.isNotEmpty() && proxyPassword.text.isNotEmpty()))
-    )
-
-fun LoginState.updateSSOLoginEnabled() =
-    copy(ssoLoginEnabled = userInput.text.isNotEmpty() && !ssoLoginLoading)

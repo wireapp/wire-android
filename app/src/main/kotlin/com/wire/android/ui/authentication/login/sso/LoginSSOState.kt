@@ -15,16 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.authentication.login.sso
 
-package com.wire.android.ui.authentication.verificationcode
+import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.common.dialogs.CustomServerDialogState
 
-data class VerificationCodeState(
-    val codeLength: Int = DEFAULT_VERIFICATION_CODE_LENGTH,
-    val emailUsed: String = "",
-    val isCodeInputNecessary: Boolean = false,
-    val isCurrentCodeInvalid: Boolean = false,
-) {
-    companion object {
-        const val DEFAULT_VERIFICATION_CODE_LENGTH = 6
-    }
-}
+data class LoginSSOState(
+    val loginEnabled: Boolean = false,
+    val flowState: LoginState = LoginState.Default,
+    val customServerDialogState: CustomServerDialogState? = null,
+)

@@ -80,7 +80,7 @@
     <string name="label_user_blocked">Blockiert</string>
     <string name="label_and">und</string>
     <string name="label_retry">Wiederholen</string>
-    <string name="label_draft">*Draft*</string>
+    <string name="label_draft">*Entwurf*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Passwort anzeigen</string>
@@ -185,8 +185,12 @@
     <string name="app_settings_screen_title">App-Einstellungen</string>
     <string name="give_feedback_screen_title">Feedback geben</string>
     <string name="report_bug_screen_title">Fehler melden</string>
+    <string name="about_app_screen_title">About This App</string>
+    <string name="settings_privacy_policy_label">Privacy Policy</string>
+    <string name="settings_terms_of_use_label">Terms of Use</string>
+    <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Einstellungen zur Fehlerbehebung</string>
-    <string name="item_dependencies_title">Dependencies:</string>
+    <string name="item_dependencies_title">Abhängigkeiten:</string>
     <string name="support_screen_title">Hilfe</string>
     <string name="backup_and_restore_screen_title">Unterhaltungen sichern &amp; wiederherstellen</string>
     <string name="search_bar_conversations_hint">Unterhaltungen suchen</string>
@@ -732,6 +736,11 @@
     <!-- Search Contact-->
     <string name="label_contacts">KONTAKTE</string>
     <string name="label_new_group">Neue Gruppe</string>
+    <string name="label_create_new_group">Neue Gruppe erstellen</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d Teilnehmer</item>
+        <item quantity="other">%1$d Teilnehmer</item>
+    </plurals>
     <string name="label_new_conversation">Neue Unterhaltung</string>
     <string name="label_search_people">Personen suchen</string>
     <string name="label_public_wire">ÖFFENTLICHES WIRE</string>
@@ -753,6 +762,7 @@
     <string name="error_no_network_message">Bitte Internetverbindung überprüfen und erneut versuchen</string>
     <string name="error_downloading_self_user_profile_picture">Beim Herunterladen Ihres Profilbildes ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung</string>
     <string name="error_uploading_user_avatar">Bild konnte nicht hochgeladen werden</string>
+    <string name="error_process_user_avatar">Picture could not be processed</string>
     <string name="error_uploading_image_message">Bild konnte nicht hochgeladen werden</string>
     <string name="error_downloading_image_message">Bild konnte nicht heruntergeladen werden</string>
     <string name="error_updating_muting_setting">Benachrichtigungen konnten nicht aktualisiert werden</string>
@@ -784,6 +794,7 @@
     <string name="dialog_archive_conversation_option">Archivieren</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Unterhaltung öffnen</string>
+    <string name="label_start_conversation">Unterhaltung beginnen</string>
     <string name="email_label">E-Mail-Adresse</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
@@ -808,6 +819,7 @@
     <string name="notification_group_call_content">%s ruft an...</string>
     <string name="notification_call_default_caller_name">Jemand</string>
     <string name="notification_call_default_group_name">Eingehender Gruppenanruf</string>
+    <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Konstante Bitrate</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
@@ -842,6 +854,8 @@
     <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Zurück zum Anruf</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s ruft an…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">%1$s anrufen…</string>
     <string name="connectivity_status_bar_connecting">Entschlüsseln von Nachrichten</string>
     <string name="connectivity_status_bar_waiting_for_network">Warten auf Netzwerk</string>
     <!-- Connections -->
@@ -866,6 +880,9 @@
     <string name="connection_label_ignore">Ignorieren</string>
     <string name="connection_label_send_unverified_warning">Verschaffen Sie sich Gewissheit über die Identität von %s, bevor Sie den Kontakt hinzufügen.</string>
     <string name="connection_label_received_unverified_warning">Bitte überprüfen Sie die Identität der Person, bevor Sie die Kontaktanfrage annehmen.</string>
+    <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_title">Unterhaltung kann nicht beginnen</string>
+    <string name="missing_keypackage_dialog_body">Sie können die Unterhaltung mit %1$s im Moment nicht beginnen. %1$s muss Wire zuerst öffnen oder sich neu anmelden. Bitte versuchen Sie es später noch einmal.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Mediengalerie</string>
     <string name="media_gallery_on_image_downloaded">Im Download-Ordner gespeichert</string>
@@ -961,6 +978,8 @@
     <string name="settings_show_typing_indicator_title">Eingabeanzeige</string>
     <string name="settings_show_typing_indicator_description">Wenn diese Option deaktiviert ist, können Sie nicht sehen, wenn andere Personen tippen, und andere sehen nicht, wenn Sie tippen. Gilt für alle Unterhaltungen auf diesem Gerät.</string>
     <string name="settings_app_lock_title">Mit Kennwort sperren</string>
+    <string name="settings_send_anonymous_usage_data_title">Anonyme Nutzungsdaten senden</string>
+    <string name="settings_send_anonymous_usage_data_description">Anhand der Nutzungsdaten kann Wire verstehen, wie die App genutzt wird und wie sie verbessert werden kann. Die Daten sind anonym und umfassen nicht den Inhalt Ihrer Kommunikation (wie Nachrichten, Dateien, Standorte oder Anrufe).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Kennwort der App-Sperre festlegen</string>
     <string name="settings_set_lock_screen_description">Die App wird nach %1$s der Inaktivität gesperrt. Um die App zu entsperren, müssen Sie dieses Kennwort eingeben oder die biometrische Authentifizierung verwenden.\n\n Bitte merken Sie sich unbedingt das Kennwort, da es keine Möglichkeit gibt, es wiederherzustellen.</string>
@@ -1011,7 +1030,7 @@
     <string name="custom_backend_dialog_body_backend_name">Backend-Name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend-URL:</string>
     <string name="custom_backend_dialog_body_backend_proxy_url">Proxy-URL:</string>
-    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy-Authentifizierung:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">Blacklist-URL:</string>
     <string name="custom_backend_dialog_body_backend_teams">Teams-URL:</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts-URL:</string>
@@ -1358,7 +1377,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="legal_hold_system_message_disabled_others">Gesetzliche Aufbewahrung deaktiviert für %1$s.</string>
     <string name="legal_hold_system_message_disabled_conversation">Gesetzlichen Aufbewahrung ist für diese Unterhaltung nicht mehr aktiv.</string>
     <string name="legal_hold_system_message_enabled_conversation">Gesetzlichen Aufbewahrung ist für diese Unterhaltung aktiv.</string>
-    <string name="legal_hold_system_message_interaction_disabled">You can’t write messages with this user, as they are not part of your team and one of you is subject to legal hold. Once legal hold is deactivated, you can write messages again.</string>
+    <string name="legal_hold_system_message_interaction_disabled">Sie können mit dieser Person keine Nachrichten austauschen, da sie nicht zu Ihrem Team gehört und einer von Ihnen der gesetzlichen Aufbewahrung unterliegt. Sobald die gesetzliche Aufbewahrung aufgehoben ist, können Sie wieder Nachrichten schreiben.</string>
     <!-- Sure want to send message Dialog -->
     <string name="sure_about_messaging_dialog_title">Unterhaltung nicht mehr überprüft</string>
     <string name="sure_about_messaging_dialog_body">Mindestens ein Teilnehmer hat begonnen, ein neues Gerät zu verwenden oder hat ein ungültiges Zertifikat.\n\nMöchten Sie die Nachricht trotzdem senden?</string>

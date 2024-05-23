@@ -187,6 +187,10 @@
     <string name="app_settings_screen_title">Ustawienia Aplikacji</string>
     <string name="give_feedback_screen_title">Przeka&#380; Opini&#281;</string>
     <string name="report_bug_screen_title">Zg&#322;o&#347; B&#322;&#261;d</string>
+    <string name="about_app_screen_title">About This App</string>
+    <string name="settings_privacy_policy_label">Privacy Policy</string>
+    <string name="settings_terms_of_use_label">Terms of Use</string>
+    <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Ustawienia debugowania</string>
     <string name="item_dependencies_title">Dependencies:</string>
     <string name="support_screen_title">Pomoc</string>
@@ -767,6 +771,13 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <!-- Search Contact-->
     <string name="label_contacts">KONTAKTY</string>
     <string name="label_new_group">Nowa grupa</string>
+    <string name="label_create_new_group">Create New Group</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d Participant</item>
+        <item quantity="few">%1$d Participants</item>
+        <item quantity="many">%1$d Participants</item>
+        <item quantity="other">%1$d Participants</item>
+    </plurals>
     <string name="label_new_conversation">Nowa rozmowa</string>
     <string name="label_search_people">Szukaj ludzi</string>
     <string name="label_public_wire">PUBLICZNA ROZMOWA</string>
@@ -788,6 +799,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="error_no_network_message">Sprawd&#378; swoje po&#322;&#261;czenie internetowe i spr&#243;buj ponownie.</string>
     <string name="error_downloading_self_user_profile_picture">Wyst&#261;pi&#322; b&#322;&#261;d podczas pobierania twojego zdj&#281;cia profilowego. Sprawd&#378; swoje po&#322;&#261;czenie internetowe.</string>
     <string name="error_uploading_user_avatar">Nie mo&#380;na przes&#322;a&#263; zdj&#281;cia.</string>
+    <string name="error_process_user_avatar">Picture could not be processed</string>
     <string name="error_uploading_image_message">Nie uda&#322;o si&#281; przes&#322;a&#263; obrazu.</string>
     <string name="error_downloading_image_message">Nie uda&#322;o si&#281; pobra&#263; obrazu.</string>
     <string name="error_updating_muting_setting">Nie uda&#322;o si&#281; zaktualizowa&#263; ustawie&#324; powiadomie&#324;.</string>
@@ -819,6 +831,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Otw&#243;rz konwersacj&#281;</string>
+    <string name="label_start_conversation">Start Conversation</string>
     <string name="email_label">E-mail</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
@@ -843,6 +856,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="notification_group_call_content">%s dzwoni...</string>
     <string name="notification_call_default_caller_name">Kto&#347;</string>
     <string name="notification_call_default_group_name">Po&#322;&#261;czenie grupowe przychodz&#261;ce</string>
+    <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
@@ -879,6 +893,8 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Powr&#243;t do rozmowy</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s is calling…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">Calling %1$s…</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Oczekiwanie na po&#322;&#261;czenie</string>
     <!-- Connections -->
@@ -903,6 +919,9 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="connection_label_ignore">Zignoruj</string>
     <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
+    <string name="missing_keypackage_dialog_body">You can’t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galeria multimedi&#243;w</string>
     <string name="media_gallery_on_image_downloaded">Zapisane do folderu Pobrane</string>
@@ -995,6 +1014,8 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lock with passcode</string>
+    <string name="settings_send_anonymous_usage_data_title">Send anonymous usage data</string>
+    <string name="settings_send_anonymous_usage_data_description">Usage data allows Wire to understand how the app is being used and how it can be improved. The data is anonymous and does not include the content of your communications (such as messages, files, locations, or calls).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Set app lock passcode</string>
     <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>

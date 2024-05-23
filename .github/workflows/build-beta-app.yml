@@ -44,9 +44,16 @@ jobs:
           echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/key.keystore
       - name: Make gradlew executable
         run: chmod +x ./gradlew
-      - name: Build beta flavour
+      - name: Build beta flavour APK
         run:
-          ./gradlew app:assembleBetaRelease -p ./ --no-daemon |
+          ./gradlew app:assembleBetaRelease -p ./ --no-daemon
+        env:
+          KEYSTORE_KEY_NAME_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}
+          KEYPWD_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}
+          KEYSTOREPWD_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}
+          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+      - name: Build beta flavour Bundle
+        run:
           ./gradlew app:bundleBetaRelease -p ./ --no-daemon
         env:
           KEYSTORE_KEY_NAME_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}

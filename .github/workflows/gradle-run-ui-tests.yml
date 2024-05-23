@@ -4,7 +4,7 @@ on:
   merge_group:
   push:
     branches:
-#      - develop
+      - develop
       - release/candidate
       - prod
       - internal
@@ -12,7 +12,7 @@ on:
   pull_request:
     types: [ opened, synchronize ] # Don't rerun on `edited` to save time
     branches:
-#      - develop
+      - develop
       - release/candidate
       - prod
       - internal

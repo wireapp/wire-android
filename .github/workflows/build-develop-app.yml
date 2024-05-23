@@ -11,13 +11,12 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  #  code-analysis:
-  #    uses: ./.github/workflows/code-analysis.yml
-  #  unit-tests:
-  #    needs: [ detekt ]
-  #    uses: ./.github/workflows/gradle-run-unit-tests.yml
+  code-analysis:
+    uses: ./.github/workflows/code-analysis.yml
+  unit-tests:
+    uses: ./.github/workflows/gradle-run-unit-tests.yml
   build-app:
-#    needs: [ detekt ]
+    needs: [ unit-tests, code-analysis ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

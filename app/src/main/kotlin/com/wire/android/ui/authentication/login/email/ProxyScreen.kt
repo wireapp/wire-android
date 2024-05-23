@@ -49,14 +49,15 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun ProxyContent(
+fun ProxyScreen(
     proxyIdentifierState: TextFieldState,
     proxyPasswordState: TextFieldState,
     proxyState: LoginEmailState,
     apiProxyUrl: String?,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
     ) {
         HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
         Text(
@@ -139,7 +140,7 @@ private fun ProxyPasswordInput(
 @PreviewMultipleThemes
 @Composable
 fun PreviewProxyContent() = WireTheme {
-    ProxyContent(
+    ProxyScreen(
         proxyState = LoginEmailState(),
         apiProxyUrl = "",
         proxyIdentifierState = TextFieldState(),

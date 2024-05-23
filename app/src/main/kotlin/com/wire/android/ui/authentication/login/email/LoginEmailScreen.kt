@@ -183,7 +183,7 @@ private fun LoginEmailContent(
                 forgotPasswordUrl = forgotPasswordUrl
             )
             if (isProxyAuthRequired) {
-                ProxyContent(
+                ProxyScreen(
                     proxyIdentifierState = proxyIdentifierState,
                     proxyPasswordState = proxyPasswordState,
                     proxyState = loginEmailState,

@@ -105,7 +105,9 @@ fun LoginScreen(
 
             navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
         },
-        onRemoveDeviceNeeded = { navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE)) },
+        onRemoveDeviceNeeded = {
+            navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+        },
         loginEmailViewModel = loginEmailViewModel,
         ssoLoginResult = loginNavArgs.ssoLoginResult
     )
@@ -129,8 +131,11 @@ private fun LoginContent(
             targetState = loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
             transitionSpec = { TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition) }
         ) { isCodeInputNecessary ->
-            if (isCodeInputNecessary) LoginEmailVerificationCodeScreen(loginEmailViewModel)
-            else MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, ssoLoginResult)
+            if (isCodeInputNecessary) {
+                LoginEmailVerificationCodeScreen(loginEmailViewModel)
+            } else {
+                MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, ssoLoginResult)
+            }
         }
     }
 }

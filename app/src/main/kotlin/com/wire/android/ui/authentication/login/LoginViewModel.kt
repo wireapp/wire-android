@@ -21,7 +21,6 @@ package com.wire.android.ui.authentication.login
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
@@ -46,7 +45,6 @@ import javax.inject.Inject
 @HiltViewModel
 @Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     protected val authServerConfigProvider: AuthServerConfigProvider,
     private val userDataStoreProvider: UserDataStoreProvider,

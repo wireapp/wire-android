@@ -39,8 +39,8 @@ sealed class LoginState {
             data object PasswordNeededToRegisterClient : DialogError()
             data class SSOResultError(val result: SSOFailureCodes) :
                 DialogError()
-            data object ServerVersionNotSupported: DialogError()
-            data object ClientUpdateRequired: DialogError()
+            data object ServerVersionNotSupported : DialogError()
+            data object ClientUpdateRequired : DialogError()
         }
         data object TooManyDevicesError : Error()
     }

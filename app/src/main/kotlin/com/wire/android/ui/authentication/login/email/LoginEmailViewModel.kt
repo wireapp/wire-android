@@ -70,7 +70,6 @@ class LoginEmailViewModel @Inject constructor(
     @KaliumCoreLogic coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider
 ) : LoginViewModel(
-    savedStateHandle,
     clientScopeProviderFactory,
     authServerConfigProvider,
     userDataStoreProvider,
@@ -92,8 +91,11 @@ class LoginEmailViewModel @Inject constructor(
 
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
-            if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) preFilledUserIdentifier.userIdentifier
-            else savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+            if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
+                preFilledUserIdentifier.userIdentifier
+            } else {
+                savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+            }
         )
         viewModelScope.launch {
             combine(

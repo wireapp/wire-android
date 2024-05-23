@@ -67,7 +67,6 @@ class LoginSSOViewModel @Inject constructor(
     authServerConfigProvider: AuthServerConfigProvider,
     userDataStoreProvider: UserDataStoreProvider
 ) : LoginViewModel(
-    savedStateHandle,
     clientScopeProviderFactory,
     authServerConfigProvider,
     userDataStoreProvider,

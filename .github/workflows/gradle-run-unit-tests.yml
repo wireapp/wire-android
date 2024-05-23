@@ -6,7 +6,7 @@ permissions:
   contents: read
 
 jobs:
-  build-app:
+  testCoverage:
     runs-on: buildjet-8vcpu-ubuntu-2204
     steps:
       - name: Checkout

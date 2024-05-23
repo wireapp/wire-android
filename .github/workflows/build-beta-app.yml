@@ -3,11 +3,11 @@ name: "Bbeta app"
 on:
   push:
     branches:
-      - main
+      - develop
   merge_group:
   pull_request:
     branches:
-      - main
+      - develop
     types: [ opened, synchronize ]
   workflow_call:
 
@@ -19,11 +19,10 @@ jobs:
   code-analysis:
     uses: ./.github/workflows/code-analysis.yml
   unit-tests:
-    needs: [ code-analysis ]
     uses: ./.github/workflows/gradle-run-unit-tests.yml
   build-app:
-    needs: [ unit-tests ]
-    runs-on: buildjet-8vcpu-ubuntu-2204
+    needs: [ unit-tests, code-analysis ]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4

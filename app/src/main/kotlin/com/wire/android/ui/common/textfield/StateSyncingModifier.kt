@@ -17,8 +17,6 @@
  */
 package com.wire.android.ui.common.textfield
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
@@ -56,7 +54,6 @@ internal class StateSyncingModifier(
     override fun InspectorInfo.inspectableProperties() {}
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @PackagePrivate
 internal class StateSyncingModifierNode(
     private val state: TextFieldState,
@@ -67,12 +64,12 @@ internal class StateSyncingModifierNode(
 
     fun update(value: TextFieldValue, onValueChanged: (TextFieldValue) -> Unit) {
         this.onValueChanged = onValueChanged
-        if (value.text != state.text.toString() || value.selection != state.text.selection) {
+        if (value.text != state.text.toString() || value.selection != state.selection) {
             state.edit {
                 if (value.text != state.text.toString()) {
                     replace(0, length, value.text)
                 }
-                if (value.selection != state.text.selection) {
+                if (value.selection != state.selection) {
                     selection = value.selection
                 }
             }
@@ -89,9 +86,9 @@ internal class StateSyncingModifierNode(
     }
 
     private fun observeTextState(fireOnValueChanged: Boolean = true) {
-        lateinit var text: TextFieldCharSequence
+        lateinit var text: TextFieldState
         observeReads {
-            text = state.text
+            text = state
         }
         if (fireOnValueChanged) {
             val newValue = TextFieldValue(

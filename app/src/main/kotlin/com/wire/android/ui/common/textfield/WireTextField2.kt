@@ -19,7 +19,6 @@
 package com.wire.android.ui.common.textfield
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,7 +29,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -68,7 +66,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
  * which take TextFieldValue or String with onValueChange callback are the previous generation ones.
  * This hybrid is created to allow us to still pass TextFieldValue and onValueChange callback but already use the new text input version.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun WireTextField2(
     value: TextFieldValue,
@@ -88,7 +85,6 @@ internal fun WireTextField2(
         capitalization = KeyboardCapitalization.Sentences,
         autoCorrect = true
     ),
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
     scrollState: ScrollState = rememberScrollState(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = MaterialTheme.wireTypography.body01,
@@ -116,7 +112,6 @@ internal fun WireTextField2(
             state = textState,
             textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
             keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
             lineLimits = lineLimits,
             inputTransformation = InputTransformation.maxLength(maxTextLength),
             scrollState = scrollState,
@@ -159,7 +154,7 @@ internal fun WireTextField2(
             },
             onTextLayout = {
                 it()?.let {
-                    val lineOfText = it.getLineForOffset(textState.text.selection.end)
+                    val lineOfText = it.getLineForOffset(textState.selection.end)
                     val bottomYCoordinate = it.getLineBottom(lineOfText)
                     onSelectedLineIndexChanged(lineOfText)
                     onLineBottomYCoordinateChanged(bottomYCoordinate)

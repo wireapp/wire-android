@@ -99,16 +99,6 @@ class CurrentScreenManager @Inject constructor(
      */
     fun isAppVisibleFlow(): StateFlow<Boolean> = isApplicationVisibleFlow
 
-    override fun onResume(owner: LifecycleOwner) {
-        super.onResume(owner)
-        appLogger.i("${TAG}: onResume called")
-    }
-
-    override fun onPause(owner: LifecycleOwner) {
-        super.onPause(owner)
-        appLogger.i("${TAG}: onPause called")
-    }
-
     override fun onStart(owner: LifecycleOwner) {
         super.onStart(owner)
         appLogger.i("${TAG}: onStart called")

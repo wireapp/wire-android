@@ -70,6 +70,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 internal fun WireTextField2(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
     placeholderText: String? = null,
     labelText: String? = null,
     labelMandatoryIcon: Boolean = false,
@@ -93,7 +94,6 @@ internal fun WireTextField2(
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
-    modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
     shouldDetectTaps: Boolean = false,

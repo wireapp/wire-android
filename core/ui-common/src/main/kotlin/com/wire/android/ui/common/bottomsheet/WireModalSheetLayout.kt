@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -91,5 +92,46 @@ fun MenuModalSheetContent(
     Column {
         ModalSheetHeaderItem(header = header)
         buildMenuSheetItems(items = menuItems)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WireModalSheetLayout2(
+    sheetState: SheetState,
+    coroutineScope: CoroutineScope,
+    sheetContent: @Composable ColumnScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    sheetShape: Shape = WireBottomSheetDefaults.WireBottomSheetShape,
+    containerColor: Color = WireBottomSheetDefaults.WireSheetContainerColor,
+    contentColor: Color = WireBottomSheetDefaults.WireSheetContentColor,
+    tonalElevation: Dp = WireBottomSheetDefaults.WireSheetTonalElevation,
+    scrimColor: Color = BottomSheetDefaults.ScrimColor,
+    dragHandle: @Composable (() -> Unit)? = { WireBottomSheetDefaults.WireDragHandle() },
+    onCloseBottomSheet: () -> Unit
+) {
+    ModalBottomSheet(
+        sheetState = sheetState,
+        shape = sheetShape,
+        content = sheetContent,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        scrimColor = scrimColor,
+        tonalElevation = tonalElevation,
+        onDismissRequest = {
+            coroutineScope.launch {
+                sheetState.hide()
+            }
+        },
+        dragHandle = dragHandle,
+        modifier = modifier.absoluteOffset(y = 1.dp)
+    )
+
+    BackHandler(enabled = sheetState.isVisible) {
+        coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                onCloseBottomSheet()
+            }
+        }
     }
 }

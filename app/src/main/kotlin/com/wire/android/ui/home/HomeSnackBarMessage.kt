@@ -18,21 +18,68 @@
 
 package com.wire.android.ui.home
 
-// TODO change to extend [SnackBarMessage]
-sealed class HomeSnackbarState {
-    object None : HomeSnackbarState()
-    data class ClearConversationContentSuccess(val isGroup: Boolean) : HomeSnackbarState()
-    data class ClearConversationContentFailure(val isGroup: Boolean) : HomeSnackbarState()
+import com.wire.android.R
+import com.wire.android.model.SnackBarMessage
+import com.wire.android.util.ui.UIText
 
-    class SuccessConnectionIgnoreRequest(val userName: String) : HomeSnackbarState()
-    object MutingOperationError : HomeSnackbarState()
-    object BlockingUserOperationError : HomeSnackbarState()
-    data class BlockingUserOperationSuccess(val userName: String) : HomeSnackbarState()
-    object UnblockingUserOperationError : HomeSnackbarState()
-    data class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackbarState()
-    object DeleteConversationGroupError : HomeSnackbarState()
-    object LeftConversationSuccess : HomeSnackbarState()
-    object LeaveConversationError : HomeSnackbarState()
-    data class UpdateArchivingStatusSuccess(val isArchiving: Boolean) : HomeSnackbarState()
-    data class UpdateArchivingStatusError(val isArchiving: Boolean) : HomeSnackbarState()
+sealed class HomeSnackBarMessage(override val uiText: UIText) : SnackBarMessage {
+
+    data class ClearConversationContentSuccess(val isGroup: Boolean) : HomeSnackBarMessage(
+        UIText.StringResource(
+            if (isGroup) {
+                R.string.group_content_deleted
+            } else {
+                R.string.conversation_content_deleted
+            }
+        )
+    )
+
+    data class ClearConversationContentFailure(val isGroup: Boolean) : HomeSnackBarMessage(
+        UIText.StringResource(
+            if (isGroup) {
+                R.string.group_content_delete_failure
+            } else {
+                R.string.conversation_content_delete_failure
+            }
+        )
+    )
+
+    class SuccessConnectionIgnoreRequest(val userName: String) :
+        HomeSnackBarMessage(UIText.StringResource(R.string.connection_request_ignored, userName))
+
+    data object MutingOperationError : HomeSnackBarMessage(UIText.StringResource(R.string.error_updating_muting_setting))
+    data object BlockingUserOperationError : HomeSnackBarMessage(UIText.StringResource(R.string.error_blocking_user))
+    data class BlockingUserOperationSuccess(val userName: String) :
+        HomeSnackBarMessage(UIText.StringResource(R.string.blocking_user_success, userName))
+
+    data object UnblockingUserOperationError : HomeSnackBarMessage(UIText.StringResource(R.string.error_unblocking_user))
+    data class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackBarMessage(
+        UIText.StringResource(
+            R.string.conversation_group_removed_success,
+            groupName
+        )
+    )
+
+    data object DeleteConversationGroupError : HomeSnackBarMessage(UIText.StringResource(R.string.delete_group_conversation_error))
+    data object LeftConversationSuccess : HomeSnackBarMessage(UIText.StringResource(R.string.left_conversation_group_success))
+    data object LeaveConversationError : HomeSnackBarMessage(UIText.StringResource(R.string.leave_group_conversation_error))
+    data class UpdateArchivingStatusSuccess(val isArchiving: Boolean) : HomeSnackBarMessage(
+        UIText.StringResource(
+            if (isArchiving) {
+                R.string.success_archiving_conversation
+            } else {
+                R.string.success_unarchiving_conversation
+            }
+        )
+    )
+
+    data class UpdateArchivingStatusError(val isArchiving: Boolean) : HomeSnackBarMessage(
+        UIText.StringResource(
+            if (isArchiving) {
+                R.string.error_archiving_conversation
+            } else {
+                R.string.error_archiving_conversation
+            }
+        )
+    )
 }

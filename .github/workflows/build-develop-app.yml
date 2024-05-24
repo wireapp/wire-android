@@ -1,4 +1,4 @@
-name: "Develop app"
+name: "Develop build"
 on:
   push:
     branches:

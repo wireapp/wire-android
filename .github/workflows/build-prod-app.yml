@@ -1,4 +1,4 @@
-name: "Prod app"
+name: "Prod build"
 
 on:
   push:

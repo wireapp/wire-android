@@ -1,13 +1,13 @@
-name: "Release candidate app"
+name: "Release candidate build"
 
 on:
   push:
     branches:
-      - develop
+      - release/candidate
   merge_group:
   pull_request:
     branches:
-      - develop
+      - release/candidate
     types: [ opened, synchronize ]
   workflow_call:
 
@@ -16,12 +16,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-#  code-analysis:
-#    uses: ./.github/workflows/code-analysis.yml
-#  unit-tests:
-#    uses: ./.github/workflows/gradle-run-unit-tests.yml
+  code-analysis:
+    uses: ./.github/workflows/code-analysis.yml
+  unit-tests:
+    uses: ./.github/workflows/gradle-run-unit-tests.yml
   build-app:
-#    needs: [ unit-tests, code-analysis ]
+    needs: [ unit-tests, code-analysis ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

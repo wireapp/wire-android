@@ -19,6 +19,10 @@
 package com.wire.android.ui.common.textfield
 
 import androidx.compose.animation.AnimatedVisibility
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextFieldLayout.kt
+=======
+import androidx.compose.foundation.ScrollState
+>>>>>>> cc2339a1a (fix: swipe to reply activated too early (#3034)):app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextField2.kt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -30,7 +34,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextFieldLayout.kt
 import androidx.compose.foundation.text.input.TextFieldDecorator
+=======
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.rememberTextFieldState
+>>>>>>> cc2339a1a (fix: swipe to reply activated too early (#3034)):app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextField2.kt
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,10 +68,24 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import io.github.esentsov.PackagePrivate
 
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextFieldLayout.kt
 @PackagePrivate
 @Composable
 internal fun WireTextFieldLayout(
     shouldShowPlaceholder: Boolean,
+=======
+/**
+ * Hybrid text field that uses new BasicTextField2 which resolves multiple issues that old ones had. It's been renamed to BasicTextField
+ * as well in the newest compose version. The difference is that this new text field takes TextFieldState, all other BasicTextFields
+ * which take TextFieldValue or String with onValueChange callback are the previous generation ones.
+ * This hybrid is created to allow us to still pass TextFieldValue and onValueChange callback but already use the new text input version.
+ */
+@Composable
+internal fun WireTextField2(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+>>>>>>> cc2339a1a (fix: swipe to reply activated too early (#3034)):app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextField2.kt
     placeholderText: String? = null,
     labelText: String? = null,
     labelMandatoryIcon: Boolean = false,
@@ -66,14 +93,31 @@ internal fun WireTextFieldLayout(
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     state: WireTextFieldState = WireTextFieldState.Default,
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextFieldLayout.kt
+=======
+    maxLines: Int = 1,
+    singleLine: Boolean = true,
+    maxTextLength: Int = 8000,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        capitalization = KeyboardCapitalization.Sentences,
+        autoCorrect = true
+    ),
+    scrollState: ScrollState = rememberScrollState(),
+>>>>>>> cc2339a1a (fix: swipe to reply activated too early (#3034)):app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextField2.kt
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
     placeholderAlignment: Alignment.Horizontal = Alignment.Start,
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextFieldLayout.kt
     modifier: Modifier = Modifier,
     onTap: ((Offset) -> Unit)? = null,
+=======
+    onSelectedLineIndexChanged: (Int) -> Unit = { },
+    onLineBottomYCoordinateChanged: (Float) -> Unit = { },
+    shouldDetectTaps: Boolean = false,
+>>>>>>> cc2339a1a (fix: swipe to reply activated too early (#3034)):app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextField2.kt
     testTag: String = String.EMPTY,
     innerBasicTextField: InnerBasicTextFieldBuilder,
 ) {
@@ -81,6 +125,7 @@ internal fun WireTextFieldLayout(
         if (labelText != null) {
             Label(labelText, labelMandatoryIcon, state, interactionSource, colors)
         }
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextFieldLayout.kt
         innerBasicTextField(
             decorator = TextFieldDecorator { innerTextField ->
                 InnerTextLayout(
@@ -98,6 +143,21 @@ internal fun WireTextFieldLayout(
                 )
             },
             textFieldModifier = Modifier
+=======
+
+        BasicTextField(
+            state = textState,
+            textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
+            keyboardOptions = keyboardOptions,
+            lineLimits = lineLimits,
+            inputTransformation = InputTransformation.maxLength(maxTextLength),
+            scrollState = scrollState,
+            readOnly = readOnly,
+            enabled = state !is WireTextFieldState.Disabled,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            interactionSource = interactionSource,
+            modifier = Modifier
+>>>>>>> cc2339a1a (fix: swipe to reply activated too early (#3034)):app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextField2.kt
                 .fillMaxWidth()
                 .background(color = colors.backgroundColor(state).value, shape = shape)
                 .border(width = dimensions().spacing1x, color = colors.borderColor(state, interactionSource).value, shape = shape)
@@ -107,6 +167,40 @@ internal fun WireTextFieldLayout(
                     }
                 }
                 .testTag(testTag)
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextFieldLayout.kt
+=======
+                .then(
+                    StateSyncingModifier(
+                        state = textState,
+                        value = value,
+                        onValueChanged = onValueChange
+                    )
+                ),
+            decorator = { innerTextField ->
+                InnerText(
+                    innerTextField = innerTextField,
+                    shouldShowPlaceholder = textState.text.isEmpty(),
+                    leadingIcon = leadingIcon,
+                    trailingIcon = trailingIcon,
+                    placeholderText = placeholderText,
+                    state = state,
+                    placeholderTextStyle = placeholderTextStyle,
+                    placeholderAlignment = placeholderAlignment,
+                    inputMinHeight = inputMinHeight,
+                    colors = colors,
+                    shouldDetectTaps = shouldDetectTaps,
+                    onTap = onTap,
+                )
+            },
+            onTextLayout = {
+                it()?.let {
+                    val lineOfText = it.getLineForOffset(textState.selection.end)
+                    val bottomYCoordinate = it.getLineBottom(lineOfText)
+                    onSelectedLineIndexChanged(lineOfText)
+                    onLineBottomYCoordinateChanged(bottomYCoordinate)
+                }
+            }
+>>>>>>> cc2339a1a (fix: swipe to reply activated too early (#3034)):app/src/main/kotlin/com/wire/android/ui/common/textfield/WireTextField2.kt
         )
 
         val bottomText = when {

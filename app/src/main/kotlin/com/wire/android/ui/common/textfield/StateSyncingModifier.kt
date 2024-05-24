@@ -85,6 +85,7 @@ internal class StateSyncingModifierNode(
     }
 
     private fun observeTextState(fireOnValueChanged: Boolean = true) {
+<<<<<<< HEAD
         lateinit var value: TextFieldValue
 
         observeReads {
@@ -93,6 +94,11 @@ internal class StateSyncingModifierNode(
                 state.selection,
                 state.composition
             )
+=======
+        lateinit var text: TextFieldState
+        observeReads {
+            text = state
+>>>>>>> cc2339a1a (fix: swipe to reply activated too early (#3034))
         }
         if (fireOnValueChanged) {
             onValueChanged(value)

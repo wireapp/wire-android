@@ -20,6 +20,7 @@ package com.wire.android.util.lifecycle
 
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.isAppInForeground
 import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -36,8 +37,6 @@ import com.wire.kalium.logic.functional.isLeft
 import com.wire.kalium.logic.functional.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -68,13 +67,9 @@ class ConnectionPolicyManager @Inject constructor(
      */
     fun startObservingAppLifecycle() {
         CoroutineScope(dispatcherProvider.default()).launch {
-            combine(
-                currentScreenManager.isAppVisibleFlow(),
-                migrationManager.isMigrationCompletedFlow(),
-                ::Pair
-            ).collect { (isVisible, isMigrationCompleted) ->
+            migrationManager.isMigrationCompletedFlow().collect {isMigrationCompleted ->
                 if (isMigrationCompleted) {
-                    setPolicyForSessions(allValidSessions(), isVisible)
+                    setPolicyForSessions(allValidSessions(), isAppInForeground)
                 }
             }
         }
@@ -118,9 +113,7 @@ class ConnectionPolicyManager @Inject constructor(
     private suspend fun UserSessionScope.downgradePolicyIfNeeded(
         userId: UserId
     ) {
-        val isAppVisible = currentScreenManager.isAppVisibleFlow().first()
-        logger.d("$TAG isAppVisible = $isAppVisible")
-        if (!isAppVisible) {
+        if (!isAppInForeground) {
             logger.d("$TAG ${userId.toString().obfuscateId()} Downgrading policy as conditions to KEEP_ALIVE are not met")
             setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }

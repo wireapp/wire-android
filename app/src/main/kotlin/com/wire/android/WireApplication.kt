@@ -22,6 +22,10 @@ import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
 import android.os.StrictMode
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.datastore.GlobalDataStore
@@ -43,8 +47,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+var isAppInForeground = false
+
 @HiltAndroidApp
-class WireApplication : Application(), Configuration.Provider {
+class WireApplication : Application(), Configuration.Provider, LifecycleEventObserver {
 
     @Inject
     @KaliumCoreLogic
@@ -79,6 +85,7 @@ class WireApplication : Application(), Configuration.Provider {
         super.onCreate()
 
         enableStrictMode()
+        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
 
         globalAppScope.launch {
             initializeApplicationLoggingFrameworks()
@@ -93,6 +100,10 @@ class WireApplication : Application(), Configuration.Provider {
             appLogger.i("$TAG global observers")
             globalObserversManager.get().observe()
         }
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        isAppInForeground = event == Lifecycle.Event.ON_RESUME
     }
 
     private fun enableStrictMode() {

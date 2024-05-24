@@ -104,6 +104,11 @@ class CurrentScreenManager @Inject constructor(
         appLogger.i("${TAG}: onResume called")
     }
 
+    override fun onPause(owner: LifecycleOwner) {
+        super.onPause(owner)
+        appLogger.i("${TAG}: onPause called")
+    }
+
     override fun onStart(owner: LifecycleOwner) {
         super.onStart(owner)
         appLogger.i("${TAG}: onStart called")

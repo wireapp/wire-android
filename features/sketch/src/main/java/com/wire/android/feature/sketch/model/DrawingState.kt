@@ -17,12 +17,16 @@
  */
 package com.wire.android.feature.sketch.model
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
+@Stable
 internal data class DrawingState(
-    val paths: List<DrawingPathProperties> = listOf(),
-    val pathsUndone: List<DrawingPathProperties> = listOf(),
+    val paths: ImmutableList<DrawingPathProperties> = persistentListOf(),
+    val pathsUndone: ImmutableList<DrawingPathProperties> = persistentListOf(),
     val drawingMotionEvent: DrawingMotionEvent = DrawingMotionEvent.Idle,
     val currentPath: DrawingPathProperties = DrawingPathProperties(),
     val currentPosition: Offset = Offset.Unspecified,

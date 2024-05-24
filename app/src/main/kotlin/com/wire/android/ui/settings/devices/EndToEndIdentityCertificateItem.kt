@@ -202,7 +202,9 @@ fun PreviewEndToEndIdentityCertificateItem() {
             status = CertificateStatus.VALID,
             serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
             certificateDetail = "",
-            endAt = Instant.DISTANT_FUTURE
+            endAt = Instant.DISTANT_FUTURE,
+            userHandle = "userHandle",
+            thumbprint = "thumbprint",
         ),
         isLoadingCertificate = false,
         enrollE2eiCertificate = {},
@@ -220,7 +222,9 @@ fun PreviewEndToEndIdentityCertificateSelfItem() {
             status = CertificateStatus.VALID,
             serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
             certificateDetail = "",
-            endAt = Instant.DISTANT_FUTURE
+            endAt = Instant.DISTANT_FUTURE,
+            userHandle = "userHandle",
+            thumbprint = "thumbprint",
         ),
         isLoadingCertificate = false,
         enrollE2eiCertificate = {},

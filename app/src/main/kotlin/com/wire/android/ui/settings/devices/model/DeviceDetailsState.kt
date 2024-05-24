@@ -37,7 +37,9 @@ data class DeviceDetailsState(
         status = CertificateStatus.EXPIRED,
         serialNumber = "",
         certificateDetail = "",
-        endAt = Instant.DISTANT_FUTURE
+        endAt = Instant.DISTANT_FUTURE,
+        userHandle = "",
+        thumbprint = ""
     ),
     val canBeRemoved: Boolean = false,
     val isLoadingCertificate: Boolean = false,

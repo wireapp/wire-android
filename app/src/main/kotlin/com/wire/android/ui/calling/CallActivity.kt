@@ -152,6 +152,11 @@ class CallActivity : AppCompatActivity() {
         proximitySensorManager.unRegisterListener()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        lifecycle.removeObserver(currentScreenManager)
+    }
+
     companion object {
         private const val TAG = "CallActivity"
         const val EXTRA_CONVERSATION_ID = "conversation_id"

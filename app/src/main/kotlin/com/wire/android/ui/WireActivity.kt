@@ -281,6 +281,11 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        lifecycle.removeObserver(currentScreenManager)
+    }
+
     @Composable
     private fun handleScreenshotCensoring() {
         LaunchedEffect(viewModel.globalAppState.screenshotCensoringEnabled) {

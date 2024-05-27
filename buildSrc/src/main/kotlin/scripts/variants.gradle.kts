@@ -73,7 +73,7 @@ android {
     val enableSigning = System.getenv("ENABLE_SIGNING").equals("TRUE", true)
     if (enableSigning) {
         signingConfigs {
-            val keystorePath = System.getProperty("WIRE_KEYSTORE_PATH")
+            val keystorePath = System.getenv("WIRE_KEYSTORE_PATH")
             maybeCreate(BuildTypes.RELEASE).apply {
                 storeFile = file("$keystorePath/key.keystore")
                 storePassword = System.getenv("KEYSTOREPWD_RELEASE")

@@ -81,6 +81,7 @@ android {
                 keyPassword = System.getenv("KEYPWD_RELEASE")
             }
             maybeCreate(BuildTypes.DEBUG).apply {
+                println("keystorePath: $keystorePath")
                 storeFile = file("$keystorePath/key.keystore")
                 storePassword = System.getenv("KEYSTOREPWD_DEBUG")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")

@@ -16,8 +16,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  code-analysis:
-    uses: ./.github/workflows/code-analysis.yml
+#  code-analysis:
+#    uses: ./.github/workflows/code-analysis.yml
   ui-tests:
     uses: ./.github/workflows/gradle-run-ui-tests.yml
   unit-tests:

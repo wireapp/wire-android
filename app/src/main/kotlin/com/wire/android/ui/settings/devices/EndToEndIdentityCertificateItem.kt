@@ -104,6 +104,8 @@ fun EndToEndIdentityCertificateItem(
                         }
                     }
 
+                    // Show cyka data here
+
                     CertificateStatus.VALID -> {
                         E2EIStatusRow(
                             label = stringResource(id = R.string.e2ei_certificat_status_valid),

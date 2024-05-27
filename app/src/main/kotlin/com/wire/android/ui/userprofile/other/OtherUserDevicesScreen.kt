@@ -123,7 +123,7 @@ private fun OtherUserDevicesContent(
                     onClickAction = onDeviceClick,
                     icon = Icons.Filled.ChevronRight.Icon(),
                     shouldShowVerifyLabel = true,
-                    shouldShowE2EIInfo = item.e2eiCertificateStatus != null
+                    shouldShowE2EIInfo = item.e2eiCertificate != null
                 )
                 if (index < otherUserDevices.lastIndex) WireDivider()
             }

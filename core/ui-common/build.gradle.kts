@@ -29,6 +29,11 @@ dependencies {
     implementation(libs.accompanist.systemUI)
     implementation(libs.visibilityModifiers)
 
+    // Image loading
+    implementation(libs.coil.core)
+    implementation(libs.coil.gif)
+    implementation(libs.coil.compose)
+
     testImplementation(libs.junit4)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)

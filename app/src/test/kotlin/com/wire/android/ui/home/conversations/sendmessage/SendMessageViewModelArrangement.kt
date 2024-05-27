@@ -23,9 +23,12 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.PingRinger
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
+import com.wire.android.ui.navArgs
 import com.wire.android.util.ImageUtil
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
@@ -55,11 +58,15 @@ import okio.buffer
 
 internal class SendMessageViewModelArrangement {
 
+    val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+
     init {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(
+            conversationId = conversationId
+        )
         // Default empty values
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
@@ -149,7 +156,8 @@ internal class SendMessageViewModelArrangement {
             setNotifiedAboutConversationUnderLegalHold = setNotifiedAboutConversationUnderLegalHold,
             observeConversationUnderLegalHoldNotified = observeConversationUnderLegalHoldNotified,
             sendLocation = sendLocation,
-            removeMessageDraft = removeMessageDraftUseCase
+            removeMessageDraft = removeMessageDraftUseCase,
+            savedStateHandle = savedStateHandle
         )
     }
 

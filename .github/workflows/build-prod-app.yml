@@ -2,12 +2,8 @@ name: "Prod build"
 
 on:
   push:
-    branches:
-      - prod
-  pull_request:
-    branches:
-      - prod
-    types: [ opened, synchronize ]
+    tags:
+      - 'v*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -16,10 +12,12 @@ concurrency:
 jobs:
   code-analysis:
     uses: ./.github/workflows/code-analysis.yml
+  ui-tests:
+    uses: ./.github/workflows/gradle-run-ui-tests.yml
   unit-tests:
     uses: ./.github/workflows/gradle-run-unit-tests.yml
   build-app:
-    needs: [ unit-tests, code-analysis ]
+    needs: [ code-analysis, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -44,7 +42,7 @@ jobs:
         run: chmod +x ./gradlew
       - name: build prod flavour APK
         run:
-          ./gradlew app:assembleProdCompatRelease -p ./ --no-daemon
+          ./gradlew app:assembleProdCompatRelease
         env:
           KEYSTORE_KEY_NAME_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}
           KEYPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}
@@ -52,7 +50,7 @@ jobs:
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
       - name: build prod flavour bundle
         run:
-          ./gradlew app:bundleProdCompatRelease -p ./ --no-daemon
+          ./gradlew app:bundleProdCompatRelease
         env:
           KEYSTORE_KEY_NAME_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}
           KEYPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}

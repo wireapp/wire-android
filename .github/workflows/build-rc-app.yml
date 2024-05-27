@@ -18,10 +18,12 @@ concurrency:
 jobs:
   code-analysis:
     uses: ./.github/workflows/code-analysis.yml
+  ui-tests:
+    uses: ./.github/workflows/gradle-run-ui-tests.yml
   unit-tests:
     uses: ./.github/workflows/gradle-run-unit-tests.yml
   build-app:
-    needs: [ unit-tests, code-analysis ]
+    needs: [ code-analysis, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,7 +48,7 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build internal flavour APK
         run:
-          ./gradlew app:assembleInternalCompat -p ./ --no-daemon
+          ./gradlew app:assembleInternalCompat
         env:
           KEYSTORE_KEY_NAME_COMPAT: ${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}
           KEYPWD_COMPAT: ${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}
@@ -54,7 +56,7 @@ jobs:
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
       - name: Build internal flavour bundle
         run:
-          ./gradlew app:bundleInternalCompat -p ./ --no-daemon
+          ./gradlew app:bundleInternalCompat
         env:
           KEYSTORE_KEY_NAME_COMPAT: ${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}
           KEYPWD_COMPAT: ${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}
@@ -62,7 +64,7 @@ jobs:
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
       - name: Build Staging flavour
         run:
-          ./gradlew app:assembleStagingCompat -p ./ --no-daemon
+          ./gradlew app:assembleStagingCompat
         env:
           KEYSTORE_KEY_NAME_COMPAT: ${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}
           KEYPWD_COMPAT: ${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}

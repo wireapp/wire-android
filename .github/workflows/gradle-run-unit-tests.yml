@@ -5,8 +5,12 @@ on: [ workflow_call ]
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
-  testCoverage:
+  coverage:
     runs-on: buildjet-8vcpu-ubuntu-2204
     steps:
       - name: Checkout

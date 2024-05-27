@@ -22,11 +22,13 @@ import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
 import android.os.StrictMode
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.getGitBuildId
@@ -39,8 +41,10 @@ import com.wire.kalium.logic.CoreLogic
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -69,6 +73,9 @@ class WireApplication : Application(), Configuration.Provider {
     @ApplicationScope
     lateinit var globalAppScope: CoroutineScope
 
+    @Inject
+    lateinit var currentScreenManager: CurrentScreenManager
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(wireWorkerFactory.get())
@@ -84,6 +91,9 @@ class WireApplication : Application(), Configuration.Provider {
             initializeApplicationLoggingFrameworks()
 
             appLogger.i("$TAG app lifecycle")
+            withContext(Dispatchers.Main) {
+                ProcessLifecycleOwner.get().lifecycle.addObserver(currentScreenManager)
+            }
             connectionPolicyManager.get().startObservingAppLifecycle()
 
             appLogger.i("$TAG api version update")

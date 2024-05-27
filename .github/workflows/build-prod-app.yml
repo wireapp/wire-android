@@ -37,13 +37,14 @@ jobs:
         run: |
           TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
           mkdir "${TMP_KEYSTORE_FILE_PATH}"
-          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/key.keystore
+          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/the.keystore
       - name: Make gradlew executable
         run: chmod +x ./gradlew
       - name: build prod flavour APK
         run:
           ./gradlew app:assembleProdCompatRelease
         env:
+          KEYSTORE_FILE_PATH_COMPAT_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_KEY_NAME_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}
           KEYPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}
           KEYSTOREPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}
@@ -52,6 +53,7 @@ jobs:
         run:
           ./gradlew app:bundleProdCompatRelease
         env:
+          KEYSTORE_FILE_PATH_COMPAT_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_KEY_NAME_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE }}
           KEYPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE }}
           KEYSTOREPWD_COMPAT_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE }}

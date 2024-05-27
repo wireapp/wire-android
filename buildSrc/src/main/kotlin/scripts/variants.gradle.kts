@@ -73,34 +73,32 @@ android {
     val enableSigning = System.getenv("ENABLE_SIGNING").equals("TRUE", true)
     if (enableSigning) {
         signingConfigs {
-            val keystorePath = System.getenv("WIRE_KEYSTORE_PATH")
             maybeCreate(BuildTypes.RELEASE).apply {
-                storeFile = file("$keystorePath/key.keystore")
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_RELEASE"))
                 storePassword = System.getenv("KEYSTOREPWD_RELEASE")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_RELEASE")
                 keyPassword = System.getenv("KEYPWD_RELEASE")
             }
             maybeCreate(BuildTypes.DEBUG).apply {
-                println("keystorePath: $keystorePath")
-                storeFile = file("$keystorePath/key.keystore")
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_DEBUG"))
                 storePassword = System.getenv("KEYSTOREPWD_DEBUG")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")
                 keyPassword = System.getenv("KEYPWD_DEBUG")
             }
             maybeCreate(BuildTypes.COMPAT).apply {
-                storeFile = file("$keystorePath/key.keystore")
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_COMPAT"))
                 storePassword = System.getenv("KEYSTOREPWD_COMPAT")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_COMPAT")
                 keyPassword = System.getenv("KEYPWD_COMPAT")
             }
             maybeCreate(BuildTypes.COMPAT_RELEASE).apply {
-                storeFile = file("$keystorePath/key.keystore")
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_COMPAT_RELEASE"))
                 storePassword = System.getenv("KEYSTOREPWD_COMPAT_RELEASE")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_COMPAT_RELEASE")
                 keyPassword = System.getenv("KEYPWD_COMPAT_RELEASE")
             }
             maybeCreate(BuildTypes.BENCHMARK).apply {
-                storeFile = file("$keystorePath/key.keystore")
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_DEBUG"))
                 storePassword = System.getenv("KEYSTOREPWD_DEBUG")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")
                 keyPassword = System.getenv("KEYPWD_DEBUG")

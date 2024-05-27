@@ -308,208 +308,208 @@ pipeline {
 
             }
         }
-//
-//        stage('Acceptance Tests') {
-//            when {
-//                expression { params.RUN_ACCEPTANCE_TESTS }
-//            }
-//            steps {
-//                script {
-//                    last_started = env.STAGE_NAME
-//                }
-//
-//                withGradle() {
-//                    sh './gradlew runAcceptanceTests'
-//                }
-//                publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/debug/flavors/${params.FLAVOR.toLowerCase()}", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
-//
-//                script {
-//                    commitHash = sh(
-//                            script: 'git rev-parse HEAD | xargs echo -n',
-//                            returnStdout: true
-//                    )
-//                }
-//                zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/debug/flavors/${params.FLAVOR.toLowerCase()}", overwrite: true, glob: "", zipFile: "integration-tests-android_${commitHash}.zip"
-//            }
-//        }
-//
-//        stage('Assemble APK') {
-//            steps {
-//                script {
-//                    last_started = env.STAGE_NAME
-//                    String assembleCommand = "./gradlew assemble${params.FLAVOR}${params.BUILD_TYPE}"
-//                    withGradle() {
-//                        sh assembleCommand
-//                    }
-//                }
-//            }
-//        }
-//
-//        stage('Bundle AAB') {
-//            when {
-//                expression {
-//                    params.UPLOAD_TO_PLAYSTORE_ENABLED &&
-//                            ((params.FLAVOR == 'Prod' && params.BUILD_TYPE == 'Compatrelease') ||
-//                                    (params.FLAVOR == 'Beta' && params.BUILD_TYPE == 'Release') ||
-//                                    (params.FLAVOR == 'Internal' && params.BUILD_TYPE == 'Compat'))
-//                }
-//            }
-//            steps {
-//                script {
-//                    last_started = env.STAGE_NAME
-//                    String bundleCommand = "./gradlew bundle${params.FLAVOR}${params.BUILD_TYPE}"
-//                    withGradle() {
-//                        sh bundleCommand
-//                    }
-//                }
-//            }
-//        }
-//
-//        stage('Archive') {
-//            parallel {
-//                stage('AAB') {
-//                    when {
-//                        expression { params.BUILD_TYPE == 'Release' }
-//                    }
-//                    steps {
-//                        sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
-//                        archiveArtifacts(artifacts: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
-//                    }
-//                }
-//
-//                stage('APK') {
-//                    steps {
-//                        sh "ls -la app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
-//                        archiveArtifacts(artifacts: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt", allowEmptyArchive: true, onlyIfSuccessful: true)
-//                    }
-//                }
-//            }
-//        }
-//
-//        stage("Upload") {
-//            parallel {
-//                stage('S3 Bucket') {
-//                    when {
-//                        expression { params.UPLOAD_TO_S3 }
-//                    }
-//                    steps {
-//                        echo 'Checking folder before S3 Bucket upload'
-//                        sh "ls -la app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
-//                        echo 'Uploading file to S3 Bucket'
-//                        s3Upload(
-//                                acl: 'Private',
-//                                workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/",
-//                                includePathPattern: 'com.wire.android-*.apk',
-//                                bucket: 'z-lohika',
-//                                path: "megazord/android/reloaded/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
-//                        )
-//                        script {
-//                            if (params.SOURCE_BRANCH.startsWith("PR-") || params.SOURCE_BRANCH == "develop" || params.SOURCE_BRANCH == "release/candidate") {
-//                                s3Upload(
-//                                        acl: 'Private',
-//                                        workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/",
-//                                        includePathPattern: 'com.wire.android-*.apk',
-//                                        bucket: 'z-lohika',
-//                                        path: "megazord/android/reloaded/by-branch/${params.SOURCE_BRANCH}/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-//                stage('Upload to Wire Beta') {
-//                    when {
-//                        expression {
-//                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
-//                                    params.RUN_ACCEPTANCE_TESTS &&
-//                                    params.RUN_UNIT_TEST &&
-//                                    params.RUN_STATIC_CODE_ANALYSIS &&
-//                                    params.UPLOAD_TO_S3 &&
-//                                    params.FLAVOR == 'Beta' &&
-//                                    params.SOURCE_BRANCH == 'main' &&
-//                                    params.BUILD_TYPE == 'Release' &&
-//                                    params.CHANGE_ID == null
-//                        }
-//                    }
-//                    steps {
-//                        script {
-//                            def trackName = "internal"
-//                            echo 'Checking folder before playstore upload'
-//                            sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
-//                            echo 'Uploading file to Playstore track internal'
-//                            androidApkUpload(
-//                                    googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
-//                                    filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
-//                                    trackName: trackName,
-//                                    rolloutPercentage: '100',
-//                                    releaseName: "${trackName} Release"
-//                            )
-//                        }
-//                    }
-//                }
-//
-//                stage('Upload to Wire Prod') {
-//                    when {
-//                        expression {
-//                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
-//                                    params.RUN_ACCEPTANCE_TESTS &&
-//                                    params.RUN_UNIT_TEST &&
-//                                    params.RUN_STATIC_CODE_ANALYSIS &&
-//                                    params.UPLOAD_TO_S3 &&
-//                                    params.FLAVOR == 'Prod' &&
-//                                    params.SOURCE_BRANCH == 'prod' &&
-//                                    params.BUILD_TYPE == 'Compatrelease' &&
-//                                    params.CHANGE_ID == null
-//                        }
-//                    }
-//                    steps {
-//                        script {
-//                            def trackName = env.WIRE_ANDROID_PROD_TRACK_NAME
-//                            echo 'Checking folder before prod playstore upload'
-//                            sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
-//                            echo "Uploading file to prod Playstore track ${trackName}"
-//                            androidApkUpload(
-//                                    googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
-//                                    filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
-//                                    trackName: trackName,
-//                                    rolloutPercentage: '100',
-//                                    releaseName: "${trackName} Release"
-//                            )
-//                        }
-//                    }
-//                }
-//
-//                stage('Upload to Wire Internal') {
-//                    when {
-//                        expression {
-//                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
-//                                    params.RUN_ACCEPTANCE_TESTS &&
-//                                    params.RUN_UNIT_TEST &&
-//                                    params.RUN_STATIC_CODE_ANALYSIS &&
-//                                    params.UPLOAD_TO_S3 &&
-//                                    params.FLAVOR == 'Internal' &&
-//                                    params.SOURCE_BRANCH == 'internal' &&
-//                                    params.BUILD_TYPE == 'Compat' &&
-//                                    params.CHANGE_ID == null
-//                        }
-//                    }
-//                    steps {
-//                        script {
-//                            def trackName = env.WIRE_ANDROID_INTERNAL_TRACK_NAME
-//                            echo 'Checking folder before prod playstore upload'
-//                            sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
-//                            echo 'Uploading file to prod Playstore track ${trackName}'
-//                            androidApkUpload(
-//                                    googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
-//                                    filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
-//                                    trackName: trackName,
-//                                    rolloutPercentage: '100',
-//                                    releaseName: "${trackName} Release"
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        }
+
+        stage('Acceptance Tests') {
+            when {
+                expression { params.RUN_ACCEPTANCE_TESTS }
+            }
+            steps {
+                script {
+                    last_started = env.STAGE_NAME
+                }
+
+                withGradle() {
+                    sh './gradlew runAcceptanceTests'
+                }
+                publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/debug/flavors/${params.FLAVOR.toLowerCase()}", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
+
+                script {
+                    commitHash = sh(
+                            script: 'git rev-parse HEAD | xargs echo -n',
+                            returnStdout: true
+                    )
+                }
+                zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/debug/flavors/${params.FLAVOR.toLowerCase()}", overwrite: true, glob: "", zipFile: "integration-tests-android_${commitHash}.zip"
+            }
+        }
+
+        stage('Assemble APK') {
+            steps {
+                script {
+                    last_started = env.STAGE_NAME
+                    String assembleCommand = "./gradlew assemble${params.FLAVOR}${params.BUILD_TYPE}"
+                    withGradle() {
+                        sh assembleCommand
+                    }
+                }
+            }
+        }
+
+        stage('Bundle AAB') {
+            when {
+                expression {
+                    params.UPLOAD_TO_PLAYSTORE_ENABLED &&
+                            ((params.FLAVOR == 'Prod' && params.BUILD_TYPE == 'Compatrelease') ||
+                                    (params.FLAVOR == 'Beta' && params.BUILD_TYPE == 'Release') ||
+                                    (params.FLAVOR == 'Internal' && params.BUILD_TYPE == 'Compat'))
+                }
+            }
+            steps {
+                script {
+                    last_started = env.STAGE_NAME
+                    String bundleCommand = "./gradlew bundle${params.FLAVOR}${params.BUILD_TYPE}"
+                    withGradle() {
+                        sh bundleCommand
+                    }
+                }
+            }
+        }
+
+        stage('Archive') {
+            parallel {
+                stage('AAB') {
+                    when {
+                        expression { params.BUILD_TYPE == 'Release' }
+                    }
+                    steps {
+                        sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
+                        archiveArtifacts(artifacts: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
+                    }
+                }
+
+                stage('APK') {
+                    steps {
+                        sh "ls -la app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
+                        archiveArtifacts(artifacts: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt", allowEmptyArchive: true, onlyIfSuccessful: true)
+                    }
+                }
+            }
+        }
+
+        stage("Upload") {
+            parallel {
+                stage('S3 Bucket') {
+                    when {
+                        expression { params.UPLOAD_TO_S3 }
+                    }
+                    steps {
+                        echo 'Checking folder before S3 Bucket upload'
+                        sh "ls -la app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
+                        echo 'Uploading file to S3 Bucket'
+                        s3Upload(
+                                acl: 'Private',
+                                workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/",
+                                includePathPattern: 'com.wire.android-*.apk',
+                                bucket: 'z-lohika',
+                                path: "megazord/android/reloaded/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
+                        )
+                        script {
+                            if (params.SOURCE_BRANCH.startsWith("PR-") || params.SOURCE_BRANCH == "develop" || params.SOURCE_BRANCH == "release/candidate") {
+                                s3Upload(
+                                        acl: 'Private',
+                                        workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/",
+                                        includePathPattern: 'com.wire.android-*.apk',
+                                        bucket: 'z-lohika',
+                                        path: "megazord/android/reloaded/by-branch/${params.SOURCE_BRANCH}/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
+                                )
+                            }
+                        }
+                    }
+                }
+                stage('Upload to Wire Beta') {
+                    when {
+                        expression {
+                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
+                                    params.RUN_ACCEPTANCE_TESTS &&
+                                    params.RUN_UNIT_TEST &&
+                                    params.RUN_STATIC_CODE_ANALYSIS &&
+                                    params.UPLOAD_TO_S3 &&
+                                    params.FLAVOR == 'Beta' &&
+                                    params.SOURCE_BRANCH == 'main' &&
+                                    params.BUILD_TYPE == 'Release' &&
+                                    params.CHANGE_ID == null
+                        }
+                    }
+                    steps {
+                        script {
+                            def trackName = "internal"
+                            echo 'Checking folder before playstore upload'
+                            sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
+                            echo 'Uploading file to Playstore track internal'
+                            androidApkUpload(
+                                    googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
+                                    filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
+                                    trackName: trackName,
+                                    rolloutPercentage: '100',
+                                    releaseName: "${trackName} Release"
+                            )
+                        }
+                    }
+                }
+
+                stage('Upload to Wire Prod') {
+                    when {
+                        expression {
+                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
+                                    params.RUN_ACCEPTANCE_TESTS &&
+                                    params.RUN_UNIT_TEST &&
+                                    params.RUN_STATIC_CODE_ANALYSIS &&
+                                    params.UPLOAD_TO_S3 &&
+                                    params.FLAVOR == 'Prod' &&
+                                    params.SOURCE_BRANCH == 'prod' &&
+                                    params.BUILD_TYPE == 'Compatrelease' &&
+                                    params.CHANGE_ID == null
+                        }
+                    }
+                    steps {
+                        script {
+                            def trackName = env.WIRE_ANDROID_PROD_TRACK_NAME
+                            echo 'Checking folder before prod playstore upload'
+                            sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
+                            echo "Uploading file to prod Playstore track ${trackName}"
+                            androidApkUpload(
+                                    googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
+                                    filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
+                                    trackName: trackName,
+                                    rolloutPercentage: '100',
+                                    releaseName: "${trackName} Release"
+                            )
+                        }
+                    }
+                }
+
+                stage('Upload to Wire Internal') {
+                    when {
+                        expression {
+                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
+                                    params.RUN_ACCEPTANCE_TESTS &&
+                                    params.RUN_UNIT_TEST &&
+                                    params.RUN_STATIC_CODE_ANALYSIS &&
+                                    params.UPLOAD_TO_S3 &&
+                                    params.FLAVOR == 'Internal' &&
+                                    params.SOURCE_BRANCH == 'internal' &&
+                                    params.BUILD_TYPE == 'Compat' &&
+                                    params.CHANGE_ID == null
+                        }
+                    }
+                    steps {
+                        script {
+                            def trackName = env.WIRE_ANDROID_INTERNAL_TRACK_NAME
+                            echo 'Checking folder before prod playstore upload'
+                            sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
+                            echo 'Uploading file to prod Playstore track ${trackName}'
+                            androidApkUpload(
+                                    googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
+                                    filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
+                                    trackName: trackName,
+                                    rolloutPercentage: '100',
+                                    releaseName: "${trackName} Release"
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 
     post {

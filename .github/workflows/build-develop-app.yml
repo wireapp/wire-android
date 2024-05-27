@@ -38,14 +38,14 @@ jobs:
         run: |
           TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
           mkdir "${TMP_KEYSTORE_FILE_PATH}"
-          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/key.keystore
+          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/the.keystore
       - name: Make gradlew executable
         run: chmod +x ./gradlew
       - name: build dev flavour
         run:
           ./gradlew app:assembleDevDebug
         env:
-          WIRE_KEYSTORE_PATH: ${{ vars.WIRE_KEYSTORE_PATH }}
+          KEYSTORE_FILE_PATH_DEBUG: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_KEY_NAME_DEBUG: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
           KEYPWD_DEBUG: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
           KEYSTOREPWD_DEBUG: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
@@ -55,12 +55,12 @@ jobs:
           ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
         run: |
           TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
-          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/key.keystore
+          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/the.keystore
       - name: build staging flavour
         run:
           ./gradlew app:assembleStagingRelease
         env:
-          WIRE_KEYSTORE_PATH: ${{ vars.WIRE_KEYSTORE_PATH }}
+          KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_KEY_NAME_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}
           KEYPWD_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}
           KEYSTOREPWD_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}

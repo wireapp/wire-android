@@ -86,7 +86,7 @@ fun MessageComposer(
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     onTypingEvent: (TypingIndicatorMode) -> Unit,
-    onImagePicked: (Uri) -> Unit
+    onImagesPicked: (List<Uri>) -> Unit
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {
@@ -137,8 +137,8 @@ fun MessageComposer(
                         clearMessage()
                     },
                     onPingOptionClicked = { onSendMessageBundle(Ping(conversationId)) },
-                    onImagePicked = onImagePicked,
-                    onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.AttachmentPickedBundle(conversationId, it)) },
+                    onImagesPicked = onImagesPicked,
+                    onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.UriPickedBundle(conversationId, it)) },
                     onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
                     onLocationPicked = {
                         onSendMessageBundle(
@@ -282,7 +282,7 @@ private fun BaseComposerPreview(
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
         onTypingEvent = { },
-        onImagePicked = {}
+        onImagesPicked = {}
     )
 }
 

@@ -86,17 +86,17 @@ internal class StateSyncingModifierNode(
     }
 
     private fun observeTextState(fireOnValueChanged: Boolean = true) {
-        lateinit var text: TextFieldState
+        lateinit var value: TextFieldValue
+
         observeReads {
-            text = state
+            value = TextFieldValue(
+                state.text.toString(),
+                state.selection,
+                state.composition
+            )
         }
         if (fireOnValueChanged) {
-            val newValue = TextFieldValue(
-                text = text.toString(),
-                selection = text.selection,
-                composition = text.composition
-            )
-            onValueChanged(newValue)
+            onValueChanged(value)
         }
     }
 }

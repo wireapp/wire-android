@@ -74,10 +74,17 @@ android {
     if (enableSigning) {
         signingConfigs {
             maybeCreate(BuildTypes.RELEASE).apply {
-                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_RELEASE"))
+                val keystorePath = System.getenv("KEYSTORE_FILE_PATH_RELEASE")
+                val isKeyStoreAvailable = File(keystorePath).exists()
+                check(isKeyStoreAvailable) {
+                    "Key store not found in path '$keystorePath'. Make sure the path is correct."
+                }
+//                if (isKeyStoreAvailable) {
+                storeFile = file(keystorePath)
                 storePassword = System.getenv("KEYSTOREPWD_RELEASE")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_RELEASE")
                 keyPassword = System.getenv("KEYPWD_RELEASE")
+//                }
             }
             maybeCreate(BuildTypes.DEBUG).apply {
                 storeFile = file(System.getenv("KEYSTORE_FILE_PATH_DEBUG"))

@@ -82,6 +82,7 @@ android {
             }
             maybeCreate(BuildTypes.DEBUG).apply {
                 val keystorePath = System.getProperty("user.home") + "/work/_temp/keystore/"
+                println("keystorePath: $keystorePath")
                 storeFile = file("$keystorePath/key.keystore")
                 storePassword = System.getenv("KEYSTOREPWD_DEBUG")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")

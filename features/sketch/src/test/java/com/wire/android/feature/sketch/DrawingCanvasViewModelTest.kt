@@ -69,7 +69,7 @@ class DrawingCanvasViewModelTest {
         assertEquals(viewModel.state.currentPosition, Offset.Unspecified)
 
         // when
-        draw(viewModel)
+        draw(viewModel, MOVED_OFFSET)
 
         // then
         with(viewModel.state) {
@@ -77,6 +77,28 @@ class DrawingCanvasViewModelTest {
             assertEquals(currentPath.path, paths.first().path)
             assertEquals(currentPosition, MOVED_OFFSET)
         }
+    }
+
+    @Test
+    fun givenDrawingEventPersisted_WhenCallingTheUndoAction_ThenUpdateShouldNotHaveDuplicatedPathAndRemoveLast() = runTest {
+        // given
+        val (_, viewModel) = Arrangement().arrange()
+        assertEquals(viewModel.state.currentPosition, Offset.Unspecified)
+
+        // when - then
+        draw(viewModel, MOVED_OFFSET)
+        assertEquals(1, viewModel.state.paths.size)
+        assertEquals(0, viewModel.state.pathsUndone.size)
+
+        // repeated path
+        draw(viewModel, MOVED_OFFSET)
+        assertEquals(2, viewModel.state.paths.size)
+        assertEquals(0, viewModel.state.pathsUndone.size)
+
+        // then
+        viewModel.onUndoLastStroke()
+        assertEquals(0, viewModel.state.paths.size)
+        assertEquals(1, viewModel.state.pathsUndone.size)
     }
 
     @Test
@@ -139,16 +161,16 @@ class DrawingCanvasViewModelTest {
         }
     }
 
-    private fun stopDrawing(viewModel: DrawingCanvasViewModel) = with(viewModel) {
-        draw(viewModel)
+    private fun stopDrawing(viewModel: DrawingCanvasViewModel, movedOffset: Offset = MOVED_OFFSET) = with(viewModel) {
+        draw(viewModel, movedOffset)
         onStopDrawing()
         onStopDrawingEvent()
     }
 
     // simulates the drawing of strokes
-    private fun draw(viewModel: DrawingCanvasViewModel) = with(viewModel) {
+    private fun draw(viewModel: DrawingCanvasViewModel, movedOffset: Offset = MOVED_OFFSET) = with(viewModel) {
         startDrawing(viewModel)
-        onDraw(MOVED_OFFSET)
+        onDraw(movedOffset)
         onDrawEvent()
     }
 

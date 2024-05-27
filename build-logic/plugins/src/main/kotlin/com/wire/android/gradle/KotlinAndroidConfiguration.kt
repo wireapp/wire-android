@@ -78,6 +78,8 @@ private fun Project.configureKotlin() {
 
 private fun CommonExtension<*, *, *, *, *>.configureLint(project: Project) {
     lint {
+        showAll = true
+        explainIssues = true
         quiet = false
         abortOnError = true
         ignoreWarnings = true

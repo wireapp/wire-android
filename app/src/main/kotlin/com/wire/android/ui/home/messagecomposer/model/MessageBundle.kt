@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.messagecomposer.model
 
 import android.location.Location
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.kalium.logic.data.id.ConversationId
@@ -40,6 +41,11 @@ sealed class ComposableMessageBundle(override val conversationId: ConversationId
     ) : ComposableMessageBundle(conversationId)
 
     data class AttachmentPickedBundle(
+        override val conversationId: ConversationId,
+        val assetBundle: AssetBundle
+    ) : ComposableMessageBundle(conversationId)
+
+    data class UriPickedBundle(
         override val conversationId: ConversationId,
         val attachmentUri: UriAsset
     ) : ComposableMessageBundle(conversationId)

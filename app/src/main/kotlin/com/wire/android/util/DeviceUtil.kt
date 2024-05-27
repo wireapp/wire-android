@@ -21,10 +21,9 @@ import android.os.Environment
 import android.os.StatFs
 
 object DeviceUtil {
-    private const val BYTES_IN_KILOBYTE = 1024
+    private const val BYTES_IN_KILOBYTE = 1024L
     private const val BYTES_IN_MEGABYTE = BYTES_IN_KILOBYTE * 1024
     private const val BYTES_IN_GIGABYTE = BYTES_IN_MEGABYTE * 1024
-    private const val DIGITS_GROUP_SIZE = 3 // Number of digits between commas in formatted size.
 
     fun getAvailableInternalMemorySize(): String = try {
         val path = Environment.getDataDirectory()
@@ -46,32 +45,12 @@ object DeviceUtil {
         ""
     }
 
-    private fun formatSize(sizeInBytes: Long): String {
-        var size = sizeInBytes
-        var suffix: String? = null
-        when {
-            size >= BYTES_IN_GIGABYTE -> {
-                suffix = "GB"
-                size /= BYTES_IN_GIGABYTE
-            }
-
-            size >= BYTES_IN_MEGABYTE -> {
-                suffix = "MB"
-                size /= BYTES_IN_MEGABYTE
-            }
-
-            size >= BYTES_IN_KILOBYTE -> {
-                suffix = "KB"
-                size /= BYTES_IN_KILOBYTE
-            }
+    fun formatSize(sizeInBytes: Long): String {
+        return when {
+            sizeInBytes < BYTES_IN_KILOBYTE -> "$sizeInBytes B"
+            sizeInBytes < BYTES_IN_MEGABYTE -> String.format("%.2f KB", sizeInBytes.toDouble() / BYTES_IN_KILOBYTE)
+            sizeInBytes < BYTES_IN_GIGABYTE -> String.format("%.2f MB", sizeInBytes.toDouble() / BYTES_IN_MEGABYTE)
+            else -> String.format("%.2f GB", sizeInBytes.toDouble() / BYTES_IN_GIGABYTE)
         }
-        val resultBuffer = StringBuilder(size.toString())
-        var commaOffset = resultBuffer.length - DIGITS_GROUP_SIZE
-        while (commaOffset > 0) {
-            resultBuffer.insert(commaOffset, ',')
-            commaOffset -= DIGITS_GROUP_SIZE
-        }
-        suffix?.let { resultBuffer.append(it) }
-        return resultBuffer.toString()
     }
 }

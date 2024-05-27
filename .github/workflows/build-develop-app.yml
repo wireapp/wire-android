@@ -56,15 +56,15 @@ jobs:
         run: |
           TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
           echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/the.keystore
-      - name: build staging flavour
-        run:
-          ./gradlew app:assembleStagingRelease
-        env:
-          KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
-          KEYSTORE_KEY_NAME_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}
-          KEYPWD_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}
-          KEYSTOREPWD_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}
-          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+#      - name: build staging flavour
+#        run:
+#          ./gradlew app:assembleStagingRelease
+#        env:
+#          KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
+#          KEYSTORE_KEY_NAME_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}
+#          KEYPWD_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}
+#          KEYSTOREPWD_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}
+#          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
       - name: Upload
         if: success()
         uses: actions/upload-artifact@v4

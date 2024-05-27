@@ -149,7 +149,6 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
 
-        lifecycle.addObserver(currentScreenManager)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         lifecycleScope.launch(Dispatchers.Default) {

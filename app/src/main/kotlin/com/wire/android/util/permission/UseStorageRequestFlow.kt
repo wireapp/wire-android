@@ -20,16 +20,15 @@ package com.wire.android.util.permission
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.content.Context
-import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import com.wire.android.util.extension.checkPermission
 
-class UseStorageRequestFlow(
+class UseStorageRequestFlow<T>(
     private val mimeType: String,
     private val context: Context,
-    private val browseStorageActivityLauncher: ManagedActivityResultLauncher<String, Uri?>,
+    private val browseStorageActivityLauncher: ManagedActivityResultLauncher<String, T>,
     private val accessFilePermissionLauncher: ManagedActivityResultLauncher<String, Boolean>
 ) {
     fun launch() {

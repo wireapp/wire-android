@@ -17,58 +17,69 @@
  */
 package com.wire.android.ui.home.conversations.media.preview
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
-import com.wire.android.model.SnackBarMessage
+import com.wire.android.navigation.ArgsSerializer
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
+import com.wire.android.ui.common.error.ErrorIcon
+import com.wire.android.ui.common.image.WireImage
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.remove.RemoveIcon
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.AssetTooLargeDialog
-import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
-import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.conversations.sendmessage.SendMessageState
-import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
-import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
-import com.wire.android.ui.home.messagecomposer.model.MessageBundle
-import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
+import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
+import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.android.ui.sharing.ImportedMediaAsset
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import kotlinx.coroutines.flow.SharedFlow
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.asset.AttachmentType
+import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.launch
+import okio.Path.Companion.toPath
 
 @RootNavGraph
 @Destination(
@@ -78,51 +89,62 @@ import kotlinx.coroutines.flow.SharedFlow
 @Composable
 fun ImagesPreviewScreen(
     navigator: Navigator,
+    resultNavigator: ResultBackNavigator<String>,
     imagesPreviewViewModel: ImagesPreviewViewModel = hiltViewModel(),
-    sendMessageViewModel: SendMessageViewModel = hiltViewModel()
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(sendMessageViewModel.viewState.messageSent) {
-        if (sendMessageViewModel.viewState.messageSent) {
-            navigator.navigateBack()
-        }
-    }
-
     Content(
         previewState = imagesPreviewViewModel.viewState,
-        sendState = sendMessageViewModel.viewState,
         onNavigationPressed = { navigator.navigateBack() },
-        onSendMessage = sendMessageViewModel::trySendMessage
+        onSendMessages = { mediaAssets ->
+            checkAssetRestrictionsViewModel.checkRestrictions(
+                importedMediaList = mediaAssets,
+                onSuccess = {
+                    val result = ArgsSerializer().encodeToString(
+                        serializer = ImagesPreviewNavBackArgs.serializer(),
+                        value = ImagesPreviewNavBackArgs(pendingBundles = ArrayList(it))
+                    )
+                    resultNavigator.setResult(result)
+                    resultNavigator.navigateBack()
+                }
+            )
+        },
+        onSelected = imagesPreviewViewModel::onSelected,
+        onRemoveAsset = imagesPreviewViewModel::onRemove
     )
 
     AssetTooLargeDialog(
-        dialogState = sendMessageViewModel.assetTooLargeDialogState,
-        hideDialog = sendMessageViewModel::hideAssetTooLargeError
+        dialogState = checkAssetRestrictionsViewModel.assetTooLargeDialogState,
+        hideDialog = checkAssetRestrictionsViewModel::hideDialog
     )
-
-    SureAboutMessagingInDegradedConversationDialog(
-        dialogState = sendMessageViewModel.sureAboutMessagingDialogState,
-        sendAnyway = sendMessageViewModel::acceptSureAboutSendingMessage,
-        hideDialog = sendMessageViewModel::dismissSureAboutSendingMessage
-    )
-
-    (sendMessageViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
-        LegalHoldSubjectMessageDialog(
-            dialogDismissed = sendMessageViewModel::dismissSureAboutSendingMessage,
-            sendAnywayClicked = sendMessageViewModel::acceptSureAboutSendingMessage,
-        )
-    }
-
-    SnackBarMessage(sendMessageViewModel.infoMessage)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Content(
     previewState: ImagesPreviewState,
-    sendState: SendMessageState,
+    onSendMessages: (List<ImportedMediaAsset>) -> Unit,
+    onSelected: (index: Int) -> Unit,
     onNavigationPressed: () -> Unit = {},
-    onSendMessage: (MessageBundle) -> Unit
+    onRemoveAsset: (index: Int) -> Unit
 ) {
     val configuration = LocalConfiguration.current
+    val pagerState = rememberPagerState(pageCount = { previewState.assetBundleList.size })
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(key1 = previewState.selectedIndex) {
+        if (previewState.selectedIndex != pagerState.settledPage) {
+            scope.launch {
+                pagerState.animateScrollToPage(previewState.selectedIndex)
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = pagerState.settledPage) {
+        if (previewState.selectedIndex != pagerState.settledPage) {
+            onSelected(pagerState.settledPage)
+        }
+    }
+
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -152,7 +174,6 @@ private fun Content(
                     )
                     HorizontalSpace.x16()
                     WirePrimaryButton(
-                        loading = sendState.inProgress,
                         modifier = Modifier.weight(1F),
                         text = stringResource(id = R.string.import_media_send_button_title),
                         leadingIcon = {
@@ -164,12 +185,7 @@ private fun Content(
                             )
                         },
                         onClick = {
-                            onSendMessage(
-                                ComposableMessageBundle.AttachmentPickedBundle(
-                                    previewState.conversationId,
-                                    UriAsset(previewState.assetUri)
-                                )
-                            )
+                            onSendMessages(previewState.assetBundleList)
                         }
                     )
                     HorizontalSpace.x16()
@@ -178,34 +194,155 @@ private fun Content(
         }
     ) { padding ->
         Box(
-            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .padding(padding)
                 .fillMaxHeight()
                 .fillMaxWidth()
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(previewState.assetUri)
-                    .build(),
-                contentDescription = "preview_asset_image",
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier.width(configuration.screenWidthDp.dp)
-            )
+            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .width(configuration.screenWidthDp.dp)
+                        .fillMaxHeight(),
+                ) { index ->
+                    val assetBundle = previewState.assetBundleList[index].assetBundle
+
+                    when (assetBundle.assetType) {
+                        AttachmentType.IMAGE -> WireImage(
+                            modifier = Modifier
+                                .width(configuration.screenWidthDp.dp)
+                                .fillMaxHeight(),
+                            model = previewState.assetBundleList[index].assetBundle.dataPath.toFile(),
+                            contentDescription = previewState.assetBundleList[index].assetBundle.fileName
+                        )
+
+                        AttachmentType.GENERIC_FILE,
+                        AttachmentType.AUDIO,
+                        AttachmentType.VIDEO -> AssetFilePreview(
+                            assetName = assetBundle.fileName,
+                            sizeInBytes = assetBundle.dataSize
+                        )
+                    }
+                }
+            }
+
+            if (previewState.isLoading) {
+                WireCircularProgressIndicator(
+                    progressColor = MaterialTheme.wireColorScheme.onBackground,
+                    modifier = Modifier.align(Alignment.Center),
+                    size = dimensions().spacing24x
+                )
+            }
+
+            LazyRow(
+                modifier = Modifier
+                    .padding(bottom = dimensions().spacing8x)
+                    .height(dimensions().spacing80x)
+                    .align(Alignment.BottomCenter),
+                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
+                contentPadding = PaddingValues(start = dimensions().spacing16x, end = dimensions().spacing16x)
+            ) {
+                items(
+                    count = previewState.assetBundleList.size,
+                ) { index ->
+                    Box(
+                        modifier = Modifier
+                            .width(dimensions().spacing80x)
+                            .fillMaxHeight()
+                    ) {
+                        AssetTilePreview(
+                            modifier = Modifier
+                                .size(dimensions().spacing64x)
+                                .align(Alignment.Center),
+                            assetBundle = previewState.assetBundleList[index].assetBundle,
+                            isSelected = previewState.selectedIndex == index,
+                            showOnlyExtension = true,
+                            onClick = { onSelected(index) }
+                        )
+
+                        if (previewState.assetBundleList.size > 1) {
+                            RemoveIcon(
+                                modifier = Modifier.align(Alignment.TopEnd),
+                                onClick = {
+                                    onRemoveAsset(index)
+                                },
+                                contentDescription = stringResource(id = R.string.remove_asset_description)
+                            )
+                        }
+                        if (previewState.assetBundleList[index].assetSizeExceeded != null) {
+                            ErrorIcon(
+                                stringResource(id = R.string.asset_attention_description),
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
+@PreviewMultipleThemes
 @Composable
-private fun SnackBarMessage(infoMessages: SharedFlow<SnackBarMessage>) {
-    val context = LocalContext.current
-    val snackbarHostState = LocalSnackbarHostState.current
-
-    LaunchedEffect(Unit) {
-        infoMessages.collect {
-            snackbarHostState.showSnackbar(
-                message = it.uiText.asString(context.resources)
-            )
-        }
+fun PreviewImagesPreviewScreen() {
+    WireTheme {
+        Content(
+            previewState = ImagesPreviewState(
+                ConversationId("value", "domain"),
+                selectedIndex = 0,
+                conversationName = "Conversation",
+                assetBundleList = persistentListOf(
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key",
+                            "image/png",
+                            "".toPath(),
+                            20,
+                            "preview.png",
+                            assetType = AttachmentType.IMAGE
+                        ),
+                        assetSizeExceeded = null
+                    ),
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key1",
+                            "video/mp4",
+                            "".toPath(),
+                            20,
+                            "preview.mp4",
+                            assetType = AttachmentType.VIDEO
+                        ),
+                        assetSizeExceeded = null
+                    ),
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key2",
+                            "audio/mp3",
+                            "".toPath(),
+                            20,
+                            "preview.mp3",
+                            assetType = AttachmentType.AUDIO
+                        ),
+                        assetSizeExceeded = 20
+                    ),
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key3",
+                            "document/pdf",
+                            "".toPath(),
+                            20,
+                            "preview.pdf",
+                            assetType = AttachmentType.GENERIC_FILE
+                        ),
+                        assetSizeExceeded = null
+                    )
+                ),
+            ),
+            onNavigationPressed = {},
+            onSendMessages = {},
+            onSelected = {},
+            onRemoveAsset = {}
+        )
     }
 }

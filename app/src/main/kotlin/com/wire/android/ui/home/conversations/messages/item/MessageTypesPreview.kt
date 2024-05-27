@@ -38,10 +38,10 @@ import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
-import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -266,30 +266,12 @@ fun PreviewAssetMessageWithReactions() {
 @Composable
 fun PreviewImportedMediaAssetMessageContent() {
     WireTheme {
-        MessageGenericAsset(
+        MessageAsset(
             assetName = "Some test cool long but very  cool long but very asjkl cool long but very long message",
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
-            shouldFillMaxWidth = false,
-            isImportedMediaAsset = true
-        )
-    }
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewWideImportedAssetMessageContent() {
-    WireTheme {
-        MessageGenericAsset(
-            assetName = "Some test cool long but very  cool long but very asjkl cool long but very long message",
-            assetExtension = "rar.tgz",
-            assetSizeInBytes = 99201224L,
-            onAssetClick = Clickable(enabled = false),
-            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
-            shouldFillMaxWidth = true,
-            isImportedMediaAsset = true
+            assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED
         )
     }
 }
@@ -298,14 +280,12 @@ fun PreviewWideImportedAssetMessageContent() {
 @Composable
 fun PreviewLoadingAssetMessage() {
     WireTheme {
-        MessageGenericAsset(
+        MessageAsset(
             assetName = "Some test cool long but very  cool long but very asjkl cool long but very long message",
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetTransferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
-            shouldFillMaxWidth = true,
-            isImportedMediaAsset = false
+            assetTransferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS
         )
     }
 }
@@ -314,14 +294,12 @@ fun PreviewLoadingAssetMessage() {
 @Composable
 fun PreviewFailedDownloadAssetMessage() {
     WireTheme {
-        MessageGenericAsset(
+        MessageAsset(
             assetName = "Some test cool long but very  cool long but very asjkl cool long but very long message",
             assetExtension = "rar.tgz",
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
-            assetTransferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
-            shouldFillMaxWidth = true,
-            isImportedMediaAsset = false
+            assetTransferStatus = AssetTransferStatus.FAILED_DOWNLOAD
         )
     }
 }

@@ -45,7 +45,7 @@ jobs:
         run:
           ./gradlew app:assembleDevDebug
         env:
-          KEYSTORE_PATH: ${{ vars.KEYSTORE_PATH }}
+          WIRE_KEYSTORE_PATH: ${{ vars.WIRE_KEYSTORE_PATH }}
           KEYSTORE_KEY_NAME_DEBUG: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
           KEYPWD_DEBUG: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
           KEYSTOREPWD_DEBUG: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}

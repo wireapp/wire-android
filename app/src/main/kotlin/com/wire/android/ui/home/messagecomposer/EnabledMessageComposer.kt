@@ -297,22 +297,22 @@ fun EnabledMessageComposer(
                                 )
                             }
                         }
-
-                        if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.DrawingMode) {
-                            DrawingCanvasBottomSheet(
-                                onDismissSketch = {
-                                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
-                                },
-                                onSendSketch = {
-                                    onAttachmentPicked(UriAsset(it))
-                                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
-                                },
-                                conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
-                                tempWritableImageUri = tempWritableImageUri
-                            )
-                        }
                     }
                 }
+            }
+
+            if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.DrawingMode) {
+                DrawingCanvasBottomSheet(
+                    onDismissSketch = {
+                        showAdditionalOptionsMenu()
+                    },
+                    onSendSketch = {
+                        onAttachmentPicked(UriAsset(it))
+                        showAdditionalOptionsMenu()
+                    },
+                    conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
+                    tempWritableImageUri = tempWritableImageUri
+                )
             }
 
             BackHandler(inputStateHolder.inputType is MessageCompositionType.Editing) {

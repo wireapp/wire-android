@@ -57,10 +57,10 @@ import java.util.Locale
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AssetTilePreview(
-    modifier: Modifier = Modifier,
     assetBundle: AssetBundle,
-    isSelected: Boolean = false,
     showOnlyExtension: Boolean,
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
     onClick: () -> Unit
 ) {
     Box(
@@ -106,11 +106,12 @@ fun AssetTilePreview(
 }
 
 @Composable
-fun AssetExtensionPreviewTile(assetName: String) {
+fun AssetExtensionPreviewTile(assetName: String, modifier: Modifier = Modifier) {
     Text(
         text = assetName.split(".").last().uppercase(Locale.getDefault()),
         style = MaterialTheme.wireTypography.title05,
-        color = MaterialTheme.wireColorScheme.secondaryText
+        color = MaterialTheme.wireColorScheme.secondaryText,
+        modifier = modifier
     )
 }
 

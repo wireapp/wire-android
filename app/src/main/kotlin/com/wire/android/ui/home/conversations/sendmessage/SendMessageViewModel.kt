@@ -40,6 +40,7 @@ import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.sharing.SendMessagesSnackbarMessages
+import com.wire.android.util.AUDIO_MIME_TYPE
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
@@ -73,8 +74,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okio.Path
-import okio.Path.Companion.toPath
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -209,8 +208,8 @@ class SendMessageViewModel @Inject constructor(
             is ComposableMessageBundle.AudioMessageBundle -> {
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
-                    audioPath = messageBundle.attachmentUri.uri.path?.toPath(),
-                    conversationId = messageBundle.conversationId
+                    conversationId = messageBundle.conversationId,
+                    specifiedMimeType = AUDIO_MIME_TYPE,
                 )
             }
 
@@ -246,12 +245,12 @@ class SendMessageViewModel @Inject constructor(
     private suspend fun handleAssetMessageBundle(
         conversationId: ConversationId,
         attachmentUri: UriAsset,
-        audioPath: Path? = null
+        specifiedMimeType: String? = null, // specify a particular mimetype, otherwise it will be taken from the uri / file extension
     ) {
         when (val result = handleUriAsset.invoke(
             uri = attachmentUri.uri,
             saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
-            audioPath = audioPath
+            specifiedMimeType = specifiedMimeType
         )) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
                 assetTooLargeDialogState = AssetTooLargeDialogState.Visible(

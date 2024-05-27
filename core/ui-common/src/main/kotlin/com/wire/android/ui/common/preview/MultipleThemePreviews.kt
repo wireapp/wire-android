@@ -46,4 +46,4 @@ import com.wire.android.ui.theme.WireTheme
  * preview is actually reactive to the change in theme. So it might be necessary
  * to wrap the preview in a [WireTheme] block.
  */
-annotation class PreviewMultipleThemes
+annotation class MultipleThemePreviews

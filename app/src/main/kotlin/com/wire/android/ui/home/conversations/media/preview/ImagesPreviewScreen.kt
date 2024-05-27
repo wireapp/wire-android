@@ -89,10 +89,9 @@ import okio.Path.Companion.toPath
 @Composable
 fun ImagesPreviewScreen(
     navigator: Navigator,
+    resultNavigator: ResultBackNavigator<String>,
     imagesPreviewViewModel: ImagesPreviewViewModel = hiltViewModel(),
-    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel(),
-    resultNavigator: ResultBackNavigator<String>
-
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel()
 ) {
     Content(
         previewState = imagesPreviewViewModel.viewState,
@@ -124,9 +123,9 @@ fun ImagesPreviewScreen(
 @Composable
 private fun Content(
     previewState: ImagesPreviewState,
-    onNavigationPressed: () -> Unit = {},
     onSendMessages: (List<ImportedMediaAsset>) -> Unit,
     onSelected: (index: Int) -> Unit,
+    onNavigationPressed: () -> Unit = {},
     onRemoveAsset: (index: Int) -> Unit
 ) {
     val configuration = LocalConfiguration.current
@@ -273,8 +272,8 @@ private fun Content(
                         }
                         if (previewState.assetBundleList[index].assetSizeExceeded != null) {
                             ErrorIcon(
-                                modifier = Modifier.align(Alignment.Center),
-                                stringResource(id = R.string.asset_attention_description)
+                                stringResource(id = R.string.asset_attention_description),
+                                modifier = Modifier.align(Alignment.Center)
                             )
                         }
                     }

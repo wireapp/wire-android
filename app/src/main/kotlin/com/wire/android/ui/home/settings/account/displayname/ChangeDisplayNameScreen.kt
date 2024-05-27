@@ -25,20 +25,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -52,12 +51,18 @@ import com.wire.android.ui.common.button.WireButtonState.Disabled
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.rememberTopBarElevationState
+import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.textfield.DefaultText
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.maxLengthWithCallback
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameViewModel.Companion.NAME_MAX_COUNT
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
 @Destination
@@ -69,9 +74,9 @@ fun ChangeDisplayNameScreen(
 ) {
     with(viewModel) {
         ChangeDisplayNameContent(
-            displayNameState,
-            ::onNameChange,
-            {
+            textState = viewModel.textState,
+            state = viewModel.displayNameState,
+            onContinuePressed = {
                 saveDisplayName(
                     onFailure = {
                         resultNavigator.setResult(false)
@@ -83,8 +88,7 @@ fun ChangeDisplayNameScreen(
                     }
                 )
             },
-            ::onNameErrorAnimated,
-            navigator::navigateBack
+            onBackPressed = navigator::navigateBack
         )
     }
 }
@@ -92,10 +96,9 @@ fun ChangeDisplayNameScreen(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ChangeDisplayNameContent(
+    textState: TextFieldState,
     state: DisplayNameState,
-    onNameChange: (TextFieldValue) -> Unit,
     onContinuePressed: () -> Unit,
-    onNameErrorAnimated: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -134,21 +137,15 @@ fun ChangeDisplayNameContent(
 
                     Box {
                         ShakeAnimation { animate ->
-                            if (animatedNameError) {
-                                animate()
-                                onNameErrorAnimated()
-                            }
                             WireTextField(
-                                value = displayName,
-                                onValueChange = onNameChange,
+                                textState = textState,
                                 labelText = stringResource(R.string.settings_myaccount_display_name).uppercase(),
+                                inputTransformation = InputTransformation.maxLengthWithCallback(NAME_MAX_COUNT, animate),
+                                lineLimits = TextFieldLineLimits.SingleLine,
                                 state = computeNameErrorState(error),
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
-                                    imeAction = androidx.compose.ui.text.input.ImeAction.Done
-                                ),
+                                keyboardOptions = KeyboardOptions.DefaultText,
                                 descriptionText = stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error),
-                                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                                onKeyboardAction = { keyboardController?.hide() },
                                 modifier = Modifier.padding(
                                     horizontal = MaterialTheme.wireDimensions.spacing16x
                                 )
@@ -168,7 +165,8 @@ fun ChangeDisplayNameContent(
                             onClick = onContinuePressed,
                             fillMaxWidth = true,
                             trailingIcon = androidx.compose.material.icons.Icons.Filled.ChevronRight.Icon(),
-                            state = if (continueEnabled) Default else Disabled,
+                            state = if (saveEnabled) Default else Disabled,
+                            loading = loading,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -194,8 +192,8 @@ private fun computeNameErrorState(error: DisplayNameState.NameError) =
         WireTextFieldState.Default
     }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewChangeDisplayName() {
-    ChangeDisplayNameContent(DisplayNameState("Bruce Wayne", TextFieldValue("Bruce Wayne")), {}, {}, {}, {})
+fun PreviewChangeDisplayName() = WireTheme {
+    ChangeDisplayNameContent(TextFieldState("Bruce Wayne"), DisplayNameState(), {}, {})
 }

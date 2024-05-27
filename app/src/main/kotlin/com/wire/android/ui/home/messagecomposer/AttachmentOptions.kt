@@ -226,7 +226,7 @@ private fun TakePictureFlow(
 }
 
 @Composable
-private fun CaptureVideoFlow(
+private fun captureVideoFlow(
     tempWritableVideoUri: Uri?,
     onVideoCaptured: (Uri) -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
@@ -266,7 +266,7 @@ private fun buildAttachmentOptionItems(
         remember { { onFilePicked(UriAsset(it, false)) } },
         onPermissionPermanentlyDenied
     )
-    val captureVideoFlow = CaptureVideoFlow(
+    val captureVideoFlow = captureVideoFlow(
         tempWritableVideoUri,
         remember { { onFilePicked(UriAsset(it, true)) } },
         onPermissionPermanentlyDenied

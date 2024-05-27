@@ -30,16 +30,16 @@ import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import com.wire.android.ui.common.R
-import com.wire.android.ui.common.preview.PreviewMultipleThemes
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun WireImage(
-    modifier: Modifier = Modifier,
     model: Any?,
     contentDescription: String,
+    modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Fit,
-    placeholder: Painter? = null,
+    placeholder: Painter? = null
 ) {
     AsyncImage(
         modifier = modifier,
@@ -63,7 +63,7 @@ fun WireImage(
     )
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewWireImage() {
     WireTheme {

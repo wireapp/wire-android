@@ -106,7 +106,9 @@ import okio.Path.Companion.toPath
 @Composable
 fun ImportMediaScreen(
     navigator: Navigator,
-    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel()
+    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel(),
+    importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel(),
 ) {
     when (val fileSharingRestrictedState =
         featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState) {
@@ -118,7 +120,7 @@ fun ImportMediaScreen(
         }
 
         FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM -> {
-            val importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
+
             ImportMediaRestrictedContent(
                 fileSharingRestrictedState = fileSharingRestrictedState,
                 importMediaAuthenticatedState = importMediaViewModel.importMediaState,
@@ -127,9 +129,6 @@ fun ImportMediaScreen(
         }
 
         FeatureFlagState.SharingRestrictedState.NONE -> {
-            val importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
-            val checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel()
-
             ImportMediaRegularContent(
                 importMediaAuthenticatedState = importMediaViewModel.importMediaState,
                 onSearchQueryChanged = importMediaViewModel::onSearchQueryChanged,
@@ -186,6 +185,7 @@ fun ImportMediaRestrictedContent(
     fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
     importMediaAuthenticatedState: ImportMediaAuthenticatedState,
     navigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     with(importMediaAuthenticatedState) {
         WireScaffold(
@@ -203,7 +203,7 @@ fun ImportMediaRestrictedContent(
                     }
                 )
             },
-            modifier = Modifier.background(colorsScheme().background),
+            modifier = modifier.background(colorsScheme().background),
             content = { internalPadding ->
                 FileSharingRestrictedContent(
                     internalPadding,
@@ -224,7 +224,8 @@ fun ImportMediaRegularContent(
     onNewSelfDeletionTimerPicked: (selfDeletionDuration: SelfDeletionDuration) -> Unit,
     infoMessage: SharedFlow<SnackBarMessage>,
     navigateBack: () -> Unit,
-    onRemoveAsset: (index: Int) -> Unit,
+    modifier: Modifier = Modifier,
+    onRemoveAsset: (index: Int) -> Unit
 ) {
 
     val importMediaScreenState = rememberImportMediaScreenState()
@@ -245,7 +246,7 @@ fun ImportMediaRegularContent(
                     }
                 )
             },
-            modifier = Modifier.background(colorsScheme().background),
+            modifier = modifier.background(colorsScheme().background),
             content = { internalPadding ->
                 ImportMediaContent(
                     state = this,
@@ -281,6 +282,7 @@ fun ImportMediaRegularContent(
 fun ImportMediaLoggedOutContent(
     fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
     navigateBack: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     WireScaffold(
         topBar = {
@@ -291,7 +293,7 @@ fun ImportMediaLoggedOutContent(
                 title = stringResource(id = R.string.import_media_content_title),
             )
         },
-        modifier = Modifier.background(colorsScheme().background),
+        modifier = modifier.background(colorsScheme().background),
         content = { internalPadding ->
             FileSharingRestrictedContent(
                 internalPadding,
@@ -306,7 +308,8 @@ fun ImportMediaLoggedOutContent(
 fun FileSharingRestrictedContent(
     internalPadding: PaddingValues,
     sharingRestrictedState: FeatureFlagState.SharingRestrictedState,
-    openWireAction: () -> Unit
+    openWireAction: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val learnMoreUrl = stringResource(R.string.file_sharing_restricted_learn_more_link)
@@ -314,7 +317,7 @@ fun FileSharingRestrictedContent(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(internalPadding)
             .padding(horizontal = dimensions().spacing48x)
@@ -459,8 +462,8 @@ private fun ImportMediaContent(
                         }
                         if (importedItemsList[index].assetSizeExceeded != null) {
                             ErrorIcon(
-                                modifier = Modifier.align(Alignment.Center),
-                                stringResource(id = R.string.asset_attention_description)
+                                stringResource(id = R.string.asset_attention_description),
+                                modifier = Modifier.align(Alignment.Center)
                             )
                         }
                     }
@@ -526,7 +529,7 @@ private fun SnackBarMessage(
 @Composable
 fun PreviewImportMediaScreenLoggedOut() {
     WireTheme {
-        ImportMediaLoggedOutContent(FeatureFlagState.SharingRestrictedState.NO_USER) {}
+        ImportMediaLoggedOutContent(FeatureFlagState.SharingRestrictedState.NO_USER, {})
     }
 }
 
@@ -535,9 +538,10 @@ fun PreviewImportMediaScreenLoggedOut() {
 fun PreviewImportMediaScreenRestricted() {
     WireTheme {
         ImportMediaRestrictedContent(
-            FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
-            ImportMediaAuthenticatedState()
-        ) {}
+            fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
+            importMediaAuthenticatedState = ImportMediaAuthenticatedState(),
+            {}
+        )
     }
 }
 
@@ -546,7 +550,7 @@ fun PreviewImportMediaScreenRestricted() {
 fun PreviewImportMediaScreenRegular() {
     WireTheme {
         ImportMediaRegularContent(
-            ImportMediaAuthenticatedState(
+            importMediaAuthenticatedState = ImportMediaAuthenticatedState(
                 importedAssets = persistentListOf(
                     ImportedMediaAsset(
                         AssetBundle(
@@ -594,13 +598,14 @@ fun PreviewImportMediaScreenRegular() {
                     )
                 ),
             ),
-            {},
-            {},
-            {},
-            {},
-            MutableSharedFlow(),
-            {}
-        ) {}
+            onSearchQueryChanged = {},
+            onConversationClicked = {},
+            checkRestrictionsAndSendImportedMedia = {},
+            onNewSelfDeletionTimerPicked = {},
+            infoMessage = MutableSharedFlow(),
+            onRemoveAsset = { _ -> },
+            navigateBack = {}
+        )
     }
 }
 

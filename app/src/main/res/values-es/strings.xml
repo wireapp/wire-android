@@ -185,6 +185,10 @@
     <string name="app_settings_screen_title">Configuraci&#243;n de la aplicaci&#243;n</string>
     <string name="give_feedback_screen_title">Enviar comentarios</string>
     <string name="report_bug_screen_title">Informar de un error</string>
+    <string name="about_app_screen_title">About This App</string>
+    <string name="settings_privacy_policy_label">Privacy Policy</string>
+    <string name="settings_terms_of_use_label">Terms of Use</string>
+    <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Configuraci&#243;n de depuraci&#243;n</string>
     <string name="item_dependencies_title">Dependencies:</string>
     <string name="support_screen_title">Soporte</string>
@@ -731,6 +735,11 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTACTOS</string>
     <string name="label_new_group">Nuevo Grupo</string>
+    <string name="label_create_new_group">Create New Group</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d Participant</item>
+        <item quantity="other">%1$d Participants</item>
+    </plurals>
     <string name="label_new_conversation">Nueva Conversaci&#243;n</string>
     <string name="label_search_people">Buscar Personas</string>
     <string name="label_public_wire">Hilo P&#250;blico</string>
@@ -752,6 +761,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="error_no_network_message">Verifica tu conexi&#243;n a Internet e intenta nuevamente.</string>
     <string name="error_downloading_self_user_profile_picture">Hubo un error al descargar tu foto de perfil. Verifica tu conexi&#243;n a Internet.</string>
     <string name="error_uploading_user_avatar">No se pudo subir la foto.</string>
+    <string name="error_process_user_avatar">Picture could not be processed</string>
     <string name="error_uploading_image_message">Fall&#243; la carga de la imagen.</string>
     <string name="error_downloading_image_message">Fall&#243; la descarga de la imagen.</string>
     <string name="error_updating_muting_setting">No se pudieron actualizar las notificaciones.</string>
@@ -783,6 +793,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Abrir conversaci&#243;n</string>
+    <string name="label_start_conversation">Start Conversation</string>
     <string name="email_label">Correo electr&#243;nico</string>
     <string name="phone_label">Tel&#233;fono</string>
     <!-- Notifications -->
@@ -807,6 +818,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="notification_group_call_content">%s llama...</string>
     <string name="notification_call_default_caller_name">Alguien</string>
     <string name="notification_call_default_group_name">Llamada en grupo entrante</string>
+    <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Bit Rate constante</string>
     <string name="calling_button_label_microphone">Micr&#243;fono</string>
@@ -841,6 +853,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Volver a la llamada</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s is calling…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">Calling %1$s…</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Esperando a la red</string>
     <!-- Connections -->
@@ -865,6 +879,9 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="connection_label_ignore">Ignorar</string>
     <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
+    <string name="missing_keypackage_dialog_body">You can’t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galer&#237;a multimedia</string>
     <string name="media_gallery_on_image_downloaded">Guardado en la carpeta Descargas</string>
@@ -957,6 +974,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lock with passcode</string>
+    <string name="settings_send_anonymous_usage_data_title">Send anonymous usage data</string>
+    <string name="settings_send_anonymous_usage_data_description">Usage data allows Wire to understand how the app is being used and how it can be improved. The data is anonymous and does not include the content of your communications (such as messages, files, locations, or calls).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Set app lock passcode</string>
     <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>

@@ -185,6 +185,10 @@
     <string name="app_settings_screen_title">App Settings</string>
     <string name="give_feedback_screen_title">Give Feedback</string>
     <string name="report_bug_screen_title">Report Bug</string>
+    <string name="about_app_screen_title">About This App</string>
+    <string name="settings_privacy_policy_label">Integritetspolicy</string>
+    <string name="settings_terms_of_use_label">Användarvillkor</string>
+    <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
     <string name="item_dependencies_title">Dependencies:</string>
     <string name="support_screen_title">Support</string>
@@ -731,6 +735,11 @@
     <!-- Search Contact-->
     <string name="label_contacts">KONTAKTER</string>
     <string name="label_new_group">Ny grupp</string>
+    <string name="label_create_new_group">Skapa ny grupp</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d deltagare</item>
+        <item quantity="other">%1$d deltagare</item>
+    </plurals>
     <string name="label_new_conversation">Ny konversation</string>
     <string name="label_search_people">Search people</string>
     <string name="label_public_wire">PUBLIC WIRE</string>
@@ -752,6 +761,7 @@
     <string name="error_no_network_message">Please check your Internet connection and try again</string>
     <string name="error_downloading_self_user_profile_picture">There was an error downloading your profile picture. Please check your Internet connection</string>
     <string name="error_uploading_user_avatar">Picture could not be uploaded</string>
+    <string name="error_process_user_avatar">Picture could not be processed</string>
     <string name="error_uploading_image_message">Image upload failed</string>
     <string name="error_downloading_image_message">Image download failed</string>
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
@@ -783,6 +793,7 @@
     <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Open Conversation</string>
+    <string name="label_start_conversation">Start Conversation</string>
     <string name="email_label">Email</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
@@ -807,6 +818,7 @@
     <string name="notification_group_call_content">%s ringer...</string>
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Incoming group call</string>
+    <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
@@ -841,6 +853,8 @@
     <string name="calling_participant_tile_default_user_name">Standard</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s ringer…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">Ringer %1$s…</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Väntar på nätverk</string>
     <!-- Connections -->
@@ -865,6 +879,9 @@
     <string name="connection_label_ignore">Ignorera</string>
     <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
+    <string name="missing_keypackage_dialog_body">You can’t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
@@ -960,6 +977,8 @@
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lock with passcode</string>
+    <string name="settings_send_anonymous_usage_data_title">Skicka anonym användningsdata</string>
+    <string name="settings_send_anonymous_usage_data_description">Usage data allows Wire to understand how the app is being used and how it can be improved. The data is anonymous and does not include the content of your communications (such as messages, files, locations, or calls).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Set app lock passcode</string>
     <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>

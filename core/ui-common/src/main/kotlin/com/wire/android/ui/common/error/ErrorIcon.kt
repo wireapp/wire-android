@@ -32,8 +32,8 @@ import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
 fun ErrorIcon(
-    modifier: Modifier = Modifier,
-    contentDescription: String
+    contentDescription: String,
+    modifier: Modifier = Modifier
 ) {
     Icon(
         modifier = modifier

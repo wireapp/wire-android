@@ -37,7 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.preview.PreviewMultipleThemes
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -46,11 +46,7 @@ import com.wire.android.util.DeviceUtil
 import java.util.Locale
 
 @Composable
-fun AssetFilePreview(
-    modifier: Modifier = Modifier,
-    assetName: String,
-    sizeInBytes: Long
-) {
+fun AssetFilePreview(assetName: String, sizeInBytes: Long, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -90,11 +86,11 @@ fun AssetFilePreview(
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
-fun PreviewWireImage() {
+fun PreviewAssetFilePreview(modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .width(400.dp)
             .height(800.dp)
     ) {

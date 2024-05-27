@@ -63,10 +63,12 @@ class ImagesPreviewViewModel @Inject constructor(
     }
 
     private fun handleAssets() {
+        viewState = viewState.copy(isLoading = true)
         viewModelScope.launch {
             val assets = navArgs.assetUriList.map { handleImportedAsset(it) }
             viewState = viewState.copy(
-                assetBundleList = assets.filterNotNull().toPersistentList()
+                assetBundleList = assets.filterNotNull().toPersistentList(),
+                isLoading = false
             )
         }
     }

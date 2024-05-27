@@ -26,5 +26,6 @@ data class ImagesPreviewState(
     val conversationId: ConversationId,
     val conversationName: String,
     val assetBundleList: PersistentList<ImportedMediaAsset> = persistentListOf(),
-    val selectedIndex: Int = 0
+    val selectedIndex: Int = 0,
+    val isLoading: Boolean = false
 )

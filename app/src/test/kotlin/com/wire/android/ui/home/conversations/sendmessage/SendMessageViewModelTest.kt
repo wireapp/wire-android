@@ -190,7 +190,7 @@ class SendMessageViewModelTest {
                     any()
                 )
             }
-            assert(viewModel.assetTooLargeDialogState is AssetTooLargeDialogState.SingleVisible)
+            assert(viewModel.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
         }
 
     @Test
@@ -232,7 +232,7 @@ class SendMessageViewModelTest {
                     any()
                 )
             }
-            assert(viewModel.assetTooLargeDialogState is AssetTooLargeDialogState.SingleVisible)
+            assert(viewModel.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
         }
 
     @Test

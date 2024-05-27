@@ -18,10 +18,15 @@
 package com.wire.android.ui.home.conversations.media.preview
 
 import android.net.Uri
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.serialization.Serializable
 
 data class ImagesPreviewNavArgs(
     val conversationId: ConversationId,
     val conversationName: String,
-    val assetUri: Uri
+    val assetUriList: ArrayList<Uri>
 )
+
+@Serializable
+data class ImagesPreviewNavBackArgs(val pendingBundles: List<AssetBundle>)

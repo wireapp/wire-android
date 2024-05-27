@@ -19,6 +19,7 @@
 
 package com.wire.android.ui.markdown
 
+import com.wire.android.appLogger
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
@@ -40,6 +41,7 @@ import org.commonmark.node.HtmlInline
 import org.commonmark.node.Image
 import org.commonmark.node.IndentedCodeBlock
 import org.commonmark.node.Link
+import org.commonmark.node.LinkReferenceDefinition
 import org.commonmark.node.ListItem
 import org.commonmark.node.Node
 import org.commonmark.node.OrderedList
@@ -68,7 +70,10 @@ fun <T : Node> T.toContent(isParentDocument: Boolean = false): MarkdownNode {
 
         is FencedCodeBlock -> MarkdownNode.Block.FencedCode(isParentDocument, literal)
         is IndentedCodeBlock -> MarkdownNode.Block.IntendedCode(isParentDocument, literal)
-        is HtmlBlock -> MarkdownNode.Inline.Text(this.literal) // TODO unsupported html
+        is HtmlBlock -> MarkdownNode.Block.Paragraph(
+            children = listOf(MarkdownNode.Inline.Text(this.literal)),
+            isParentDocument
+        ) // TODO unsupported html
 
         is TableBlock -> MarkdownNode.Block.Table(convertChildren<MarkdownNode.Block.TableContent>(), isParentDocument)
         is TableHead -> MarkdownNode.Block.TableContent.Head(convertChildren<MarkdownNode.TableRow>())
@@ -86,7 +91,18 @@ fun <T : Node> T.toContent(isParentDocument: Boolean = false): MarkdownNode {
         is ThematicBreak -> MarkdownNode.Block.ThematicBreak(convertChildren<MarkdownNode.Inline>(), isParentDocument)
         is Strikethrough -> MarkdownNode.Inline.Strikethrough(convertChildren<MarkdownNode.Inline>())
         is HardLineBreak, is SoftLineBreak -> MarkdownNode.Inline.Break(convertChildren<MarkdownNode.Inline>())
-        else -> throw IllegalArgumentException("Unsupported node type: ${this.javaClass.simpleName}")
+        is LinkReferenceDefinition -> MarkdownNode.Block.Paragraph(
+            listOf(MarkdownNode.Inline.Text("[$label]: $destination $title")),
+            isParentDocument
+        )
+
+        else -> {
+            appLogger.e(
+                "Unsupported markdown",
+                IllegalArgumentException("Unsupported node type: ${this.javaClass.simpleName}")
+            )
+            MarkdownNode.Unsupported(isParentDocument = isParentDocument)
+        }
     }
 }
 
@@ -164,6 +180,7 @@ fun MarkdownNode.filterNodesContainingQuery(query: String): MarkdownNode? {
 
         is MarkdownNode.Block.ThematicBreak -> null
         is MarkdownNode.Inline.Break -> this
+        is MarkdownNode.Unsupported -> null
     }
 }
 
@@ -188,6 +205,7 @@ fun MarkdownNode.getFirstInlines(): MarkdownPreview? {
 
         is MarkdownNode.TableCell -> children.toPreview()
         is MarkdownNode.TableRow -> children.firstOrNull()?.children?.toPreview()
+        is MarkdownNode.Unsupported -> null
     }
 }
 
@@ -304,6 +322,7 @@ private fun MarkdownNode.copy(children: List<MarkdownNode>): MarkdownNode {
         // Custom nodes
         is MarkdownNode.TableRow -> this.copy(children = children.filterIsInstance<MarkdownNode.TableCell>())
         is MarkdownNode.TableCell -> this.copy(children = children.filterIsInstance<MarkdownNode.Inline>())
+        is MarkdownNode.Unsupported -> this
     }
 }
 
@@ -345,6 +364,7 @@ fun printMarkdownNodeTree(node: MarkdownNode?, indentLevel: Int = 0) {
         is MarkdownNode.Inline.Code -> "${indent}Code: '${node.literal}'"
         is MarkdownNode.Inline.Strikethrough -> "${indent}Strikethrough: [${node.children.size} children]"
         is MarkdownNode.Inline.Break -> "${indent}Break"
+        is MarkdownNode.Unsupported -> "${indent}Unsupported"
     }
     println(printLog)
 

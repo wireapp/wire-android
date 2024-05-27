@@ -17,6 +17,7 @@ dependencies {
     implementation(composeBom)
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
+    implementation(libs.compose.material.android)
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.material.core)
     implementation(libs.compose.material3)
@@ -27,6 +28,11 @@ dependencies {
 
     implementation(libs.accompanist.systemUI)
     implementation(libs.visibilityModifiers)
+
+    // Image loading
+    implementation(libs.coil.core)
+    implementation(libs.coil.gif)
+    implementation(libs.coil.compose)
 
     testImplementation(libs.junit4)
     androidTestImplementation(libs.androidx.test.extJunit)

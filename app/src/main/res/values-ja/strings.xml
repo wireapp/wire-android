@@ -79,6 +79,7 @@
     <string name="label_user_blocked">ブロック中</string>
     <string name="label_and">と</string>
     <string name="label_retry">再試行</string>
+    <string name="label_draft">*Draft*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">アプリのロゴ</string>
     <string name="content_description_reveal_password">パスワードを表示</string>
@@ -103,6 +104,7 @@
     <string name="content_description_conversation_search_icon">検索アイコン</string>
     <string name="content_description_conversation_search_input">検索入力</string>
     <string name="content_description_conversation_enable_rich_text_mode">リッチテキストモードボタンを有効にする</string>
+    <string name="content_description_conversation_enable_drawing_mode">お絵描きモードボタンを有効にする</string>
     <string name="content_description_conversation_rich_text_header">リッチテキスト書式のヘッダー</string>
     <string name="content_description_conversation_rich_text_bold">リッチテキスト書式の太字</string>
     <string name="content_description_conversation_rich_text_italic">リッチテキスト書式の斜体</string>
@@ -182,7 +184,12 @@
     <string name="app_settings_screen_title">アプリ設定</string>
     <string name="give_feedback_screen_title">フィードバックを送信</string>
     <string name="report_bug_screen_title">不具合の報告</string>
+    <string name="about_app_screen_title">About This App</string>
+    <string name="settings_privacy_policy_label">Privacy Policy</string>
+    <string name="settings_terms_of_use_label">Terms of Use</string>
+    <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">デバッグ設定</string>
+    <string name="item_dependencies_title">Dependencies:</string>
     <string name="support_screen_title">サポート</string>
     <string name="backup_and_restore_screen_title">会話のバックアップと復元</string>
     <string name="search_bar_conversations_hint">会話の検索</string>
@@ -196,6 +203,9 @@
     <string name="settings_backups_group_title">バックアップ</string>
     <string name="settings_other_group_title">その他</string>
     <string name="settings_backup_info">バックアップを作成してあなたの会話履歴を保存します。これによりデバイスをなくしたり、新しいデバイスに切り替えた場合でも、会話履歴を復元することができます。\n\nバックアップファイルを保護する強力なパスワードを設定してください。</string>
+    <string name="settings_backup_last_backup_title">Last Backup</string>
+    <string name="settings_backup_last_backup_date">The most recent backup from this device has been created on %1$s at %2$s.</string>
+    <string name="settings_backup_last_backup_date_no_time">You did not create a backup from this device yet.</string>
     <string name="settings_backup_create">バックアップを作成</string>
     <string name="settings_backup_restore">バックアップから復元</string>
     <!-- Welcome -->
@@ -204,15 +214,16 @@
     <string name="welcome_button_create_personal_account">個人アカウントを作成</string>
     <string name="welcome_screen_carousel_item_message_1">最も安全なコラボレーションプラットフォームのWireへようこそ！</string>
     <string name="welcome_screen_carousel_item_message_2">あなたの情報が安全に保管されているという強い自信</string>
-    <string name="welcome_screen_carousel_item_message_3">Encrypted audio &amp; video conferencing with up\u00A0to 50\u00A0participants</string>
-    <string name="welcome_screen_carousel_item_message_4">Secure file sharing with teams and\u00A0clients</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant</string>
-    <string name="welcome_button_create_team">Create a Team</string>
-    <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
-    <string name="server_details_dialog_title">On-premises Backend</string>
-    <string name="welcome_migration_dialog_title">Welcome To Our New Android App 👋</string>
-    <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
-    <string name="welcome_migration_dialog_continue">Start Using Wire</string>
+    <string name="welcome_screen_carousel_item_message_3">最大50人での暗号化された音声・ビデオ会議</string>
+    <string name="welcome_screen_carousel_item_message_4">チームや顧客との安全なファイル共有</string>
+    <string name="welcome_screen_carousel_item_message_5">Wireは独立して監査されていて、ISOやCCPA、GDPR、SOXに準拠しています</string>
+    <string name="welcome_button_create_team">チームを作成</string>
+    <string name="server_details_dialog_body">バックエンド名:\n%1$s\n\nバックエンドURL:\n%2$s</string>
+    <string name="server_details_dialog_body_with_proxy">バックエンド名:\n%1$s\n\nバックエンドURL:\n%2$s\n\nプロキシURL:\n%3$s\n\nプロキシ認証:\n%4$s</string>
+    <string name="server_details_dialog_title">オンプレミスのバックエンド</string>
+    <string name="welcome_migration_dialog_title">👋Wireの新しいAndroidアプリへようこそ</string>
+    <string name="welcome_migration_dialog_content">誰もが使いやすいようにアプリを作り直しました。\n\nWireの新しいアプリでは強力なセキュリティはそのままに、新しいオプションが追加されアクセシビリティが向上しました。</string>
+    <string name="welcome_migration_dialog_continue">Wireを使い始める</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">更新が必要です</string>
     <string name="api_versioning_client_update_required_message">新機能が利用できない状態です。このアカウントでアプリを使うにはWireを最新のバージョンにアップデートしてください。</string>
@@ -266,59 +277,54 @@
         ログアウトしました。
     </string>
     <string name="session_expired_error_title">セッションの有効期限が切れました</string>
-    <string name="session_expired_error_message">The application did not communicate with the server
-        for a long period of time, or your session has been remotely invalidated.
-    </string>
-    <string name="conversation_history_wipe_explanation">According to your team\'s security
-        settings, your conversation history has also been deleted.</string>
+    <string name="session_expired_error_message">アプリがサーバーと長期間通信しなかったか、セッションが遠隔で無効化されました。</string>
+    <string name="conversation_history_wipe_explanation">チームのセキュリティ設定により、会話の履歴も削除されました。</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Verify your account</string>
-    <string name="second_factor_authentication_instructions_label">Please, check your email %1$s for the verification code and enter it below.</string>
-    <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
+    <string name="second_factor_authentication_title">アカウントを確認</string>
+    <string name="second_factor_authentication_instructions_label">メール%1$sを確認し、確認コードを以下に入力してください。</string>
+    <string name="second_factor_code_error">無効なコードであるか、最大試行回数を超えました。再試行するか、別のコードをリクエストしてください。</string>
     <!-- Remove Device -->
-    <string name="remove_device_title">Remove a Device</string>
-    <string name="remove_device_message">Remove one of your other devices to start using Wire on
-        this one.
-    </string>
-    <string name="remove_device_label">YOUR DEVICES</string>
-    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nAdded: %2$s</string>
-    <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
+    <string name="remove_device_title">デバイスの削除</string>
+    <string name="remove_device_message">このデバイスでWireを使用するには、他のデバイスを 1 つ削除してください。</string>
+    <string name="remove_device_label">デバイス</string>
+    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\n追加: %2$s</string>
+    <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\n追加: %2$s\nアクティブ: %3$s</string>
     <string name="remove_device_id_label">Proteus ID: %1$s</string>
-    <string name="remove_device_mls_thumbprint_label">MLS Thumbprint: %1$s</string>
-    <string name="remove_device_dialog_title">Remove the following device?</string>
-    <string name="remove_device_invalid_password">Invalid password</string>
-    <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
-    <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
-    <string name="item_title_e2ei_certificate">End-to-end Identity Certificate</string>
-    <string name="item_subtitle_status_e2ei_certificate">Status</string>
-    <string name="item_subtitle_serial_number_e2ei_certificate">Serial Number</string>
-    <string name="show_e2ei_certificate_details_button">Show Certificate Details</string>
-    <string name="get_e2ei_certificate_button">Get Certificate</string>
-    <string name="update_e2ei_certificat_button">Update Certificate</string>
-    <string name="e2ei_certificat_status_valid">Valid</string>
-    <string name="e2ei_certificat_status_expired">Expired</string>
-    <string name="e2ei_certificat_status_revoked">Revoked</string>
-    <string name="e2ei_certificat_status_not_activated">Not activated</string>
+    <string name="remove_device_mls_thumbprint_label">MLSサムネイル: %1$s</string>
+    <string name="remove_device_dialog_title">このデバイスを削除しますか？</string>
+    <string name="remove_device_invalid_password">無効なパスワードです</string>
+    <string name="remove_device_details_description">このデバイスを使用していない場合、このデバイスを削除してください。このデバイスからログアウトされます。</string>
+    <string name="remove_device_details_description_with_wipe">このデバイスを使用していない場合、このデバイスを削除してください。チームのセキュリティ設定により、会話履歴も削除されます。</string>
+    <string name="item_title_e2ei_certificate">エンドツーエンドのアイデンティティ証明書</string>
+    <string name="item_subtitle_status_e2ei_certificate">ステータス</string>
+    <string name="item_subtitle_serial_number_e2ei_certificate">シリアルナンバー</string>
+    <string name="show_e2ei_certificate_details_button">証明書の詳細を表示</string>
+    <string name="get_e2ei_certificate_button">証明書の取得</string>
+    <string name="update_e2ei_certificat_button">証明書を更新</string>
+    <string name="e2ei_certificat_status_valid">有効</string>
+    <string name="e2ei_certificat_status_expired">期限切れ</string>
+    <string name="e2ei_certificat_status_revoked">失効済み</string>
+    <string name="e2ei_certificat_status_not_activated">有効化されていません</string>
     <!-- Register Device -->
-    <string name="register_device_title">Add this Device</string>
-    <string name="register_device_text">Enter your password to use Wire on this device.</string>
+    <string name="register_device_title">このデバイスを追加</string>
+    <string name="register_device_text">このデバイスでWireを使用するにはパスワードを入力してください。</string>
     <!-- Delete Message -->
-    <string name="delete_message_dialog_title">Delete Message?</string>
-    <string name="delete_message_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nIf you delete it for everyone, the message will be removed for all participants.\n\nA deleted message can not be restored.</string>
-    <string name="label_delete_for_me">Delete for Me</string>
-    <string name="label_delete_for_everyone">Delete for Everyone</string>
-    <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
-    <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
-    <string name="deleted_message_text">Deleted message</string>
+    <string name="delete_message_dialog_title">メッセージを削除しますか？</string>
+    <string name="delete_message_dialog_message">メッセージを自分の会話から削除しても、他の参加者からはそのメッセージは見えます。\n\nメッセージを全員の会話から削除すると、全ての参加者の会話から削除されます。\n\n削除したメッセージは復元できません。</string>
+    <string name="label_delete_for_me">自分の会話から削除</string>
+    <string name="label_delete_for_everyone">全員の会話から削除</string>
+    <string name="delete_message_for_yourself_dialog_title">このメッセージを自分の会話から削除しますか？</string>
+    <string name="delete_message_for_yourself_dialog_message">メッセージを自分の会話から削除しても、他の参加者からはそのメッセージは見えます。\n\n削除したメッセージは復元できません。</string>
+    <string name="deleted_message_text">削除されたメッセージ</string>
     <!-- Replies/Quotes to other messages -->
-    <string name="label_quote_invalid_or_not_found">You can not see this message</string>
-    <string name="label_quote_original_message_is_a_picture">Picture</string>
-    <string name="label_quote_original_message_date">Original message from %s</string>
+    <string name="label_quote_invalid_or_not_found">このメッセージを見ることができません</string>
+    <string name="label_quote_original_message_is_a_picture">写真</string>
+    <string name="label_quote_original_message_date">%sからの元のメッセージ</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Create a Personal Account</string>
-    <string name="create_personal_account_summary_title">Personal Account Created</string>
-    <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
-    <string name="create_personal_account_email_text">Enter your email to start using the most secure collaboration platform.</string>
+    <string name="create_personal_account_title">個人アカウントを作成</string>
+    <string name="create_personal_account_summary_title">個人アカウントを作成しました</string>
+    <string name="create_personal_account_text">Wireのパブリッククラウドサーバーを使用して、友人や家族と安全にチャットできます。</string>
+    <string name="create_personal_account_email_text">メールアドレスを入力して、最も安全なコラボレーションプラットフォームを使い始めましょう。</string>
     <string name="create_personal_account_details_text">Enter your personal details:</string>
     <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
     <string name="create_team_title">Create a Team</string>
@@ -462,6 +468,14 @@
     <string name="message_details_reactions_empty_learn_more">Learn more about reactions</string>
     <string name="message_details_read_receipts_empty_text">No one read this message yet 👀</string>
     <string name="message_details_read_receipts_empty_learn_more">Learn more about read receipts</string>
+    <!-- Messages Date and Time -->
+    <string name="message_datetime_now">Just now</string>
+    <plurals name="message_datetime_minutes_ago">
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <string name="message_datetime_today">Today, %s</string>
+    <string name="message_datetime_yesterday">Yesterday, %s</string>
+    <string name="message_datetime_other">%s</string>
     <!-- Attachment options -->
     <string name="attachment_share_file">File</string>
     <string name="attachment_share_image">Gallery</string>
@@ -699,6 +713,10 @@
     <!-- Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
+    <string name="label_create_new_group">Create New Group</string>
+    <plurals name="label_x_participants">
+        <item quantity="other">%1$d Participants</item>
+    </plurals>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
     <string name="label_public_wire">PUBLIC WIRE</string>
@@ -720,6 +738,7 @@
     <string name="error_no_network_message">Please check your Internet connection and try again</string>
     <string name="error_downloading_self_user_profile_picture">There was an error downloading your profile picture. Please check your Internet connection</string>
     <string name="error_uploading_user_avatar">Picture could not be uploaded</string>
+    <string name="error_process_user_avatar">Picture could not be processed</string>
     <string name="error_uploading_image_message">Image upload failed</string>
     <string name="error_downloading_image_message">Image download failed</string>
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
@@ -751,6 +770,7 @@
     <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Open Conversation</string>
+    <string name="label_start_conversation">Start Conversation</string>
     <string name="email_label">Email</string>
     <string name="phone_label">Phone</string>
     <!-- Notifications -->
@@ -775,6 +795,7 @@
     <string name="notification_group_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Incoming group call</string>
+    <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>
@@ -809,6 +830,8 @@
     <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s is calling…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">Calling %1$s…</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
     <!-- Connections -->
@@ -833,6 +856,9 @@
     <string name="connection_label_ignore">Ignore</string>
     <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
+    <string name="missing_keypackage_dialog_body">You can’t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
@@ -928,6 +954,8 @@
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lock with passcode</string>
+    <string name="settings_send_anonymous_usage_data_title">Send anonymous usage data</string>
+    <string name="settings_send_anonymous_usage_data_description">Usage data allows Wire to understand how the app is being used and how it can be improved. The data is anonymous and does not include the content of your communications (such as messages, files, locations, or calls).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Set app lock passcode</string>
     <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
@@ -975,6 +1003,8 @@
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
     <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
@@ -1224,6 +1254,8 @@
     <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_title">Certificate couldn’t be issued</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_text">Please try again, or reach out to your team admin.</string>
     <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_description">Log out to reduce security risks. Then log in again, get a new certificate, and reset your password.\n\nIf you keep using this device, your conversations are no longer verified.</string>
@@ -1233,6 +1265,7 @@
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
     <string name="record_audio_send_label">Send Audio Message</string>
+    <string name="record_audio_apply_filter_label">Apply audio filter</string>
     <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
     <string name="record_audio_discard_dialog_text">The audio message will be deleted and can not be sent.</string>
     <string name="record_audio_discard_dialog_discard_button">Discard</string>

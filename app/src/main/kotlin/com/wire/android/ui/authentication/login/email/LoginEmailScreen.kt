@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -41,7 +40,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -62,8 +60,9 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.rememberBottomBarElevationState
-import com.wire.android.ui.common.textfield.AutoFillTextField
+import com.wire.android.ui.common.textfield.WireAutoFillType
 import com.wire.android.ui.common.textfield.WirePasswordTextField
+import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.theme.WireTheme
@@ -207,7 +206,6 @@ private fun LoginEmailContent(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun UserIdentifierInput(
     modifier: Modifier,
@@ -216,8 +214,8 @@ private fun UserIdentifierInput(
     onUserIdentifierChange: (TextFieldValue) -> Unit,
     isEnabled: Boolean,
 ) {
-    AutoFillTextField(
-        autofillTypes = listOf(AutofillType.EmailAddress, AutofillType.Username),
+    WireTextField(
+        autoFillType = WireAutoFillType.Login,
         value = userIdentifier,
         onValueChange = onUserIdentifierChange,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
@@ -233,7 +231,6 @@ private fun UserIdentifierInput(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswordChange: (TextFieldValue) -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -241,7 +238,7 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
         value = password,
         onValueChange = onPasswordChange,
         imeAction = ImeAction.Done,
-        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+        onImeAction = { keyboardController?.hide() },
         modifier = modifier.testTag("passwordField"),
         autofill = true,
         testTag = "PasswordInput"

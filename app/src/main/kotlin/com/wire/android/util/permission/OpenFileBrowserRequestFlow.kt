@@ -18,9 +18,9 @@
 
 package com.wire.android.util.permission
 
-import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -35,18 +35,19 @@ import com.wire.android.util.extension.getActivity
  * @param onPermissionDenied action to be executed when the permissions is denied
  */
 @Composable
-fun rememberOpenFileBrowserFlow(
-    onFileBrowserItemPicked: (Uri) -> Unit,
+fun <T> rememberOpenFileBrowserFlow(
+    contract: ActivityResultContract<String, T>,
+    onFileBrowserItemPicked: (T) -> Unit,
     onPermissionDenied: () -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
-): UseStorageRequestFlow {
+): UseStorageRequestFlow<T> {
     val context = LocalContext.current
 
-    val openFileBrowserLauncher: ManagedActivityResultLauncher<String, Uri?> =
+    val openFileBrowserLauncher: ManagedActivityResultLauncher<String, T> =
         rememberLauncherForActivityResult(
-            ActivityResultContracts.GetContent()
+            contract
         ) { onChosenFileUri ->
-            onChosenFileUri?.let { onFileBrowserItemPicked(it) }
+            onFileBrowserItemPicked(onChosenFileUri)
         }
 
     val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =

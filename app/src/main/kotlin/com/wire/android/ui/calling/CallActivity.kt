@@ -18,11 +18,13 @@
 package com.wire.android.ui.calling
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
@@ -33,18 +35,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import com.wire.android.appLogger
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
-import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.calling.ongoing.OngoingCallScreen
+import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -56,22 +60,34 @@ class CallActivity : AppCompatActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
 
+    val callActivityViewModel: CallActivityViewModel by viewModels()
+
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
+    @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        callNotificationManager.hideAllNotifications()
-
+        setUpScreenShootPreventionFlag()
         setUpCallingFlags()
-
-        appLogger.i("$TAG Initializing proximity sensor..")
-        proximitySensorManager.initialize()
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
         val screenType = intent.extras?.getString(EXTRA_SCREEN_TYPE)
+        val userId = intent.extras?.getString(EXTRA_USER_ID)
+
+        userId?.let {
+            qualifiedIdMapper.fromStringToQualifiedID(it).run {
+                callActivityViewModel.switchAccountIfNeeded(this)
+            }
+        }
+
+        setUpCallingFlags()
+        setUpScreenShootPreventionFlag()
+
+        appLogger.i("$TAG Initializing proximity sensor..")
+        proximitySensorManager.initialize()
 
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
@@ -93,10 +109,14 @@ class CallActivity : AppCompatActivity() {
                         ) { screenType ->
                             conversationId?.let {
                                 when (screenType) {
-                                    CallScreenType.Initiating.name -> InitiatingCallScreen(
-                                        qualifiedIdMapper.fromStringToQualifiedID(it)
-                                    ) {
-                                        currentCallScreenType = CallScreenType.Ongoing.name
+                                    CallScreenType.Outgoing.name -> {
+                                        OutgoingCallScreen(
+                                            conversationId = qualifiedIdMapper.fromStringToQualifiedID(
+                                                it
+                                            )
+                                        ) {
+                                            currentCallScreenType = CallScreenType.Ongoing.name
+                                        }
                                     }
 
                                     CallScreenType.Ongoing.name -> OngoingCallScreen(
@@ -111,9 +131,7 @@ class CallActivity : AppCompatActivity() {
                                 }
                             }
                         }
-                    } ?: run {
-                        finish()
-                    }
+                    } ?: run { finish() }
                 }
             }
         }
@@ -149,21 +167,41 @@ fun CallActivity.setUpCallingFlags() {
     }
 }
 
+fun CallActivity.setUpScreenShootPreventionFlag() {
+    lifecycleScope.launch {
+        if (callActivityViewModel.isScreenshotCensoringConfigEnabled().await()) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
+}
+
 fun getOngoingCallIntent(
     activity: Activity,
     conversationId: String
 ) = Intent(activity, CallActivity::class.java).apply {
+    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
     putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Ongoing.name)
 }
 
-fun getInitiatingCallIntent(
+fun getOutgoingCallIntent(
     activity: Activity,
     conversationId: String
 ) = Intent(activity, CallActivity::class.java).apply {
+    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-    putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Initiating.name)
+    putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Outgoing.name)
 }
+
+fun getIncomingCallIntent(context: Context, conversationId: String, userId: String?) =
+    Intent(context.applicationContext, CallActivity::class.java).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        putExtra(CallActivity.EXTRA_USER_ID, userId)
+        putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
+        putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Incoming.name)
+    }
 
 fun CallActivity.openAppLockActivity() {
     Intent(this, AppLockActivity::class.java).apply {

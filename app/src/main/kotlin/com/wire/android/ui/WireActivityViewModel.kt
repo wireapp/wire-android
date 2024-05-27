@@ -19,6 +19,7 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -77,6 +78,7 @@ import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSo
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -116,7 +118,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: GlobalDataStore,
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
-    private val workManager: WorkManager,
+    private val workManager: WorkManager
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -255,12 +257,23 @@ class WireActivityViewModel @Inject constructor(
         return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
     }
 
+    @VisibleForTesting
+    internal suspend fun canLoginThroughDeepLinks() = viewModelScope.async {
+        coreLogic.getGlobalScope().session.currentSession().takeIf {
+            it is CurrentSessionResult.Success
+        }?.let {
+            val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
+            coreLogic.getSessionScope(currentUserId).calls.establishedCall().first().isEmpty()
+        } ?: true
+    }
+
     @Suppress("ComplexMethod")
     fun handleDeepLink(
         intent: Intent?,
         onIsSharingIntent: () -> Unit,
         onOpenConversation: (ConversationId) -> Unit,
-        onResult: (DeepLinkResult) -> Unit
+        onResult: (DeepLinkResult) -> Unit,
+        onCannotLoginDuringACall: () -> Unit
     ) {
         if (shouldMigrate()) {
             // means User is Logged in, but didn't finish the migration yet.
@@ -270,9 +283,21 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch {
             val result = intent?.data?.let { deepLinkProcessor(it) }
             when {
-                result is DeepLinkResult.SSOLogin -> onResult(result)
+                result is DeepLinkResult.SSOLogin -> {
+                    if (canLoginThroughDeepLinks().await()) {
+                        onResult(result)
+                    } else {
+                        onCannotLoginDuringACall()
+                    }
+                }
                 result is DeepLinkResult.MigrationLogin -> onResult(result)
-                result is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
+                result is DeepLinkResult.CustomServerConfig -> {
+                    if (canLoginThroughDeepLinks().await()) {
+                        onCustomServerConfig(result)
+                    } else {
+                        onCannotLoginDuringACall()
+                    }
+                }
                 isSharingIntent(intent) -> onIsSharingIntent()
                 shouldLogIn() -> {
                     // to handle the deepLinks above user needs to be Logged in

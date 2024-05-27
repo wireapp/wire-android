@@ -26,7 +26,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -116,7 +116,7 @@ fun GroupConversationSettings(
                 )
             }
 
-            item { WireDivider(color = colorsScheme().outline) }
+            item { WireDivider(color = colorsScheme().outlineVariant) }
 
             item {
                 ServicesOption(
@@ -152,7 +152,7 @@ fun GroupConversationSettings(
                 )
             }
         }
-        item { WireDivider(color = colorsScheme().outline) }
+        item { WireDivider(color = colorsScheme().outlineVariant) }
         item {
             ReadReceiptOption(
                 isSwitchEnabled = state.isUpdatingReadReceiptAllowed,
@@ -220,7 +220,7 @@ private fun GroupNameItem(
             onLongClick = { /* not handled */ }),
         arrowType = if (!canBeChanged) ArrowType.NONE else ArrowType.CENTER_ALIGNED
     )
-    Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
+    HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
 }
 
 @Composable
@@ -230,7 +230,7 @@ private fun ProtocolDetails(label: UIText, text: UIText) {
         title = text.asString(),
         arrowType = ArrowType.NONE
     )
-    Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
+    HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
 }
 
 @Composable
@@ -289,7 +289,7 @@ fun GroupOptionWithSwitch(
         },
         arrowType = ArrowType.NONE
     )
-    Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
+    HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
 }
 
 @Composable

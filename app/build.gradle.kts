@@ -35,7 +35,6 @@ plugins {
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
-    id(ScriptPlugins.spotless)
     id(libs.plugins.wire.kover.get().pluginId)
 }
 
@@ -69,25 +68,26 @@ android {
 
     sourceSets {
         // Add the "foss" sourceSets for the fdroid flavor
-
         if (fdroidBuild) {
             getByName("fdroid") {
                 java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
-                resources.srcDirs("src/prod/res")
+                res.srcDirs("src/prod/res")
                 println("Building with FOSS sourceSets")
             }
             // For all other flavors use the "nonfree" sourceSets
         } else {
             getByName("main") {
-                java.srcDirs("src/main/kotlin", "src/nonfree/kotlin")
+                java.srcDirs("src/nonfree/kotlin")
                 println("Building with non-free sourceSets")
             }
         }
     }
 }
 
-
-
+aboutLibraries {
+    val isAboutLibrariesDisabled = System.getenv("DISABLE_ABOUT_LIBRARIES")?.equals("true", true) ?: false
+    registerAndroidTasks = !isAboutLibrariesDisabled
+}
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
@@ -140,6 +140,7 @@ dependencies {
 
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
+    implementation(libs.compose.material.android)
     // we still cannot get rid of material2 because swipeable is still missing - https://issuetracker.google.com/issues/229839039
     // https://developer.android.com/jetpack/compose/designsystems/material2-material3#components-and
     implementation(libs.compose.material.core)

@@ -80,6 +80,7 @@
     <string name="label_user_blocked">Bloqueado</string>
     <string name="label_and">y</string>
     <string name="label_retry">Reintentar</string>
+    <string name="label_draft">*Draft*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">Logo de la aplicación</string>
     <string name="content_description_reveal_password">Mostrar contraseña</string>
@@ -104,6 +105,7 @@
     <string name="content_description_conversation_search_icon">Search icon</string>
     <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_conversation_enable_rich_text_mode">Bot&#243;n de modo de texto enriquecido</string>
+    <string name="content_description_conversation_enable_drawing_mode">Enable drawing mode button</string>
     <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
     <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
     <string name="content_description_conversation_rich_text_italic">Rich text formatting Italic</string>
@@ -183,7 +185,12 @@
     <string name="app_settings_screen_title">Configuraci&#243;n de la aplicaci&#243;n</string>
     <string name="give_feedback_screen_title">Enviar comentarios</string>
     <string name="report_bug_screen_title">Informar de un error</string>
+    <string name="about_app_screen_title">About This App</string>
+    <string name="settings_privacy_policy_label">Privacy Policy</string>
+    <string name="settings_terms_of_use_label">Terms of Use</string>
+    <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Configuraci&#243;n de depuraci&#243;n</string>
+    <string name="item_dependencies_title">Dependencies:</string>
     <string name="support_screen_title">Soporte</string>
     <string name="backup_and_restore_screen_title">Copia de seguridad y restauraci&#243;n de conversaciones</string>
     <string name="search_bar_conversations_hint">Buscar conversaciones</string>
@@ -199,6 +206,9 @@
     <string name="settings_backup_info">Crea una copia de seguridad para preservar el historial de tus conversaciones. Puedes usarla para restaurar el historial si pierdes tu dispositivo o cambias a uno nuevo.
 
 Elige una contrase&#241;a segura para proteger el archivo de copia de seguridad.</string>
+    <string name="settings_backup_last_backup_title">Last Backup</string>
+    <string name="settings_backup_last_backup_date">The most recent backup from this device has been created on %1$s at %2$s.</string>
+    <string name="settings_backup_last_backup_date_no_time">You did not create a backup from this device yet.</string>
     <string name="settings_backup_create">Crear una copia de seguridad</string>
     <string name="settings_backup_restore">Restaurar desde una copia de seguridad</string>
     <!-- Welcome -->
@@ -216,6 +226,7 @@ Elige una contrase&#241;a segura para proteger el archivo de copia de seguridad.
 
 URL del backend:
 %2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">Backend local</string>
     <string name="welcome_migration_dialog_title">Bienvenido a nuestra nueva aplicaci&#243;n para Android &#128075;</string>
     <string name="welcome_migration_dialog_content">Reconstruimos la aplicaci&#243;n para que sea m&#225;s usable para todos. Conoce m&#225;s sobre la aplicaci&#243;n redise&#241;ada de Wire&#8212;nuevas opciones y mejor accesibilidad, con la misma seguridad s&#243;lida.</string>
@@ -269,7 +280,7 @@ URL del backend:
     <string name="conversation_history_wipe_explanation">De acuerdo con la configuraci&#243;n de seguridad de tu equipo, tu historial de conversaci&#243;n tambi&#233;n ha sido eliminado.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verifica tu cuenta</string>
-    <string name="second_factor_authentication_instructions_label">Ingresa el c&#243;digo de verificaci&#243;n enviado al correo electr&#243;nico %1$s</string>
+    <string name="second_factor_authentication_instructions_label">Please, check your email %1$s for the verification code and enter it below.</string>
     <string name="second_factor_code_error">C&#243;digo inv&#225;lido o n&#250;mero m&#225;ximo de intentos ha sido alcanzado. Por favor, int&#233;ntalo de nuevo o solicita otro c&#243;digo.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Eliminar un dispositivo</string>
@@ -462,6 +473,15 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="message_details_reactions_empty_learn_more">M&#225;s informaci&#243;n sobre las reacciones</string>
     <string name="message_details_read_receipts_empty_text">Todav&#237;a nadie ha le&#237;do este mensaje &#128064;</string>
     <string name="message_details_read_receipts_empty_learn_more">M&#225;s informaci&#243;n sobre los recibos de lectura</string>
+    <!-- Messages Date and Time -->
+    <string name="message_datetime_now">Just now</string>
+    <plurals name="message_datetime_minutes_ago">
+        <item quantity="one">1 minute ago</item>
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <string name="message_datetime_today">Today, %s</string>
+    <string name="message_datetime_yesterday">Yesterday, %s</string>
+    <string name="message_datetime_other">%s</string>
     <!-- Attachment options -->
     <string name="attachment_share_file">Adjuntar archivo</string>
     <string name="attachment_share_image">Adjuntar imagen</string>
@@ -715,6 +735,11 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTACTOS</string>
     <string name="label_new_group">Nuevo Grupo</string>
+    <string name="label_create_new_group">Create New Group</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d Participant</item>
+        <item quantity="other">%1$d Participants</item>
+    </plurals>
     <string name="label_new_conversation">Nueva Conversaci&#243;n</string>
     <string name="label_search_people">Buscar Personas</string>
     <string name="label_public_wire">Hilo P&#250;blico</string>
@@ -736,6 +761,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="error_no_network_message">Verifica tu conexi&#243;n a Internet e intenta nuevamente.</string>
     <string name="error_downloading_self_user_profile_picture">Hubo un error al descargar tu foto de perfil. Verifica tu conexi&#243;n a Internet.</string>
     <string name="error_uploading_user_avatar">No se pudo subir la foto.</string>
+    <string name="error_process_user_avatar">Picture could not be processed</string>
     <string name="error_uploading_image_message">Fall&#243; la carga de la imagen.</string>
     <string name="error_downloading_image_message">Fall&#243; la descarga de la imagen.</string>
     <string name="error_updating_muting_setting">No se pudieron actualizar las notificaciones.</string>
@@ -767,6 +793,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Abrir conversaci&#243;n</string>
+    <string name="label_start_conversation">Start Conversation</string>
     <string name="email_label">Correo electr&#243;nico</string>
     <string name="phone_label">Tel&#233;fono</string>
     <!-- Notifications -->
@@ -791,6 +818,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="notification_group_call_content">%s llama...</string>
     <string name="notification_call_default_caller_name">Alguien</string>
     <string name="notification_call_default_group_name">Llamada en grupo entrante</string>
+    <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Bit Rate constante</string>
     <string name="calling_button_label_microphone">Micr&#243;fono</string>
@@ -825,6 +853,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Volver a la llamada</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s is calling…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">Calling %1$s…</string>
     <string name="connectivity_status_bar_connecting">Decrypting messages</string>
     <string name="connectivity_status_bar_waiting_for_network">Esperando a la red</string>
     <!-- Connections -->
@@ -849,6 +879,9 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="connection_label_ignore">Ignorar</string>
     <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
+    <string name="missing_keypackage_dialog_body">You can’t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galer&#237;a multimedia</string>
     <string name="media_gallery_on_image_downloaded">Guardado en la carpeta Descargas</string>
@@ -941,6 +974,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lock with passcode</string>
+    <string name="settings_send_anonymous_usage_data_title">Send anonymous usage data</string>
+    <string name="settings_send_anonymous_usage_data_description">Usage data allows Wire to understand how the app is being used and how it can be improved. The data is anonymous and does not include the content of your communications (such as messages, files, locations, or calls).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Set app lock passcode</string>
     <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
@@ -990,6 +1025,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="custom_backend_dialog_body">Si continúa, su cliente será redirigido al siguiente servidor local:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy authentication:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">Blacklist URL:</string>
     <string name="custom_backend_dialog_body_backend_teams">Teams URL:</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
@@ -1251,6 +1288,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_title">Certificate couldn’t be issued</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_text">Please try again, or reach out to your team admin.</string>
     <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_description">Log out to reduce security risks. Then log in again, get a new certificate, and reset your password.\n\nIf you keep using this device, your conversations are no longer verified.</string>
@@ -1260,6 +1299,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
     <string name="record_audio_send_label">Send Audio Message</string>
+    <string name="record_audio_apply_filter_label">Apply audio filter</string>
     <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
     <string name="record_audio_discard_dialog_text">The audio message will be deleted and can not be sent.</string>
     <string name="record_audio_discard_dialog_discard_button">Discard</string>

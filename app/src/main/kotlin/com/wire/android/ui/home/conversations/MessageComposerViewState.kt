@@ -36,7 +36,12 @@ data class MessageComposerViewState(
 
 sealed class AssetTooLargeDialogState {
     data object Hidden : AssetTooLargeDialogState()
-    data class Visible(val assetType: AttachmentType, val maxLimitInMB: Int, val savedToDevice: Boolean) : AssetTooLargeDialogState()
+    data class Visible(
+        val assetType: AttachmentType,
+        val maxLimitInMB: Int,
+        val savedToDevice: Boolean,
+        val multipleAssets: Boolean = false
+    ) : AssetTooLargeDialogState()
 }
 
 sealed class VisitLinkDialogState {
@@ -52,15 +57,21 @@ sealed class InvalidLinkDialogState {
 sealed class SureAboutMessagingDialogState {
     data object Hidden : SureAboutMessagingDialogState()
     sealed class Visible(open val conversationId: ConversationId) : SureAboutMessagingDialogState() {
-        data class ConversationVerificationDegraded(val messageBundleToSend: MessageBundle) : Visible(messageBundleToSend.conversationId)
+        data class ConversationVerificationDegraded(
+            override val conversationId: ConversationId,
+            val messageBundleListToSend: List<MessageBundle>
+        ) : Visible(conversationId)
 
         sealed class ConversationUnderLegalHold(override val conversationId: ConversationId) : Visible(conversationId) {
             data class BeforeSending(
-                val messageBundleToSend: MessageBundle
-            ) : ConversationUnderLegalHold(messageBundleToSend.conversationId)
+                override val conversationId: ConversationId,
+                val messageBundleListToSend: List<MessageBundle>
+            ) : ConversationUnderLegalHold(conversationId)
 
-            data class AfterSending(val messageId: MessageId, override val conversationId: ConversationId) :
-                ConversationUnderLegalHold(conversationId)
+            data class AfterSending(
+                override val conversationId: ConversationId,
+                val messageIdList: List<MessageId>
+            ) : ConversationUnderLegalHold(conversationId)
         }
     }
 }

@@ -75,7 +75,7 @@ fun EnabledMessageComposer(
     onSearchMentionQueryChanged: (String) -> Unit,
     onTypingEvent: (Conversation.TypingIndicatorMode) -> Unit,
     onSendButtonClicked: () -> Unit,
-    onImagePicked: (Uri) -> Unit,
+    onImagesPicked: (List<Uri>) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onLocationPicked: (GeoLocatedAddress) -> Unit,
@@ -261,7 +261,10 @@ fun EnabledMessageComposer(
                                     additionalOptionStateHolder.toRichTextEditing()
                                 },
                                 onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                                onDrawingModeClicked = additionalOptionStateHolder::toDrawingMode
+                                onDrawingModeClicked = {
+                                    showAdditionalOptionsMenu()
+                                    additionalOptionStateHolder.toDrawingMode()
+                                }
                             )
                         }
                         Box(
@@ -283,7 +286,7 @@ fun EnabledMessageComposer(
                                     onRecordAudioMessageClicked = ::toAudioRecording,
                                     onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
                                     onLocationPickerClicked = ::toLocationPicker,
-                                    onImagePicked = onImagePicked,
+                                    onImagesPicked = onImagesPicked,
                                     onAttachmentPicked = onAttachmentPicked,
                                     onAudioRecorded = onAudioRecorded,
                                     onLocationPicked = onLocationPicked,
@@ -294,22 +297,22 @@ fun EnabledMessageComposer(
                                 )
                             }
                         }
-
-                        if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.DrawingMode) {
-                            DrawingCanvasBottomSheet(
-                                onDismissSketch = {
-                                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
-                                },
-                                onSendSketch = {
-                                    onAttachmentPicked(UriAsset(it))
-                                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
-                                },
-                                conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
-                                tempWritableImageUri = tempWritableImageUri
-                            )
-                        }
                     }
                 }
+            }
+
+            if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.DrawingMode) {
+                DrawingCanvasBottomSheet(
+                    onDismissSketch = {
+                        showAdditionalOptionsMenu()
+                    },
+                    onSendSketch = {
+                        onAttachmentPicked(UriAsset(it))
+                        showAdditionalOptionsMenu()
+                    },
+                    conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
+                    tempWritableImageUri = tempWritableImageUri
+                )
             }
 
             BackHandler(inputStateHolder.inputType is MessageCompositionType.Editing) {

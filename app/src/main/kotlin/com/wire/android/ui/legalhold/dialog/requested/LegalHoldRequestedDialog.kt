@@ -21,12 +21,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -53,7 +51,6 @@ import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LegalHoldRequestedDialog(
     state: LegalHoldRequestedState.Visible,
@@ -124,7 +121,7 @@ fun LegalHoldRequestedDialog(
                             else -> WireTextFieldState.Default
                         },
                         imeAction = ImeAction.Done,
-                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                        onImeAction = { keyboardController?.hide() },
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .padding(bottom = MaterialTheme.wireDimensions.spacing8x)

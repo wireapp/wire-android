@@ -24,8 +24,11 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.draft.MessageDraft
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -132,4 +135,16 @@ class MessageComposerViewModelTest {
             // then
             coVerify(exactly = 1) { arrangement.saveMessageDraftUseCase.invoke(eq(messageDraft)) }
         }
+
+    @Test
+    fun `given no current session, then disable interaction`() = runTest {
+        // given
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withCurrentSessionFlowResult(flowOf(CurrentSessionResult.Failure.SessionNotFound))
+            .arrange()
+        advanceUntilIdle()
+        // then
+        assertEquals(InteractionAvailability.DISABLED, viewModel.messageComposerViewState.value.interactionAvailability)
+    }
 }

@@ -24,7 +24,9 @@ import com.wire.kalium.logic.data.user.UserId
 object NotificationConstants {
 
     private const val INCOMING_CALL_CHANNEL_ID = "com.wire.android.notification_incoming_call_channel"
+    private const val OUTGOING_CALL_CHANNEL_ID = "com.wire.android.notification_outgoing_call_channel"
     const val INCOMING_CALL_CHANNEL_NAME = "Incoming calls"
+    const val OUTGOING_CALL_CHANNEL_NAME = "Outgoing call"
     const val ONGOING_CALL_CHANNEL_ID = "com.wire.android.notification_ongoing_call_channel"
     const val ONGOING_CALL_CHANNEL_NAME = "Ongoing calls"
 
@@ -49,6 +51,7 @@ object NotificationConstants {
 
     // Notification IDs (has to be unique!)
     val CALL_INCOMING_NOTIFICATION_ID = "wire_incoming_call_notification".hashCode()
+    val CALL_OUTGOING_NOTIFICATION_ID = "wire_outgoing_call_notification".hashCode()
     val CALL_ONGOING_NOTIFICATION_ID = "wire_ongoing_call_notification".hashCode()
     val PERSISTENT_NOTIFICATION_ID = "wire_persistent_web_socket_notification".hashCode()
     val MESSAGE_SYNC_NOTIFICATION_ID = "wire_notification_fetch_notification".hashCode()
@@ -66,6 +69,7 @@ object NotificationConstants {
     fun getMessagesChannelId(userId: UserId): String = getChanelIdForUser(userId, MESSAGE_CHANNEL_ID)
     fun getPingsChannelId(userId: UserId): String = getChanelIdForUser(userId, PING_CHANNEL_ID)
     fun getIncomingChannelId(userId: UserId): String = getChanelIdForUser(userId, INCOMING_CALL_CHANNEL_ID)
+    fun getOutgoingChannelId(userId: UserId): String = getChanelIdForUser(userId, OUTGOING_CALL_CHANNEL_ID)
 
     /**
      * @return NotificationChannelId [String] specific for user, use it to post a notifications.

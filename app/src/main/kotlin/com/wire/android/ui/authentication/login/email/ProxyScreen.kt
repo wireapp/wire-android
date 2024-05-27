@@ -22,13 +22,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -73,7 +71,7 @@ private fun ProxyContent(
     Column(
         modifier = Modifier
     ) {
-        Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
+        HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
         Text(
             text = stringResource(R.string.label_proxy_credentials),
             style = MaterialTheme.wireTypography.title03.copy(
@@ -139,7 +137,6 @@ private fun ProxyIdentifierInput(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun ProxyPasswordInput(modifier: Modifier, proxyPassword: TextFieldValue, onProxyPasswordChange: (TextFieldValue) -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -148,7 +145,7 @@ private fun ProxyPasswordInput(modifier: Modifier, proxyPassword: TextFieldValue
         onValueChange = onProxyPasswordChange,
         imeAction = ImeAction.Done,
         labelText = stringResource(R.string.label_proxy_password),
-        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+        onImeAction = { keyboardController?.hide() },
         modifier = modifier.testTag("passwordField"),
         autofill = false
     )

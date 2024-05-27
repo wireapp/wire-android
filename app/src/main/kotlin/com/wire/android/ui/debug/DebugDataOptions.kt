@@ -140,16 +140,6 @@ fun DebugDataOptionsContent(
                 trailingIcon = R.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,
-                    onClick = { }
-                )
-            )
-
-            SettingsItem(
-                title = stringResource(R.string.debug_id),
-                text = state.debugId,
-                trailingIcon = R.drawable.ic_copy,
-                onIconPressed = Clickable(
-                    enabled = true,
                     onClick = { onCopyText(state.debugId) }
                 )
             )

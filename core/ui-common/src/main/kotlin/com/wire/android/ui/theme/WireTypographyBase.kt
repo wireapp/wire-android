@@ -49,6 +49,9 @@ object WireTypographyBase {
     val Title04 = Title01.copy(
         fontWeight = FontWeight.W400,
     )
+    val Title05 = Title01.copy(
+        fontWeight = FontWeight.W900
+    )
     val Body01 = TextStyle(
         fontWeight = FontWeight.W400,
         fontSize = 15.sp,

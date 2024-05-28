@@ -27,8 +27,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -58,10 +56,10 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.DeviceUtil
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isFailed
 import com.wire.kalium.logic.data.asset.isInProgress
-import kotlin.math.roundToInt
 
 @Composable
 internal fun MessageAsset(
@@ -69,9 +67,7 @@ internal fun MessageAsset(
     assetExtension: String,
     assetSizeInBytes: Long,
     onAssetClick: Clickable,
-    assetTransferStatus: AssetTransferStatus,
-    shouldFillMaxWidth: Boolean,
-    isImportedMediaAsset: Boolean
+    assetTransferStatus: AssetTransferStatus
 ) {
     val assetDescription = provideAssetDescription(assetExtension, assetSizeInBytes)
     Box(
@@ -91,25 +87,21 @@ internal fun MessageAsset(
         if (assetTransferStatus == AssetTransferStatus.UPLOAD_IN_PROGRESS) {
             UploadInProgressAssetMessage()
         } else {
-            val assetModifier = if (shouldFillMaxWidth) Modifier
+            val assetModifier = Modifier
                 .align(Alignment.Center)
                 .fillMaxWidth()
-            else Modifier
-                .size(dimensions().importedMediaAssetSize)
-                .align(Alignment.Center)
-                .fillMaxSize()
             Column(modifier = assetModifier.padding(dimensions().spacing8x)) {
                 Text(
                     text = assetName,
                     style = MaterialTheme.wireTypography.body02,
                     fontSize = 15.sp,
-                    maxLines = if (shouldFillMaxWidth) 2 else 4,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 val descriptionModifier = Modifier
                     .padding(top = dimensions().spacing8x)
                     .fillMaxWidth()
-                ConstraintLayout(modifier = (if (!shouldFillMaxWidth) descriptionModifier.fillMaxHeight() else descriptionModifier)) {
+                ConstraintLayout(modifier = descriptionModifier) {
                     val (icon, description, downloadStatus) = createRefs()
                     Image(
                         modifier = Modifier
@@ -137,26 +129,24 @@ internal fun MessageAsset(
                         fontSize = 12.sp,
                         style = MaterialTheme.wireTypography.subline01
                     )
-                    if (!isImportedMediaAsset) {
-                        Row(
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .constrainAs(downloadStatus) {
-                                    top.linkTo(parent.top)
-                                    end.linkTo(parent.end)
-                                    bottom.linkTo(parent.bottom)
-                                }
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(end = dimensions().spacing4x),
-                                text = getDownloadStatusText(assetTransferStatus),
-                                color = MaterialTheme.wireColorScheme.run {
-                                    if (assetTransferStatus.isFailed()) error else secondaryText
-                                },
-                                style = MaterialTheme.wireTypography.subline01
-                            )
-                            DownloadStatusIcon(assetTransferStatus)
-                        }
+                    Row(
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .constrainAs(downloadStatus) {
+                                top.linkTo(parent.top)
+                                end.linkTo(parent.end)
+                                bottom.linkTo(parent.bottom)
+                            }
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(end = dimensions().spacing4x),
+                            text = getDownloadStatusText(assetTransferStatus),
+                            color = MaterialTheme.wireColorScheme.run {
+                                if (assetTransferStatus.isFailed()) error else secondaryText
+                            },
+                            style = MaterialTheme.wireTypography.subline01
+                        )
+                        DownloadStatusIcon(assetTransferStatus)
                     }
                 }
             }
@@ -327,11 +317,5 @@ private fun isNotClickable(assetTransferStatus: AssetTransferStatus) =
 @Suppress("MagicNumber")
 @Stable
 private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {
-    val oneKB = 1024L
-    val oneMB = oneKB * oneKB
-    return when {
-        assetSizeInBytes < oneKB -> "${assetExtension.uppercase()} ($assetSizeInBytes B)"
-        assetSizeInBytes in oneKB..oneMB -> "${assetExtension.uppercase()} (${assetSizeInBytes / oneKB} KB)"
-        else -> "${assetExtension.uppercase()} (${((assetSizeInBytes / oneMB) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
-    }
+    return "${assetExtension.uppercase()} (${DeviceUtil.formatSize(assetSizeInBytes)})"
 }

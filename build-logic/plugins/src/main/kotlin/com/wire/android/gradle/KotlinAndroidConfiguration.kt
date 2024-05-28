@@ -88,6 +88,7 @@ private fun CommonExtension<*, *, *, *, *>.configureLint(project: Project) {
         disable.add("IconDensities") // For testing purpose. This is safe to remove.
         disable.add("IconMissingDensityFolder") // For testing purpose. This is safe to remove.
         disable.add("ComposePreviewPublic") // Needed for screenshot testing.
+        disable.add("MissingTranslation") // translations are added asynchronously
         baseline = project.file("lint-baseline.xml")
     }
 

@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -60,7 +61,7 @@ import com.wire.android.util.ui.KeyboardHeight
 
 @Composable
 fun AttachmentOptionsComponent(
-    onImagePicked: (Uri) -> Unit,
+    onImagesPicked: (List<Uri>) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
     tempWritableImageUri: Uri?,
@@ -73,14 +74,14 @@ fun AttachmentOptionsComponent(
     val textMeasurer = rememberTextMeasurer()
 
     val attachmentOptions = buildAttachmentOptionItems(
-        isFileSharingEnabled,
-        tempWritableImageUri,
-        tempWritableVideoUri,
-        onImagePicked,
-        onAttachmentPicked,
-        onRecordAudioMessageClicked,
-        onLocationPickerClicked,
-        onCaptureVideoPermissionPermanentlyDenied
+        isFileSharingEnabled = isFileSharingEnabled,
+        tempWritableImageUri = tempWritableImageUri,
+        tempWritableVideoUri = tempWritableVideoUri,
+        onImagesPicked = onImagesPicked,
+        onFilePicked = onAttachmentPicked,
+        onRecordAudioMessageClicked = onRecordAudioMessageClicked,
+        onLocationPickerClicked = onLocationPickerClicked,
+        onPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied
     )
 
     val labelStyle = MaterialTheme.wireTypography.button03
@@ -158,21 +159,46 @@ private fun calculateGridParams(
 fun FileBrowserFlow(
     onFilePicked: (Uri) -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
-): UseStorageRequestFlow {
+): UseStorageRequestFlow<Uri?> {
     return rememberOpenFileBrowserFlow(
-        onFileBrowserItemPicked = onFilePicked,
+        contract = ActivityResultContracts.GetContent(),
+        onFileBrowserItemPicked = { uri ->
+            uri?.let(onFilePicked)
+        },
         onPermissionDenied = { /* Nothing to do */ },
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
     )
 }
 
 @Composable
-private fun GalleryFlow(
-    onFilePicked: (Uri) -> Unit,
+fun MultipleFileBrowserFlow(
+    onFilesPicked: (List<Uri>) -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
-): UseStorageRequestFlow {
+): UseStorageRequestFlow<List<Uri>> {
+    return rememberOpenFileBrowserFlow(
+        contract = ActivityResultContracts.GetMultipleContents(),
+        onFileBrowserItemPicked = { uris ->
+            if (uris.isNotEmpty()) {
+                onFilesPicked(uris)
+            }
+        },
+        onPermissionDenied = { /* Nothing to do */ },
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+    )
+}
+
+@Composable
+private fun MultipleGalleryFlow(
+    onImagesPicked: (List<Uri>) -> Unit,
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+): UseStorageRequestFlow<List<Uri>> {
     return rememberOpenGalleryFlow(
-        onGalleryItemPicked = onFilePicked,
+        contract = ActivityResultContracts.GetMultipleContents(),
+        onGalleryItemPicked = { uris ->
+            if (uris.isNotEmpty()) {
+                onImagesPicked(uris)
+            }
+        },
         onPermissionDenied = { /* Nothing to do */ },
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
     )
@@ -200,7 +226,7 @@ private fun TakePictureFlow(
 }
 
 @Composable
-private fun CaptureVideoFlow(
+private fun captureVideoFlow(
     tempWritableVideoUri: Uri?,
     onVideoCaptured: (Uri) -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
@@ -221,18 +247,18 @@ private fun buildAttachmentOptionItems(
     isFileSharingEnabled: Boolean,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    onImagePicked: (Uri) -> Unit,
+    onImagesPicked: (List<Uri>) -> Unit,
     onFilePicked: (UriAsset) -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
     onLocationPickerClicked: () -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ): List<AttachmentOptionItem> {
-    val fileFlow = FileBrowserFlow(
-        remember { { onFilePicked(UriAsset(it, false)) } },
+    val fileFlow = MultipleFileBrowserFlow(
+        remember { { onImagesPicked(it) } },
         onPermissionPermanentlyDenied
     )
-    val galleryFlow = GalleryFlow(
-        remember { { onImagePicked(it) } },
+    val galleryFlow = MultipleGalleryFlow(
+        remember { { onImagesPicked(it) } },
         onPermissionPermanentlyDenied
     )
     val cameraFlow = TakePictureFlow(
@@ -240,7 +266,7 @@ private fun buildAttachmentOptionItems(
         remember { { onFilePicked(UriAsset(it, false)) } },
         onPermissionPermanentlyDenied
     )
-    val captureVideoFlow = CaptureVideoFlow(
+    val captureVideoFlow = captureVideoFlow(
         tempWritableVideoUri,
         remember { { onFilePicked(UriAsset(it, true)) } },
         onPermissionPermanentlyDenied
@@ -313,7 +339,7 @@ private data class AttachmentOptionItem(
 @Composable
 fun PreviewAttachmentComponents() {
     AttachmentOptionsComponent(
-        onImagePicked = {},
+        onImagesPicked = {},
         onAttachmentPicked = {},
         isFileSharingEnabled = true,
         tempWritableImageUri = null,
@@ -334,7 +360,7 @@ fun PreviewAttachmentOptionsComponentSmallScreen() {
         ) {
             AttachmentOptionsComponent(
                 onAttachmentPicked = {},
-                onImagePicked = {},
+                onImagesPicked = {},
                 isFileSharingEnabled = true,
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
@@ -356,7 +382,7 @@ fun PreviewAttachmentOptionsComponentNormalScreen() {
         ) {
             AttachmentOptionsComponent(
                 onAttachmentPicked = {},
-                onImagePicked = {},
+                onImagesPicked = {},
                 isFileSharingEnabled = true,
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,
@@ -378,7 +404,7 @@ fun PreviewAttachmentOptionsComponentTabledScreen() {
         ) {
             AttachmentOptionsComponent(
                 onAttachmentPicked = {},
-                onImagePicked = {},
+                onImagesPicked = {},
                 isFileSharingEnabled = true,
                 tempWritableImageUri = null,
                 tempWritableVideoUri = null,

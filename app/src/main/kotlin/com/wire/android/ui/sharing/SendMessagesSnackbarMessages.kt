@@ -15,9 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.sharing
 
-package com.wire.android.navigation
+import com.wire.android.R
+import com.wire.android.model.SnackBarMessage
+import com.wire.android.util.ui.UIText
 
-const val EXTRA_USER_ID = "extra_user_id"
-const val EXTRA_USER_NAME = "extra_user_name"
-const val EXTRA_MESSAGE_ID = "extra_message_id"
+sealed class SendMessagesSnackbarMessages(override val uiText: UIText) : SnackBarMessage {
+    data object MaxAmountOfAssetsReached : // TODO add max amount to string resource
+        SendMessagesSnackbarMessages(UIText.StringResource(R.string.error_limit_number_assets_imported_exceeded))
+    class MaxAssetSizeExceeded(assetSizeLimit: Int) :
+        SendMessagesSnackbarMessages(UIText.StringResource(R.string.error_conversation_max_asset_size_limit, assetSizeLimit))
+}

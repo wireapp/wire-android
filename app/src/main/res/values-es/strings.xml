@@ -1200,9 +1200,11 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="title_video_could_not_be_sent">El video no se pudo enviar</string>
     <string name="title_image_could_not_be_sent">La imagen no se pudo enviar</string>
     <string name="title_file_could_not_be_sent">No se pudo enviar el archivo</string>
+    <string name="title_assets_could_not_be_sent">Assets could not be sent</string>
     <string name="label_shared_video_too_large">Solo puedes compartir un vídeo de hasta %d MB.</string>
     <string name="label_shared_image_too_large">Solo puedes compartir imágenes de hasta %d MB.</string>
     <string name="label_shared_file_too_large">Solo puedes compartir archivos hasta %d MB.</string>
+    <string name="label_shared_multiple_assets_error">Remove all marked assets and try again</string>
     <string name="label_file_saved_to_device">El archivo se guardó en tu dispositivo.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Mensaje con autoborrado • %1$s</string>
@@ -1401,4 +1403,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="location_app_permission_dialog_body">Permite a Wire acceder a la ubicación del dispositivo para enviar tu ubicación.</string>
     <string name="location_loading_label">Un momento...</string>
     <string name="location_could_not_be_shared">No se pudo compartir la ubicación</string>
+    <!-- Asset Preview -->
+    <string name="remove_asset_description">Remove asset</string>
+    <string name="asset_attention_description">Asset attention</string>
 </resources>

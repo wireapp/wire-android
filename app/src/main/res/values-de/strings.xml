@@ -186,8 +186,8 @@
     <string name="give_feedback_screen_title">Feedback geben</string>
     <string name="report_bug_screen_title">Fehler melden</string>
     <string name="about_app_screen_title">About This App</string>
-    <string name="settings_privacy_policy_label">Privacy Policy</string>
-    <string name="settings_terms_of_use_label">Terms of Use</string>
+    <string name="settings_privacy_policy_label">Datenschutzerklärung</string>
+    <string name="settings_terms_of_use_label">Nutzungsbedingungen</string>
     <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Einstellungen zur Fehlerbehebung</string>
     <string name="item_dependencies_title">Abhängigkeiten:</string>
@@ -1203,9 +1203,11 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="title_video_could_not_be_sent">Video konnte nicht gesendet werden</string>
     <string name="title_image_could_not_be_sent">Bild konnte nicht gesendet werden</string>
     <string name="title_file_could_not_be_sent">Datei konnte nicht gesendet werden</string>
+    <string name="title_assets_could_not_be_sent">Assets could not be sent</string>
     <string name="label_shared_video_too_large">Sie können Videos bis zu %d MB senden.</string>
     <string name="label_shared_image_too_large">Sie können Bilder bis zu %d MB senden.</string>
     <string name="label_shared_file_too_large">Sie können Dateien bis zu %d MB senden.</string>
+    <string name="label_shared_multiple_assets_error">Remove all marked assets and try again</string>
     <string name="label_file_saved_to_device">Datei wurde auf Ihrem Gerät gespeichert.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Selbstlöschende Nachricht • %1$s</string>
@@ -1404,4 +1406,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_app_permission_dialog_body">Erlauben Sie Wire den Zugriff auf Ihren Gerätestandort, um Ihren Standort zu senden.</string>
     <string name="location_loading_label">Bitte warten…</string>
     <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
+    <!-- Asset Preview -->
+    <string name="remove_asset_description">Remove asset</string>
+    <string name="asset_attention_description">Asset attention</string>
 </resources>

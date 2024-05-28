@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -58,6 +57,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
@@ -70,6 +70,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import kotlinx.coroutines.job
 
 @CreatePersonalAccountNavGraph
 @CreateTeamAccountNavGraph
@@ -174,8 +175,10 @@ private fun CodeContent(
         }
     }
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        keyboardController?.show()
+        coroutineContext.job.invokeOnCompletion {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        }
     }
     if (state.error is CreateAccountCodeViewState.CodeError.DialogError) {
         val (title, message) = state.error.getResources(type = state.type)

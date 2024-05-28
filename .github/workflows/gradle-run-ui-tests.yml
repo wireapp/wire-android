@@ -6,10 +6,6 @@ on: [ workflow_call ]
 permissions:
   contents: read
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
-
 jobs:
   ui-tests:
     runs-on: buildjet-8vcpu-ubuntu-2204

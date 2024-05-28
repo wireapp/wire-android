@@ -1241,9 +1241,11 @@
     <string name="title_video_could_not_be_sent">Не удалось отправить видео</string>
     <string name="title_image_could_not_be_sent">Не удалось отправить изображение</string>
     <string name="title_file_could_not_be_sent">Не удалось отправить файл</string>
+    <string name="title_assets_could_not_be_sent">Не удалось отправить медиафайлы</string>
     <string name="label_shared_video_too_large">Вы можете поделиться видео размером не более %d МБ.</string>
     <string name="label_shared_image_too_large">Вы можете поделиться изображением размером не более %d МБ.</string>
     <string name="label_shared_file_too_large">Вы можете поделиться файлом размером не более %d МБ.</string>
+    <string name="label_shared_multiple_assets_error">Удалить все отмеченные медиафайлы и повторить попытку</string>
     <string name="label_file_saved_to_device">Файл был сохранен на устройстве.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Самоудаляющееся сообщение • %1$s</string>
@@ -1462,4 +1464,7 @@
     <string name="location_app_permission_dialog_body">Разрешите Wire получить доступ к местоположению вашего устройства, чтобы иметь возможность им поделиться.</string>
     <string name="location_loading_label">Пожалуйста, подождите...</string>
     <string name="location_could_not_be_shared">Не удалось поделиться местоположением</string>
+    <!-- Asset Preview -->
+    <string name="remove_asset_description">Удалить медиафайл</string>
+    <string name="asset_attention_description">Уведомление</string>
 </resources>

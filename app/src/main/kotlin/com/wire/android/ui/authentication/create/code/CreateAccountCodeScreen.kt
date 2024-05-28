@@ -69,6 +69,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import kotlinx.coroutines.job
 
 @CreatePersonalAccountNavGraph
 @CreateTeamAccountNavGraph
@@ -188,8 +189,10 @@ private fun CodeContent(
         }
     }
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        keyboardController?.show()
+        coroutineContext.job.invokeOnCompletion {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        }
     }
 }
 

@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
@@ -151,7 +151,7 @@ private fun buildInlineText(
                     children = {
                         Box(modifier = Modifier // It's only a placeholder as well, just to get the real size and position of the link.
                             .size(linkSizeDp)
-                            .onGloballyPositioned { onLinkPositionCalculated(it.positionInRoot()) }
+                            .onGloballyPositioned { it.parentLayoutCoordinates?.let { onLinkPositionCalculated(it.positionInParent()) } }
                         )
                     }
                 )

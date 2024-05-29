@@ -28,7 +28,7 @@ String defineBuildType(String flavor) {
     // internal is used for wire beta builds
     if (flavor == 'Beta') {
         return 'Release'
-    } else if (flavor == 'Prod') {
+    } else if (flavor == 'Prod', 'Fdroid') {
         return "Compatrelease"
     }
     // use the scala client signing keys for testing upgrades.

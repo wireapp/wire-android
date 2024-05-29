@@ -141,7 +141,6 @@ fun DeviceDetailsContent(
     onErrorDialogDismiss: () -> Unit = {},
     enrollE2eiCertificate: () -> Unit = {},
     onUpdateClientVerification: (Boolean) -> Unit = {},
-    onPasswordChange: (TextFieldValue) -> Unit = {},
     onEnrollE2EIErrorDismiss: () -> Unit = {},
     onEnrollE2EISuccessDismiss: () -> Unit = {}
 ) {

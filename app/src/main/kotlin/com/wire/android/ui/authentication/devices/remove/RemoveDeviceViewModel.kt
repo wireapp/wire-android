@@ -64,6 +64,7 @@ class RemoveDeviceViewModel @Inject constructor(
 
     init {
         loadClientsList()
+        observePasswordTextChanges()
     }
 
     private fun observePasswordTextChanges() {

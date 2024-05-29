@@ -285,7 +285,6 @@ class DeviceDetailsViewModelTest {
             assertTrue(viewModel.state.startGettingE2EICertificate)
         }
 
-
     @Test
     fun `given a client with E2EI certificate, when fetching details, then returns device information`() {
         val certificate = E2eiCertificate(

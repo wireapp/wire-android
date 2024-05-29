@@ -18,21 +18,19 @@
 
 package com.wire.android.ui.authentication.devices.register
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 
 data class RegisterDeviceState(
-    val password: TextFieldValue = TextFieldValue(""),
     val continueEnabled: Boolean = false,
     val flowState: RegisterDeviceFlowState = RegisterDeviceFlowState.Default
 )
 
 sealed class RegisterDeviceFlowState {
-    object Default : RegisterDeviceFlowState()
-    object Loading : RegisterDeviceFlowState()
-    object TooManyDevices : RegisterDeviceFlowState()
+    data object Default : RegisterDeviceFlowState()
+    data object Loading : RegisterDeviceFlowState()
+    data object TooManyDevices : RegisterDeviceFlowState()
     data class Success(
         val initialSyncCompleted: Boolean,
         val isE2EIRequired: Boolean,
@@ -41,7 +39,7 @@ sealed class RegisterDeviceFlowState {
     ) : RegisterDeviceFlowState()
 
     sealed class Error : RegisterDeviceFlowState() {
-        object InvalidCredentialsError : Error()
+        data object InvalidCredentialsError : Error()
         data class GenericError(val coreFailure: CoreFailure) : Error()
     }
 }

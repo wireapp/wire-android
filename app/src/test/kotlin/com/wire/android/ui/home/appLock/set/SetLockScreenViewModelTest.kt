@@ -17,8 +17,9 @@
  */
 package com.wire.android.ui.home.appLock.set
 
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockConfig
@@ -34,22 +35,23 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class SetLockScreenViewModelTest {
 
     @Test
-    fun `given new password input, when valid,then should update state`() = runTest {
+    fun `given new password input, when valid,then should update state`()  {
         val (arrangement, viewModel) = Arrangement()
             .withValidPassword()
             .arrange()
 
-        viewModel.onPasswordChanged(TextFieldValue("password"))
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
 
-        assert(viewModel.state.password.text == "password")
-        assert(viewModel.state.passwordValidation.isValid)
+        assertEquals("password", viewModel.passwordTextState.text.toString())
+        assertEquals(true, viewModel.state.passwordValidation.isValid)
 
         verify(exactly = 1) { arrangement.validatePassword("password") }
     }
@@ -60,10 +62,10 @@ class SetLockScreenViewModelTest {
             .withInvalidPassword()
             .arrange()
 
-        viewModel.onPasswordChanged(TextFieldValue("password"))
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
 
-        assert(viewModel.state.password.text == "password")
-        assert(!viewModel.state.passwordValidation.isValid)
+        assertEquals("password", viewModel.passwordTextState.text.toString())
+        assertEquals(false, viewModel.state.passwordValidation.isValid)
 
         verify(exactly = 1) { arrangement.validatePassword("password") }
     }
@@ -97,6 +99,9 @@ class SetLockScreenViewModelTest {
 
         fun withValidPassword() = apply {
             every { validatePassword(any()) } returns ValidatePasswordResult.Valid
+            coEvery { validatePassword(any()) } returns ValidatePasswordResult.Valid
+            every { validatePassword.invoke(any()) } returns ValidatePasswordResult.Valid
+            coEvery { validatePassword.invoke(any()) } returns ValidatePasswordResult.Valid
         }
 
         fun withInvalidPassword() = apply {
@@ -107,14 +112,16 @@ class SetLockScreenViewModelTest {
             coEvery { observeIsAppLockEditableUseCase() } returns flowOf(result)
         }
 
-        private val viewModel = SetLockScreenViewModel(
-            validatePassword,
-            globalDataStore,
-            TestDispatcherProvider(),
-            observeAppLockConfig,
-            observeIsAppLockEditableUseCase,
-            markTeamAppLockStatusAsNotified
-        )
+        private val viewModel by lazy {
+            SetLockScreenViewModel(
+                validatePassword,
+                globalDataStore,
+                TestDispatcherProvider(),
+                observeAppLockConfig,
+                observeIsAppLockEditableUseCase,
+                markTeamAppLockStatusAsNotified
+            )
+        }
 
         fun arrange() = this to viewModel
     }

@@ -18,10 +18,11 @@
 package com.wire.android.ui.home.appLock.forgot
 
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -30,8 +31,8 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
-import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -49,6 +50,7 @@ import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -62,7 +64,6 @@ class ForgotLockScreenViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val globalDataStore: GlobalDataStore,
     private val userDataStoreProvider: UserDataStoreProvider,
-    private val notificationChannelsManager: NotificationChannelsManager,
     private val notificationManager: WireNotificationManager,
     private val getSelf: GetSelfUserUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
@@ -75,8 +76,17 @@ class ForgotLockScreenViewModel @Inject constructor(
     private val accountSwitch: AccountSwitchUseCase,
 ) : ViewModel() {
 
+    val passwordTextState: TextFieldState = TextFieldState()
     var state: ForgotLockCodeViewState by mutableStateOf(ForgotLockCodeViewState())
         private set
+
+    init {
+        viewModelScope.launch {
+            passwordTextState.textAsFlow().collectLatest { newPassword ->
+                updateIfDialogStateVisible { it.copy(resetDeviceEnabled = newPassword.isNotBlank()) }
+            }
+        }
+    }
 
     private fun updateIfDialogStateVisible(update: (ForgotLockCodeDialogState.Visible) -> ForgotLockCodeDialogState) {
         (state.dialogState as? ForgotLockCodeDialogState.Visible)?.let { dialogStateVisible ->
@@ -84,11 +94,8 @@ class ForgotLockScreenViewModel @Inject constructor(
         }
     }
 
-    fun onPasswordChanged(password: TextFieldValue) {
-        updateIfDialogStateVisible { it.copy(password = password, resetDeviceEnabled = password.text.isNotBlank()) }
-    }
-
     fun onResetDevice() {
+        passwordTextState.clearText()
         viewModelScope.launch {
             state = when (val isPasswordRequiredResult = isPasswordRequired()) {
                 is IsPasswordRequiredUseCase.Result.Success -> {
@@ -109,6 +116,7 @@ class ForgotLockScreenViewModel @Inject constructor(
     }
 
     fun onDialogDismissed() {
+        passwordTextState.clearText()
         state = state.copy(dialogState = ForgotLockCodeDialogState.Hidden)
     }
 
@@ -120,7 +128,7 @@ class ForgotLockScreenViewModel @Inject constructor(
         (state.dialogState as? ForgotLockCodeDialogState.Visible)?.let { dialogStateVisible ->
             updateIfDialogStateVisible { it.copy(resetDeviceEnabled = false) }
             viewModelScope.launch {
-                validatePasswordIfNeeded(dialogStateVisible.password.text)
+                validatePasswordIfNeeded(passwordTextState.text.toString())
                     .flatMapIfSuccess { validatedPassword ->
                         updateIfDialogStateVisible { it.copy(loading = true) }
                         deleteCurrentClient(validatedPassword)

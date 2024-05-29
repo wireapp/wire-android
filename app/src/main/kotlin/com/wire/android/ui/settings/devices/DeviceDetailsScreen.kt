@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.settings.devices
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -44,7 +44,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -79,14 +78,16 @@ import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.home.E2EIUpdateErrorWithDismissDialog
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
-import com.wire.android.util.deviceDateTimeFormat
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -106,8 +107,8 @@ fun DeviceDetailsScreen(
     else {
         DeviceDetailsContent(
             state = viewModel.state,
+            passwordTextState = viewModel.passwordTextState,
             onDeleteDevice = { viewModel.removeDevice(navigator::navigateBack) },
-            onPasswordChange = viewModel::onPasswordChange,
             onRemoveConfirm = { viewModel.onRemoveConfirmed(navigator::navigateBack) },
             onDialogDismiss = viewModel::onDialogDismissed,
             onErrorDialogDismiss = viewModel::clearDeleteClientError,
@@ -129,21 +130,24 @@ fun DeviceDetailsScreen(
 @Composable
 fun DeviceDetailsContent(
     state: DeviceDetailsState,
+    passwordTextState: TextFieldState,
+    handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
+    modifier: Modifier = Modifier,
     onDeleteDevice: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
     onNavigateToE2eiCertificateDetailsScreen: (String) -> Unit = {},
-    onPasswordChange: (TextFieldValue) -> Unit = {},
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
     onErrorDialogDismiss: () -> Unit = {},
     enrollE2eiCertificate: () -> Unit = {},
-    handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
     onUpdateClientVerification: (Boolean) -> Unit = {},
+    onPasswordChange: (TextFieldValue) -> Unit = {},
     onEnrollE2EIErrorDismiss: () -> Unit = {},
     onEnrollE2EISuccessDismiss: () -> Unit = {}
 ) {
     val screenState = rememberConversationScreenState()
     WireScaffold(
+        modifier = modifier,
         topBar = { DeviceDetailsTopBar(onNavigateBack, state.device, state.isCurrentDevice, state.isE2EIEnabled) },
         bottomBar = {
             Column(
@@ -258,7 +262,7 @@ fun DeviceDetailsContent(
             RemoveDeviceDialog(
                 errorState = state.error,
                 state = state.removeDeviceDialogState,
-                onPasswordChange = onPasswordChange,
+                passwordTextState = passwordTextState,
                 onDialogDismiss = onDialogDismiss,
                 onRemoveConfirm = onRemoveConfirm
             )
@@ -372,9 +376,10 @@ fun DeviceKeyFingerprintItem(
 fun DeviceMLSSignatureItem(
     mlsThumbprint: String,
     mlsProtocolType: String,
-    onCopy: (String) -> Unit
+    onCopy: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-
+    Column(modifier = modifier) {
     FolderHeader(
         name = stringResource(id = R.string.label_mls_signature, mlsProtocolType).uppercase(),
         modifier = Modifier
@@ -392,6 +397,7 @@ fun DeviceMLSSignatureItem(
             )
         }
     )
+        }
 }
 
 @Composable
@@ -401,34 +407,39 @@ fun DeviceVerificationItem(
     isSelfClient: Boolean,
     userName: String?,
     onStatusChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    @StringRes
-    val subTitle = if (state) {
-        R.string.label_client_verified
-    } else {
-        R.string.label_client_unverified
+    Column(modifier = modifier) {
+        DeviceDetailSectionContent(
+            sectionTitle = stringResource(id = R.string.title_device_key_fingerprint),
+            sectionText = AnnotatedString(
+                stringResource(
+                    id = when (state) {
+                        true -> R.string.label_client_verified
+                        false -> R.string.label_client_unverified
+                    }
+                )
+            ),
+            titleTrailingItem = {
+                WireSwitch(
+                    checked = state,
+                    onCheckedChange = onStatusChange,
+                    enabled = enabled
+                )
+            }
+        )
+        VerificationDescription(isSelfClient, userName)
     }
-    DeviceDetailSectionContent(
-        stringResource(id = R.string.title_device_key_fingerprint),
-        AnnotatedString(stringResource(id = subTitle)),
-        titleTrailingItem = {
-            WireSwitch(
-                checked = state,
-                onCheckedChange = onStatusChange,
-                enabled = enabled
-            )
-        }
-    )
-    VerificationDescription(isSelfClient, userName)
 }
 
 @Composable
 private fun VerificationDescription(
     isSelfClient: Boolean,
-    userName: String?
+    userName: String?,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(
                 start = dimensions().spacing16x,
@@ -527,12 +538,13 @@ private fun DescriptionText(
 private fun DeviceDetailSectionContent(
     sectionTitle: String,
     sectionText: AnnotatedString,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     titleTrailingItem: (@Composable () -> Unit)? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .padding(
                 top = MaterialTheme.wireDimensions.spacing12x,
                 bottom = MaterialTheme.wireDimensions.spacing12x,
@@ -567,10 +579,11 @@ private fun DeviceDetailSectionContent(
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewDeviceDetailsScreen() {
+fun PreviewDeviceDetailsScreen() = WireTheme {
     DeviceDetailsContent(
+        passwordTextState = TextFieldState(),
         state = DeviceDetailsState(
             device = Device(
                 clientId = ClientId(""),
@@ -580,11 +593,16 @@ fun PreviewDeviceDetailsScreen() {
             ),
             isCurrentDevice = false
         ),
-        onPasswordChange = { },
-        enrollE2eiCertificate = { },
+        enrollE2eiCertificate = {},
         handleE2EIEnrollmentResult = {},
-        onRemoveConfirm = { },
-        onDialogDismiss = { },
-        onErrorDialogDismiss = { }
+        onRemoveConfirm = {},
+        onDialogDismiss = {},
+        onErrorDialogDismiss = {},
+        onNavigateBack = {},
+        onNavigateToE2eiCertificateDetailsScreen = {},
+        onUpdateClientVerification = {},
+        onEnrollE2EIErrorDismiss = {},
+        onEnrollE2EISuccessDismiss = {},
+        onDeleteDevice = {},
     )
 }

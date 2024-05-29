@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.appLock.set
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,6 +27,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.ObserveAppLockConfigUseCase
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
@@ -47,10 +49,16 @@ class SetLockScreenViewModel @Inject constructor(
     private val markTeamAppLockStatusAsNotified: MarkTeamAppLockStatusAsNotifiedUseCase
 ) : ViewModel() {
 
+    val passwordTextState: TextFieldState = TextFieldState()
     var state: SetLockCodeViewState by mutableStateOf(SetLockCodeViewState())
         private set
 
     init {
+        viewModelScope.launch {
+            passwordTextState.textAsFlow().collect {
+                state = state.copy(passwordValidation = validatePassword(it.toString()))
+            }
+        }
         viewModelScope.launch {
             combine(
                 observeAppLockConfig(),
@@ -64,23 +72,11 @@ class SetLockScreenViewModel @Inject constructor(
         }
     }
 
-    fun onPasswordChanged(password: TextFieldValue) {
-        state = state.copy(
-            password = password
-        )
-        validatePassword(password.text).let {
-            state = state.copy(
-                continueEnabled = it.isValid,
-                passwordValidation = it
-            )
-        }
-    }
-
     fun onContinue() {
-        state = state.copy(continueEnabled = false)
+        state = state.copy(loading = true)
         // the continue button is enabled iff the password is valid
         // this check is for safety only
-        validatePassword(state.password.text).let {
+        validatePassword(passwordTextState.text.toString()).let {
             state = state.copy(passwordValidation = it)
             if (it.isValid) {
                 viewModelScope.launch {
@@ -92,7 +88,7 @@ class SetLockScreenViewModel @Inject constructor(
                                 AppLockSource.TeamEnforced
                             }
 
-                            setUserAppLock(state.password.text, source)
+                            setUserAppLock(passwordTextState.text.toString(), source)
 
                             // TODO(bug): this does not take into account which account enforced the app lock
                             markTeamAppLockStatusAsNotified()
@@ -103,6 +99,7 @@ class SetLockScreenViewModel @Inject constructor(
                     }
                 }
             }
+            state = state.copy(loading = false)
         }
     }
 }

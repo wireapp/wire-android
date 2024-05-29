@@ -18,15 +18,17 @@
 
 package com.wire.android.ui.authentication.devices.remove
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.feature.client.DeleteClientResult
@@ -39,6 +41,8 @@ import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -52,6 +56,7 @@ class RemoveDeviceViewModel @Inject constructor(
     private val userDataStore: UserDataStore
 ) : ViewModel() {
 
+    val passwordTextState: TextFieldState = TextFieldState()
     var state: RemoveDeviceState by mutableStateOf(
         RemoveDeviceState(deviceList = listOf(), removeDeviceDialogState = RemoveDeviceDialogState.Hidden, isLoadingClientsList = true)
     )
@@ -59,6 +64,19 @@ class RemoveDeviceViewModel @Inject constructor(
 
     init {
         loadClientsList()
+    }
+
+    private fun observePasswordTextChanges() {
+        viewModelScope.launch {
+            passwordTextState.textAsFlow().distinctUntilChanged().collectLatest { newPassword ->
+                updateStateIfDialogVisible {
+                    state.copy(
+                        removeDeviceDialogState = it.copy(removeEnabled = newPassword.isNotEmpty()),
+                        error = RemoveDeviceError.None
+                    )
+                }
+            }
+        }
     }
 
     private fun loadClientsList() {
@@ -75,17 +93,8 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    fun onPasswordChange(newText: TextFieldValue) {
-        updateStateIfDialogVisible {
-            if (it.password == newText) state
-            else state.copy(
-                removeDeviceDialogState = it.copy(password = newText, removeEnabled = newText.text.isNotEmpty()),
-                error = RemoveDeviceError.None
-            )
-        }
-    }
-
     fun onDialogDismissed() {
+        passwordTextState.clearText()
         updateStateIfDialogVisible { state.copy(removeDeviceDialogState = RemoveDeviceDialogState.Hidden) }
     }
 
@@ -160,13 +169,14 @@ class RemoveDeviceViewModel @Inject constructor(
         (state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
             updateStateIfDialogVisible { state.copy(removeDeviceDialogState = it.copy(loading = true, removeEnabled = false)) }
             viewModelScope.launch {
-                deleteClient(dialogStateVisible.password.text, dialogStateVisible.device, onCompleted)
+                deleteClient(passwordTextState.text.toString(), dialogStateVisible.device, onCompleted)
                 updateStateIfDialogVisible { state.copy(removeDeviceDialogState = it.copy(loading = false)) }
             }
         }
     }
 
     private fun showDeleteClientDialog(device: Device) {
+        passwordTextState.clearText()
         state = state.copy(
             error = RemoveDeviceError.None,
             removeDeviceDialogState = RemoveDeviceDialogState.Visible(

@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.authentication.devices.register
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,11 +27,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -43,6 +47,7 @@ class RegisterDeviceViewModel @Inject constructor(
     private val userDataStore: UserDataStore,
 ) : ViewModel() {
 
+    val passwordTextState: TextFieldState = TextFieldState()
     var state: RegisterDeviceState by mutableStateOf(RegisterDeviceState())
         private set
 
@@ -62,11 +67,10 @@ class RegisterDeviceViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun onPasswordChange(newText: TextFieldValue) {
-        if (state.password != newText) {
-            state = state.copy(password = newText, flowState = RegisterDeviceFlowState.Default, continueEnabled = newText.text.isNotEmpty())
+        viewModelScope.launch {
+            passwordTextState.textAsFlow().distinctUntilChanged().collectLatest {
+                state = state.copy(flowState = RegisterDeviceFlowState.Default, continueEnabled = it.isNotEmpty())
+            }
         }
     }
 
@@ -122,7 +126,7 @@ class RegisterDeviceViewModel @Inject constructor(
 
     fun onContinue() {
         viewModelScope.launch {
-            registerClient(state.password.text)
+            registerClient(passwordTextState.text.toString())
         }
     }
 

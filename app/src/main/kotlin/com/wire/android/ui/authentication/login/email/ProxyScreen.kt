@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,14 +34,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
@@ -48,28 +46,18 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun ProxyScreen() {
-    val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
-    val proxyState: LoginState = loginEmailViewModel.loginState
-    ProxyContent(
-        proxyState = proxyState,
-        apiProxyUrl = loginEmailViewModel.serverConfig.apiProxy?.host,
-        onProxyIdentifierChange = { loginEmailViewModel.onProxyIdentifierChange(it) },
-        onProxyPasswordChange = { loginEmailViewModel.onProxyPasswordChange(it) },
-    )
-}
-
-@Composable
-private fun ProxyContent(
-    proxyState: LoginState,
+fun ProxyScreen(
+    proxyIdentifierState: TextFieldState,
+    proxyPasswordState: TextFieldState,
+    proxyState: LoginEmailState,
     apiProxyUrl: String?,
-    onProxyIdentifierChange: (TextFieldValue) -> Unit,
-    onProxyPasswordChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
     ) {
         HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
         Text(
@@ -100,10 +88,9 @@ private fun ProxyContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            proxyIdentifier = proxyState.proxyIdentifier,
-            onProxyUserIdentifierChange = onProxyIdentifierChange,
-            error = when (proxyState.loginError) {
-                LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
+            proxyIdentifierState = proxyIdentifierState,
+            error = when (proxyState.flowState) {
+                LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                 else -> null
             },
         )
@@ -111,8 +98,7 @@ private fun ProxyContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            proxyPassword = proxyState.proxyPassword,
-            onProxyPasswordChange = onProxyPasswordChange
+            proxyPasswordState = proxyPasswordState,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -122,13 +108,11 @@ private fun ProxyContent(
 @Composable
 private fun ProxyIdentifierInput(
     modifier: Modifier,
-    proxyIdentifier: TextFieldValue,
+    proxyIdentifierState: TextFieldState,
     error: String?,
-    onProxyUserIdentifierChange: (TextFieldValue) -> Unit,
 ) {
     WireTextField(
-        value = proxyIdentifier,
-        onValueChange = onProxyUserIdentifierChange,
+        textState = proxyIdentifierState,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
         labelText = stringResource(R.string.login_proxy_identifier_label),
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
@@ -138,28 +122,28 @@ private fun ProxyIdentifierInput(
 }
 
 @Composable
-private fun ProxyPasswordInput(modifier: Modifier, proxyPassword: TextFieldValue, onProxyPasswordChange: (TextFieldValue) -> Unit) {
+private fun ProxyPasswordInput(
+    modifier: Modifier,
+    proxyPasswordState: TextFieldState
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
-        value = proxyPassword,
-        onValueChange = onProxyPasswordChange,
-        imeAction = ImeAction.Done,
+        textState = proxyPasswordState,
         labelText = stringResource(R.string.label_proxy_password),
-        onImeAction = { keyboardController?.hide() },
+        keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
+        onKeyboardAction = { keyboardController?.hide() },
         modifier = modifier.testTag("passwordField"),
-        autofill = false
+        autoFill = false
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewProxyScreen() {
-    WireTheme {
-        ProxyContent(
-            proxyState = LoginState(),
-            apiProxyUrl = "",
-            onProxyIdentifierChange = { },
-            onProxyPasswordChange = { },
-        )
-    }
+fun PreviewProxyContent() = WireTheme {
+    ProxyScreen(
+        proxyState = LoginEmailState(),
+        apiProxyUrl = "",
+        proxyIdentifierState = TextFieldState(),
+        proxyPasswordState = TextFieldState(),
+    )
 }

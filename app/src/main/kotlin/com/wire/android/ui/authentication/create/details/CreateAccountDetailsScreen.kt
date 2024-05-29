@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -42,8 +43,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
@@ -60,14 +59,17 @@ import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreateAccountCodeScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @CreatePersonalAccountNavGraph
@@ -84,10 +86,10 @@ fun CreateAccountDetailsScreen(
                 CreateAccountCodeScreenDestination(
                     createAccountNavArgs.copy(
                         userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
-                            firstName = detailsState.firstName.text.trim(),
-                            lastName = detailsState.lastName.text.trim(),
-                            password = detailsState.password.text,
-                            teamName = detailsState.teamName.text.trim()
+                            firstName = firstNameTextState.text.toString().trim(),
+                            lastName = lastNameTextState.text.toString().trim(),
+                            password = passwordTextState.text.toString(),
+                            teamName = teamNameTextState.text.toString().trim()
                         )
                     )
                 )
@@ -96,21 +98,11 @@ fun CreateAccountDetailsScreen(
 
         DetailsContent(
             state = detailsState,
-            onFirstNameChange = {
-                onDetailsChange(
-                    it,
-                    CreateAccountDetailsViewModel.DetailsFieldType.FirstName
-                )
-            },
-            onLastNameChange = { onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.LastName) },
-            onPasswordChange = { onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.Password) },
-            onConfirmPasswordChange = {
-                onDetailsChange(
-                    it,
-                    CreateAccountDetailsViewModel.DetailsFieldType.ConfirmPassword
-                )
-            },
-            onTeamNameChange = { onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.TeamName) },
+            firstNameTextState = firstNameTextState,
+            lastNameTextState = lastNameTextState,
+            passwordTextState = passwordTextState,
+            confirmPasswordTextState = confirmPasswordTextState,
+            teamNameTextState = teamNameTextState,
             onBackPressed = navigator::navigateBack,
             onContinuePressed = { onDetailsContinue(::navigateToCodeScreen) },
             onErrorDismiss = ::onDetailsErrorDismiss,
@@ -122,11 +114,11 @@ fun CreateAccountDetailsScreen(
 @Composable
 private fun DetailsContent(
     state: CreateAccountDetailsViewState,
-    onFirstNameChange: (TextFieldValue) -> Unit,
-    onLastNameChange: (TextFieldValue) -> Unit,
-    onPasswordChange: (TextFieldValue) -> Unit,
-    onConfirmPasswordChange: (TextFieldValue) -> Unit,
-    onTeamNameChange: (TextFieldValue) -> Unit,
+    firstNameTextState: TextFieldState,
+    lastNameTextState: TextFieldState,
+    passwordTextState: TextFieldState,
+    confirmPasswordTextState: TextFieldState,
+    teamNameTextState: TextFieldState,
     onBackPressed: () -> Unit,
     onContinuePressed: () -> Unit,
     onErrorDismiss: () -> Unit,
@@ -179,8 +171,7 @@ private fun DetailsContent(
                 )
 
                 WireTextField(
-                    value = state.firstName,
-                    onValueChange = onFirstNameChange,
+                    textState = firstNameTextState,
                     placeholderText = stringResource(R.string.create_account_details_first_name_placeholder),
                     labelText = stringResource(R.string.create_account_details_first_name_label),
                     labelMandatoryIcon = true,
@@ -197,8 +188,7 @@ private fun DetailsContent(
                 )
 
                 WireTextField(
-                    value = state.lastName,
-                    onValueChange = onLastNameChange,
+                    textState = lastNameTextState,
                     placeholderText = stringResource(R.string.create_account_details_last_name_placeholder),
                     labelText = stringResource(R.string.create_account_details_last_name_label),
                     labelMandatoryIcon = true,
@@ -215,8 +205,7 @@ private fun DetailsContent(
 
                 if (state.type == CreateAccountFlowType.CreateTeam) {
                     WireTextField(
-                        value = state.teamName,
-                        onValueChange = onTeamNameChange,
+                        textState = teamNameTextState,
                         placeholderText = stringResource(R.string.create_account_details_team_name_placeholder),
                         labelText = stringResource(R.string.create_account_details_team_name_label),
                         labelMandatoryIcon = true,
@@ -233,11 +222,10 @@ private fun DetailsContent(
                 }
 
                 WirePasswordTextField(
-                    value = state.password,
-                    onValueChange = onPasswordChange,
+                    textState = passwordTextState,
                     labelMandatoryIcon = true,
                     descriptionText = stringResource(R.string.create_account_details_password_description),
-                    imeAction = ImeAction.Next,
+                    keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Next),
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                         .testTag("password"),
@@ -246,16 +234,15 @@ private fun DetailsContent(
                     } else {
                         WireTextFieldState.Default
                     },
-                    autofill = false,
+                    autoFill = false,
                 )
 
                 WirePasswordTextField(
-                    value = state.confirmPassword,
-                    onValueChange = onConfirmPasswordChange,
+                    textState = confirmPasswordTextState,
                     labelText = stringResource(R.string.create_account_details_confirm_password_label),
                     labelMandatoryIcon = true,
-                    imeAction = ImeAction.Done,
-                    onImeAction = { keyboardController?.hide() },
+                    keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
+                    onKeyboardAction = { keyboardController?.hide() },
                     modifier = Modifier
                         .padding(
                             horizontal = MaterialTheme.wireDimensions.spacing16x,
@@ -269,7 +256,7 @@ private fun DetailsContent(
                         CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError ->
                             WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
                     } else WireTextFieldState.Default,
-                    autofill = false,
+                    autoFill = false,
                 )
             }
 
@@ -301,7 +288,18 @@ private fun DetailsContent(
 }
 
 @Composable
-@Preview
-fun PreviewCreateAccountDetailsScreen() {
-    DetailsContent(CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam), {}, {}, {}, {}, {}, {}, {}, {}, ServerConfig.DEFAULT)
+@PreviewMultipleThemes
+fun PreviewCreateAccountDetailsScreen() = WireTheme {
+    DetailsContent(
+        state = CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam),
+        firstNameTextState = TextFieldState(),
+        lastNameTextState = TextFieldState(),
+        passwordTextState = TextFieldState(),
+        confirmPasswordTextState = TextFieldState(),
+        teamNameTextState = TextFieldState(),
+        onBackPressed = {},
+        onContinuePressed = {},
+        onErrorDismiss = {},
+        serverConfig = ServerConfig.DEFAULT
+    )
 }

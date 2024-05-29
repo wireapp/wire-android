@@ -17,10 +17,11 @@
  */
 package com.wire.android.ui.authentication.create.code
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -30,7 +31,7 @@ import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.common.textfield.CodeFieldValue
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.CoreLogic
@@ -44,6 +45,7 @@ import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -61,11 +63,15 @@ class CreateAccountCodeViewModel @Inject constructor(
 
     val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
 
+    val codeTextState: TextFieldState = TextFieldState()
     var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(createAccountNavArgs.flowType))
 
-    fun onCodeChange(newValue: CodeFieldValue, onSuccess: () -> Unit) {
-        codeState = codeState.copy(code = newValue, error = CreateAccountCodeViewState.CodeError.None)
-        if (newValue.isFullyFilled) onCodeContinue(onSuccess)
+    init {
+        viewModelScope.launch {
+            codeTextState.textAsFlow().collectLatest {
+                if (it.length == codeState.codeLength) onCodeContinue()
+            }
+        }
     }
 
     fun resendCode() {
@@ -92,17 +98,17 @@ class CreateAccountCodeViewModel @Inject constructor(
                 }
             }
 
-            val codeError = authScope.registerScope.requestActivationCode(createAccountNavArgs.userRegistrationInfo.email).toCodeError()
-            codeState = codeState.copy(loading = false, error = codeError)
+            val result = authScope.registerScope.requestActivationCode(createAccountNavArgs.userRegistrationInfo.email).toCodeError()
+            codeState = codeState.copy(loading = false, result = result)
         }
     }
 
     fun clearCodeError() {
-        codeState = codeState.copy(error = CreateAccountCodeViewState.CodeError.None)
+        codeState = codeState.copy(result = CreateAccountCodeViewState.Result.None)
     }
 
     fun clearCodeField() {
-        codeState = codeState.copy(code = CodeFieldValue(text = TextFieldValue(""), isFullyFilled = false))
+        codeTextState.clearText()
     }
 
     private fun registerParamFromType() = when (createAccountNavArgs.flowType) {
@@ -112,7 +118,7 @@ class CreateAccountCodeViewModel @Inject constructor(
                 lastName = createAccountNavArgs.userRegistrationInfo.lastName,
                 password = createAccountNavArgs.userRegistrationInfo.password,
                 email = createAccountNavArgs.userRegistrationInfo.email,
-                emailActivationCode = codeState.code.text.text
+                emailActivationCode = codeTextState.text.toString()
             )
 
         CreateAccountFlowType.CreateTeam ->
@@ -121,14 +127,14 @@ class CreateAccountCodeViewModel @Inject constructor(
                 lastName = createAccountNavArgs.userRegistrationInfo.lastName,
                 password = createAccountNavArgs.userRegistrationInfo.password,
                 email = createAccountNavArgs.userRegistrationInfo.email,
-                emailActivationCode = codeState.code.text.text,
+                emailActivationCode = codeTextState.text.toString(),
                 teamName = createAccountNavArgs.userRegistrationInfo.teamName,
                 teamIcon = "default"
             )
     }
 
     @Suppress("ComplexMethod")
-    private fun onCodeContinue(onSuccess: () -> Unit) {
+    private fun onCodeContinue() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
             // create account does not support proxy yet
@@ -188,24 +194,20 @@ class CreateAccountCodeViewModel @Inject constructor(
                     }
 
                     is RegisterClientResult.Success -> {
-                        onSuccess()
+                        codeState = codeState.copy(result = CreateAccountCodeViewState.Result.Success)
                     }
 
                     is RegisterClientResult.E2EICertificateRequired -> {
                         // TODO
-                        onSuccess()
+                        codeState = codeState.copy(result = CreateAccountCodeViewState.Result.Success)
                     }
                 }
             }
         }
     }
 
-    private fun updateCodeErrorState(codeError: CreateAccountCodeViewState.CodeError) {
-        codeState = if (codeError is CreateAccountCodeViewState.CodeError.None) {
-            codeState.copy(error = codeError)
-        } else {
-            codeState.copy(loading = false, error = codeError)
-        }
+    private fun updateCodeErrorState(codeError: CreateAccountCodeViewState.Result.Error) {
+        codeState = codeState.copy(loading = false, result = codeError)
     }
 
     private suspend fun registerClient(userId: UserId, password: String) =
@@ -218,8 +220,8 @@ class CreateAccountCodeViewModel @Inject constructor(
         )
 
     private fun RegisterClientResult.Failure.toCodeError() = when (this) {
-        is RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeViewState.CodeError.TooManyDevicesError
-        is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
+        is RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeViewState.Result.Error.TooManyDevicesError
+        is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.Result.Error.DialogError.GenericError(this.genericFailure)
         is RegisterClientResult.Failure.InvalidCredentials ->
             throw WillNeverOccurError("RegisterClient: wrong password when register client after creating a new account")
 
@@ -228,29 +230,30 @@ class CreateAccountCodeViewModel @Inject constructor(
     }
 
     private fun RegisterResult.Failure.toCodeError() = when (this) {
-        RegisterResult.Failure.InvalidActivationCode -> CreateAccountCodeViewState.CodeError.TextFieldError.InvalidActivationCodeError
-        RegisterResult.Failure.AccountAlreadyExists -> CreateAccountCodeViewState.CodeError.DialogError.AccountAlreadyExistsError
-        RegisterResult.Failure.BlackListed -> CreateAccountCodeViewState.CodeError.DialogError.BlackListedError
-        RegisterResult.Failure.EmailDomainBlocked -> CreateAccountCodeViewState.CodeError.DialogError.EmailDomainBlockedError
-        RegisterResult.Failure.InvalidEmail -> CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError
-        RegisterResult.Failure.TeamMembersLimitReached -> CreateAccountCodeViewState.CodeError.DialogError.TeamMembersLimitError
-        RegisterResult.Failure.UserCreationRestricted -> CreateAccountCodeViewState.CodeError.DialogError.CreationRestrictedError
-        is RegisterResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.failure)
+        RegisterResult.Failure.InvalidActivationCode -> CreateAccountCodeViewState.Result.Error.TextFieldError.InvalidActivationCodeError
+        RegisterResult.Failure.AccountAlreadyExists -> CreateAccountCodeViewState.Result.Error.DialogError.AccountAlreadyExistsError
+        RegisterResult.Failure.BlackListed -> CreateAccountCodeViewState.Result.Error.DialogError.BlackListedError
+        RegisterResult.Failure.EmailDomainBlocked -> CreateAccountCodeViewState.Result.Error.DialogError.EmailDomainBlockedError
+        RegisterResult.Failure.InvalidEmail -> CreateAccountCodeViewState.Result.Error.DialogError.InvalidEmailError
+        RegisterResult.Failure.TeamMembersLimitReached -> CreateAccountCodeViewState.Result.Error.DialogError.TeamMembersLimitError
+        RegisterResult.Failure.UserCreationRestricted -> CreateAccountCodeViewState.Result.Error.DialogError.CreationRestrictedError
+        is RegisterResult.Failure.Generic -> CreateAccountCodeViewState.Result.Error.DialogError.GenericError(this.failure)
     }
 
     private fun AddAuthenticatedUserUseCase.Result.Failure.toCodeError() = when (this) {
         is AddAuthenticatedUserUseCase.Result.Failure.Generic ->
-            CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
+            CreateAccountCodeViewState.Result.Error.DialogError.GenericError(this.genericFailure)
 
-        AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> CreateAccountCodeViewState.CodeError.DialogError.UserAlreadyExists
+        AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists ->
+            CreateAccountCodeViewState.Result.Error.DialogError.UserAlreadyExistsError
     }
 
     private fun RequestActivationCodeResult.toCodeError() = when (this) {
-        RequestActivationCodeResult.Failure.AlreadyInUse -> CreateAccountCodeViewState.CodeError.DialogError.AccountAlreadyExistsError
-        RequestActivationCodeResult.Failure.BlacklistedEmail -> CreateAccountCodeViewState.CodeError.DialogError.BlackListedError
-        RequestActivationCodeResult.Failure.DomainBlocked -> CreateAccountCodeViewState.CodeError.DialogError.EmailDomainBlockedError
-        RequestActivationCodeResult.Failure.InvalidEmail -> CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError
-        is RequestActivationCodeResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.failure)
-        RequestActivationCodeResult.Success -> CreateAccountCodeViewState.CodeError.None
+        RequestActivationCodeResult.Failure.AlreadyInUse -> CreateAccountCodeViewState.Result.Error.DialogError.AccountAlreadyExistsError
+        RequestActivationCodeResult.Failure.BlacklistedEmail -> CreateAccountCodeViewState.Result.Error.DialogError.BlackListedError
+        RequestActivationCodeResult.Failure.DomainBlocked -> CreateAccountCodeViewState.Result.Error.DialogError.EmailDomainBlockedError
+        RequestActivationCodeResult.Failure.InvalidEmail -> CreateAccountCodeViewState.Result.Error.DialogError.InvalidEmailError
+        is RequestActivationCodeResult.Failure.Generic -> CreateAccountCodeViewState.Result.Error.DialogError.GenericError(this.failure)
+        RequestActivationCodeResult.Success -> CreateAccountCodeViewState.Result.None
     }
 }

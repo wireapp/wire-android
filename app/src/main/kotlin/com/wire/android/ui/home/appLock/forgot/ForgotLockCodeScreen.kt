@@ -83,16 +83,19 @@ fun ForgotLockCodeScreen(
             onResetDevice = viewModel::onResetDevice,
         )
         if (dialogState is ForgotLockCodeDialogState.Visible) {
-            if (dialogState.loading) ForgotLockCodeResettingDeviceDialog()
-            else ForgotLockCodeResetDeviceDialog(
-                passwordTextState = viewModel.passwordTextState,
-                username = dialogState.username,
-                isPasswordRequired = dialogState.passwordRequired,
-                isPasswordValid = dialogState.passwordValid,
-                isResetDeviceEnabled = dialogState.resetDeviceEnabled,
-                onResetDeviceClicked = viewModel::onResetDeviceConfirmed,
-                onDialogDismissed = viewModel::onDialogDismissed,
-            )
+            if (dialogState.loading) {
+                ForgotLockCodeResettingDeviceDialog()
+            } else {
+                ForgotLockCodeResetDeviceDialog(
+                    passwordTextState = viewModel.passwordTextState,
+                    username = dialogState.username,
+                    isPasswordRequired = dialogState.passwordRequired,
+                    isPasswordValid = dialogState.passwordValid,
+                    isResetDeviceEnabled = dialogState.resetDeviceEnabled,
+                    onResetDeviceClicked = viewModel::onResetDeviceConfirmed,
+                    onDialogDismissed = viewModel::onDialogDismissed,
+                )
+            }
         }
         if (error != null) {
             val (title, message) = error.dialogErrorStrings(LocalContext.current.resources)

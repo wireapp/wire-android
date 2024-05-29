@@ -119,7 +119,8 @@ fun SetLockCodeScreenContent(
                 elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.settings_set_lock_screen_title)
             )
-    }) { internalPadding ->
+        }
+    ) { internalPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

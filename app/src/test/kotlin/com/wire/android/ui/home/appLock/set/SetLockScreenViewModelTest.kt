@@ -43,7 +43,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SetLockScreenViewModelTest {
 
     @Test
-    fun `given new password input, when valid,then should update state`()  {
+    fun `given new password input, when valid,then should update state`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withValidPassword()
             .arrange()

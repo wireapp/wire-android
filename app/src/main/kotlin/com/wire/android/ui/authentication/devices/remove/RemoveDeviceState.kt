@@ -43,4 +43,3 @@ sealed class RemoveDeviceError {
     data object InitError : RemoveDeviceError()
     data class GenericError(val coreFailure: CoreFailure) : RemoveDeviceError()
 }
-

@@ -121,11 +121,12 @@ fun ForgotLockCodeResettingDeviceDialog() {
         onDismiss = {},
     )
 }
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewForgotLockCodeResetDeviceDialog() {
     WireTheme {
-        ForgotLockCodeResetDeviceDialog(TextFieldState(),"Username", false, true, true, {}, {})
+        ForgotLockCodeResetDeviceDialog(TextFieldState(), "Username", false, true, true, {}, {})
     }
 }
 
@@ -133,7 +134,7 @@ fun PreviewForgotLockCodeResetDeviceDialog() {
 @Composable
 fun PreviewForgotLockCodeResetDeviceWithoutPasswordDialog() {
     WireTheme {
-        ForgotLockCodeResetDeviceDialog(TextFieldState(),"Username", true, true, true, {}, {})
+        ForgotLockCodeResetDeviceDialog(TextFieldState(), "Username", true, true, true, {}, {})
     }
 }
 

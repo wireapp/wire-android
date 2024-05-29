@@ -15,16 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.authentication.login.email
 
-package com.wire.android.ui.authentication.verificationcode
+import com.wire.android.ui.authentication.login.LoginState
 
-data class VerificationCodeState(
-    val codeLength: Int = DEFAULT_VERIFICATION_CODE_LENGTH,
-    val emailUsed: String = "",
-    val isCodeInputNecessary: Boolean = false,
-    val isCurrentCodeInvalid: Boolean = false,
-) {
-    companion object {
-        const val DEFAULT_VERIFICATION_CODE_LENGTH = 6
-    }
-}
+data class LoginEmailState(
+    val userIdentifierEnabled: Boolean = true,
+    val loginEnabled: Boolean = false,
+    val flowState: LoginState = LoginState.Default,
+)

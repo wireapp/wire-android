@@ -18,12 +18,9 @@
 
 package com.wire.android.ui.authentication.login
 
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
@@ -31,8 +28,6 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.ui.navArgs
-import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.ClientCapability
@@ -50,7 +45,6 @@ import javax.inject.Inject
 @HiltViewModel
 @Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     protected val authServerConfigProvider: AuthServerConfigProvider,
     private val userDataStoreProvider: UserDataStoreProvider,
@@ -65,62 +59,6 @@ open class LoginViewModel @Inject constructor(
                 serverConfig = it
             }
         }
-    }
-
-    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
-    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle.let {
-        if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
-    }
-
-    var loginState by mutableStateOf(
-        LoginState(
-            userInput = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
-            userIdentifier = TextFieldValue(
-                if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) preFilledUserIdentifier.userIdentifier
-                else savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
-            ),
-            userIdentifierEnabled = preFilledUserIdentifier is PreFilledUserIdentifierType.None,
-            password = TextFieldValue(String.EMPTY),
-            isProxyAuthRequired =
-            if (serverConfig.apiProxy?.needsAuthentication != null) serverConfig.apiProxy?.needsAuthentication!!
-            else false,
-            isProxyEnabled = serverConfig.apiProxy != null
-        )
-    )
-        @VisibleForTesting
-        set
-
-    open fun updateSSOLoginError(error: LoginError) {
-        loginState = if (error is LoginError.None) {
-            loginState.copy(loginError = error)
-        } else {
-            loginState.copy(ssoLoginLoading = false, loginError = error).updateSSOLoginEnabled()
-        }
-    }
-
-    open fun updateEmailLoginError(error: LoginError) {
-        loginState = if (error is LoginError.None) {
-            loginState.copy(loginError = error)
-        } else {
-            loginState.copy(emailLoginLoading = false, loginError = error).updateEmailLoginEnabled()
-        }
-    }
-
-    fun onDialogDismiss() {
-        clearLoginErrors()
-    }
-
-    fun clearLoginErrors() {
-        clearSSOLoginError()
-        clearEmailLoginError()
-    }
-
-    fun clearSSOLoginError() {
-        updateSSOLoginError(LoginError.None)
-    }
-
-    fun clearEmailLoginError() {
-        updateEmailLoginError(LoginError.None)
     }
 
     suspend fun registerClient(
@@ -146,34 +84,32 @@ open class LoginViewModel @Inject constructor(
     fun updateTheApp() {
         // todo : update the app after releasing on the store
     }
-
-    companion object {
-        const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
-        const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
-    }
 }
 
 fun AuthenticationResult.Failure.toLoginError() = when (this) {
-    is AuthenticationResult.Failure.SocketError -> LoginError.DialogError.ProxyError
-    is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-    is AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
-    is AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidValue
+    is AuthenticationResult.Failure.SocketError -> LoginState.Error.DialogError.ProxyError
+    is AuthenticationResult.Failure.Generic -> LoginState.Error.DialogError.GenericError(this.genericFailure)
+    is AuthenticationResult.Failure.InvalidCredentials -> LoginState.Error.DialogError.InvalidCredentialsError
+    is AuthenticationResult.Failure.InvalidUserIdentifier -> LoginState.Error.TextFieldError.InvalidValue
 }
 
 fun RegisterClientResult.Failure.toLoginError() = when (this) {
-    is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-    is RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
-    is RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
-    is RegisterClientResult.Failure.PasswordAuthRequired -> LoginError.DialogError.PasswordNeededToRegisterClient
+    is RegisterClientResult.Failure.Generic -> LoginState.Error.DialogError.GenericError(this.genericFailure)
+    is RegisterClientResult.Failure.InvalidCredentials -> LoginState.Error.DialogError.InvalidCredentialsError
+    is RegisterClientResult.Failure.TooManyClients -> LoginState.Error.TooManyDevicesError
+    is RegisterClientResult.Failure.PasswordAuthRequired -> LoginState.Error.DialogError.PasswordNeededToRegisterClient
 }
 
-fun DomainLookupUseCase.Result.Failure.toLoginError() = LoginError.DialogError.GenericError(this.coreFailure)
-fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginError = when (this) {
-    is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-    AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginError.DialogError.UserAlreadyExists
+fun DomainLookupUseCase.Result.Failure.toLoginError() = LoginState.Error.DialogError.GenericError(this.coreFailure)
+fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginState.Error = when (this) {
+    is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginState.Error.DialogError.GenericError(this.genericFailure)
+    AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginState.Error.DialogError.UserAlreadyExists
 }
 
 sealed interface PreFilledUserIdentifierType {
-    object None : PreFilledUserIdentifierType
+    data object None : PreFilledUserIdentifierType
     data class PreFilled(val userIdentifier: String) : PreFilledUserIdentifierType
 }
+
+val ServerConfig.Links.isProxyEnabled get() = this.apiProxy != null
+val ServerConfig.Links.isProxyAuthRequired get() = apiProxy?.needsAuthentication ?: false

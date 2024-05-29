@@ -20,17 +20,17 @@
 
 package com.wire.android.ui.authentication.login.email
 
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestClient
-import com.wire.android.ui.authentication.login.LoginError
-import com.wire.android.ui.common.textfield.CodeFieldValue
+import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
@@ -68,12 +68,13 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldNotBeInstanceOf
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class LoginEmailViewModelTest {
 
     @MockK
@@ -115,9 +116,6 @@ class LoginEmailViewModelTest {
     @MockK
     private lateinit var authenticationScope: AuthenticationScope
 
-    @MockK(relaxed = true)
-    private lateinit var onSuccess: (Boolean, Boolean) -> Unit
-
     private lateinit var loginViewModel: LoginEmailViewModel
 
     private val userId: QualifiedID = QualifiedID("userId", "domain")
@@ -158,18 +156,18 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given empty strings, when entering credentials, then button is disabled`() {
-        loginViewModel.onPasswordChange(TextFieldValue(String.EMPTY))
-        loginViewModel.onUserIdentifierChange(TextFieldValue(String.EMPTY))
-        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo false
-        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
+        loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
+        loginViewModel.loginState.loginEnabled shouldBeEqualTo false
+        loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Loading>()
     }
 
     @Test
     fun `given non-empty strings, when entering credentials, then button is enabled`() {
-        loginViewModel.onPasswordChange(TextFieldValue("abc"))
-        loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
-        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
+        loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd("abc")
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd("abc")
+        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Loading>()
     }
 
     @Test
@@ -181,14 +179,16 @@ class LoginEmailViewModelTest {
             addAuthenticatedUserUseCase(any(), any(), any(), any())
         } returns AddAuthenticatedUserUseCase.Result.Success(userId)
 
-        loginViewModel.onPasswordChange(TextFieldValue("abc"))
-        loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
-        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
-        loginViewModel.login(onSuccess)
+        loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd("abc")
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd("abc")
+        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Loading>()
+        loginViewModel.login()
+        loginViewModel.loginState.loginEnabled shouldBeEqualTo false
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Loading>()
         advanceUntilIdle()
-        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
+        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Loading>()
     }
 
     @Test
@@ -204,13 +204,16 @@ class LoginEmailViewModelTest {
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
 
-        loginViewModel.onPasswordChange(TextFieldValue(password))
+        loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
 
-        loginViewModel.login(onSuccess)
+        loginViewModel.login()
         advanceUntilIdle()
         coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { onSuccess(true, false) }
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
+            it.initialSyncCompleted shouldBe true
+            it.isE2EIRequired shouldBe false
+        }
     }
 
     @Test
@@ -225,16 +228,19 @@ class LoginEmailViewModelTest {
             )
             coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
             coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(false)
+            every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(false)
 
-            loginViewModel.onPasswordChange(TextFieldValue(password))
+            loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
 
-            loginViewModel.login(onSuccess)
+            loginViewModel.login()
             advanceUntilIdle()
-        coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any(), any()) }
-        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { onSuccess(false, false) }
-    }
+            coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any(), any()) }
+            coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
+                it.initialSyncCompleted shouldBe false
+                it.isE2EIRequired shouldBe false
+            }
+        }
 
     @Test
     fun `given button is clicked, when login returns InvalidUserIdentifier error, then InvalidUserIdentifierError is passed`() = runTest {
@@ -242,9 +248,9 @@ class LoginEmailViewModelTest {
             loginUseCase(any(), any(), any(), any(), any())
         } returns AuthenticationResult.Failure.InvalidUserIdentifier
 
-        loginViewModel.login(onSuccess)
+        loginViewModel.login()
         advanceUntilIdle()
-        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.TextFieldError.InvalidValue>()
     }
 
     @Test
@@ -259,9 +265,9 @@ class LoginEmailViewModelTest {
             )
         } returns AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination
 
-        loginViewModel.login(onSuccess)
+        loginViewModel.login()
         advanceUntilIdle()
-        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidCredentialsError>()
     }
 
     @Test
@@ -271,11 +277,12 @@ class LoginEmailViewModelTest {
             loginUseCase(any(), any(), any(), any(), any())
         } returns AuthenticationResult.Failure.Generic(networkFailure)
 
-        loginViewModel.login(onSuccess)
+        loginViewModel.login()
         advanceUntilIdle()
 
-        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.GenericError::class
-        (loginViewModel.loginState.loginError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+            it.coreFailure shouldBe networkFailure
+        }
     }
 
     @Test
@@ -290,11 +297,11 @@ class LoginEmailViewModelTest {
             )
         } returns AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination
 
-        loginViewModel.login(onSuccess)
+        loginViewModel.login()
         advanceUntilIdle()
-        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
-        loginViewModel.onDialogDismiss()
-        loginViewModel.loginState.loginError shouldBe LoginError.None
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidCredentialsError>()
+        loginViewModel.clearLoginErrors()
+        loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Error>()
     }
 
     @Test
@@ -314,10 +321,10 @@ class LoginEmailViewModelTest {
             )
         } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
-        loginViewModel.login(onSuccess)
+        loginViewModel.login()
         advanceUntilIdle()
 
-        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.UserAlreadyExists>()
     }
 
     @Test
@@ -325,9 +332,9 @@ class LoginEmailViewModelTest {
         val email = "some.email@example.org"
         coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
         coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Success
-        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
 
-        loginViewModel.login(onSuccess)
+        loginViewModel.login()
         advanceUntilIdle()
 
         coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
@@ -339,13 +346,13 @@ class LoginEmailViewModelTest {
         coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
         coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Success
 
-        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
-        loginViewModel.onPasswordChange(TextFieldValue("somePassword"))
-        loginViewModel.login(onSuccess)
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
+        loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd("somePassword")
+        loginViewModel.login()
         advanceUntilIdle()
 
-        loginViewModel.loginState.emailLoginLoading shouldBe false
-        loginViewModel.loginState.emailLoginEnabled shouldBe true
+        loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Loading>()
+        loginViewModel.loginState.loginEnabled shouldBe true
     }
 
     @Test
@@ -353,9 +360,9 @@ class LoginEmailViewModelTest {
         val email = "some.email@example.org"
         coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
         coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Success
-        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
 
-        loginViewModel.login(onSuccess)
+        loginViewModel.login()
         advanceUntilIdle()
 
         loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
@@ -375,9 +382,9 @@ class LoginEmailViewModelTest {
             } returns RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic(
                 CoreFailure.Unknown(null)
             )
-            loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+            loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
 
-            loginViewModel.login(onSuccess)
+            loginViewModel.login()
             advanceUntilIdle()
 
             loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe false
@@ -391,9 +398,9 @@ class LoginEmailViewModelTest {
         coEvery {
             requestSecondFactorCodeUseCase(any(), any())
         } returns RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests
-        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
 
-        loginViewModel.login(onSuccess)
+        loginViewModel.login()
         advanceUntilIdle()
 
         loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
@@ -405,8 +412,8 @@ class LoginEmailViewModelTest {
         val email = "some.email@example.org"
         coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
         coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Success
-        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
-        loginViewModel.login(onSuccess)
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
+        loginViewModel.login()
         advanceUntilIdle()
         loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
     }
@@ -414,9 +421,9 @@ class LoginEmailViewModelTest {
     @Test
     fun `given login fails with invalid 2fa, when logging in, then should mark the current code as invalid`() = runTest {
         coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Invalid2FA
-        loginViewModel.onUserIdentifierChange(TextFieldValue("some.email@example.org"))
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd("some.email@example.org")
 
-        loginViewModel.login(onSuccess)
+        loginViewModel.login()
         advanceUntilIdle()
         loginViewModel.secondFactorVerificationCodeState.isCurrentCodeInvalid shouldBe true
     }
@@ -435,12 +442,12 @@ class LoginEmailViewModelTest {
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
 
-        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
-        loginViewModel.onCodeChange(CodeFieldValue(TextFieldValue(code), true), onSuccess)
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
+        loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
         advanceUntilIdle()
         coVerify(exactly = 1) { loginUseCase(email, any(), any(), any(), code) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { onSuccess(any(), any()) }
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
     }
 
     @Test
@@ -458,8 +465,8 @@ class LoginEmailViewModelTest {
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Failure.TooManyClients
         every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
 
-        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
-        loginViewModel.onCodeChange(CodeFieldValue(TextFieldValue(code), true), onSuccess)
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
+        loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
         advanceUntilIdle()
         loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe false
     }
@@ -478,8 +485,8 @@ class LoginEmailViewModelTest {
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
 
-        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
-        loginViewModel.onCodeChange(CodeFieldValue(TextFieldValue(code), true), onSuccess)
+        loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)
+        loginViewModel.secondFactorVerificationCodeTextState.setTextAndPlaceCursorAtEnd(code)
         advanceUntilIdle()
         coVerify(exactly = 1) { getOrRegisterClientUseCase(match { it.secondFactorVerificationCode == null }) }
     }

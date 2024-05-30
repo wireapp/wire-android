@@ -77,4 +77,5 @@ jobs:
           mappingFile: app/build/outputs/mapping/internalCompat/mapping.txt
           whatsNewDirectory: distribution/
           status: inProgress
+          userFraction: 0.33
           debugSymbols: app/intermediates/merged_native_libs/internalCompat/native-debug-symbols.zip

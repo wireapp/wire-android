@@ -72,6 +72,9 @@ jobs:
         with:
           serviceAccountJson: service_account.json
           packageName: com.wire.internal
-          releaseFile: app/build/outputs/bundle/internalCompat/*.aab
+          releaseFiles: app/build/outputs/bundle/internalCompat/*.aab
           track: alpha
+          mappingFile: app/build/outputs/mapping/internalCompat/mapping.txt
           whatsNewDirectory: distribution/
+          status: inProgress
+          debugSymbols: app/intermediates/merged_native_libs/internalCompat/native-debug-symbols.zip

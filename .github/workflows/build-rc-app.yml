@@ -75,5 +75,3 @@ jobs:
           releaseFiles: app/build/outputs/bundle/internalCompat/*.aab
           track: alpha
           mappingFile: app/build/outputs/mapping/internalCompat/mapping.txt
-          status: inProgress
-          userFraction: 0.33

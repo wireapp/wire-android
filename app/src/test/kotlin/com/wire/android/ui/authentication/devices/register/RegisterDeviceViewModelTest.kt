@@ -18,8 +18,9 @@
 
 package com.wire.android.ui.authentication.devices.register
 
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.TestClient
@@ -45,7 +46,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class RegisterDeviceViewModelTest {
 
     @MockK
@@ -73,15 +74,15 @@ class RegisterDeviceViewModelTest {
     }
 
     @Test
-    fun `given empty string, when entering the password to register, then button is disabled`() {
-        registerDeviceViewModel.onPasswordChange(TextFieldValue(String.EMPTY))
+    fun `given empty string, when entering the password to register, then button is disabled`() = runTest {
+        registerDeviceViewModel.passwordTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo false
         registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Default::class
     }
 
     @Test
     fun `given non-empty string, when entering the password to register, then button is disabled`() {
-        registerDeviceViewModel.onPasswordChange(TextFieldValue("abc"))
+        registerDeviceViewModel.passwordTextState.setTextAndPlaceCursorAtEnd("abc")
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo true
         registerDeviceViewModel.state.flowState shouldBeInstanceOf RegisterDeviceFlowState.Default::class
     }
@@ -95,7 +96,7 @@ class RegisterDeviceViewModelTest {
             )
         } returns RegisterClientResult.Success(CLIENT)
 
-        registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
+        registerDeviceViewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
 
         registerDeviceViewModel.onContinue()
         advanceUntilIdle()
@@ -111,7 +112,7 @@ class RegisterDeviceViewModelTest {
         coEvery {
             registerClientUseCase(any())
         } returns RegisterClientResult.Failure.TooManyClients
-        registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
+        registerDeviceViewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
 
         registerDeviceViewModel.onContinue()
         advanceUntilIdle()

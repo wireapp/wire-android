@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.appLock.forgot
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
@@ -25,7 +26,6 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
-import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.StorageFailure
@@ -63,7 +63,7 @@ import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class ForgotLockScreenViewModelTest {
     private val dispatcher = TestDispatcherProvider()
 
@@ -216,7 +216,6 @@ class ForgotLockScreenViewModelTest {
         @MockK lateinit var globalDataStore: GlobalDataStore
         @MockK lateinit var userDataStoreProvider: UserDataStoreProvider
         @MockK lateinit var userDataStore: UserDataStore
-        @MockK lateinit var notificationChannelsManager: NotificationChannelsManager
         @MockK lateinit var notificationManager: WireNotificationManager
         @MockK lateinit var getSelfUserUseCase: GetSelfUserUseCase
         @MockK lateinit var isPasswordRequiredUseCase: IsPasswordRequiredUseCase
@@ -230,7 +229,7 @@ class ForgotLockScreenViewModelTest {
 
         private val viewModel: ForgotLockScreenViewModel by lazy {
             ForgotLockScreenViewModel(
-                coreLogic, globalDataStore, userDataStoreProvider, notificationChannelsManager, notificationManager, getSelfUserUseCase,
+                coreLogic, globalDataStore, userDataStoreProvider, notificationManager, getSelfUserUseCase,
                 isPasswordRequiredUseCase, validatePasswordUseCase, observeCurrentClientIdUseCase, deleteClientUseCase, getSessionsUseCase,
                 observeEstablishedCallsUseCase, endCallUseCase, accountSwitchUseCase
             )

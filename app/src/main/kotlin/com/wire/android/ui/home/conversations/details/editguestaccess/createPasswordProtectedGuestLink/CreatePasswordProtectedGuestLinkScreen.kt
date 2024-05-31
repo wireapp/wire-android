@@ -126,7 +126,8 @@ fun CreatePasswordProtectedGuestLinkScreenContent(
                 onNavigationPressed = navigateBack,
                 title = stringResource(id = R.string.conversation_options_create_password_protected_guest_link_title),
             )
-        }) { internalPadding ->
+        }
+    ) { internalPadding ->
         Column {
             LazyColumn(
                 modifier = Modifier

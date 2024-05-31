@@ -17,11 +17,12 @@
  */
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.ScopedArgsTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.feature.GenerateRandomPasswordUseCase
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel
@@ -33,81 +34,72 @@ import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.internal.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(ScopedArgsTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
-class CreatePasswordGuestLinkViewModelText {
+@ExtendWith(CoroutineTestExtension::class, ScopedArgsTestExtension::class, NavigationTestExtension::class, SnapshotExtension::class)
+class CreatePasswordGuestLinkViewModelTest {
 
     @Test
-    fun `given onPasswordUpdated called, when password is valid and password matches confirm, then isPasswordValid is marked as true`() {
+    fun `given password entered, when password is valid and password matches confirm, then isPasswordValid is marked as true`() {
         val (_, viewModel) = Arrangement()
             .withPasswordValidation(true)
             .arrange()
 
-        viewModel.state = viewModel.state.copy(
-            password = TextFieldValue("123"),
-            passwordConfirm = TextFieldValue("password")
-        )
-
-        viewModel.onPasswordUpdated(TextFieldValue("password"))
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
 
         assertTrue(viewModel.state.isPasswordValid)
     }
 
     @Test
-    fun `given onPasswordUpdated, when password is valid and doesn't match confirm, then isPasswordValid is marked as false`() {
+    fun `given password entered, when password is valid and doesn't match confirm, then isPasswordValid is marked as false`() {
         val (_, viewModel) = Arrangement()
             .withPasswordValidation(true)
             .arrange()
 
-        viewModel.state = viewModel.state.copy(
-            password = TextFieldValue("password"),
-            passwordConfirm = TextFieldValue("password"),
-            isPasswordValid = true
-        )
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
 
-        viewModel.onPasswordUpdated(TextFieldValue("123"))
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password123")
 
-        assertFalse(viewModel.state.isPasswordValid)
+        assertEquals(false, viewModel.state.isPasswordValid)
     }
 
     @Test
-    fun `given onPasswordConfirmUpdated called, when the new password differ from the state, then isPasswordCopied is marked as false`() {
-        val (_, viewModel) = Arrangement()
+    fun `given password confirm emitted new value, when the new value is different, then validate is called`() {
+        val (arrangement, viewModel) = Arrangement()
             .withPasswordValidation(true)
             .arrange()
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("old_password")
+        arrangement.clearValidatePasswordCallsCount()
 
-        viewModel.state = viewModel.state.copy(
-            passwordConfirm = TextFieldValue("old_password")
-        )
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("new_password")
 
-        viewModel.onPasswordConfirmUpdated(TextFieldValue("new_password"))
+        assertEquals("new_password", viewModel.confirmPasswordTextState.text.toString())
 
-        assertEquals(TextFieldValue("new_password"), viewModel.state.passwordConfirm)
+        verify(exactly = 1) {
+            arrangement.validatePassword(any())
+        }
     }
 
     @Test
-    fun `given onPasswordConfirmUpdated, when the new password doesn't differ from the state, then isPasswordCopied is not changed`() {
+    fun `given password confirm emitted new value, when the new value is not different, then validate is not called`() {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+        arrangement.clearValidatePasswordCallsCount()
 
-        viewModel.state = viewModel.state.copy(
-            passwordConfirm = TextFieldValue("password")
-        )
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
 
-        viewModel.onPasswordConfirmUpdated(TextFieldValue("password"))
-
-        assertEquals(TextFieldValue("password"), viewModel.state.passwordConfirm)
+        assertEquals("password", viewModel.confirmPasswordTextState.text.toString())
 
         verify(exactly = 0) {
             arrangement.validatePassword(any())
@@ -120,14 +112,10 @@ class CreatePasswordGuestLinkViewModelText {
             .withPasswordValidation(true)
             .arrange()
 
-        viewModel.state = viewModel.state.copy(
-            password = TextFieldValue("password"),
-            passwordConfirm = TextFieldValue("123")
-        )
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
 
-        viewModel.onPasswordConfirmUpdated(TextFieldValue("password"))
-
-        assertTrue(viewModel.state.isPasswordValid)
+        assertEquals(true, viewModel.state.isPasswordValid)
     }
 
     @Test
@@ -136,36 +124,27 @@ class CreatePasswordGuestLinkViewModelText {
             .withPasswordValidation(true)
             .arrange()
 
-        viewModel.state = viewModel.state.copy(
-            password = TextFieldValue("password"),
-            passwordConfirm = TextFieldValue("password"),
-            isPasswordValid = true
-        )
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password123")
 
-        viewModel.onPasswordConfirmUpdated(TextFieldValue("123"))
-
-        assertFalse(viewModel.state.isPasswordValid)
+        assertEquals(false, viewModel.state.isPasswordValid)
     }
 
     @Test
     fun `given onGenerateRandomPassword called, when password is generated, then password and passwordConfirm are updated`() {
         val (_, viewModel) = Arrangement()
-            .withGenerateRandomPassword("password")
+            .withGenerateRandomPassword("generated_password")
             .withPasswordValidation(true)
             .arrange()
 
-        viewModel.state = viewModel.state.copy(
-            password = TextFieldValue("123"),
-            passwordConfirm = TextFieldValue("123"),
-            isPasswordValid = false
-        )
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
 
         viewModel.onGenerateRandomPassword()
 
-        assertTrue(viewModel.state.password.text.isNotEmpty())
-        assertTrue(viewModel.state.passwordConfirm.text.isNotEmpty())
-        assertEquals(viewModel.state.password, viewModel.state.passwordConfirm)
-        assertTrue(viewModel.state.isPasswordValid)
+        assertEquals("generated_password", viewModel.passwordTextState.text.toString())
+        assertEquals(viewModel.passwordTextState.text, viewModel.confirmPasswordTextState.text)
+        assertEquals(true, viewModel.state.isPasswordValid)
     }
 
     @Test
@@ -176,15 +155,13 @@ class CreatePasswordGuestLinkViewModelText {
             )
             .arrange()
 
-        viewModel.state = viewModel.state.copy(
-            password = TextFieldValue("password"),
-            passwordConfirm = TextFieldValue("password"),
-            isPasswordValid = true
-        )
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state = viewModel.state.copy(isPasswordValid = true)
 
         viewModel.onGenerateLink()
 
-        assertTrue(viewModel.state.isLinkCreationSuccessful)
+        assertEquals(true, viewModel.state.isLinkCreationSuccessful)
     }
 
     @Test
@@ -196,15 +173,13 @@ class CreatePasswordGuestLinkViewModelText {
             )
             .arrange()
 
-        viewModel.state = viewModel.state.copy(
-            password = TextFieldValue("password"),
-            passwordConfirm = TextFieldValue("password"),
-            isPasswordValid = true
-        )
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state = viewModel.state.copy(isPasswordValid = true)
 
         viewModel.onGenerateLink()
 
-        assertFalse(viewModel.state.isLinkCreationSuccessful)
+        assertEquals(false, viewModel.state.isLinkCreationSuccessful)
         assertEquals(
             expectedError,
             viewModel.state.error
@@ -260,11 +235,22 @@ class CreatePasswordGuestLinkViewModelText {
             } returns result
         }
 
-        private val viewModel: CreatePasswordGuestLinkViewModel = CreatePasswordGuestLinkViewModel(
-            generateGuestRoomLink = generateGuestRoomLink,
-            validatePassword = validatePassword,
-            generateRandomPasswordUseCase = generateRandomPasswordUseCase,
-            savedStateHandle = savedStateHandle
+        private val viewModel: CreatePasswordGuestLinkViewModel by lazy {
+            CreatePasswordGuestLinkViewModel(
+                generateGuestRoomLink = generateGuestRoomLink,
+                validatePassword = validatePassword,
+                generateRandomPasswordUseCase = generateRandomPasswordUseCase,
+                savedStateHandle = savedStateHandle
+            )
+        }
+
+        fun clearValidatePasswordCallsCount() = clearMocks(
+            validatePassword,
+            answers = false,
+            recordedCalls = true,
+            childMocks = false,
+            verificationMarks = false,
+            exclusionRules = false
         )
 
         fun arrange() = this to viewModel

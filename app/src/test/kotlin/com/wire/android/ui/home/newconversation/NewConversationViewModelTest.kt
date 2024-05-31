@@ -105,7 +105,7 @@ class NewConversationViewModelTest {
 
         coVerify {
             arrangement.createGroupConversation(
-                viewModel.newGroupState.groupName.text,
+                viewModel.newGroupNameTextState.text.toString(),
                 viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
                 ConversationOptions(
                     Conversation.defaultGroupAccess,
@@ -134,7 +134,7 @@ class NewConversationViewModelTest {
 
             coVerify {
                 arrangement.createGroupConversation(
-                    viewModel.newGroupState.groupName.text,
+                    viewModel.newGroupNameTextState.text.toString(),
                     viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
                     ConversationOptions(
                         setOf(Conversation.Access.INVITE, Conversation.Access.CODE),

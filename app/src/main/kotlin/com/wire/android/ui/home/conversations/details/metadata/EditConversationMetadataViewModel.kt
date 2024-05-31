@@ -105,11 +105,13 @@ class EditConversationMetadataViewModel @Inject constructor(
         onSuccess: () -> Unit,
     ) {
         viewModelScope.launch {
-            when (withContext(dispatcher.io()) {
+            withContext(dispatcher.io()) {
                 renameConversation(conversationId, editConversationNameTextState.text.toString())
-            }) {
-                is RenamingResult.Failure -> onFailure()
-                is RenamingResult.Success -> onSuccess()
+            }.let { renamingResult ->
+                when (renamingResult) {
+                    is RenamingResult.Failure -> onFailure()
+                    is RenamingResult.Success -> onSuccess()
+                }
             }
         }
     }

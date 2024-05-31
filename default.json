@@ -6,7 +6,9 @@
             "logging_enabled": false,
             "application_is_private_build": false,
             "development_api_enabled": false,
-            "mls_support_enabled": false
+            "mls_support_enabled": false,
+            "countly_enabled": false,
+            "countly_app_key": ""
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",
@@ -27,7 +29,9 @@
             "default_backend_url_website": "https://wire.com",
             "default_backend_title": "wire-staging",
             "is_password_protected_guest_link_enabled": true,
-            "encrypt_proteus_storage": true
+            "encrypt_proteus_storage": true,
+            "countly_enabled": false,
+            "countly_app_key": ""
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -46,7 +50,9 @@
             "default_backend_url_blacklist": "https://clientblacklist.wire.com/staging",
             "default_backend_url_website": "https://wire.com",
             "default_backend_title": "wire-staging",
-            "encrypt_proteus_storage": true
+            "encrypt_proteus_storage": true,
+            "countly_enabled": false,
+            "countly_app_key": ""
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -55,7 +61,9 @@
             "application_is_private_build": true,
             "development_api_enabled": false,
             "mls_support_enabled": false,
-            "encrypt_proteus_storage": true
+            "encrypt_proteus_storage": true,
+            "countly_enabled": true,
+            "countly_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438"
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -63,7 +71,9 @@
             "logging_enabled": true,
             "application_is_private_build": true,
             "development_api_enabled": false,
-            "encrypt_proteus_storage": true
+            "encrypt_proteus_storage": true,
+            "countly_enabled": false,
+            "countly_app_key": ""
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -71,7 +81,9 @@
             "logging_enabled": false,
             "application_is_private_build": false,
             "development_api_enabled": false,
-            "mls_support_enabled": false
+            "mls_support_enabled": false,
+            "countly_enabled": false,
+            "countly_app_key": ""
         }
     },
     "application_name": "Wire",

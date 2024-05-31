@@ -65,8 +65,8 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.getIncomingCallIntent
-import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.getOngoingCallIntent
+import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
@@ -151,7 +151,7 @@ class WireActivity : AppCompatActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        lifecycleScope.launch(Dispatchers.Default) {
+        lifecycleScope.launch {
 
             appLogger.i("$TAG persistent connection status")
             viewModel.observePersistentConnectionStatus()
@@ -167,12 +167,11 @@ class WireActivity : AppCompatActivity() {
                 InitialAppState.LOGGED_IN -> HomeScreenDestination
             }
             appLogger.i("$TAG composable content")
-            withContext(Dispatchers.Main) {
-                setComposableContent(startDestination) {
-                    appLogger.i("$TAG splash hide")
-                    shouldKeepSplashOpen = false
-                    handleDeepLink(intent, savedInstanceState)
-                }
+
+            setComposableContent(startDestination) {
+                appLogger.i("$TAG splash hide")
+                shouldKeepSplashOpen = false
+                handleDeepLink(intent, savedInstanceState)
             }
         }
     }
@@ -237,9 +236,9 @@ class WireActivity : AppCompatActivity() {
 
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-                        setUpNavigation(navigator.navController, onComplete)
-                        handleScreenshotCensoring()
-                        handleDialogs(navigator::navigate)
+                        SetUpNavigation(navigator.navController, onComplete)
+                        HandleScreenshotCensoring()
+                        HandleDialogs(navigator::navigate)
                     }
                 }
             }
@@ -247,7 +246,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun setUpNavigation(
+    private fun SetUpNavigation(
         navController: NavHostController,
         onComplete: () -> Unit,
     ) {
@@ -281,7 +280,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun handleScreenshotCensoring() {
+    private fun HandleScreenshotCensoring() {
         LaunchedEffect(viewModel.globalAppState.screenshotCensoringEnabled) {
             if (viewModel.globalAppState.screenshotCensoringEnabled) {
                 window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -293,7 +292,7 @@ class WireActivity : AppCompatActivity() {
 
     @Suppress("ComplexMethod")
     @Composable
-    private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
+    private fun HandleDialogs(navigate: (NavigationCommand) -> Unit) {
         val context = LocalContext.current
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {
@@ -471,7 +470,7 @@ class WireActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        lifecycleScope.launch(Dispatchers.Default) {
+        lifecycleScope.launch {
             lockCodeTimeManager.get().observeAppLock()
                 // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
                 .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)

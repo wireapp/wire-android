@@ -71,6 +71,16 @@ jobs:
           KEYPWD_COMPAT: ${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}
           KEYSTOREPWD_COMPAT: ${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+      - name: Create service_account.json
+        run: echo '${{ secrets.SERVICE_ACCOUNT_JSON }}' > service_account.json
+      - name: Deploy to alpha track
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: service_account.json
+          packageName: com.wire.internal
+          releaseFiles: app/build/outputs/bundle/internalCompat/*.aab
+          track: alpha
+          mappingFile: app/build/outputs/mapping/internalCompat/mapping.txt
       - name: Build Staging flavour
         run:
           ./gradlew app:assembleStagingCompat

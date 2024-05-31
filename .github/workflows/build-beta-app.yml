@@ -76,3 +76,14 @@ jobs:
         with:
           name: Build Artifacts
           path: app/build/outputs/
+      - name: Create service_account.json
+        run: echo '${{ secrets.SERVICE_ACCOUNT_JSON }}' > service_account.json
+      - name: Deploy to internal track
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: service_account.json
+          packageName: com.wire.android.internal
+          releaseFiles: app/build/outputs/bundle/betaRelease/*.aab
+          track: internal
+          mappingFile: app/build/outputs/mapping/betaRelease/mapping.txt
+

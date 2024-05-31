@@ -105,5 +105,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
      * Countly Analytics
      */
     COUNTLY_ENABLED("countly_enabled", ConfigType.BOOLEAN),
-    COUNTLY_APP_KEY("countly_app_key", ConfigType.STRING)
+    COUNTLY_APP_KEY("countly_app_key", ConfigType.STRING),
+    COUNTLY_SERVER_URL("countly_server_url", ConfigType.STRING)
 }

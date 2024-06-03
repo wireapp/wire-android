@@ -78,7 +78,4 @@ jobs:
           serviceAccountJson: service_account.json
           packageName: com.wire
           releaseFiles: app/build/outputs/bundle/prodCompatRelease/*.aab
-          track: prod
-          status: inProgress
-          userFraction: 0.1 # 10% of users
-          mappingFile: app/build/outputs/mapping/prodCompatRelease/mapping.txt
+          track: alpha

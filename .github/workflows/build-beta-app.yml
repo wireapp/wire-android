@@ -85,5 +85,3 @@ jobs:
           packageName: com.wire.android.internal
           releaseFiles: app/build/outputs/bundle/betaRelease/*.aab
           track: internal
-          mappingFile: app/build/outputs/mapping/betaRelease/mapping.txt
-

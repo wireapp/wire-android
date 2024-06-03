@@ -66,7 +66,6 @@ import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.flow.MutableSharedFlow
 
 // Since the HomeScreen is responsible for displaying the bottom sheet content,
 // we create a bridge that passes the content of the BottomSheet

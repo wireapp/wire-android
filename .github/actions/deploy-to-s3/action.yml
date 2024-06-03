@@ -35,7 +35,7 @@ runs:
         destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/"
         file-path: './wire-android-${{ inputs.build-flavour }}-pr-${{ github.event.pull_request.number }}.apk'
         output-file-url: 'true'
-        public: false
+        public: true
     - name: Show URL
       env:
         EVENT_FILE_PATH: artifacts/Event File/event.json

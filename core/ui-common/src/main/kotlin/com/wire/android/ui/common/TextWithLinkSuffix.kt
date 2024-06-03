@@ -152,7 +152,11 @@ private fun buildInlineText(
                         Box(
                             modifier = Modifier // It's only a placeholder as well, just to get the real size and position of the link.
                                 .size(linkSizeDp)
-                                .onGloballyPositioned { it.parentLayoutCoordinates?.let { onLinkPositionCalculated(it.positionInParent()) } }
+                                .onGloballyPositioned {
+                                    it.parentLayoutCoordinates?.let {
+                                        onLinkPositionCalculated(it.positionInParent())
+                                    }
+                                }
                         )
                     }
                 )

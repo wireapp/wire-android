@@ -93,6 +93,7 @@ class CreatePasswordGuestLinkViewModelTest {
     @Test
     fun `given password confirm emitted new value, when the new value is not different, then validate is not called`() {
         val (arrangement, viewModel) = Arrangement()
+            .withPasswordValidation(true)
             .arrange()
         viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
         arrangement.clearValidatePasswordCallsCount()
@@ -150,9 +151,8 @@ class CreatePasswordGuestLinkViewModelTest {
     @Test
     fun `given onGenerateLink called, when link is generated, then isLinkCreationSuccessful is marked as true`() {
         val (_, viewModel) = Arrangement()
-            .withGenerateGuestLink(
-                GenerateGuestRoomLinkResult.Success
-            )
+            .withPasswordValidation(true)
+            .withGenerateGuestLink(GenerateGuestRoomLinkResult.Success)
             .arrange()
 
         viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
@@ -168,9 +168,8 @@ class CreatePasswordGuestLinkViewModelTest {
     fun `given onGenerateLink called, when link is not generated, then isLinkCreationSuccessful is marked as false`() {
         val expectedError = NetworkFailure.NoNetworkConnection(null)
         val (_, viewModel) = Arrangement()
-            .withGenerateGuestLink(
-                GenerateGuestRoomLinkResult.Failure(expectedError)
-            )
+            .withPasswordValidation(true)
+            .withGenerateGuestLink(GenerateGuestRoomLinkResult.Failure(expectedError))
             .arrange()
 
         viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")

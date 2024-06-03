@@ -20,6 +20,7 @@ inputs:
     required: true
     description: "The build variant (benchmark, compat, compatrelease, debug, release)"
 runs:
+  using: "composite"
   steps:
     - name: Copy build to tmp file
       shell: bash

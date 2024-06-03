@@ -35,6 +35,7 @@ tasks.named<Wrapper>("wrapper") {
 tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
     dependsOn(":app:test${Default.BUILD_VARIANT}UnitTest")
+    // kalium have only 2 build type debug or release
     val buildType =
         if (Default.resolvedBuildType() == Variants_gradle.BuildTypes.DEBUG) Default.resolvedBuildType().capitalized()
         else Variants_gradle.BuildTypes.RELEASE.capitalized()

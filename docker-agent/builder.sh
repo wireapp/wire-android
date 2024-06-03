@@ -2,7 +2,6 @@
 
 if [ "$RUN_STATIC_CODE_ANALYSIS" = true ]; then
     echo "Running Static Code Analysis"
-    ./gradlew detektAll
    ./gradlew staticCodeAnalysis
 fi
 

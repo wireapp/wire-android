@@ -34,10 +34,10 @@ import org.robolectric.annotation.Config
 @Config(
     sdk = [Build.VERSION_CODES.TIRAMISU],
     /*
-    Run tests in isolation, use basic Application class instead of initializing WireApplication.
-    It won't work with WireApplication because of Datadog - for each test new WireApplication instance is created but Datadog uses
-    singleton and initializes itself only once for the first instance of WireApplication which then crashes for other instances.
-    */
+     * Run tests in isolation, use basic Application class instead of initializing WireApplication.
+     * It won't work with WireApplication because of Datadog - for each test new WireApplication instance is created but Datadog uses
+     * singleton and initializes itself only once for the first instance of WireApplication which then crashes for other instances.
+     */
     application = Application::class,
 )
 class LocationPickerHelperTest {

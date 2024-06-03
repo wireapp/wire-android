@@ -27,6 +27,7 @@ buildscript {
         classpath(libs.hilt.gradlePlugin)
         val fdroidBuild = (System.getenv("flavor")
             ?: System.getenv("FLAVOR")
+            ?: System.getenv("CUSTOM_FLAVOR")
             ?: gradle.startParameter.taskRequests.toString())
             .lowercase()
             .contains("fdroid")

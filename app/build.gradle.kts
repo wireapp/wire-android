@@ -18,6 +18,13 @@ import scripts.Variants_gradle
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+
+fun isFossSourceSet(): Boolean {
+    return (Variants_gradle.Default.explicitBuildFlavor() ?: gradle.startParameter.taskRequests.toString())
+        .lowercase()
+        .contains("fdroid")
+}
+
 plugins {
     // Application Specific plugins
     id(libs.plugins.wire.android.application.get().pluginId)
@@ -44,11 +51,6 @@ repositories {
     google()
 }
 
-fun isFossSourceSet(): Boolean {
-    return (Variants_gradle.Default.explicitBuildFlavor() ?: gradle.startParameter.taskRequests.toString())
-        .lowercase()
-        .contains("fdroid")
-}
 android {
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin
@@ -64,21 +66,26 @@ android {
     }
     android.buildFeatures.buildConfig = true
 
-    val fdroidBuild = isFossSourceSet()
 
-    sourceSets {
-        // Add the "foss" sourceSets for the fdroid flavor
-        if (fdroidBuild) {
-            getByName("fdroid") {
-                java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
-                res.srcDirs("src/prod/res")
-                println("Building with FOSS sourceSets")
-            }
-            // For all other flavors use the "nonfree" sourceSets
-        } else {
-            getByName("main") {
-                java.srcDirs("src/nonfree/kotlin")
-                println("Building with non-free sourceSets")
+    android.applicationVariants.all {
+        val variant = this
+        var fdroidBuild = isFossSourceSet()
+        variant.mergeResources.doFirst {
+            android.sourceSets {
+                // Add the "foss" sourceSets for the fdroid flavor
+                if (fdroidBuild) {
+                    getByName("fdroid") {
+                        java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
+                        res.srcDirs("src/prod/res")
+                        println("Building with FOSS sourceSets")
+                    }
+                    // For all other flavors use the "nonfree" sourceSets
+                } else {
+                    getByName("main") {
+                        java.srcDirs("src/nonfree/kotlin")
+                        println("Building with non-free sourceSets")
+                    }
+                }
             }
         }
     }

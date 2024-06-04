@@ -18,21 +18,18 @@
 
 package com.wire.android.ui.common.groupname
 
-import androidx.compose.ui.text.input.TextFieldValue
-
 object GroupNameValidator {
     private const val GROUP_NAME_MAX_COUNT = 64
 
     /**
      * Receives a group field and state and returns the new state after validation
      */
-    fun onGroupNameChange(newText: TextFieldValue, currentGroupState: GroupMetadataState): GroupMetadataState {
-        val cleanText = newText.text.trim()
+    fun onGroupNameChange(newText: String, currentGroupState: GroupMetadataState): GroupMetadataState {
+        val cleanText = newText.trim()
         return when {
             cleanText.isEmpty() -> {
                 currentGroupState.copy(
                     animatedGroupNameError = true,
-                    groupName = newText,
                     continueEnabled = false,
                     error = GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError
                 )
@@ -40,7 +37,6 @@ object GroupNameValidator {
             cleanText.count() > GROUP_NAME_MAX_COUNT -> {
                 currentGroupState.copy(
                     animatedGroupNameError = true,
-                    groupName = newText,
                     continueEnabled = false,
                     error = GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError
                 )
@@ -48,7 +44,6 @@ object GroupNameValidator {
             cleanText == currentGroupState.originalGroupName -> {
                 currentGroupState.copy(
                     animatedGroupNameError = false,
-                    groupName = newText,
                     continueEnabled = false,
                     error = GroupMetadataState.NewGroupError.None
                 )
@@ -56,7 +51,6 @@ object GroupNameValidator {
             else -> {
                 currentGroupState.copy(
                     animatedGroupNameError = false,
-                    groupName = newText,
                     continueEnabled = true,
                     error = GroupMetadataState.NewGroupError.None
                 )

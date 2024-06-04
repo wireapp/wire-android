@@ -326,7 +326,7 @@ class WireActivity : AppCompatActivity() {
                 if (legalHoldRequestedViewModel.state is LegalHoldRequestedState.Visible) {
                     LegalHoldRequestedDialog(
                         state = legalHoldRequestedViewModel.state as LegalHoldRequestedState.Visible,
-                        passwordChanged = legalHoldRequestedViewModel::passwordChanged,
+                        passwordTextState = legalHoldRequestedViewModel.passwordTextState,
                         notNowClicked = legalHoldRequestedViewModel::notNowClicked,
                         acceptClicked = legalHoldRequestedViewModel::acceptClicked,
                     )

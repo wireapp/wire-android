@@ -17,8 +17,9 @@
  */
 package com.wire.android.ui.joinDeepLink
 
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
 import com.wire.android.ui.joinConversation.JoinViaDeepLinkDialogState
 import com.wire.kalium.logic.NetworkFailure
@@ -35,8 +36,8 @@ import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(CoroutineTestExtension::class)
-class JoinViaCodeViewModelTest {
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
+class JoinConversationViaCodeViewModelTest {
 
     @Test
     fun `given valid code, when joining conversion success, then stat is updated`() = runTest {
@@ -159,7 +160,7 @@ class JoinViaCodeViewModelTest {
 
         viewModel.state = JoinViaDeepLinkDialogState.WrongPassword
 
-        viewModel.onPasswordUpdated(TextFieldValue("password"))
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password123")
 
         viewModel.state `should be equal to` JoinViaDeepLinkDialogState.Idle
     }
@@ -187,10 +188,10 @@ class JoinViaCodeViewModelTest {
         }
 
         fun withPassword(password: String): Arrangement = apply {
-            viewModel.onPasswordUpdated(TextFieldValue(password))
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
         }
 
-        private val viewModel: JoinConversationViaCodeViewModel = JoinConversationViaCodeViewModel(joinViaCode)
+        private val viewModel: JoinConversationViaCodeViewModel by lazy { JoinConversationViaCodeViewModel(joinViaCode) }
 
         fun arrange() = Pair(this, viewModel)
     }

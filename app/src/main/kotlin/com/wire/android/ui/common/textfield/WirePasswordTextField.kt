@@ -38,9 +38,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -54,7 +54,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Dp
@@ -70,6 +69,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun WirePasswordTextField(
     textState: TextFieldState,
+    modifier: Modifier = Modifier,
     placeholderText: String? = stringResource(R.string.login_password_placeholder),
     labelText: String? = stringResource(R.string.login_password_label),
     labelMandatoryIcon: Boolean = false,
@@ -86,9 +86,8 @@ fun WirePasswordTextField(
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
-    modifier: Modifier = Modifier,
     onTap: ((Offset) -> Unit)? = null,
-    testTag: String = String.EMPTY,
+    testTag: String = String.EMPTY
 ) {
     val autoFillType = if (autoFill) WireAutoFillType.Password else WireAutoFillType.None
     var passwordVisibility by remember { mutableStateOf(false) }
@@ -121,74 +120,6 @@ fun WirePasswordTextField(
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 interactionSource = interactionSource,
                 modifier = textFieldModifier,
-                decorator = decorator,
-            )
-        }
-    )
-}
-
-/*
-TODO: BasicSecureTextField (value, onValueChange) overload is removed completely in compose foundation 1.7.0,
-      for now we can use our custom StateSyncingModifier to sync TextFieldValue with TextFieldState,
-      but eventually we should migrate and remove this function when all usages are replaced with the TextFieldState.
-*/
-@Deprecated("Use the new one with TextFieldState.")
-@Composable
-fun WirePasswordTextField(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
-    placeholderText: String? = stringResource(R.string.login_password_placeholder),
-    labelText: String? = stringResource(R.string.login_password_label),
-    labelMandatoryIcon: Boolean = false,
-    descriptionText: String? = null,
-    state: WireTextFieldState = WireTextFieldState.Default,
-    autofill: Boolean,
-    maxTextLength: Int = 8000,
-    imeAction: ImeAction = ImeAction.Default,
-    onImeAction: KeyboardActionHandler? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    textStyle: TextStyle = MaterialTheme.wireTypography.body01.copy(textAlign = TextAlign.Start),
-    placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01.copy(textAlign = TextAlign.Start),
-    placeholderAlignment: Alignment.Horizontal = Alignment.Start,
-    inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
-    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
-    colors: WireTextFieldColors = wireTextFieldColors(),
-    modifier: Modifier = Modifier,
-    onTap: ((Offset) -> Unit)? = null,
-    testTag: String = String.EMPTY,
-) {
-    val textState = remember { TextFieldState(value.text, value.selection) }
-    val autoFillType = if (autofill) WireAutoFillType.Password else WireAutoFillType.None
-    var passwordVisibility by remember { mutableStateOf(false) }
-    WireTextFieldLayout(
-        shouldShowPlaceholder = textState.text.isEmpty(),
-        placeholderText = placeholderText,
-        labelText = labelText,
-        labelMandatoryIcon = labelMandatoryIcon,
-        descriptionText = descriptionText,
-        state = state,
-        interactionSource = interactionSource,
-        placeholderTextStyle = placeholderTextStyle,
-        placeholderAlignment = placeholderAlignment,
-        inputMinHeight = inputMinHeight,
-        shape = shape,
-        colors = colors,
-        trailingIcon = { VisibilityIconButton(passwordVisibility) { passwordVisibility = it } },
-        modifier = modifier.autoFill(autoFillType, textState::setTextAndPlaceCursorAtEnd),
-        testTag = testTag,
-        onTap = onTap,
-        innerBasicTextField = { decorator, textFieldModifier ->
-            BasicSecureTextField(
-                state = textState,
-                textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = imeAction),
-                onKeyboardAction = onImeAction,
-                inputTransformation = InputTransformation.maxLength(maxTextLength),
-                textObfuscationMode = if (passwordVisibility) TextObfuscationMode.Visible else TextObfuscationMode.RevealLastTyped,
-                enabled = state !is WireTextFieldState.Disabled,
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                interactionSource = interactionSource,
-                modifier = textFieldModifier.then(StateSyncingModifier(textState, value, onValueChange)),
                 decorator = decorator,
             )
         }

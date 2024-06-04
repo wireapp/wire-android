@@ -45,4 +45,4 @@ runs:
         GITHUB_USER: ${{ github.actor }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
       run: |
-        gh pr comment "${{ github.event.pull_request.number }}" --body "Built wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk is available [here](${{ steps.upload.outputs.file-url }})"
+        gh pr comment "${{ github.event.pull_request.number }}" --body "Built [wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk](${{ steps.upload.outputs.file-url }}) is available for download"

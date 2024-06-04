@@ -31,7 +31,7 @@ jobs:
         if: github.event.pull_request.merged == true
 
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
 
         steps:
             - name: Checkout

@@ -577,7 +577,7 @@ fun PreviewDeviceDetailsScreen() {
                     "handler",
                     CertificateStatus.VALID,
                     "serial",
-                    "date",
+                    "Details",
                     "Thumbprint",
                     Instant.DISTANT_FUTURE
                 )

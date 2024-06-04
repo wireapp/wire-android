@@ -47,7 +47,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
-class ConversationCallViewModelTest {
+class ConversationListCallViewModelTest {
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
@@ -85,7 +85,7 @@ class ConversationCallViewModelTest {
     @MockK
     lateinit var observeDegradedConversationNotifiedUseCase: ObserveDegradedConversationNotifiedUseCase
 
-    private lateinit var conversationCallViewModel: ConversationCallViewModel
+    private lateinit var conversationListCallViewModel: ConversationListCallViewModel
 
     @BeforeEach
     fun setUp() {
@@ -99,7 +99,7 @@ class ConversationCallViewModelTest {
         coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
         coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(false)
 
-        conversationCallViewModel = ConversationCallViewModel(
+        conversationListCallViewModel = ConversationListCallViewModel(
             savedStateHandle = savedStateHandle,
             observeOngoingCalls = observeOngoingCalls,
             observeEstablishedCalls = observeEstablishedCalls,
@@ -116,48 +116,48 @@ class ConversationCallViewModelTest {
 
     @Test
     fun `given join dialog displayed, when user dismiss it, then hide it`() {
-        conversationCallViewModel.conversationCallViewState = conversationCallViewModel.conversationCallViewState.copy(
+        conversationListCallViewModel.conversationCallViewState = conversationListCallViewModel.conversationCallViewState.copy(
             shouldShowJoinAnywayDialog = true
         )
 
-        conversationCallViewModel.dismissJoinCallAnywayDialog()
+        conversationListCallViewModel.dismissJoinCallAnywayDialog()
 
-        assertEquals(false, conversationCallViewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
+        assertEquals(false, conversationListCallViewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
     }
 
     @Test
     fun `given no ongoing call, when user tries to join a call, then invoke answerCall call use case`() {
-        conversationCallViewModel.conversationCallViewState =
-            conversationCallViewModel.conversationCallViewState.copy(hasEstablishedCall = false)
+        conversationListCallViewModel.conversationCallViewState =
+            conversationListCallViewModel.conversationCallViewState.copy(hasEstablishedCall = false)
 
         coEvery { joinCall(conversationId = any()) } returns Unit
 
-        conversationCallViewModel.joinOngoingCall(onAnswered)
+        conversationListCallViewModel.joinOngoingCall(onAnswered)
 
         coVerify(exactly = 1) { joinCall(conversationId = any()) }
         coVerify(exactly = 1) { onAnswered(any()) }
-        assertEquals(false, conversationCallViewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
+        assertEquals(false, conversationListCallViewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
     }
 
     @Test
     fun `given an ongoing call, when user tries to join a call, then show JoinCallAnywayDialog`() {
-        conversationCallViewModel.conversationCallViewState =
-            conversationCallViewModel.conversationCallViewState.copy(hasEstablishedCall = true)
+        conversationListCallViewModel.conversationCallViewState =
+            conversationListCallViewModel.conversationCallViewState.copy(hasEstablishedCall = true)
 
-        conversationCallViewModel.joinOngoingCall(onAnswered)
+        conversationListCallViewModel.joinOngoingCall(onAnswered)
 
-        assertEquals(true, conversationCallViewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
+        assertEquals(true, conversationListCallViewModel.conversationCallViewState.shouldShowJoinAnywayDialog)
         coVerify(inverse = true) { joinCall(conversationId = any()) }
     }
 
     @Test
     fun `given an ongoing call, when user confirms dialog to join a call, then end current call and join the newer one`() {
-        conversationCallViewModel.conversationCallViewState =
-            conversationCallViewModel.conversationCallViewState.copy(hasEstablishedCall = true)
-        conversationCallViewModel.establishedCallConversationId = ConversationId("value", "Domain")
+        conversationListCallViewModel.conversationCallViewState =
+            conversationListCallViewModel.conversationCallViewState.copy(hasEstablishedCall = true)
+        conversationListCallViewModel.establishedCallConversationId = ConversationId("value", "Domain")
         coEvery { endCall(any()) } returns Unit
 
-        conversationCallViewModel.joinAnyway(onAnswered)
+        conversationListCallViewModel.joinAnyway(onAnswered)
 
         coVerify(exactly = 1) { endCall(any()) }
     }

@@ -34,8 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -45,14 +43,16 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.home.archive.ArchivedConversationsEmptyStateScreen
 import com.wire.android.ui.home.conversationslist.ConversationItemType
-import com.wire.android.ui.home.conversationslist.ConversationListViewModel
+import com.wire.android.ui.home.conversationslist.ConversationListCallState
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.PermissionDenialType
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
@@ -66,12 +66,7 @@ fun AllConversationScreen(homeStateHolder: HomeStateHolder) {
         ConversationRouterHomeBridge(
             navigator = navigator,
             conversationItemType = ConversationItemType.ALL_CONVERSATIONS,
-            onHomeBottomSheetContentChanged = ::changeBottomSheetContent,
-            onOpenBottomSheet = ::openBottomSheet,
-            onCloseBottomSheet = ::closeBottomSheet,
-            onSnackBarStateChanged = ::setSnackBarState,
             searchBarState = searchBarState,
-            isBottomSheetVisible = ::isBottomSheetVisible
         )
     }
 }
@@ -79,23 +74,26 @@ fun AllConversationScreen(homeStateHolder: HomeStateHolder) {
 @Composable
 fun AllConversationScreenContent(
     conversations: ImmutableMap<ConversationFolder, List<ConversationItem>>,
+    conversationListCallState: ConversationListCallState,
     hasNoConversations: Boolean,
-    isFromArchive: Boolean = false,
-    viewModel: ConversationListViewModel = hiltViewModel(),
     onEditConversation: (ConversationItem) -> Unit,
     onOpenConversation: (ConversationId) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onJoinedCall: (ConversationId) -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    dismissJoinCallAnywayDialog: () -> Unit,
+    joinCallAnyway: (conversationId: ConversationId, onJoinedCall: (ConversationId) -> Unit) -> Unit,
+    isFromArchive: Boolean = false,
+    joinOngoingCall: (conversationId: ConversationId, onJoinedCall: (ConversationId) -> Unit) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
     val callConversationIdToJoin = remember { mutableStateOf(ConversationId("", "")) }
 
-    if (viewModel.conversationListCallState.shouldShowJoinAnywayDialog) {
+    if (conversationListCallState.shouldShowJoinAnywayDialog) {
         appLogger.i("$TAG showing showJoinAnywayDialog..")
         JoinAnywayDialog(
-            onDismiss = viewModel::dismissJoinCallAnywayDialog,
-            onConfirm = { viewModel.joinAnyway(callConversationIdToJoin.value, onJoinedCall) }
+            onDismiss = dismissJoinCallAnywayDialog,
+            onConfirm = { joinCallAnyway(callConversationIdToJoin.value, onJoinedCall) }
         )
     }
     if (hasNoConversations) {
@@ -114,7 +112,7 @@ fun AllConversationScreenContent(
             onOpenUserProfile = onOpenUserProfile,
             onJoinCall = {
                 callConversationIdToJoin.value = it
-                viewModel.joinOngoingCall(it, onJoinedCall)
+                joinOngoingCall(it, onJoinedCall)
             },
             onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
         )
@@ -158,9 +156,9 @@ fun ConversationListEmptyStateScreen() {
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewAllConversationScreen() {
+fun PreviewAllConversationScreen() = WireTheme {
     AllConversationScreenContent(
         conversations = persistentMapOf(),
         hasNoConversations = false,
@@ -168,13 +166,18 @@ fun PreviewAllConversationScreen() {
         onOpenConversation = {},
         onOpenUserProfile = {},
         onJoinedCall = {},
-        onPermissionPermanentlyDenied = {}
+        onPermissionPermanentlyDenied = {},
+        conversationListCallState = ConversationListCallState(),
+        isFromArchive = false,
+        dismissJoinCallAnywayDialog = {},
+        joinCallAnyway = { _, _ -> },
+        joinOngoingCall = { _, _ -> }
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun ConversationListEmptyStateScreenPreview() {
+fun ConversationListEmptyStateScreenPreview() = WireTheme {
     AllConversationScreenContent(
         conversations = persistentMapOf(),
         hasNoConversations = true,
@@ -182,7 +185,12 @@ fun ConversationListEmptyStateScreenPreview() {
         onOpenConversation = {},
         onOpenUserProfile = {},
         onJoinedCall = {},
-        onPermissionPermanentlyDenied = {}
+        onPermissionPermanentlyDenied = {},
+        conversationListCallState = ConversationListCallState(),
+        isFromArchive = false,
+        dismissJoinCallAnywayDialog = {},
+        joinCallAnyway = { _, _ -> },
+        joinOngoingCall = { _, _ -> }
     )
 }
 

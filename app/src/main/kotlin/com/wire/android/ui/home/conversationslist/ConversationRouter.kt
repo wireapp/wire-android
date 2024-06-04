@@ -81,7 +81,7 @@ fun ConversationRouterHomeBridge(
     conversationListViewModel: ConversationListViewModel = hiltViewModel(),
     conversationCallListViewModel: ConversationCallListViewModel = hiltViewModel(),
 ) {
-    var currentConversationItem by remember {
+    var currentSheetConversationItem by remember {
         mutableStateOf<ConversationItem?>(null)
     }
     var currentConversationOptionNavigation by remember {
@@ -103,8 +103,8 @@ fun ConversationRouterHomeBridge(
         conversationListViewModel.updateConversationsSource(conversationsSource)
     }
 
-    LaunchedEffect(key1 = currentConversationItem) {
-        if (currentConversationItem != null) {
+    LaunchedEffect(key1 = currentSheetConversationItem) {
+        if (currentSheetConversationItem != null) {
             sheetState.show()
         } else {
             sheetState.hide()
@@ -113,19 +113,19 @@ fun ConversationRouterHomeBridge(
 
     LaunchedEffect(sheetState.currentValue) {
         if (sheetState.currentValue == SheetValue.Hidden) {
-            currentConversationItem = null
+            currentSheetConversationItem = null
         }
     }
 
     LaunchedEffect(Unit) {
         conversationListViewModel.infoMessage.collect {
-            currentConversationItem = null
+            currentSheetConversationItem = null
         }
     }
 
     LaunchedEffect(Unit) {
         conversationListViewModel.closeBottomSheet.collect {
-            currentConversationItem = null
+            currentSheetConversationItem = null
         }
     }
 
@@ -162,7 +162,7 @@ fun ConversationRouterHomeBridge(
     with(conversationRouterHomeState) {
         val onEditConversationItem: (ConversationItem) -> Unit = remember {
             {
-                currentConversationItem = it
+                currentSheetConversationItem = it
                 currentConversationOptionNavigation = ConversationOptionNavigation.Home
             }
         }
@@ -265,7 +265,7 @@ fun ConversationRouterHomeBridge(
             onArchiveButtonClicked = conversationListViewModel::moveConversationToArchive
         )
 
-        currentConversationItem?.let {
+        currentSheetConversationItem?.let {
             WireModalSheetLayout2(
                 sheetState = sheetState,
                 coroutineScope = coroutineScope,
@@ -292,12 +292,12 @@ fun ConversationRouterHomeBridge(
                         leaveGroup = leaveGroupDialogState::show,
                         deleteGroup = deleteGroupDialogState::show,
                         closeBottomSheet = {
-                            currentConversationItem = null
+                            currentSheetConversationItem = null
                         }
                     )
                 },
                 onCloseBottomSheet = {
-                    currentConversationItem = null
+                    currentSheetConversationItem = null
                 }
             )
         }

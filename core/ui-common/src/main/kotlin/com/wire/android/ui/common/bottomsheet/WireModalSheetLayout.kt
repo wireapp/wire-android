@@ -38,6 +38,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Deprecated("Use WireModalSheetLayout2")
 fun WireModalSheetLayout(
     sheetState: WireModalSheetState,
     coroutineScope: CoroutineScope,
@@ -74,22 +75,28 @@ fun WireModalSheetLayout(
 fun MenuModalSheetLayout(
     sheetState: WireModalSheetState,
     coroutineScope: CoroutineScope,
-    header: MenuModalSheetHeader = MenuModalSheetHeader.Gone,
-    menuItems: List<@Composable () -> Unit>
+    menuItems: List<@Composable () -> Unit>,
+    header: MenuModalSheetHeader = MenuModalSheetHeader.Gone
 ) {
     WireModalSheetLayout(
         sheetState = sheetState,
         coroutineScope = coroutineScope,
-        sheetContent = { MenuModalSheetContent(header, menuItems) }
+        sheetContent = {
+            MenuModalSheetContent(
+                menuItems = menuItems,
+                header = header
+            )
+        }
     )
 }
 
 @Composable
 fun MenuModalSheetContent(
-    header: MenuModalSheetHeader = MenuModalSheetHeader.Gone,
-    menuItems: List<@Composable () -> Unit>
+    menuItems: List<@Composable () -> Unit>,
+    modifier: Modifier = Modifier,
+    header: MenuModalSheetHeader = MenuModalSheetHeader.Gone
 ) {
-    Column {
+    Column(modifier = modifier) {
         ModalSheetHeaderItem(header = header)
         buildMenuSheetItems(items = menuItems)
     }

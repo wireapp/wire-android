@@ -53,7 +53,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationCallViewModel @Inject constructor(
+class ConversationListCallViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
@@ -101,8 +101,10 @@ class ConversationCallViewModel @Inject constructor(
             // valid conversation is a conversation where the user is a member and it's not deleted
             val validConversation = when (conversationDetailsResult) {
                 is ObserveConversationDetailsUseCase.Result.Success -> {
-                    !(conversationDetailsResult.conversationDetails is ConversationDetails.Group &&
-                            !(conversationDetailsResult.conversationDetails as ConversationDetails.Group).isSelfUserMember)
+                    !(
+                            conversationDetailsResult.conversationDetails is ConversationDetails.Group
+                                    && !(conversationDetailsResult.conversationDetails as ConversationDetails.Group).isSelfUserMember
+                            )
                 }
 
                 is ObserveConversationDetailsUseCase.Result.Failure -> false
@@ -120,7 +122,9 @@ class ConversationCallViewModel @Inject constructor(
                 val hasEstablishedCall = it.isNotEmpty()
                 establishedCallConversationId = if (it.isNotEmpty()) {
                     it.first().conversationId
-                } else null
+                } else {
+                    null
+                }
                 conversationCallViewState = conversationCallViewState.copy(hasEstablishedCall = hasEstablishedCall)
             }
     }

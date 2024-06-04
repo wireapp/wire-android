@@ -60,12 +60,7 @@ fun ArchiveScreen(homeStateHolder: HomeStateHolder) {
         ConversationRouterHomeBridge(
             navigator = navigator,
             conversationItemType = ConversationItemType.ALL_CONVERSATIONS,
-            onHomeBottomSheetContentChanged = ::changeBottomSheetContent,
-            onOpenBottomSheet = ::openBottomSheet,
-            onCloseBottomSheet = ::closeBottomSheet,
-            onSnackBarStateChanged = ::setSnackBarState,
             searchBarState = searchBarState,
-            isBottomSheetVisible = ::isBottomSheetVisible,
             conversationsSource = ConversationsSource.ARCHIVE
         )
     }

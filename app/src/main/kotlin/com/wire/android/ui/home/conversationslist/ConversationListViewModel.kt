@@ -28,10 +28,11 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.HomeSnackBarMessage
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
@@ -60,8 +61,6 @@ import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
@@ -82,8 +81,8 @@ import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -100,7 +99,6 @@ import javax.inject.Inject
 class ConversationListViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
-    private val answerCall: AnswerCallUseCase,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
     private val leaveConversation: LeaveConversationUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
@@ -110,7 +108,6 @@ class ConversationListViewModel @Inject constructor(
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
-    private val endCall: EndCallUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
@@ -119,7 +116,8 @@ class ConversationListViewModel @Inject constructor(
     var conversationListState by mutableStateOf(ConversationListState())
     var conversationListCallState by mutableStateOf(ConversationListCallState())
 
-    val homeSnackBarState = MutableSharedFlow<HomeSnackbarState>()
+    private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
+    val infoMessage = _infoMessage.asSharedFlow()
 
     val closeBottomSheet = MutableSharedFlow<Unit>()
 
@@ -309,8 +307,8 @@ class ConversationListViewModel @Inject constructor(
                     mutedConversationStatus,
                     Date().time
                 )) {
-                    ConversationUpdateStatusResult.Failure -> homeSnackBarState.emit(
-                        HomeSnackbarState.MutingOperationError
+                    ConversationUpdateStatusResult.Failure -> _infoMessage.emit(
+                        HomeSnackBarMessage.MutingOperationError
                     )
 
                     ConversationUpdateStatusResult.Success ->
@@ -323,46 +321,13 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun joinAnyway(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
-        viewModelScope.launch {
-            establishedCallConversationId?.let {
-                endCall(it)
-                delay(DELAY_END_CALL)
-            }
-            joinOngoingCall(conversationId, onJoined)
-        }
-    }
-
-    fun joinOngoingCall(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
-        this.conversationId = conversationId
-        if (conversationListCallState.hasEstablishedCall) {
-            showJoinCallAnywayDialog()
-        } else {
-            dismissJoinCallAnywayDialog()
-            viewModelScope.launch {
-                answerCall(conversationId = conversationId)
-            }
-            onJoined(conversationId)
-        }
-    }
-
-    private fun showJoinCallAnywayDialog() {
-        conversationListCallState =
-            conversationListCallState.copy(shouldShowJoinAnywayDialog = true)
-    }
-
-    fun dismissJoinCallAnywayDialog() {
-        conversationListCallState =
-            conversationListCallState.copy(shouldShowJoinAnywayDialog = false)
-    }
-
     fun blockUser(blockUserState: BlockUserDialogState) {
         viewModelScope.launch {
             requestInProgress = true
             val state = when (val result = blockUserUseCase(blockUserState.userId)) {
                 BlockUserResult.Success -> {
                     appLogger.d("User ${blockUserState.userId} was blocked")
-                    HomeSnackbarState.BlockingUserOperationSuccess(blockUserState.userName)
+                    HomeSnackBarMessage.BlockingUserOperationSuccess(blockUserState.userName)
                 }
 
                 is BlockUserResult.Failure -> {
@@ -370,10 +335,10 @@ class ConversationListViewModel @Inject constructor(
                         "Error while blocking user ${blockUserState.userId} ;" +
                                 " Error ${result.coreFailure}"
                     )
-                    HomeSnackbarState.BlockingUserOperationError
+                    HomeSnackBarMessage.BlockingUserOperationError
                 }
             }
-            homeSnackBarState.emit(state)
+            _infoMessage.emit(state)
             requestInProgress = false
         }
     }
@@ -392,7 +357,7 @@ class ConversationListViewModel @Inject constructor(
                         "Error while unblocking user $userId ;" +
                             " Error ${result.coreFailure}"
                     )
-                    homeSnackBarState.emit(HomeSnackbarState.UnblockingUserOperationError)
+                    _infoMessage.emit(HomeSnackBarMessage.UnblockingUserOperationError)
                 }
             }
             requestInProgress = false
@@ -405,10 +370,10 @@ class ConversationListViewModel @Inject constructor(
             val response = leaveConversation(leaveGroupState.conversationId)
             when (response) {
                 is RemoveMemberFromConversationUseCase.Result.Failure ->
-                    homeSnackBarState.emit(HomeSnackbarState.LeaveConversationError)
+                    _infoMessage.emit(HomeSnackBarMessage.LeaveConversationError)
 
                 RemoveMemberFromConversationUseCase.Result.Success -> {
-                    homeSnackBarState.emit(HomeSnackbarState.LeftConversationSuccess)
+                    _infoMessage.emit(HomeSnackBarMessage.LeftConversationSuccess)
                 }
             }
             requestInProgress = false
@@ -419,10 +384,10 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             requestInProgress = true
             when (deleteTeamConversation(groupDialogState.conversationId)) {
-                is Result.Failure.GenericFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
-                Result.Failure.NoTeamFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
-                Result.Success -> homeSnackBarState.emit(
-                    HomeSnackbarState.DeletedConversationGroupSuccess(groupDialogState.conversationName)
+                is Result.Failure.GenericFailure -> _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupError)
+                Result.Failure.NoTeamFailure -> _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupError)
+                Result.Success -> _infoMessage.emit(
+                    HomeSnackBarMessage.DeletedConversationGroupSuccess(groupDialogState.conversationName)
                 )
             }
             requestInProgress = false
@@ -469,16 +434,16 @@ class ConversationListViewModel @Inject constructor(
                 requestInProgress = false
                 when (result) {
                     is ArchiveStatusUpdateResult.Failure -> {
-                        homeSnackBarState.emit(
-                            HomeSnackbarState.UpdateArchivingStatusError(
+                        _infoMessage.emit(
+                            HomeSnackBarMessage.UpdateArchivingStatusError(
                                 isArchiving
                             )
                         )
                     }
 
                     is ArchiveStatusUpdateResult.Success -> {
-                        homeSnackBarState.emit(
-                            HomeSnackbarState.UpdateArchivingStatusSuccess(
+                        _infoMessage.emit(
+                            HomeSnackBarMessage.UpdateArchivingStatusSuccess(
                                 isArchiving
                             )
                         )
@@ -510,9 +475,9 @@ class ConversationListViewModel @Inject constructor(
         val isGroup = conversationTypeDetail is ConversationTypeDetail.Group
 
         if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
-            homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentFailure(isGroup))
+            _infoMessage.emit(HomeSnackBarMessage.ClearConversationContentFailure(isGroup))
         } else {
-            homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess(isGroup))
+            _infoMessage.emit(HomeSnackBarMessage.ClearConversationContentSuccess(isGroup))
         }
     }
 

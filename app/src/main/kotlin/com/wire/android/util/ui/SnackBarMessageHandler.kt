@@ -15,24 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.util.ui
 
-package com.wire.android.ui.home.conversationslist
-
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.style.TextOverflow
-import com.wire.android.ui.home.conversationslist.model.MentionMessage
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireTypography
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import com.wire.android.model.SnackBarMessage
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import kotlinx.coroutines.flow.SharedFlow
 
 @Composable
-fun MentionLabel(mentionMessage: MentionMessage) {
-    Text(
-        text = mentionMessage.toQuote(),
-        style = MaterialTheme.wireTypography.subline01,
-        color = MaterialTheme.wireColorScheme.secondaryText,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-    )
+fun SnackBarMessageHandler(infoMessages: SharedFlow<SnackBarMessage>) {
+    val context = LocalContext.current
+    val snackbarHostState = LocalSnackbarHostState.current
+
+    LaunchedEffect(Unit) {
+        infoMessages.collect {
+            snackbarHostState.showSnackbar(
+                message = it.uiText.asString(context.resources)
+            )
+        }
+    }
 }

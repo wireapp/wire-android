@@ -76,7 +76,7 @@ jobs:
         with:
           name: Build Artifacts
           path: app/build/outputs/
-      - name: Deploy to S3
+      - name: Deploy BetaRelease to S3
         uses: ./.github/actions/deploy-to-s3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

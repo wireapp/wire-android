@@ -25,7 +25,7 @@ runs:
     - name: Copy build to tmp file
       shell: bash
       run:
-        cp app/build/outputs/apk/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/com.wire.*.apk wire-android-${{ inputs.build-flavour }}-pr-${{ github.event.pull_request.number }}.apk
+        cp app/build/outputs/apk/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/com.wire.*.apk wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk
     - name: Upload to S3
       id: upload
       uses: hkusu/s3-upload-action@v2.1.0
@@ -35,7 +35,7 @@ runs:
         aws-region: 'us-west-1'
         aws-bucket: ${{ inputs.aws-bucket }}
         destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/"
-        file-path: './wire-android-${{ inputs.build-flavour }}-pr-${{ github.event.pull_request.number }}.apk'
+        file-path: './wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk'
         output-file-url: 'true'
         public: true
     - name: Show URL
@@ -45,4 +45,4 @@ runs:
         GITHUB_USER: ${{ github.actor }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
       run: |
-        gh pr comment "${{ github.event.pull_request.number }}" --body "APK built during build-by-boris are available [here](${{ steps.upload.outputs.file-url }})"
+        gh pr comment "${{ github.event.pull_request.number }}" --body "Built wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk is available [here](${{ steps.upload.outputs.file-url }})"

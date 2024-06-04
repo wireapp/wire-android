@@ -187,7 +187,7 @@
     <string name="report_bug_screen_title">දෝෂ වාර්තා</string>
     <string name="about_app_screen_title">About This App</string>
     <string name="settings_privacy_policy_label">Privacy Policy</string>
-    <string name="settings_terms_of_use_label">Terms of Use</string>
+    <string name="settings_terms_of_use_label">Legal</string>
     <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">නිදොස්කරණ සැකසුම්</string>
     <string name="item_dependencies_title">පරායත්ත:</string>

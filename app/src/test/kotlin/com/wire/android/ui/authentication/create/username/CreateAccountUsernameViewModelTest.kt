@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.authentication.create.username
 
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
@@ -37,6 +38,7 @@ import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -161,6 +163,26 @@ class CreateAccountUsernameViewModelTest {
                 HandleUpdateErrorState.DialogError.GenericError::class
         createAccountUsernameViewModel.onErrorDismiss()
         createAccountUsernameViewModel.state.error shouldBe HandleUpdateErrorState.None
+    }
+
+    @Test
+    fun `given account name, when creating group, then do not show NameEmptyError until name is entered and cleared`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withValidateHandleResult(ValidateUserHandleResult.Invalid.TooShort(String.EMPTY), String.EMPTY)
+            .withValidateHandleResult(ValidateUserHandleResult.Valid("name"), "name")
+            .withSetUserHandle(SetUserHandleResult.Failure.HandleExists)
+            .arrange()
+        viewModel.textState.setTextAndPlaceCursorAtEnd(String.EMPTY)
+        advanceUntilIdle()
+        assertEquals(HandleUpdateErrorState.None, viewModel.state.error)
+
+        viewModel.textState.setTextAndPlaceCursorAtEnd("name")
+        advanceUntilIdle()
+        assertEquals(HandleUpdateErrorState.None, viewModel.state.error)
+
+        viewModel.textState.clearText()
+        advanceUntilIdle()
+        assertEquals(HandleUpdateErrorState.TextFieldError.UsernameInvalidError, viewModel.state.error)
     }
 
     private class Arrangement {

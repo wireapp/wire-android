@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -51,6 +50,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
 import com.wire.android.ui.common.dialogs.CancelLoginDialogState
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.DefaultPassword
@@ -144,7 +144,7 @@ private fun RegisterDeviceContent(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = 0.dp,
+                elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.register_device_title),
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackButtonClicked

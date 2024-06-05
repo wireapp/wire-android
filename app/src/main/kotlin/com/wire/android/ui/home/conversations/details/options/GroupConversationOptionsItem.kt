@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.details.options
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,7 +47,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@SuppressLint("ComposeParameterOrder")
 @Composable
 fun GroupConversationOptionsItem(
     title: String,

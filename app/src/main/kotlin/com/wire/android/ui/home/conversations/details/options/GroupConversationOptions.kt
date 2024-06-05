@@ -341,7 +341,11 @@ fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
             isReadReceiptAllowed = true,
             mlsEnabled = true
         ),
-        {}, {}, {}, {}, {}
+        {},
+        {},
+        {},
+        {},
+        {}
     )
 }
 

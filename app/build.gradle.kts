@@ -1,3 +1,5 @@
+import customization.ConfigurationFileImporter
+import customization.NormalizedFlavorSettings
 import scripts.Variants_gradle
 
 /*
@@ -49,6 +51,16 @@ fun isFossSourceSet(): Boolean {
         .lowercase()
         .contains("fdroid")
 }
+
+private fun getFlavorsSettings(): NormalizedFlavorSettings =
+    try {
+        val file = file("${project.rootDir}/default.json")
+        val configurationFileImporter = ConfigurationFileImporter()
+        configurationFileImporter.loadConfigsFromFile(file)
+    } catch (e: Exception) {
+        error(">> Error reading current flavors, exception: ${e.localizedMessage}")
+    }
+
 android {
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin
@@ -186,6 +198,17 @@ dependencies {
         println("Excluding FireBase for FDroid build")
     }
     implementation(libs.androidx.work)
+
+    // Anonymous Analytics
+    val flavors = getFlavorsSettings()
+    flavors.flavorMap.entries.forEach { (key, configs) ->
+        if (configs["analytics_enabled"] as? Boolean == true) {
+            println(">> Adding Anonymous Analytics dependency to [$key] flavor")
+            add("${key}Implementation",project(":core:analytics-enabled"))
+        } else {
+            add("${key}Implementation",project(":core:analytics-disabled"))
+        }
+    }
 
     // commonMark
     implementation(libs.commonmark.core)

@@ -37,12 +37,15 @@ import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.Result
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.CertificateStatus
+import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCaseResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
+import com.wire.kalium.util.DateTimeUtil
 import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -60,6 +63,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.time.Duration.Companion.days
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -281,6 +285,29 @@ class DeviceDetailsViewModelTest {
             assertTrue(viewModel.state.startGettingE2EICertificate)
         }
 
+    @Test
+    fun `given a client with E2EI certificate, when fetching details, then returns device information`() {
+        val certificate = E2eiCertificate(
+            userHandle = "userHandle",
+            serialNumber = "serialNumber",
+            certificateDetail = "certificateDetail",
+            status = CertificateStatus.VALID,
+            thumbprint = "thumbprint",
+            endAt = DateTimeUtil.currentInstant().plus(1.days)
+        )
+        runTest {
+            // given
+            val (_, viewModel) = Arrangement()
+                .withRequiredMockSetup()
+                .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT, true))
+                .withE2eiCertificate(GetE2EICertificateUseCaseResult.Success(certificate))
+                .arrange()
+
+            // then
+            assertEquals(certificate, viewModel.state.device.e2eiCertificate)
+        }
+    }
+
     private class Arrangement {
 
         @MockK
@@ -368,6 +395,10 @@ class DeviceDetailsViewModelTest {
                 userId = userId,
                 clientId = CLIENT_ID
             )
+        }
+
+        fun withE2eiCertificate(result: GetE2EICertificateUseCaseResult) = apply {
+            coEvery { getE2eiCertificate(any()) } returns result
         }
 
         fun arrange() = this to viewModel

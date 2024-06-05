@@ -97,7 +97,7 @@ fun AssetTilePreview(
             AttachmentType.GENERIC_FILE,
             AttachmentType.AUDIO,
             AttachmentType.VIDEO -> if (showOnlyExtension) {
-                AssetExtensionPreviewTile(assetBundle.assetName)
+                AssetExtensionPreviewTile(assetBundle.fileName)
             } else {
                 AssetFilePreviewTile(assetBundle, Modifier.fillMaxSize())
             }

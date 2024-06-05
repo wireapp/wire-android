@@ -301,34 +301,8 @@ private fun SwipableToReplyBox(
     var didVibrateOnCurrentDrag by remember { mutableStateOf(false) }
 
     // Finish the animation in the first 25% of the drag
-    val progressUntilAnimationCompletion = 0.33f
+    val progressUntilAnimationCompletion = 0.25f
     val dragWidth = screenWidth * progressUntilAnimationCompletion
-    val dragState = remember {
-        AnchoredDraggableState(
-            initialValue = SwipeAnchor.CENTERED,
-            positionalThreshold = { dragWidth },
-            velocityThreshold = { screenWidth },
-            snapAnimationSpec = tween(),
-            decayAnimationSpec = splineBasedDecay(density),
-            confirmValueChange = { changedValue ->
-                if (changedValue == SwipeAnchor.START_TO_END) {
-                    // Attempt to finish dismiss, notify reply intention
-                    onSwipedToReply()
-                }
-                if (changedValue == SwipeAnchor.CENTERED) {
-                    // Reset the haptic feedback when drag is stopped
-                    didVibrateOnCurrentDrag = false
-                }
-                // Reject state change, only allow returning back to rest position
-                changedValue == SwipeAnchor.CENTERED
-            },
-            anchors = DraggableAnchors {
-                SwipeAnchor.CENTERED at 0f
-                SwipeAnchor.START_TO_END at screenWidth
-            }
-        )
-    }
-    val primaryColor = colorsScheme().primary
 
     val currentViewConfiguration = LocalViewConfiguration.current
     val scopedViewConfiguration = object : ViewConfiguration by currentViewConfiguration {
@@ -337,6 +311,33 @@ private fun SwipableToReplyBox(
             get() = currentViewConfiguration.touchSlop * 3f
     }
     CompositionLocalProvider(LocalViewConfiguration provides scopedViewConfiguration) {
+        val dragState = remember {
+            AnchoredDraggableState(
+                initialValue = SwipeAnchor.CENTERED,
+                positionalThreshold = { dragWidth },
+                velocityThreshold = { screenWidth },
+                snapAnimationSpec = tween(),
+                decayAnimationSpec = splineBasedDecay(density),
+                confirmValueChange = { changedValue ->
+                    if (changedValue == SwipeAnchor.START_TO_END) {
+                        // Attempt to finish dismiss, notify reply intention
+                        onSwipedToReply()
+                    }
+                    if (changedValue == SwipeAnchor.CENTERED) {
+                        // Reset the haptic feedback when drag is stopped
+                        didVibrateOnCurrentDrag = false
+                    }
+                    // Reject state change, only allow returning back to rest position
+                    changedValue == SwipeAnchor.CENTERED
+                },
+                anchors = DraggableAnchors {
+                    SwipeAnchor.CENTERED at 0f
+                    SwipeAnchor.START_TO_END at screenWidth
+                }
+            )
+        }
+        val primaryColor = colorsScheme().primary
+
         Box(
             modifier = modifier.fillMaxSize(),
         ) {

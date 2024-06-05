@@ -22,11 +22,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
-import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.destinations.AllConversationScreenDestination
 import com.wire.android.ui.destinations.ArchiveScreenDestination
-import com.wire.android.ui.destinations.CallsScreenDestination
-import com.wire.android.ui.destinations.MentionScreenDestination
 import com.wire.android.ui.destinations.SettingsScreenDestination
 import com.wire.android.ui.destinations.VaultScreenDestination
 import com.wire.android.ui.destinations.WhatsNewScreenDestination
@@ -47,22 +44,6 @@ sealed class HomeDestination(
         isSearchable = true,
         withNewConversationFab = true,
         direction = AllConversationScreenDestination
-    )
-
-    data object Calls : HomeDestination(
-        title = R.string.conversations_calls_tab_title,
-        icon = R.drawable.ic_call,
-        isSearchable = true,
-        withNewConversationFab = true,
-        direction = CallsScreenDestination
-    )
-
-    data object Mentions : HomeDestination(
-        title = R.string.conversations_mentions_tab_title,
-        icon = R.drawable.ic_mention,
-        isSearchable = true,
-        withNewConversationFab = true,
-        direction = MentionScreenDestination
     )
 
     data object Settings : HomeDestination(
@@ -96,22 +77,13 @@ sealed class HomeDestination(
         direction = WhatsNewScreenDestination
     )
 
-    val withBottomTabs: Boolean get() = bottomTabItems.contains(this)
-
-    fun toBottomNavigationItemData(notificationAmount: Long): WireBottomNavigationItemData =
-        WireBottomNavigationItemData(icon, tabName, notificationAmount, direction.route)
-
     val itemName: String get() = ITEM_NAME_PREFIX + this
 
     companion object {
-        // TODO uncomment when CallsScreen and MentionScreen will be implemented
-//        val bottomTabItems = listOf(Conversations, Calls, Mentions)
-        val bottomTabItems = listOf<HomeDestination>()
-
         private const val ITEM_NAME_PREFIX = "HomeNavigationItem."
         fun fromRoute(fullRoute: String): HomeDestination? =
             values().find { it.direction.route.getBaseRoute() == fullRoute.getBaseRoute() }
         fun values(): Array<HomeDestination> =
-            arrayOf(Conversations, Calls, Mentions, Settings, Vault, Archive, Support, WhatsNew)
+            arrayOf(Conversations, Settings, Vault, Archive, Support, WhatsNew)
     }
 }

@@ -17,8 +17,9 @@
  */
 package com.wire.android.ui.legalhold.dialog.requested
 
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModelTest.Arrangement.Companion.UNKNOWN_ERROR
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
@@ -48,7 +49,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class LegalHoldRequestedViewModelTest {
 
     @Test
@@ -154,7 +155,7 @@ class LegalHoldRequestedViewModelTest {
             .withValidatePasswordResult(ValidatePasswordResult.Invalid())
             .arrange()
         advanceUntilIdle()
-        viewModel.passwordChanged(TextFieldValue("password"))
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
         viewModel.state.assertStateVisible { it.acceptEnabled shouldBeEqualTo false }
     }
 
@@ -164,7 +165,7 @@ class LegalHoldRequestedViewModelTest {
             .withValidatePasswordResult(ValidatePasswordResult.Valid)
             .arrange()
         advanceUntilIdle()
-        viewModel.passwordChanged(TextFieldValue("password"))
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
         viewModel.state.assertStateVisible { it.acceptEnabled shouldBeEqualTo true }
     }
 
@@ -258,7 +259,7 @@ class LegalHoldRequestedViewModelTest {
             .withApproveLegalHoldRequestResult(ApproveLegalHoldRequestUseCase.Result.Success)
             .arrange()
         val password = "invalidpassword"
-        viewModel.passwordChanged(TextFieldValue(password))
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
         advanceUntilIdle()
         viewModel.acceptClicked()
         verify { arrangement.validatePassword(password) }
@@ -272,7 +273,7 @@ class LegalHoldRequestedViewModelTest {
             .withApproveLegalHoldRequestResult(ApproveLegalHoldRequestUseCase.Result.Success)
             .arrange()
         val password = "invalidpassword"
-        viewModel.passwordChanged(TextFieldValue(password))
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
         advanceUntilIdle()
         viewModel.acceptClicked()
         coVerify { arrangement.userSessionScope.approveLegalHoldRequest(password) wasNot Called }
@@ -285,7 +286,7 @@ class LegalHoldRequestedViewModelTest {
             .withApproveLegalHoldRequestResult(ApproveLegalHoldRequestUseCase.Result.Success)
             .arrange()
         val password = "ValidPassword123!"
-        viewModel.passwordChanged(TextFieldValue(password))
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
         advanceUntilIdle()
         viewModel.acceptClicked()
         coVerify { arrangement.userSessionScope.approveLegalHoldRequest(password) }

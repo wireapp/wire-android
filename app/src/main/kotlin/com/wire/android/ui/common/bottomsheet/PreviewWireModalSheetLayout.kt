@@ -18,26 +18,30 @@
 package com.wire.android.ui.common.bottomsheet
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 
-@Preview
+@MultipleThemePreviews
 @Composable
 fun PreviewMenuModalSheetContentWithoutHeader() {
     MenuModalSheetContent(
-        MenuModalSheetHeader.Gone,
-        listOf { ReactionOption({}) }
+        header = MenuModalSheetHeader.Gone,
+        menuItems = listOf { ReactionOption({}) }
     )
 }
 
-@Preview
+@MultipleThemePreviews
 @Composable
 fun PreviewMenuModalSheetContentWithHeader() {
     MenuModalSheetContent(
-        MenuModalSheetHeader.Visible("Title", { GroupConversationAvatar(colorsScheme().primary) }, dimensions().spacing8x),
-        listOf { ReactionOption({}) }
+        header = MenuModalSheetHeader.Visible(
+            "Title",
+            { GroupConversationAvatar(colorsScheme().primary) },
+            dimensions().spacing8x
+        ),
+        menuItems = listOf { ReactionOption({}) }
     )
 }

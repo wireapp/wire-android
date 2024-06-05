@@ -187,7 +187,7 @@
     <string name="report_bug_screen_title">Hiba jelentése</string>
     <string name="about_app_screen_title">Az alkalmazás névjegye</string>
     <string name="settings_privacy_policy_label">Adatvédelmi irányelvek</string>
-    <string name="settings_terms_of_use_label">Felhasználási feltételek</string>
+    <string name="settings_terms_of_use_label">Legal</string>
     <string name="label_copyright">Szerzői jogok</string>
     <string name="debug_settings_screen_title">Hibakeresési beállítások</string>
     <string name="item_dependencies_title">Függőségek:</string>

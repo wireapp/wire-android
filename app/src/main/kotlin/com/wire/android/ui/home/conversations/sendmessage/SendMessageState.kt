@@ -17,4 +17,16 @@
  */
 package com.wire.android.ui.home.conversations.sendmessage
 
-data class SendMessageState(val messageSent: Boolean, val inProgress: Boolean)
+import com.wire.kalium.logic.data.id.ConversationId
+
+data class SendMessageState(
+    val inProgress: Boolean = false,
+    val afterMessageSendAction: SendMessageAction = SendMessageAction.None
+)
+
+sealed class SendMessageAction {
+    data object None : SendMessageAction()
+    data object NavigateBack : SendMessageAction()
+    data class NavigateToConversation(val conversationId: ConversationId) : SendMessageAction()
+    data object NavigateToHome : SendMessageAction()
+}

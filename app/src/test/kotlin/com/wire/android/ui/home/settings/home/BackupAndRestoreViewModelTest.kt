@@ -19,8 +19,9 @@
 package com.wire.android.ui.home.settings.home
 
 import android.net.Uri
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.core.net.toUri
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
@@ -71,8 +72,10 @@ import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(SnapshotExtension::class)
 class BackupAndRestoreViewModelTest {
 
     private val dispatcher = TestDispatcherProvider()
@@ -92,11 +95,13 @@ class BackupAndRestoreViewModelTest {
         // Given
         val emptyPassword = ""
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
+            .withValidPassword()
             .withSuccessfulCreation(emptyPassword)
             .arrange()
+        backupAndRestoreViewModel.createBackupPasswordState.setTextAndPlaceCursorAtEnd(emptyPassword)
 
         // When
-        backupAndRestoreViewModel.createBackup(emptyPassword)
+        backupAndRestoreViewModel.createBackup()
         advanceUntilIdle()
 
         // Then
@@ -110,11 +115,13 @@ class BackupAndRestoreViewModelTest {
         // Given
         val password = "mayTh3ForceBeWIthYou"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
+            .withValidPassword()
             .withSuccessfulCreation(password)
             .arrange()
+        backupAndRestoreViewModel.createBackupPasswordState.setTextAndPlaceCursorAtEnd(password)
 
         // When
-        backupAndRestoreViewModel.createBackup(password)
+        backupAndRestoreViewModel.createBackup()
         advanceUntilIdle()
 
         // Then
@@ -132,7 +139,7 @@ class BackupAndRestoreViewModelTest {
             .arrange()
 
         // When
-        backupAndRestoreViewModel.validateBackupCreationPassword(TextFieldValue(password))
+        backupAndRestoreViewModel.validateBackupCreationPassword(password)
         advanceUntilIdle()
 
         // Then
@@ -149,7 +156,7 @@ class BackupAndRestoreViewModelTest {
             .arrange()
 
         // When
-        backupAndRestoreViewModel.validateBackupCreationPassword(TextFieldValue(password))
+        backupAndRestoreViewModel.validateBackupCreationPassword(password)
         advanceUntilIdle()
 
         // Then
@@ -165,7 +172,7 @@ class BackupAndRestoreViewModelTest {
             .arrange()
 
         // When
-        backupAndRestoreViewModel.validateBackupCreationPassword(TextFieldValue(password))
+        backupAndRestoreViewModel.validateBackupCreationPassword(password)
         advanceUntilIdle()
 
         // Then
@@ -177,11 +184,13 @@ class BackupAndRestoreViewModelTest {
         // Given
         val password = "mayTh3ForceBeWIthYou"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
+            .withValidPassword()
             .withFailedCreation(password)
             .arrange()
+        backupAndRestoreViewModel.createBackupPasswordState.setTextAndPlaceCursorAtEnd(password)
 
         // When
-        backupAndRestoreViewModel.createBackup(password)
+        backupAndRestoreViewModel.createBackup()
         advanceUntilIdle()
 
         // Then
@@ -372,9 +381,10 @@ class BackupAndRestoreViewModelTest {
             .withSuccessfulBackupRestore()
             .withRequestedPasswordDialog()
             .arrange()
+        backupAndRestoreViewModel.restoreBackupPasswordState.setTextAndPlaceCursorAtEnd(password)
 
         // When
-        backupAndRestoreViewModel.restorePasswordProtectedBackup(password)
+        backupAndRestoreViewModel.restorePasswordProtectedBackup()
         advanceUntilIdle()
 
         // Then
@@ -394,9 +404,10 @@ class BackupAndRestoreViewModelTest {
             .withFailedDBImport(Failure(InvalidPassword))
             .withRequestedPasswordDialog()
             .arrange()
+        backupAndRestoreViewModel.restoreBackupPasswordState.setTextAndPlaceCursorAtEnd(password)
 
         // When
-        backupAndRestoreViewModel.restorePasswordProtectedBackup(password)
+        backupAndRestoreViewModel.restorePasswordProtectedBackup()
         advanceUntilIdle()
 
         // Then
@@ -417,9 +428,10 @@ class BackupAndRestoreViewModelTest {
                 .withFailedDBImport(Failure(InvalidUserId))
                 .withRequestedPasswordDialog()
                 .arrange()
+            backupAndRestoreViewModel.restoreBackupPasswordState.setTextAndPlaceCursorAtEnd(password)
 
             // When
-            backupAndRestoreViewModel.restorePasswordProtectedBackup(password)
+            backupAndRestoreViewModel.restorePasswordProtectedBackup()
             advanceUntilIdle()
 
             // Then
@@ -439,9 +451,10 @@ class BackupAndRestoreViewModelTest {
             .withFailedDBImport(Failure(IncompatibleBackup("old format backup")))
             .withRequestedPasswordDialog()
             .arrange()
+        backupAndRestoreViewModel.restoreBackupPasswordState.setTextAndPlaceCursorAtEnd(password)
 
         // When
-        backupAndRestoreViewModel.restorePasswordProtectedBackup(password)
+        backupAndRestoreViewModel.restorePasswordProtectedBackup()
         advanceUntilIdle()
 
         // Then
@@ -462,9 +475,10 @@ class BackupAndRestoreViewModelTest {
             .withRequestedPasswordDialog()
             .withValidPassword()
             .arrange()
+        backupAndRestoreViewModel.restoreBackupPasswordState.setTextAndPlaceCursorAtEnd(password)
 
         // When
-        backupAndRestoreViewModel.restorePasswordProtectedBackup(password)
+        backupAndRestoreViewModel.restorePasswordProtectedBackup()
         advanceUntilIdle()
 
         // Then

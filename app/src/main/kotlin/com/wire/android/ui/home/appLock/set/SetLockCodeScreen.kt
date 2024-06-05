@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -46,7 +48,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -60,6 +61,7 @@ import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -77,14 +79,14 @@ import java.util.Locale
 @Destination
 @Composable
 fun SetLockCodeScreen(
+    navigator: Navigator,
     viewModel: SetLockScreenViewModel = hiltViewModel(),
-    navigator: Navigator
 ) {
     SetLockCodeScreenContent(
         navigator = navigator,
         state = viewModel.state,
+        passwordTextState = viewModel.passwordTextState,
         scrollState = rememberScrollState(),
-        onPasswordChanged = viewModel::onPasswordChanged,
         onBackPress = navigator::navigateBack,
         onContinue = viewModel::onContinue
     )
@@ -95,10 +97,11 @@ fun SetLockCodeScreen(
 fun SetLockCodeScreenContent(
     navigator: Navigator,
     state: SetLockCodeViewState,
+    passwordTextState: TextFieldState,
     scrollState: ScrollState,
-    onPasswordChanged: (TextFieldValue) -> Unit,
-    onBackPress: () -> Unit = {},
-    onContinue: () -> Unit
+    onBackPress: () -> Unit,
+    onContinue: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(state.done) {
         if (state.done) {
@@ -107,6 +110,7 @@ fun SetLockCodeScreenContent(
     }
 
     WireScaffold(
+        modifier = modifier,
         snackbarHost = {},
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -115,7 +119,8 @@ fun SetLockCodeScreenContent(
                 elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.settings_set_lock_screen_title)
             )
-    }) { internalPadding ->
+        }
+    ) { internalPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -144,14 +149,13 @@ fun SetLockCodeScreenContent(
                         .testTag("registerText")
                 )
                 WirePasswordTextField(
-                    value = state.password,
-                    onValueChange = onPasswordChanged,
+                    textState = passwordTextState,
                     labelMandatoryIcon = true,
-                    imeAction = ImeAction.Done,
+                    keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
                     modifier = Modifier
                         .testTag("password"),
                     state = WireTextFieldState.Default,
-                    autofill = false,
+                    autoFill = false,
                     placeholderText = stringResource(R.string.settings_set_lock_screen_passcode_label),
                     labelText = stringResource(R.string.settings_set_lock_screen_passcode_label).uppercase(Locale.getDefault())
                 )
@@ -168,7 +172,7 @@ fun SetLockCodeScreenContent(
                 }
             ) {
                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
-                    val enabled = state.password.text.isNotBlank() && state.passwordValidation.isValid
+                    val enabled = passwordTextState.text.isNotBlank() && state.passwordValidation.isValid && !state.loading
                     ContinueButton(
                         enabled = enabled,
                         onContinue = onContinue
@@ -232,9 +236,9 @@ private fun PasswordVerificationItem(isInvalid: Boolean, text: String) {
 
 @Composable
 private fun ContinueButton(
-    modifier: Modifier = Modifier.fillMaxWidth(),
     enabled: Boolean,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth(),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
@@ -273,8 +277,8 @@ fun PreviewSetLockCodeScreen() {
         SetLockCodeScreenContent(
             navigator = rememberNavigator {},
             state = SetLockCodeViewState(),
+            passwordTextState = TextFieldState(),
             scrollState = rememberScrollState(),
-            onPasswordChanged = {},
             onBackPress = {},
             onContinue = {}
         )

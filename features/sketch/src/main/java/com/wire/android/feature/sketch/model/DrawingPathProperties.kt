@@ -38,7 +38,7 @@ import androidx.compose.ui.graphics.toArgb
  * Represents the current path properties [DrawingState.currentPath]
  * This can be extended in the future to [strokeWidth], [drawMode] ,etc.
  */
-internal class DrawingPathProperties(
+internal data class DrawingPathProperties(
     var path: Path = Path(),
     var strokeWidth: Float = 10f,
     var color: Color = Color.Black,

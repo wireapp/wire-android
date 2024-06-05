@@ -15,16 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.sharing
+package com.wire.android.ui.authentication.login.email
 
-import com.wire.android.R
-import com.wire.android.model.SnackBarMessage
-import com.wire.android.util.ui.UIText
+import com.wire.android.ui.authentication.login.LoginState
 
-sealed class ImportMediaSnackbarMessages(override val uiText: UIText) : SnackBarMessage {
-    object MaxImageSize : ImportMediaSnackbarMessages(UIText.StringResource(R.string.error_conversation_max_image_size_limit))
-    object MaxAmountOfAssetsReached :
-        ImportMediaSnackbarMessages(UIText.StringResource(R.string.error_limit_number_assets_imported_exceeded))
-    class MaxAssetSizeExceeded(assetSizeLimit: Int) :
-        ImportMediaSnackbarMessages(UIText.StringResource(R.string.error_conversation_max_asset_size_limit, assetSizeLimit))
-}
+data class LoginEmailState(
+    val userIdentifierEnabled: Boolean = true,
+    val loginEnabled: Boolean = false,
+    val flowState: LoginState = LoginState.Default,
+)

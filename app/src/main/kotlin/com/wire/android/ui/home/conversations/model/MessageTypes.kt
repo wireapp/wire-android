@@ -46,13 +46,11 @@ import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.AsyncImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
-import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
 import com.wire.android.ui.markdown.DisplayMention
 import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
@@ -169,11 +167,10 @@ fun MessageButtonsContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageImage(
-    asset: ImageAsset?,
+    asset: ImageAsset.Remote?,
     imgParams: ImageMessageParams,
     transferStatus: AssetTransferStatus,
-    onImageClick: Clickable,
-    shouldFillMaxWidth: Boolean = false,
+    onImageClick: Clickable
 ) {
     Box(
         Modifier
@@ -212,11 +209,7 @@ fun MessageImage(
                 )
             }
 
-            asset != null -> when (asset) {
-                is ImageAsset.Local -> ImportedImageMessage(asset, shouldFillMaxWidth)
-                is ImageAsset.Remote -> DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
-            }
-
+            asset != null -> DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
             // Show error placeholder
             transferStatus == FAILED_UPLOAD || transferStatus == FAILED_DOWNLOAD -> {
                 ImageMessageFailed(
@@ -289,27 +282,6 @@ fun MediaAssetImage(
             }
         }
     }
-}
-
-@Composable
-internal fun MessageGenericAsset(
-    assetName: String,
-    assetExtension: String,
-    assetSizeInBytes: Long,
-    onAssetClick: Clickable,
-    assetTransferStatus: AssetTransferStatus,
-    shouldFillMaxWidth: Boolean = true,
-    isImportedMediaAsset: Boolean = false
-) {
-    MessageAsset(
-        assetName,
-        assetExtension,
-        assetSizeInBytes,
-        onAssetClick,
-        assetTransferStatus,
-        shouldFillMaxWidth,
-        isImportedMediaAsset
-    )
 }
 
 /**

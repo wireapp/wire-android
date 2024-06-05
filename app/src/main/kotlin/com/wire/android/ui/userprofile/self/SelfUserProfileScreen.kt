@@ -110,9 +110,9 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun SelfUserProfileScreen(
     navigator: Navigator,
+    avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>,
     viewModelSelf: SelfUserProfileViewModel = hiltViewModel(),
-    legalHoldRequestedViewModel: LegalHoldRequestedViewModel = hiltViewModel(),
-    avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>
+    legalHoldRequestedViewModel: LegalHoldRequestedViewModel = hiltViewModel()
 ) {
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
 
@@ -153,7 +153,7 @@ fun SelfUserProfileScreen(
     if (legalHoldRequestedViewModel.state is LegalHoldRequestedState.Visible) {
         LegalHoldRequestedDialog(
             state = legalHoldRequestedViewModel.state as LegalHoldRequestedState.Visible,
-            passwordChanged = legalHoldRequestedViewModel::passwordChanged,
+            passwordTextState = legalHoldRequestedViewModel.passwordTextState,
             notNowClicked = legalHoldRequestedViewModel::notNowClicked,
             acceptClicked = legalHoldRequestedViewModel::acceptClicked,
         )

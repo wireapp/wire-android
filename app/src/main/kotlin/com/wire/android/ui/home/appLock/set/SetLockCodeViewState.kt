@@ -17,15 +17,12 @@
  */
 package com.wire.android.ui.home.appLock.set
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.feature.ObserveAppLockConfigUseCase
-
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import kotlin.time.Duration
 
 data class SetLockCodeViewState(
-    val continueEnabled: Boolean = false,
-    val password: TextFieldValue = TextFieldValue(),
+    val loading: Boolean = false,
     val passwordValidation: ValidatePasswordResult = ValidatePasswordResult.Invalid(),
     val timeout: Duration = ObserveAppLockConfigUseCase.DEFAULT_APP_LOCK_TIMEOUT,
     val done: Boolean = false,

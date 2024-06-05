@@ -80,7 +80,7 @@
     <string name="label_user_blocked">Bloqueado</string>
     <string name="label_and">e</string>
     <string name="label_retry">Tentar novamente</string>
-    <string name="label_draft">*Draft*</string>
+    <string name="label_draft">*Rascunho*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">Logo do aplicativo</string>
     <string name="content_description_reveal_password">Mostrar senha</string>
@@ -185,8 +185,12 @@
     <string name="app_settings_screen_title">Configurações do aplicativo</string>
     <string name="give_feedback_screen_title">Enviar feedback</string>
     <string name="report_bug_screen_title">Reportar um bug</string>
+    <string name="about_app_screen_title">Sobre o aplicativo</string>
+    <string name="settings_privacy_policy_label">Política de Privacidade</string>
+    <string name="settings_terms_of_use_label">Termos de Uso</string>
+    <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Configurações de depuração</string>
-    <string name="item_dependencies_title">Dependencies:</string>
+    <string name="item_dependencies_title">Dependências:</string>
     <string name="support_screen_title">Suporte</string>
     <string name="backup_and_restore_screen_title">Fazer backup e restaurar conversas</string>
     <string name="search_bar_conversations_hint">Procurar conversas</string>
@@ -202,9 +206,9 @@
     <string name="settings_backup_info">Crie um backup para preservar seu histórico de conversas. Você pode usar isso para restaurar o histórico se perder seu dispositivo ou mudar para um novo.
 
 Escolha uma senha forte para proteger o arquivo de backup.</string>
-    <string name="settings_backup_last_backup_title">Last Backup</string>
-    <string name="settings_backup_last_backup_date">The most recent backup from this device has been created on %1$s at %2$s.</string>
-    <string name="settings_backup_last_backup_date_no_time">You did not create a backup from this device yet.</string>
+    <string name="settings_backup_last_backup_title">Último Backup</string>
+    <string name="settings_backup_last_backup_date">O backup mais recente deste dispositivo foi criado em %1$s às %2$s.</string>
+    <string name="settings_backup_last_backup_date_no_time">Você ainda não criou um backup deste dispositivo.</string>
     <string name="settings_backup_create">Criar um backup</string>
     <string name="settings_backup_restore">Restaurar de um backup</string>
     <!-- Welcome -->
@@ -222,7 +226,7 @@ Escolha uma senha forte para proteger o arquivo de backup.</string>
 
 URL do Backend:
 %2$s</string>
-    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
+    <string name="server_details_dialog_body_with_proxy">Nome do Backend,\n%1$s\n\nURL do Backend:\n%2$s\n\nURL do proxy:\n%3$s\n\nAutenticação do proxy:\n%4$s</string>
     <string name="server_details_dialog_title">Backend local</string>
     <string name="welcome_migration_dialog_title">Boas-vindas ao nosso novo aplicativo para Android 👋</string>
     <string name="welcome_migration_dialog_content">Recriamos o aplicativo para torná-lo mais útil para todos.
@@ -266,7 +270,7 @@ Descubra mais sobre o aplicativo da Wire - novas opções e melhor acessibilidad
     <string name="login_password_label">SENHA</string>
     <string name="login_tab_email">E-MAIL</string>
     <string name="login_tab_sso">LOGIN SSO</string>
-    <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
+    <string name="login_sso_code_label">CÓDIGO DE SSO OU E-MAIL</string>
     <string name="login_error_invalid_sso_code">Por favor, insira um código SSO válido.</string>
     <string name="login_error_invalid_sso_code_format">Insira um código SSO válido</string>
     <string name="deleted_user_error_title">Conta excluída</string>
@@ -278,14 +282,14 @@ Descubra mais sobre o aplicativo da Wire - novas opções e melhor acessibilidad
     <string name="conversation_history_wipe_explanation">De acordo com as configurações de segurança da sua equipe, seu histórico de conversas também foi excluído.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verifique sua conta</string>
-    <string name="second_factor_authentication_instructions_label">Please, check your email %1$s for the verification code and enter it below.</string>
+    <string name="second_factor_authentication_instructions_label">Por favor, verifique seu email %1$s para o código de verificação e insira-o abaixo.</string>
     <string name="second_factor_code_error">Código inválido ou tentativas máximas excedidas. Por favor, tente novamente ou solicite outro código.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Remover um dispositivo</string>
     <string name="remove_device_message">Remova um dos seus outros dispositivos para começar a usar o Wire neste aparelho.</string>
     <string name="remove_device_label">SEUS DISPOSITIVOS</string>
-    <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nAdded: %2$s</string>
-    <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nAdded: %2$s\nActive: %3$s</string>
+    <string name="remove_device_id_and_time_label">ID Proteus: %1$s\nAdicionado: %2$s</string>
+    <string name="remove_device_id_and_time_label_active_label">ID Proteus: %1$s\nAdicionado: %2$s\nAtivo: %3$s</string>
     <string name="remove_device_id_label">Proteus ID: %1$s</string>
     <string name="remove_device_mls_thumbprint_label">MLS Thumbprint: %1$s</string>
     <string name="remove_device_dialog_title">Remover o seguinte dispositivo?</string>
@@ -732,6 +736,11 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <!-- Search Contact-->
     <string name="label_contacts">CONTATOS</string>
     <string name="label_new_group">Novo Grupo</string>
+    <string name="label_create_new_group">Create New Group</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d Participant</item>
+        <item quantity="other">%1$d Participants</item>
+    </plurals>
     <string name="label_new_conversation">Nova Conversa</string>
     <string name="label_search_people">Procurar pessoas</string>
     <string name="label_public_wire">WIRE PÚBLICO</string>
@@ -753,6 +762,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="error_no_network_message">Por favor, verifique sua conexão com a Internet e tente novamente.</string>
     <string name="error_downloading_self_user_profile_picture">Ocorreu um erro ao baixar a sua foto de perfil. Por favor, verifique sua conexão com a Internet.</string>
     <string name="error_uploading_user_avatar">A imagem não pôde ser enviada.</string>
+    <string name="error_process_user_avatar">Picture could not be processed</string>
     <string name="error_uploading_image_message">Falha no envio da imagem.</string>
     <string name="error_downloading_image_message">Falha no download da imagem.</string>
     <string name="error_updating_muting_setting">As notificações não puderam ser atualizadas.</string>
@@ -784,6 +794,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="dialog_archive_conversation_option">Archive</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Abrir conversa</string>
+    <string name="label_start_conversation">Start Conversation</string>
     <string name="email_label">E-mail</string>
     <string name="phone_label">Telefone</string>
     <!-- Notifications -->
@@ -808,6 +819,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="notification_group_call_content">%s está chamando…</string>
     <string name="notification_call_default_caller_name">Alguém</string>
     <string name="notification_call_default_group_name">Chamada em Grupo Recebida</string>
+    <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Taxa de Bits Constante</string>
     <string name="calling_button_label_microphone">Microfone</string>
@@ -842,6 +854,8 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Retornar à chamada</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s is calling…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">Calling %1$s…</string>
     <string name="connectivity_status_bar_connecting">Descriptografando mensagens</string>
     <string name="connectivity_status_bar_waiting_for_network">Aguardando conexão</string>
     <!-- Connections -->
@@ -866,6 +880,9 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="connection_label_ignore">Ignorar</string>
     <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
+    <string name="missing_keypackage_dialog_body">You can’t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Galeria de mídia</string>
     <string name="media_gallery_on_image_downloaded">Salvo na pasta de Downloads</string>
@@ -957,6 +974,8 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="settings_show_typing_indicator_title">Typing indicator</string>
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Bloquear com código de acesso</string>
+    <string name="settings_send_anonymous_usage_data_title">Send anonymous usage data</string>
+    <string name="settings_send_anonymous_usage_data_description">Usage data allows Wire to understand how the app is being used and how it can be improved. The data is anonymous and does not include the content of your communications (such as messages, files, locations, or calls).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Definir a senha de bloqueio do aplicativo</string>
     <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
@@ -1182,9 +1201,11 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="title_video_could_not_be_sent">Não foi possível enviar o vídeo</string>
     <string name="title_image_could_not_be_sent">A imagem não pôde ser enviada</string>
     <string name="title_file_could_not_be_sent">Não foi possível enviar o arquivo</string>
+    <string name="title_assets_could_not_be_sent">Assets could not be sent</string>
     <string name="label_shared_video_too_large">Você só pode compartilhar um vídeo de até %d MB.</string>
     <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
     <string name="label_shared_file_too_large">Você só pode compartilhar um arquivo de até %d MB.</string>
+    <string name="label_shared_multiple_assets_error">Remove all marked assets and try again</string>
     <string name="label_file_saved_to_device">O arquivo foi salvo no seu dispositivo.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
@@ -1383,4 +1404,7 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="location_app_permission_dialog_body">Permitir que o Wire acesse a localização do seu dispositivo para enviar a sua localização.</string>
     <string name="location_loading_label">Por favor, aguarde...</string>
     <string name="location_could_not_be_shared">Não foi possível compartilhar a localização</string>
+    <!-- Asset Preview -->
+    <string name="remove_asset_description">Remove asset</string>
+    <string name="asset_attention_description">Asset attention</string>
 </resources>

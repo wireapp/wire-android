@@ -20,6 +20,7 @@ package com.wire.android.util.ui
 
 import android.content.Context
 import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -137,7 +138,7 @@ class WireSessionImageLoader(
                                 drawableResultWrapper = DrawableResultWrapper(),
                             )
                         )
-                        if (SDK_INT >= 28) {
+                        if (SDK_INT >= VERSION_CODES.P) {
                             add(ImageDecoderDecoder.Factory())
                         } else {
                             add(GifDecoder.Factory())

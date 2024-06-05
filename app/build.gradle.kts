@@ -96,6 +96,11 @@ android {
     }
 }
 
+aboutLibraries {
+    val isAboutLibrariesDisabled = System.getenv("DISABLE_ABOUT_LIBRARIES")?.equals("true", true) ?: false
+    registerAndroidTasks = !isAboutLibrariesDisabled
+}
+
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
@@ -137,6 +142,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewModel)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.androidx.lifecycle.liveData)
+    implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.viewModelSavedState)
 

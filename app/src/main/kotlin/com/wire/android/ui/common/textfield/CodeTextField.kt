@@ -18,17 +18,16 @@
 
 package com.wire.android.ui.common.textfield
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +37,6 @@ import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.ui.theme.WireTheme
@@ -76,8 +74,8 @@ fun CodeTextField(
                 state = textState,
                 textStyle = textStyle,
                 enabled = enabled,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                keyboardOptions = KeyboardOptions.DefaultCode,
+                onKeyboardAction = { keyboardController?.hide() },
                 interactionSource = interactionSource,
                 inputTransformation = InputTransformation.maxLengthDigits(codeLength),
                 decorator = decorator,
@@ -87,66 +85,20 @@ fun CodeTextField(
     )
 }
 
-/*
-TODO: BasicTextField2 (value, onValueChange) overload is removed completely in compose foundation 1.7.0,
-      for now we can use our custom StateSyncingModifier to sync TextFieldValue with TextFieldState,
-      but eventually we should migrate and remove this function when all usages are replaced with the TextFieldState.
-*/
-@Deprecated("Use the new one with TextFieldState.")
-@Composable
-fun CodeTextField(
-    codeLength: Int = integerResource(id = R.integer.code_length),
-    value: TextFieldValue,
-    onValueChange: (CodeFieldValue) -> Unit,
-    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
-    colors: WireTextFieldColors = wireTextFieldColors(),
-    textStyle: TextStyle = MaterialTheme.wireTypography.code01,
-    state: WireTextFieldState = WireTextFieldState.Default,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    maxHorizontalSpacing: Dp = MaterialTheme.wireDimensions.spacing16x,
-    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    modifier: Modifier = Modifier
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val enabled = state !is WireTextFieldState.Disabled
-    val textState = remember { TextFieldState(value.text, value.selection) }
-    val onValueChanged: (TextFieldValue) -> Unit = { onValueChange(CodeFieldValue(it, it.text.length == codeLength)) }
-    CodeTextFieldLayout(
-        textState = textState,
-        codeLength = codeLength,
-        shape = shape,
-        colors = colors,
-        textStyle = textStyle,
-        state = state,
-        maxHorizontalSpacing = maxHorizontalSpacing,
-        horizontalAlignment = horizontalAlignment,
-        modifier = modifier,
-        innerBasicTextField = { decorator, textFieldModifier ->
-            BasicTextField(
-                state = textState,
-                textStyle = textStyle,
-                enabled = enabled,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                interactionSource = interactionSource,
-                inputTransformation = MaxLengthDigitsFilter(codeLength),
-                decorator = decorator,
-                modifier = textFieldModifier.then(StateSyncingModifier(textState, value, onValueChanged)),
-            )
-        }
+@Stable
+val KeyboardOptions.Companion.DefaultCode: KeyboardOptions
+    get() = Default.copy(
+        keyboardType = KeyboardType.Number,
+        imeAction = ImeAction.Done,
+        autoCorrectEnabled = false,
     )
-}
 
-data class CodeFieldValue(val text: TextFieldValue, val isFullyFilled: Boolean)
-
-@OptIn(ExperimentalFoundationApi::class)
 @PreviewMultipleThemes
 @Composable
 fun PreviewCodeTextFieldSuccess() = WireTheme {
     CodeTextField(textState = rememberTextFieldState("123"))
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @PreviewMultipleThemes
 @Composable
 fun PreviewCodeTextFieldError() = WireTheme {

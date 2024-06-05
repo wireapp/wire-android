@@ -17,11 +17,8 @@
  */
 package com.wire.android.ui.home.appLock.unlock
 
-import androidx.compose.ui.text.input.TextFieldValue
-
 data class EnterLockCodeViewState(
-    val continueEnabled: Boolean = false,
-    val password: TextFieldValue = TextFieldValue(),
+    val loading: Boolean = false,
     val isUnlockEnabled: Boolean = false,
     val error: EnterLockCodeError = EnterLockCodeError.None,
     val done: Boolean = false

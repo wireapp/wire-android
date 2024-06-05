@@ -28,6 +28,7 @@ import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import versionCatalog
+import findLibrary
 
 internal fun Project.configureKotlinAndroid(
     commonExtension: CommonExtension<*, *, *, *, *>, // Add another `*` when upgrading AGP to 8.3
@@ -50,17 +51,7 @@ internal fun Project.configureKotlinAndroid(
     dependencies {
         add("coreLibraryDesugaring", versionCatalog.findLibrary("android.desugarJdkLibs").get())
     }
-
-    // Lint Configuration
-    lint {
-        quiet = true
-        abortOnError = false
-        ignoreWarnings = true
-        disable.add("InvalidPackage") // Some libraries have issues with this.
-        disable.add("OldTargetApi") // Lint gives this warning related to SDK Beta.
-        disable.add("IconDensities") // For testing purpose. This is safe to remove.
-        disable.add("IconMissingDensityFolder") // For testing purpose. This is safe to remove.
-    }
+    configureLint(project)
 }
 
 /**
@@ -81,6 +72,29 @@ private fun Project.configureKotlin() {
                 "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                 "-opt-in=kotlinx.coroutines.FlowPreview",
             )
+        }
+    }
+}
+
+private fun CommonExtension<*, *, *, *, *>.configureLint(project: Project) {
+    lint {
+        showAll = true
+        explainIssues = true
+        quiet = false
+        abortOnError = true
+        ignoreWarnings = true
+        disable.add("InvalidPackage") // Some libraries have issues with this.
+        disable.add("OldTargetApi") // Lint gives this warning related to SDK Beta.
+        disable.add("IconDensities") // For testing purpose. This is safe to remove.
+        disable.add("IconMissingDensityFolder") // For testing purpose. This is safe to remove.
+        disable.add("ComposePreviewPublic") // Needed for screenshot testing.
+        disable.add("MissingTranslation") // translations are added asynchronously
+        baseline = project.file("lint-baseline.xml")
+    }
+
+    with(project) {
+        dependencies {
+            add("lintChecks", findLibrary("lint-compose"))
         }
     }
 }

@@ -30,7 +30,7 @@
     <string name="label_save">Сохранить</string>
     <string name="label_get_started">Начать</string>
     <string name="label_remove">Удалить</string>
-    <string name="label_proceed">Перейти</string>
+    <string name="label_proceed">Продолжить</string>
     <string name="label_leave">Покинуть</string>
     <string name="label_add_device">Добавить устройство</string>
     <string name="label_learn_more">Подробнее</string>
@@ -187,6 +187,10 @@
     <string name="app_settings_screen_title">Настройки приложения</string>
     <string name="give_feedback_screen_title">Оставить отзыв</string>
     <string name="report_bug_screen_title">Сообщить об ошибке</string>
+    <string name="about_app_screen_title">Об этом приложении</string>
+    <string name="settings_privacy_policy_label">Политика конфиденциальности</string>
+    <string name="settings_terms_of_use_label">Условия использования</string>
+    <string name="label_copyright">Авторское право</string>
     <string name="debug_settings_screen_title">Параметры отладки</string>
     <string name="item_dependencies_title">Зависимости:</string>
     <string name="support_screen_title">Служба поддержки</string>
@@ -764,6 +768,13 @@
     <!-- Search Contact-->
     <string name="label_contacts">КОНТАКТЫ</string>
     <string name="label_new_group">Новая группа</string>
+    <string name="label_create_new_group">Создать новую группу</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d участник</item>
+        <item quantity="few">%1$d участника</item>
+        <item quantity="many">%1$d участников</item>
+        <item quantity="other">%1$d участника</item>
+    </plurals>
     <string name="label_new_conversation">Новая беседа</string>
     <string name="label_search_people">Поиск пользователей</string>
     <string name="label_public_wire">ПУБЛИЧНЫЙ WIRE</string>
@@ -785,6 +796,7 @@
     <string name="error_no_network_message">Проверьте подключение к интернету и повторите попытку</string>
     <string name="error_downloading_self_user_profile_picture">Произошла ошибка при загрузке изображения вашего профиля. Пожалуйста, проверьте подключение к интернету</string>
     <string name="error_uploading_user_avatar">Не удалось загрузить изображение</string>
+    <string name="error_process_user_avatar">Не удалось обработать изображение</string>
     <string name="error_uploading_image_message">Не удалось выгрузить изображение</string>
     <string name="error_downloading_image_message">Не удалось загрузить изображение</string>
     <string name="error_updating_muting_setting">Не удалось обновить уведомления</string>
@@ -816,6 +828,7 @@
     <string name="dialog_archive_conversation_option">Архивировать</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Открыть беседу</string>
+    <string name="label_start_conversation">Начать беседу</string>
     <string name="email_label">Email</string>
     <string name="phone_label">Телефон</string>
     <!-- Notifications -->
@@ -840,6 +853,7 @@
     <string name="notification_group_call_content">%s вызывает...</string>
     <string name="notification_call_default_caller_name">Кто-то</string>
     <string name="notification_call_default_group_name">Входящий групповой вызов</string>
+    <string name="notification_outgoing_call_tap_to_return">Нажмите, чтобы вернуться к вызову - Вызов...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Постоянный битрейт</string>
     <string name="calling_button_label_microphone">Микрофон</string>
@@ -874,6 +888,8 @@
     <string name="calling_participant_tile_default_user_name">По умолчанию</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s вызывает…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">Вызов %1$s…</string>
     <string name="connectivity_status_bar_connecting">Расшифровка сообщений</string>
     <string name="connectivity_status_bar_waiting_for_network">Ожидание сети</string>
     <!-- Connections -->
@@ -898,6 +914,9 @@
     <string name="connection_label_ignore">Игнорировать</string>
     <string name="connection_label_send_unverified_warning">Перед добавлением убедитесь в личности %s.</string>
     <string name="connection_label_received_unverified_warning">Прежде чем принять запрос на добавление, верифицируйте личность собеседника.</string>
+    <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_title">Невозможно начать беседу</string>
+    <string name="missing_keypackage_dialog_body">Вы не можете начать беседу с %1$s прямо сейчас. %1$s следует сначала открыть Wire или авторизоваться. Пожалуйста, повторите попытку позже.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Медиагалерея</string>
     <string name="media_gallery_on_image_downloaded">Сохранить в папку загрузок</string>
@@ -993,6 +1012,8 @@
     <string name="settings_show_typing_indicator_title">Индикатор набора текста</string>
     <string name="settings_show_typing_indicator_description">При выключении этого параметра вы не сможете видеть, когда собеседники набирают текст, а собеседники не смогут видеть, когда вы набираете текст. Эта настройка применяется ко всем беседам на этом устройстве.</string>
     <string name="settings_app_lock_title">Блокировка кодом доступа</string>
+    <string name="settings_send_anonymous_usage_data_title">Отправка анонимных данных об использовании</string>
+    <string name="settings_send_anonymous_usage_data_description">Данные об использовании позволяют Wire определить, как используется приложение и как его можно улучшить. Эти данные анонимны и не включают в себя содержимое вашего общения (такое как, сообщения, файлы, местоположение или звонки).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Установить код доступа к приложению</string>
     <string name="settings_set_lock_screen_description">Приложение заблокируется спустя %1$s неактивности. Для его разблокировки потребуется ввести этот код или использовать биометрию.\n\nЗапомните этот код, поскольку восстановить его невозможно.</string>
@@ -1220,9 +1241,11 @@
     <string name="title_video_could_not_be_sent">Не удалось отправить видео</string>
     <string name="title_image_could_not_be_sent">Не удалось отправить изображение</string>
     <string name="title_file_could_not_be_sent">Не удалось отправить файл</string>
+    <string name="title_assets_could_not_be_sent">Не удалось отправить медиафайлы</string>
     <string name="label_shared_video_too_large">Вы можете поделиться видео размером не более %d МБ.</string>
     <string name="label_shared_image_too_large">Вы можете поделиться изображением размером не более %d МБ.</string>
     <string name="label_shared_file_too_large">Вы можете поделиться файлом размером не более %d МБ.</string>
+    <string name="label_shared_multiple_assets_error">Удалить все отмеченные медиафайлы и повторить попытку</string>
     <string name="label_file_saved_to_device">Файл был сохранен на устройстве.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Самоудаляющееся сообщение • %1$s</string>
@@ -1441,4 +1464,7 @@
     <string name="location_app_permission_dialog_body">Разрешите Wire получить доступ к местоположению вашего устройства, чтобы иметь возможность им поделиться.</string>
     <string name="location_loading_label">Пожалуйста, подождите...</string>
     <string name="location_could_not_be_shared">Не удалось поделиться местоположением</string>
+    <!-- Asset Preview -->
+    <string name="remove_asset_description">Удалить медиафайл</string>
+    <string name="asset_attention_description">Уведомление</string>
 </resources>

@@ -188,7 +188,7 @@
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
     <string name="url_maps_location_coordinates_fallback" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
     <string name="url_privacy_policy" translatable="false">https://wire.com/privacy-policy#:~:text=We%20process%20individual%20data%20about,%C2%A7%201%20a)%20GDPR).</string>
-    <string name="url_terms_of_use" translatable="false">https://wire.com/legal#:~:text=Wire%20is%20used%20for%20private,disable%20your%20access%20to%20Wire.</string>
+    <string name="url_terms_of_use_legal" translatable="false">https://wire.com/legal</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -201,7 +201,7 @@
     <string name="report_bug_screen_title">Report Bug</string>
     <string name="about_app_screen_title">About This App</string>
     <string name="settings_privacy_policy_label">Privacy Policy</string>
-    <string name="settings_terms_of_use_label">Terms of Use</string>
+    <string name="settings_terms_of_use_label">Legal</string>
     <string name="label_copyright">Copyright</string>
     <string translatable="false" name="label_copyright_value">© Wire Swiss GmbH</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
@@ -1001,7 +1001,7 @@
     <string name="settings_show_typing_indicator_description">When this is off, you won\'t be able to see when other people are typing, and others won\'t see when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lock with passcode</string>
     <string name="settings_send_anonymous_usage_data_title">Send anonymous usage data</string>
-    <string name="settings_send_anonymous_usage_data_description">Usage data allow Wire to understand how the app is being used, and how it can be improved. The data is anonymous and doesn’t contains the content of your communications (such as messages, files, location, or calls)</string>
+    <string name="settings_send_anonymous_usage_data_description">Usage data allows Wire to understand how the app is being used and how it can be improved. The data is anonymous and does not include the content of your communications (such as messages, files, locations, or calls).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Set app lock passcode</string>
     <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
@@ -1226,9 +1226,11 @@
     <string name="title_video_could_not_be_sent">Video could not be sent</string>
     <string name="title_image_could_not_be_sent">Image could not be sent</string>
     <string name="title_file_could_not_be_sent">File could not be sent</string>
+    <string name="title_assets_could_not_be_sent">Assets could not be sent</string>
     <string name="label_shared_video_too_large">You can only share a video up to %d MB.</string>
     <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
     <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
+    <string name="label_shared_multiple_assets_error">Remove all marked assets and try again</string>
     <string name="label_file_saved_to_device">The file was saved to your device.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
@@ -1431,4 +1433,9 @@
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
     <string name="location_loading_label">Please wait...</string>
     <string name="location_could_not_be_shared">Location could not be shared</string>
+
+    <!-- Asset Preview -->
+    <string name="remove_asset_description">Remove asset</string>
+    <string name="asset_attention_description">Asset attention</string>
+
 </resources>

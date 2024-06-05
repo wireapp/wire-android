@@ -20,8 +20,13 @@
 
 package com.wire.android.ui.home.newconversation
 
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.SnapshotExtension
+import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.user.SupportedProtocol
@@ -38,7 +43,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class NewConversationViewModelTest {
 
     @Test
@@ -105,7 +110,7 @@ class NewConversationViewModelTest {
 
         coVerify {
             arrangement.createGroupConversation(
-                viewModel.newGroupState.groupName.text,
+                viewModel.newGroupNameTextState.text.toString(),
                 viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
                 ConversationOptions(
                     Conversation.defaultGroupAccess,
@@ -134,7 +139,7 @@ class NewConversationViewModelTest {
 
             coVerify {
                 arrangement.createGroupConversation(
-                    viewModel.newGroupState.groupName.text,
+                    viewModel.newGroupNameTextState.text.toString(),
                     viewModel.newGroupState.selectedUsers.map { contact -> UserId(contact.id, contact.domain) },
                     ConversationOptions(
                         setOf(Conversation.Access.INVITE, Conversation.Access.CODE),
@@ -190,5 +195,23 @@ class NewConversationViewModelTest {
         val result = viewModel.newGroupState.isGroupCreatingAllowed
         // then
         assertEquals(true, result)
+    }
+
+    @Test
+    fun `given group name, when creating group, then do not show NameEmptyError until name is entered and cleared`() = runTest {
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .arrange()
+        viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd(String.EMPTY)
+        advanceUntilIdle()
+        assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
+
+        viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd("name")
+        advanceUntilIdle()
+        assertEquals(GroupMetadataState.NewGroupError.None, viewModel.newGroupState.error)
+
+        viewModel.newGroupNameTextState.clearText()
+        advanceUntilIdle()
+        assertEquals(GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError, viewModel.newGroupState.error)
     }
 }

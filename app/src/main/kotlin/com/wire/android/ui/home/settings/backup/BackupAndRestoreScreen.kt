@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,8 +36,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -55,11 +54,13 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialogFlow
 import com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackupDialogFlow
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.time.convertTimestampToDateTime
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
 @Destination
@@ -70,7 +71,8 @@ fun BackupAndRestoreScreen(
 ) {
     BackupAndRestoreContent(
         backUpAndRestoreState = viewModel.state,
-        onValidateBackupPassword = viewModel::validateBackupCreationPassword,
+        createBackupPasswordTextState = viewModel.createBackupPasswordState,
+        restoreBackupPasswordTextState = viewModel.restoreBackupPasswordState,
         onCreateBackup = viewModel::createBackup,
         onSaveBackup = viewModel::saveBackup,
         onShareBackup = viewModel::shareBackup,
@@ -86,16 +88,18 @@ fun BackupAndRestoreScreen(
 @Composable
 fun BackupAndRestoreContent(
     backUpAndRestoreState: BackupAndRestoreState,
-    onValidateBackupPassword: (TextFieldValue) -> Unit,
-    onCreateBackup: (String) -> Unit,
+    createBackupPasswordTextState: TextFieldState,
+    restoreBackupPasswordTextState: TextFieldState,
+    onCreateBackup: () -> Unit,
     onSaveBackup: (Uri) -> Unit,
     onShareBackup: () -> Unit,
     onCancelBackupCreation: () -> Unit,
     onCancelBackupRestore: () -> Unit,
     onChooseBackupFile: (Uri) -> Unit,
-    onRestoreBackup: (String) -> Unit,
+    onRestoreBackup: () -> Unit,
     onOpenConversations: () -> Unit,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -111,17 +115,17 @@ fun BackupAndRestoreContent(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxHeight()
                 .padding(internalPadding)
         ) {
 
-            backupAndRestoreText(
+            BackupAndRestoreText(
+                lastBackupTime = backUpAndRestoreState.lastBackupData,
                 modifier = Modifier
                     .weight(1f)
                     .padding(MaterialTheme.wireDimensions.spacing16x)
                     .fillMaxWidth(),
-                backUpAndRestoreState.lastBackupData
             )
 
             Surface(
@@ -151,7 +155,7 @@ fun BackupAndRestoreContent(
         is BackupAndRestoreDialog.CreateBackup -> {
             CreateBackupDialogFlow(
                 backUpAndRestoreState = backUpAndRestoreState,
-                onValidateBackupPassword = onValidateBackupPassword,
+                backupPasswordTextState = createBackupPasswordTextState,
                 onCreateBackup = onCreateBackup,
                 onSaveBackup = onSaveBackup,
                 onShareBackup = onShareBackup,
@@ -175,6 +179,7 @@ fun BackupAndRestoreContent(
         is BackupAndRestoreDialog.RestoreBackup -> {
             RestoreBackupDialogFlow(
                 backUpAndRestoreState = backUpAndRestoreState,
+                backupPasswordTextState = restoreBackupPasswordTextState,
                 onChooseBackupFile = onChooseBackupFile,
                 onRestoreBackup = onRestoreBackup,
                 onCancelBackupRestore = {
@@ -205,7 +210,7 @@ fun BackupAndRestoreContent(
 }
 
 @Composable
-private fun backupAndRestoreText(modifier: Modifier, lastBackupTime: Long?) {
+private fun BackupAndRestoreText(lastBackupTime: Long?, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
     ) {
@@ -258,12 +263,13 @@ private fun backupAndRestoreText(modifier: Modifier, lastBackupTime: Long?) {
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewBackupAndRestoreScreen() {
+fun PreviewBackupAndRestoreScreen() = WireTheme {
     BackupAndRestoreContent(
         backUpAndRestoreState = BackupAndRestoreState.INITIAL_STATE,
-        onValidateBackupPassword = {},
+        createBackupPasswordTextState = TextFieldState(),
+        restoreBackupPasswordTextState = TextFieldState(),
         onCreateBackup = {},
         onSaveBackup = {},
         onShareBackup = {},

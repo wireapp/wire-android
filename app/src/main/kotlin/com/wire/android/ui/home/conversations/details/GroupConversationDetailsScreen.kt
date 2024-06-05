@@ -121,6 +121,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.GroupID
+import com.wire.kalium.logic.data.mls.CipherSuite
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
@@ -587,7 +588,7 @@ fun PreviewGroupConversationDetails() {
                     groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.ESTABLISHED,
                     epoch = ULong.MIN_VALUE,
                     keyingMaterialLastUpdate = Instant.fromEpochMilliseconds(1648654560000),
-                    cipherSuite = Conversation.CipherSuite.MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
+                    cipherSuite = CipherSuite.MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
                 ),
                 mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
                 isUnderLegalHold = false,

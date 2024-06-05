@@ -64,6 +64,9 @@ material = "1.11.0"
 coil = "2.6.0"
 commonmark = "0.22.0"
 
+# Countly
+countly = "24.4.0"
+
 # RSS
 rss-parser = "6.0.7"
 
@@ -230,6 +233,9 @@ material = { module = "com.google.android.material:material", version.ref = "mat
 commonmark-core = { module = "org.commonmark:commonmark", version.ref = "commonmark" }
 commonmark-strikethrough = { module = "org.commonmark:commonmark-ext-gfm-strikethrough", version.ref = "commonmark" }
 commonmark-tables = { module = "org.commonmark:commonmark-ext-gfm-tables", version.ref = "commonmark" }
+
+# Countly
+countly-sdk = { module = "ly.count.android:sdk", version.ref = "countly" }
 
 # Dev tools
 aboutLibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }

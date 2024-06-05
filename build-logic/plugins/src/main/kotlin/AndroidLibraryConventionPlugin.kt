@@ -31,7 +31,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
         }
 
         extensions.configure<LibraryExtension> {
-            namespace = "com.wire.android.feature.${target.name}"
+            namespace = "com.wire.android.feature.${target.name.replace("-", "_")}"
 
             // TODO: Handle flavors. Currently implemented in `variants.gradle.kts` script
             configureKotlinAndroid(this)

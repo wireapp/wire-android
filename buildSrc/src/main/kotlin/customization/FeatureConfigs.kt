@@ -102,9 +102,9 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC("limit_team_members_fetch_during_slow_sync", ConfigType.INT),
 
     /**
-     * Countly Analytics
+     * Anonymous Analytics
      */
-    COUNTLY_ENABLED("countly_enabled", ConfigType.BOOLEAN),
-    COUNTLY_APP_KEY("countly_app_key", ConfigType.STRING),
-    COUNTLY_SERVER_URL("countly_server_url", ConfigType.STRING)
+    ANALYTICS_ENABLED("analytics_enabled", ConfigType.BOOLEAN),
+    ANALYTICS_APP_KEY("analytics_app_key", ConfigType.STRING),
+    ANALYTICS_SERVER_URL("analytics_server_url", ConfigType.STRING)
 }

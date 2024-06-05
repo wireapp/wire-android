@@ -26,7 +26,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.app.ShareCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
@@ -37,6 +36,7 @@ import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
@@ -46,6 +46,7 @@ import com.wire.android.ui.home.conversationslist.parseConversationEventType
 import com.wire.android.ui.home.conversationslist.parsePrivateConversationEventType
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.parcelableArrayList
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -64,13 +65,14 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -91,12 +93,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     val searchQueryTextState: TextFieldState = TextFieldState()
     var importMediaState by mutableStateOf(ImportMediaAuthenticatedState())
         private set
-
-    private val mutableSearchQueryFlow = MutableStateFlow("")
-
-    private val searchQueryFlow = mutableSearchQueryFlow
-        .asStateFlow()
-        .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -125,41 +121,29 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun observeConversationWithSearch() = viewModelScope.launch {
-        searchQueryFlow.mapLatest { searchQuery ->
-            val conversations = observeConversationListDetails(fromArchive = false).first()
-                .mapNotNull { conversationDetails ->
-                    conversationDetails.toConversationItem(
-                        wireSessionImageLoader,
-                        userTypeMapper
-                    )
-                }
-            val searchResult =
-                if (searchQuery.isEmpty()) conversations else searchShareableConversation(
-                    conversations,
-                    searchQuery
-                )
-            ShareableConversationListState(
-                initialConversations = conversations,
-                searchQuery = searchQuery,
-                hasNoConversations = conversations.isEmpty(),
-                searchResult = searchResult
-            )
-        }
+        searchQueryTextState.textAsFlow()
+            .distinctUntilChanged()
+            .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
+            .onStart { emit(String.EMPTY) }
+            .flatMapLatest { searchQuery ->
+                observeConversationListDetails(fromArchive = false)
+                    .map { conversationDetailsList ->
+                        val conversations = conversationDetailsList.mapNotNull { conversationDetails ->
+                            conversationDetails.toConversationItem(wireSessionImageLoader, userTypeMapper)
+                        }
+                        ShareableConversationListState(
+                            initialConversations = conversations,
+                            searchQuery = searchQuery.toString(),
+                            hasNoConversations = conversations.isEmpty(),
+                            searchResult = searchShareableConversation(conversations, searchQuery.toString())
+                        )
+                    }
+            }
             .flowOn(dispatchers.io())
             .collect { updatedState ->
                 importMediaState =
                     importMediaState.copy(shareableConversationListState = updatedState)
             }
-    }
-
-    fun onSearchQueryChanged(searchQuery: TextFieldValue) {
-        val textQueryChanged = mutableSearchQueryFlow.value != searchQuery.text
-        // we set the state with a searchQuery, immediately to update the UI first
-        viewModelScope.launch {
-            if (textQueryChanged) {
-                mutableSearchQueryFlow.emit(searchQuery.text)
-            }
-        }
     }
 
     private fun addConversationItemToGroupSelection(conversation: ConversationItem) =
@@ -264,7 +248,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                     )
 
                     is ConversationItem.ConnectionConversation -> false
-                }
+                } or searchQuery.isBlank()
             }
         return matchingConversations
     }

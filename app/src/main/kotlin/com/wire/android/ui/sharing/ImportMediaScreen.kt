@@ -510,7 +510,7 @@ private fun ImportMediaContent(
             conversationsAddedToGroup = state.selectedConversationItem,
             isSelectableList = true,
             onConversationSelectedOnRadioGroup = onConversationClicked,
-            searchQuery = searchQueryTextState.text.toString(),
+            searchQuery = state.shareableConversationListState.searchQuery,
             onOpenConversation = onConversationClicked,
             onEditConversation = {},
             onOpenUserProfile = {},

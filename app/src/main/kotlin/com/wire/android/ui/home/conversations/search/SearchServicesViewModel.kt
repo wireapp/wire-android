@@ -25,13 +25,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,18 +46,36 @@ class SearchServicesViewModel @Inject constructor(
     private val contactMapper: ContactMapper,
     private val searchServicesByName: SearchServicesByNameUseCase,
 ) : ViewModel() {
+    private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
     var state: SearchServicesState by mutableStateOf(SearchServicesState())
         private set
 
-    fun search(query: String) {
+    init {
+        viewModelScope.launch {
+            searchQueryTextFlow
+                .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
+                .onStart { emit(String.EMPTY) }
+                .collectLatest { query ->
+                    search(query)
+                }
+        }
+    }
+
+    fun searchQueryChanged(searchQuery: String) {
+        viewModelScope.launch {
+            searchQueryTextFlow.emit(searchQuery)
+        }
+    }
+
+    private fun search(query: String) {
         viewModelScope.launch {
             if (query.isEmpty()) {
                 getAllServices().first().also { services ->
-                    state = state.copy(result = services.map(contactMapper::fromService).toImmutableList())
+                    state = state.copy(result = services.map(contactMapper::fromService).toImmutableList(), searchQuery = query)
                 }
             } else {
                 searchServicesByName(query).first().also { services ->
-                    state = state.copy(result = services.map(contactMapper::fromService).toImmutableList())
+                    state = state.copy(result = services.map(contactMapper::fromService).toImmutableList(), searchQuery = query)
                 }
             }
         }
@@ -61,8 +84,7 @@ class SearchServicesViewModel @Inject constructor(
 
 data class SearchServicesState(
     val result: ImmutableList<Contact> = persistentListOf(),
-    val searchQuery: TextFieldValue = TextFieldValue(),
-    val noneSearchSucceeded: Boolean = false,
+    val searchQuery: String = String.EMPTY,
     val isLoading: Boolean = false,
     val error: Boolean = false
 )

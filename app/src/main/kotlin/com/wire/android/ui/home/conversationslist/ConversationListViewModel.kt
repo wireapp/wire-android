@@ -21,7 +21,6 @@ package com.wire.android.ui.home.conversationslist
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -394,9 +393,9 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun searchConversation(searchQuery: TextFieldValue) {
+    fun searchQueryChanged(searchQuery: String) {
         viewModelScope.launch {
-            mutableSearchQueryFlow.emit(SearchQueryUpdate.UpdateQuery(searchQuery.text))
+            mutableSearchQueryFlow.emit(SearchQueryUpdate.UpdateQuery(searchQuery))
         }
     }
 

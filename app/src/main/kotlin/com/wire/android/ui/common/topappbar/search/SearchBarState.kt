@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.common.topappbar.search
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,25 +29,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 
 @Composable
-fun rememberSearchbarState(): SearchBarState {
-    val searchBarState = rememberSaveable(
-        saver = SearchBarState.saver()
-    ) {
-        SearchBarState()
-    }
-
-    return searchBarState
+fun rememberSearchbarState(
+    searchQueryTextState: TextFieldState = rememberTextFieldState()
+): SearchBarState = rememberSaveable(
+    saver = SearchBarState.saver(searchQueryTextState)
+) {
+    SearchBarState(searchQueryTextState = searchQueryTextState)
 }
 
 class SearchBarState(
     isSearchActive: Boolean = false,
-    searchQuery: TextFieldValue = TextFieldValue("")
+    val searchQueryTextState: TextFieldState
 ) {
 
     var isSearchActive by mutableStateOf(isSearchActive)
-        private set
-
-    var searchQuery by mutableStateOf(searchQuery)
         private set
 
     fun closeSearch() {
@@ -60,19 +57,15 @@ class SearchBarState(
         this.isSearchActive = isSearchActive
     }
 
-    fun searchQueryChanged(searchQuery: TextFieldValue) {
-        this.searchQuery = searchQuery
-    }
-
     companion object {
-        fun saver(): Saver<SearchBarState, *> = Saver(
+        fun saver(searchQueryTextState: TextFieldState): Saver<SearchBarState, *> = Saver(
             save = {
-                listOf(it.isSearchActive, it.searchQuery.text)
+                listOf(it.isSearchActive)
             },
             restore = {
                 SearchBarState(
-                    isSearchActive = it[0] as Boolean,
-                    searchQuery = TextFieldValue(it[1] as String)
+                    isSearchActive = it[0],
+                    searchQueryTextState = searchQueryTextState
                 )
             }
         )

@@ -144,8 +144,8 @@ fun ConversationRouterHomeBridge(
             }
         }
 
-        LaunchedEffect(searchQuery) {
-            conversationListViewModel.searchConversation(searchQuery)
+        LaunchedEffect(searchQueryTextState.text) {
+            conversationListViewModel.searchQueryChanged(searchQueryTextState.text.toString())
         }
     }
 

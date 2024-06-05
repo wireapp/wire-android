@@ -32,6 +32,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -43,10 +45,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -91,6 +91,7 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.getActivity
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
@@ -120,9 +121,7 @@ fun ImportMediaScreen(
         }
 
         FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM -> {
-
             ImportMediaRestrictedContent(
-                fileSharingRestrictedState = fileSharingRestrictedState,
                 importMediaAuthenticatedState = importMediaViewModel.importMediaState,
                 navigateBack = navigator.finish
             )
@@ -131,7 +130,7 @@ fun ImportMediaScreen(
         FeatureFlagState.SharingRestrictedState.NONE -> {
             ImportMediaRegularContent(
                 importMediaAuthenticatedState = importMediaViewModel.importMediaState,
-                onSearchQueryChanged = importMediaViewModel::onSearchQueryChanged,
+                searchQueryTextState = importMediaViewModel.searchQueryTextState,
                 onConversationClicked = importMediaViewModel::onConversationClicked,
                 checkRestrictionsAndSendImportedMedia = {
                     importMediaViewModel.importMediaState.selectedConversationItem.firstOrNull()?.let { conversationItem ->
@@ -182,7 +181,6 @@ fun ImportMediaScreen(
 
 @Composable
 fun ImportMediaRestrictedContent(
-    fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
     importMediaAuthenticatedState: ImportMediaAuthenticatedState,
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -207,7 +205,7 @@ fun ImportMediaRestrictedContent(
             content = { internalPadding ->
                 FileSharingRestrictedContent(
                     internalPadding,
-                    fileSharingRestrictedState,
+                    FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
                     navigateBack
                 )
             }
@@ -218,7 +216,7 @@ fun ImportMediaRestrictedContent(
 @Composable
 fun ImportMediaRegularContent(
     importMediaAuthenticatedState: ImportMediaAuthenticatedState,
-    onSearchQueryChanged: (searchQuery: TextFieldValue) -> Unit,
+    searchQueryTextState: TextFieldState,
     onConversationClicked: (conversationId: ConversationId) -> Unit,
     checkRestrictionsAndSendImportedMedia: () -> Unit,
     onNewSelfDeletionTimerPicked: (selfDeletionDuration: SelfDeletionDuration) -> Unit,
@@ -251,7 +249,7 @@ fun ImportMediaRegularContent(
                 ImportMediaContent(
                     state = this,
                     internalPadding = internalPadding,
-                    onSearchQueryChanged = onSearchQueryChanged,
+                    searchQueryTextState = searchQueryTextState,
                     onConversationClicked = onConversationClicked,
                     searchBarState = importMediaScreenState.searchBarState,
                     onRemoveAsset = onRemoveAsset
@@ -385,7 +383,7 @@ private fun ImportMediaBottomBar(
 private fun ImportMediaContent(
     state: ImportMediaAuthenticatedState,
     internalPadding: PaddingValues,
-    onSearchQueryChanged: (searchQuery: TextFieldValue) -> Unit,
+    searchQueryTextState: TextFieldState,
     onConversationClicked: (conversationId: ConversationId) -> Unit,
     onRemoveAsset: (index: Int) -> Unit,
     searchBarState: SearchBarState
@@ -482,11 +480,7 @@ private fun ImportMediaContent(
                     R.string.search_bar_conversations_hint,
                     stringResource(id = R.string.conversations_screen_title).lowercase()
                 ),
-                searchQuery = searchBarState.searchQuery,
-                onSearchQueryChanged = {
-                    onSearchQueryChanged(it)
-                    searchBarState.searchQueryChanged(it)
-                },
+                searchQueryTextState = searchQueryTextState,
                 onActiveChanged = searchBarState::searchActiveChanged,
             )
         }
@@ -499,7 +493,7 @@ private fun ImportMediaContent(
             conversationsAddedToGroup = state.selectedConversationItem,
             isSelectableList = true,
             onConversationSelectedOnRadioGroup = onConversationClicked,
-            searchQuery = searchBarState.searchQuery.text,
+            searchQuery = searchQueryTextState.text.toString(),
             onOpenConversation = onConversationClicked,
             onEditConversation = {},
             onOpenUserProfile = {},
@@ -525,7 +519,7 @@ private fun SnackBarMessage(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
 fun PreviewImportMediaScreenLoggedOut() {
     WireTheme {
@@ -533,19 +527,18 @@ fun PreviewImportMediaScreenLoggedOut() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
 fun PreviewImportMediaScreenRestricted() {
     WireTheme {
         ImportMediaRestrictedContent(
-            fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
             importMediaAuthenticatedState = ImportMediaAuthenticatedState(),
             {}
         )
     }
 }
 
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
 fun PreviewImportMediaScreenRegular() {
     WireTheme {
@@ -598,7 +591,7 @@ fun PreviewImportMediaScreenRegular() {
                     )
                 ),
             ),
-            onSearchQueryChanged = {},
+            searchQueryTextState = rememberTextFieldState(),
             onConversationClicked = {},
             checkRestrictionsAndSendImportedMedia = {},
             onNewSelfDeletionTimerPicked = {},
@@ -609,7 +602,7 @@ fun PreviewImportMediaScreenRegular() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
 fun PreviewImportMediaBottomBar() {
     WireTheme {

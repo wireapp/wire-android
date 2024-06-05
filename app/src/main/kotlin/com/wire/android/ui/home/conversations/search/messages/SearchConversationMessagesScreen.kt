@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.search.messages
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,6 +39,9 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.flow.Flow
 
 @RootNavGraph
@@ -50,63 +54,75 @@ fun SearchConversationMessagesScreen(
     navigator: Navigator,
     searchConversationMessagesViewModel: SearchConversationMessagesViewModel = hiltViewModel()
 ) {
-    with(searchConversationMessagesViewModel.searchConversationMessagesState) {
-        WireScaffold(
-            topBar = {
-                SearchTopBar(
-                    isSearchActive = true, // we want the search to be always active and back arrow visible on this particular screen
-                    searchBarHint = stringResource(id = R.string.label_search_messages),
-                    searchQuery = searchQuery,
-                    onSearchQueryChanged = searchConversationMessagesViewModel::searchQueryChanged,
-                    modifier = Modifier.padding(top = dimensions().spacing24x),
-                    onCloseSearchClicked = navigator::navigateBack,
-                    isLoading = isLoading
+    SearchConversationMessagesResultContent(
+        searchQueryTextState = searchConversationMessagesViewModel.searchQueryTextState,
+        state = searchConversationMessagesViewModel.searchConversationMessagesState,
+        onMessageClick = { messageId ->
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationScreenDestination(
+                        navArgs = ConversationNavArgs(
+                            conversationId = searchConversationMessagesViewModel.searchConversationMessagesState.conversationId,
+                            searchedMessageId = messageId
+                        )
+                    ),
+                    BackStackMode.UPDATE_EXISTED
                 )
-            },
-            content = { internalPadding ->
-                Column(modifier = Modifier.padding(internalPadding)) {
-                    SearchConversationMessagesResultContent(
-                        searchQuery = searchQuery.text,
-                        searchResult = searchResult,
-                        onMessageClick = { messageId ->
-                            navigator.navigate(
-                                NavigationCommand(
-                                    ConversationScreenDestination(
-                                        navArgs = ConversationNavArgs(
-                                            conversationId = conversationId,
-                                            searchedMessageId = messageId
-                                        )
-                                    ),
-                                    BackStackMode.UPDATE_EXISTED
-                                )
-                            )
-                        }
-                    )
-                }
-            }
-        )
-    }
+            )
+        },
+        onCloseSearchClicked = navigator::navigateBack,
+    )
 }
 
 @Composable
 fun SearchConversationMessagesResultContent(
-    searchQuery: String,
-    searchResult: Flow<PagingData<UIMessage>>,
-    onMessageClick: (messageId: String) -> Unit
+    searchQueryTextState: TextFieldState,
+    state: SearchConversationMessagesState,
+    onMessageClick: (messageId: String) -> Unit,
+    onCloseSearchClicked: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val lazyPagingMessages = searchResult.collectAsLazyPagingItems()
-
-    if (searchQuery.isEmpty()) {
-        SearchConversationMessagesEmptyScreen()
-    } else {
-        if (lazyPagingMessages.itemCount > 0) {
-            SearchConversationMessagesResultsScreen(
-                lazyPagingMessages = lazyPagingMessages,
-                searchQuery = searchQuery,
-                onMessageClick = onMessageClick
+    WireScaffold(
+        modifier = modifier,
+        topBar = {
+            SearchTopBar(
+                isSearchActive = true, // we want the search to be always active and back arrow visible on this particular screen
+                searchBarHint = stringResource(id = R.string.label_search_messages),
+                searchQueryTextState = searchQueryTextState,
+                modifier = Modifier.padding(top = dimensions().spacing24x),
+                onCloseSearchClicked = onCloseSearchClicked,
+                isLoading = state.isLoading
             )
-        } else {
-            SearchConversationMessagesNoResultsScreen()
+        },
+        content = { internalPadding ->
+            Column(modifier = Modifier.padding(internalPadding)) {
+                val lazyPagingMessages = state.searchResult.collectAsLazyPagingItems()
+
+                if (searchQueryTextState.text.isEmpty()) {
+                    SearchConversationMessagesEmptyScreen()
+                } else {
+                    if (lazyPagingMessages.itemCount > 0) {
+                        SearchConversationMessagesResultsScreen(
+                            lazyPagingMessages = lazyPagingMessages,
+                            searchQuery = state.searchQuery,
+                            onMessageClick = onMessageClick
+                        )
+                    } else {
+                        SearchConversationMessagesNoResultsScreen()
+                    }
+                }
+            }
         }
-    }
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSearchConversationMessagesScreen() = WireTheme {
+    SearchConversationMessagesResultContent(
+        searchQueryTextState = TextFieldState(),
+        state = SearchConversationMessagesState(ConversationId("conversationId", "domain")),
+        onMessageClick = {},
+        onCloseSearchClicked = {}
+    )
 }

@@ -26,6 +26,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.navArgs
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
@@ -35,6 +36,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 import javax.inject.Inject
@@ -56,15 +61,28 @@ class SearchUserViewModel @Inject constructor(
         null
     }
 
+    private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
     var state: SearchUserState by mutableStateOf(SearchUserState())
         private set
 
-    fun search(query: String) = viewModelScope.launch {
-        safeSearch(query)
+    init {
+        viewModelScope.launch {
+            searchQueryTextFlow
+                .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
+                .onStart { emit(String.EMPTY) }
+                .collectLatest { query ->
+                    search(query)
+                }
+        }
     }
 
-    @VisibleForTesting
-    suspend fun safeSearch(query: String) {
+    fun searchQueryChanged(searchQuery: String) {
+        viewModelScope.launch {
+            searchQueryTextFlow.emit(searchQuery)
+        }
+    }
+
+    private suspend fun search(query: String) {
         val (searchTerm, domain) = federatedSearchParser(query)
         val isHandleSearch = validateUserHandle(searchTerm.removeQueryPrefix()) is ValidateUserHandleResult.Valid
 
@@ -83,7 +101,8 @@ class SearchUserViewModel @Inject constructor(
         ).also { userSearchEntities ->
             state = state.copy(
                 contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
-                publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList()
+                publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList(),
+                searchQuery = searchTerm
             )
         }
     }
@@ -96,7 +115,8 @@ class SearchUserViewModel @Inject constructor(
         ).also { userSearchEntities ->
             state = state.copy(
                 contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
-                publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList()
+                publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList(),
+                searchQuery = searchTerm
             )
         }
     }
@@ -105,6 +125,5 @@ class SearchUserViewModel @Inject constructor(
 data class SearchUserState(
     val contactsResult: ImmutableList<Contact> = persistentListOf(),
     val publicResult: ImmutableList<Contact> = persistentListOf(),
-    val includeServices: Boolean = false,
-    val noneSearchSucceeded: Boolean = false
+    val searchQuery: String = String.EMPTY,
 )

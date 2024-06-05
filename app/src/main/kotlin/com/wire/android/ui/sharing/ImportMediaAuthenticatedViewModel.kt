@@ -21,6 +21,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -87,6 +88,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     val dispatchers: DispatcherProvider,
 ) : ViewModel() {
+    val searchQueryTextState: TextFieldState = TextFieldState()
     var importMediaState by mutableStateOf(ImportMediaAuthenticatedState())
         private set
 

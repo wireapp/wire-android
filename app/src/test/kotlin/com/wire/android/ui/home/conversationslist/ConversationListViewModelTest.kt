@@ -19,7 +19,6 @@
 
 package com.wire.android.ui.home.conversationslist
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -147,7 +146,7 @@ class ConversationListViewModelTest {
 
         // When
         dispatcher.scheduler.advanceUntilIdle()
-        conversationListViewModel.searchConversation(TextFieldValue(searchQueryText))
+        conversationListViewModel.searchQueryChanged(searchQueryText)
         dispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -165,7 +164,7 @@ class ConversationListViewModelTest {
 
         // When
         dispatcher.scheduler.advanceUntilIdle()
-        conversationListViewModel.searchConversation(TextFieldValue(searchQueryText))
+        conversationListViewModel.searchQueryChanged(searchQueryText)
         dispatcher.scheduler.advanceUntilIdle()
 
         // Then

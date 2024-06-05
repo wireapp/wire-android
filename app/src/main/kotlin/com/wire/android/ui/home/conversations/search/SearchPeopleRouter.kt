@@ -70,31 +70,29 @@ import kotlinx.coroutines.launch
 )
 @Composable
 fun SearchUsersAndServicesScreen(
-    searchState: SearchState,
     searchTitle: String,
     actionButtonTitle: String,
-    userSearchSignal: State<String>,
-    serviceSearchSignal: State<String>,
     selectedContacts: ImmutableSet<Contact>,
-    onServicesSearchQueryChanged: (TextFieldValue) -> Unit,
-    onUsersSearchQueryChanged: (TextFieldValue) -> Unit,
     onGroupSelectionSubmitAction: () -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
     onServiceClicked: (Contact) -> Unit,
     onClose: () -> Unit,
     screenType: SearchPeopleScreenType,
+    modifier: Modifier = Modifier,
     isGroupSubmitVisible: Boolean = true,
+    isServicesAllowed: Boolean = false
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
     val initialPageIndex = SearchPeopleTabItem.PEOPLE.ordinal
     val pagerState = rememberPagerState(
         initialPage = initialPageIndex,
-        pageCount = { if (searchState.isServicesAllowed) SearchPeopleTabItem.entries.size else 1 })
+        pageCount = { if (isServicesAllowed) SearchPeopleTabItem.entries.size else 1 })
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
 
     CollapsingTopBarScaffold(
+        modifier = modifier,
         topBarHeader = { elevation ->
             AnimatedVisibility(
                 visible = !searchBarState.isSearchActive,
@@ -116,28 +114,13 @@ fun SearchUsersAndServicesScreen(
             }
         },
         topBarCollapsing = {
-            val query = when (currentTabState) {
-                SearchPeopleTabItem.PEOPLE.ordinal -> searchState.userSearchQuery
-                SearchPeopleTabItem.SERVICES.ordinal -> searchState.serviceSearchQuery
-                else -> error("Unknown tab index $currentTabState")
-            }
-
-            val onQueryChanged: (TextFieldValue) -> Unit = when (currentTabState) {
-                SearchPeopleTabItem.PEOPLE.ordinal -> onUsersSearchQueryChanged
-                SearchPeopleTabItem.SERVICES.ordinal -> onServicesSearchQueryChanged
-                else -> error("Unknown tab index $currentTabState")
-            }
-
             SearchTopBar(
                 isSearchActive = searchBarState.isSearchActive,
                 searchBarHint = stringResource(R.string.label_search_people),
-                searchQuery = query,
-                onSearchQueryChanged = onQueryChanged,
+                searchQueryTextState = searchBarState.searchQueryTextState,
                 onActiveChanged = searchBarState::searchActiveChanged,
             ) {
-                if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS
-                    && searchState.isServicesAllowed
-                ) {
+                if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS && isServicesAllowed) {
                     WireTabRow(
                         tabs = SearchPeopleTabItem.entries,
                         selectedTabIndex = currentTabState,
@@ -168,7 +151,7 @@ fun SearchUsersAndServicesScreen(
                             when (SearchPeopleTabItem.entries[pageIndex]) {
                                 SearchPeopleTabItem.PEOPLE -> {
                                     SearchAllPeopleOrContactsScreen(
-                                        searchQuery = userSearchSignal.value,
+                                        searchQuery = searchBarState.searchQueryTextState.text.toString(),
                                         contactsAddedToGroup = selectedContacts,
                                         onOpenUserProfile = onOpenUserProfile,
                                         onContactChecked = onContactChecked,
@@ -180,7 +163,7 @@ fun SearchUsersAndServicesScreen(
 
                                 SearchPeopleTabItem.SERVICES -> {
                                     SearchAllServicesScreen(
-                                        searchQuery = serviceSearchSignal.value,
+                                        searchQuery = searchBarState.searchQueryTextState.text.toString(),
                                         onServiceClicked = onServiceClicked,
                                     )
                                 }
@@ -189,7 +172,7 @@ fun SearchUsersAndServicesScreen(
                     }
                 } else {
                     SearchAllPeopleOrContactsScreen(
-                        searchQuery = userSearchSignal.value,
+                        searchQuery = searchBarState.searchQueryTextState.text.toString(),
                         contactsAddedToGroup = selectedContacts,
                         onContactChecked = onContactChecked,
                         onOpenUserProfile = onOpenUserProfile,
@@ -263,13 +246,12 @@ private fun SearchAllPeopleOrContactsScreen(
 ) {
 
     LaunchedEffect(key1 = searchQuery) {
-        searchUserViewModel.search(searchQuery)
+        searchUserViewModel.searchQueryChanged(searchQuery)
     }
 
     val lazyState = rememberLazyListState()
     SearchAllPeopleScreen(
-        searchQuery = searchQuery,
-        noneSearchSucceed = searchUserViewModel.state.noneSearchSucceeded,
+        searchQuery = searchUserViewModel.state.searchQuery,
         contactsSearchResult = searchUserViewModel.state.contactsResult,
         publicSearchResult = searchUserViewModel.state.publicResult,
         contactsAddedToGroup = contactsAddedToGroup,

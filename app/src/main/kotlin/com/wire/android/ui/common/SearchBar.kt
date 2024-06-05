@@ -26,6 +26,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -50,20 +54,18 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun SearchBarInput(
     placeholderText: String,
     leadingIcon: @Composable () -> Unit,
-    text: TextFieldValue = TextFieldValue(""),
-    onTextTyped: (TextFieldValue) -> Unit = {},
+    textState: TextFieldState,
+    modifier: Modifier = Modifier,
     placeholderTextStyle: TextStyle = LocalTextStyle.current,
     placeholderAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = LocalTextStyle.current,
-    isLoading: Boolean = false,
-    modifier: Modifier = Modifier,
+    isLoading: Boolean = false
 ) {
 
     WireTextField(
         modifier = modifier,
-        value = text,
-        onValueChange = onTextTyped,
+        textState = textState,
         leadingIcon = {
             leadingIcon()
         },
@@ -75,7 +77,7 @@ fun SearchBarInput(
                 contentAlignment = Alignment.CenterEnd
             ) {
                 AnimatedVisibility(
-                    visible = text.text.isNotBlank(),
+                    visible = textState.text.isNotBlank(),
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
@@ -91,9 +93,8 @@ fun SearchBarInput(
                     }
                     IconButton(
                         modifier = Modifier.padding(start = dimensions().spacing12x),
-                        onClick = {
-                        onTextTyped(TextFieldValue(""))
-                    }) {
+                        onClick = textState::clearText,
+                    ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_clear_search),
                             contentDescription = stringResource(R.string.content_description_clear_content)
@@ -107,8 +108,7 @@ fun SearchBarInput(
         placeholderTextStyle = placeholderTextStyle.copy(fontSize = 14.sp),
         placeholderAlignment = placeholderAlignment,
         placeholderText = placeholderText,
-        maxLines = 1,
-        singleLine = true,
+        lineLimits = TextFieldLineLimits.SingleLine,
     )
 }
 
@@ -118,6 +118,7 @@ fun PreviewSearchBarInput() {
     WireTheme {
         SearchBarInput(
             placeholderText = "placeholder",
+            textState = rememberTextFieldState(),
             leadingIcon = {
                 IconButton(onClick = { }) {
                     Icon(

@@ -19,7 +19,6 @@
 package com.wire.android.ui.common.topappbar.search
 
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -48,7 +47,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -66,7 +64,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchTopBar(
     isSearchActive: Boolean,
@@ -152,7 +149,6 @@ fun SearchTopBar(
     }
 }
 
-@SuppressLint("UnrememberedMutableState")
 @Composable
 private fun animateHorizontalAlignmentAsState(
     targetAlignment: Alignment,

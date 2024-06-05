@@ -111,6 +111,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -138,6 +139,7 @@ class WireActivity : AppCompatActivity() {
 
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
+    private var isNavigationCollecting = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -177,11 +179,15 @@ class WireActivity : AppCompatActivity() {
     }
 
     override fun onNewIntent(intent: Intent?) {
-        if (viewModel.isSharingIntent(intent)) {
+        super.onNewIntent(intent)
+        if (isNavigationCollecting) {
+            // when true then navigationCommands is subscribed and can handle navigation commands
+            handleDeepLink(intent)
+        } else {
+            // when false then navigationCommands needs to be subscribed again to be able to receive and handle navigation commands
+            // Activity intent is updated to handle deep link after navigationCommands is subscribed again and onComplete called again
             setIntent(intent)
         }
-        handleDeepLink(intent)
-        super.onNewIntent(intent)
     }
 
     private fun setComposableContent(
@@ -256,7 +262,13 @@ class WireActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     navigationCommands
-                        .onSubscription { onComplete() }
+                        .onSubscription {
+                            isNavigationCollecting = true
+                            onComplete()
+                        }
+                        .onCompletion {
+                            isNavigationCollecting = false
+                        }
                         .collectLatest {
                             currentKeyboardController?.hide()
                             currentNavController.navigateToItem(it)

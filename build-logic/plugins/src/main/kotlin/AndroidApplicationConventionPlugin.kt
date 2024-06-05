@@ -38,8 +38,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 applicationId = AndroidApp.id
                 defaultConfig.targetSdk = AndroidSdk.target
                 versionCode = AndroidApp.versionCode
-                versionName = "${AndroidApp.versionName}($versionCode)"
-                setProperty("archivesBaseName", "$applicationId-v$versionName($versionCode)")
+                versionName = "${AndroidApp.versionName}_$versionCode"
+                setProperty("archivesBaseName", "$applicationId-v$versionName")
             }
 
             configureCompose(this)

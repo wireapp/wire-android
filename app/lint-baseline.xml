@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0)" variant="all" version="8.3.0">
+<issues format="6" by="lint 8.3.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.2)" variant="all" version="8.3.2">
 
     <issue
         id="MissingPermission"
@@ -1427,7 +1427,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1006"
+            line="1007"
             column="9"/>
     </issue>
 
@@ -1449,7 +1449,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1010"
+            line="1011"
             column="9"/>
     </issue>
 
@@ -1471,7 +1471,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-bn/strings.xml"
-            line="1018"
+            line="1019"
             column="9"/>
     </issue>
 
@@ -1482,7 +1482,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
-            line="1018"
+            line="1019"
             column="9"/>
     </issue>
 
@@ -1493,7 +1493,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="1018"
+            line="1019"
             column="9"/>
     </issue>
 
@@ -1504,18 +1504,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
-            line="1018"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>one account active&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-mk/strings.xml"
-            line="1018"
+            line="1019"
             column="9"/>
     </issue>
 
@@ -1532,12 +1521,23 @@
 
     <issue
         id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>one account active&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-mk/strings.xml"
+            line="1019"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>You can only be logged in with one account at once. Log out from one to add another.&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-bn/strings.xml"
-            line="1022"
+            line="1023"
             column="9"/>
     </issue>
 
@@ -1548,7 +1548,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
-            line="1022"
+            line="1023"
             column="9"/>
     </issue>
 
@@ -1559,7 +1559,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="1022"
+            line="1023"
             column="9"/>
     </issue>
 
@@ -1570,7 +1570,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
-            line="1022"
+            line="1023"
             column="9"/>
     </issue>
 
@@ -1581,7 +1581,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
-            line="1022"
+            line="1023"
             column="9"/>
     </issue>
 
@@ -1614,7 +1614,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
-            line="1036"
+            line="1037"
             column="9"/>
     </issue>
 
@@ -1625,7 +1625,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
-            line="1041"
+            line="1042"
             column="9"/>
     </issue>
 
@@ -1647,7 +1647,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sl/strings.xml"
-            line="1054"
+            line="1055"
             column="9"/>
     </issue>
 
@@ -1658,7 +1658,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-lt/strings.xml"
-            line="1054"
+            line="1055"
             column="9"/>
     </issue>
 
@@ -1669,7 +1669,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
-            line="1054"
+            line="1055"
             column="9"/>
     </issue>
 
@@ -1691,7 +1691,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sl/strings.xml"
-            line="1060"
+            line="1061"
             column="9"/>
     </issue>
 
@@ -1702,7 +1702,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-lt/strings.xml"
-            line="1060"
+            line="1061"
             column="9"/>
     </issue>
 
@@ -1713,7 +1713,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
-            line="1060"
+            line="1061"
             column="9"/>
     </issue>
 
@@ -1735,7 +1735,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1209"
+            line="1210"
             column="9"/>
     </issue>
 
@@ -1757,7 +1757,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1213"
+            line="1214"
             column="9"/>
     </issue>
 
@@ -1779,7 +1779,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1217"
+            line="1218"
             column="9"/>
     </issue>
 
@@ -1800,8 +1800,19 @@
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-bn/strings.xml"
+            file="src/main/res/values-pt/strings.xml"
             line="1221"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1222"
             column="9"/>
     </issue>
 
@@ -1812,7 +1823,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
-            line="1221"
+            line="1222"
             column="9"/>
     </issue>
 
@@ -1823,7 +1834,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1221"
+            line="1222"
             column="9"/>
     </issue>
 
@@ -1834,7 +1845,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="1221"
+            line="1222"
             column="9"/>
     </issue>
 
@@ -1845,18 +1856,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
-            line="1221"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt/strings.xml"
-            line="1221"
+            line="1222"
             column="9"/>
     </issue>
 
@@ -1867,7 +1867,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
-            line="1221"
+            line="1222"
             column="9"/>
     </issue>
 
@@ -1888,8 +1888,19 @@
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-bn/strings.xml"
+            file="src/main/res/values-pt/strings.xml"
             line="1225"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1226"
             column="9"/>
     </issue>
 
@@ -1900,7 +1911,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
-            line="1225"
+            line="1226"
             column="9"/>
     </issue>
 
@@ -1911,7 +1922,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1225"
+            line="1226"
             column="9"/>
     </issue>
 
@@ -1922,7 +1933,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="1225"
+            line="1226"
             column="9"/>
     </issue>
 
@@ -1933,18 +1944,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
-            line="1225"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt/strings.xml"
-            line="1225"
+            line="1226"
             column="9"/>
     </issue>
 
@@ -1955,7 +1955,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
-            line="1225"
+            line="1226"
             column="9"/>
     </issue>
 
@@ -1976,8 +1976,19 @@
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-bn/strings.xml"
+            file="src/main/res/values-pt/strings.xml"
             line="1229"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1230"
             column="9"/>
     </issue>
 
@@ -1988,7 +1999,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
-            line="1229"
+            line="1230"
             column="9"/>
     </issue>
 
@@ -1999,7 +2010,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1229"
+            line="1230"
             column="9"/>
     </issue>
 
@@ -2010,7 +2021,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="1229"
+            line="1230"
             column="9"/>
     </issue>
 
@@ -2021,18 +2032,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
-            line="1229"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt/strings.xml"
-            line="1229"
+            line="1230"
             column="9"/>
     </issue>
 
@@ -2043,7 +2043,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
-            line="1229"
+            line="1230"
             column="9"/>
     </issue>
 
@@ -2064,8 +2064,19 @@
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-bn/strings.xml"
+            file="src/main/res/values-pt/strings.xml"
             line="1233"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1234"
             column="9"/>
     </issue>
 
@@ -2076,7 +2087,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
-            line="1233"
+            line="1234"
             column="9"/>
     </issue>
 
@@ -2087,7 +2098,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1233"
+            line="1234"
             column="9"/>
     </issue>
 
@@ -2098,7 +2109,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="1233"
+            line="1234"
             column="9"/>
     </issue>
 
@@ -2109,18 +2120,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
-            line="1233"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt/strings.xml"
-            line="1233"
+            line="1234"
             column="9"/>
     </issue>
 
@@ -2131,7 +2131,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
-            line="1233"
+            line="1234"
             column="9"/>
     </issue>
 
@@ -2163,8 +2163,19 @@
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-bn/strings.xml"
+            file="src/main/res/values-pt/strings.xml"
             line="1237"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1238"
             column="9"/>
     </issue>
 
@@ -2175,7 +2186,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
-            line="1237"
+            line="1238"
             column="9"/>
     </issue>
 
@@ -2186,7 +2197,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1237"
+            line="1238"
             column="9"/>
     </issue>
 
@@ -2197,7 +2208,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="1237"
+            line="1238"
             column="9"/>
     </issue>
 
@@ -2208,18 +2219,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
-            line="1237"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt/strings.xml"
-            line="1237"
+            line="1238"
             column="9"/>
     </issue>
 
@@ -2230,7 +2230,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
-            line="1237"
+            line="1238"
             column="9"/>
     </issue>
 
@@ -2262,8 +2262,19 @@
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-bn/strings.xml"
+            file="src/main/res/values-pt/strings.xml"
             line="1241"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1242"
             column="9"/>
     </issue>
 
@@ -2274,7 +2285,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
-            line="1241"
+            line="1242"
             column="9"/>
     </issue>
 
@@ -2285,7 +2296,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="1241"
+            line="1242"
             column="9"/>
     </issue>
 
@@ -2296,7 +2307,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
-            line="1241"
+            line="1242"
             column="9"/>
     </issue>
 
@@ -2307,18 +2318,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
-            line="1241"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt/strings.xml"
-            line="1241"
+            line="1242"
             column="9"/>
     </issue>
 
@@ -2329,7 +2329,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
-            line="1241"
+            line="1242"
             column="9"/>
     </issue>
 
@@ -2340,7 +2340,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
-            line="1241"
+            line="1242"
             column="9"/>
     </issue>
 
@@ -2361,61 +2361,6 @@
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-bn/strings.xml"
-            line="1245"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-fa/strings.xml"
-            line="1245"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-fr/strings.xml"
-            line="1245"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-hi/strings.xml"
-            line="1245"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pa/strings.xml"
-            line="1245"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
             file="src/main/res/values-pt/strings.xml"
             line="1245"
             column="9"/>
@@ -2434,12 +2379,67 @@
 
     <issue
         id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1246"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1246"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="1246"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1246"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1246"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
-            line="1245"
+            line="1246"
             column="9"/>
     </issue>
 
@@ -2450,51 +2450,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
-            line="1246"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-bn/strings.xml"
-            line="1249"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-fa/strings.xml"
-            line="1249"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-hi/strings.xml"
-            line="1249"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pa/strings.xml"
-            line="1249"
+            line="1247"
             column="9"/>
     </issue>
 
@@ -2511,12 +2467,45 @@
 
     <issue
         id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-mk/strings.xml"
-            line="1249"
+            file="src/main/res/values-bn/strings.xml"
+            line="1250"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1250"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1250"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1250"
             column="9"/>
     </issue>
 
@@ -2534,55 +2523,22 @@
     <issue
         id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-mk/strings.xml"
+            line="1250"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
-            line="1251"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-bn/strings.xml"
-            line="1253"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-fa/strings.xml"
-            line="1253"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-hi/strings.xml"
-            line="1253"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pa/strings.xml"
-            line="1253"
+            line="1252"
             column="9"/>
     </issue>
 
@@ -2599,12 +2555,56 @@
 
     <issue
         id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1254"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1254"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1254"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1254"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
-            line="1253"
+            line="1254"
             column="9"/>
     </issue>
 
@@ -2621,61 +2621,6 @@
 
     <issue
         id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sr/strings.xml"
-            line="1256"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-bn/strings.xml"
-            line="1257"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-fa/strings.xml"
-            line="1257"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-hi/strings.xml"
-            line="1257"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pa/strings.xml"
-            line="1257"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -2688,11 +2633,66 @@
     <issue
         id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sr/strings.xml"
+            line="1257"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1258"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1258"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1258"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1258"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
-            line="1257"
+            line="1258"
             column="9"/>
     </issue>
 
@@ -2709,28 +2709,6 @@
 
     <issue
         id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sl/strings.xml"
-            line="1261"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-lt/strings.xml"
-            line="1261"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>Осталась 1 неделя&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -2742,12 +2720,34 @@
 
     <issue
         id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1262"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1262"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
-            line="1261"
+            line="1262"
             column="9"/>
     </issue>
 
@@ -2758,7 +2758,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
-            line="1261"
+            line="1262"
             column="9"/>
     </issue>
 
@@ -2776,39 +2776,6 @@
     <issue
         id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sr/strings.xml"
-            line="1266"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sl/strings.xml"
-            line="1267"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-lt/strings.xml"
-            line="1267"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>Остался 1 день&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2820,11 +2787,44 @@
     <issue
         id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sr/strings.xml"
+            line="1267"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1268"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1268"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
-            line="1267"
+            line="1268"
             column="9"/>
     </issue>
 
@@ -2846,29 +2846,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
-            line="1271"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sl/strings.xml"
-            line="1273"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-lt/strings.xml"
-            line="1273"
+            line="1272"
             column="9"/>
     </issue>
 
@@ -2885,12 +2863,34 @@
 
     <issue
         id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1274"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1274"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
-            line="1273"
+            line="1274"
             column="9"/>
     </issue>
 
@@ -2912,29 +2912,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
-            line="1276"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sl/strings.xml"
-            line="1279"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-lt/strings.xml"
-            line="1279"
+            line="1277"
             column="9"/>
     </issue>
 
@@ -2951,12 +2929,12 @@
 
     <issue
         id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-uk/strings.xml"
-            line="1279"
+            file="src/main/res/values-sl/strings.xml"
+            line="1280"
             column="9"/>
     </issue>
 
@@ -2974,33 +2952,33 @@
     <issue
         id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sr/strings.xml"
-            line="1281"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-sl/strings.xml"
-            line="1285"
+            file="src/main/res/values-lt/strings.xml"
+            line="1280"
             column="9"/>
     </issue>
 
     <issue
         id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-lt/strings.xml"
-            line="1285"
+            file="src/main/res/values-uk/strings.xml"
+            line="1280"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sr/strings.xml"
+            line="1282"
             column="9"/>
     </issue>
 
@@ -3017,12 +2995,34 @@
 
     <issue
         id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1286"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1286"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
-            line="1285"
+            line="1286"
             column="9"/>
     </issue>
 
@@ -3033,29 +3033,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
-            line="1286"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sl/strings.xml"
-            line="1291"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-lt/strings.xml"
-            line="1291"
+            line="1287"
             column="9"/>
     </issue>
 
@@ -3072,34 +3050,34 @@
 
     <issue
         id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1292"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1292"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
-            line="1291"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sl/strings.xml"
-            line="1297"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-lt/strings.xml"
-            line="1297"
+            line="1292"
             column="9"/>
     </issue>
 
@@ -3116,34 +3094,34 @@
 
     <issue
         id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1298"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1298"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
-            line="1297"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sl/strings.xml"
-            line="1303"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-lt/strings.xml"
-            line="1303"
+            line="1298"
             column="9"/>
     </issue>
 
@@ -3160,34 +3138,34 @@
 
     <issue
         id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1304"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1304"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
-            line="1303"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sl/strings.xml"
-            line="1309"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-lt/strings.xml"
-            line="1309"
+            line="1304"
             column="9"/>
     </issue>
 
@@ -3204,34 +3182,34 @@
 
     <issue
         id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1310"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1310"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
-            line="1309"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sl/strings.xml"
-            line="1315"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-lt/strings.xml"
-            line="1315"
+            line="1310"
             column="9"/>
     </issue>
 
@@ -3248,12 +3226,34 @@
 
     <issue
         id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1316"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1316"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
-            line="1315"
+            line="1316"
             column="9"/>
     </issue>
 
@@ -3821,28 +3821,6 @@
     <issue
         id="ComposeModifierMissing"
         message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun GroupConversationSettings("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/details/options/GroupConversationOptions.kt"
-            line="86"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun ConversationProtocolDetails("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/details/options/GroupConversationOptions.kt"
-            line="175"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
         errorLine1="fun GroupConversationParticipants("
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4261,17 +4239,6 @@
     <issue
         id="ComposeModifierMissing"
         message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun MarkdownThematicBreak() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/markdown/MarkdownThematicBreak.kt"
-            line="29"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
         errorLine1="fun MediaGalleryScreen("
         errorLine2="    ~~~~~~~~~~~~~~~~~~">
         <location
@@ -4408,7 +4375,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/home/settings/account/MyAccountScreen.kt"
-            line="176"
+            line="175"
             column="5"/>
     </issue>
 
@@ -4497,17 +4464,6 @@
         <location
             file="src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/PasswordProtectedLinkBanner.kt"
             line="44"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun PrivacySettingsScreenContent("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/settings/privacy/PrivacySettingsScreen.kt"
-            line="63"
             column="5"/>
     </issue>
 
@@ -4738,7 +4694,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/common/SettingUpWireScreenContent.kt"
-            line="56"
+            line="55"
             column="5"/>
     </issue>
 
@@ -5541,7 +5497,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/authentication/welcome/WelcomeScreen.kt"
-            line="341"
+            line="340"
             column="27"/>
     </issue>
 
@@ -5959,7 +5915,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/home/settings/account/MyAccountScreen.kt"
-            line="117"
+            line="116"
             column="38"/>
     </issue>
 
@@ -6647,18 +6603,7 @@
 
     <issue
         id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [viewModel: GroupConversationDetailsViewModel = hiltViewModel(), lazyListState: LazyListState, onEditGuestAccess: () -> Unit, onEditSelfDeletingMessages: () -> Unit, onEditGroupName: () -> Unit] but should be [lazyListState: LazyListState, onEditGuestAccess: () -> Unit, onEditSelfDeletingMessages: () -> Unit, viewModel: GroupConversationDetailsViewModel = hiltViewModel(), onEditGroupName: () -> Unit].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun GroupConversationOptions("
-        errorLine2="                            ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/details/options/GroupConversationOptions.kt"
-            line="58"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [title: String, subtitle: String? = null, label: String? = null, trailingOnText: String? = null, titleTrailingItem: (@Composable () -> Unit)? = null, footer: (@Composable () -> Unit)? = null, switchState: SwitchState = SwitchState.None, titleStyle: TextStyle = MaterialTheme.wireTypography.body02, arrowType: ArrowType = ArrowType.CENTER_ALIGNED, clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ }), modifier: Modifier = Modifier&#xA;.fillMaxWidth()&#xA;.background(MaterialTheme.wireColorScheme.surface)&#xA;.clickable(clickable)&#xA;.defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight)] but should be [title: String, modifier: Modifier = Modifier&#xA;.fillMaxWidth()&#xA;.background(MaterialTheme.wireColorScheme.surface)&#xA;.clickable(clickable)&#xA;.defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight), subtitle: String? = null, label: String? = null, trailingOnText: String? = null, titleTrailingItem: (@Composable () -> Unit)? = null, footer: (@Composable () -> Unit)? = null, switchState: SwitchState = SwitchState.None, titleStyle: TextStyle = MaterialTheme.wireTypography.body02, arrowType: ArrowType = ArrowType.CENTER_ALIGNED, clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ })].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [title: String, clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ }), modifier: Modifier = Modifier&#xA;.fillMaxWidth()&#xA;.background(MaterialTheme.wireColorScheme.surface)&#xA;.clickable(clickable)&#xA;.defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight), subtitle: String? = null, label: String? = null, trailingOnText: String? = null, titleTrailingItem: (@Composable () -> Unit)? = null, footer: (@Composable () -> Unit)? = null, switchState: SwitchState = SwitchState.None, titleStyle: TextStyle = MaterialTheme.wireTypography.body02, arrowType: ArrowType = ArrowType.CENTER_ALIGNED] but should be [title: String, modifier: Modifier = Modifier&#xA;.fillMaxWidth()&#xA;.background(MaterialTheme.wireColorScheme.surface)&#xA;.clickable(clickable)&#xA;.defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight), clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ }), subtitle: String? = null, label: String? = null, trailingOnText: String? = null, titleTrailingItem: (@Composable () -> Unit)? = null, footer: (@Composable () -> Unit)? = null, switchState: SwitchState = SwitchState.None, titleStyle: TextStyle = MaterialTheme.wireTypography.body02, arrowType: ArrowType = ArrowType.CENTER_ALIGNED].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
         errorLine1="fun GroupConversationOptionsItem("
         errorLine2="                                ^">
         <location
@@ -7347,17 +7292,6 @@
             file="src/main/kotlin/com/wire/android/ui/common/WireLabelledCheckbox.kt"
             line="41"
             column="25"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [tabs: List&lt;TabItem>, selectedTabIndex: Int, onTabChange: (Int) -> Unit, containerColor: Color = MaterialTheme.colorScheme.background, divider: @Composable () -> Unit = @Composable { HorizontalDivider() }, upperCaseTitles: Boolean = true, modifier: Modifier = Modifier] but should be [tabs: List&lt;TabItem>, selectedTabIndex: Int, onTabChange: (Int) -> Unit, modifier: Modifier = Modifier, containerColor: Color = MaterialTheme.colorScheme.background, divider: @Composable () -> Unit = @Composable { HorizontalDivider() }, upperCaseTitles: Boolean = true].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun WireTabRow("
-        errorLine2="              ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/common/WireTabRow.kt"
-            line="45"
-            column="15"/>
     </issue>
 
     <issue

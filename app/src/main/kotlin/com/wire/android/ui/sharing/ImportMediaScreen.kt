@@ -191,7 +191,7 @@ fun ImportMediaRestrictedContent(
         WireScaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
-                    elevation = 0.dp,
+                    elevation = dimensions().spacing0x,
                     onNavigationPressed = navigateBack,
                     navigationIconType = NavigationIconType.Close,
                     title = stringResource(id = R.string.import_media_content_title),
@@ -234,7 +234,7 @@ fun ImportMediaRegularContent(
         WireScaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
-                    elevation = 0.dp,
+                    elevation = dimensions().spacing0x,
                     onNavigationPressed = navigateBack,
                     navigationIconType = NavigationIconType.Close,
                     title = stringResource(id = R.string.import_media_content_title),
@@ -287,7 +287,7 @@ fun ImportMediaLoggedOutContent(
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = 0.dp,
+                elevation = dimensions().spacing0x,
                 onNavigationPressed = navigateBack,
                 navigationIconType = NavigationIconType.Close,
                 title = stringResource(id = R.string.import_media_content_title),

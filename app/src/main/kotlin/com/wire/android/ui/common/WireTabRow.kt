@@ -46,10 +46,10 @@ fun WireTabRow(
     tabs: List<TabItem>,
     selectedTabIndex: Int,
     onTabChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.background,
     divider: @Composable () -> Unit = @Composable { HorizontalDivider() },
-    upperCaseTitles: Boolean = true,
-    modifier: Modifier = Modifier
+    upperCaseTitles: Boolean = true
 ) {
     TabRow(
         containerColor = containerColor,

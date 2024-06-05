@@ -25,7 +25,7 @@ resaca = "2.4.6"
 bundlizer = "0.8.0"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
-kover = "0.7.6"
+kover = "0.8.0"
 
 # AndroidX
 androidx-appcompat = "1.6.1"

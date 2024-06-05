@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.details.options
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,9 +48,16 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
+@SuppressLint("ComposeParameterOrder")
 @Composable
 fun GroupConversationOptionsItem(
     title: String,
+    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ }),
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .background(MaterialTheme.wireColorScheme.surface)
+        .clickable(clickable)
+        .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight),
     subtitle: String? = null,
     label: String? = null,
     trailingOnText: String? = null,
@@ -58,12 +66,6 @@ fun GroupConversationOptionsItem(
     switchState: SwitchState = SwitchState.None,
     titleStyle: TextStyle = MaterialTheme.wireTypography.body02,
     arrowType: ArrowType = ArrowType.CENTER_ALIGNED,
-    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ }),
-    modifier: Modifier = Modifier
-        .fillMaxWidth()
-        .background(MaterialTheme.wireColorScheme.surface)
-        .clickable(clickable)
-        .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight)
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

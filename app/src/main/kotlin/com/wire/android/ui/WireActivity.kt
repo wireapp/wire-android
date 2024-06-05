@@ -41,10 +41,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -58,6 +60,8 @@ import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
+import com.wire.android.feature.analytics.globalAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LocalNavigator
 import com.wire.android.navigation.NavigationCommand
@@ -277,6 +281,25 @@ class WireActivity : AppCompatActivity() {
             onDispose {
                 navController.removeOnDestinationChangedListener(updateScreenSettingsListener)
                 navController.removeOnDestinationChangedListener(currentScreenManager)
+            }
+        }
+
+        val lifecycleOwner = LocalLifecycleOwner.current
+        val activity = LocalContext.current as Activity
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_START) {
+                    globalAnalyticsManager.onStart(activity = activity)
+                    globalAnalyticsManager.sendEvent(AnalyticsEvent.AppOpen())
+                }
+                if (event == Lifecycle.Event.ON_STOP) {
+                    globalAnalyticsManager.onStop()
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
             }
         }
     }

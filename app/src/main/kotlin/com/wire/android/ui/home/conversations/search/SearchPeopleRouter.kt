@@ -86,7 +86,8 @@ fun SearchUsersAndServicesScreen(
     val initialPageIndex = SearchPeopleTabItem.PEOPLE.ordinal
     val pagerState = rememberPagerState(
         initialPage = initialPageIndex,
-        pageCount = { if (isServicesAllowed) SearchPeopleTabItem.entries.size else 1 })
+        pageCount = { if (isServicesAllowed) SearchPeopleTabItem.entries.size else 1 }
+    )
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
 
     CollapsingTopBarScaffold(

@@ -101,7 +101,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
 
-    fun init() {
+    init {
         viewModelScope.launch {
             loadUserAvatar()
             observeConversationWithSearch()

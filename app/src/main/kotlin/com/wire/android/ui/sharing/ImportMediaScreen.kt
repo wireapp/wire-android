@@ -72,6 +72,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.AssetTooLargeDialog
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -108,67 +109,25 @@ import okio.Path.Companion.toPath
 fun ImportMediaScreen(
     navigator: Navigator,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
-    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel(),
-    importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel(),
 ) {
     when (val fileSharingRestrictedState =
         featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState) {
         FeatureFlagState.SharingRestrictedState.NO_USER -> {
             ImportMediaLoggedOutContent(
                 fileSharingRestrictedState = fileSharingRestrictedState,
-                navigateBack = navigator.finish
-            )
-        }
-
-        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM -> {
-            ImportMediaRestrictedContent(
-                importMediaAuthenticatedState = importMediaViewModel.importMediaState,
-                navigateBack = navigator.finish
-            )
-        }
-
-        FeatureFlagState.SharingRestrictedState.NONE -> {
-            ImportMediaRegularContent(
-                importMediaAuthenticatedState = importMediaViewModel.importMediaState,
-                searchQueryTextState = importMediaViewModel.searchQueryTextState,
-                onConversationClicked = importMediaViewModel::onConversationClicked,
-                checkRestrictionsAndSendImportedMedia = {
-                    importMediaViewModel.importMediaState.selectedConversationItem.firstOrNull()?.let { conversationItem ->
-                        checkAssetRestrictionsViewModel.checkRestrictions(
-                            importedMediaList = importMediaViewModel.importMediaState.importedAssets,
-                            onSuccess = {
-                                navigator.navigate(
-                                    NavigationCommand(
-                                        ConversationScreenDestination(
-                                            ConversationNavArgs(
-                                                conversationId = conversationItem.conversationId,
-                                                pendingBundles = ArrayList(it)
-                                            )
-                                        ),
-                                        BackStackMode.UPDATE_EXISTED
-                                    ),
-                                )
-                            }
-                        )
-                    }
-                },
-                onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
-                infoMessage = importMediaViewModel.infoMessage,
                 navigateBack = navigator.finish,
-                onRemoveAsset = importMediaViewModel::onRemove
-            )
-            AssetTooLargeDialog(
-                dialogState = checkAssetRestrictionsViewModel.assetTooLargeDialogState,
-                hideDialog = checkAssetRestrictionsViewModel::hideDialog
-            )
-
-            val context = LocalContext.current
-            LaunchedEffect(importMediaViewModel.importMediaState.importedAssets) {
-                if (importMediaViewModel.importMediaState.importedAssets.isEmpty()) {
-                    context.getActivity()
-                        ?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
+                openWireAction = {
+                    navigator.navigate(NavigationCommand(WelcomeScreenDestination, BackStackMode.CLEAR_WHOLE))
                 }
-            }
+            )
+        }
+
+        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
+        FeatureFlagState.SharingRestrictedState.NONE -> {
+            ImportMediaAuthenticatedContent(
+                navigator = navigator,
+                isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
+            )
         }
 
         null -> {
@@ -177,6 +136,63 @@ fun ImportMediaScreen(
     }
 
     BackHandler { navigator.finish() }
+}
+
+@Composable
+private fun ImportMediaAuthenticatedContent(
+    navigator: Navigator,
+    isRestrictedInTeam: Boolean,
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel(),
+    importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel(),
+) {
+    if (isRestrictedInTeam) {
+        ImportMediaRestrictedContent(
+            importMediaAuthenticatedState = importMediaViewModel.importMediaState,
+            navigateBack = navigator.finish
+        )
+    } else {
+        ImportMediaRegularContent(
+            importMediaAuthenticatedState = importMediaViewModel.importMediaState,
+            searchQueryTextState = importMediaViewModel.searchQueryTextState,
+            onConversationClicked = importMediaViewModel::onConversationClicked,
+            checkRestrictionsAndSendImportedMedia = {
+                importMediaViewModel.importMediaState.selectedConversationItem.firstOrNull()?.let { conversationItem ->
+                    checkAssetRestrictionsViewModel.checkRestrictions(
+                        importedMediaList = importMediaViewModel.importMediaState.importedAssets,
+                        onSuccess = {
+                            navigator.navigate(
+                                NavigationCommand(
+                                    ConversationScreenDestination(
+                                        ConversationNavArgs(
+                                            conversationId = conversationItem.conversationId,
+                                            pendingBundles = ArrayList(it)
+                                        )
+                                    ),
+                                    BackStackMode.UPDATE_EXISTED
+                                ),
+                            )
+                        }
+                    )
+                }
+            },
+            onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
+            infoMessage = importMediaViewModel.infoMessage,
+            navigateBack = navigator.finish,
+            onRemoveAsset = importMediaViewModel::onRemove
+        )
+        AssetTooLargeDialog(
+            dialogState = checkAssetRestrictionsViewModel.assetTooLargeDialogState,
+            hideDialog = checkAssetRestrictionsViewModel::hideDialog
+        )
+
+        val context = LocalContext.current
+        LaunchedEffect(importMediaViewModel.importMediaState.importedAssets) {
+            if (importMediaViewModel.importMediaState.importedAssets.isEmpty()) {
+                context.getActivity()
+                    ?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
+            }
+        }
+    }
 }
 
 @Composable
@@ -189,7 +205,7 @@ fun ImportMediaRestrictedContent(
         WireScaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
-                    elevation = 0.dp,
+                    elevation = dimensions().spacing0x,
                     onNavigationPressed = navigateBack,
                     navigationIconType = NavigationIconType.Close,
                     title = stringResource(id = R.string.import_media_content_title),
@@ -232,7 +248,7 @@ fun ImportMediaRegularContent(
         WireScaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
-                    elevation = 0.dp,
+                    elevation = dimensions().spacing0x,
                     onNavigationPressed = navigateBack,
                     navigationIconType = NavigationIconType.Close,
                     title = stringResource(id = R.string.import_media_content_title),
@@ -280,12 +296,13 @@ fun ImportMediaRegularContent(
 fun ImportMediaLoggedOutContent(
     fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
     navigateBack: () -> Unit,
+    openWireAction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = 0.dp,
+                elevation = dimensions().spacing0x,
                 onNavigationPressed = navigateBack,
                 navigationIconType = NavigationIconType.Close,
                 title = stringResource(id = R.string.import_media_content_title),
@@ -294,9 +311,9 @@ fun ImportMediaLoggedOutContent(
         modifier = modifier.background(colorsScheme().background),
         content = { internalPadding ->
             FileSharingRestrictedContent(
-                internalPadding,
-                fileSharingRestrictedState,
-                navigateBack
+                internalPadding = internalPadding,
+                sharingRestrictedState = fileSharingRestrictedState,
+                openWireAction = openWireAction
             )
         }
     )
@@ -523,7 +540,11 @@ private fun SnackBarMessage(
 @Composable
 fun PreviewImportMediaScreenLoggedOut() {
     WireTheme {
-        ImportMediaLoggedOutContent(FeatureFlagState.SharingRestrictedState.NO_USER, {})
+        ImportMediaLoggedOutContent(
+            fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER,
+            navigateBack = {},
+            openWireAction = {},
+        )
     }
 }
 
@@ -533,7 +554,7 @@ fun PreviewImportMediaScreenRestricted() {
     WireTheme {
         ImportMediaRestrictedContent(
             importMediaAuthenticatedState = ImportMediaAuthenticatedState(),
-            {}
+            navigateBack = {}
         )
     }
 }
@@ -606,6 +627,10 @@ fun PreviewImportMediaScreenRegular() {
 @Composable
 fun PreviewImportMediaBottomBar() {
     WireTheme {
-        ImportMediaBottomBar(ImportMediaAuthenticatedState(), rememberImportMediaScreenState()) {}
+        ImportMediaBottomBar(
+            state = ImportMediaAuthenticatedState(),
+            importMediaScreenState = rememberImportMediaScreenState(),
+            checkRestrictionsAndSendImportedMedia = {},
+        )
     }
 }

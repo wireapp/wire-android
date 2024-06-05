@@ -187,7 +187,7 @@
     <string name="report_bug_screen_title">Segnala un Problema</string>
     <string name="about_app_screen_title">About This App</string>
     <string name="settings_privacy_policy_label">Privacy Policy</string>
-    <string name="settings_terms_of_use_label">Terms of Use</string>
+    <string name="settings_terms_of_use_label">Legal</string>
     <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Impostazioni di Debug</string>
     <string name="item_dependencies_title">Dependencies:</string>

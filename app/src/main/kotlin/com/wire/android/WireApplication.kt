@@ -29,6 +29,9 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
+import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
+import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.getGitBuildId
@@ -147,6 +150,25 @@ class WireApplication : Application(), Configuration.Provider {
         // 4. Everything ready, now we can log device info
         appLogger.i("Logger enabled")
         logDeviceInformation()
+        // 5. Verify if we can initialize Anonymous Analytics
+        initializeAnonymousAnalytics()
+    }
+
+    private fun initializeAnonymousAnalytics() {
+        val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl()
+        val analyticsSettings = AnalyticsSettings(
+            countlyAppKey = BuildConfig.ANALYTICS_APP_KEY,
+            countlyServerUrl = BuildConfig.ANALYTICS_SERVER_URL,
+            enableDebugLogging = BuildConfig.DEBUG
+        )
+
+        AnonymousAnalyticsManagerImpl.init(
+            context = this,
+            analyticsSettings = analyticsSettings,
+            isEnabledFlowProvider = globalDataStore.get()::isAnonymousUsageDataEnabled,
+            anonymousAnalyticsRecorder = anonymousAnalyticsRecorder,
+            dispatcher = Dispatchers.IO
+        )
     }
 
     private fun logDeviceInformation() {

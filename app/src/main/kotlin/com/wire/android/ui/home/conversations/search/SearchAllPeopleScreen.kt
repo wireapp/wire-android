@@ -60,7 +60,6 @@ private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 @Composable
 fun SearchAllPeopleScreen(
     searchQuery: String,
-    noneSearchSucceed: Boolean,
     contactsSearchResult: ImmutableList<Contact>,
     publicSearchResult: ImmutableList<Contact>,
     contactsAddedToGroup: ImmutableSet<Contact>,
@@ -74,24 +73,18 @@ fun SearchAllPeopleScreen(
     if (contactsSearchResult.isEmpty() && publicSearchResult.isEmpty()) {
         EmptySearchQueryScreen()
     } else {
-        if (noneSearchSucceed) {
-            SearchFailureBox(R.string.label_no_results_found)
-        } else {
-            Column {
-                SearchResult(
-                    searchQuery = searchQuery,
-                    publicSearchResult = publicSearchResult,
-                    contactsSearchResult = contactsSearchResult,
-                    contactsAddedToGroup = contactsAddedToGroup,
-                    onChecked = onChecked,
-                    onOpenUserProfile = onOpenUserProfile,
-                    lazyListState = lazyListState,
-                    isSearchActive = isSearchActive,
-                    isLoading = isLoading,
-                    actionType = actionType,
-                )
-            }
-        }
+        SearchResult(
+            searchQuery = searchQuery,
+            publicSearchResult = publicSearchResult,
+            contactsSearchResult = contactsSearchResult,
+            contactsAddedToGroup = contactsAddedToGroup,
+            onChecked = onChecked,
+            onOpenUserProfile = onOpenUserProfile,
+            lazyListState = lazyListState,
+            isSearchActive = isSearchActive,
+            isLoading = isLoading,
+            actionType = actionType,
+        )
     }
 }
 

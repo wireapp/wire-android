@@ -19,7 +19,6 @@
 package com.wire.android.ui.common.topappbar.search
 
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -31,6 +30,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
@@ -45,7 +47,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -55,7 +56,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
 import com.wire.android.ui.common.SearchBarInput
@@ -64,15 +64,13 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchTopBar(
-    modifier: Modifier = Modifier,
     isSearchActive: Boolean,
     searchBarHint: String,
-    searchQuery: TextFieldValue = TextFieldValue(""),
+    searchQueryTextState: TextFieldState,
+    modifier: Modifier = Modifier,
     isLoading: Boolean = false,
-    onSearchQueryChanged: (TextFieldValue) -> Unit,
     onCloseSearchClicked: (() -> Unit)? = null,
     onActiveChanged: (isActive: Boolean) -> Unit = {},
     bottomContent: @Composable ColumnScope.() -> Unit = {}
@@ -95,7 +93,7 @@ fun SearchTopBar(
             } else {
                 focusManager.clearFocus()
                 keyboardController?.hide()
-                onSearchQueryChanged(TextFieldValue(""))
+                searchQueryTextState.clearText()
             }
         }
 
@@ -109,8 +107,7 @@ fun SearchTopBar(
 
         SearchBarInput(
             placeholderText = searchBarHint,
-            text = searchQuery,
-            onTextTyped = onSearchQueryChanged,
+            textState = searchQueryTextState,
             isLoading = isLoading,
             leadingIcon = {
                 AnimatedContent(!isSearchActive, label = "") { isVisible ->
@@ -152,14 +149,13 @@ fun SearchTopBar(
     }
 }
 
-@SuppressLint("UnrememberedMutableState")
 @Composable
 private fun animateHorizontalAlignmentAsState(
     targetAlignment: Alignment,
 ): State<BiasAlignment.Horizontal> {
     val biased = targetAlignment as BiasAlignment
     val bias by animateFloatAsState(biased.horizontalBias, label = "AnimateHorizontalAlignment")
-    return derivedStateOf { BiasAlignment.Horizontal(bias) }
+    return remember { derivedStateOf { BiasAlignment.Horizontal(bias) } }
 }
 
 @PreviewMultipleThemes
@@ -169,8 +165,7 @@ fun PreviewSearchTopBarActive() {
         SearchTopBar(
             isSearchActive = true,
             searchBarHint = "Search",
-            searchQuery = TextFieldValue(""),
-            onSearchQueryChanged = {},
+            searchQueryTextState = rememberTextFieldState(),
             onActiveChanged = {},
         )
     }
@@ -183,8 +178,7 @@ fun PreviewSearchTopBarInactive() {
         SearchTopBar(
             isSearchActive = false,
             searchBarHint = "Search",
-            searchQuery = TextFieldValue(""),
-            onSearchQueryChanged = {},
+            searchQueryTextState = rememberTextFieldState(),
             onActiveChanged = {},
         )
     }

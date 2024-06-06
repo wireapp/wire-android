@@ -200,6 +200,7 @@ fun HomeContent(
     homeStateHolder: HomeStateHolder,
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     with(homeStateHolder) {
@@ -221,6 +222,7 @@ fun HomeContent(
         }
 
         ModalNavigationDrawer(
+            modifier = modifier,
             drawerState = drawerState,
             drawerContent = {
                 BoxWithConstraints {
@@ -265,8 +267,7 @@ fun HomeContent(
                             SearchTopBar(
                                 isSearchActive = searchBarState.isSearchActive,
                                 searchBarHint = stringResource(R.string.search_bar_conversations_hint),
-                                searchQuery = searchBarState.searchQuery,
-                                onSearchQueryChanged = searchBarState::searchQueryChanged,
+                                searchQueryTextState = searchBarState.searchQueryTextState,
                                 onActiveChanged = searchBarState::searchActiveChanged,
                             )
                         }

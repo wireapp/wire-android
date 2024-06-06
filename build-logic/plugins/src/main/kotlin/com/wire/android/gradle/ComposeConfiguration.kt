@@ -22,7 +22,7 @@ import findVersion
 import org.gradle.api.Project
 
 internal fun Project.configureCompose(
-    commonExtension: CommonExtension<*, *, *, *, *>, // Add another `*` when upgrading AGP to 8.3
+    commonExtension: CommonExtension<*, *, *, *, *, *>,
 ): Unit = with(commonExtension) {
     buildFeatures {
         compose = true

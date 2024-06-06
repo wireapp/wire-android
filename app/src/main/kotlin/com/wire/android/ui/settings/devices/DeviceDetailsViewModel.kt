@@ -119,7 +119,7 @@ class DeviceDetailsViewModel @Inject constructor(
                     isE2eiCertificateActivated = true,
                     e2eiCertificate = certificate.certificate,
                     isLoadingCertificate = false,
-                    device = state.device.updateE2EICertificateStatus(certificate.certificate.status)
+                    device = state.device.updateE2EICertificate(certificate.certificate)
                 )
             } else {
                 state.copy(isE2eiCertificateActivated = false, isLoadingCertificate = false)

@@ -90,11 +90,8 @@ import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
-<<<<<<< HEAD
-=======
 import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
->>>>>>> 94be0392e (fix: OtherUser devices: wrong MLS data [WPB-8908] (#3040))
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.functional.Either
 import kotlinx.datetime.Instant
@@ -132,10 +129,7 @@ fun DeviceDetailsScreen(
     }
 }
 
-<<<<<<< HEAD
-=======
 @Suppress("ComplexMethod")
->>>>>>> 94be0392e (fix: OtherUser devices: wrong MLS data [WPB-8908] (#3040))
 @Composable
 fun DeviceDetailsContent(
     state: DeviceDetailsState,
@@ -197,13 +191,8 @@ fun DeviceDetailsContent(
 
             state.device.e2eiCertificate?.let { certificate ->
                 item {
-<<<<<<< HEAD
-                    DeviceMLSSignatureItem(mlsThumbprint, mlsProtocolType, screenState::copyMessage)
-                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
-=======
                     DeviceMLSSignatureItem(certificate.thumbprint, screenState::copyMessage)
-                    Divider(color = MaterialTheme.wireColorScheme.background)
->>>>>>> 94be0392e (fix: OtherUser devices: wrong MLS data [WPB-8908] (#3040))
+                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
 

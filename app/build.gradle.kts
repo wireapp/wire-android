@@ -46,12 +46,9 @@ repositories {
     google()
 }
 
-<<<<<<< HEAD
-fun isFossSourceSet(): Boolean {
-    return (Variants_gradle.Default.explicitBuildFlavor() ?: gradle.startParameter.taskRequests.toString())
-        .lowercase()
-        .contains("fdroid")
-}
+val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
+val fossFlavors = setOf("fdroid")
+val allFlavors = nonFreeFlavors + fossFlavors
 
 private fun getFlavorsSettings(): NormalizedFlavorSettings =
     try {
@@ -61,11 +58,6 @@ private fun getFlavorsSettings(): NormalizedFlavorSettings =
     } catch (e: Exception) {
         error(">> Error reading current flavors, exception: ${e.localizedMessage}")
     }
-=======
-val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
-val fossFlavors = setOf("fdroid")
-val allFlavors = nonFreeFlavors + fossFlavors
->>>>>>> bc1a1848a (chore: solve foss source sets and dependencies statically (#3082))
 
 android {
     // Most of the configuration is done in the build-logic

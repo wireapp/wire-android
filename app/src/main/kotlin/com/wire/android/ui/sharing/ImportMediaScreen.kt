@@ -168,7 +168,7 @@ private fun ImportMediaAuthenticatedContent(
                                             pendingBundles = ArrayList(it)
                                         )
                                     ),
-                                    BackStackMode.UPDATE_EXISTED
+                                    BackStackMode.REMOVE_CURRENT_AND_REPLACE
                                 ),
                             )
                         }

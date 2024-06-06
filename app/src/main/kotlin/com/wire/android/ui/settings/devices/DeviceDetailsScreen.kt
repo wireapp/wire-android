@@ -90,8 +90,11 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.feature.e2ei.CertificateStatus
+import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.functional.Either
+import kotlinx.datetime.Instant
 
 @RootNavGraph
 @Destination(
@@ -126,6 +129,7 @@ fun DeviceDetailsScreen(
     }
 }
 
+@Suppress("ComplexMethod")
 @Composable
 fun DeviceDetailsContent(
     state: DeviceDetailsState,
@@ -187,9 +191,9 @@ fun DeviceDetailsContent(
                 .background(MaterialTheme.wireColorScheme.surface)
         ) {
 
-            state.device.mlsPublicKeys?.forEach { (mlsProtocolType, mlsThumbprint) ->
+            state.device.e2eiCertificate?.let { certificate ->
                 item {
-                    DeviceMLSSignatureItem(mlsThumbprint, mlsProtocolType, screenState::copyMessage)
+                    DeviceMLSSignatureItem(certificate.thumbprint, screenState::copyMessage)
                     HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
@@ -323,7 +327,7 @@ private fun DeviceDetailsTopBar(
                 )
 
                 if (shouldShowE2EIInfo) {
-                    MLSVerificationIcon(device.e2eiCertificateStatus)
+                    MLSVerificationIcon(device.e2eiCertificate?.status)
                 }
 
                 if (!isCurrentDevice && device.isVerifiedProteus) {
@@ -373,6 +377,7 @@ fun DeviceKeyFingerprintItem(
 @Composable
 fun DeviceMLSSignatureItem(
     mlsThumbprint: String,
+<<<<<<< HEAD
     mlsProtocolType: String,
     onCopy: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -384,6 +389,10 @@ fun DeviceMLSSignatureItem(
             .background(MaterialTheme.wireColorScheme.background)
             .fillMaxWidth()
     )
+=======
+    onCopy: (String) -> Unit
+) {
+>>>>>>> c1f5a1b63 (fix: OtherUser devices: wrong MLS data [WPB-8908] 🍒 (#3075))
 
     DeviceDetailSectionContent(
         stringResource(id = R.string.label_mls_thumbprint),
@@ -587,7 +596,14 @@ fun PreviewDeviceDetailsScreen() = WireTheme {
                 clientId = ClientId(""),
                 name = UIText.DynamicString("My Device"),
                 registrationTime = "2022-03-24T18:02:30.360Z",
-                mlsPublicKeys = mapOf("Ed25519" to "lekvmrlkgvnrelkmvrlgkvlknrgb0348gi34t09gj34v034ithjoievw")
+                e2eiCertificate = E2eiCertificate(
+                    "handler",
+                    CertificateStatus.VALID,
+                    "serial",
+                    "Details",
+                    "Thumbprint",
+                    Instant.DISTANT_FUTURE
+                )
             ),
             isCurrentDevice = false
         ),

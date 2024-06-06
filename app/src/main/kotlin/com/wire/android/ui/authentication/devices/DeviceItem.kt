@@ -186,9 +186,12 @@ private fun DeviceItemTexts(
                 MLSVerificationIcon(device.e2eiCertificate?.status)
             }
             Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing8x))
-            if (device.isVerifiedProteus && !isCurrentClient) ProteusVerifiedIcon(
-                Modifier.wrapContentWidth().align(Alignment.CenterVertically)
-            )
+            if (device.isVerifiedProteus && !isCurrentClient) {
+                ProteusVerifiedIcon(
+                    Modifier
+                        .wrapContentWidth()
+                        .align(Alignment.CenterVertically))
+            }
         }
     }
 

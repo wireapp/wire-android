@@ -184,13 +184,17 @@ class WireActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        setIntent(intent)
         if (isNavigationCollecting) {
-            // when true then navigationCommands is subscribed and can handle navigation commands
+            /*
+             * - When true then navigationCommands is subscribed and can handle navigation commands right away.
+             * - When false then navigationCommands needs to be subscribed again to be able to receive and handle navigation commands.
+             *
+             * Activity intent is updated anyway using setIntent(intent) so that we always keep the latest intent received, so when
+             * isNavigationCollecting is false then we handle it after navigationCommands is subscribed again and onComplete called again.
+             * We make sure to handle particular intent only once thanks to the flag HANDLED_DEEPLINK_FLAG put into the handled intent.
+            */
             handleDeepLink(intent)
-        } else {
-            // when false then navigationCommands needs to be subscribed again to be able to receive and handle navigation commands
-            // Activity intent is updated to handle deep link after navigationCommands is subscribed again and onComplete called again
-            setIntent(intent)
         }
     }
 

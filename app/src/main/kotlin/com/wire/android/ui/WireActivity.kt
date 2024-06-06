@@ -193,7 +193,7 @@ class WireActivity : AppCompatActivity() {
              * Activity intent is updated anyway using setIntent(intent) so that we always keep the latest intent received, so when
              * isNavigationCollecting is false then we handle it after navigationCommands is subscribed again and onComplete called again.
              * We make sure to handle particular intent only once thanks to the flag HANDLED_DEEPLINK_FLAG put into the handled intent.
-            */
+             */
             handleDeepLink(intent)
         }
     }

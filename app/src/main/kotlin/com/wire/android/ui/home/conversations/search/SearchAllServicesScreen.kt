@@ -48,12 +48,12 @@ fun SearchAllServicesScreen(
     searchServicesViewModel: SearchServicesViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(key1 = searchQuery) {
-        searchServicesViewModel.search(searchQuery)
+        searchServicesViewModel.searchQueryChanged(searchQuery)
     }
 
     val lazyState = rememberLazyListState()
     SearchAllServicesContent(
-        searchQuery = searchQuery,
+        searchQuery = searchServicesViewModel.state.searchQuery,
         onServiceClicked = onServiceClicked,
         result = searchServicesViewModel.state.result,
         lazyListState = lazyState,

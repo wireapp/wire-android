@@ -32,6 +32,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -43,7 +45,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -152,7 +153,7 @@ private fun ImportMediaAuthenticatedContent(
     } else {
         ImportMediaRegularContent(
             importMediaAuthenticatedState = importMediaViewModel.importMediaState,
-            onSearchQueryChanged = importMediaViewModel::onSearchQueryChanged,
+            searchQueryTextState = importMediaViewModel.searchQueryTextState,
             onConversationClicked = importMediaViewModel::onConversationClicked,
             checkRestrictionsAndSendImportedMedia = {
                 importMediaViewModel.importMediaState.selectedConversationItem.firstOrNull()?.let { conversationItem ->
@@ -231,7 +232,7 @@ fun ImportMediaRestrictedContent(
 @Composable
 fun ImportMediaRegularContent(
     importMediaAuthenticatedState: ImportMediaAuthenticatedState,
-    onSearchQueryChanged: (searchQuery: TextFieldValue) -> Unit,
+    searchQueryTextState: TextFieldState,
     onConversationClicked: (conversationId: ConversationId) -> Unit,
     checkRestrictionsAndSendImportedMedia: () -> Unit,
     onNewSelfDeletionTimerPicked: (selfDeletionDuration: SelfDeletionDuration) -> Unit,
@@ -264,7 +265,7 @@ fun ImportMediaRegularContent(
                 ImportMediaContent(
                     state = this,
                     internalPadding = internalPadding,
-                    onSearchQueryChanged = onSearchQueryChanged,
+                    searchQueryTextState = searchQueryTextState,
                     onConversationClicked = onConversationClicked,
                     searchBarState = importMediaScreenState.searchBarState,
                     onRemoveAsset = onRemoveAsset
@@ -399,7 +400,7 @@ private fun ImportMediaBottomBar(
 private fun ImportMediaContent(
     state: ImportMediaAuthenticatedState,
     internalPadding: PaddingValues,
-    onSearchQueryChanged: (searchQuery: TextFieldValue) -> Unit,
+    searchQueryTextState: TextFieldState,
     onConversationClicked: (conversationId: ConversationId) -> Unit,
     onRemoveAsset: (index: Int) -> Unit,
     searchBarState: SearchBarState
@@ -496,11 +497,7 @@ private fun ImportMediaContent(
                     R.string.search_bar_conversations_hint,
                     stringResource(id = R.string.conversations_screen_title).lowercase()
                 ),
-                searchQuery = searchBarState.searchQuery,
-                onSearchQueryChanged = {
-                    onSearchQueryChanged(it)
-                    searchBarState.searchQueryChanged(it)
-                },
+                searchQueryTextState = searchQueryTextState,
                 onActiveChanged = searchBarState::searchActiveChanged,
             )
         }
@@ -513,7 +510,7 @@ private fun ImportMediaContent(
             conversationsAddedToGroup = state.selectedConversationItem,
             isSelectableList = true,
             onConversationSelectedOnRadioGroup = onConversationClicked,
-            searchQuery = searchBarState.searchQuery.text,
+            searchQuery = state.shareableConversationListState.searchQuery,
             onOpenConversation = onConversationClicked,
             onEditConversation = {},
             onOpenUserProfile = {},
@@ -615,7 +612,7 @@ fun PreviewImportMediaScreenRegular() {
                     )
                 ),
             ),
-            onSearchQueryChanged = {},
+            searchQueryTextState = rememberTextFieldState(),
             onConversationClicked = {},
             checkRestrictionsAndSendImportedMedia = {},
             onNewSelfDeletionTimerPicked = {},

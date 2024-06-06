@@ -98,7 +98,8 @@ fun ConversationMediaScreen(
                         conversationId = conversationId,
                         messageId = messageId,
                         isSelfAsset = isSelfAsset,
-                        isEphemeral = false
+                        isEphemeral = false,
+                        messageOptionsEnabled = false
                     )
                 )
             )
@@ -135,10 +136,10 @@ fun ConversationMediaScreen(
 @Composable
 private fun Content(
     state: ConversationAssetMessagesViewState,
-    onNavigationPressed: () -> Unit = {},
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
     onAudioItemClicked: (String) -> Unit,
+    onNavigationPressed: () -> Unit = {},
+    audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
     onAssetItemClicked: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -211,7 +212,7 @@ enum class ConversationMediaScreenTabItem(@StringRes val titleResId: Int) : TabI
 
 @PreviewMultipleThemes
 @Composable
-fun previewConversationMediaScreenEmptyContent() {
+fun PreviewConversationMediaScreenEmptyContent() {
     WireTheme {
         Content(
             state = ConversationAssetMessagesViewState(),

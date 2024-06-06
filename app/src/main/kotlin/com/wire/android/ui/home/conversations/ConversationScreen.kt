@@ -125,7 +125,7 @@ import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
-import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
+import com.wire.android.ui.home.conversations.edit.editMessageMenuItems
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
@@ -399,7 +399,8 @@ fun ConversationScreen(
                             conversationId = conversationId,
                             messageId = message.header.messageId,
                             isSelfAsset = isSelfMessage,
-                            isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable
+                            isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
+                            messageOptionsEnabled = true
                         )
                     )
                 )
@@ -751,8 +752,9 @@ private fun ConversationScreen(
 
     val menuItems = when (val menuType = conversationScreenState.bottomSheetMenuType) {
         is ConversationScreenState.BottomSheetMenuType.Edit -> {
-            EditMessageMenuItems(
+            editMessageMenuItems(
                 message = menuType.selectedMessage,
+                messageOptionsEnabled = true,
                 hideEditMessageMenu = conversationScreenState::hideContextMenu,
                 onCopyClick = conversationScreenState::copyMessage,
                 onDeleteClick = onDeleteMessage,

@@ -79,3 +79,12 @@ jobs:
           packageName: com.wire
           releaseFiles: app/build/outputs/bundle/prodCompatRelease/*.aab
           track: alpha
+      - name: Deploy ProdCompatRelease to S3
+        uses: ./.github/actions/deploy-to-s3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          build-flavour: prod
+          build-variant: compatrelease

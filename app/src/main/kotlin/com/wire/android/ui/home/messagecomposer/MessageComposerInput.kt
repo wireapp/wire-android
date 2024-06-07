@@ -182,7 +182,8 @@ private fun InputContent(
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()
         val buttonsTopBarrier = createTopBarrier(additionalOptionButton, actions)
-        Box(contentAlignment = Alignment.BottomStart,
+        Box(
+            contentAlignment = Alignment.BottomStart,
             modifier = Modifier.constrainAs(additionalOptionButton) {
                 start.linkTo(parent.start)
                 bottom.linkTo(parent.bottom)
@@ -227,7 +228,8 @@ private fun InputContent(
                 }
         )
 
-        Box(contentAlignment = Alignment.BottomEnd,
+        Box(
+            contentAlignment = Alignment.BottomEnd,
             modifier = Modifier
                 .constrainAs(actions) {
                     end.linkTo(parent.end)
@@ -431,4 +433,3 @@ fun PreviewActiveMessageComposerInputExpanded() = WireTheme {
         isTextExpanded = true
     )
 }
-

@@ -51,7 +51,6 @@ import com.wire.android.R
 import com.wire.android.ui.common.TextWithLearnMore
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
-import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.MessageComposerViewState

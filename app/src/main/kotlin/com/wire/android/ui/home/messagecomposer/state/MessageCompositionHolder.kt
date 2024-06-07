@@ -50,6 +50,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
  * Class responsible for orchestrating the state of the message that the user is composing.
  *  A single entry point to update the state of the message.
  */
+@Suppress("TooManyFunctions")
 class MessageCompositionHolder(
     val messageComposition: MutableState<MessageComposition>,
     val messageTextState: TextFieldState,

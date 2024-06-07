@@ -252,7 +252,10 @@ fun ConversationScreen(
             messageComposerStateHolder.toEdit(
                 messageId = compositionState.editMessageId,
                 editMessageText = messageDraftViewModel.state.value.draftText,
-                mentions = compositionState.selectedMentions.map { it.intoMessageMention() })
+                mentions = compositionState.selectedMentions.map {
+                    it.intoMessageMention()
+                }
+            )
         }
     }
 

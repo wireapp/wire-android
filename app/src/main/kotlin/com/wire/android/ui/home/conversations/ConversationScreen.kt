@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -150,12 +151,14 @@ import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.MessageDateTimeGroup
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.serverDate
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.openDownloadFolder
 import com.wire.kalium.logic.NetworkFailure
@@ -223,8 +226,11 @@ fun ConversationScreen(
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
         modalBottomSheetState = conversationScreenState.modalBottomSheetState,
-        messageComposition = messageDraftViewModel.state,
-        onSaveDraft = messageComposerViewModel::saveDraft
+        draftMessageComposition = messageDraftViewModel.state.value,
+        onSaveDraft = messageComposerViewModel::saveDraft,
+        onSearchMentionQueryChanged = messageComposerViewModel::searchMembersToMention,
+        onTypingEvent = messageComposerViewModel::sendTypingEvent,
+        onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult
     )
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -247,7 +253,7 @@ fun ConversationScreen(
         if (compositionState.editMessageId != null) {
             messageComposerStateHolder.toEdit(
                 messageId = compositionState.editMessageId,
-                editMessageText = compositionState.messageText,
+                editMessageText = messageDraftViewModel.state.value.draftText,
                 mentions = compositionState.selectedMentions.map { it.intoMessageMention() })
         }
     }
@@ -465,7 +471,6 @@ fun ConversationScreen(
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri,
         onFailedMessageRetryClicked = sendMessageViewModel::retrySendingMessage,
-        requestMentions = messageComposerViewModel::searchMembersToMention,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
         onPermissionPermanentlyDenied = {
             val description = when (it) {
@@ -516,7 +521,6 @@ fun ConversationScreen(
                 }
             }
         },
-        onTypingEvent = messageComposerViewModel::sendTypingEvent,
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
@@ -731,13 +735,11 @@ private fun ConversationScreen(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
-    requestMentions: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     conversationScreenState: ConversationScreenState,
     messageComposerStateHolder: MessageComposerStateHolder,
     onLinkClick: (String) -> Unit,
-    onTypingEvent: (TypingIndicatorMode) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { }
 ) {
     val context = LocalContext.current
@@ -842,13 +844,11 @@ private fun ConversationScreen(
                     onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                     onChangeSelfDeletionClicked = { conversationScreenState.showSelfDeletionContextMenu() },
-                    onSearchMentionQueryChanged = requestMentions,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     onCaptureVideoPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
                     onLinkClick = onLinkClick,
-                    onTypingEvent = onTypingEvent,
                     onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
                     currentTimeInMillisFlow = currentTimeInMillisFlow
                 )
@@ -892,13 +892,11 @@ private fun ConversationScreenContent(
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
-    onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
-    onTypingEvent: (TypingIndicatorMode) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
 ) {
@@ -940,13 +938,11 @@ private fun ConversationScreenContent(
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-        onSearchMentionQueryChanged = onSearchMentionQueryChanged,
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
         onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
         tempWritableVideoUri = tempWritableVideoUri,
         tempWritableImageUri = tempWritableImageUri,
-        onTypingEvent = onTypingEvent,
         onImagesPicked = onImagesPicked
     )
 }
@@ -1295,9 +1291,9 @@ private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
     block()
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewConversationScreen() {
+fun PreviewConversationScreen() = WireTheme {
     val conversationId = ConversationId("value", "domain")
     val messageComposerViewState = remember { mutableStateOf(MessageComposerViewState()) }
     val messageCompositionState = remember { mutableStateOf(MessageComposition(conversationId)) }
@@ -1305,8 +1301,11 @@ fun PreviewConversationScreen() {
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
         modalBottomSheetState = conversationScreenState.modalBottomSheetState,
-        messageComposition = messageCompositionState,
-        onSaveDraft = {}
+        draftMessageComposition = messageCompositionState.value,
+        onSaveDraft = {},
+        onTypingEvent = {},
+        onSearchMentionQueryChanged = {},
+        onClearMentionSearchResult = {},
     )
     ConversationScreen(
         bannerMessage = null,
@@ -1343,13 +1342,11 @@ fun PreviewConversationScreen() {
         tempWritableImageUri = null,
         tempWritableVideoUri = null,
         onFailedMessageRetryClicked = { _, _ -> },
-        requestMentions = {},
         onClearMentionSearchResult = {},
         onPermissionPermanentlyDenied = {},
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { _ -> },
-        onTypingEvent = {},
         onImagesPicked = {}
     )
 }

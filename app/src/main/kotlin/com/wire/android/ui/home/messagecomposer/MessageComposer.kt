@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -80,12 +81,10 @@ fun MessageComposer(
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
-    onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
-    onTypingEvent: (TypingIndicatorMode) -> Unit,
     onImagesPicked: (List<Uri>) -> Unit
 ) {
     with(messageComposerStateHolder) {
@@ -150,12 +149,10 @@ fun MessageComposer(
                         )
                     },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                    onSearchMentionQueryChanged = onSearchMentionQueryChanged,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
                     tempWritableVideoUri = tempWritableVideoUri,
                     tempWritableImageUri = tempWritableImageUri,
-                    onTypingEvent = onTypingEvent
                 )
             }
         }
@@ -255,6 +252,7 @@ private fun BaseComposerPreview(
             )
         )
     }
+    val messageTextState = rememberTextFieldState()
     val messageComposition = remember { mutableStateOf(MessageComposition(ConversationId("value", "domain"))) }
     val selfDeletionTimer = remember { mutableStateOf(SelfDeletionTimer.Enabled(Duration.ZERO)) }
 
@@ -263,25 +261,27 @@ private fun BaseComposerPreview(
         messageComposerStateHolder = MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
-                messageComposition = messageComposition,
+                messageTextState = messageTextState,
                 selfDeletionTimer = selfDeletionTimer
             ),
             messageCompositionHolder = MessageCompositionHolder(
                 messageComposition = messageComposition,
-                {}
+                messageTextState = messageTextState,
+                onSaveDraft = {},
+                onSearchMentionQueryChanged = {},
+                onClearMentionSearchResult = {},
+                onTypingEvent = {}
             ),
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
             modalBottomSheetState = WireModalSheetState()
         ),
         messageListContent = { },
         onChangeSelfDeletionClicked = { },
-        onSearchMentionQueryChanged = { },
         onClearMentionSearchResult = { },
         onCaptureVideoPermissionPermanentlyDenied = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
-        onTypingEvent = { },
         onImagesPicked = {}
     )
 }

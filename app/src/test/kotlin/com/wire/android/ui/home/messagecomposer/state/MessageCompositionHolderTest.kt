@@ -18,20 +18,22 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
-import com.wire.android.ui.home.messagecomposer.model.update
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(SnapshotExtension::class)
 class MessageCompositionHolderTest {
 
     @MockK
@@ -40,13 +42,22 @@ class MessageCompositionHolderTest {
     private lateinit var state: MessageCompositionHolder
 
     private lateinit var messageComposition: MutableState<MessageComposition>
+    private lateinit var messageTextState: TextFieldState
 
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this, relaxUnitFun = true)
 
         messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))
-        state = MessageCompositionHolder(messageComposition = messageComposition, {})
+        messageTextState = TextFieldState()
+        state = MessageCompositionHolder(
+            messageComposition = messageComposition,
+            messageTextState = messageTextState,
+            onSaveDraft = {},
+            onSearchMentionQueryChanged = {},
+            onClearMentionSearchResult = {},
+            onTypingEvent = {},
+        )
     }
 
     @Test
@@ -58,7 +69,7 @@ class MessageCompositionHolderTest {
         // then
         assertEquals(
             "# ",
-            state.messageComposition.value.messageText
+            state.messageTextState.text.toString()
         )
     }
 
@@ -71,7 +82,7 @@ class MessageCompositionHolderTest {
         // then
         assertEquals(
             "****",
-            state.messageComposition.value.messageText
+            state.messageTextState.text.toString()
         )
     }
 
@@ -84,22 +95,18 @@ class MessageCompositionHolderTest {
         // then
         assertEquals(
             "__",
-            state.messageComposition.value.messageText
+            state.messageTextState.text.toString()
         )
     }
 
     @Test
     fun `given non empty text, when adding header markdown on selection, then # is added to the text`() = runTest {
         // given
-        state.messageComposition.update {
-            it.copy(
-                messageTextFieldValue = TextFieldValue(
-                    text = "header",
-                    selection = TextRange(
-                        start = 0,
-                        end = 6
-                    )
-                )
+        state.messageTextState.edit {
+            replace(0, length, "header")
+            selection = TextRange(
+                start = 0,
+                end = 6
             )
         }
 
@@ -109,22 +116,18 @@ class MessageCompositionHolderTest {
         // then
         assertEquals(
             "# header",
-            state.messageComposition.value.messageText
+            state.messageTextState.text.toString()
         )
     }
 
     @Test
     fun `given non empty text, when adding bold markdown on selection, then 2x star char is added to the text`() = runTest {
         // given
-        state.messageComposition.update {
-            it.copy(
-                messageTextFieldValue = TextFieldValue(
-                    text = "bold",
-                    selection = TextRange(
-                        start = 0,
-                        end = 4
-                    )
-                )
+        state.messageTextState.edit {
+            replace(0, length, "bold")
+            selection = TextRange(
+                start = 0,
+                end = 4
             )
         }
 
@@ -134,22 +137,18 @@ class MessageCompositionHolderTest {
         // then
         assertEquals(
             "**bold**",
-            state.messageComposition.value.messageText
+            state.messageTextState.text.toString()
         )
     }
 
     @Test
     fun `given non empty text, when adding italic markdown on selection, then 2x _ is added to the text`() = runTest {
         // given
-        state.messageComposition.update {
-            it.copy(
-                messageTextFieldValue = TextFieldValue(
-                    text = "italic",
-                    selection = TextRange(
-                        start = 0,
-                        end = 6
-                    )
-                )
+        state.messageTextState.edit {
+            replace(0, length, "italic")
+            selection = TextRange(
+                start = 0,
+                end = 6
             )
         }
 
@@ -159,7 +158,7 @@ class MessageCompositionHolderTest {
         // then
         assertEquals(
             "_italic_",
-            state.messageComposition.value.messageText
+            state.messageTextState.text.toString()
         )
     }
 }

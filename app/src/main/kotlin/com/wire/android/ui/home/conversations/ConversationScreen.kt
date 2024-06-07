@@ -120,12 +120,12 @@ import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldS
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
-import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
+import com.wire.android.ui.home.conversations.call.ConversationListCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
-import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
+import com.wire.android.ui.home.conversations.edit.editMessageMenuItems
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
@@ -207,7 +207,7 @@ fun ConversationScreen(
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     conversationInfoViewModel: ConversationInfoViewModel = hiltViewModel(),
     conversationBannerViewModel: ConversationBannerViewModel = hiltViewModel(),
-    conversationCallViewModel: ConversationCallViewModel = hiltViewModel(),
+    conversationListCallViewModel: ConversationListCallViewModel = hiltViewModel(),
     conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
     messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
     sendMessageViewModel: SendMessageViewModel = hiltViewModel(),
@@ -261,7 +261,7 @@ fun ConversationScreen(
         )
     }
 
-    with(conversationCallViewModel) {
+    with(conversationListCallViewModel) {
         if (conversationCallViewState.shouldShowJoinAnywayDialog) {
             appLogger.i("showing showJoinAnywayDialog..")
             JoinAnywayDialog(
@@ -280,8 +280,8 @@ fun ConversationScreen(
     when (showDialog.value) {
         ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
             OngoingActiveCallDialog(onJoinAnyways = {
-                conversationCallViewModel.endEstablishedCallIfAny {
-                    getOutgoingCallIntent(activity, conversationCallViewModel.conversationId.toString()).run {
+                conversationListCallViewModel.endEstablishedCallIfAny {
+                    getOutgoingCallIntent(activity, conversationListCallViewModel.conversationId.toString()).run {
                         activity.startActivity(this)
                     }
                 }
@@ -299,10 +299,10 @@ fun ConversationScreen(
 
         ConversationScreenDialogType.CALL_CONFIRMATION -> {
             ConfirmStartCallDialog(
-                participantsCount = conversationCallViewModel.conversationCallViewState.participantsCount - 1,
+                participantsCount = conversationListCallViewModel.conversationCallViewState.participantsCount - 1,
                 onConfirm = {
                     startCallIfPossible(
-                        conversationCallViewModel,
+                        conversationListCallViewModel,
                         showDialog,
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
@@ -332,9 +332,9 @@ fun ConversationScreen(
         ConversationScreenDialogType.VERIFICATION_DEGRADED -> {
             SureAboutCallingInDegradedConversationDialog(
                 callAnyway = {
-                    conversationCallViewModel.onApplyConversationDegradation()
+                    conversationListCallViewModel.onApplyConversationDegradation()
                     startCallIfPossible(
-                        conversationCallViewModel,
+                        conversationListCallViewModel,
                         showDialog,
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
@@ -359,7 +359,7 @@ fun ConversationScreen(
     ConversationScreen(
         bannerMessage = conversationBannerViewModel.bannerState,
         messageComposerViewState = messageComposerViewState.value,
-        conversationCallViewState = conversationCallViewModel.conversationCallViewState,
+        conversationCallViewState = conversationListCallViewModel.conversationCallViewState,
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
         onOpenProfile = {
@@ -399,7 +399,8 @@ fun ConversationScreen(
                             conversationId = conversationId,
                             messageId = message.header.messageId,
                             isSelfAsset = isSelfMessage,
-                            isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable
+                            isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
+                            messageOptionsEnabled = true
                         )
                     )
                 )
@@ -408,7 +409,7 @@ fun ConversationScreen(
         },
         onStartCall = {
             startCallIfPossible(
-                conversationCallViewModel,
+                conversationListCallViewModel,
                 showDialog,
                 coroutineScope,
                 conversationInfoViewModel.conversationInfoViewState.conversationType,
@@ -424,7 +425,7 @@ fun ConversationScreen(
             }
         },
         onJoinCall = {
-            conversationCallViewModel.joinOngoingCall {
+            conversationListCallViewModel.joinOngoingCall {
                 getOngoingCallIntent(activity, it.toString()).run {
                     activity.startActivity(this)
                 }
@@ -654,7 +655,7 @@ private fun conversationScreenOnBackButtonClick(
 
 @Suppress("LongParameterList")
 private fun startCallIfPossible(
-    conversationCallViewModel: ConversationCallViewModel,
+    conversationListCallViewModel: ConversationListCallViewModel,
     showDialog: MutableState<ConversationScreenDialogType>,
     coroutineScope: CoroutineScope,
     conversationType: Conversation.Type,
@@ -662,28 +663,28 @@ private fun startCallIfPossible(
     onOpenOngoingCallScreen: (ConversationId) -> Unit
 ) {
     coroutineScope.launch {
-        if (!conversationCallViewModel.hasStableConnectivity()) {
+        if (!conversationListCallViewModel.hasStableConnectivity()) {
             showDialog.value = ConversationScreenDialogType.NO_CONNECTIVITY
-        } else if (conversationCallViewModel.shouldInformAboutVerification.value) {
+        } else if (conversationListCallViewModel.shouldInformAboutVerification.value) {
             showDialog.value = ConversationScreenDialogType.VERIFICATION_DEGRADED
         } else {
-            val dialogValue = when (conversationCallViewModel.isConferenceCallingEnabled(conversationType)) {
+            val dialogValue = when (conversationListCallViewModel.isConferenceCallingEnabled(conversationType)) {
                 ConferenceCallingResult.Enabled -> {
                     if (
                         showDialog.value != ConversationScreenDialogType.CALL_CONFIRMATION &&
-                        conversationCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT
+                        conversationListCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT
                     ) {
                         ConversationScreenDialogType.CALL_CONFIRMATION
                     } else {
-                        conversationCallViewModel.endEstablishedCallIfAny {
-                            onOpenOutgoingCallScreen(conversationCallViewModel.conversationId)
+                        conversationListCallViewModel.endEstablishedCallIfAny {
+                            onOpenOutgoingCallScreen(conversationListCallViewModel.conversationId)
                         }
                         ConversationScreenDialogType.NONE
                     }
                 }
 
                 ConferenceCallingResult.Disabled.Established -> {
-                    onOpenOngoingCallScreen(conversationCallViewModel.conversationId)
+                    onOpenOngoingCallScreen(conversationListCallViewModel.conversationId)
                     ConversationScreenDialogType.NONE
                 }
 
@@ -751,8 +752,9 @@ private fun ConversationScreen(
 
     val menuItems = when (val menuType = conversationScreenState.bottomSheetMenuType) {
         is ConversationScreenState.BottomSheetMenuType.Edit -> {
-            EditMessageMenuItems(
+            editMessageMenuItems(
                 message = menuType.selectedMessage,
+                messageOptionsEnabled = true,
                 hideEditMessageMenu = conversationScreenState::hideContextMenu,
                 onCopyClick = conversationScreenState::copyMessage,
                 onDeleteClick = onDeleteMessage,

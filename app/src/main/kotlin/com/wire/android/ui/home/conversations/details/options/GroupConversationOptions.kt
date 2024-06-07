@@ -56,11 +56,11 @@ import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun GroupConversationOptions(
-    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
     lazyListState: LazyListState,
     onEditGuestAccess: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
-    onEditGroupName: () -> Unit,
+    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
+    onEditGroupName: () -> Unit
 ) {
     val state by viewModel.groupOptionsState.collectAsStateLifecycleAware()
 
@@ -90,11 +90,12 @@ fun GroupConversationSettings(
     onServiceSwitchClicked: (Boolean) -> Unit,
     onReadReceiptSwitchClicked: (Boolean) -> Unit,
     onEditGroupName: () -> Unit,
+    modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         item {
             GroupNameItem(
@@ -173,9 +174,10 @@ fun GroupConversationSettings(
 
 @Composable
 fun ConversationProtocolDetails(
-    protocolInfo: Conversation.ProtocolInfo
+    protocolInfo: Conversation.ProtocolInfo,
+    modifier: Modifier = Modifier
 ) {
-    Column {
+    Column(modifier = modifier) {
         FolderHeader(name = stringResource(R.string.folder_label_protocol_details))
         if (protocolInfo is Conversation.ProtocolInfo.MLS || BuildConfig.MLS_SUPPORT_ENABLED) {
             ProtocolDetails(
@@ -186,7 +188,7 @@ fun ConversationProtocolDetails(
             if (protocolInfo is Conversation.ProtocolInfo.MLS) {
                 ProtocolDetails(
                     label = UIText.StringResource(R.string.cipher_suite),
-                    text = UIText.DynamicString(protocolInfo.cipherSuite.name)
+                    text = UIText.DynamicString(protocolInfo.cipherSuite.toString())
                 )
 
                 if (BuildConfig.PRIVATE_BUILD) {
@@ -337,8 +339,13 @@ fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
             isGuestAllowed = true,
             isServicesAllowed = true,
             isReadReceiptAllowed = true,
+            mlsEnabled = true
         ),
-        {}, {}, {}, {}, {}
+        {},
+        {},
+        {},
+        {},
+        {}
     )
 }
 

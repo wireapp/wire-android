@@ -24,18 +24,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.divider.WireDivider
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
 import com.wire.android.ui.home.settings.SwitchState
+import com.wire.android.ui.theme.WireTheme
 
 @RootNavGraph
 @Destination
@@ -70,14 +73,18 @@ fun PrivacySettingsScreenContent(
     setScreenshotCensoringConfig: (Boolean) -> Unit,
     setAnonymousUsageDataEnabled: (Boolean) -> Unit,
     onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    WireScaffold(topBar = {
-        WireCenterAlignedTopAppBar(
-            onNavigationPressed = onBackPressed,
-            elevation = 0.dp,
-            title = stringResource(id = R.string.settings_privacy_settings_label)
-        )
-    }) { internalPadding ->
+    WireScaffold(
+        modifier = modifier,
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                onNavigationPressed = onBackPressed,
+                elevation = dimensions().spacing0x,
+                title = stringResource(id = R.string.settings_privacy_settings_label)
+            )
+        }
+    ) { internalPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -89,12 +96,14 @@ fun PrivacySettingsScreenContent(
                 arrowType = ArrowType.NONE,
                 subtitle = stringResource(id = R.string.settings_send_anonymous_usage_data_description)
             )
+            WireDivider(color = colorsScheme().outlineVariant)
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_send_read_receipts),
                 switchState = SwitchState.Enabled(value = areReadReceiptsEnabled, onCheckedChange = setReadReceiptsState),
                 arrowType = ArrowType.NONE,
                 subtitle = stringResource(id = R.string.settings_send_read_receipts_description)
             )
+            WireDivider(color = colorsScheme().outlineVariant)
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_censor_screenshots),
                 switchState = when (screenshotCensoringConfig) {
@@ -115,6 +124,7 @@ fun PrivacySettingsScreenContent(
                     }
                 )
             )
+            WireDivider(color = colorsScheme().outlineVariant)
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_show_typing_indicator_title),
                 switchState = SwitchState.Enabled(value = isTypingIndicatorEnabled, onCheckedChange = setTypingIndicatorState),
@@ -126,8 +136,8 @@ fun PrivacySettingsScreenContent(
 }
 
 @Composable
-@Preview
-fun PreviewSendReadReceipts() {
+@MultipleThemePreviews
+fun PreviewSendReadReceipts() = WireTheme {
     PrivacySettingsScreenContent(
         isAnonymousUsageDataEnabled = true,
         areReadReceiptsEnabled = true,

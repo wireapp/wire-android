@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,13 +36,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.window.DialogProperties
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.legalhold.dialog.common.LearnMoreAboutLegalHoldButton
@@ -54,12 +56,14 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun LegalHoldRequestedDialog(
     state: LegalHoldRequestedState.Visible,
-    passwordChanged: (TextFieldValue) -> Unit,
+    passwordTextState: TextFieldState,
     notNowClicked: () -> Unit,
     acceptClicked: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var keyboardController: SoftwareKeyboardController? = null
     WireDialog(
+        modifier = modifier,
         title = stringResource(R.string.legal_hold_requested_dialog_title),
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false),
         onDismiss = { keyboardController?.hide() },
@@ -111,8 +115,7 @@ fun LegalHoldRequestedDialog(
                     keyboardController = LocalSoftwareKeyboardController.current
                     val focusRequester = remember { FocusRequester() }
                     WirePasswordTextField(
-                        value = state.password,
-                        onValueChange = passwordChanged,
+                        textState = passwordTextState,
                         state = when {
                             state.error is LegalHoldRequestedError.InvalidCredentialsError ->
                                 WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
@@ -120,13 +123,13 @@ fun LegalHoldRequestedDialog(
                             state.loading -> WireTextFieldState.Disabled
                             else -> WireTextFieldState.Default
                         },
-                        imeAction = ImeAction.Done,
-                        onImeAction = { keyboardController?.hide() },
+                        keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
+                        onKeyboardAction = { keyboardController?.hide() },
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
                             .testTag("remove device password field"),
-                        autofill = true
+                        autoFill = true
                     )
                 }
             }
@@ -139,11 +142,14 @@ fun LegalHoldRequestedDialog(
 fun PreviewLegalHoldRequestedDialogWithPassword() {
     WireTheme {
         LegalHoldRequestedDialog(
-            LegalHoldRequestedState.Visible(
+            state = LegalHoldRequestedState.Visible(
                 legalHoldDeviceFingerprint = "0123456789ABCDEF",
                 requiresPassword = true,
                 userId = UserId("", ""),
-            ), {}, {}, {}
+            ),
+            passwordTextState = TextFieldState(),
+            notNowClicked = {},
+            acceptClicked = {},
         )
     }
 }
@@ -153,11 +159,14 @@ fun PreviewLegalHoldRequestedDialogWithPassword() {
 fun PreviewLegalHoldRequestedDialogWithoutPassword() {
     WireTheme {
         LegalHoldRequestedDialog(
-            LegalHoldRequestedState.Visible(
+            state = LegalHoldRequestedState.Visible(
                 legalHoldDeviceFingerprint = "0123456789ABCDEF",
                 requiresPassword = false,
                 userId = UserId("", ""),
-            ), {}, {}, {}
+            ),
+            passwordTextState = TextFieldState(),
+            notNowClicked = {},
+            acceptClicked = {},
         )
     }
 }

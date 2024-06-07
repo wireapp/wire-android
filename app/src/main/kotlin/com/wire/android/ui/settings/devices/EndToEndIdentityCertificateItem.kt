@@ -199,9 +199,11 @@ fun PreviewEndToEndIdentityCertificateItem() {
         isE2eiCertificateActivated = true,
         isCurrentDevice = false,
         certificate = E2eiCertificate(
+            userHandle = "user_handle",
             status = CertificateStatus.VALID,
             serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
             certificateDetail = "",
+            thumbprint = "thumbPrint",
             endAt = Instant.DISTANT_FUTURE
         ),
         isLoadingCertificate = false,
@@ -217,9 +219,11 @@ fun PreviewEndToEndIdentityCertificateSelfItem() {
         isE2eiCertificateActivated = true,
         isCurrentDevice = true,
         certificate = E2eiCertificate(
+            userHandle = "user_handle",
             status = CertificateStatus.VALID,
             serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
             certificateDetail = "",
+            thumbprint = "thumbPrint",
             endAt = Instant.DISTANT_FUTURE
         ),
         isLoadingCertificate = false,

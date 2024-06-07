@@ -42,6 +42,7 @@ object BuildTypes {
 object Default {
     fun explicitBuildFlavor(): String? = System.getenv("flavor")
         ?: System.getenv("FLAVOR")
+        ?: System.getenv("CUSTOM_FLAVOR")
 
     fun resolvedBuildFlavor(): String = explicitBuildFlavor() ?: ProductFlavors.Dev.buildName
 

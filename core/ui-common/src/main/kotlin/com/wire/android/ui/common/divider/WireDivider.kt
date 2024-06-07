@@ -26,6 +26,6 @@ import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
 
 @Composable
-fun WireDivider(color: Color = colorsScheme().divider, modifier: Modifier = Modifier) {
+fun WireDivider(modifier: Modifier = Modifier, color: Color = colorsScheme().divider) {
     HorizontalDivider(color = color, thickness = DividerDefaults.Thickness, modifier = modifier)
 }

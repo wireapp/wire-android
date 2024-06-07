@@ -65,9 +65,10 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CollapsingTopBarScaffold(
-    maxBarElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     topBarHeader: @Composable (elevation: Dp) -> Unit,
     topBarCollapsing: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    maxBarElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     topBarFooter: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
@@ -119,6 +120,7 @@ fun CollapsingTopBarScaffold(
     }
 
     WireScaffold(
+        modifier = modifier,
         topBar = { topBarHeader(with(LocalDensity.current) { topBarElevationState.toDp() }) },
         bottomBar = bottomBar,
         floatingActionButton = floatingActionButton,

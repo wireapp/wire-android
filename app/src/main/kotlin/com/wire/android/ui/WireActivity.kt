@@ -41,10 +41,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -58,6 +60,8 @@ import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
+import com.wire.android.feature.analytics.globalAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LocalNavigator
 import com.wire.android.navigation.NavigationCommand
@@ -111,6 +115,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -138,6 +143,7 @@ class WireActivity : AppCompatActivity() {
 
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
+    private var isNavigationCollecting = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -177,11 +183,19 @@ class WireActivity : AppCompatActivity() {
     }
 
     override fun onNewIntent(intent: Intent?) {
-        if (viewModel.isSharingIntent(intent)) {
-            setIntent(intent)
-        }
-        handleDeepLink(intent)
         super.onNewIntent(intent)
+        setIntent(intent)
+        if (isNavigationCollecting) {
+            /*
+             * - When true then navigationCommands is subscribed and can handle navigation commands right away.
+             * - When false then navigationCommands needs to be subscribed again to be able to receive and handle navigation commands.
+             *
+             * Activity intent is updated anyway using setIntent(intent) so that we always keep the latest intent received, so when
+             * isNavigationCollecting is false then we handle it after navigationCommands is subscribed again and onComplete called again.
+             * We make sure to handle particular intent only once thanks to the flag HANDLED_DEEPLINK_FLAG put into the handled intent.
+             */
+            handleDeepLink(intent)
+        }
     }
 
     private fun setComposableContent(
@@ -256,7 +270,13 @@ class WireActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     navigationCommands
-                        .onSubscription { onComplete() }
+                        .onSubscription {
+                            isNavigationCollecting = true
+                            onComplete()
+                        }
+                        .onCompletion {
+                            isNavigationCollecting = false
+                        }
                         .collectLatest {
                             currentKeyboardController?.hide()
                             currentNavController.navigateToItem(it)
@@ -275,6 +295,25 @@ class WireActivity : AppCompatActivity() {
             onDispose {
                 navController.removeOnDestinationChangedListener(updateScreenSettingsListener)
                 navController.removeOnDestinationChangedListener(currentScreenManager)
+            }
+        }
+
+        val lifecycleOwner = LocalLifecycleOwner.current
+        val activity = LocalContext.current as Activity
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_START) {
+                    globalAnalyticsManager.onStart(activity = activity)
+                    globalAnalyticsManager.sendEvent(AnalyticsEvent.AppOpen())
+                }
+                if (event == Lifecycle.Event.ON_STOP) {
+                    globalAnalyticsManager.onStop()
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
             }
         }
     }
@@ -326,7 +365,7 @@ class WireActivity : AppCompatActivity() {
                 if (legalHoldRequestedViewModel.state is LegalHoldRequestedState.Visible) {
                     LegalHoldRequestedDialog(
                         state = legalHoldRequestedViewModel.state as LegalHoldRequestedState.Visible,
-                        passwordChanged = legalHoldRequestedViewModel::passwordChanged,
+                        passwordTextState = legalHoldRequestedViewModel.passwordTextState,
                         notNowClicked = legalHoldRequestedViewModel::notNowClicked,
                         acceptClicked = legalHoldRequestedViewModel::acceptClicked,
                     )

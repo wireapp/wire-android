@@ -26,26 +26,47 @@ import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
 
 @Composable
-fun AssetEditMenuItems(
+fun assetEditMenuItems(
     isEphemeral: Boolean,
-    isUploading: Boolean = false,
+    messageOptionsEnabled: Boolean,
     onDeleteClick: () -> Unit,
     onDetailsClick: () -> Unit,
     onShareAsset: () -> Unit,
     onDownloadAsset: () -> Unit,
     onReplyClick: () -> Unit,
     onReactionClick: (String) -> Unit,
+    isUploading: Boolean = false,
     onOpenAsset: (() -> Unit)? = null
 ): List<@Composable () -> Unit> {
     return buildList {
-        if (!isUploading) {
-            if (!isEphemeral) add { ReactionOption(onReactionClick) }
-            add { MessageDetailsMenuOption(onDetailsClick) }
-            if (!isEphemeral) add { ReplyMessageOption(onReplyClick) }
-            add { DownloadAssetExternallyOption(onDownloadAsset) }
-            if (!isEphemeral) add { ShareAssetMenuOption(onShareAsset) }
-            if (onOpenAsset != null && !isEphemeral) add { OpenAssetExternallyOption(onOpenAsset) }
+        when {
+            isUploading -> {
+                add { DeleteItemMenuOption(onDeleteClick) }
+            }
+
+            isEphemeral -> {
+                if (messageOptionsEnabled) {
+                    add { MessageDetailsMenuOption(onDetailsClick) }
+                }
+                add { DownloadAssetExternallyOption(onDownloadAsset) }
+                add { DeleteItemMenuOption(onDeleteClick) }
+            }
+
+            !messageOptionsEnabled -> {
+                add { DownloadAssetExternallyOption(onDownloadAsset) }
+                add { ShareAssetMenuOption(onShareAsset) }
+                add { DeleteItemMenuOption(onDeleteClick) }
+            }
+
+            else -> {
+                add { ReactionOption(onReactionClick) }
+                add { MessageDetailsMenuOption(onDetailsClick) }
+                add { ReplyMessageOption(onReplyClick) }
+                add { DownloadAssetExternallyOption(onDownloadAsset) }
+                add { ShareAssetMenuOption(onShareAsset) }
+                if (onOpenAsset != null) add { OpenAssetExternallyOption(onOpenAsset) }
+                add { DeleteItemMenuOption(onDeleteClick) }
+            }
         }
-        add { DeleteItemMenuOption(onDeleteClick) }
     }
 }

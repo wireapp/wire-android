@@ -47,6 +47,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun CodeTextField(
     textState: TextFieldState,
+    modifier: Modifier = Modifier,
     codeLength: Int = integerResource(id = R.integer.code_length),
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
     colors: WireTextFieldColors = wireTextFieldColors(),
@@ -54,8 +55,7 @@ fun CodeTextField(
     state: WireTextFieldState = WireTextFieldState.Default,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     maxHorizontalSpacing: Dp = MaterialTheme.wireDimensions.spacing16x,
-    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    modifier: Modifier = Modifier
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val enabled = state !is WireTextFieldState.Disabled

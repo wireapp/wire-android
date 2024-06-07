@@ -62,20 +62,20 @@ import kotlinx.coroutines.flow.flow
 internal fun CodeTextFieldLayout(
     textState: TextFieldState,
     codeLength: Int,
+    innerBasicTextField: InnerBasicTextFieldBuilder,
+    modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
     colors: WireTextFieldColors = wireTextFieldColors(),
     textStyle: TextStyle = MaterialTheme.wireTypography.code01,
     state: WireTextFieldState = WireTextFieldState.Default,
     maxHorizontalSpacing: Dp = MaterialTheme.wireDimensions.spacing16x,
-    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    modifier: Modifier = Modifier,
-    innerBasicTextField: InnerBasicTextFieldBuilder,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
 ) {
     Column(
         horizontalAlignment = horizontalAlignment,
         modifier = modifier.width(IntrinsicSize.Min),
     ) {
-        innerBasicTextField(
+        innerBasicTextField.Build(
             decorator = TextFieldDecorator { innerTextField ->
                 // hide the inner text field as we are dwelling the text field ourselves
                 CompositionLocalProvider(LocalTextSelectionColors.provides(TextSelectionColors(Color.Transparent, Color.Transparent))) {

@@ -19,10 +19,13 @@
 package com.wire.android.ui.home.messagecomposer
 
 import android.content.Context
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestConversation
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
@@ -31,53 +34,56 @@ import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
+import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
-import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.ui.home.messagecomposer.state.MessageType
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3Api::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class MessageComposerStateHolderTest {
 
     @MockK
     lateinit var context: Context
 
     private lateinit var messageComposerViewState: MutableState<MessageComposerViewState>
-
     private lateinit var messageComposition: MutableState<MessageComposition>
     private lateinit var messageCompositionInputStateHolder: MessageCompositionInputStateHolder
-
     private lateinit var messageCompositionHolder: MessageCompositionHolder
-
     private lateinit var additionalOptionStateHolder: AdditionalOptionStateHolder
-
     private lateinit var modalBottomSheetState: WireModalSheetState
-
     private lateinit var state: MessageComposerStateHolder
+    private lateinit var messageTextState: TextFieldState
 
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         messageComposerViewState = mutableStateOf(MessageComposerViewState())
         messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))
+        messageTextState = TextFieldState()
         messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
-            messageComposition = messageComposition,
+            messageTextState = messageTextState,
             selfDeletionTimer = mutableStateOf(SelfDeletionTimer.Disabled)
         )
         messageCompositionHolder = MessageCompositionHolder(
             messageComposition = messageComposition,
-            {}
+            messageTextState = messageTextState,
+            onSaveDraft = {},
+            onSearchMentionQueryChanged = {},
+            onClearMentionSearchResult = {},
+            onTypingEvent = {},
         )
         additionalOptionStateHolder = AdditionalOptionStateHolder()
         modalBottomSheetState = WireModalSheetState()
@@ -102,13 +108,34 @@ class MessageComposerStateHolderTest {
         )
 
         // then
-        assertEquals(
-            MessageCompositionType.Editing(
-                messageCompositionState = messageComposition,
-                messageCompositionSnapShot = messageComposition.value
-            ).isEditButtonEnabled,
-            (messageCompositionInputStateHolder.inputType as MessageCompositionType.Editing).isEditButtonEnabled
+        assertInstanceOf(InputType.Editing::class.java, messageCompositionInputStateHolder.inputType)
+    }
+
+    @Test
+    fun `given message edit, when not making any changes to message, then edit button should be disabled`() = runTest {
+        state.toEdit(
+            messageId = "messageId",
+            editMessageText = "edit_message_text",
+            mentions = listOf()
         )
+        assertInstanceOf(InputType.Editing::class.java, messageCompositionInputStateHolder.inputType).also {
+            assertEquals(false, it.isEditButtonEnabled)
+        }
+    }
+
+    @Test
+    fun `given message edit, when making some changes to message, then edit button should be enabled`() = runTest {
+        state.toEdit(
+            messageId = "messageId",
+            editMessageText = "edit_message_text",
+            mentions = listOf()
+        )
+        state.messageCompositionHolder.messageTextState.edit {
+            append("some text")
+        }
+        assertInstanceOf(InputType.Editing::class.java, messageCompositionInputStateHolder.inputType).also {
+            assertEquals(true, it.isEditButtonEnabled)
+        }
     }
 
     @Test
@@ -119,32 +146,23 @@ class MessageComposerStateHolderTest {
             state.toReply(mockMessageWithText)
 
             // then
-            assertEquals(
-                TextFieldValue("").text,
-                messageCompositionHolder.messageComposition.value.messageTextFieldValue.text
-            )
-            assertEquals(
-                MessageType.Normal,
-                (messageCompositionInputStateHolder.inputType as MessageCompositionType.Composing)
-                    .messageType
-                    .value
-            )
+            assertEquals(String.EMPTY, messageCompositionHolder.messageTextState.text.toString())
+            assertInstanceOf(InputType.Composing::class.java, messageCompositionInputStateHolder.inputType).also {
+                assertInstanceOf(MessageType.Normal::class.java, it.messageType)
+            }
         }
 
     @Test
     fun `given some message was being composed, when setting toReply, then input continues with the current text`() = runTest {
         // given
-        val currentTextField = TextFieldValue("Potato")
-        messageCompositionHolder.setMessageText(currentTextField, {}, {}, {})
+        val currentText = "Potato"
+        messageCompositionHolder.messageTextState.setTextAndPlaceCursorAtEnd(currentText)
 
         // when
         state.toReply(mockMessageWithText)
 
         // then
-        assertEquals(
-            currentTextField.text,
-            messageCompositionHolder.messageComposition.value.messageTextFieldValue.text
-        )
+        assertEquals(currentText, messageCompositionHolder.messageTextState.text.toString())
     }
 
     @Test
@@ -184,8 +202,8 @@ class MessageComposerStateHolderTest {
 
         // then
         assertEquals(
-            TextFieldValue("").text,
-            messageCompositionHolder.messageComposition.value.messageTextFieldValue.text
+            String.EMPTY,
+            messageCompositionHolder.messageTextState.text.toString()
         )
         assertEquals(
             null,

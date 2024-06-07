@@ -18,8 +18,8 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -37,14 +37,13 @@ import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
-import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.util.isPositiveNotNull
 
 @Stable
 class MessageCompositionInputStateHolder(
-    private val messageComposition: MutableState<MessageComposition>,
+    val messageTextState: TextFieldState,
     selfDeletionTimer: State<SelfDeletionTimer>
 ) {
     var inputFocused: Boolean by mutableStateOf(false)
@@ -71,20 +70,22 @@ class MessageCompositionInputStateHolder(
     var previousOffset by mutableStateOf(0.dp)
         private set
 
-    private val messageType = derivedStateOf {
-        if (selfDeletionTimer.value.duration.isPositiveNotNull()) {
-            MessageType.SelfDeleting(selfDeletionTimer.value)
-        } else {
-            MessageType.Normal
+    private var compositionState: CompositionState by mutableStateOf(CompositionState.Composing)
+
+    val inputType: InputType by derivedStateOf {
+        when (val state = compositionState) {
+            is CompositionState.Composing -> InputType.Composing(
+                isSendButtonEnabled = messageTextState.text.isNotEmpty(),
+                messageType = when {
+                    selfDeletionTimer.value.duration.isPositiveNotNull() -> MessageType.SelfDeleting(selfDeletionTimer.value)
+                    else -> MessageType.Normal
+                }
+            )
+            is CompositionState.Editing -> InputType.Editing(
+                isEditButtonEnabled = messageTextState.text.toString() != state.originalMessageText
+            )
         }
     }
-
-    var inputType: MessageCompositionType by mutableStateOf(
-        MessageCompositionType.Composing(
-            messageCompositionState = messageComposition,
-            messageType = messageType
-        )
-    )
 
     fun handleImeOffsetChange(offset: Dp, navBarHeight: Dp, source: Dp, target: Dp) {
         val actualOffset = max(offset - navBarHeight, 0.dp)
@@ -128,19 +129,13 @@ class MessageCompositionInputStateHolder(
         }
     }
 
-    fun toEdit() {
-        inputType = MessageCompositionType.Editing(
-            messageCompositionState = messageComposition,
-            messageCompositionSnapShot = messageComposition.value
-        )
+    fun toEdit(editMessageText: String) {
+        compositionState = CompositionState.Editing(editMessageText)
         requestFocus()
     }
 
     fun toComposing() {
-        inputType = MessageCompositionType.Composing(
-            messageCompositionState = messageComposition,
-            messageType = messageType
-        )
+        compositionState = CompositionState.Composing
         requestFocus()
     }
 
@@ -211,7 +206,7 @@ class MessageCompositionInputStateHolder(
         val composeTextHeight = 128.dp
 
         fun saver(
-            messageComposition: MutableState<MessageComposition>,
+            messageTextState: TextFieldState,
             selfDeletionTimer: State<SelfDeletionTimer>,
             density: Density
         ): Saver<MessageCompositionInputStateHolder, *> = Saver(
@@ -231,7 +226,7 @@ class MessageCompositionInputStateHolder(
             restore = { savedState ->
                 with(density) {
                     MessageCompositionInputStateHolder(
-                        messageComposition = messageComposition,
+                        messageTextState = messageTextState,
                         selfDeletionTimer = selfDeletionTimer
                     ).apply {
                         inputFocused = savedState[0] as Boolean
@@ -248,7 +243,12 @@ class MessageCompositionInputStateHolder(
     }
 }
 
-sealed class MessageCompositionType {
+private sealed class CompositionState {
+    data object Composing : CompositionState()
+    data class Editing(val originalMessageText: String) : CompositionState()
+}
+
+sealed class InputType {
     @Composable
     open fun inputTextColor(): WireTextFieldColors = wireTextFieldColors(
         backgroundColor = Color.Transparent,
@@ -263,44 +263,20 @@ sealed class MessageCompositionType {
     @Composable
     open fun labelText(): String = stringResource(R.string.label_type_a_message)
 
-    class Composing(messageCompositionState: MutableState<MessageComposition>, val messageType: State<MessageType>) :
-        MessageCompositionType() {
-
-        val isSendButtonEnabled by derivedStateOf {
-            messageCompositionState.value.messageText.isNotBlank()
-        }
+    data class Composing(val isSendButtonEnabled: Boolean, val messageType: MessageType) : InputType() {
 
         @Composable
-        override fun inputTextColor(): WireTextFieldColors = if (messageType.value is MessageType.SelfDeleting) {
-            wireTextFieldColors(
-                backgroundColor = Color.Transparent,
-                borderColor = Color.Transparent,
-                focusColor = Color.Transparent,
-                placeholderColor = colorsScheme().primary
-            )
-        } else {
-            super.inputTextColor()
-        }
-
-        @Composable
-        override fun labelText(): String = if (messageType.value is MessageType.SelfDeleting) {
+        override fun labelText(): String = if (messageType is MessageType.SelfDeleting) {
             stringResource(id = R.string.self_deleting_message_label)
         } else {
             super.labelText()
         }
     }
 
-    class Editing(
-        messageCompositionState: MutableState<MessageComposition>,
-        val messageCompositionSnapShot: MessageComposition
-    ) : MessageCompositionType() {
+    class Editing(val isEditButtonEnabled: Boolean) : InputType() {
 
         @Composable
         override fun backgroundColor(): Color = colorsScheme().messageComposerEditBackgroundColor
-
-        val isEditButtonEnabled by derivedStateOf {
-            messageCompositionState.value.messageText != messageCompositionSnapShot.messageText
-        }
     }
 }
 

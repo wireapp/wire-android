@@ -18,18 +18,16 @@
 
 package com.wire.android.ui.home.messagecomposer
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,15 +35,19 @@ import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
+import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.button.WireTertiaryIconButton
 import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
+import com.wire.android.ui.common.button.wireTertiaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun MessageSendActions(
@@ -56,7 +58,7 @@ fun MessageSendActions(
     SendButton(
         isEnabled = sendButtonEnabled,
         onSendButtonClicked = onSendButtonClicked,
-        modifier = modifier.padding(end = dimensions().spacing8x)
+        modifier = modifier,
     )
 }
 
@@ -65,19 +67,24 @@ fun SelfDeletingActions(
     selfDeletionTimer: SelfDeletionTimer,
     sendButtonEnabled: Boolean,
     onSendButtonClicked: () -> Unit,
-    onChangeSelfDeletionClicked: () -> Unit
+    onChangeSelfDeletionClicked: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier,
+    ) {
+        WireTertiaryButton(
+            minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+            minClickableSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+            shape = CircleShape,
+            contentPadding = PaddingValues(horizontal = dimensions().spacing4x, vertical = dimensions().spacing8x),
+            onClick = onChangeSelfDeletionClicked,
             text = selfDeletionTimer.duration.toSelfDeletionDuration().shortLabel.asString(),
-            style = typography().label02,
-            color = colorsScheme().primary,
-            modifier = Modifier
-                .padding(horizontal = dimensions().spacing16x)
-                .clickable(enabled = !selfDeletionTimer.isEnforced) {
-                    // Don't allow clicking the duration picker if the self-deleting duration is enforced from TM Settings
-                    onChangeSelfDeletionClicked()
-                }
+            textStyle = typography().label02,
+            fillMaxWidth = false,
+            state = if (!selfDeletionTimer.isEnforced) WireButtonState.Default else WireButtonState.Disabled,
+            colors = wireTertiaryButtonColors().copy(onEnabled = colorsScheme().primary, onDisabled = colorsScheme().primary),
         )
         WirePrimaryIconButton(
             onButtonClicked = onSendButtonClicked,
@@ -95,10 +102,10 @@ fun SelfDeletingActions(
 
 @Composable
 fun MessageEditActions(
+    modifier: Modifier = Modifier,
     editButtonEnabled: Boolean = false,
     onEditSaveButtonClicked: () -> Unit = { },
-    onEditCancelButtonClicked: () -> Unit = { },
-    modifier: Modifier = Modifier,
+    onEditCancelButtonClicked: () -> Unit = { }
 ) {
     Row(
         modifier = modifier
@@ -160,24 +167,36 @@ private fun SendButton(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewMessageEditActionsEnabled() {
-    MessageEditActions(true, {}, {})
+fun PreviewMessageEditActionsEnabled() = WireTheme {
+    MessageEditActions(Modifier, true, {}, {})
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewMessageEditActionsDisabled() {
-    MessageEditActions(false, {}, {})
+fun PreviewMessageEditActionsDisabled() = WireTheme {
+    MessageEditActions(Modifier, false, {}, {})
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewMessageSendActionsEnabled() {
+fun PreviewMessageSelfDeletingActionsEnabled() = WireTheme {
+    SelfDeletingActions(SelfDeletionTimer.Enabled(1.minutes), true, {}, {}, Modifier)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageSelfDeletingActionsDisabled() = WireTheme {
+    SelfDeletingActions(SelfDeletionTimer.Enabled(1.minutes), false, {}, {}, Modifier)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageSendActionsEnabled() = WireTheme {
     MessageSendActions(true, {})
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewMessageSendActionsDisabled() {
+fun PreviewMessageSendActionsDisabled() = WireTheme {
     MessageSendActions(false, {})
 }

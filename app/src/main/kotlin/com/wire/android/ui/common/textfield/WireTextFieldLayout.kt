@@ -59,6 +59,8 @@ import io.github.esentsov.PackagePrivate
 @Composable
 internal fun WireTextFieldLayout(
     shouldShowPlaceholder: Boolean,
+    innerBasicTextField: InnerBasicTextFieldBuilder,
+    modifier: Modifier = Modifier,
     placeholderText: String? = null,
     labelText: String? = null,
     labelMandatoryIcon: Boolean = false,
@@ -72,17 +74,15 @@ internal fun WireTextFieldLayout(
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
-    modifier: Modifier = Modifier,
     onTap: ((Offset) -> Unit)? = null,
-    testTag: String = String.EMPTY,
-    innerBasicTextField: InnerBasicTextFieldBuilder,
+    testTag: String = String.EMPTY
 ) {
     Column(modifier = modifier) {
         if (labelText != null) {
             Label(labelText, labelMandatoryIcon, state, interactionSource, colors)
         }
-        innerBasicTextField(
-            decorator = TextFieldDecorator { innerTextField ->
+        innerBasicTextField.Build(
+            decorator = { innerTextField ->
                 InnerTextLayout(
                     innerTextField = innerTextField,
                     shouldShowPlaceholder = shouldShowPlaceholder,
@@ -202,5 +202,5 @@ private fun Alignment.Horizontal.toAlignment(): Alignment = Alignment { size, sp
 
 fun interface InnerBasicTextFieldBuilder {
     @Composable
-    operator fun invoke(decorator: TextFieldDecorator, textFieldModifier: Modifier)
+    fun Build(decorator: TextFieldDecorator, textFieldModifier: Modifier)
 }

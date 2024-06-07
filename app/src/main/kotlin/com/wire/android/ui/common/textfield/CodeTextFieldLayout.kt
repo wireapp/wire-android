@@ -75,7 +75,7 @@ internal fun CodeTextFieldLayout(
         horizontalAlignment = horizontalAlignment,
         modifier = modifier.width(IntrinsicSize.Min),
     ) {
-        innerBasicTextField(
+        innerBasicTextField.Build(
             decorator = TextFieldDecorator { innerTextField ->
                 // hide the inner text field as we are dwelling the text field ourselves
                 CompositionLocalProvider(LocalTextSelectionColors.provides(TextSelectionColors(Color.Transparent, Color.Transparent))) {

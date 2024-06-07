@@ -46,7 +46,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
-import com.wire.android.ui.home.conversations.edit.AssetEditMenuItems
+import com.wire.android.ui.home.conversations.edit.assetEditMenuItems
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 import com.wire.android.util.ui.openDownloadFolder
 
@@ -58,8 +58,9 @@ import com.wire.android.util.ui.openDownloadFolder
 @Composable
 fun MediaGalleryScreen(
     navigator: Navigator,
-    mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel(),
-    resultNavigator: ResultBackNavigator<MediaGalleryNavBackArgs>
+    resultNavigator: ResultBackNavigator<MediaGalleryNavBackArgs>,
+    modifier: Modifier = Modifier,
+    mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -91,6 +92,7 @@ fun MediaGalleryScreen(
 
     with(viewModelState) {
         WireScaffold(
+            modifier = modifier,
             topBar = {
                 MediaGalleryScreenTopAppBar(
                     title = screenTitle
@@ -108,7 +110,8 @@ fun MediaGalleryScreen(
         MenuModalSheetLayout(
             sheetState = mediaGalleryScreenState.modalBottomSheetState,
             coroutineScope = scope,
-            menuItems = AssetEditMenuItems(
+            menuItems = assetEditMenuItems(
+                messageOptionsEnabled = viewModelState.messageBottomSheetOptionsEnabled,
                 isEphemeral = viewModelState.isEphemeral,
                 onDeleteClick = {
                     mediaGalleryScreenState.showContextualMenu(false)
@@ -158,7 +161,12 @@ fun MediaGalleryScreen(
 }
 
 @Composable
-fun MediaGalleryContent(navigator: Navigator, viewModel: MediaGalleryViewModel, mediaGalleryScreenState: MediaGalleryScreenState) {
+fun MediaGalleryContent(
+    navigator: Navigator,
+    viewModel: MediaGalleryViewModel,
+    mediaGalleryScreenState: MediaGalleryScreenState,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     val uiState = viewModel.mediaGalleryViewState
     suspend fun showSnackbarMessage(message: String, actionLabel: String?, messageCode: MediaGallerySnackbarMessages) {
@@ -180,7 +188,7 @@ fun MediaGalleryContent(navigator: Navigator, viewModel: MediaGalleryViewModel, 
     }
 
     Box(
-        Modifier
+        modifier
             .fillMaxWidth()
             .fillMaxHeight()
             .background(colorsScheme().surface)

@@ -33,8 +33,9 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
 @Composable
-fun EditMessageMenuItems(
+fun editMessageMenuItems(
     message: UIMessage.Regular,
+    messageOptionsEnabled: Boolean,
     hideEditMessageMenu: (OnComplete) -> Unit,
     onCopyClick: (String) -> Unit,
     onDeleteClick: (messageId: String, Boolean) -> Unit,
@@ -117,7 +118,8 @@ fun EditMessageMenuItems(
     }
 
     return if (message.isAssetMessage) {
-        AssetEditMenuItems(
+        assetEditMenuItems(
+            messageOptionsEnabled = messageOptionsEnabled,
             isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
             isUploading = message.isPending,
             onDeleteClick = onDeleteItemClick,

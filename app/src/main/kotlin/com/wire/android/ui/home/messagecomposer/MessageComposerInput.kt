@@ -52,6 +52,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -284,6 +285,7 @@ private fun MessageComposerTextInput(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     var isReadOnly by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(inputFocused) {
         if (inputFocused) {
@@ -292,6 +294,7 @@ private fun MessageComposerTextInput(
             focusRequester.requestFocus()
         } else {
             isReadOnly = true
+            focusManager.clearFocus()
             keyboardController?.hide()
         }
     }

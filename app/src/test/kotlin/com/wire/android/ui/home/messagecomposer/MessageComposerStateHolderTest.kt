@@ -21,6 +21,7 @@ package com.wire.android.ui.home.messagecomposer
 import android.content.Context
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.wire.android.config.CoroutineTestExtension
@@ -50,7 +51,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3Api::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class MessageComposerStateHolderTest {
 

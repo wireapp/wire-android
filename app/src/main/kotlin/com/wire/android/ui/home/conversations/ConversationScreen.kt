@@ -39,7 +39,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -66,7 +65,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -121,8 +119,8 @@ import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldS
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
-import com.wire.android.ui.home.conversations.call.ConversationListCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
+import com.wire.android.ui.home.conversations.call.ConversationListCallViewModel
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs

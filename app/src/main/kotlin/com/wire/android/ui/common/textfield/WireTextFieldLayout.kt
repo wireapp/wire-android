@@ -81,8 +81,8 @@ internal fun WireTextFieldLayout(
         if (labelText != null) {
             Label(labelText, labelMandatoryIcon, state, interactionSource, colors)
         }
-        innerBasicTextField(
-            decorator = TextFieldDecorator { innerTextField ->
+        innerBasicTextField.Build(
+            decorator = { innerTextField ->
                 InnerTextLayout(
                     innerTextField = innerTextField,
                     shouldShowPlaceholder = shouldShowPlaceholder,
@@ -202,5 +202,5 @@ private fun Alignment.Horizontal.toAlignment(): Alignment = Alignment { size, sp
 
 fun interface InnerBasicTextFieldBuilder {
     @Composable
-    operator fun invoke(decorator: TextFieldDecorator, textFieldModifier: Modifier)
+    fun Build(decorator: TextFieldDecorator, textFieldModifier: Modifier)
 }

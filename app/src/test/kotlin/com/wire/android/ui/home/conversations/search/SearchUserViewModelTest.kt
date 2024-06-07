@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations.search
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -47,8 +48,7 @@ import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class, SnapshotExtension::class)
 class SearchUserViewModelTest {
 
     @Test
@@ -72,7 +72,7 @@ class SearchUserViewModelTest {
             .withIsValidHandleResult(ValidateUserHandleResult.Invalid.TooLong(""))
             .arrange()
 
-        viewModel.safeSearch(query)
+        viewModel.searchQueryChanged(query)
         coVerify(exactly = 1) {
             arrangement.searchUsersUseCase(
                 query,
@@ -109,7 +109,7 @@ class SearchUserViewModelTest {
                 .withIsValidHandleResult(ValidateUserHandleResult.Invalid.TooLong(""))
                 .arrange()
 
-            viewModel.safeSearch(query)
+            viewModel.searchQueryChanged(query)
 
             coVerify(exactly = 1) {
                 arrangement.searchUsersUseCase(
@@ -166,7 +166,7 @@ class SearchUserViewModelTest {
                 .withIsValidHandleResult(ValidateUserHandleResult.Invalid.TooLong(""))
                 .arrange()
 
-            viewModel.safeSearch(query)
+            viewModel.searchQueryChanged(query)
 
             coVerify(exactly = 1) {
                 arrangement.searchUsersUseCase(
@@ -204,7 +204,7 @@ class SearchUserViewModelTest {
                 .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
                 .arrange()
 
-            viewModel.safeSearch(query)
+            viewModel.searchQueryChanged(query)
             coVerify(exactly = 1) {
                 arrangement.searchByHandleUseCase.invoke(
                     query,

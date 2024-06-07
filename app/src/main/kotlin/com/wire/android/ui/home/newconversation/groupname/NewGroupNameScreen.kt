@@ -18,13 +18,14 @@
 
 package com.wire.android.ui.home.newconversation.groupname
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.groupname.GroupMetadataState
+import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameScreen
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.GroupOptionScreenDestination
@@ -33,6 +34,8 @@ import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestina
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog
 import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 
 @NewConversationNavGraph
@@ -47,7 +50,7 @@ fun NewGroupNameScreen(
 
     GroupNameScreen(
         newGroupState = newConversationViewModel.newGroupState,
-        onGroupNameChange = newConversationViewModel::onGroupNameChange,
+        newGroupNameTextState = newConversationViewModel.newGroupNameTextState,
         onContinuePressed = {
             if (newConversationViewModel.newGroupState.isSelfTeamMember == true) {
                 navigator.navigate(NavigationCommand(GroupOptionScreenDestination))
@@ -75,7 +78,7 @@ fun NewGroupNameScreen(
 }
 
 @Composable
-@Preview
-fun PreviewNewGroupScreen() {
-    GroupNameScreen(GroupMetadataState(), {}, {}, {}, {})
+@PreviewMultipleThemes
+fun PreviewNewGroupScreen() = WireTheme {
+    GroupNameScreen(GroupMetadataState(mode = GroupNameMode.CREATION), TextFieldState(), {}, {}, {})
 }

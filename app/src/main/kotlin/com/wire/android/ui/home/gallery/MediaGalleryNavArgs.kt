@@ -25,7 +25,8 @@ data class MediaGalleryNavArgs(
     val conversationId: ConversationId,
     val messageId: String,
     val isSelfAsset: Boolean,
-    val isEphemeral: Boolean
+    val isEphemeral: Boolean,
+    val messageOptionsEnabled: Boolean
 )
 
 @Parcelize

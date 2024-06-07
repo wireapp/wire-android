@@ -305,6 +305,6 @@ sealed class MessageCompositionType {
 }
 
 sealed class MessageType {
-    object Normal : MessageType()
+    data object Normal : MessageType()
     data class SelfDeleting(val selfDeletionTimer: SelfDeletionTimer) : MessageType()
 }

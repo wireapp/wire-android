@@ -2,14 +2,12 @@
 
 if [ "$RUN_STATIC_CODE_ANALYSIS" = true ]; then
     echo "Running Static Code Analysis"
-    ./gradlew detektAll
    ./gradlew staticCodeAnalysis
 fi
 
 if [ "$RUN_APP_UNIT_TESTS" = true ] ; then
     echo "Running App Unit Tests"
     ./gradlew runUnitTests
-    ./gradlew runUnitTestsFdroid
 fi
 
 if [ "$RUN_APP_ACCEPTANCE_TESTS" = true ] ; then
@@ -32,8 +30,7 @@ fi
 
 if [ "$BUILD_CLIENT" = true ] ; then
     echo "Compiling the client with Flavor:${CUSTOM_FLAVOR} and BuildType:${BUILD_TYPE}"
-    #./gradlew ${buildOption}assemble${FLAVOR_TYPE}${BUILD_TYPE}
-    ./gradlew ${buildOption}assemble${CUSTOM_FLAVOR}
+    ./gradlew ${buildOption}assemble${FLAVOR_TYPE}${BUILD_TYPE}
 else
     echo "Building the client will be skipped"
 fi

@@ -23,18 +23,14 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
 import com.wire.android.ui.common.WireCheckIcon
 import com.wire.android.ui.common.WireDialog
@@ -53,11 +49,13 @@ import kotlin.math.roundToInt
 fun PickRestoreFileDialog(
     onChooseBackupFile: (Uri) -> Unit,
     onCancelBackupRestore: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val fileFlow = FileBrowserFlow(onChooseBackupFile, onPermissionPermanentlyDenied)
 
     WireDialog(
+        modifier = modifier,
         title = stringResource(R.string.backup_dialog_restore_backup_title),
         text = stringResource(R.string.backup_dialog_restore_backup_message),
         onDismiss = onCancelBackupRestore,
@@ -69,18 +67,18 @@ fun PickRestoreFileDialog(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterRestorePasswordDialog(
     isWrongPassword: Boolean,
-    onRestoreBackupFile: (String) -> Unit,
+    backupPasswordTextState: TextFieldState,
+    onRestoreBackupFile: () -> Unit,
     onAcknowledgeWrongPassword: () -> Unit,
-    onCancelBackupRestore: () -> Unit
+    onCancelBackupRestore: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    var restorePassword by remember { mutableStateOf(TextFieldValue((""))) }
-
     if (!isWrongPassword) {
         WireDialog(
+            modifier = modifier,
             title = stringResource(R.string.backup_label_enter_password),
             text = stringResource(R.string.backup_dialog_restore_backup_password_message),
             onDismiss = onCancelBackupRestore,
@@ -94,20 +92,20 @@ fun EnterRestorePasswordDialog(
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onRestoreBackupFile(restorePassword.text) },
+                onClick = onRestoreBackupFile,
                 text = stringResource(id = R.string.label_continue),
                 type = WireDialogButtonType.Primary,
-                state = if (restorePassword.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Default
+                state = if (backupPasswordTextState.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Default
             )
         ) {
             WirePasswordTextField(
-                value = restorePassword,
-                onValueChange = { restorePassword = it },
-                autofill = false
+                textState = backupPasswordTextState,
+                autoFill = false
             )
         }
     } else {
         WireDialog(
+            modifier = modifier,
             title = stringResource(R.string.backup_label_wrong_password),
             text = stringResource(R.string.backup_label_verify_input),
             onDismiss = onCancelBackupRestore,
@@ -125,10 +123,12 @@ fun RestoreProgressDialog(
     isRestoreCompleted: Boolean,
     restoreProgress: Float,
     onOpenConversation: () -> Unit,
-    onCancelBackupRestore: () -> Unit
+    onCancelBackupRestore: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val progress by animateFloatAsState(targetValue = restoreProgress)
     WireDialog(
+        modifier = modifier,
         title = stringResource(R.string.backup_dialog_restoring_backup_title),
         onDismiss = {
             // User is not able to dismiss the dialog

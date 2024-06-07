@@ -27,20 +27,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -50,12 +54,15 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.editguestaccess.GenerateGuestRoomLinkFailureDialog
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
 @Destination(
@@ -66,13 +73,36 @@ fun CreatePasswordProtectedGuestLinkScreen(
     navigator: Navigator,
     viewModel: CreatePasswordGuestLinkViewModel = hiltViewModel(),
 ) {
+    CreatePasswordProtectedGuestLinkScreenContent(
+        state = viewModel.state,
+        passwordTextState = viewModel.passwordTextState,
+        confirmPasswordTextState = viewModel.confirmPasswordTextState,
+        navigateBack = navigator::navigateBack,
+        onGenerateRandomPassword = viewModel::onGenerateRandomPassword,
+        onGenerateLink = viewModel::onGenerateLink,
+        onErrorDialogDismissed = viewModel::onErrorDialogDismissed,
+    )
+}
+
+@Composable
+fun CreatePasswordProtectedGuestLinkScreenContent(
+    state: CreatePasswordGuestLinkState,
+    passwordTextState: TextFieldState,
+    confirmPasswordTextState: TextFieldState,
+    navigateBack: () -> Unit,
+    onGenerateRandomPassword: () -> Unit,
+    onGenerateLink: () -> Unit,
+    onErrorDialogDismissed: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
-    val onCopyClick = remember(viewModel.state.password.text) {
+    val passwordCurrentState by rememberUpdatedState(newValue = passwordTextState.text.toString())
+    val onCopyClick = remember {
         {
-            if (viewModel.state.isPasswordValid) {
-                clipboardManager.setText(viewModel.state.password.annotatedString)
+            if (state.isPasswordValid) {
+                clipboardManager.setText(AnnotatedString(passwordCurrentState))
                 Toast.makeText(
                     context,
                     context.getString(R.string.conversation_options_create_password_protected_guest_link_password_copied),
@@ -81,20 +111,23 @@ fun CreatePasswordProtectedGuestLinkScreen(
             }
         }
     }
-    LaunchedEffect(viewModel.state.isLinkCreationSuccessful) {
-        if (viewModel.state.isLinkCreationSuccessful) {
+    LaunchedEffect(state.isLinkCreationSuccessful) {
+        if (state.isLinkCreationSuccessful) {
             onCopyClick()
-            navigator.navigateBack()
+            navigateBack()
         }
     }
 
-    WireScaffold(topBar = {
-        WireCenterAlignedTopAppBar(
-            elevation = scrollState.rememberTopBarElevationState().value,
-            onNavigationPressed = navigator::navigateBack,
-            title = stringResource(id = R.string.conversation_options_create_password_protected_guest_link_title),
-        )
-    }) { internalPadding ->
+    WireScaffold(
+        modifier = modifier,
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = scrollState.rememberTopBarElevationState().value,
+                onNavigationPressed = navigateBack,
+                title = stringResource(id = R.string.conversation_options_create_password_protected_guest_link_title),
+            )
+        }
+    ) { internalPadding ->
         Column {
             LazyColumn(
                 modifier = Modifier
@@ -127,9 +160,9 @@ fun CreatePasswordProtectedGuestLinkScreen(
                     Spacer(modifier = Modifier.height(dimensions().spacing24x))
                 }
                 item {
-                    val onClick = remember(viewModel.state.password.text) {
+                    val onClick = remember {
                         {
-                            viewModel.onGenerateRandomPassword()
+                            onGenerateRandomPassword()
                             Toast.makeText(
                                 context,
                                 context.getString(R.string.conversation_options_create_password_protected_guest_link_password_generated),
@@ -147,12 +180,12 @@ fun CreatePasswordProtectedGuestLinkScreen(
                         labelText = stringResource(
                             id = R.string.conversation_options_create_password_protected_guest_link_password_label
                         ),
-                        value = viewModel.state.password,
+                        textState = passwordTextState,
                         placeholderText = stringResource(
                             id = R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text
                         ),
-                        onValueChange = viewModel::onPasswordUpdated,
-                        autofill = false
+                        keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Next),
+                        autoFill = false,
                     )
                     Spacer(modifier = Modifier.height(dimensions().spacing8x))
                 }
@@ -174,9 +207,9 @@ fun CreatePasswordProtectedGuestLinkScreen(
                         placeholderText = stringResource(
                             id = R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text
                         ),
-                        value = viewModel.state.passwordConfirm,
-                        onValueChange = viewModel::onPasswordConfirmUpdated,
-                        autofill = false
+                        textState = confirmPasswordTextState,
+                        keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
+                        autoFill = false
                     )
                     Spacer(modifier = Modifier.height(dimensions().spacing24x))
                 }
@@ -187,16 +220,16 @@ fun CreatePasswordProtectedGuestLinkScreen(
                 shadowElevation = dimensions().spacing8x
             ) {
                 CreateButton(
-                    enabled = viewModel.state.isPasswordValid,
-                    isLoading = viewModel.state.isLoading,
-                    onCreateLink = viewModel::onGenerateLink
+                    enabled = state.isPasswordValid,
+                    isLoading = state.isLoading,
+                    onCreateLink = onGenerateLink
                 )
             }
         }
 
-        if (viewModel.state.error != null) {
+        if (state.error != null) {
             GenerateGuestRoomLinkFailureDialog(
-                onDismiss = viewModel::onErrorDialogDismissed
+                onDismiss = onErrorDialogDismissed
             )
         }
     }
@@ -223,8 +256,16 @@ private fun CreateButton(
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewCreatePasswordProtectedGuestLinkScreen() {
-    CreatePasswordProtectedGuestLinkScreen(navigator = Navigator(finish = {}, navController = NavHostController(LocalContext.current)))
+fun PreviewCreatePasswordProtectedGuestLinkScreen() = WireTheme {
+    CreatePasswordProtectedGuestLinkScreenContent(
+        state = CreatePasswordGuestLinkState(),
+        passwordTextState = TextFieldState(),
+        confirmPasswordTextState = TextFieldState(),
+        navigateBack = {},
+        onGenerateRandomPassword = {},
+        onGenerateLink = {},
+        onErrorDialogDismissed = {},
+    )
 }

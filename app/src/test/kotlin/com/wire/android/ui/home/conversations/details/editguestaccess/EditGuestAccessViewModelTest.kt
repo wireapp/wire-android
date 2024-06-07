@@ -58,12 +58,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 class EditGuestAccessViewModelTest {
+    private val dispatcher = TestDispatcherProvider()
 
     @Test
     fun `given updateConversationAccessRole use case runs successfully, when trying to enable guest access, then enable guest access`() =
-        runTest {
+        runTest(dispatcher.default()) {
             // given
-            val (arrangement, editGuestAccessViewModel) = Arrangement()
+            val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
                 .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success)
                 .arrange()
             advanceUntilIdle()
@@ -78,9 +79,9 @@ class EditGuestAccessViewModelTest {
 
     @Test
     fun `given a failure when running updateConversationAccessRole, when trying to enable guest access, then do not enable guest access`() =
-        runTest {
+        runTest(dispatcher.default()) {
             // given
-            val (arrangement, editGuestAccessViewModel) = Arrangement()
+            val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
                 .withUpdateConversationAccessRoleResult(
                     UpdateConversationAccessRoleUseCase.Result.Failure(CoreFailure.MissingClientRegistration)
                 ).arrange()
@@ -96,9 +97,9 @@ class EditGuestAccessViewModelTest {
 
     @Test
     fun `given guest access is activated, when trying to disable guest access, then display dialog before disabling guest access`() =
-        runTest {
+        runTest(dispatcher.default()) {
             // given
-            val (arrangement, editGuestAccessViewModel) = Arrangement()
+            val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
                 .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success)
                 .arrange()
             advanceUntilIdle()
@@ -112,9 +113,9 @@ class EditGuestAccessViewModelTest {
         }
 
     @Test
-    fun `given useCase runs with success, when_generating guest link, then invoke it once`() = runTest {
+    fun `given useCase runs with success, when_generating guest link, then invoke it once`() = runTest(dispatcher.default()) {
         // given
-        val (arrangement, editGuestAccessViewModel) = Arrangement()
+        val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
             .withGenerateGuestRoomResult(GenerateGuestRoomLinkResult.Success)
             .arrange()
         advanceUntilIdle()
@@ -128,9 +129,9 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given useCase runs with failure, when generating guest link, then show dialog error`() = runTest {
+    fun `given useCase runs with failure, when generating guest link, then show dialog error`() = runTest(dispatcher.default()) {
         // given
-        val (arrangement, editGuestAccessViewModel) = Arrangement()
+        val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
             .withGenerateGuestRoomResult(
                 GenerateGuestRoomLinkResult.Failure(NetworkFailure.NoNetworkConnection(RuntimeException("no network")))
             ).arrange()
@@ -145,9 +146,9 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given useCase runs with success, when revoking guest link, then invoke it once`() = runTest {
+    fun `given useCase runs with success, when revoking guest link, then invoke it once`() = runTest(dispatcher.default()) {
         // given
-        val (arrangement, editGuestAccessViewModel) = Arrangement()
+        val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
             .withRevokeGuestRoomLinkResult(RevokeGuestRoomLinkResult.Success)
             .arrange()
         advanceUntilIdle()
@@ -161,9 +162,9 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given useCase runs with failure when revoking guest link then show dialog error`() = runTest {
+    fun `given useCase runs with failure when revoking guest link then show dialog error`() = runTest(dispatcher.default()) {
         // given
-        val (arrangement, editGuestAccessViewModel) = Arrangement()
+        val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
             .withRevokeGuestRoomLinkResult(RevokeGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration))
             .arrange()
         advanceUntilIdle()
@@ -179,9 +180,9 @@ class EditGuestAccessViewModelTest {
 
     @Test
     fun `given updateConversationAccessRole use case runs successfully, when trying to disable guest access, then disable guest access`() =
-        runTest {
+        runTest(dispatcher.default()) {
             // given
-            val (arrangement, editGuestAccessViewModel) = Arrangement()
+            val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
                 .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success)
                 .arrange()
             advanceUntilIdle()
@@ -196,9 +197,9 @@ class EditGuestAccessViewModelTest {
 
     @Test
     fun `given a failure running updateConversationAccessRole, when trying to disable guest access, then do not disable guest access`() =
-        runTest {
+        runTest(dispatcher.default()) {
             // given
-            val (arrangement, editGuestAccessViewModel) = Arrangement()
+            val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
                 .withUpdateConversationAccessRoleResult(
                     UpdateConversationAccessRoleUseCase.Result.Failure(CoreFailure.MissingClientRegistration)
                 )
@@ -213,7 +214,7 @@ class EditGuestAccessViewModelTest {
             assertEquals(true, editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed)
         }
 
-    private class Arrangement {
+    private class Arrangement(dispatcherProvider: TestDispatcherProvider) {
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
 
@@ -258,7 +259,7 @@ class EditGuestAccessViewModelTest {
                 revokeGuestRoomLink = revokeGuestRoomLink,
                 observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag,
                 canCreatePasswordProtectedLinks = canCreatePasswordProtectedLinks,
-                dispatcher = TestDispatcherProvider(),
+                dispatcher = dispatcherProvider,
                 syncConversationCode = syncConversationCodeUseCase
             )
         }

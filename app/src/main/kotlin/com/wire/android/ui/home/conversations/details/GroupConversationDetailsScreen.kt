@@ -36,7 +36,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -58,7 +57,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -79,6 +77,7 @@ import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -116,9 +115,15 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.GroupID
+import com.wire.kalium.logic.data.mls.CipherSuite
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 
 @RootNavGraph
 @Destination(
@@ -128,9 +133,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun GroupConversationDetailsScreen(
     navigator: Navigator,
-    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     groupConversationDetailResultRecipient: ResultRecipient<EditConversationNameScreenDestination, Boolean>,
+    viewModel: GroupConversationDetailsViewModel = hiltViewModel()
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
@@ -159,7 +164,7 @@ fun GroupConversationDetailsScreen(
 
     GroupConversationDetailsContent(
         conversationSheetContent = viewModel.conversationSheetContent,
-        bottomSheetEventsHandler = viewModel,
+        bottomSheetEventsHandler = viewModel as GroupConversationDetailsBottomSheetEventsHandler,
         onBackPressed = navigator::navigateBack,
         onProfilePressed = { participant ->
             when {
@@ -260,7 +265,7 @@ fun GroupConversationDetailsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun GroupConversationDetailsContent(
     conversationSheetContent: ConversationSheetContent?,
@@ -561,15 +566,34 @@ private fun VerifiedLabel(text: String, color: Color, icon: @Composable RowScope
 enum class GroupConversationDetailsTabItem(@StringRes val titleResId: Int) : TabItem {
     OPTIONS(R.string.conversation_details_options_tab),
     PARTICIPANTS(R.string.conversation_details_participants_tab);
+
     override val title: UIText = UIText.StringResource(titleResId)
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationDetails() {
     WireTheme {
         GroupConversationDetailsContent(
-            conversationSheetContent = null,
+            conversationSheetContent = ConversationSheetContent(
+                title = "title",
+                conversationId = ConversationId("value", "domain"),
+                mutingConversationState = MutedConversationStatus.AllAllowed,
+                conversationTypeDetail = ConversationTypeDetail.Group(ConversationId("value", "domain"), false),
+                selfRole = null,
+                isTeamConversation = true,
+                isArchived = false,
+                protocol = Conversation.ProtocolInfo.MLS(
+                    groupId = GroupID("groupId"),
+                    groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.ESTABLISHED,
+                    epoch = ULong.MIN_VALUE,
+                    keyingMaterialLastUpdate = Instant.fromEpochMilliseconds(1648654560000),
+                    cipherSuite = CipherSuite.MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
+                ),
+                mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+                isUnderLegalHold = false,
+                proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
+            ),
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},
             onProfilePressed = {},

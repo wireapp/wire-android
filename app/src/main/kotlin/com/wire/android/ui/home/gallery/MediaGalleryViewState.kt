@@ -27,5 +27,6 @@ data class MediaGalleryViewState(
     val deleteMessageDialogsState: DeleteMessageDialogsState = DeleteMessageDialogsState.States(
         forYourself = DeleteMessageDialogActiveState.Hidden,
         forEveryone = DeleteMessageDialogActiveState.Hidden
-    )
+    ),
+    val messageBottomSheetOptionsEnabled: Boolean
 )

@@ -47,7 +47,7 @@
     <string name="label_message_receive_failure">Ошибка загрузки</string>
     <string name="label_message_decryption_failure_message">Не удалось расшифровать сообщение.</string>
     <string name="label_message_decryption_failure_informative_message">Попробуйте сбросить сессию для генерации новых ключей шифрования.</string>
-    <string name="label_system_message_self_user_knock">%s отправил(-а) пинг</string>
+    <string name="label_system_message_self_user_knock">%s отправили пинг</string>
     <string name="label_system_message_other_user_knock">%s отправил(-а) пинг</string>
     <string name="label_message_partial_delivery_participants_count">%1$d участников не получили ваше сообщение.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s не получит ваше сообщение.</string>
@@ -189,7 +189,7 @@
     <string name="report_bug_screen_title">Сообщить об ошибке</string>
     <string name="about_app_screen_title">Об этом приложении</string>
     <string name="settings_privacy_policy_label">Политика конфиденциальности</string>
-    <string name="settings_terms_of_use_label">Условия использования</string>
+    <string name="settings_terms_of_use_label">Юридическая информация</string>
     <string name="label_copyright">Авторское право</string>
     <string name="debug_settings_screen_title">Параметры отладки</string>
     <string name="item_dependencies_title">Зависимости:</string>
@@ -208,7 +208,7 @@
     <string name="settings_backup_info">Создайте резервную копию, чтобы сохранить историю бесед. Она пригодится для восстановления истории в случае потери или замены устройства.\n\nВыберите надежный пароль для защиты резервной копии.</string>
     <string name="settings_backup_last_backup_title">Последнее резервное копирование</string>
     <string name="settings_backup_last_backup_date">Последняя резервная копия для этого устройства была создана на %1$s в %2$s.</string>
-    <string name="settings_backup_last_backup_date_no_time">Вы еще не создали резервную копию для этого устройства.</string>
+    <string name="settings_backup_last_backup_date_no_time">Вы еще не создавали резервную копию с этого устройства.</string>
     <string name="settings_backup_create">Создать резервную копию</string>
     <string name="settings_backup_restore">Восстановить из резервной копии</string>
     <!-- Welcome -->
@@ -550,7 +550,7 @@
     <string name="muting_option_all_allowed_text">Получать уведомления в этой беседе обо всем (включая аудио- и видеозвонки)</string>
     <string name="muting_option_only_mentions_title">Вызовы, упоминания и ответы</string>
     <string name="muting_option_only_mentions_text">Получать уведомления в этой беседе только если кто-то позвонит, упомянет вас или ответит на ваше сообщение</string>
-    <string name="muting_option_all_muted_title">Ничего</string>
+    <string name="muting_option_all_muted_title">Никакие</string>
     <string name="muting_option_all_muted_text">Не получать уведомлений в этой беседе вообще</string>
     <!--Profile image-->
     <string name="profile_image_top_bar_label">Изображение профиля</string>
@@ -698,7 +698,7 @@
     <string name="last_message_other_user_shared_audio">поделился(-лась) аудиосообщением.</string>
     <string name="last_message_self_user_shared_location">поделились местоположением.</string>
     <string name="last_message_other_user_shared_location">поделился(-лась) местоположением.</string>
-    <string name="last_message_self_user_knock">отправил(-а) пинг.</string>
+    <string name="last_message_self_user_knock">отправили пинг.</string>
     <string name="last_message_other_user_knock">отправил(-а) пинг.</string>
     <string name="last_message_call">звонил(-а).</string>
     <string name="last_message_mentioned">упомянул(-а) вас</string>
@@ -979,7 +979,7 @@
     <string name="settings_network_settings_label">Настройки сети</string>
     <string name="settings_manage_devices_label">Управление устройствами</string>
     <string name="settings_keep_connection_to_websocket">Поддерживать соединение с веб-сокетом</string>
-    <string name="settings_keep_connection_to_websocket_description">Обеспечивает более эффективное получение уведомлений, поддерживая постоянное соединение с %1$s. При отсутствии на устройстве Google Services заменит службу уведомлений.</string>
+    <string name="settings_keep_connection_to_websocket_description">Позволяет оптимизировать получение уведомлений, поддерживая постоянное соединение с %1$s. Эта опция заменит службу уведомлений, если Google Services недоступны на устройстве.</string>
     <string name="settings_service_is_running">активен</string>
     <!--Settings, Appearance -->
     <string name="settings_appearance_label">Внешний вид</string>
@@ -1151,7 +1151,7 @@
     <string name="label_wire_credentials">НАСТРОЙКИ WIRE</string>
     <string name="dialog_clear_content_title">Очистить контент?</string>
     <string name="dialog_clear_content_option">Очистить контент</string>
-    <string name="dialog_clear_content_text">Будет выполнена очистка беседы на всех ваших устройствах. Вы сохраните доступ к %1$s и будете иметь доступ ко всем новым событиям %1$s</string>
+    <string name="dialog_clear_content_text">Будет выполнена очистка беседы на всех ваших устройствах. Вы по-прежнему будете участником %1$s и будете иметь доступ ко всем новым действиям %1$s</string>
     <string name="not_supported_dialog_title">Не поддерживается</string>
     <string name="sso_not_supported_dialog_description">Нельзя авторизоваться через SSO во внутреннем бэкэнде с поддержкой прокси.</string>
     <string name="create_personal_account_not_supported_dialog_description">Нельзя создать личный аккаунт во внутреннем бэкэнде с поддержкой прокси.</string>

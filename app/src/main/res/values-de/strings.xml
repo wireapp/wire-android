@@ -187,7 +187,7 @@
     <string name="report_bug_screen_title">Fehler melden</string>
     <string name="about_app_screen_title">About This App</string>
     <string name="settings_privacy_policy_label">Datenschutzerklärung</string>
-    <string name="settings_terms_of_use_label">Nutzungsbedingungen</string>
+    <string name="settings_terms_of_use_label">Datenschutz und AGB</string>
     <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Einstellungen zur Fehlerbehebung</string>
     <string name="item_dependencies_title">Abhängigkeiten:</string>

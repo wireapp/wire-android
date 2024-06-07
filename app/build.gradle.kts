@@ -1,3 +1,5 @@
+import customization.ConfigurationFileImporter
+import customization.NormalizedFlavorSettings
 import scripts.Variants_gradle
 
 /*
@@ -44,11 +46,19 @@ repositories {
     google()
 }
 
-fun isFossSourceSet(): Boolean {
-    return (Variants_gradle.Default.explicitBuildFlavor() ?: gradle.startParameter.taskRequests.toString())
-        .lowercase()
-        .contains("fdroid")
-}
+val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
+val fossFlavors = setOf("fdroid")
+val allFlavors = nonFreeFlavors + fossFlavors
+
+private fun getFlavorsSettings(): NormalizedFlavorSettings =
+    try {
+        val file = file("${project.rootDir}/default.json")
+        val configurationFileImporter = ConfigurationFileImporter()
+        configurationFileImporter.loadConfigsFromFile(file)
+    } catch (e: Exception) {
+        error(">> Error reading current flavors, exception: ${e.localizedMessage}")
+    }
+
 android {
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin
@@ -64,21 +74,17 @@ android {
     }
     android.buildFeatures.buildConfig = true
 
-    val fdroidBuild = isFossSourceSet()
-
     sourceSets {
-        // Add the "foss" sourceSets for the fdroid flavor
-        if (fdroidBuild) {
-            getByName("fdroid") {
-                java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
-                res.srcDirs("src/prod/res")
-                println("Building with FOSS sourceSets")
-            }
-            // For all other flavors use the "nonfree" sourceSets
-        } else {
-            getByName("main") {
-                java.srcDirs("src/nonfree/kotlin")
-                println("Building with non-free sourceSets")
+        allFlavors.forEach { flavor ->
+            getByName(flavor) {
+                if (flavor in fossFlavors) {
+                    java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
+                    res.srcDirs("src/prod/res")
+                    println("Adding FOSS sourceSets to '$flavor' flavor")
+                } else {
+                    java.srcDirs("src/nonfree/kotlin")
+                    println("Adding non-free sourceSets to '$flavor' flavor")
+                }
             }
         }
     }
@@ -181,17 +187,28 @@ dependencies {
     implementation(libs.resaca.hilt)
     implementation(libs.bundlizer.core)
 
-    var fdroidBuild = isFossSourceSet()
-
-    if (!fdroidBuild) {
-        // firebase
-        implementation(platform(libs.firebase.bom))
-        implementation(libs.firebase.fcm)
-        implementation(libs.googleGms.location)
-    } else {
-        println("Excluding FireBase for FDroid build")
+    allFlavors.forEach { flavor ->
+        if (flavor in nonFreeFlavors) {
+            println("Adding nonfree libraries to '$flavor' flavor")
+            add("${flavor}Implementation", platform(libs.firebase.bom))
+            add("${flavor}Implementation", libs.firebase.fcm)
+            add("${flavor}Implementation", libs.googleGms.location)
+        } else {
+            println("Skipping nonfree libraries for '$flavor' flavor")
+        }
     }
     implementation(libs.androidx.work)
+
+    // Anonymous Analytics
+    val flavors = getFlavorsSettings()
+    flavors.flavorMap.entries.forEach { (key, configs) ->
+        if (configs["analytics_enabled"] as? Boolean == true) {
+            println(">> Adding Anonymous Analytics dependency to [$key] flavor")
+            add("${key}Implementation",project(":core:analytics-enabled"))
+        } else {
+            add("${key}Implementation",project(":core:analytics-disabled"))
+        }
+    }
 
     // commonMark
     implementation(libs.commonmark.core)

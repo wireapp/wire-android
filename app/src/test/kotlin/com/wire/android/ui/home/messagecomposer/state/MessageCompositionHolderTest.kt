@@ -27,8 +27,13 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -43,10 +48,12 @@ class MessageCompositionHolderTest {
 
     private lateinit var messageComposition: MutableState<MessageComposition>
     private lateinit var messageTextState: TextFieldState
+    private val dispatcher = StandardTestDispatcher()
 
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this, relaxUnitFun = true)
+        Dispatchers.setMain(dispatcher)
 
         messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))
         messageTextState = TextFieldState()
@@ -58,6 +65,11 @@ class MessageCompositionHolderTest {
             onClearMentionSearchResult = {},
             onTypingEvent = {},
         )
+    }
+
+    @AfterEach
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test

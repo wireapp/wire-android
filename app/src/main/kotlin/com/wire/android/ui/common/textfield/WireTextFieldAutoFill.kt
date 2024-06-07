@@ -35,19 +35,17 @@ import io.github.esentsov.PackagePrivate
 @OptIn(ExperimentalComposeUiApi::class)
 @PackagePrivate
 @Composable
-internal fun Modifier.autoFill(type: WireAutoFillType, onFill: ((String) -> Unit)) = this.let { modifier ->
-    if (type.autoFillTypes.isNotEmpty()) {
-        val autofillNode = AutofillNode(
-            autofillTypes = type.autoFillTypes,
-            onFill = onFill,
-        )
-        LocalAutofillTree.current += autofillNode
-        modifier
-            .fillBounds(autofillNode)
-            .defaultOnFocusAutoFill(LocalAutofill.current, autofillNode)
-    } else {
-        modifier
-    }
+internal fun autoFillModifier(type: WireAutoFillType, onFill: ((String) -> Unit)) = if (type.autoFillTypes.isNotEmpty()) {
+    val autofillNode = AutofillNode(
+        autofillTypes = type.autoFillTypes,
+        onFill = onFill,
+    )
+    LocalAutofillTree.current += autofillNode
+    Modifier
+        .fillBounds(autofillNode)
+        .defaultOnFocusAutoFill(LocalAutofill.current, autofillNode)
+} else {
+    Modifier
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

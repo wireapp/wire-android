@@ -105,7 +105,7 @@ fun WirePasswordTextField(
         shape = shape,
         colors = colors,
         trailingIcon = { VisibilityIconButton(passwordVisibility) { passwordVisibility = it } },
-        modifier = modifier.autoFill(autoFillType, textState::setTextAndPlaceCursorAtEnd),
+        modifier = modifier.then(autoFillModifier(autoFillType, textState::setTextAndPlaceCursorAtEnd)),
         testTag = testTag,
         onTap = onTap,
         innerBasicTextField = { decorator, textFieldModifier ->

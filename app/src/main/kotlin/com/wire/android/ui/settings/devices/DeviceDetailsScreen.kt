@@ -377,22 +377,10 @@ fun DeviceKeyFingerprintItem(
 @Composable
 fun DeviceMLSSignatureItem(
     mlsThumbprint: String,
-<<<<<<< HEAD
-    mlsProtocolType: String,
     onCopy: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
-    FolderHeader(
-        name = stringResource(id = R.string.label_mls_signature, mlsProtocolType).uppercase(),
-        modifier = Modifier
-            .background(MaterialTheme.wireColorScheme.background)
-            .fillMaxWidth()
-    )
-=======
-    onCopy: (String) -> Unit
-) {
->>>>>>> c1f5a1b63 (fix: OtherUser devices: wrong MLS data [WPB-8908] 🍒 (#3075))
 
     DeviceDetailSectionContent(
         stringResource(id = R.string.label_mls_thumbprint),

@@ -32,7 +32,8 @@ fun getActionReply(
     context: Context,
     conversationId: String,
     userId: String?,
-    isAppLocked: Boolean
+    isAppLocked: Boolean,
+    allowGeneratedReply: Boolean
 ): NotificationCompat.Action {
     return if (isAppLocked) {
         val resultPendingIntent = messagePendingIntent(context, conversationId, userId)
@@ -44,7 +45,7 @@ fun getActionReply(
 
         NotificationCompat.Action.Builder(null, context.getString(R.string.notification_action_reply), resultPendingIntent)
             .addRemoteInput(remoteInput)
-            .setAllowGeneratedReplies(true)
+            .setAllowGeneratedReplies(allowGeneratedReply)
             .build()
     }
 }

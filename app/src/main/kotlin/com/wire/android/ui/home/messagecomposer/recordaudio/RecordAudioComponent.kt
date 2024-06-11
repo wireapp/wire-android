@@ -45,11 +45,12 @@ import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 
 @Composable
 fun RecordAudioComponent(
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     onAudioRecorded: (UriAsset) -> Unit,
-    onCloseRecordAudio: () -> Unit
+    onCloseRecordAudio: () -> Unit,
+    modifier: Modifier = Modifier,
+    lifecycleOwner: LifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current,
+    viewModel: RecordAudioViewModel = hiltViewModelScoped<RecordAudioViewModel>()
 ) {
-    val viewModel: RecordAudioViewModel = hiltViewModelScoped<RecordAudioViewModel>()
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
 
@@ -91,6 +92,7 @@ fun RecordAudioComponent(
             .fillMaxWidth()
             .fillMaxHeight()
             .background(colorsScheme().background)
+            .then(modifier)
     ) {
         WireDivider(color = MaterialTheme.wireColorScheme.outline)
         RecordAudioButtonClose(

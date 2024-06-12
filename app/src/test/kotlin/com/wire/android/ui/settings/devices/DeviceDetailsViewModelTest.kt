@@ -39,8 +39,7 @@ import com.wire.kalium.logic.feature.client.Result
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
-import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCaseResult
-import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
@@ -332,7 +331,7 @@ class DeviceDetailsViewModelTest {
         lateinit var observeUserInfo: ObserveUserInfoUseCase
 
         @MockK
-        lateinit var getE2eiCertificate: GetE2eiCertificateUseCase
+        lateinit var getE2eiCertificate: GetMLSClientIdentityUseCase
 
         @MockK(relaxed = true)
         lateinit var onSuccess: () -> Unit

@@ -69,8 +69,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.e2ei.CertificateStatus
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -147,9 +145,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun getMLSVerificationStatus() {
         viewModelScope.launch {
-            val isMLSVerified = getUserE2eiCertificateStatus(userId).let {
-                it is GetUserE2eiCertificateStatusResult.Success && it.status == CertificateStatus.VALID
-            }
+            val isMLSVerified = getUserE2eiCertificateStatus(userId)
             state = state.copy(isMLSVerified = isMLSVerified)
         }
     }

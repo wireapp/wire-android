@@ -27,7 +27,7 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.e2ei.CertificateRevocationListCheckWorker
-import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
@@ -212,7 +212,7 @@ class UserModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetE2EICertificateUseCase(userScope: UserScope): GetE2eiCertificateUseCase =
+    fun provideGetE2EICertificateUseCase(userScope: UserScope): GetMLSClientIdentityUseCase =
         userScope.getE2EICertificate
 
     @ViewModelScoped

@@ -40,18 +40,20 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.feature.e2ei.CertificateStatus
-import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
+import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
+import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
+import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
+import com.wire.kalium.logic.feature.e2ei.X509Identity
 import kotlinx.datetime.Instant
 
 @Composable
 fun EndToEndIdentityCertificateItem(
     isE2eiCertificateActivated: Boolean,
-    certificate: E2eiCertificate?,
+    mlsClientIdentity: MLSClientIdentity?,
     isCurrentDevice: Boolean,
     isLoadingCertificate: Boolean,
     enrollE2eiCertificate: () -> Unit,
-    showCertificate: (E2eiCertificate) -> Unit
+    showCertificate: (MLSClientIdentity) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -77,24 +79,24 @@ fun EndToEndIdentityCertificateItem(
             color = MaterialTheme.wireColorScheme.secondaryText,
         )
         Column {
-            if (isE2eiCertificateActivated && certificate != null) {
-                when (certificate.status) {
-                    CertificateStatus.REVOKED -> {
+            if (isE2eiCertificateActivated && mlsClientIdentity != null && mlsClientIdentity.credentialType == MLSCredentialsType.X509) {
+                when (mlsClientIdentity.e2eiStatus) {
+                    MLSClientE2EIStatus.REVOKED -> {
                         E2EIStatusRow(
                             label = stringResource(id = R.string.e2ei_certificat_status_revoked),
                             labelColor = colorsScheme().error,
                             icon = R.drawable.ic_certificate_revoked_mls
                         )
-                        SerialNumberBlock(certificate.serialNumber)
+                        SerialNumberBlock(mlsClientIdentity.x509Identity!!.serialNumber)
                     }
 
-                    CertificateStatus.EXPIRED -> {
+                    MLSClientE2EIStatus.EXPIRED -> {
                         E2EIStatusRow(
                             label = stringResource(id = R.string.e2ei_certificat_status_expired),
                             labelColor = colorsScheme().error,
                             icon = R.drawable.ic_certificate_not_activated_mls
                         )
-                        SerialNumberBlock(certificate.serialNumber)
+                        SerialNumberBlock(mlsClientIdentity.x509Identity!!.serialNumber)
                         if (isCurrentDevice) {
                             UpdateE2eiCertificateButton(
                                 enabled = true,
@@ -104,18 +106,32 @@ fun EndToEndIdentityCertificateItem(
                         }
                     }
 
-                    CertificateStatus.VALID -> {
+                    MLSClientE2EIStatus.VALID -> {
                         E2EIStatusRow(
                             label = stringResource(id = R.string.e2ei_certificat_status_valid),
                             labelColor = colorsScheme().validE2eiStatusColor,
                             icon = R.drawable.ic_certificate_valid_mls
                         )
-                        SerialNumberBlock(certificate.serialNumber)
+                        SerialNumberBlock(mlsClientIdentity.x509Identity!!.serialNumber)
                         if (isCurrentDevice) {
                             UpdateE2eiCertificateButton(
                                 enabled = true,
                                 isLoading = isLoadingCertificate,
                                 onUpdateCertificateClicked = enrollE2eiCertificate
+                            )
+                        }
+                    }
+                    MLSClientE2EIStatus.NOT_ACTIVATED->{
+                        E2EIStatusRow(
+                            label = stringResource(id = R.string.e2ei_certificat_status_not_activated),
+                            labelColor = colorsScheme().error,
+                            icon = R.drawable.ic_certificate_not_activated_mls
+                        )
+                        if (isCurrentDevice) {
+                            GetE2eiCertificateButton(
+                                enabled = true,
+                                isLoading = isLoadingCertificate,
+                                onGetCertificateClicked = enrollE2eiCertificate
                             )
                         }
                     }
@@ -124,7 +140,7 @@ fun EndToEndIdentityCertificateItem(
                     enabled = true,
                     isLoading = false,
                     onShowCertificateClicked = {
-                        showCertificate(certificate)
+                        showCertificate(mlsClientIdentity)
                     }
                 )
             } else {
@@ -198,13 +214,18 @@ fun PreviewEndToEndIdentityCertificateItem() {
     EndToEndIdentityCertificateItem(
         isE2eiCertificateActivated = true,
         isCurrentDevice = false,
-        certificate = E2eiCertificate(
-            userHandle = "userHandle",
-            status = CertificateStatus.VALID,
-            serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
-            certificateDetail = "",
+        mlsClientIdentity = MLSClientIdentity(
+            e2eiStatus = MLSClientE2EIStatus.VALID,
             thumbprint = "thumbprint",
-            endAt = Instant.DISTANT_FUTURE
+            credentialType = MLSCredentialsType.X509,
+            x509Identity = X509Identity(
+                displayName = "",
+                domain = "",
+                certificateDetail = "",
+                serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
+                notBefore = Instant.DISTANT_PAST,
+                notAfter = Instant.DISTANT_FUTURE
+            )
         ),
         isLoadingCertificate = false,
         enrollE2eiCertificate = {},
@@ -218,13 +239,18 @@ fun PreviewEndToEndIdentityCertificateSelfItem() {
     EndToEndIdentityCertificateItem(
         isE2eiCertificateActivated = true,
         isCurrentDevice = true,
-        certificate = E2eiCertificate(
-            userHandle = "userHandle",
-            status = CertificateStatus.VALID,
-            serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
-            certificateDetail = "",
+        mlsClientIdentity = MLSClientIdentity(
+            e2eiStatus = MLSClientE2EIStatus.VALID,
             thumbprint = "thumbprint",
-            endAt = Instant.DISTANT_FUTURE
+            credentialType = MLSCredentialsType.X509,
+            x509Identity = X509Identity(
+                displayName = "",
+                domain = "",
+                certificateDetail = "",
+                serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
+                notBefore = Instant.DISTANT_PAST,
+                notAfter = Instant.DISTANT_FUTURE
+            )
         ),
         isLoadingCertificate = false,
         enrollE2eiCertificate = {},

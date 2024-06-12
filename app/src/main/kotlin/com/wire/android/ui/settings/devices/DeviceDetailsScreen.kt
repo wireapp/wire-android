@@ -51,6 +51,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.model.Device
@@ -91,8 +92,10 @@ import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.feature.e2ei.CertificateStatus
-import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
+import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
+import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
+import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
+import com.wire.kalium.logic.feature.e2ei.X509Identity
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.functional.Either
 import kotlinx.datetime.Instant
@@ -136,7 +139,7 @@ fun DeviceDetailsContent(
     state: DeviceDetailsState,
     onDeleteDevice: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
-    onNavigateToE2eiCertificateDetailsScreen: (E2eiCertificate) -> Unit = {},
+    onNavigateToE2eiCertificateDetailsScreen: (MLSClientIdentity) -> Unit = {},
     onPasswordChange: (TextFieldValue) -> Unit = {},
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
@@ -190,9 +193,10 @@ fun DeviceDetailsContent(
                 .background(MaterialTheme.wireColorScheme.surface)
         ) {
 
-            state.device.e2eiCertificate?.let { certificate ->
+            appLogger.e("device info:"+state.device.toString())
+            state.device.mlsClientIdentity?.let { identity ->
                 item {
-                    DeviceMLSSignatureItem(certificate.thumbprint, screenState::copyMessage)
+                    DeviceMLSSignatureItem(identity.thumbprint, screenState::copyMessage)
                     Divider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
@@ -201,7 +205,7 @@ fun DeviceDetailsContent(
                 item {
                     EndToEndIdentityCertificateItem(
                         isE2eiCertificateActivated = state.isE2eiCertificateActivated,
-                        certificate = state.e2eiCertificate,
+                        mlsClientIdentity = state.mlsClientIdentity,
                         isCurrentDevice = state.isCurrentDevice,
                         isLoadingCertificate = state.isLoadingCertificate,
                         enrollE2eiCertificate = { enrollE2eiCertificate() },
@@ -291,9 +295,9 @@ fun DeviceDetailsContent(
             )
         }
 
-        if (state.isE2EICertificateEnrollSuccess && state.e2eiCertificate != null) {
+        if (state.isE2EICertificateEnrollSuccess && state.mlsClientIdentity != null) {
             E2EISuccessDialog(
-                openCertificateDetails = { onNavigateToE2eiCertificateDetailsScreen(state.e2eiCertificate) },
+                openCertificateDetails = { onNavigateToE2eiCertificateDetailsScreen(state.mlsClientIdentity) },
                 dismissDialog = onEnrollE2EISuccessDismiss
             )
         }
@@ -326,7 +330,7 @@ private fun DeviceDetailsTopBar(
                 )
 
                 if (shouldShowE2EIInfo) {
-                    MLSVerificationIcon(device.e2eiCertificate?.status)
+                    MLSVerificationIcon(device.mlsClientIdentity?.e2eiStatus)
                 }
 
                 if (!isCurrentDevice && device.isVerifiedProteus) {
@@ -573,14 +577,19 @@ fun PreviewDeviceDetailsScreen() {
                 clientId = ClientId(""),
                 name = UIText.DynamicString("My Device"),
                 registrationTime = "2022-03-24T18:02:30.360Z",
-                e2eiCertificate = E2eiCertificate(
-                    "handler",
-                    CertificateStatus.VALID,
-                    "serial",
-                    "Details",
-                    "Thumbprint",
-                    Instant.DISTANT_FUTURE
-                )
+                mlsClientIdentity = MLSClientIdentity(
+                    e2eiStatus = MLSClientE2EIStatus.VALID,
+                    thumbprint = "thumbprint",
+                    credentialType = MLSCredentialsType.X509,
+                    x509Identity = X509Identity(
+                        displayName = "",
+                        domain = "",
+                        certificateDetail = "",
+                        serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
+                        notBefore = Instant.DISTANT_PAST,
+                        notAfter = Instant.DISTANT_FUTURE
+                    )
+                ),
             ),
             isCurrentDevice = false
         ),

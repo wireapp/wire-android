@@ -29,7 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.feature.e2ei.CertificateStatus
+import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
 
 @Composable
 fun RowScope.ConversationVerificationIcons(
@@ -68,23 +68,26 @@ fun RowScope.ConversationVerificationIcons(
 }
 
 @Composable
-fun RowScope.MLSVerificationIcon(mlsVerificationStatus: CertificateStatus?) {
+fun RowScope.MLSVerificationIcon(mlsVerificationStatus: MLSClientE2EIStatus?) {
     val mlsIconModifier = Modifier
         .wrapContentWidth()
         .align(Alignment.CenterVertically)
 
     when (mlsVerificationStatus) {
-        CertificateStatus.VALID -> MLSVerifiedIcon(
+        MLSClientE2EIStatus.VALID -> MLSVerifiedIcon(
             contentDescriptionId = R.string.e2ei_certificat_status_valid,
             modifier = mlsIconModifier
         )
 
-        CertificateStatus.REVOKED -> MLSRevokedIcon(modifier = mlsIconModifier)
+        MLSClientE2EIStatus.REVOKED -> MLSRevokedIcon(modifier = mlsIconModifier)
 
-        CertificateStatus.EXPIRED -> MLSNotVerifiedIcon(
+        MLSClientE2EIStatus.EXPIRED
+        -> MLSNotVerifiedIcon(
             contentDescriptionId = R.string.e2ei_certificat_status_expired,
             modifier = mlsIconModifier
         )
+
+        MLSClientE2EIStatus.NOT_ACTIVATED -> MLSNotVerifiedIcon(modifier = mlsIconModifier)
 
         null -> MLSNotVerifiedIcon(modifier = mlsIconModifier)
     }

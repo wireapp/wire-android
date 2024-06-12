@@ -189,9 +189,10 @@ private fun IncomingCallContent(
                 isMuted = callState.isMuted ?: true,
                 isCameraOn = callState.isCameraOn,
                 isSpeakerOn = callState.isSpeakerOn,
-                toggleSpeaker = toggleSpeaker,
+                toggleSpeaker = {},
                 toggleMute = toggleMute,
                 toggleVideo = toggleVideo,
+                shouldShowSpeakerButton = false,
                 onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
             )
             Box(

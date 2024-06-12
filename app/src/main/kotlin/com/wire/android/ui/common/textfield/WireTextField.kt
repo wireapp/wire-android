@@ -75,7 +75,7 @@ internal fun WireTextField(
     trailingIcon: @Composable (() -> Unit)? = null,
     state: WireTextFieldState = WireTextFieldState.Default,
     autoFillType: WireAutoFillType = WireAutoFillType.None,
-    lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
+    lineLimits: TextFieldLineLimits = TextFieldLineLimits.SingleLine,
     inputTransformation: InputTransformation = InputTransformation.maxLength(8000),
     outputTransformation: OutputTransformation? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.DefaultText,

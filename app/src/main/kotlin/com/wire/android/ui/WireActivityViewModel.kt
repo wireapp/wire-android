@@ -202,8 +202,11 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.get().io()) {
             currentScreenManager.get().observeCurrentScreen(this)
                 .flatMapLatest {
-                    if (it.isGlobalDialogAllowed()) observeNewClients.get().invoke()
-                    else flowOf(NewClientResult.Empty)
+                    if (it.isGlobalDialogAllowed()) {
+                        observeNewClients.get().invoke()
+                    } else {
+                        flowOf(NewClientResult.Empty)
+                    }
                 }
                 .collect {
                     val newClientDialog = NewClientsData.fromUseCaseResul(it)

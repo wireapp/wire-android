@@ -233,7 +233,7 @@ private fun RecordAudioButton(
         )
 
         Spacer(modifier = Modifier.height(dimensions().spacing40x))
-        if(BuildConfig.AUDIO_FILTER_ENABLED) {
+        if (BuildConfig.AUDIO_FILTER_ENABLED) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {

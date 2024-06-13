@@ -175,29 +175,29 @@ class RecordAudioViewModel @Inject constructor(
         }
         audioMediaRecorder.release()
 
-        if (BuildConfig.AUDIO_FILTER_ENABLED) {
-            if (state.originalOutputFile != null && state.effectsOutputFile != null) {
+        if (state.originalOutputFile != null) {
+            if (BuildConfig.AUDIO_FILTER_ENABLED && state.effectsOutputFile != null) {
                 generateAudioFileWithEffects(
                     context = context,
                     originalFilePath = state.originalOutputFile!!.path,
                     effectsFilePath = state.effectsOutputFile!!.path
                 )
             }
-        }
 
-        state = state.copy(
-            buttonState = RecordAudioButtonState.READY_TO_SEND,
-            audioState = AudioState.DEFAULT.copy(
-                totalTimeInMs = AudioState.TotalTimeInMs.Known(
-                    getPlayableAudioFile()?.let {
-                        getAudioLengthInMs(
-                            dataPath = it.path.toPath(),
-                            mimeType = AUDIO_MIME_TYPE
-                        ).toInt()
-                    } ?: 0
+            state = state.copy(
+                buttonState = RecordAudioButtonState.READY_TO_SEND,
+                audioState = AudioState.DEFAULT.copy(
+                    totalTimeInMs = AudioState.TotalTimeInMs.Known(
+                        getPlayableAudioFile()?.let {
+                            getAudioLengthInMs(
+                                dataPath = it.path.toPath(),
+                                mimeType = AUDIO_MIME_TYPE
+                            ).toInt()
+                        } ?: 0
+                    )
                 )
             )
-        )
+        }
     }
 
     fun showDiscardRecordingDialog(onCloseRecordAudio: () -> Unit) {

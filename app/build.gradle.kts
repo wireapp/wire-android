@@ -1,6 +1,6 @@
 import customization.ConfigurationFileImporter
 import customization.NormalizedFlavorSettings
-import scripts.Variants_gradle
+import java.util.Properties
 
 /*
  * Wire
@@ -48,6 +48,7 @@ repositories {
 
 val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
 val fossFlavors = setOf("fdroid")
+val internalFlavors = setOf("internal", "staging", "beta", "dev")
 val allFlavors = nonFreeFlavors + fossFlavors
 
 private fun getFlavorsSettings(): NormalizedFlavorSettings =
@@ -60,6 +61,22 @@ private fun getFlavorsSettings(): NormalizedFlavorSettings =
     }
 
 android {
+    defaultConfig {
+
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(localPropertiesFile.inputStream())
+        }
+
+        val datadogApiKeyKey = "DATADOG_CLIENT_TOKEN"
+        val apiKey: String? = System.getenv(datadogApiKeyKey) ?: localProperties.getProperty(datadogApiKeyKey)
+        buildConfigField("String", "DATADOG_CLIENT_TOKEN", apiKey?.let { "\"$it\"" } ?: "null")
+
+        val datadogAppId = "DATADOG_APP_ID"
+        val appId: String? = System.getenv(datadogAppId) ?: localProperties.getProperty(datadogAppId)
+        buildConfigField("String", datadogAppId, appId?.let { "\"$it\"" } ?: "null")
+    }
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin
 
@@ -77,6 +94,11 @@ android {
     sourceSets {
         allFlavors.forEach { flavor ->
             getByName(flavor) {
+                if (flavor in internalFlavors) {
+                    java.srcDirs("src/external-logger-enabled/kotlin")
+                    println("Adding external datadog logger internal sourceSets to '$flavor' flavor")
+                }
+
                 if (flavor in fossFlavors) {
                     java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
                     res.srcDirs("src/prod/res")

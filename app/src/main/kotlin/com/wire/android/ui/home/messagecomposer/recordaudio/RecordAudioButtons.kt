@@ -155,11 +155,11 @@ fun RecordAudioButtonSend(
     applyAudioFilterState: Boolean,
     audioState: AudioState,
     onClick: () -> Unit,
-    modifier: Modifier,
     outputFile: File?,
     onPlayAudio: () -> Unit,
     onSliderPositionChange: (Int) -> Unit,
-    applyAudioFilterClick: (Boolean) -> Unit
+    applyAudioFilterClick: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     RecordAudioButton(
         onClick = onClick,

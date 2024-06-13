@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
@@ -188,15 +189,15 @@ fun RecordAudioButtonSend(
 @Composable
 private fun RecordAudioButton(
     onClick: () -> Unit,
-    modifier: Modifier,
     topContent: @Composable () -> Unit,
     @DrawableRes iconResId: Int,
     @StringRes contentDescription: Int,
     buttonColor: Color,
     @StringRes bottomText: Int,
-    buttonState: WireButtonState = WireButtonState.Default,
     applyAudioFilterState: Boolean,
     applyAudioFilterClick: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    buttonState: WireButtonState = WireButtonState.Default,
     isAudioFilterEnabled: Boolean = true
 ) {
     Column(
@@ -232,19 +233,21 @@ private fun RecordAudioButton(
         )
 
         Spacer(modifier = Modifier.height(dimensions().spacing40x))
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(
-                enabled = isAudioFilterEnabled,
-                checked = applyAudioFilterState,
-                onCheckedChange = applyAudioFilterClick
-            )
-            Text(
-                text = stringResource(id = R.string.record_audio_apply_filter_label),
-                style = MaterialTheme.wireTypography.body01,
-                color = if (isAudioFilterEnabled) Color.Unspecified else colorsScheme().checkboxTextDisabled
-            )
+        if(BuildConfig.AUDIO_FILTER_ENABLED) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    enabled = isAudioFilterEnabled,
+                    checked = applyAudioFilterState,
+                    onCheckedChange = applyAudioFilterClick
+                )
+                Text(
+                    text = stringResource(id = R.string.record_audio_apply_filter_label),
+                    style = MaterialTheme.wireTypography.body01,
+                    color = if (isAudioFilterEnabled) Color.Unspecified else colorsScheme().checkboxTextDisabled
+                )
+            }
         }
     }
 }

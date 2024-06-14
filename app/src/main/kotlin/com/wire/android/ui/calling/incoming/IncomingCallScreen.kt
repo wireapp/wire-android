@@ -123,7 +123,6 @@ fun IncomingCallScreen(
         IncomingCallContent(
             callState = callState,
             toggleMute = { sharedCallingViewModel.toggleMute(true) },
-            toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
             declineCall = {
                 incomingCallViewModel.declineCall(
@@ -165,7 +164,6 @@ fun IncomingCallScreen(
 private fun IncomingCallContent(
     callState: CallState,
     toggleMute: () -> Unit,
-    toggleSpeaker: () -> Unit,
     toggleVideo: () -> Unit,
     declineCall: () -> Unit,
     acceptCall: () -> Unit,
@@ -293,7 +291,6 @@ fun PreviewIncomingCallScreen() {
     IncomingCallContent(
         callState = CallState(ConversationId("value", "domain")),
         toggleMute = { },
-        toggleSpeaker = { },
         toggleVideo = { },
         declineCall = { },
         acceptCall = { },

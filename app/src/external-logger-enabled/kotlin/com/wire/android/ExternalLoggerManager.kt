@@ -26,7 +26,7 @@ object ExternalLoggerManager {
         val clientToken = BuildConfig.DATADOG_CLIENT_TOKEN
         val applicationId = BuildConfig.DATADOG_APP_ID
 
-        if(clientToken == null || applicationId == null) {
+        if (clientToken == null || applicationId == null) {
             return
         }
 

@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.calling.common
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -69,20 +67,20 @@ fun CallerDetails(
     protocolInfo: Conversation.ProtocolInfo?,
     mlsVerificationStatus: Conversation.VerificationStatus?,
     proteusVerificationStatus: Conversation.VerificationStatus?,
+    onMinimiseScreen: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(top = dimensions().spacing32x),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val context = LocalContext.current
         IconButton(
             modifier = Modifier
                 .padding(top = dimensions().spacing16x, start = dimensions().spacing6x)
                 .align(Alignment.Start)
                 .rotate(180f),
             onClick = {
-                Toast.makeText(context, "Not implemented yet =)", Toast.LENGTH_SHORT).show()
+                onMinimiseScreen()
             }
         ) {
             Image(
@@ -92,7 +90,9 @@ fun CallerDetails(
         }
         if (isCbrEnabled) {
             Text(
-                text = stringResource(id = R.string.calling_constant_bit_rate_indication).uppercase(Locale.getDefault()),
+                text = stringResource(id = R.string.calling_constant_bit_rate_indication).uppercase(
+                    Locale.getDefault()
+                ),
                 color = colorsScheme().secondaryText,
                 style = MaterialTheme.wireTypography.title03,
             )
@@ -133,7 +133,7 @@ fun CallerDetails(
         if (!isCameraOn && conversationType == ConversationType.OneOnOne) {
             UserProfileAvatar(
                 avatarData = UserAvatarData(avatarAssetId),
-                size = dimensions().initiatingCallUserAvatarSize,
+                size = dimensions().outgoingCallUserAvatarSize,
                 modifier = Modifier.padding(top = dimensions().spacing16x)
             )
         }
@@ -154,6 +154,7 @@ fun PreviewCallerDetails() {
         callingLabel = String.EMPTY,
         protocolInfo = null,
         mlsVerificationStatus = null,
-        proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
+        proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+        onMinimiseScreen = { }
     )
 }

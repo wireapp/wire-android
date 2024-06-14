@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.authentication
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -62,7 +61,6 @@ fun ServerTitle(
     ConstraintLayout(
         modifier = Modifier
             .padding(horizontal = dimensions().spacing32x)
-            .fillMaxWidth()
             .then(modifier)
     ) {
         val (serverTitle, infoIcon) = createRefs()

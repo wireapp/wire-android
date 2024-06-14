@@ -28,6 +28,9 @@ import com.wire.android.notification.broadcastreceivers.CallNotificationDismissR
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
 import com.wire.android.ui.WireActivity
+import com.wire.android.ui.calling.CallActivity
+import com.wire.android.ui.calling.CallScreenType
+import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.util.deeplink.DeepLinkProcessor
 
 fun messagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent {
@@ -81,17 +84,6 @@ fun replyMessagePendingIntent(context: Context, conversationId: String, userId: 
     PendingIntent.FLAG_MUTABLE
 )
 
-fun openIncomingCallPendingIntent(context: Context, conversationId: String, userId: String): PendingIntent {
-    val intent = openIncomingCallIntent(context, conversationId, userId)
-
-    return PendingIntent.getActivity(
-        context.applicationContext,
-        OPEN_INCOMING_CALL_REQUEST_CODE,
-        intent,
-        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-    )
-}
-
 fun openOngoingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
     val intent = openOngoingCallIntent(context, conversationId)
 
@@ -125,34 +117,38 @@ fun declineCallPendingIntent(context: Context, conversationId: String, userId: S
     )
 }
 
+fun outgoingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
+    val intent = openOutgoingCallIntent(context, conversationId)
+
+    return PendingIntent.getActivity(
+        context,
+        OUTGOING_CALL_REQUEST_CODE,
+        intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+}
+
 fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String, userId: String): PendingIntent {
-    val intent = openIncomingCallIntent(context, conversationId, userId)
+    val intent = getIncomingCallIntent(context, conversationId, userId)
 
     return PendingIntent.getActivity(
         context,
         FULL_SCREEN_REQUEST_CODE,
         intent,
-        PendingIntent.FLAG_IMMUTABLE
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 }
 
-private fun openIncomingCallIntent(context: Context, conversationId: String, userId: String) =
-    Intent(context.applicationContext, WireActivity::class.java).apply {
-        data = Uri.Builder()
-            .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
-            .authority(DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST)
-            .appendPath(conversationId)
-            .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
-            .build()
+private fun openOutgoingCallIntent(context: Context, conversationId: String) =
+    Intent(context.applicationContext, CallActivity::class.java).apply {
+        putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
+        putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Outgoing.name)
     }
 
 private fun openOngoingCallIntent(context: Context, conversationId: String) =
-    Intent(context.applicationContext, WireActivity::class.java).apply {
-        data = Uri.Builder()
-            .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
-            .authority(DeepLinkProcessor.ONGOING_CALL_DEEPLINK_HOST)
-            .appendPath(conversationId)
-            .build()
+    Intent(context.applicationContext, CallActivity::class.java).apply {
+        putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
+        putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Ongoing.name)
     }
 
 private fun openMigrationLoginIntent(context: Context, userHandle: String) =
@@ -188,14 +184,13 @@ fun openAppPendingIntent(context: Context): PendingIntent {
 
 private const val MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE = 0
 private const val DECLINE_CALL_REQUEST_CODE = "decline_call_"
-private const val OPEN_INCOMING_CALL_REQUEST_CODE = 2
 private const val FULL_SCREEN_REQUEST_CODE = 3
 private const val OPEN_ONGOING_CALL_REQUEST_CODE = 4
 private const val OPEN_MIGRATION_LOGIN_REQUEST_CODE = 5
+private const val OUTGOING_CALL_REQUEST_CODE = 6
 private const val END_ONGOING_CALL_REQUEST_CODE = "hang_up_call_"
 private const val OPEN_MESSAGE_REQUEST_CODE_PREFIX = "open_message_"
 private const val OPEN_OTHER_USER_PROFILE_CODE_PREFIX = "open_other_user_profile_"
-private const val CALL_REQUEST_CODE_PREFIX = "call_"
 private const val REPLY_MESSAGE_REQUEST_CODE_PREFIX = "reply_"
 
 private fun getRequestCode(conversationId: String, prefix: String): Int = (prefix + conversationId).hashCode()

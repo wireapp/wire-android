@@ -106,34 +106,6 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given a incoming call deeplink for current user, returns IncomingCall with conversationId and not switched account`() = runTest {
-        val (arrangement, deepLinkProcessor) = Arrangement()
-            .withIncomingCallDeepLink(CURRENT_USER_ID)
-            .withCurrentSessionSuccess(CURRENT_USER_ID)
-            .arrange()
-        val incomingCallResult = deepLinkProcessor(arrangement.uri)
-        assertInstanceOf(DeepLinkResult.IncomingCall::class.java, incomingCallResult)
-        assertEquals(
-            DeepLinkResult.IncomingCall(CONVERSATION_ID, false),
-            incomingCallResult
-        )
-    }
-
-    @Test
-    fun `given a incoming call deeplink for other user, returns IncomingCall with conversationId and switched account`() = runTest {
-        val (arrangement, deepLinkProcessor) = Arrangement()
-            .withIncomingCallDeepLink(OTHER_USER_ID)
-            .withCurrentSessionSuccess(CURRENT_USER_ID)
-            .arrange()
-        val incomingCallResult = deepLinkProcessor(arrangement.uri)
-        assertInstanceOf(DeepLinkResult.IncomingCall::class.java, incomingCallResult)
-        assertEquals(
-            DeepLinkResult.IncomingCall(CONVERSATION_ID, true),
-            incomingCallResult
-        )
-    }
-
-    @Test
     fun `given a invalid deeplink, returns Unknown object`() = runTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withInvalidDeeplink()
@@ -246,12 +218,6 @@ class DeepLinkProcessorTest {
         fun withInvalidDeeplink() = apply {
             coEvery { uri.host } returns INVALID_DEEPLINK_HOST
             coEvery { uri.getQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM) } returns null
-        }
-
-        fun withIncomingCallDeepLink(userId: UserId = CURRENT_USER_ID) = apply {
-            coEvery { uri.host } returns DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST
-            coEvery { uri.lastPathSegment } returns CONVERSATION_ID.toString()
-            coEvery { uri.getQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM) } returns userId.toString()
         }
 
         fun withConversationDeepLink(userId: UserId = CURRENT_USER_ID) = apply {

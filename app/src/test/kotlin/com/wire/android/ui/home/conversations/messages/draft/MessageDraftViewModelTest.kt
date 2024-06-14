@@ -21,13 +21,14 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.mockUri
+import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
@@ -40,19 +41,18 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class, SnapshotExtension::class)
 class MessageDraftViewModelTest {
 
     @Test
     fun `given message draft, when init, then state is properly updated`() = runTest {
         // given
         val messageDraft = MessageDraft(
+            conversationId = TestConversation.ID,
             text = "hello",
             editMessageId = null,
             quotedMessageId = null,
@@ -66,7 +66,7 @@ class MessageDraftViewModelTest {
         advanceUntilIdle()
 
         // then
-        assertEquals(messageDraft.text, viewModel.state.value.messageText)
+        assertEquals(messageDraft.text, viewModel.state.value.draftText)
         coVerify(exactly = 1) {
             arrangement.getMessageDraft(any())
         }
@@ -83,7 +83,7 @@ class MessageDraftViewModelTest {
         advanceUntilIdle()
 
         // then
-        assertTrue(viewModel.state.value.messageText.isEmpty())
+        assertEquals(true, viewModel.state.value.draftText.isEmpty())
         coVerify(exactly = 1) {
             arrangement.getMessageDraft(any())
         }
@@ -93,6 +93,7 @@ class MessageDraftViewModelTest {
     fun `given message draft with quoted message, when init, then state is updated`() = runTest {
         // given
         val messageDraft = MessageDraft(
+            conversationId = TestConversation.ID,
             text = "hello",
             editMessageId = null,
             quotedMessageId = "quoted_message_id",
@@ -115,7 +116,7 @@ class MessageDraftViewModelTest {
         advanceUntilIdle()
 
         // then
-        assertEquals(messageDraft.text, viewModel.state.value.messageText)
+        assertEquals(messageDraft.text, viewModel.state.value.draftText)
         assertEquals(messageDraft.quotedMessageId, viewModel.state.value.quotedMessageId)
         assertEquals(quotedData, viewModel.state.value.quotedMessage)
 
@@ -131,6 +132,7 @@ class MessageDraftViewModelTest {
     fun `given message draft with unavailable quoted message, when init, then quoted data is not updated`() = runTest {
         // given
         val messageDraft = MessageDraft(
+            conversationId = TestConversation.ID,
             text = "hello",
             editMessageId = null,
             quotedMessageId = "quoted_message_id",
@@ -147,7 +149,7 @@ class MessageDraftViewModelTest {
         advanceUntilIdle()
 
         // then
-        assertEquals(messageDraft.text, viewModel.state.value.messageText)
+        assertEquals(messageDraft.text, viewModel.state.value.draftText)
         assertEquals(null, viewModel.state.value.quotedMessageId)
 
         coVerify(exactly = 1) {
@@ -160,13 +162,13 @@ class MessageDraftViewModelTest {
 
     private class Arrangement {
 
-        val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
-            every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
+            every {
+                savedStateHandle.navArgs<ConversationNavArgs>()
+            } returns ConversationNavArgs(conversationId = TestConversation.ID)
         }
 
         @MockK

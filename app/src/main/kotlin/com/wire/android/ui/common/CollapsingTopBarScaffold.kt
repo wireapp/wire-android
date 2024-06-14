@@ -53,9 +53,6 @@ import kotlin.math.roundToInt
  * the lambda receives elevation value for the [topBarHeader]
  * @param topBarCollapsing collapsing part of the top bar
  * @param topBarFooter bar under the [topBarCollapsing], moves with it and ends up directly under [topBarHeader] when collapsed
- * @param snackbarHost component to host [Snackbar]s that are pushed to be shown via
- * [SnackbarHostState.showSnackbar], typically a [SnackbarHost]
- * @param content content of the screen
  * @param bottomBar bottom bar of the screen, typically a [NavigationBar]
  * @param floatingActionButton Main action button of the screen, typically a [FloatingActionButton]
  * @param floatingActionButtonPosition position of the FAB on the screen. See [FabPosition].
@@ -63,24 +60,26 @@ import kotlin.math.roundToInt
  * @param snapOnFling on collapsing fling, only close the collapsible and don't carry the velocity to the scrollable
  * @param keepElevationWhenCollapsed if true then keep showing elevation also when scrolling children after top bar is already collapsed;
  * if false then hide elevation when approaching the end of the collapsing and don't show it when scrolling children
+ * @param content content of the screen
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CollapsingTopBarScaffold(
-    maxBarElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     topBarHeader: @Composable (elevation: Dp) -> Unit,
     topBarCollapsing: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    maxBarElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     topBarFooter: @Composable () -> Unit = {},
-    content: @Composable () -> Unit,
     bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     isSwipeable: Boolean = true,
     snapOnFling: Boolean = true,
-    keepElevationWhenCollapsed: Boolean = false
+    keepElevationWhenCollapsed: Boolean = false,
+    content: @Composable () -> Unit,
 ) {
     val maxBarElevationPx = with(LocalDensity.current) { maxBarElevation.toPx() }
-    val swipeableState = rememberSwipeableState(initialValue = State.EXPANDED)
+    val swipeableState = rememberSwipeableState(initialValue = State.EXPANDED) // TODO: migrate to AnchoredDraggable
     var nestedOffsetState by rememberSaveable { mutableStateOf(0f) }
     var collapsingHeight by rememberSaveable { mutableStateOf(0) }
     val topBarElevationState by remember {
@@ -121,6 +120,7 @@ fun CollapsingTopBarScaffold(
     }
 
     WireScaffold(
+        modifier = modifier,
         topBar = { topBarHeader(with(LocalDensity.current) { topBarElevationState.toDp() }) },
         bottomBar = bottomBar,
         floatingActionButton = floatingActionButton,

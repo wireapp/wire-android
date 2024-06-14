@@ -29,6 +29,7 @@ import com.datadog.android.rum.tracking.ActivityViewTrackingStrategy
 import com.datadog.android.rum.tracking.ComponentPredicate
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.WireActivity
+import com.wire.android.util.DeviceUtil
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.sha256
@@ -72,10 +73,15 @@ object ExternalLoggerManager {
             .useSite(DatadogSite.EU1)
             .build()
 
+        val availableMemorySize = DeviceUtil.getAvailableInternalMemorySize()
+        val totalMemorySize = DeviceUtil.getTotalInternalMemorySize()
+        val deviceParams = mapOf("available_memory_size" to availableMemorySize, "total_memory_size" to totalMemorySize)
+
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         val extraInfo = mapOf(
             "encrypted_proteus_storage_enabled" to runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() },
-            "git_commit_hash" to context.getGitBuildId()
+            "git_commit_hash" to context.getGitBuildId(),
+            "device_params" to deviceParams
         )
 
         Datadog.initialize(context, credentials, configuration, TrackingConsent.GRANTED)

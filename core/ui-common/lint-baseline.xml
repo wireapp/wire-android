@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0)" variant="all" version="8.3.0">
+
+    <issue
+        id="ComposeComposableModifier"
+        message="Using @Composable builder functions for modifiers is not recommended, as they cause unnecessary recompositions.You should use the Modifier.Node API instead, as it limits recomposition to just the modifier instance, rather than the whole function tree.See https://slackhq.github.io/compose-lints/rules/#avoid-modifier-extension-factory-functions for more information."
+        errorLine1="@OptIn(ExperimentalFoundationApi::class)"
+        errorLine2="^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/Extensions.kt"
+            line="63"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierMissing"
+        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
+        errorLine1="fun CenteredCircularProgressBarIndicator() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/progress/CenteredCircularProgressBarIndicator.kt"
+            line="29"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierMissing"
+        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
+        errorLine1="fun MenuBottomSheetItem("
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/bottomsheet/MenuBottomSheetItem.kt"
+            line="51"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierMissing"
+        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
+        errorLine1="fun ModalSheetHeaderItem(header: MenuModalSheetHeader = MenuModalSheetHeader.Gone) {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/bottomsheet/ModalSheetHeaderItem.kt"
+            line="39"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierMissing"
+        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
+        errorLine1="fun SwipeableSnackbar("
+        errorLine2="    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/snackbar/SwipeableSnackbar.kt"
+            line="62"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierMissing"
+        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
+        errorLine1="    fun WireDragHandle() {"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/bottomsheet/WireBottomSheetDefaults.kt"
+            line="44"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierReused"
+        message="Modifiers should only be used once and by the root level layout of a Composable. This is true even if appended to or with other modifiers e.g. modifier.fillMaxWidth().Use Modifier (with a capital &apos;M&apos;) to construct a new Modifier that you can pass to other composables.See https://slackhq.github.io/compose-lints/rules/#dont-re-use-modifiers for more information."
+        errorLine1="        Box(modifier = modifier) {"
+        errorLine2="        ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/WireDialog.kt"
+            line="276"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierReused"
+        message="Modifiers should only be used once and by the root level layout of a Composable. This is true even if appended to or with other modifiers e.g. modifier.fillMaxWidth().Use Modifier (with a capital &apos;M&apos;) to construct a new Modifier that you can pass to other composables.See https://slackhq.github.io/compose-lints/rules/#dont-re-use-modifiers for more information."
+        errorLine1="                    WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/WireDialog.kt"
+            line="279"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierReused"
+        message="Modifiers should only be used once and by the root level layout of a Composable. This is true even if appended to or with other modifiers e.g. modifier.fillMaxWidth().Use Modifier (with a capital &apos;M&apos;) to construct a new Modifier that you can pass to other composables.See https://slackhq.github.io/compose-lints/rules/#dont-re-use-modifiers for more information."
+        errorLine1="                    WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/WireDialog.kt"
+            line="282"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierReused"
+        message="Modifiers should only be used once and by the root level layout of a Composable. This is true even if appended to or with other modifiers e.g. modifier.fillMaxWidth().Use Modifier (with a capital &apos;M&apos;) to construct a new Modifier that you can pass to other composables.See https://slackhq.github.io/compose-lints/rules/#dont-re-use-modifiers for more information."
+        errorLine1="                    WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/WireDialog.kt"
+            line="285"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierWithoutDefault"
+        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
+        errorLine1="fun Modifier.clickable(clickable: Clickable?) = clickable?.let {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/Extensions.kt"
+            line="65"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ComposeNamingUppercase"
+        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
+        errorLine1="fun buildMenuSheetItems(items: List&lt;@Composable () -> Unit>) {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/bottomsheet/MenuBottomSheetItem.kt"
+            line="91"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [@DrawableRes id: Int, contentDescription: String, size: Dp = MaterialTheme.wireDimensions.wireIconButtonSize, modifier: Modifier = Modifier] but should be [@DrawableRes id: Int, contentDescription: String, modifier: Modifier = Modifier, size: Dp = MaterialTheme.wireDimensions.wireIconButtonSize].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun MenuItemIcon("
+        errorLine2="                ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/bottomsheet/MenuBottomSheetItem.kt"
+            line="114"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [text: AnnotatedString, linkText: String? = null, onLinkClick: () -> Unit = {}, linkTag: String = &quot;link&quot;, textStyle: TextStyle = MaterialTheme.wireTypography.body01, textColor: Color = MaterialTheme.wireColorScheme.onBackground, linkStyle: TextStyle = MaterialTheme.wireTypography.body02, linkColor: Color = MaterialTheme.wireColorScheme.primary, linkDecoration: TextDecoration = TextDecoration.Underline, onTextLayout: (TextLayoutResult) -> Unit = {}, modifier: Modifier = Modifier] but should be [text: AnnotatedString, modifier: Modifier = Modifier, linkText: String? = null, onLinkClick: () -> Unit = {}, linkTag: String = &quot;link&quot;, textStyle: TextStyle = MaterialTheme.wireTypography.body01, textColor: Color = MaterialTheme.wireColorScheme.onBackground, linkStyle: TextStyle = MaterialTheme.wireTypography.body02, linkColor: Color = MaterialTheme.wireColorScheme.primary, linkDecoration: TextDecoration = TextDecoration.Underline, onTextLayout: (TextLayoutResult) -> Unit = {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun TextWithLinkSuffix("
+        errorLine2="                      ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/TextWithLinkSuffix.kt"
+            line="42"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="    Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;    Current params are: [onClick: () -> Unit, loading: Boolean = false, leadingIcon: @Composable (() -> Unit)? = null, leadingIconAlignment: IconAlignment = IconAlignment.Center, trailingIcon: @Composable (() -> Unit)? = null, trailingIconAlignment: IconAlignment = IconAlignment.Border, text: String? = null, fillMaxWidth: Boolean = true, textStyle: TextStyle = if (fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03, state: WireButtonState = WireButtonState.Default, clickBlockParams: ClickBlockParams = ClickBlockParams(), minSize: DpSize = MaterialTheme.wireDimensions.buttonMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), colors: WireButtonColors = wirePrimaryButtonColors(), elevation: ButtonElevation? = ButtonDefaults.buttonElevation(), borderWidth: Dp = 0.dp, contentPadding: PaddingValues = PaddingValues(&#xA;    horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,&#xA;    vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding&#xA;), interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }, modifier: Modifier = Modifier] but should be [onClick: () -> Unit, modifier: Modifier = Modifier, loading: Boolean = false, leadingIcon: @Composable (() -> Unit)? = null, leadingIconAlignment: IconAlignment = IconAlignment.Center, trailingIcon: @Composable (() -> Unit)? = null, trailingIconAlignment: IconAlignment = IconAlignment.Border, text: String? = null, fillMaxWidth: Boolean = true, textStyle: TextStyle = if (fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03, state: WireButtonState = WireButtonState.Default, clickBlockParams: ClickBlockParams = ClickBlockParams(), minSize: DpSize = MaterialTheme.wireDimensions.buttonMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), colors: WireButtonColors = wirePrimaryButtonColors(), elevation: ButtonElevation? = ButtonDefaults.buttonElevation(), borderWidth: Dp = 0.dp, contentPadding: PaddingValues = PaddingValues(&#xA;    horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,&#xA;    vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding&#xA;), interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }].&#xA;    See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WireButton("
+        errorLine2="              ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/button/WireButton.kt"
+            line="67"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [modifier: Modifier = Modifier, progressColor: Color, strokeWidth: Dp = 2.dp, size: Dp = 16.dp] but should be [progressColor: Color, modifier: Modifier = Modifier, strokeWidth: Dp = 2.dp, size: Dp = 16.dp].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WireCircularProgressIndicator("
+        errorLine2="                                 ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/progress/WireCircularProgressIndicator.kt"
+            line="30"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [title: String, text: String, textSuffixLink: DialogTextSuffixLink? = null, onDismiss: () -> Unit, optionButton1Properties: WireDialogButtonProperties? = null, optionButton2Properties: WireDialogButtonProperties? = null, dismissButtonProperties: WireDialogButtonProperties? = null, buttonsHorizontalAlignment: Boolean = true, modifier: Modifier = Modifier, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize), contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding), properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false), centerContent: Boolean = false, titleLoading: Boolean = false, content: @Composable (() -> Unit)? = null] but should be [title: String, text: String, onDismiss: () -> Unit, modifier: Modifier = Modifier, textSuffixLink: DialogTextSuffixLink? = null, optionButton1Properties: WireDialogButtonProperties? = null, optionButton2Properties: WireDialogButtonProperties? = null, dismissButtonProperties: WireDialogButtonProperties? = null, buttonsHorizontalAlignment: Boolean = true, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize), contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding), properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false), centerContent: Boolean = false, titleLoading: Boolean = false, content: @Composable (() -> Unit)? = null].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WireDialog("
+        errorLine2="              ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/WireDialog.kt"
+            line="71"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [title: String, text: AnnotatedString? = null, textSuffixLink: DialogTextSuffixLink? = null, onDismiss: () -> Unit, optionButton1Properties: WireDialogButtonProperties? = null, optionButton2Properties: WireDialogButtonProperties? = null, dismissButtonProperties: WireDialogButtonProperties? = null, buttonsHorizontalAlignment: Boolean = true, modifier: Modifier = Modifier, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize), contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding), properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false), centerContent: Boolean = false, titleLoading: Boolean = false, content: @Composable (() -> Unit)? = null] but should be [title: String, onDismiss: () -> Unit, modifier: Modifier = Modifier, text: AnnotatedString? = null, textSuffixLink: DialogTextSuffixLink? = null, optionButton1Properties: WireDialogButtonProperties? = null, optionButton2Properties: WireDialogButtonProperties? = null, dismissButtonProperties: WireDialogButtonProperties? = null, buttonsHorizontalAlignment: Boolean = true, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize), contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding), properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false), centerContent: Boolean = false, titleLoading: Boolean = false, content: @Composable (() -> Unit)? = null].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WireDialog("
+        errorLine2="              ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/WireDialog.kt"
+            line="117"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [title: String, titleLoading: Boolean = false, text: AnnotatedString? = null, textSuffixLink: DialogTextSuffixLink? = null, optionButton1Properties: WireDialogButtonProperties? = null, optionButton2Properties: WireDialogButtonProperties? = null, dismissButtonProperties: WireDialogButtonProperties? = null, buttonsHorizontalAlignment: Boolean = true, modifier: Modifier = Modifier, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize), contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding), centerContent: Boolean = false, content: @Composable (() -> Unit)? = null] but should be [title: String, modifier: Modifier = Modifier, titleLoading: Boolean = false, text: AnnotatedString? = null, textSuffixLink: DialogTextSuffixLink? = null, optionButton1Properties: WireDialogButtonProperties? = null, optionButton2Properties: WireDialogButtonProperties? = null, dismissButtonProperties: WireDialogButtonProperties? = null, buttonsHorizontalAlignment: Boolean = true, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize), contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding), centerContent: Boolean = false, content: @Composable (() -> Unit)? = null].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WireDialogContent("
+        errorLine2="                     ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/WireDialog.kt"
+            line="157"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [color: Color = colorsScheme().divider, modifier: Modifier = Modifier] but should be [modifier: Modifier = Modifier, color: Color = colorsScheme().divider].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WireDivider(color: Color = colorsScheme().divider, modifier: Modifier = Modifier) {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/divider/WireDivider.kt"
+            line="29"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [text: String, minHeight: Dp = dimensions().badgeSmallMinSize.height, minWidth: Dp = dimensions().badgeSmallMinSize.height, contentPadding: PaddingValues = PaddingValues(horizontal = dimensions().spacing6x, vertical = dimensions().spacing2x), shape: Shape = RoundedCornerShape(dimensions().spacing6x), modifier: Modifier = Modifier] but should be [text: String, modifier: Modifier = Modifier, minHeight: Dp = dimensions().badgeSmallMinSize.height, minWidth: Dp = dimensions().badgeSmallMinSize.height, contentPadding: PaddingValues = PaddingValues(horizontal = dimensions().spacing6x, vertical = dimensions().spacing2x), shape: Shape = RoundedCornerShape(dimensions().spacing6x)].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WireItemLabel("
+        errorLine2="                 ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/button/WireItemLabel.kt"
+            line="44"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [modifier: Modifier = Modifier, progressColor: Color] but should be [progressColor: Color, modifier: Modifier = Modifier].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WireLinearProgressIndicator(modifier: Modifier = Modifier, progressColor: Color) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/progress/WireLinearProgressIndicator.kt"
+            line="27"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="    Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;    Current params are: [onClick: () -> Unit, loading: Boolean = false, leadingIcon: @Composable (() -> Unit)? = null, leadingIconAlignment: IconAlignment = IconAlignment.Center, trailingIcon: @Composable (() -> Unit)? = null, trailingIconAlignment: IconAlignment = IconAlignment.Border, text: String? = null, fillMaxWidth: Boolean = true, textStyle: TextStyle = if (fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03, state: WireButtonState = WireButtonState.Default, clickBlockParams: ClickBlockParams = ClickBlockParams(), minSize: DpSize = MaterialTheme.wireDimensions.buttonMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), colors: WireButtonColors = wirePrimaryButtonColors(), elevation: ButtonElevation? = ButtonDefaults.buttonElevation(), borderWidth: Dp = 0.dp, contentPadding: PaddingValues = PaddingValues(&#xA;    horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,&#xA;    vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding&#xA;), interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }, modifier: Modifier = Modifier] but should be [onClick: () -> Unit, modifier: Modifier = Modifier, loading: Boolean = false, leadingIcon: @Composable (() -> Unit)? = null, leadingIconAlignment: IconAlignment = IconAlignment.Center, trailingIcon: @Composable (() -> Unit)? = null, trailingIconAlignment: IconAlignment = IconAlignment.Border, text: String? = null, fillMaxWidth: Boolean = true, textStyle: TextStyle = if (fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03, state: WireButtonState = WireButtonState.Default, clickBlockParams: ClickBlockParams = ClickBlockParams(), minSize: DpSize = MaterialTheme.wireDimensions.buttonMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), colors: WireButtonColors = wirePrimaryButtonColors(), elevation: ButtonElevation? = ButtonDefaults.buttonElevation(), borderWidth: Dp = 0.dp, contentPadding: PaddingValues = PaddingValues(&#xA;    horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,&#xA;    vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding&#xA;), interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }].&#xA;    See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WirePrimaryButton("
+        errorLine2="                     ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/button/WirePrimaryButton.kt"
+            line="50"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [onButtonClicked: () -> Unit, loading: Boolean = false, @DrawableRes iconResource: Int, @StringRes contentDescription: Int, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), minSize: DpSize = MaterialTheme.wireDimensions.buttonSmallMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, iconSize: Dp = dimensions().wireIconButtonSize, state: WireButtonState = WireButtonState.Default, colors: WireButtonColors = wirePrimaryButtonColors(), clickBlockParams: ClickBlockParams = ClickBlockParams(), modifier: Modifier = Modifier] but should be [onButtonClicked: () -> Unit, @DrawableRes iconResource: Int, @StringRes contentDescription: Int, modifier: Modifier = Modifier, loading: Boolean = false, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), minSize: DpSize = MaterialTheme.wireDimensions.buttonSmallMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, iconSize: Dp = dimensions().wireIconButtonSize, state: WireButtonState = WireButtonState.Default, colors: WireButtonColors = wirePrimaryButtonColors(), clickBlockParams: ClickBlockParams = ClickBlockParams()].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WirePrimaryIconButton("
+        errorLine2="                         ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/button/WirePrimaryIconButton.kt"
+            line="43"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="    Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;    Current params are: [onClick: () -> Unit, loading: Boolean = false, leadingIcon: @Composable (() -> Unit)? = null, leadingIconAlignment: IconAlignment = IconAlignment.Center, trailingIcon: @Composable (() -> Unit)? = null, trailingIconAlignment: IconAlignment = IconAlignment.Border, text: String? = null, fillMaxWidth: Boolean = true, textStyle: TextStyle = if (fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03, state: WireButtonState = WireButtonState.Default, clickBlockParams: ClickBlockParams = ClickBlockParams(), minSize: DpSize = MaterialTheme.wireDimensions.buttonMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), colors: WireButtonColors = wireSecondaryButtonColors(), elevation: ButtonElevation? = null, borderWidth: Dp = 1.dp, contentPadding: PaddingValues = PaddingValues(&#xA;    horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,&#xA;    vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding&#xA;), interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }, modifier: Modifier = Modifier] but should be [onClick: () -> Unit, modifier: Modifier = Modifier, loading: Boolean = false, leadingIcon: @Composable (() -> Unit)? = null, leadingIconAlignment: IconAlignment = IconAlignment.Center, trailingIcon: @Composable (() -> Unit)? = null, trailingIconAlignment: IconAlignment = IconAlignment.Border, text: String? = null, fillMaxWidth: Boolean = true, textStyle: TextStyle = if (fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03, state: WireButtonState = WireButtonState.Default, clickBlockParams: ClickBlockParams = ClickBlockParams(), minSize: DpSize = MaterialTheme.wireDimensions.buttonMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), colors: WireButtonColors = wireSecondaryButtonColors(), elevation: ButtonElevation? = null, borderWidth: Dp = 1.dp, contentPadding: PaddingValues = PaddingValues(&#xA;    horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,&#xA;    vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding&#xA;), interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }].&#xA;    See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WireSecondaryButton("
+        errorLine2="                       ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/button/WireSecondaryButton.kt"
+            line="49"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [onButtonClicked: () -> Unit, loading: Boolean = false, @DrawableRes iconResource: Int, @StringRes contentDescription: Int, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), minSize: DpSize = MaterialTheme.wireDimensions.buttonSmallMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, iconSize: Dp = dimensions().wireIconButtonSize, state: WireButtonState = WireButtonState.Default, colors: WireButtonColors = wireSecondaryButtonColors(), clickBlockParams: ClickBlockParams = ClickBlockParams(), modifier: Modifier = Modifier, fillMaxWidth: Boolean = false] but should be [onButtonClicked: () -> Unit, @DrawableRes iconResource: Int, @StringRes contentDescription: Int, modifier: Modifier = Modifier, loading: Boolean = false, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), minSize: DpSize = MaterialTheme.wireDimensions.buttonSmallMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, iconSize: Dp = dimensions().wireIconButtonSize, state: WireButtonState = WireButtonState.Default, colors: WireButtonColors = wireSecondaryButtonColors(), clickBlockParams: ClickBlockParams = ClickBlockParams(), fillMaxWidth: Boolean = false].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WireSecondaryIconButton("
+        errorLine2="                           ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/button/WireSecondaryIconButton.kt"
+            line="43"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="    Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;    Current params are: [onClick: () -> Unit, loading: Boolean = false, leadingIcon: @Composable (() -> Unit)? = null, leadingIconAlignment: IconAlignment = IconAlignment.Center, trailingIcon: @Composable (() -> Unit)? = null, trailingIconAlignment: IconAlignment = IconAlignment.Border, text: String? = null, fillMaxWidth: Boolean = true, textStyle: TextStyle = MaterialTheme.wireTypography.button04, state: WireButtonState = WireButtonState.Default, clickBlockParams: ClickBlockParams = ClickBlockParams(), minSize: DpSize = MaterialTheme.wireDimensions.buttonMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), colors: WireButtonColors = wireTertiaryButtonColors(), elevation: ButtonElevation? = null, borderWidth: Dp = 1.dp, contentPadding: PaddingValues = PaddingValues(&#xA;    horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,&#xA;    vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding&#xA;), interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }, modifier: Modifier = Modifier] but should be [onClick: () -> Unit, modifier: Modifier = Modifier, loading: Boolean = false, leadingIcon: @Composable (() -> Unit)? = null, leadingIconAlignment: IconAlignment = IconAlignment.Center, trailingIcon: @Composable (() -> Unit)? = null, trailingIconAlignment: IconAlignment = IconAlignment.Border, text: String? = null, fillMaxWidth: Boolean = true, textStyle: TextStyle = MaterialTheme.wireTypography.button04, state: WireButtonState = WireButtonState.Default, clickBlockParams: ClickBlockParams = ClickBlockParams(), minSize: DpSize = MaterialTheme.wireDimensions.buttonMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), colors: WireButtonColors = wireTertiaryButtonColors(), elevation: ButtonElevation? = null, borderWidth: Dp = 1.dp, contentPadding: PaddingValues = PaddingValues(&#xA;    horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,&#xA;    vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding&#xA;), interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }].&#xA;    See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WireTertiaryButton("
+        errorLine2="                      ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/button/WireTertiaryButton.kt"
+            line="45"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [onButtonClicked: () -> Unit, loading: Boolean = false, @DrawableRes iconResource: Int, @StringRes contentDescription: Int, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), minSize: DpSize = MaterialTheme.wireDimensions.buttonSmallMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, iconSize: Dp = dimensions().wireIconButtonSize, state: WireButtonState = WireButtonState.Default, colors: WireButtonColors = wireTertiaryButtonColors(), clickBlockParams: ClickBlockParams = ClickBlockParams(), modifier: Modifier = Modifier] but should be [onButtonClicked: () -> Unit, @DrawableRes iconResource: Int, @StringRes contentDescription: Int, modifier: Modifier = Modifier, loading: Boolean = false, shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize), minSize: DpSize = MaterialTheme.wireDimensions.buttonSmallMinSize, minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize, iconSize: Dp = dimensions().wireIconButtonSize, state: WireButtonState = WireButtonState.Default, colors: WireButtonColors = wireTertiaryButtonColors(), clickBlockParams: ClickBlockParams = ClickBlockParams()].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun WireTertiaryIconButton("
+        errorLine2="                          ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/common/button/WireTertiaryIconButton.kt"
+            line="43"
+            column="27"/>
+    </issue>
+
+</issues>

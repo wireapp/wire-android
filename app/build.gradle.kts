@@ -1,3 +1,7 @@
+import customization.ConfigurationFileImporter
+import customization.NormalizedFlavorSettings
+import scripts.Variants_gradle
+
 /*
  * Wire
  * Copyright (C) 2024 Wire Swiss GmbH
@@ -33,7 +37,7 @@ plugins {
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
-    id(ScriptPlugins.spotless)
+    id(libs.plugins.wire.kover.get().pluginId)
 }
 
 repositories {
@@ -41,6 +45,19 @@ repositories {
     wireDetektRulesRepo()
     google()
 }
+
+val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
+val fossFlavors = setOf("fdroid")
+val allFlavors = nonFreeFlavors + fossFlavors
+
+private fun getFlavorsSettings(): NormalizedFlavorSettings =
+    try {
+        val file = file("${project.rootDir}/default.json")
+        val configurationFileImporter = ConfigurationFileImporter()
+        configurationFileImporter.loadConfigsFromFile(file)
+    } catch (e: Exception) {
+        error(">> Error reading current flavors, exception: ${e.localizedMessage}")
+    }
 
 android {
     // Most of the configuration is done in the build-logic
@@ -57,31 +74,38 @@ android {
     }
     android.buildFeatures.buildConfig = true
 
-    var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
     sourceSets {
-        // Add the "foss" sourceSets for the fdroid flavor
-        if(fdroidBuild) {
-            getByName("main") {
-                java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
-                resources.srcDirs("src/prod/res")
-                println("Building with FOSS sourceSets")
-            }
-        // For all other flavors use the "nonfree" sourceSets
-        } else {
-            getByName("main") {
-                java.srcDirs("src/main/kotlin", "src/nonfree/kotlin")
-                println("Building with non-free sourceSets")
+        allFlavors.forEach { flavor ->
+            getByName(flavor) {
+                if (flavor in fossFlavors) {
+                    java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
+                    res.srcDirs("src/prod/res")
+                    println("Adding FOSS sourceSets to '$flavor' flavor")
+                } else {
+                    java.srcDirs("src/nonfree/kotlin")
+                    println("Adding non-free sourceSets to '$flavor' flavor")
+                }
             }
         }
     }
 }
 
-
-
+aboutLibraries {
+    val isAboutLibrariesDisabled = System.getenv("DISABLE_ABOUT_LIBRARIES")?.equals("true", true) ?: false
+    registerAndroidTasks = !isAboutLibrariesDisabled
+}
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
+
+    // features
+    implementation(project(":features:sketch"))
+    implementation(project(":core:ui-common"))
+
+    // kover
+    kover(project(":features:sketch"))
+    kover(project(":core:ui-common"))
 
     // Application dependencies
     implementation(libs.androidx.appcompat)
@@ -112,6 +136,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewModel)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.androidx.lifecycle.liveData)
+    implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.viewModelSavedState)
 
@@ -122,6 +147,7 @@ dependencies {
 
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
+    implementation(libs.compose.material.android)
     // we still cannot get rid of material2 because swipeable is still missing - https://issuetracker.google.com/issues/229839039
     // https://developer.android.com/jetpack/compose/designsystems/material2-material3#components-and
     implementation(libs.compose.material.core)
@@ -161,11 +187,28 @@ dependencies {
     implementation(libs.resaca.hilt)
     implementation(libs.bundlizer.core)
 
-    // firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.fcm)
+    allFlavors.forEach { flavor ->
+        if (flavor in nonFreeFlavors) {
+            println("Adding nonfree libraries to '$flavor' flavor")
+            add("${flavor}Implementation", platform(libs.firebase.bom))
+            add("${flavor}Implementation", libs.firebase.fcm)
+            add("${flavor}Implementation", libs.googleGms.location)
+        } else {
+            println("Skipping nonfree libraries for '$flavor' flavor")
+        }
+    }
     implementation(libs.androidx.work)
-    implementation(libs.googleGms.location)
+
+    // Anonymous Analytics
+    val flavors = getFlavorsSettings()
+    flavors.flavorMap.entries.forEach { (key, configs) ->
+        if (configs["analytics_enabled"] as? Boolean == true) {
+            println(">> Adding Anonymous Analytics dependency to [$key] flavor")
+            add("${key}Implementation",project(":core:analytics-enabled"))
+        } else {
+            add("${key}Implementation",project(":core:analytics-disabled"))
+        }
+    }
 
     // commonMark
     implementation(libs.commonmark.core)

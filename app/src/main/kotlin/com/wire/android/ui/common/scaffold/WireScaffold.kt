@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.common.scaffold
 
-import SwipeableSnackbar
+import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding

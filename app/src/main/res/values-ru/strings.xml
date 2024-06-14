@@ -30,7 +30,7 @@
     <string name="label_save">Сохранить</string>
     <string name="label_get_started">Начать</string>
     <string name="label_remove">Удалить</string>
-    <string name="label_proceed">Перейти</string>
+    <string name="label_proceed">Продолжить</string>
     <string name="label_leave">Покинуть</string>
     <string name="label_add_device">Добавить устройство</string>
     <string name="label_learn_more">Подробнее</string>
@@ -47,7 +47,7 @@
     <string name="label_message_receive_failure">Ошибка загрузки</string>
     <string name="label_message_decryption_failure_message">Не удалось расшифровать сообщение.</string>
     <string name="label_message_decryption_failure_informative_message">Попробуйте сбросить сессию для генерации новых ключей шифрования.</string>
-    <string name="label_system_message_self_user_knock">%s отправил(-а) пинг</string>
+    <string name="label_system_message_self_user_knock">%s отправили пинг</string>
     <string name="label_system_message_other_user_knock">%s отправил(-а) пинг</string>
     <string name="label_message_partial_delivery_participants_count">%1$d участников не получили ваше сообщение.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s не получит ваше сообщение.</string>
@@ -82,6 +82,7 @@
     <string name="label_user_blocked">Заблокирован(-а)</string>
     <string name="label_and">и</string>
     <string name="label_retry">Повторить</string>
+    <string name="label_draft">*Черновик*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">Логотип приложения</string>
     <string name="content_description_reveal_password">Показать пароль</string>
@@ -106,6 +107,7 @@
     <string name="content_description_conversation_search_icon">Значок поиска</string>
     <string name="content_description_conversation_search_input">Поиск</string>
     <string name="content_description_conversation_enable_rich_text_mode">Кнопка включения режима форматированного текста</string>
+    <string name="content_description_conversation_enable_drawing_mode">Кнопка включения режима рисования</string>
     <string name="content_description_conversation_rich_text_header">Заголовок</string>
     <string name="content_description_conversation_rich_text_bold">Жирный</string>
     <string name="content_description_conversation_rich_text_italic">Курсив</string>
@@ -185,7 +187,12 @@
     <string name="app_settings_screen_title">Настройки приложения</string>
     <string name="give_feedback_screen_title">Оставить отзыв</string>
     <string name="report_bug_screen_title">Сообщить об ошибке</string>
+    <string name="about_app_screen_title">Об этом приложении</string>
+    <string name="settings_privacy_policy_label">Политика конфиденциальности</string>
+    <string name="settings_terms_of_use_label">Юридическая информация</string>
+    <string name="label_copyright">Авторское право</string>
     <string name="debug_settings_screen_title">Параметры отладки</string>
+    <string name="item_dependencies_title">Зависимости:</string>
     <string name="support_screen_title">Служба поддержки</string>
     <string name="backup_and_restore_screen_title">Резервное копирование и восстановление бесед</string>
     <string name="search_bar_conversations_hint">Поиск бесед</string>
@@ -199,6 +206,9 @@
     <string name="settings_backups_group_title">Резервные копии</string>
     <string name="settings_other_group_title">Другое</string>
     <string name="settings_backup_info">Создайте резервную копию, чтобы сохранить историю бесед. Она пригодится для восстановления истории в случае потери или замены устройства.\n\nВыберите надежный пароль для защиты резервной копии.</string>
+    <string name="settings_backup_last_backup_title">Последнее резервное копирование</string>
+    <string name="settings_backup_last_backup_date">Последняя резервная копия для этого устройства была создана на %1$s в %2$s.</string>
+    <string name="settings_backup_last_backup_date_no_time">Вы еще не создавали резервную копию с этого устройства.</string>
     <string name="settings_backup_create">Создать резервную копию</string>
     <string name="settings_backup_restore">Восстановить из резервной копии</string>
     <!-- Welcome -->
@@ -212,6 +222,7 @@
     <string name="welcome_screen_carousel_item_message_5">Компания Wire прошла независимый аудит и соответствует требованиям ISO, CCPA, GDPR, SOX</string>
     <string name="welcome_button_create_team">Создать команду</string>
     <string name="server_details_dialog_body">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s</string>
+    <string name="server_details_dialog_body_with_proxy">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s\n\nURL прокси:\n%3$s\n\nПрокси аутентификации:\n%4$s</string>
     <string name="server_details_dialog_title">Внутренний бэкэнд</string>
     <string name="welcome_migration_dialog_title">Добро пожаловать в наше новое приложение для Android 👋</string>
     <string name="welcome_migration_dialog_content">Мы переработали приложение, чтобы сделать его более удобным для всех.\n\nУзнайте больше об обновленном приложении Wire - новые возможности и улучшенная доступность при прежней надежной защите.</string>
@@ -276,7 +287,7 @@
         вашей команды история бесед также была удалена.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Подтвердите учетную запись</string>
-    <string name="second_factor_authentication_instructions_label">Введите код подтверждения, отправленный на email %1$s</string>
+    <string name="second_factor_authentication_instructions_label">Пожалуйста, введите ниже код проверки, отправленный на ваш email %1$s.</string>
     <string name="second_factor_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Удалить устройство</string>
@@ -465,6 +476,17 @@
     <string name="message_details_reactions_empty_learn_more">Узнать больше о реакциях</string>
     <string name="message_details_read_receipts_empty_text">Пока никто не прочитал это сообщение 👀</string>
     <string name="message_details_read_receipts_empty_learn_more">Узнать больше об отчетах о прочтении</string>
+    <!-- Messages Date and Time -->
+    <string name="message_datetime_now">Только что</string>
+    <plurals name="message_datetime_minutes_ago">
+        <item quantity="one">1 минуту назад</item>
+        <item quantity="few">%1$d минуты назад</item>
+        <item quantity="many">%1$d минут назад</item>
+        <item quantity="other">%1$d минуты назад</item>
+    </plurals>
+    <string name="message_datetime_today">Сегодня, %s</string>
+    <string name="message_datetime_yesterday">Вчера, %s</string>
+    <string name="message_datetime_other">%s</string>
     <!-- Attachment options -->
     <string name="attachment_share_file">Файл</string>
     <string name="attachment_share_image">Изображение</string>
@@ -528,7 +550,7 @@
     <string name="muting_option_all_allowed_text">Получать уведомления в этой беседе обо всем (включая аудио- и видеозвонки)</string>
     <string name="muting_option_only_mentions_title">Вызовы, упоминания и ответы</string>
     <string name="muting_option_only_mentions_text">Получать уведомления в этой беседе только если кто-то позвонит, упомянет вас или ответит на ваше сообщение</string>
-    <string name="muting_option_all_muted_title">Ничего</string>
+    <string name="muting_option_all_muted_title">Никакие</string>
     <string name="muting_option_all_muted_text">Не получать уведомлений в этой беседе вообще</string>
     <!--Profile image-->
     <string name="profile_image_top_bar_label">Изображение профиля</string>
@@ -676,7 +698,7 @@
     <string name="last_message_other_user_shared_audio">поделился(-лась) аудиосообщением.</string>
     <string name="last_message_self_user_shared_location">поделились местоположением.</string>
     <string name="last_message_other_user_shared_location">поделился(-лась) местоположением.</string>
-    <string name="last_message_self_user_knock">отправил(-а) пинг.</string>
+    <string name="last_message_self_user_knock">отправили пинг.</string>
     <string name="last_message_other_user_knock">отправил(-а) пинг.</string>
     <string name="last_message_call">звонил(-а).</string>
     <string name="last_message_mentioned">упомянул(-а) вас</string>
@@ -746,6 +768,13 @@
     <!-- Search Contact-->
     <string name="label_contacts">КОНТАКТЫ</string>
     <string name="label_new_group">Новая группа</string>
+    <string name="label_create_new_group">Создать новую группу</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d участник</item>
+        <item quantity="few">%1$d участника</item>
+        <item quantity="many">%1$d участников</item>
+        <item quantity="other">%1$d участника</item>
+    </plurals>
     <string name="label_new_conversation">Новая беседа</string>
     <string name="label_search_people">Поиск пользователей</string>
     <string name="label_public_wire">ПУБЛИЧНЫЙ WIRE</string>
@@ -767,6 +796,7 @@
     <string name="error_no_network_message">Проверьте подключение к интернету и повторите попытку</string>
     <string name="error_downloading_self_user_profile_picture">Произошла ошибка при загрузке изображения вашего профиля. Пожалуйста, проверьте подключение к интернету</string>
     <string name="error_uploading_user_avatar">Не удалось загрузить изображение</string>
+    <string name="error_process_user_avatar">Не удалось обработать изображение</string>
     <string name="error_uploading_image_message">Не удалось выгрузить изображение</string>
     <string name="error_downloading_image_message">Не удалось загрузить изображение</string>
     <string name="error_updating_muting_setting">Не удалось обновить уведомления</string>
@@ -798,6 +828,7 @@
     <string name="dialog_archive_conversation_option">Архивировать</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Открыть беседу</string>
+    <string name="label_start_conversation">Начать беседу</string>
     <string name="email_label">Email</string>
     <string name="phone_label">Телефон</string>
     <!-- Notifications -->
@@ -822,6 +853,7 @@
     <string name="notification_group_call_content">%s вызывает...</string>
     <string name="notification_call_default_caller_name">Кто-то</string>
     <string name="notification_call_default_group_name">Входящий групповой вызов</string>
+    <string name="notification_outgoing_call_tap_to_return">Нажмите, чтобы вернуться к вызову - Вызов...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Постоянный битрейт</string>
     <string name="calling_button_label_microphone">Микрофон</string>
@@ -856,6 +888,8 @@
     <string name="calling_participant_tile_default_user_name">По умолчанию</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s вызывает…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">Вызов %1$s…</string>
     <string name="connectivity_status_bar_connecting">Расшифровка сообщений</string>
     <string name="connectivity_status_bar_waiting_for_network">Ожидание сети</string>
     <!-- Connections -->
@@ -880,6 +914,9 @@
     <string name="connection_label_ignore">Игнорировать</string>
     <string name="connection_label_send_unverified_warning">Перед добавлением убедитесь в личности %s.</string>
     <string name="connection_label_received_unverified_warning">Прежде чем принять запрос на добавление, верифицируйте личность собеседника.</string>
+    <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_title">Невозможно начать беседу</string>
+    <string name="missing_keypackage_dialog_body">Вы не можете начать беседу с %1$s прямо сейчас. %1$s следует сначала открыть Wire или авторизоваться. Пожалуйста, повторите попытку позже.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Медиагалерея</string>
     <string name="media_gallery_on_image_downloaded">Сохранить в папку загрузок</string>
@@ -975,6 +1012,8 @@
     <string name="settings_show_typing_indicator_title">Индикатор набора текста</string>
     <string name="settings_show_typing_indicator_description">При выключении этого параметра вы не сможете видеть, когда собеседники набирают текст, а собеседники не смогут видеть, когда вы набираете текст. Эта настройка применяется ко всем беседам на этом устройстве.</string>
     <string name="settings_app_lock_title">Блокировка кодом доступа</string>
+    <string name="settings_send_anonymous_usage_data_title">Отправка анонимных данных об использовании</string>
+    <string name="settings_send_anonymous_usage_data_description">Данные об использовании позволяют Wire определить, как используется приложение и как его можно улучшить. Эти данные анонимны и не включают в себя содержимое вашего общения (такое как, сообщения, файлы, местоположение или звонки).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Установить код доступа к приложению</string>
     <string name="settings_set_lock_screen_description">Приложение заблокируется спустя %1$s неактивности. Для его разблокировки потребуется ввести этот код или использовать биометрию.\n\nЗапомните этот код, поскольку восстановить его невозможно.</string>
@@ -1028,6 +1067,8 @@
     <string name="custom_backend_dialog_body">При продолжении вы будете перенаправлены на следующий локальный бэкэнд:</string>
     <string name="custom_backend_dialog_body_backend_name">Название бэкэнда:</string>
     <string name="custom_backend_dialog_body_backend_api">URL бэкэнда:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">URL прокси:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Прокси аутентификации:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">URL черного списка:</string>
     <string name="custom_backend_dialog_body_backend_teams">URL команды:</string>
     <string name="custom_backend_dialog_body_backend_accounts">URL аккаунта:</string>
@@ -1110,7 +1151,7 @@
     <string name="label_wire_credentials">НАСТРОЙКИ WIRE</string>
     <string name="dialog_clear_content_title">Очистить контент?</string>
     <string name="dialog_clear_content_option">Очистить контент</string>
-    <string name="dialog_clear_content_text">Будет выполнена очистка беседы на всех ваших устройствах. Вы сохраните доступ к %1$s и будете иметь доступ ко всем новым событиям %1$s</string>
+    <string name="dialog_clear_content_text">Будет выполнена очистка беседы на всех ваших устройствах. Вы по-прежнему будете участником %1$s и будете иметь доступ ко всем новым действиям %1$s</string>
     <string name="not_supported_dialog_title">Не поддерживается</string>
     <string name="sso_not_supported_dialog_description">Нельзя авторизоваться через SSO во внутреннем бэкэнде с поддержкой прокси.</string>
     <string name="create_personal_account_not_supported_dialog_description">Нельзя создать личный аккаунт во внутреннем бэкэнде с поддержкой прокси.</string>
@@ -1200,9 +1241,11 @@
     <string name="title_video_could_not_be_sent">Не удалось отправить видео</string>
     <string name="title_image_could_not_be_sent">Не удалось отправить изображение</string>
     <string name="title_file_could_not_be_sent">Не удалось отправить файл</string>
+    <string name="title_assets_could_not_be_sent">Не удалось отправить медиафайлы</string>
     <string name="label_shared_video_too_large">Вы можете поделиться видео размером не более %d МБ.</string>
     <string name="label_shared_image_too_large">Вы можете поделиться изображением размером не более %d МБ.</string>
     <string name="label_shared_file_too_large">Вы можете поделиться файлом размером не более %d МБ.</string>
+    <string name="label_shared_multiple_assets_error">Удалить все отмеченные медиафайлы и повторить попытку</string>
     <string name="label_file_saved_to_device">Файл был сохранен на устройстве.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Самоудаляющееся сообщение • %1$s</string>
@@ -1308,6 +1351,8 @@
     <string name="end_to_end_identity_renew_success_dialog_title">Сертификат обновлен</string>
     <string name="end_to_end_identity_renew_success_dialog_text">Сертификат обновлен, а устройство верифицировано.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Сведения о сертификате</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_title">Не удалось выпустить сертификат</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_text">Пожалуйста, попробуйте еще раз или свяжитесь с администратором вашей команды.</string>
     <string name="end_to_end_identity_ceritifcate">Сведения о сертификате</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">Сертификат сквозной идентификации отозван</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_description">Для снижения рисков безопасности следует осуществить выход. После авторизации получите новый сертификат и сбросьте пароль.\n\nЕсли вы продолжите использование этого устройства, ваши разговоры больше не будут являться верифицированными.</string>
@@ -1317,6 +1362,7 @@
     <string name="record_audio_start_label">Начать запись</string>
     <string name="record_audio_recording_label">Запись аудио…</string>
     <string name="record_audio_send_label">Отправить аудиосообщение</string>
+    <string name="record_audio_apply_filter_label">Применить аудиофильтр</string>
     <string name="record_audio_discard_dialog_title">Отменить аудиосообщение?</string>
     <string name="record_audio_discard_dialog_text">Аудиосообщение будет удалено и не будет отправлено.</string>
     <string name="record_audio_discard_dialog_discard_button">Отменить</string>
@@ -1418,4 +1464,7 @@
     <string name="location_app_permission_dialog_body">Разрешите Wire получить доступ к местоположению вашего устройства, чтобы иметь возможность им поделиться.</string>
     <string name="location_loading_label">Пожалуйста, подождите...</string>
     <string name="location_could_not_be_shared">Не удалось поделиться местоположением</string>
+    <!-- Asset Preview -->
+    <string name="remove_asset_description">Удалить медиафайл</string>
+    <string name="asset_attention_description">Уведомление</string>
 </resources>

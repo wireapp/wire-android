@@ -50,6 +50,12 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun GroupConversationOptionsItem(
     title: String,
+    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ }),
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .background(MaterialTheme.wireColorScheme.surface)
+        .clickable(clickable)
+        .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight),
     subtitle: String? = null,
     label: String? = null,
     trailingOnText: String? = null,
@@ -58,12 +64,6 @@ fun GroupConversationOptionsItem(
     switchState: SwitchState = SwitchState.None,
     titleStyle: TextStyle = MaterialTheme.wireTypography.body02,
     arrowType: ArrowType = ArrowType.CENTER_ALIGNED,
-    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ }),
-    modifier: Modifier = Modifier
-        .fillMaxWidth()
-        .background(MaterialTheme.wireColorScheme.surface)
-        .clickable(clickable)
-        .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight)
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

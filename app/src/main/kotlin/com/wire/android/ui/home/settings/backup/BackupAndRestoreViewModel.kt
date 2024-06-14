@@ -20,14 +20,17 @@ package com.wire.android.ui.home.settings.backup
 
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.datastore.UserDataStore
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -44,8 +47,10 @@ import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFai
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
 import com.wire.kalium.logic.feature.backup.VerifyBackupResult
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
+import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
@@ -61,9 +66,12 @@ class BackupAndRestoreViewModel
     private val validatePassword: ValidatePasswordUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val fileManager: FileManager,
-    private val dispatcher: DispatcherProvider,
+    private val userDataStore: UserDataStore,
+    private val dispatcher: DispatcherProvider
 ) : ViewModel() {
 
+    val createBackupPasswordState: TextFieldState = TextFieldState()
+    val restoreBackupPasswordState: TextFieldState = TextFieldState()
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
 
     @VisibleForTesting
@@ -72,7 +80,28 @@ class BackupAndRestoreViewModel
     @VisibleForTesting
     internal lateinit var latestImportedBackupTempPath: Path
 
-    fun createBackup(password: String) = viewModelScope.launch(dispatcher.main()) {
+    init {
+        observeLastBackupDate()
+        observeCreateBackupPasswordChanges()
+    }
+
+    private fun observeCreateBackupPasswordChanges() {
+        viewModelScope.launch {
+            createBackupPasswordState.textAsFlow().collectLatest {
+                validateBackupCreationPassword(it.toString())
+            }
+        }
+    }
+
+    private fun observeLastBackupDate() {
+        viewModelScope.launch {
+            userDataStore.lastBackupDateSeconds().collect {
+                state = state.copy(lastBackupData = it)
+            }
+        }
+    }
+
+    fun createBackup() = viewModelScope.launch {
         // TODO: Find a way to update the creation progress more faithfully. For now we will just show this small delays to mimic the
         //  progress also for small backups
         updateCreationProgress(PROGRESS_25)
@@ -80,15 +109,16 @@ class BackupAndRestoreViewModel
         updateCreationProgress(PROGRESS_50)
         delay(SMALL_DELAY)
 
-        when (val result = createBackupFile(password)) {
+        when (val result = createBackupFile(createBackupPasswordState.text.toString())) {
             is CreateBackupResult.Success -> {
                 state = state.copy(backupCreationProgress = BackupCreationProgress.Finished(result.backupFileName))
                 latestCreatedBackup = BackupAndRestoreState.CreatedBackup(
                     result.backupFilePath,
                     result.backupFileName,
                     result.backupFileSize,
-                    password.isNotEmpty()
+                    createBackupPasswordState.text.isNotEmpty()
                 )
+                createBackupPasswordState.clearText()
             }
 
             is CreateBackupResult.Failure -> {
@@ -98,20 +128,40 @@ class BackupAndRestoreViewModel
         }
     }
 
-    fun shareBackup() = viewModelScope.launch(dispatcher.main()) {
+    private suspend fun updateLastBackupDate() {
+        DateTimeUtil.currentInstant().epochSeconds.also { currentTime ->
+            userDataStore.setLastBackupDateSeconds(currentTime)
+        }
+    }
+
+    fun shareBackup() = viewModelScope.launch {
+        updateLastBackupDate()
         latestCreatedBackup?.let { backupData ->
             withContext(dispatcher.io()) {
                 fileManager.shareWithExternalApp(backupData.path, backupData.assetName) {}
             }
         }
-        state = BackupAndRestoreState.INITIAL_STATE
+        state = state.copy(
+            backupRestoreProgress = BackupRestoreProgress.InProgress(),
+            restoreFileValidation = RestoreFileValidation.Initial,
+            backupCreationProgress = BackupCreationProgress.InProgress(),
+            restorePasswordValidation = PasswordValidation.NotVerified,
+            passwordValidation = ValidatePasswordResult.Valid,
+        )
     }
 
-    fun saveBackup(uri: Uri) = viewModelScope.launch(dispatcher.main()) {
+    fun saveBackup(uri: Uri) = viewModelScope.launch {
+        updateLastBackupDate()
         latestCreatedBackup?.let { backupData ->
             fileManager.copyToUri(backupData.path, uri, dispatcher)
         }
-        state = BackupAndRestoreState.INITIAL_STATE
+        state = state.copy(
+            backupRestoreProgress = BackupRestoreProgress.InProgress(),
+            restoreFileValidation = RestoreFileValidation.Initial,
+            backupCreationProgress = BackupCreationProgress.InProgress(),
+            restorePasswordValidation = PasswordValidation.NotVerified,
+            passwordValidation = ValidatePasswordResult.Valid,
+        )
     }
 
     fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
@@ -176,7 +226,7 @@ class BackupAndRestoreViewModel
         }
     }
 
-    fun restorePasswordProtectedBackup(restorePassword: String) = viewModelScope.launch(dispatcher.main()) {
+    fun restorePasswordProtectedBackup() = viewModelScope.launch(dispatcher.main()) {
         state = state.copy(
             backupRestoreProgress = BackupRestoreProgress.InProgress(PROGRESS_50),
             restorePasswordValidation = PasswordValidation.NotVerified
@@ -185,12 +235,13 @@ class BackupAndRestoreViewModel
         val fileValidationState = state.restoreFileValidation
         if (fileValidationState is RestoreFileValidation.PasswordRequired) {
             state = state.copy(restorePasswordValidation = PasswordValidation.Entered)
-            when (val result = importBackup(latestImportedBackupTempPath, restorePassword)) {
+            when (val result = importBackup(latestImportedBackupTempPath, restoreBackupPasswordState.text.toString())) {
                 RestoreBackupResult.Success -> {
                     state = state.copy(
                         backupRestoreProgress = BackupRestoreProgress.Finished,
                         restorePasswordValidation = PasswordValidation.Valid
                     )
+                    restoreBackupPasswordState.clearText()
                 }
 
                 is RestoreBackupResult.Failure -> {
@@ -228,21 +279,23 @@ class BackupAndRestoreViewModel
         )
     }
 
-    fun validateBackupCreationPassword(backupPassword: TextFieldValue) {
+    fun validateBackupCreationPassword(backupPassword: String) {
         state = state.copy(
-            passwordValidation = if (backupPassword.text.isEmpty()) {
+            passwordValidation = if (backupPassword.isEmpty()) {
                 ValidatePasswordResult.Valid
             } else {
-                validatePassword(backupPassword.text)
+                validatePassword(backupPassword)
             }
         )
     }
 
     fun cancelBackupCreation() = viewModelScope.launch(dispatcher.main()) {
+        createBackupPasswordState.clearText()
         updateCreationProgress(0f)
     }
 
     fun cancelBackupRestore() = viewModelScope.launch {
+        restoreBackupPasswordState.clearText()
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.Initial,
             backupRestoreProgress = BackupRestoreProgress.InProgress(),

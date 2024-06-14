@@ -80,6 +80,7 @@
     <string name="label_user_blocked">Blockiert</string>
     <string name="label_and">und</string>
     <string name="label_retry">Wiederholen</string>
+    <string name="label_draft">*Entwurf*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Passwort anzeigen</string>
@@ -104,6 +105,7 @@
     <string name="content_description_conversation_search_icon">Search icon</string>
     <string name="content_description_conversation_search_input">Search input</string>
     <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
+    <string name="content_description_conversation_enable_drawing_mode">Enable drawing mode button</string>
     <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
     <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
     <string name="content_description_conversation_rich_text_italic">Rich text formatting Italic</string>
@@ -166,7 +168,7 @@
     <string name="content_description_message_delivered_status">Message delivered status</string>
     <string name="content_description_message_read_status">Message read status</string>
     <string name="content_description_record_audio_button_start">Audio aufnehmen</string>
-    <string name="content_description_record_audio_button_stop">Stop Recording Audio</string>
+    <string name="content_description_record_audio_button_stop">Aufnahme stoppen</string>
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
     <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
@@ -183,7 +185,12 @@
     <string name="app_settings_screen_title">App-Einstellungen</string>
     <string name="give_feedback_screen_title">Feedback geben</string>
     <string name="report_bug_screen_title">Fehler melden</string>
+    <string name="about_app_screen_title">About This App</string>
+    <string name="settings_privacy_policy_label">Datenschutzerklärung</string>
+    <string name="settings_terms_of_use_label">Datenschutz und AGB</string>
+    <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Einstellungen zur Fehlerbehebung</string>
+    <string name="item_dependencies_title">Abhängigkeiten:</string>
     <string name="support_screen_title">Hilfe</string>
     <string name="backup_and_restore_screen_title">Unterhaltungen sichern &amp; wiederherstellen</string>
     <string name="search_bar_conversations_hint">Unterhaltungen suchen</string>
@@ -197,6 +204,9 @@
     <string name="settings_backups_group_title">Sicherungen</string>
     <string name="settings_other_group_title">Andere</string>
     <string name="settings_backup_info">Erstellen Sie ein Backup, um den Gesprächsverlauf zu sichern. Damit können Unterhaltungen wiederhergestellt werden, falls Sie Ihr Gerät verlieren oder ein neues nutzen möchten.\n\nWählen Sie ein sicheres Passwort, um die Backup-Datei zu schützen.</string>
+    <string name="settings_backup_last_backup_title">Letztes Backup</string>
+    <string name="settings_backup_last_backup_date">Das letzte Backup von diesem Gerät wurde am %1$s um %2$s erstellt.</string>
+    <string name="settings_backup_last_backup_date_no_time">Sie haben noch kein Backup von diesem Gerät erstellt.</string>
     <string name="settings_backup_create">Unterhaltungen sichern</string>
     <string name="settings_backup_restore">Backup wiederherstellen</string>
     <!-- Welcome -->
@@ -210,7 +220,7 @@
     <string name="welcome_screen_carousel_item_message_5">Wire wird unabhängig geprüft und ist ISO-, CCPA-, DSGVO- und SOX-konform</string>
     <string name="welcome_button_create_team">Team erstellen</string>
     <string name="server_details_dialog_body">Backend-Name:\n%1$s\n\nBackend-URL:\n%2$s</string>
-    <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy-URL:\n%3$s\n\nProxy-Authentifizierung:\n%4$s</string>
+    <string name="server_details_dialog_body_with_proxy">Backend-Name:\n%1$s\n\nBackend-URL:\n%2$s\n\nProxy-URL:\n%3$s\n\nProxy-Authentifizierung:\n%4$s</string>
     <string name="server_details_dialog_title">Lokales Backend</string>
     <string name="welcome_migration_dialog_title">Willkommen in unserer neuen App 👋</string>
     <string name="welcome_migration_dialog_content">Wir haben die App überarbeitet, um sie für alle benutzerfreundlicher zu machen.\n\nErfahren Sie mehr über die neu gestaltete App – zusätzliche Optionen und verbesserte Barrierefreiheit bei gleichbleibend hoher Sicherheit.</string>
@@ -275,7 +285,7 @@
         wurde auch Ihr Gesprächsverlauf gelöscht.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Überprüfen Sie Ihr Benutzerkonto</string>
-    <string name="second_factor_authentication_instructions_label">Geben Sie den Bestätigungscode ein, der an die E-Mail-Adresse %1$s gesendet wurde</string>
+    <string name="second_factor_authentication_instructions_label">Bitte prüfen Sie Ihren Posteingang %1$s und geben Sie den Bestätigungscode ein.</string>
     <string name="second_factor_code_error">Ungültiger Code oder maximale Versuche überschritten. Bitte versuchen Sie es erneut oder fordern Sie einen anderen Code an</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Bitte ein Gerät entfernen</string>
@@ -465,6 +475,15 @@
     <string name="message_details_reactions_empty_learn_more">Mehr über Reaktionen erfahren</string>
     <string name="message_details_read_receipts_empty_text">Niemand hat diese Nachricht bisher gelesen 👀</string>
     <string name="message_details_read_receipts_empty_learn_more">Mehr über Lesebestätigungen erfahren</string>
+    <!-- Messages Date and Time -->
+    <string name="message_datetime_now">Gerade eben</string>
+    <plurals name="message_datetime_minutes_ago">
+        <item quantity="one">Vor 1 Minute</item>
+        <item quantity="other">Vor %1$d Minuten</item>
+    </plurals>
+    <string name="message_datetime_today">Heute, %s</string>
+    <string name="message_datetime_yesterday">Gestern, %s</string>
+    <string name="message_datetime_other">%s</string>
     <!-- Attachment options -->
     <string name="attachment_share_file">Datei</string>
     <string name="attachment_share_image">Gallery</string>
@@ -717,6 +736,11 @@
     <!-- Search Contact-->
     <string name="label_contacts">KONTAKTE</string>
     <string name="label_new_group">Neue Gruppe</string>
+    <string name="label_create_new_group">Neue Gruppe erstellen</string>
+    <plurals name="label_x_participants">
+        <item quantity="one">%1$d Teilnehmer</item>
+        <item quantity="other">%1$d Teilnehmer</item>
+    </plurals>
     <string name="label_new_conversation">Neue Unterhaltung</string>
     <string name="label_search_people">Personen suchen</string>
     <string name="label_public_wire">ÖFFENTLICHES WIRE</string>
@@ -738,6 +762,7 @@
     <string name="error_no_network_message">Bitte Internetverbindung überprüfen und erneut versuchen</string>
     <string name="error_downloading_self_user_profile_picture">Beim Herunterladen Ihres Profilbildes ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung</string>
     <string name="error_uploading_user_avatar">Bild konnte nicht hochgeladen werden</string>
+    <string name="error_process_user_avatar">Picture could not be processed</string>
     <string name="error_uploading_image_message">Bild konnte nicht hochgeladen werden</string>
     <string name="error_downloading_image_message">Bild konnte nicht heruntergeladen werden</string>
     <string name="error_updating_muting_setting">Benachrichtigungen konnten nicht aktualisiert werden</string>
@@ -769,6 +794,7 @@
     <string name="dialog_archive_conversation_option">Archivieren</string>
     <!-- Animation label -->
     <string name="label_open_conversation">Unterhaltung öffnen</string>
+    <string name="label_start_conversation">Unterhaltung beginnen</string>
     <string name="email_label">E-Mail-Adresse</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
@@ -793,6 +819,7 @@
     <string name="notification_group_call_content">%s ruft an...</string>
     <string name="notification_call_default_caller_name">Jemand</string>
     <string name="notification_call_default_group_name">Eingehender Gruppenanruf</string>
+    <string name="notification_outgoing_call_tap_to_return">Tap to return to call - Calling...</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Konstante Bitrate</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
@@ -827,6 +854,8 @@
     <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Zurück zum Anruf</string>
+    <string name="connectivity_status_bar_return_to_incoming_call">%1$s ruft an…</string>
+    <string name="connectivity_status_bar_return_to_outgoing_call">%1$s anrufen…</string>
     <string name="connectivity_status_bar_connecting">Entschlüsseln von Nachrichten</string>
     <string name="connectivity_status_bar_waiting_for_network">Warten auf Netzwerk</string>
     <!-- Connections -->
@@ -851,6 +880,9 @@
     <string name="connection_label_ignore">Ignorieren</string>
     <string name="connection_label_send_unverified_warning">Verschaffen Sie sich Gewissheit über die Identität von %s, bevor Sie den Kontakt hinzufügen.</string>
     <string name="connection_label_received_unverified_warning">Bitte überprüfen Sie die Identität der Person, bevor Sie die Kontaktanfrage annehmen.</string>
+    <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_title">Unterhaltung kann nicht beginnen</string>
+    <string name="missing_keypackage_dialog_body">Sie können die Unterhaltung mit %1$s im Moment nicht beginnen. %1$s muss Wire zuerst öffnen oder sich neu anmelden. Bitte versuchen Sie es später noch einmal.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Mediengalerie</string>
     <string name="media_gallery_on_image_downloaded">Im Download-Ordner gespeichert</string>
@@ -946,6 +978,8 @@
     <string name="settings_show_typing_indicator_title">Eingabeanzeige</string>
     <string name="settings_show_typing_indicator_description">Wenn diese Option deaktiviert ist, können Sie nicht sehen, wenn andere Personen tippen, und andere sehen nicht, wenn Sie tippen. Gilt für alle Unterhaltungen auf diesem Gerät.</string>
     <string name="settings_app_lock_title">Mit Kennwort sperren</string>
+    <string name="settings_send_anonymous_usage_data_title">Anonyme Nutzungsdaten senden</string>
+    <string name="settings_send_anonymous_usage_data_description">Anhand der Nutzungsdaten kann Wire verstehen, wie die App genutzt wird und wie sie verbessert werden kann. Die Daten sind anonym und umfassen nicht den Inhalt Ihrer Kommunikation (wie Nachrichten, Dateien, Standorte oder Anrufe).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Kennwort der App-Sperre festlegen</string>
     <string name="settings_set_lock_screen_description">Die App wird nach %1$s der Inaktivität gesperrt. Um die App zu entsperren, müssen Sie dieses Kennwort eingeben oder die biometrische Authentifizierung verwenden.\n\n Bitte merken Sie sich unbedingt das Kennwort, da es keine Möglichkeit gibt, es wiederherzustellen.</string>
@@ -995,6 +1029,8 @@
     <string name="custom_backend_dialog_body">Wenn Sie fortfahren, wird Ihr Client an das folgende lokale Backend weitergeleitet:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend-Name:</string>
     <string name="custom_backend_dialog_body_backend_api">Backend-URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_url">Proxy-URL:</string>
+    <string name="custom_backend_dialog_body_backend_proxy_authentication">Proxy-Authentifizierung:</string>
     <string name="custom_backend_dialog_body_backend_blacklist">Blacklist-URL:</string>
     <string name="custom_backend_dialog_body_backend_teams">Teams-URL:</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts-URL:</string>
@@ -1167,9 +1203,11 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="title_video_could_not_be_sent">Video konnte nicht gesendet werden</string>
     <string name="title_image_could_not_be_sent">Bild konnte nicht gesendet werden</string>
     <string name="title_file_could_not_be_sent">Datei konnte nicht gesendet werden</string>
+    <string name="title_assets_could_not_be_sent">Assets could not be sent</string>
     <string name="label_shared_video_too_large">Sie können Videos bis zu %d MB senden.</string>
     <string name="label_shared_image_too_large">Sie können Bilder bis zu %d MB senden.</string>
     <string name="label_shared_file_too_large">Sie können Dateien bis zu %d MB senden.</string>
+    <string name="label_shared_multiple_assets_error">Remove all marked assets and try again</string>
     <string name="label_file_saved_to_device">Datei wurde auf Ihrem Gerät gespeichert.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Selbstlöschende Nachricht • %1$s</string>
@@ -1255,6 +1293,8 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="end_to_end_identity_renew_success_dialog_title">Zertifikat aktualisiert</string>
     <string name="end_to_end_identity_renew_success_dialog_text">Zertifikat wurde aktualisiert und Ihr Gerät wurde überprüft.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Zertifikatsdetails</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_title">Zertifikat konnte nicht ausgestellt werden</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_text">Bitte versuchen Sie es erneut oder wenden Sie sich an Ihren Team-Admin.</string>
     <string name="end_to_end_identity_ceritifcate">Zertifikatsdetails</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">Ende-zu-Ende-Identitätszertifikat widerrufen</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_description">Melden Sie sich ab, um Sicherheitsrisiken zu verringern. Melden Sie sich dann erneut an, laden Sie ein neues Zertifikat herunter und setzen Sie Ihr Passwort zurück.\n\nWenn Sie dieses Gerät weiter verwenden, sind Ihre Unterhaltungen nicht mehr überprüft.</string>
@@ -1264,6 +1304,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="record_audio_start_label">Aufnahme starten</string>
     <string name="record_audio_recording_label">Audio-Aufnahme…</string>
     <string name="record_audio_send_label">Audionachricht senden</string>
+    <string name="record_audio_apply_filter_label">Audiofilter anwenden</string>
     <string name="record_audio_discard_dialog_title">Audionachricht verwerfen?</string>
     <string name="record_audio_discard_dialog_text">Die Audionachricht wird gelöscht und Sie können sie nicht versenden.</string>
     <string name="record_audio_discard_dialog_discard_button">Verwerfen</string>
@@ -1273,7 +1314,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="record_audio_max_file_size_reached_title">Aufnahme wurde beendet</string>
     <string name="record_audio_max_file_size_reached_text">Die Dateigröße für Audionachrichten ist auf %1$d MB begrenzt.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Sie können während eines Anrufs keine Audionachricht aufnehmen.</string>
-    <string name="record_audio_unable_due_to_error">Something went wrong while trying to record audio message. Please try again.</string>
+    <string name="record_audio_unable_due_to_error">Beim Versuch, eine Audionachricht aufzuzeichnen, ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
     <string name="label_not_now">Nicht jetzt</string>
     <string name="last_message_composite_with_missing_text">hat eine interaktive Nachricht gesendet</string>
     <string name="join_conversation_dialog_password_label">Passwort für die Unterhaltung</string>
@@ -1338,7 +1379,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="legal_hold_system_message_disabled_others">Gesetzliche Aufbewahrung deaktiviert für %1$s.</string>
     <string name="legal_hold_system_message_disabled_conversation">Gesetzlichen Aufbewahrung ist für diese Unterhaltung nicht mehr aktiv.</string>
     <string name="legal_hold_system_message_enabled_conversation">Gesetzlichen Aufbewahrung ist für diese Unterhaltung aktiv.</string>
-    <string name="legal_hold_system_message_interaction_disabled">You can’t write messages with this user, as they are not part of your team and one of you is subject to legal hold. Once legal hold is deactivated, you can write messages again.</string>
+    <string name="legal_hold_system_message_interaction_disabled">Sie können mit dieser Person keine Nachrichten austauschen, da sie nicht zu Ihrem Team gehört und einer von Ihnen der gesetzlichen Aufbewahrung unterliegt. Sobald die gesetzliche Aufbewahrung aufgehoben ist, können Sie wieder Nachrichten schreiben.</string>
     <!-- Sure want to send message Dialog -->
     <string name="sure_about_messaging_dialog_title">Unterhaltung nicht mehr überprüft</string>
     <string name="sure_about_messaging_dialog_body">Mindestens ein Teilnehmer hat begonnen, ein neues Gerät zu verwenden oder hat ein ungültiges Zertifikat.\n\nMöchten Sie die Nachricht trotzdem senden?</string>
@@ -1365,4 +1406,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_app_permission_dialog_body">Erlauben Sie Wire den Zugriff auf Ihren Gerätestandort, um Ihren Standort zu senden.</string>
     <string name="location_loading_label">Bitte warten…</string>
     <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
+    <!-- Asset Preview -->
+    <string name="remove_asset_description">Remove asset</string>
+    <string name="asset_attention_description">Asset attention</string>
 </resources>

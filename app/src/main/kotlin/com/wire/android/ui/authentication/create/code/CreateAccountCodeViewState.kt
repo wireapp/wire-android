@@ -18,35 +18,38 @@
 
 package com.wire.android.ui.authentication.create.code
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.kalium.logic.CoreFailure
 
 data class CreateAccountCodeViewState(
     val type: CreateAccountFlowType,
-    val code: CodeFieldValue = CodeFieldValue(TextFieldValue(""), false),
+    val codeLength: Int = DEFAULT_VERIFICATION_CODE_LENGTH,
     val email: String = "",
     val loading: Boolean = false,
-    val error: CodeError = CodeError.None
+    val result: Result = Result.None,
 ) {
-    sealed class CodeError {
-        object None : CodeError()
-        sealed class TextFieldError : CodeError() {
-            object InvalidActivationCodeError : TextFieldError()
-        }
+    sealed interface Result {
+        data object None : Result
+        data object Success : Result
+        sealed class Error : Result {
+            sealed class TextFieldError : Error() {
+                data object InvalidActivationCodeError : TextFieldError()
+            }
 
-        sealed class DialogError : CodeError() {
-            object InvalidEmailError : DialogError()
-            object AccountAlreadyExistsError : DialogError()
-            object BlackListedError : DialogError()
-            object EmailDomainBlockedError : DialogError()
-            object TeamMembersLimitError : DialogError()
-            object CreationRestrictedError : DialogError()
-            object UserAlreadyExists: DialogError()
-            data class GenericError(val coreFailure: CoreFailure) : DialogError()
+            sealed class DialogError : Error() {
+                data object InvalidEmailError : DialogError()
+                data object AccountAlreadyExistsError : DialogError()
+                data object BlackListedError : DialogError()
+                data object EmailDomainBlockedError : DialogError()
+                data object TeamMembersLimitError : DialogError()
+                data object CreationRestrictedError : DialogError()
+                data object UserAlreadyExistsError : DialogError()
+                data class GenericError(val coreFailure: CoreFailure) : DialogError()
+            }
+            data object TooManyDevicesError : Error()
         }
-
-        object TooManyDevicesError : CodeError()
+    }
+    companion object {
+        const val DEFAULT_VERIFICATION_CODE_LENGTH = 6
     }
 }

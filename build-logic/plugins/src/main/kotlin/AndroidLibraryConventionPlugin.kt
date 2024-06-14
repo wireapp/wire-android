@@ -23,14 +23,16 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 
-class AndroidLibraryConventionPlugin: Plugin<Project> {
+class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
-        with(pluginManager){
+        with(pluginManager) {
             apply("com.android.library")
             apply("org.jetbrains.kotlin.android")
         }
 
         extensions.configure<LibraryExtension> {
+            namespace = "com.wire.android.feature.${target.name.replace("-", "_")}"
+
             // TODO: Handle flavors. Currently implemented in `variants.gradle.kts` script
             configureKotlinAndroid(this)
             defaultConfig.targetSdk = AndroidSdk.target
@@ -38,6 +40,14 @@ class AndroidLibraryConventionPlugin: Plugin<Project> {
             configureCompose(this)
 
             configureAndroidKotlinTests()
+
+            buildTypes {
+                // submodules using this plugin can skip minification, since the app will do it
+                release {
+                    isMinifyEnabled = false
+                    proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+                }
+            }
         }
     }
 }

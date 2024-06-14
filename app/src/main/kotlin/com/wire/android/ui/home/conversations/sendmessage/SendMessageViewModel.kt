@@ -21,13 +21,15 @@ package com.wire.android.ui.home.conversations.sendmessage
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
+import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
 import com.wire.android.ui.home.conversations.model.AssetBundle
@@ -36,6 +38,9 @@ import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
+import com.wire.android.ui.navArgs
+import com.wire.android.ui.sharing.SendMessagesSnackbarMessages
+import com.wire.android.util.AUDIO_MIME_TYPE
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
@@ -44,6 +49,7 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
@@ -61,18 +67,19 @@ import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okio.Path
-import okio.Path.Companion.toPath
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class SendMessageViewModel @Inject constructor(
+    override val savedStateHandle: SavedStateHandle,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
@@ -90,7 +97,10 @@ class SendMessageViewModel @Inject constructor(
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
     private val sendLocation: SendLocationUseCase,
     private val removeMessageDraft: RemoveMessageDraftUseCase,
-) : ViewModel() {
+) : SavedStateViewModel(savedStateHandle) {
+
+    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -103,6 +113,19 @@ class SendMessageViewModel @Inject constructor(
         SureAboutMessagingDialogState.Hidden
     )
 
+    init {
+        conversationNavArgs.pendingBundles?.let { assetBundles ->
+            trySendMessages(
+                assetBundles.map { assetBundle ->
+                    ComposableMessageBundle.AttachmentPickedBundle(
+                        conversationId,
+                        assetBundle
+                    )
+                }
+            )
+        }
+    }
+
     private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
     }
@@ -114,36 +137,68 @@ class SendMessageViewModel @Inject constructor(
         observeConversationUnderLegalHoldNotified(conversationId).first().let { !it }
 
     fun trySendMessage(messageBundle: MessageBundle) {
-        viewModelScope.launch {
-            when {
-                shouldInformAboutDegradedBeforeSendingMessage(messageBundle.conversationId) ->
-                    sureAboutMessagingDialogState = SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(messageBundle)
+        trySendMessages(listOf(messageBundle))
+    }
 
-                shouldInformAboutUnderLegalHoldBeforeSendingMessage(messageBundle.conversationId) ->
-                    sureAboutMessagingDialogState =
-                        SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(messageBundle)
+    fun trySendMessages(messageBundleList: List<MessageBundle>) {
+        if (messageBundleList.size > MAX_LIMIT_MESSAGE_SEND) {
+            onSnackbarMessage(SendMessagesSnackbarMessages.MaxAmountOfAssetsReached)
+        } else {
+            val messageBundleMap = messageBundleList.groupBy { it.conversationId }
+            messageBundleMap.forEach { (conversationId, bundles) ->
+                viewModelScope.launch {
+                    when {
+                        shouldInformAboutDegradedBeforeSendingMessage(conversationId) ->
+                            sureAboutMessagingDialogState =
+                                SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(conversationId, bundles)
 
-                else -> sendMessage(messageBundle)
+                        shouldInformAboutUnderLegalHoldBeforeSendingMessage(conversationId) ->
+                            sureAboutMessagingDialogState =
+                                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(
+                                    conversationId,
+                                    messageBundleList
+                                )
+
+                        else -> sendMessages(messageBundleList)
+                    }
+                }
             }
         }
     }
 
+    private suspend fun sendMessages(messageBundleList: List<MessageBundle>) {
+        val jobs: MutableCollection<Job> = mutableListOf()
+        messageBundleList.forEach {
+            val job = viewModelScope.launch {
+                sendMessage(it)
+            }
+            jobs.add(job)
+        }
+        jobs.joinAll()
+    }
+
+    @Suppress("LongMethod")
     private suspend fun sendMessage(messageBundle: MessageBundle) {
         when (messageBundle) {
             is ComposableMessageBundle.EditMessageBundle -> {
+                removeMessageDraft(messageBundle.conversationId)
+                sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
                 with(messageBundle) {
                     sendEditTextMessage(
                         conversationId = conversationId,
                         originalMessageId = originalMessageId,
                         text = newContent,
                         mentions = newMentions.map { it.intoMessageMention() },
-                    ).handleLegalHoldFailureAfterSendingMessage(conversationId)
+                    )
+                        .handleLegalHoldFailureAfterSendingMessage(conversationId)
                 }
-                removeMessageDraft(messageBundle.conversationId)
-                sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
             }
 
             is ComposableMessageBundle.AttachmentPickedBundle -> {
+                sendAttachment(messageBundle.assetBundle, messageBundle.conversationId)
+            }
+
+            is ComposableMessageBundle.UriPickedBundle -> {
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
                     conversationId = messageBundle.conversationId
@@ -153,22 +208,23 @@ class SendMessageViewModel @Inject constructor(
             is ComposableMessageBundle.AudioMessageBundle -> {
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
-                    audioPath = messageBundle.attachmentUri.uri.path?.toPath(),
-                    conversationId = messageBundle.conversationId
+                    conversationId = messageBundle.conversationId,
+                    specifiedMimeType = AUDIO_MIME_TYPE,
                 )
             }
 
             is ComposableMessageBundle.SendTextMessageBundle -> {
+                removeMessageDraft(messageBundle.conversationId)
+                sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
                 with(messageBundle) {
                     sendTextMessage(
                         conversationId = conversationId,
                         text = message,
                         mentions = mentions.map { it.intoMessageMention() },
                         quotedMessageId = quotedMessageId
-                    ).handleLegalHoldFailureAfterSendingMessage(conversationId)
+                    )
+                        .handleLegalHoldFailureAfterSendingMessage(conversationId)
                 }
-                removeMessageDraft(messageBundle.conversationId)
-                sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
             }
 
             is ComposableMessageBundle.LocationBundle -> {
@@ -181,6 +237,7 @@ class SendMessageViewModel @Inject constructor(
             is Ping -> {
                 pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
                 sendKnockUseCase(conversationId = messageBundle.conversationId, hotKnock = false)
+                    .handleLegalHoldFailureAfterSendingMessage(messageBundle.conversationId)
             }
         }
     }
@@ -188,12 +245,12 @@ class SendMessageViewModel @Inject constructor(
     private suspend fun handleAssetMessageBundle(
         conversationId: ConversationId,
         attachmentUri: UriAsset,
-        audioPath: Path? = null
+        specifiedMimeType: String? = null, // specify a particular mimetype, otherwise it will be taken from the uri / file extension
     ) {
         when (val result = handleUriAsset.invoke(
             uri = attachmentUri.uri,
             saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
-            audioPath = audioPath
+            specifiedMimeType = specifiedMimeType
         )) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
                 assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
@@ -232,7 +289,8 @@ class SendMessageViewModel @Inject constructor(
                                 assetDataSize = dataSize,
                                 assetMimeType = mimeType,
                                 audioLengthInMs = 0L
-                            ).handleLegalHoldFailureAfterSendingMessage(conversationId)
+                            )
+                                .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         }
 
                         AttachmentType.VIDEO,
@@ -251,7 +309,8 @@ class SendMessageViewModel @Inject constructor(
                                         dataPath = dataPath,
                                         mimeType = mimeType
                                     )
-                                ).handleLegalHoldFailureAfterSendingMessage(conversationId)
+                                )
+                                    .handleLegalHoldFailureAfterSendingMessage(conversationId)
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
@@ -265,17 +324,36 @@ class SendMessageViewModel @Inject constructor(
 
     private fun CoreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) = also {
         if (this is LegalHoldEnabledForConversationFailure) {
-            sureAboutMessagingDialogState =
-                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(this.messageId, conversationId)
+            sureAboutMessagingDialogState = when (val currentState = sureAboutMessagingDialogState) {
+                // if multiple messages will fail, update messageIdList to retry sending all of them
+                is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending -> currentState.copy(
+                    messageIdList = currentState.messageIdList.plus(messageId)
+                )
+
+                SureAboutMessagingDialogState.Hidden,
+                is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending,
+                is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
+                    SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(conversationId, listOf(messageId))
+            }
         }
     }
 
     private fun Either<CoreFailure, Unit>.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) =
         onFailure { it.handleLegalHoldFailureAfterSendingMessage(conversationId) }
 
-    private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) = also {
+    private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) = let {
         if (it is ScheduleNewAssetMessageResult.Failure) {
             it.coreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId)
+        }
+        when (this) {
+            is ScheduleNewAssetMessageResult.Failure -> Either.Left(coreFailure)
+            is ScheduleNewAssetMessageResult.Success -> Either.Right(Unit)
+        }
+    }
+
+    fun retrySendingMessages(messageIdList: List<String>, conversationId: ConversationId) {
+        messageIdList.forEach {
+            retrySendingMessage(it, conversationId)
         }
     }
 
@@ -295,13 +373,13 @@ class SendMessageViewModel @Inject constructor(
                 it.markAsNotified(it.conversationId)
                 when (it) {
                     is SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded ->
-                        trySendMessage(it.messageBundleToSend)
+                        trySendMessages(it.messageBundleListToSend)
 
                     is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending ->
-                        trySendMessage(it.messageBundleToSend)
+                        trySendMessages(it.messageBundleListToSend)
 
                     is SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending ->
-                        retrySendingMessage(it.messageId, it.conversationId)
+                        retrySendingMessages(it.messageIdList, it.conversationId)
                 }
             }
         }
@@ -325,7 +403,7 @@ class SendMessageViewModel @Inject constructor(
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }
 
-    companion object {
-        private const val sizeOf1MB = 1024 * 1024
+    private companion object {
+        const val MAX_LIMIT_MESSAGE_SEND = 20
     }
 }

@@ -1,0 +1,48 @@
+name: "Deploy to S3"
+description: "Deploys build to AWS S3"
+inputs:
+  aws-access-key-id:
+    required: true
+    description: "The aws-access-key-id used to authenticate with AWS"
+  aws-secret-access-key:
+    required: true
+    description: "The aws-secret-access-key used to authenticate with AWS"
+  aws-bucket:
+    required: true
+    description: "The AWS bucket where to upload build"
+  github-token:
+    required: true
+    description: "The GITHUB_TOKEN needed for adding comments into PRs"
+  build-flavour:
+    required: true
+    description: "The build flavour (dev, staging, internal, beta, prod, fdroid)"
+  build-variant:
+    required: true
+    description: "The build variant (benchmark, compat, compatrelease, debug, release)"
+runs:
+  using: "composite"
+  steps:
+    - name: Copy build to tmp file
+      shell: bash
+      run:
+        cp app/build/outputs/apk/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/com.wire.*.apk wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk
+    - name: Upload to S3
+      id: upload
+      uses: hkusu/s3-upload-action@v2.1.0
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-region: 'us-west-1'
+        aws-bucket: ${{ inputs.aws-bucket }}
+        destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/"
+        file-path: './wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk'
+        output-file-url: 'true'
+        public: true
+    - name: Show URL
+      shell: bash
+      env:
+        EVENT_FILE_PATH: artifacts/Event File/event.json
+        GITHUB_USER: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        gh pr comment "${{ github.event.pull_request.number }}" --body "Built [wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk](${{ steps.upload.outputs.file-url }}) is available for download"

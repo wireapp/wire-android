@@ -19,6 +19,7 @@
 package scripts
 
 import findVersion
+import org.gradle.configurationcache.extensions.capitalized
 import scripts.Variants_gradle.Default
 import java.util.Properties
 
@@ -34,11 +35,23 @@ tasks.named<Wrapper>("wrapper") {
 tasks.register("runUnitTests") {
     description = "Runs all Unit Tests."
     dependsOn(":app:test${Default.BUILD_VARIANT}UnitTest")
+    // kalium have only 2 build type debug or release
+    val buildType =
+        if (Default.resolvedBuildType() == Variants_gradle.BuildTypes.DEBUG) Default.resolvedBuildType().capitalized()
+        else Variants_gradle.BuildTypes.RELEASE.capitalized()
+
+    // valid submodules path to run unit tests
+    val validSubprojects = setOf("core", "features")
+    rootProject.subprojects {
+        if (validSubprojects.contains(parent?.name)) {
+            dependsOn(":${parent?.name}:$name:test${buildType}UnitTest")
+        }
+    }
 }
 
 tasks.register("runAcceptanceTests") {
     description = "Runs all Acceptance Tests in the connected device."
-    dependsOn(":app:connected${Default.BUILD_FLAVOR.capitalize()}DebugAndroidTest")
+    dependsOn(":app:connected${Default.resolvedBuildFlavor().capitalize()}DebugAndroidTest")
 }
 
 tasks.register("assembleApp") {
@@ -71,7 +84,7 @@ tasks.register("runApp", Exec::class) {
         val sdkDir = properties["sdk.dir"]
         val adb = "${sdkDir}/platform-tools/adb"
 
-        val applicationPackage = "com.wire.android.${Default.BUILD_FLAVOR}"
+        val applicationPackage = "com.wire.android.${Default.resolvedBuildFlavor()}"
         val launchActivity = "com.wire.android.feature.launch.ui.LauncherActivity"
 
         commandLine(adb, "shell", "am", "start", "-n", "${applicationPackage}/${launchActivity}")

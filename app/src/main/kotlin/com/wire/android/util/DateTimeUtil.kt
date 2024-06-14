@@ -16,14 +16,19 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.util
 
-import android.text.format.DateUtils
 import com.wire.android.appLogger
 import kotlinx.datetime.Instant
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -41,16 +46,19 @@ private val mediumOnlyDateTimeFormat = DateFormat
 private val messageTimeFormatter = DateFormat
     .getTimeInstance(DateFormat.SHORT)
     .apply { timeZone = TimeZone.getDefault() }
-private val messageDateTimeFormatter = DateFormat
-    .getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-    .apply { timeZone = TimeZone.getDefault() }
+private const val ONE_MINUTE_FROM_MILLIS = 60 * 1000
+private const val THIRTY_MINUTES = 30
+private const val ONE_WEEK_IN_DAYS = 7
+private const val ONE_DAY = 1
+private const val FORTY_FIVE_MINUTES_DIFFERENCE = 45
+private const val MINIMUM_DAYS_DIFFERENCE = 1
 
 private val readReceiptDateTimeFormat = SimpleDateFormat(
     "MMM dd yyyy,  hh:mm a",
     Locale.getDefault()
 ).apply { timeZone = TimeZone.getDefault() }
 
-private val audioFileDateTimeFormat = SimpleDateFormat(
+private val fileDateTimeFormat = SimpleDateFormat(
     "yyyy-MM-dd-hh-mm-ss",
     Locale.getDefault()
 ).apply { timeZone = TimeZone.getDefault() }
@@ -84,11 +92,149 @@ fun String.serverDate(): Date? = try {
     null
 }
 
+/**
+ * Transforms received Long to Calendar
+ *
+ * @return Calendar
+ */
+private fun Long.getCalendar(): Calendar = Calendar.getInstance().apply {
+    timeInMillis = this@getCalendar
+}
+
+/**
+ * Verifies if received dates (date, now) are the same day
+ *
+ * @param date: Long - message date
+ * @param now: Long - current user date when checking the message
+ *
+ * @return Boolean
+ */
+private fun isDatesSameDay(date: Long, now: Long): Boolean {
+    val messageCalendar = date.getCalendar()
+    val nowCalendar = now.getCalendar()
+
+    return nowCalendar.get(Calendar.DAY_OF_MONTH) == messageCalendar.get(Calendar.DAY_OF_MONTH)
+            && nowCalendar.get(Calendar.MONTH) == messageCalendar.get(Calendar.MONTH)
+            && nowCalendar.get(Calendar.YEAR) == messageCalendar.get(Calendar.YEAR)
+}
+
+/**
+ * Verifies if received dates (date, (now -1 day)) are the same, meaning its yesterday
+ *
+ * @param date: Long - message date
+ * @param now: Long - current user date when checking the message
+ *
+ * @return Boolean
+ */
+private fun isYesterday(date: Long, now: Long): Boolean {
+    val messageCalendar = date.getCalendar()
+    val nowCalendar = now.getCalendar().apply {
+        add(Calendar.DATE, -ONE_DAY)
+    }
+
+    return nowCalendar.get(Calendar.DAY_OF_MONTH) == messageCalendar.get(Calendar.DAY_OF_MONTH)
+            && nowCalendar.get(Calendar.MONTH) == messageCalendar.get(Calendar.MONTH)
+            && nowCalendar.get(Calendar.YEAR) == messageCalendar.get(Calendar.YEAR)
+}
+
+/**
+ * Verifies if received dates (date, (now -7 days)) are within the same week.
+ * Checks if message date is equals or after (now -7 days)
+ *
+ * @param date: Long - message date
+ * @param now: Long - current user date when checking the message
+ *
+ * @return Boolean
+ */
+private fun isDatesWithinWeek(date: Long, now: Long): Boolean =
+    date.getCalendar().after(
+        now.getCalendar().apply {
+            add(Calendar.DATE, -ONE_WEEK_IN_DAYS)
+        }
+    )
+
+/**
+ * Verifies if received dates are the same year
+ *
+ * @param date: Long - message date
+ * @param now: Long - current user date when checking the message
+ *
+ * @return Boolean
+ */
+private fun isDatesSameYear(date: Long, now: Long): Boolean =
+    date.getCalendar().get(Calendar.YEAR) == now.getCalendar().get(Calendar.YEAR)
+
+sealed interface MessageDateTimeGroup {
+    data object Now : MessageDateTimeGroup
+    data object Within30Minutes : MessageDateTimeGroup
+    data class Daily(val type: Type, val date: LocalDate) : MessageDateTimeGroup {
+        enum class Type {
+            Today,
+            Yesterday,
+            WithinWeek,
+            NotWithinWeekButSameYear,
+            Other
+        }
+    }
+}
+
 fun String.uiMessageDateTime(): String? = this
     .serverDate()?.let { serverDate ->
-        when (DateUtils.isToday(serverDate.time)) {
-            true -> messageTimeFormatter.format(serverDate)
-            false -> messageDateTimeFormatter.format(serverDate)
+        messageTimeFormatter.format(serverDate)
+    }
+
+fun String.shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean {
+    val currentDate = this@shouldDisplayDatesDifferenceDivider
+
+    val currentLocalDateTime = currentDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
+    val previousLocalDateTime = previousDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
+
+    val differenceInMinutes = ChronoUnit.MINUTES.between(
+        currentLocalDateTime,
+        previousLocalDateTime
+    )
+
+    val differenceInDays = ChronoUnit.DAYS.between(
+        currentLocalDateTime,
+        previousLocalDateTime
+    )
+
+    return differenceInMinutes > FORTY_FIVE_MINUTES_DIFFERENCE || differenceInDays >= MINIMUM_DAYS_DIFFERENCE
+}
+
+fun String.groupedUIMessageDateTime(now: Long): MessageDateTimeGroup? = this
+    .serverDate()?.let { serverDate ->
+        val localDate = serverDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+        val serverDateInMillis = serverDate.time
+        val differenceBetweenServerDateAndNow = now - serverDateInMillis
+        val differenceInMinutes: Long = differenceBetweenServerDateAndNow / ONE_MINUTE_FROM_MILLIS
+        val isSameDay = isDatesSameDay(date = serverDateInMillis, now = now)
+        val withinWeek = isDatesWithinWeek(date = serverDateInMillis, now = now)
+        val isSameYear = isDatesSameYear(date = serverDateInMillis, now = now)
+
+        when {
+            differenceBetweenServerDateAndNow < ONE_MINUTE_FROM_MILLIS -> MessageDateTimeGroup.Now
+            differenceInMinutes <= THIRTY_MINUTES -> MessageDateTimeGroup.Within30Minutes
+            differenceInMinutes > THIRTY_MINUTES && isSameDay -> MessageDateTimeGroup.Daily(
+                type = MessageDateTimeGroup.Daily.Type.Today,
+                date = localDate
+            )
+            isYesterday(serverDateInMillis, now) -> MessageDateTimeGroup.Daily(
+                type = MessageDateTimeGroup.Daily.Type.Yesterday,
+                date = localDate
+            )
+            withinWeek -> MessageDateTimeGroup.Daily(
+                type = MessageDateTimeGroup.Daily.Type.WithinWeek,
+                date = localDate
+            )
+            !withinWeek && isSameYear -> MessageDateTimeGroup.Daily(
+                type = MessageDateTimeGroup.Daily.Type.NotWithinWeekButSameYear,
+                date = localDate
+            )
+            else -> MessageDateTimeGroup.Daily(
+                type = MessageDateTimeGroup.Daily.Type.Other,
+                date = localDate
+            )
         }
     }
 
@@ -96,7 +242,7 @@ fun Date.toMediumOnlyDateTime(): String = mediumOnlyDateTimeFormat.format(this)
 
 fun Instant.uiReadReceiptDateTime(): String = readReceiptDateTimeFormat.format(Date(this.toEpochMilliseconds()))
 
-fun Instant.audioFileDateTime(): String = audioFileDateTimeFormat
+fun Instant.fileDateTime(): String = fileDateTimeFormat
     .format(Date(this.toEpochMilliseconds()))
 
 fun getCurrentParsedDateTime(): String = mediumDateTimeFormat.format(System.currentTimeMillis())

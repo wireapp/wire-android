@@ -1,50 +1,53 @@
 [versions]
 # Gradle - Remind to change in `gradle-wrapper.properties` file as well!
-androidJunit5 = "1.9.3.0"
-gradle = "8.5"
+androidJunit5 = "1.10.0.0"
+gradle = "8.8"
 
 # Kotlin
-grgitCore = "5.2.0"
+grgitCore = "5.2.2"
 kotlin = "1.9.23"
 
 # KotlinX
 coroutines = "1.8.0"
 ktx-dateTime = "0.5.0"
-ktx-immutableCollections = "0.3.5"
-ktx-serialization = "1.5.1"
+ktx-immutableCollections = "0.3.7"
+ktx-serialization = "1.6.3"
 
 # Android Core / Architecture
 detekt = "1.23.6"
-google-gms = "4.4.1"
-gms-location = "21.1.0"
-android-gradlePlugin = "8.2.0"
+google-gms = "4.4.2"
+gms-location = "21.3.0"
+android-gradlePlugin = "8.3.2"
 desugaring = "2.0.4"
-firebaseBOM = "32.7.3"
+firebaseBOM = "33.1.0"
 fragment = "1.5.6"
 resaca = "2.4.6"
 bundlizer = "0.8.0"
-spotless = "6.1.2"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
+kover = "0.7.6"
 
 # AndroidX
-androidx-appcompat = "1.6.1"
-androidx-core = "1.12.0"
-androidx-dataStore = "1.0.0"
+androidx-appcompat = "1.7.0"
+androidx-core = "1.13.1"
+androidx-dataStore = "1.1.1"
 androidx-exif = "1.3.7"
 androidx-emoji = "1.4.0"
 androidx-jetpack = "1.1.0"
-androidx-lifecycle = "2.7.0"
-androidx-paging3 = "3.2.1"
-androidx-paging3Compose = "3.3.0-alpha03"
+androidx-lifecycle = "2.8.1"
+androidx-paging3 = "3.3.0"
+androidx-paging3Compose = "3.3.0"
 androidx-splashscreen = "1.0.1"
 androidx-workManager = "2.9.0"
-androidx-browser = "1.7.0"
+androidx-browser = "1.8.0"
 androidx-biometric = "1.1.0"
 androidx-startup = "1.1.1"
+androidx-compose-runtime = "1.6.7"
 
 # Compose
-composeBom = "2024.03.00" # TODO check if in new version [anchoredDraggable] is available
+composeBom = "2024.05.00"
+compose-foundation = "1.7.0-beta02" # remove when composeBom contains new stable version of BasicTextField2
+compose-material-android = "1.7.0-beta02" # remove when composeBom contains new stable version of BasicTextField2
 compose-activity = "1.8.2"
 compose-compiler = "1.5.11"
 compose-constraint = "1.0.1"
@@ -52,32 +55,38 @@ compose-navigation = "2.7.7" # adjusted to work with compose-destinations "1.9.5
 compose-destinations = "1.10.2"
 
 # Hilt
-hilt = "2.48.1"
-hilt-composeNavigation = "1.1.0"
+hilt = "2.51.1"
+hilt-composeNavigation = "1.2.0"
 hilt-work = "1.2.0"
 
 # Android UI
 accompanist = "0.32.0" # adjusted to work with compose-destinations "1.9.54"
-material = "1.10.0"
-coil = "2.5.0"
-commonmark = "0.21.0"
+material = "1.12.0"
+coil = "2.6.0"
+commonmark = "0.22.0"
+
+# Countly
+countly = "24.4.0"
 
 # RSS
-rss-parser = "6.0.1"
+rss-parser = "6.0.7"
 
 # Logging
 dataDog = "1.19.3"
+
+# Lint
+lint-compose = "1.3.1"
 
 #OAuth
 openIdAppAuth = "0.11.1"
 
 # Other Tools
-aboutLibraries = "10.8.0"
-leakCanary = "2.7"
-ksp = "1.9.23-1.0.19"
+aboutLibraries = "11.1.4"
+leakCanary = "2.14"
+ksp = "1.9.23-1.0.20"
 
 # Benchmark
-benchmark-macro-junit4 = "1.2.3"
+benchmark-macro-junit4 = "1.2.0-beta03"
 profileinstaller = "1.3.1"
 
 # Testing
@@ -90,12 +99,12 @@ androidx-test-runner = "1.5.2"
 androidx-test-uiAutomator = "2.3.0"
 androidx-text-archCore = "2.2.0"
 junit4 = "4.13.2"
-junit5 = "5.10.0"
+junit5 = "5.10.2"
 kluent = "1.73"
 mockk = "1.13.10"
-okio = "3.6.0"
-turbine = "1.0.0"
-robolectric = "4.11.1"
+okio = "3.9.0"
+turbine = "1.1.0"
+robolectric = "4.12.1"
 
 [plugins]
 # 3rd Party plugins
@@ -110,6 +119,7 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 wire-android-application = { id = "com.wire.android.application" }
 wire-android-library = { id = "com.wire.android.library" }
 wire-hilt = { id = "com.wire.android.hilt" }
+wire-kover = { id = "com.wire.android.kover" }
 
 [bundles]
 #android = ["appCompat", "activityCompose", "work", "composeMaterial", "coroutinesAndroid", "ktor", "ktor-okHttp"]
@@ -124,7 +134,7 @@ hilt-gradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", v
 googleGms-gradlePlugin = { module = "com.google.gms:google-services", version.ref = "google-gms" }
 googleGms-location = { module = "com.google.android.gms:play-services-location", version.ref = "gms-location" }
 aboutLibraries-gradlePlugin = { module = "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin", version.ref = "aboutLibraries" }
-spotless-gradlePlugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
 
 ktx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "ktx-serialization" }
 ktx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "ktx-dateTime" }
@@ -150,6 +160,7 @@ firebase-fcm = { module = "com.google.firebase:firebase-messaging-ktx" }
 
 ## AndroidX - Lifecycle
 androidx-lifecycle-liveData = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewModel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewModelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
@@ -170,6 +181,7 @@ androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.re
 androidx-profile-installer = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "androidx-biometric" }
 androidx-startup = { group = "androidx.startup", name = "startup-runtime", version.ref = "androidx-startup" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "androidx-compose-runtime" }
 
 # Dependency Injection
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
@@ -180,7 +192,8 @@ hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" }
 
 # Compose BOM
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-compose-foundation = { module = "androidx.compose.foundation:foundation" }
+compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose-foundation" }
+compose-material-android = { module = "androidx.compose.material:material-android", version.ref = "compose-material-android" }
 compose-material-core = { module = "androidx.compose.material:material" }
 compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }
 compose-material-ripple = { module = "androidx.compose.material:material-ripple" }
@@ -191,6 +204,7 @@ compose-ui-test-junit = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 
 # Compose other
 compose-activity = { module = "androidx.activity:activity-compose", version.ref = "compose-activity" }
@@ -211,6 +225,9 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 # RSS Feed Loading
 rss-parser = { module = "com.prof18.rssparser:rssparser", version.ref = "rss-parser" }
 
+# Lint
+lint-compose = { module = "com.slack.lint.compose:compose-lint-checks", version.ref = "lint-compose" }
+
 # Logging
 dataDog-core = { module = "com.datadoghq:dd-sdk-android", version.ref = "dataDog" }
 dataDog-compose = { module = "com.datadoghq:dd-sdk-android-compose", version.ref = "dataDog" }
@@ -225,6 +242,9 @@ material = { module = "com.google.android.material:material", version.ref = "mat
 commonmark-core = { module = "org.commonmark:commonmark", version.ref = "commonmark" }
 commonmark-strikethrough = { module = "org.commonmark:commonmark-ext-gfm-strikethrough", version.ref = "commonmark" }
 commonmark-tables = { module = "org.commonmark:commonmark-ext-gfm-tables", version.ref = "commonmark" }
+
+# Countly
+countly-sdk = { module = "ly.count.android:sdk", version.ref = "countly" }
 
 # Dev tools
 aboutLibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }

@@ -33,8 +33,7 @@ dependencies {
     implementation("com.android.tools.build:gradle:${klibs.versions.agp.get()}")
     implementation(libs.kotlin.gradlePlugin)
     implementation("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${klibs.versions.detekt.get()}")
-    implementation("org.jetbrains.kotlinx:kover-gradle-plugin:${klibs.versions.kover.get()}")
-    implementation(libs.spotless.gradlePlugin)
+    implementation("org.jetbrains.kotlinx:kover-gradle-plugin:${libs.versions.kover.get()}")
     implementation(libs.android.junit5)
 
     testImplementation("junit:junit:${libs.versions.junit4.get()}")

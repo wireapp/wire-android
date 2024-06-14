@@ -60,7 +60,6 @@ private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 @Composable
 fun SearchAllPeopleScreen(
     searchQuery: String,
-    noneSearchSucceed: Boolean,
     contactsSearchResult: ImmutableList<Contact>,
     publicSearchResult: ImmutableList<Contact>,
     contactsAddedToGroup: ImmutableSet<Contact>,
@@ -74,24 +73,18 @@ fun SearchAllPeopleScreen(
     if (contactsSearchResult.isEmpty() && publicSearchResult.isEmpty()) {
         EmptySearchQueryScreen()
     } else {
-        if (noneSearchSucceed) {
-            SearchFailureBox(R.string.label_no_results_found)
-        } else {
-            Column {
-                SearchResult(
-                    searchQuery = searchQuery,
-                    publicSearchResult = publicSearchResult,
-                    contactsSearchResult = contactsSearchResult,
-                    contactsAddedToGroup = contactsAddedToGroup,
-                    onChecked = onChecked,
-                    onOpenUserProfile = onOpenUserProfile,
-                    lazyListState = lazyListState,
-                    isSearchActive = isSearchActive,
-                    isLoading = isLoading,
-                    actionType = actionType,
-                )
-            }
-        }
+        SearchResult(
+            searchQuery = searchQuery,
+            publicSearchResult = publicSearchResult,
+            contactsSearchResult = contactsSearchResult,
+            contactsAddedToGroup = contactsAddedToGroup,
+            onChecked = onChecked,
+            onOpenUserProfile = onOpenUserProfile,
+            lazyListState = lazyListState,
+            isSearchActive = isSearchActive,
+            isLoading = isLoading,
+            actionType = actionType,
+        )
     }
 }
 
@@ -126,7 +119,8 @@ private fun SearchResult(
                     onChecked = onChecked,
                     isLoading = isLoading,
                     contactSearchResult = contactsSearchResult,
-                    showAllItems = !isSearchActive || searchPeopleScreenState.contactsAllResultsCollapsed,
+                    allItemsVisible = !isSearchActive || searchPeopleScreenState.contactsAllResultsCollapsed,
+                    showMoreOrLessButtonVisible = isSearchActive,
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllContactsResult,
                     onOpenUserProfile = onOpenUserProfile,
                     actionType = actionType,
@@ -139,7 +133,8 @@ private fun SearchResult(
                     searchQuery = searchQuery,
                     contactSearchResult = publicSearchResult,
                     isLoading = isLoading,
-                    showAllItems = searchPeopleScreenState.publicResultsCollapsed,
+                    allItemsVisible = searchPeopleScreenState.publicResultsCollapsed,
+                    showMoreOrLessButtonVisible = isSearchActive,
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllPublicResult,
                     onOpenUserProfile = onOpenUserProfile,
                 )
@@ -157,7 +152,8 @@ private fun LazyListScope.internalSearchResults(
     actionType: ItemActionType,
     isLoading: Boolean,
     contactSearchResult: ImmutableList<Contact>,
-    showAllItems: Boolean,
+    allItemsVisible: Boolean,
+    showMoreOrLessButtonVisible: Boolean,
     onShowAllButtonClicked: () -> Unit,
     onOpenUserProfile: (Contact) -> Unit
 ) {
@@ -169,7 +165,8 @@ private fun LazyListScope.internalSearchResults(
         else -> {
             internalSuccessItem(
                 searchTitle = searchTitle,
-                showAllItems = showAllItems,
+                allItemsVisible = allItemsVisible,
+                showMoreOrLessButtonVisible = showMoreOrLessButtonVisible,
                 contactsAddedToGroup = contactsAddedToGroup,
                 onChecked = onChecked,
                 searchResult = contactSearchResult,
@@ -188,7 +185,8 @@ private fun LazyListScope.externalSearchResults(
     searchQuery: String,
     contactSearchResult: ImmutableList<Contact>,
     isLoading: Boolean,
-    showAllItems: Boolean,
+    allItemsVisible: Boolean,
+    showMoreOrLessButtonVisible: Boolean,
     onShowAllButtonClicked: () -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
 ) {
@@ -200,7 +198,8 @@ private fun LazyListScope.externalSearchResults(
         else -> {
             externalSuccessItem(
                 searchTitle = searchTitle,
-                showAllItems = showAllItems,
+                allItemsVisible = allItemsVisible,
+                showMoreOrLessButtonVisible = showMoreOrLessButtonVisible,
                 searchResult = contactSearchResult,
                 searchQuery = searchQuery,
                 onShowAllButtonClicked = onShowAllButtonClicked,
@@ -213,7 +212,8 @@ private fun LazyListScope.externalSearchResults(
 @Suppress("LongParameterList")
 private fun LazyListScope.internalSuccessItem(
     searchTitle: String,
-    showAllItems: Boolean,
+    allItemsVisible: Boolean,
+    showMoreOrLessButtonVisible: Boolean,
     actionType: ItemActionType,
     contactsAddedToGroup: ImmutableSet<Contact>,
     onChecked: (Boolean, Contact) -> Unit,
@@ -223,11 +223,12 @@ private fun LazyListScope.internalSuccessItem(
     onOpenUserProfile: (Contact) -> Unit
 ) {
     if (searchResult.isNotEmpty()) {
-        folderWithElements(header = searchTitle,
-            items = (if (showAllItems) searchResult else searchResult.take(
-                DEFAULT_SEARCH_RESULT_ITEM_SIZE
-            ))
-                .associateBy { it.id }) { contact ->
+        folderWithElements(
+            header = searchTitle,
+            items = (if (allItemsVisible) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)).associateBy {
+                it.id
+            }
+        ) { contact ->
             with(contact) {
                 val onClick = remember { { isChecked: Boolean -> onChecked(isChecked, this) } }
                 InternalContactSearchResultItem(
@@ -237,7 +238,7 @@ private fun LazyListScope.internalSuccessItem(
                     membership = membership,
                     searchQuery = searchQuery,
                     connectionState = connectionState,
-                    isAddedToGroup = contactsAddedToGroup.contains(contact),
+                    isAddedToGroup = contactsAddedToGroup.any { it.id == contact.id },
                     onCheckChange = onClick,
                     actionType = actionType,
                     clickable = remember { Clickable(enabled = true) { onOpenUserProfile(contact) } }
@@ -246,7 +247,7 @@ private fun LazyListScope.internalSuccessItem(
         }
     }
 
-    if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE) {
+    if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE && showMoreOrLessButtonVisible) {
         item {
             Box(
                 Modifier
@@ -254,7 +255,7 @@ private fun LazyListScope.internalSuccessItem(
                     .wrapContentHeight()
             ) {
                 ShowButton(
-                    isShownAll = showAllItems,
+                    isShownAll = allItemsVisible,
                     onShowButtonClicked = onShowAllButtonClicked,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -268,14 +269,15 @@ private fun LazyListScope.internalSuccessItem(
 @Suppress("LongParameterList")
 private fun LazyListScope.externalSuccessItem(
     searchTitle: String,
-    showAllItems: Boolean,
+    allItemsVisible: Boolean,
+    showMoreOrLessButtonVisible: Boolean,
     searchResult: List<Contact>,
     searchQuery: String,
     onShowAllButtonClicked: () -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
 ) {
     val itemsList =
-        if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
+        if (allItemsVisible) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
 
     folderWithElements(
         header = searchTitle,
@@ -295,7 +297,7 @@ private fun LazyListScope.externalSuccessItem(
         }
     }
 
-    if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE) {
+    if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE && showMoreOrLessButtonVisible) {
         item {
             Box(
                 Modifier
@@ -303,7 +305,7 @@ private fun LazyListScope.externalSuccessItem(
                     .wrapContentHeight()
             ) {
                 ShowButton(
-                    isShownAll = showAllItems,
+                    isShownAll = allItemsVisible,
                     onShowButtonClicked = onShowAllButtonClicked,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)

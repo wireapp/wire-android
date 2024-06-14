@@ -34,9 +34,11 @@ data class DeviceDetailsState(
     val userName: String? = null,
     val isE2eiCertificateActivated: Boolean = false,
     val e2eiCertificate: E2eiCertificate = E2eiCertificate(
+        userHandle = "",
         status = CertificateStatus.EXPIRED,
         serialNumber = "",
         certificateDetail = "",
+        thumbprint = "",
         endAt = Instant.DISTANT_FUTURE
     ),
     val canBeRemoved: Boolean = false,

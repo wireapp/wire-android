@@ -25,7 +25,13 @@ buildscript {
     }
     dependencies {
         classpath(libs.hilt.gradlePlugin)
-        var fdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
+        val fdroidBuild = (System.getenv("flavor")
+            ?: System.getenv("FLAVOR")
+            ?: System.getenv("CUSTOM_FLAVOR")
+            ?: gradle.startParameter.taskRequests.toString())
+            .lowercase()
+            .contains("fdroid")
+
 	    if (fdroidBuild) {
             println("Not including gms")
         } else {

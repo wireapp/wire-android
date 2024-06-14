@@ -24,21 +24,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -54,7 +50,10 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
 import com.wire.android.ui.common.dialogs.CancelLoginDialogState
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
+import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
@@ -65,18 +64,21 @@ import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
 @Destination(
     style = PopUpNavigationAnimation::class,
 )
 @Composable
-fun RegisterDeviceScreen(navigator: Navigator) {
-    val viewModel: RegisterDeviceViewModel = hiltViewModel()
-    val clearSessionViewModel: ClearSessionViewModel = hiltViewModel()
-    val clearSessionState: ClearSessionState = clearSessionViewModel.state
+fun RegisterDeviceScreen(
+    navigator: Navigator,
+    viewModel: RegisterDeviceViewModel = hiltViewModel(),
+    clearSessionViewModel: ClearSessionViewModel = hiltViewModel(),
+) {
     clearAutofillTree()
     when (val flowState = viewModel.state.flowState) {
         is RegisterDeviceFlowState.Success -> {
@@ -94,8 +96,8 @@ fun RegisterDeviceScreen(navigator: Navigator) {
         else ->
             RegisterDeviceContent(
                 state = viewModel.state,
-                clearSessionState = clearSessionState,
-                onPasswordChange = viewModel::onPasswordChange,
+                passwordTextState = viewModel.passwordTextState,
+                clearSessionState = clearSessionViewModel.state,
                 onContinuePressed = viewModel::onContinue,
                 onErrorDismiss = viewModel::onErrorDismiss,
                 onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
@@ -108,13 +110,14 @@ fun RegisterDeviceScreen(navigator: Navigator) {
 @Composable
 private fun RegisterDeviceContent(
     state: RegisterDeviceState,
+    passwordTextState: TextFieldState,
     clearSessionState: ClearSessionState,
-    onPasswordChange: (TextFieldValue) -> Unit,
     onContinuePressed: () -> Unit,
     onErrorDismiss: () -> Unit,
     onBackButtonClicked: () -> Unit,
     onCancelLoginClicked: () -> Unit,
-    onProceedLoginClicked: () -> Unit
+    onProceedLoginClicked: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     BackHandler {
         onBackButtonClicked()
@@ -138,9 +141,10 @@ private fun RegisterDeviceContent(
     }
 
     WireScaffold(
+        modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = 0.dp,
+                elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.register_device_title),
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackButtonClicked
@@ -163,7 +167,7 @@ private fun RegisterDeviceContent(
                     )
                     .testTag("registerText")
             )
-            PasswordTextField(state = state, onPasswordChange = onPasswordChange)
+            PasswordTextField(state = state, passwordTextState = passwordTextState)
             Spacer(modifier = Modifier.weight(1f))
             WirePrimaryButton(
                 text = stringResource(R.string.label_add_device),
@@ -183,30 +187,32 @@ private fun RegisterDeviceContent(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (TextFieldValue) -> Unit) {
+private fun PasswordTextField(
+    state: RegisterDeviceState,
+    passwordTextState: TextFieldState,
+    modifier: Modifier = Modifier,
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
-        value = state.password,
-        onValueChange = onPasswordChange,
+        textState = passwordTextState,
         state = when (state.flowState) {
             is RegisterDeviceFlowState.Error.InvalidCredentialsError ->
                 WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
 
             else -> WireTextFieldState.Default
         },
-        imeAction = ImeAction.Done,
-        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-        modifier = Modifier
+        keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
+        onKeyboardAction = { keyboardController?.hide() },
+        modifier = modifier
             .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
             .testTag("password field"),
-        autofill = true
+        autoFill = true
     )
 }
 
 @Composable
-@Preview
-fun PreviewRegisterDeviceScreen() {
-    RegisterDeviceContent(RegisterDeviceState(), ClearSessionState(), {}, {}, {}, {}, {}, {})
+@PreviewMultipleThemes
+fun PreviewRegisterDeviceScreen() = WireTheme {
+    RegisterDeviceContent(RegisterDeviceState(), TextFieldState(), ClearSessionState(), {}, {}, {}, {}, {})
 }

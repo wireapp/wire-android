@@ -9,7 +9,6 @@
     <ID>ArgumentListWrapping:CodeTextField.kt$( value = value, onValueChange = { val textDigits = it.text.filter { it.isDigit() } // don't allow characters other than digits to be entered .let { it.substring(0, min(codeLength, it.length)) } // don't allow more digits than required onValueChange( CodeFieldValue( text = TextFieldValue(text = textDigits, selection = TextRange(textDigits.length)), isFullyFilled = textDigits.length == codeLength ) ) }, enabled = enabled, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done), keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }), interactionSource = interactionSource, decorationBox = { Row(horizontalArrangement = Arrangement.SpaceBetween) { repeat(codeLength) { index -&gt; if (index != 0) Spacer(modifier = Modifier .weight(1f, fill = false) .width(maxHorizontalSpacing)) Digit( char = value.text.getOrNull(index), shape = shape, colors = colors, textStyle = textStyle, selected = index == value.text.length, state = state ) } } })</ID>
     <ID>ArgumentListWrapping:CodeTextField.kt$(modifier = Modifier .weight(1f, fill = false) .width(maxHorizontalSpacing))</ID>
     <ID>ArgumentListWrapping:ConversationMessagesViewModelArrangement.kt$ConversationMessagesViewModelArrangement$( "key", assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType) )</ID>
-    <ID>ArgumentListWrapping:ConversationScreen.kt$( contentAlignment = Alignment.BottomEnd, modifier = Modifier .fillMaxSize() .background(color = colorsScheme().backgroundVariant), content = { LazyColumn( state = lazyListState, reverseLayout = true, // calculating bottom padding to have space for [UsersTypingIndicator] contentPadding = PaddingValues( bottom = dimensions().typingIndicatorHeight - dimensions().messageItemBottomPadding ), modifier = Modifier .fillMaxSize() ) { items( count = lazyPagingMessages.itemCount, key = lazyPagingMessages.itemKey { it.header.messageId }, contentType = lazyPagingMessages.itemContentType { it } ) { index -&gt; val message: UIMessage = lazyPagingMessages[index] ?: return@items Box( contentAlignment = Alignment.Center, modifier = Modifier .fillMaxWidth() .height(dimensions().spacing56x), ) { WireCircularProgressIndicator( progressColor = MaterialTheme.wireColorScheme.secondaryText, size = dimensions().spacing24x ) } val showAuthor = rememberShouldShowHeader(index, message, lazyPagingMessages) val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages) when (message) { is UIMessage.Regular -&gt; { MessageItem( message = message, conversationDetailsData = conversationDetailsData, showAuthor = showAuthor, useSmallBottomPadding = useSmallBottomPadding, audioMessagesState = audioMessagesState, assetStatus = assetStatuses[message.header.messageId]?.transferStatus, onAudioClick = onAudioItemClicked, onChangeAudioPosition = onChangeAudioPosition, onLongClicked = onShowEditingOption, onAssetMessageClicked = onAssetItemClicked, onImageMessageClicked = onImageFullScreenMode, onOpenProfile = onOpenProfile, onReactionClicked = onReactionClicked, onResetSessionClicked = onResetSessionClicked, onSelfDeletingMessageRead = onSelfDeletingMessageRead, onFailedMessageCancelClicked = onFailedMessageCancelClicked, onFailedMessageRetryClicked = onFailedMessageRetryClicked, onLinkClick = onLinkClick, onReplyClickable = Clickable( enabled = true, onClick = { onNavigateToReplyOriginalMessage(message) } ), isSelectedMessage = (message.header.messageId == selectedMessageId), isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED, ) } is UIMessage.System -&gt; SystemMessageItem( message = message, onFailedMessageCancelClicked = onFailedMessageCancelClicked, onFailedMessageRetryClicked = onFailedMessageRetryClicked, onSelfDeletingMessageRead = onSelfDeletingMessageRead, isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED, ) } } } JumpToLastMessageButton(lazyListState = lazyListState) })</ID>
     <ID>ArgumentListWrapping:ConversationScreen.kt$( messageId = compositionState.editMessageId, editMessageText = compositionState.messageText, mentions = compositionState.selectedMentions.map { it.intoMessageMention() })</ID>
     <ID>ArgumentListWrapping:ConversationTopAppBar.kt$( title = { Row( verticalAlignment = Alignment.CenterVertically, modifier = Modifier .fillMaxWidth() // TopAppBar adds TopAppBarHorizontalPadding = 4.dp to each element, so we need to offset it to retain the desired // spacing between navigation icon button and avatar according to the designs .offset(x = -dimensions().spacing4x) .clip(RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize)) .clickable(onClick = onDropDownClick, enabled = isDropDownEnabled &amp;&amp; isInteractionEnabled) ) { val conversationAvatar: ConversationAvatar = conversationInfoViewState.conversationAvatar Avatar(conversationAvatar, conversationInfoViewState) Text( text = conversationInfoViewState.conversationName.asString(), style = MaterialTheme.wireTypography.title02, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(weight = 1f, fill = false) ) ConversationVerificationIcons( conversationInfoViewState.protocolInfo, conversationInfoViewState.mlsVerificationStatus, conversationInfoViewState.proteusVerificationStatus ) if (conversationInfoViewState.legalHoldStatus == Conversation.LegalHoldStatus.ENABLED) { HorizontalSpace.x4() LegalHoldIndicator() } if (isDropDownEnabled &amp;&amp; isInteractionEnabled) { Icon( painter = painterResource(id = R.drawable.ic_dropdown_icon), contentDescription = stringResource(R.string.content_description_drop_down_icon) ) } } }, navigationIcon = { NavigationIconButton(NavigationIconType.Back, onBackButtonClick) }, actions = { Row( horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x), modifier = Modifier.padding(end = dimensions().spacing4x) ) { if (isSearchEnabled) { WireSecondaryIconButton( onButtonClicked = onSearchButtonClick, iconResource = R.drawable.ic_search, contentDescription = R.string.content_description_conversation_search_icon, minSize = dimensions().buttonSmallMinSize, minClickableSize = DpSize( dimensions().buttonSmallMinSize.width, dimensions().buttonMinClickableSize.height ), ) } CallControlButton( hasOngoingCall = hasOngoingCall, onJoinCallButtonClick = onJoinCallButtonClick, onPhoneButtonClick = onPhoneButtonClick, isCallingEnabled = isInteractionEnabled, onPermissionPermanentlyDenied = onPermissionPermanentlyDenied, ) } }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors( containerColor = MaterialTheme.colorScheme.background, titleContentColor = MaterialTheme.colorScheme.onBackground, actionIconContentColor = MaterialTheme.colorScheme.onBackground, navigationIconContentColor = MaterialTheme.colorScheme.onBackground ) )</ID>
     <ID>ArgumentListWrapping:ConversationsNavigationItem.kt$ConversationsNavigationItem.All$( R.drawable.ic_conversation, R.string.conversations_all_tab_title, "conversations_all")</ID>
@@ -23,7 +22,6 @@
     <ID>ArgumentListWrapping:EditGuestAccessScreen.kt$( onConfirm = ::onGuestDialogConfirm, onDialogDismiss = ::onGuestDialogDismiss )</ID>
     <ID>ArgumentListWrapping:EditGuestAccessScreen.kt$( onConfirm = ::removeGuestLink, onDialogDismiss = ::onRevokeDialogDismiss )</ID>
     <ID>ArgumentListWrapping:EditSelfDeletingMessagesScreen.kt$( topBar = { WireCenterAlignedTopAppBar( elevation = scrollState.rememberTopBarElevationState().value, onNavigationPressed = navigator::navigateBack, title = stringResource(id = R.string.self_deleting_messages_title) ) })</ID>
-    <ID>ArgumentListWrapping:Extensions.kt$( TimeZone.currentSystemDefault())</ID>
     <ID>ArgumentListWrapping:FileUtil.kt$( this, getProviderAuthority(), it )</ID>
     <ID>ArgumentListWrapping:FileUtil.kt$( this, getProviderAuthority(), path.toFile(), assetDisplayName )</ID>
     <ID>ArgumentListWrapping:GetE2EICertificateUI.kt$( context.getActivity()!!.activityResultRegistry, forceLoginFlow = true )</ID>
@@ -58,7 +56,6 @@
     <ID>ArgumentListWrapping:MarkdownHelperTest.kt$MarkdownHelperTest$(TableRow() .apply { appendChild(TableCell().apply { appendChild(Text("Cell")) }) })</ID>
     <ID>ArgumentListWrapping:MarkdownHelperTest.kt$MarkdownHelperTest$(TableRow() .apply { appendChild(TableCell().apply { appendChild(Text("Header")) }) })</ID>
     <ID>ArgumentListWrapping:MessageExpiration.kt$&lt;no name provided&gt;$( when (type) { StringResourceType.WEEKS -&gt; R.plurals.weeks_left StringResourceType.DAYS -&gt; R.plurals.days_left StringResourceType.HOURS -&gt; R.plurals.hours_left StringResourceType.MINUTES -&gt; R.plurals.minutes_left StringResourceType.SECONDS -&gt; R.plurals.seconds_left }, quantity, quantity )</ID>
-    <ID>ArgumentListWrapping:MessageItem.kt$(enabled = true, onClick = { if (isContentClickable) { onMessageClick(message.header.messageId) } }, onLongClick = remember(message) { { if (!isContentClickable &amp;&amp; !message.isDeleted) { onLongClicked(message) } } } )</ID>
     <ID>ArgumentListWrapping:MessagePreviewContentMapper.kt$( userUIText, UIText.StringResource( if (isSelfMessage) R.string.last_message_self_user_shared_asset else R.string.last_message_other_user_shared_asset ) )</ID>
     <ID>ArgumentListWrapping:MessagePreviewContentMapperTest.kt$MessagePreviewContentMapperTest$( content = MessagePreviewContent.WithUser.Asset("admin", AssetType.IMAGE), isSelfMessage = false )</ID>
     <ID>ArgumentListWrapping:MessagePreviewContentMapperTest.kt$MessagePreviewContentMapperTest$( content = MessagePreviewContent.WithUser.Asset("admin", AssetType.IMAGE), isSelfMessage = true )</ID>
@@ -113,7 +110,6 @@
     <ID>ArgumentListWrapping:SettingsScreen.kt$("AppLockConfig " + "isAppLockEditable: ${settingsState.isAppLockEditable} isAppLockEnabled: ${settingsState.isAppLockEnabled}")</ID>
     <ID>ArgumentListWrapping:SystemMessageContentMapperTest.kt$SystemMessageContentMapperTest$( listOf(userId2, userId3), MessageContent.MemberChange.FailedToAdd.Type.Unknown )</ID>
     <ID>ArgumentListWrapping:SystemMessageItem.kt$( res, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString, if (usersCount &gt; SINGLE_EXPANDABLE_THRESHOLD) expanded else true )</ID>
-    <ID>ArgumentListWrapping:Theme.kt$( LocalSnackbarHostState provides remember { SnackbarHostState() }, LocalNavigator provides rememberNavigator {})</ID>
     <ID>ArgumentListWrapping:UsersTypingIndicator.kt$( initialValue = -10f, targetValue = -2f, animationSpec = infiniteRepeatable( animation = tween(ANIMATION_SPEED_MILLIS, easing = FastOutSlowInEasing), repeatMode = RepeatMode.Reverse ), label = infiniteTransition.label )</ID>
     <ID>ArgumentListWrapping:WelcomeScreen.kt$( isThereActiveSession = false, maxAccountsReached = false, state = ServerConfig.DEFAULT, navigateBack = {}, navigate = {})</ID>
     <ID>ArgumentListWrapping:WireActivity.kt$WireActivity$( userId = it, actions = NavigationSwitchAccountActions(navigate), onComplete = { navigate(NavigationCommand(SelfDevicesScreenDestination)) })</ID>
@@ -130,6 +126,9 @@
     <ID>ArgumentListWrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest$( newNotifications = any(), userId = any(), userName = TestUser.SELF_USER.handle!! )</ID>
     <ID>ArgumentListWrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest.Companion$( "message_id", LocalNotificationMessageAuthor("author", null), Instant.DISTANT_FUTURE, "testing text" )</ID>
     <ID>ArgumentListWrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest.Companion$( id, "name_${id.value}", messages, true )</ID>
+    <ID>ArgumentListWrapping:WirePrimaryIconButton.kt$(40.dp, 40.dp)</ID>
+    <ID>ArgumentListWrapping:WirePrimaryIconButton.kt$(48.dp, 48.dp)</ID>
+    <ID>ArgumentListWrapping:WirePrimaryIconButton.kt$({}, false, com.google.android.material.R.drawable.m3_password_eye, 0, CircleShape, DpSize(40.dp, 40.dp), DpSize(48.dp, 48.dp))</ID>
     <ID>ArgumentListWrapping:WireTextField.kt$( start = if (leadingIcon == null) 16.dp else 0.dp, end = if (trailingOrStateIcon == null) 16.dp else 0.dp, top = 2.dp, bottom = 2.dp )</ID>
     <ID>ArgumentListWrapping:WireTextFieldDefaults.kt$&lt;no name provided&gt;$( when (state) { WireTextFieldState.Disabled -&gt; disabledTextColor is WireTextFieldState.Error -&gt; errorColor WireTextFieldState.Success -&gt; successColor else -&gt; textColor })</ID>
     <ID>ArgumentListWrapping:WireTextFieldDefaults.kt$&lt;no name provided&gt;$( when (state) { is WireTextFieldState.Error -&gt; errorColor else -&gt; descriptionColor })</ID>
@@ -155,11 +154,15 @@
     <ID>CommentSpacing:FeatureVisibilityFlags.kt$//long press on images → edit</ID>
     <ID>CommentSpacing:FeatureVisibilityFlags.kt$//long press on text → edit entry</ID>
     <ID>CommentSpacing:LastConversationEvent.kt$CallTime$//TODO: This could be a Long timestamp,</ID>
+    <ID>CommentSpacing:Theme.kt$//import com.wire.android.navigation.rememberNavigator</ID>
     <ID>CommentSpacing:ThemeUtils.kt$ScreenSizeDependent$//sw320dp</ID>
     <ID>CommentSpacing:ThemeUtils.kt$ScreenSizeDependent$//sw480dp</ID>
     <ID>CommentSpacing:ThemeUtils.kt$ScreenSizeDependent$//sw600dp</ID>
     <ID>CommentSpacing:ThemeUtils.kt$ScreenSizeDependent$//sw840dp</ID>
+    <ID>CommentSpacing:Versionizer.kt$Versionizer.Companion$//This is Google Play Max Version Code allowed</ID>
+    <ID>CommentSpacing:Versionizer.kt$Versionizer.Companion$//https://developer.android.com/studio/publish/versioning</ID>
     <ID>CommentWrapping:ConversationScreen.kt$/* do nothing */</ID>
+    <ID>CommentWrapping:DrawingCanvasComponent.kt$/*, bitmap*/</ID>
     <ID>CommentWrapping:FileUtil.kt$/* description = */</ID>
     <ID>CommentWrapping:FileUtil.kt$/* isMediaScannerScannable = */</ID>
     <ID>CommentWrapping:FileUtil.kt$/* length = */</ID>
@@ -184,6 +187,9 @@
     <ID>KdocWrapping:HomeScreen.kt$/** TODO: Show a dialog rationale explaining why the permission is needed **/</ID>
     <ID>KdocWrapping:MediaGalleryScreen.kt$/** Nothing to do **/</ID>
     <ID>KdocWrapping:RecordAudioComponent.kt$/** Nothing to do **/</ID>
+    <ID>MagicNumber:Versionizer.kt$Versionizer$10</ID>
+    <ID>MaxLineLength:WirePrimaryIconButton.kt$WirePrimaryIconButton({}, false, com.google.android.material.R.drawable.m3_password_eye, 0, CircleShape, DpSize(40.dp, 40.dp), DpSize(48.dp, 48.dp))</ID>
+    <ID>MaximumLineLength:WirePrimaryIconButton.kt$ </ID>
     <ID>MultiLineIfElse:AccountSwitchUseCase.kt$AccountSwitchUseCase$appLogger.i("$TAG No next account to switch to")</ID>
     <ID>MultiLineIfElse:AccountSwitchUseCase.kt$AccountSwitchUseCase$appLogger.i("$TAG Switching to next account: ${nextSessionId.toLogString()}")</ID>
     <ID>MultiLineIfElse:AdditionalOptionButton.kt$WireButtonState.Disabled</ID>
@@ -306,11 +312,8 @@
     <ID>MultiLineIfElse:MediaGalleryScreenState.kt$MediaGalleryScreenState$modalBottomSheetState.show()</ID>
     <ID>MultiLineIfElse:MessageComposeActions.kt$SelfDeletingMessageAction( isSelected = isSelfDeletingActive, onButtonClicked = onSelfDeletionOptionButtonClicked )</ID>
     <ID>MultiLineIfElse:MessageCompositionHolder.kt$MessageCompositionHolder$Pair(rangeEnd, rangeEnd)</ID>
-    <ID>MultiLineIfElse:MessageExpiration.kt$SelfDeletionTimerHelper$selfDeletionStatus.selfDeletionStartDate + expireAfter</ID>
     <ID>MultiLineIfElse:MessageExpiration.kt$SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable$1.toDuration(durationUnit)</ID>
     <ID>MultiLineIfElse:MessageExpiration.kt$SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable$timeLeftForDurationUnit</ID>
-    <ID>MultiLineIfElse:MessageItem.kt$null</ID>
-    <ID>MultiLineIfElse:MessageItem.kt$remember(message) { if (isAvailable) { { onLongClicked(message) } } else { null } }</ID>
     <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_other_changed_conversation_name</ID>
     <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_other_user_joined_conversation</ID>
     <ID>MultiLineIfElse:MessagePreviewContentMapper.kt$R.string.last_message_other_user_knock</ID>
@@ -382,9 +385,6 @@
     <ID>MultiLineIfElse:StyledStringUtil.kt$bold { append(text) }</ID>
     <ID>MultiLineIfElse:SystemMessageContentMapper.kt$SystemMessageContentMapper$others(members.map { mapMemberName(user = userList.findUser(userId = it), type = SelfNameType.ResourceLowercase) })</ID>
     <ID>MultiLineIfElse:SystemMessageContentMapper.kt$SystemMessageContentMapper$self()</ID>
-    <ID>MultiLineIfElse:SystemMessageItem.kt$dimensions().systemMessageIconLargeSize</ID>
-    <ID>MultiLineIfElse:SystemMessageItem.kt$dimensions().systemMessageIconSize</ID>
-    <ID>MultiLineIfElse:Theme.kt$arrayOf( LocalSnackbarHostState provides remember { SnackbarHostState() }, LocalNavigator provides rememberNavigator {})</ID>
     <ID>MultiLineIfElse:Theme.kt$emptyArray()</ID>
     <ID>MultiLineIfElse:UIMessage.kt$UIMessageContent.SystemMessage.ConversationDegraded$R.drawable.ic_conversation_degraded_mls</ID>
     <ID>MultiLineIfElse:UIMessage.kt$UIMessageContent.SystemMessage.ConversationDegraded$R.drawable.ic_shield_holo</ID>
@@ -433,6 +433,7 @@
     <ID>MultiLineIfElse:WireTextField.kt$it</ID>
     <ID>MultiLineIfElse:WriteStorageRequestFlow.kt$onGranted()</ID>
     <ID>NoBlankLineBeforeRbrace:CreateAccountEmailViewState.kt$CreateAccountEmailViewState$ </ID>
+    <ID>NoBlankLineBeforeRbrace:DrawingCanvasViewModel.kt$DrawingCanvasViewModel$ </ID>
     <ID>NoBlankLineBeforeRbrace:EmailComposer.kt$EmailComposer$ </ID>
     <ID>NoBlankLineBeforeRbrace:FakeKaliumFileSystem.kt$FakeKaliumFileSystem$ </ID>
     <ID>NoBlankLineBeforeRbrace:ISOFormatter.kt$ISOFormatter$ </ID>
@@ -459,7 +460,9 @@
     <ID>NoConsecutiveBlankLines:ScreenStateObserver.kt$ </ID>
     <ID>NoConsecutiveBlankLines:SearchPeopleScreenState.kt$ </ID>
     <ID>NoConsecutiveBlankLines:SearchTopBar.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:StartupBenchmarkWithLogin.kt$StartupBenchmarkWithLogin$ </ID>
     <ID>NoConsecutiveBlankLines:SurfaceBackgroundWrapper.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:VersionizerTest.kt$VersionizerTest$ </ID>
     <ID>NoConsecutiveBlankLines:WireTextFieldDefaults.kt$ </ID>
     <ID>NoMultipleSpaces:ApiVersioningDialogs.kt$ </ID>
     <ID>NoMultipleSpaces:ShakeAnimation.kt$ </ID>
@@ -483,8 +486,9 @@
     <ID>NoUnusedImports:CreateAccountDetailsScreen.kt$import com.wire.android.ui.common.scaffold.WireScaffold</ID>
     <ID>NoUnusedImports:SearchPeopleScreenState.kt$com.wire.android.ui.home.conversations.search.SearchPeopleScreenState.kt</ID>
     <ID>NoUnusedImports:SpeakerButton.kt$com.wire.android.ui.calling.controlbuttons.SpeakerButton.kt</ID>
-    <ID>NoUnusedImports:WireTypography.kt$com.wire.android.ui.theme.WireTypography.kt</ID>
     <ID>NoUnusedImports:ZoomableImage.kt$com.wire.android.ui.home.gallery.ZoomableImage.kt</ID>
+    <ID>NoWildcardImports:ExampleInstrumentedTest.kt$import org.junit.Assert.*</ID>
+    <ID>NoWildcardImports:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
     <ID>ParameterListWrapping:WireButtonDefaults.kt$( enabled: Color, onEnabled: Color, enabledOutline: Color, disabled: Color, onDisabled: Color, disabledOutline: Color, selected: Color, onSelected: Color, selectedOutline: Color, error: Color, onError: Color, errorOutline: Color, positive: Color, onPositive: Color, positiveOutline: Color, ripple: Color )</ID>
     <ID>ParameterListWrapping:WireTypography.kt$WireTypography$( val title01: TextStyle, val title02: TextStyle, val title03: TextStyle, val title04: TextStyle, val body01: TextStyle, val body02: TextStyle, val body03: TextStyle, val body04: TextStyle, val body05: TextStyle, val button01: TextStyle, val button02: TextStyle, val button03: TextStyle, val button04: TextStyle, val button05: TextStyle, val label01: TextStyle, val label02: TextStyle, val label03: TextStyle, val label04: TextStyle, val label05: TextStyle, val badge01: TextStyle, val subline01: TextStyle, val code01: TextStyle )</ID>
     <ID>ParameterWrapping:ConversationScreen.kt$groupDetailsScreenResultRecipient: ResultRecipient&lt;GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs&gt;</ID>
@@ -636,6 +640,7 @@
     <ID>SpacingBetweenDeclarationsWithAnnotations:UpdateReceiver.kt$UpdateReceiver$@Inject lateinit var migrationManager: MigrationManager</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:UpdateReceiver.kt$UpdateReceiver$@Inject lateinit var workManager: WorkManager</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:UriUtilTest.kt$UriUtilTest$@Test fun givenLinkWithoutParams_whenCallingFindParameterValue_thenReturnsParamValue()</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Chocolate = Color(0xFF622F00)</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber100 = Color(0xFFFFF6D4)</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber200 = Color(0xFFFFEEA8)</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val DarkAmber300 = Color(0xFFFFE57D)</ID>
@@ -755,12 +760,13 @@
     <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed700 = Color(0xFF74000B)</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed800 = Color(0xFF4E0008)</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val LightRed900 = Color(0xFF3A0006)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Orange = Color(0xFFFD8312)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Pink = Color(0xFFEB239B)</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:WireColorPalette.kt$WireColorPalette$@Stable val Turquoise = Color(0xFF01718E)</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WirePrimaryIconButton.kt$@Preview @Composable fun PreviewWirePrimaryIconButtonLoading()</ID>
     <ID>SpacingBetweenDeclarationsWithAnnotations:WirePrimaryIconButton.kt$@Preview @Composable fun PreviewWirePrimaryIconButtonRound()</ID>
-    <ID>SpacingBetweenDeclarationsWithAnnotations:WireSecondaryIconButton.kt$@Preview @Composable fun PreviewWireSecondaryIconButtonLoading()</ID>
-    <ID>SpacingBetweenDeclarationsWithAnnotations:WireSecondaryIconButton.kt$@Preview @Composable fun PreviewWireSecondaryIconButtonRound()</ID>
-    <ID>SpacingBetweenDeclarationsWithAnnotations:WireTertiaryIconButton.kt$@Preview @Composable fun PreviewWireTertiaryIconButtonLoading()</ID>
-    <ID>SpacingBetweenDeclarationsWithAnnotations:WireTertiaryIconButton.kt$@Preview @Composable fun PreviewWireTertiaryIconButtonRound()</ID>
+    <ID>SpreadOperator:ViewModelScopedPreview.kt$ViewModelScopedPreviewProcessor$(aggregating = true, *items.mapNotNull { it.containingFile }.toTypedArray())</ID>
+    <ID>SpreadOperator:ViewModelScopedPreview.kt$ViewModelScopedPreviewProcessor$(aggregating = true, *listOfNotNull(item.containingFile).toTypedArray())</ID>
     <ID>UnnecessaryParenthesesBeforeTrailingLambda:ChangeHandleScreen.kt$()</ID>
     <ID>UnnecessaryParenthesesBeforeTrailingLambda:EndOngoingCallReceiver.kt$EndOngoingCallReceiver$()</ID>
     <ID>UnnecessaryParenthesesBeforeTrailingLambda:GroupOptionsScreen.kt$()</ID>
@@ -775,12 +781,12 @@
     <ID>UnusedParameter:LoginSSOScreen.kt$serverTitle: String</ID>
     <ID>UnusedParameter:MentionScreen.kt$openConversationNotificationsSettings: (ConversationItem) -&gt; Unit</ID>
     <ID>UnusedParameter:ShouldTriggerMigrationForUserUserCaseTest.kt$ShouldTriggerMigrationForUserUserCaseTest.Arrangement$version: Int?</ID>
-    <ID>UnusedParameter:SwipeableSnackbar.kt$onDismiss: () -&gt; Unit = { hostState.currentSnackbarData?.dismiss() }</ID>
     <ID>UnusedParameter:TrackingNavController.kt$nameFromRoute: (String) -&gt; String?</ID>
     <ID>UnusedParameter:WireButtonDefaults.kt$WireButtonColors$interactionSource: InteractionSource</ID>
     <ID>UnusedParameter:WireItemLabel.kt$minHeight: Dp = dimensions().badgeSmallMinSize.height</ID>
     <ID>UnusedParameter:WireItemLabel.kt$minWidth: Dp = dimensions().badgeSmallMinSize.height</ID>
     <ID>UnusedParameter:ZoomableImage.kt$imageScale: Float = 1.0f</ID>
+    <ID>UnusedPrivateProperty:AndroidExampleView.kt$AndroidExampleView$private val view: View = View(context)</ID>
     <ID>UnusedPrivateProperty:ConnectionPolicyManagerTest.kt$ConnectionPolicyManagerTest.Companion$private val USER_ID_2 = UserId("user2", "domain2")</ID>
     <ID>UnusedPrivateProperty:ConversationListViewModelTest.kt$ConversationListViewModelTest.Companion$private val testConversations = TestConversationDetails.CONVERSATION_ONE_ONE</ID>
     <ID>UnusedPrivateProperty:DropDownMentionsSuggestions.kt$i</ID>
@@ -791,9 +797,6 @@
     <ID>UnusedPrivateProperty:SelfUserProfileViewModel.kt$SelfUserProfileViewModel$private val notificationChannelsManager: NotificationChannelsManager</ID>
     <ID>UnusedPrivateProperty:SendMessageViewModel.kt$SendMessageViewModel.Companion$private const val sizeOf1MB = 1024 * 1024</ID>
     <ID>UnusedPrivateProperty:SendMessageViewModelArrangement.kt$SendMessageViewModelArrangement$@MockK private lateinit var savedStateHandle: SavedStateHandle</ID>
-    <ID>UnusedPrivateProperty:SwipeableSnackbar.kt$val currentScreenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }</ID>
-    <ID>UnusedPrivateProperty:SwipeableSnackbar.kt$val positionalThreshold: (Float) -&gt; Float = { distance -&gt; distance * 0.5f }</ID>
-    <ID>UnusedPrivateProperty:SwipeableSnackbar.kt$val velocityThreshold: () -&gt; Float = with(density) { { 125.dp.toPx() } }</ID>
     <ID>UnusedPrivateProperty:WireNotificationManagerTest.kt$WireNotificationManagerTest.Companion$private val TEST_SERVER_CONFIG: ServerConfig = newServerConfig(1)</ID>
     <ID>Wrapping:AddMembersToConversationViewModel.kt$AddMembersToConversationViewModel$(</ID>
     <ID>Wrapping:AssetImageFetcherTest.kt$AssetImageFetcherTest.Arrangement$( data = imageData, options ?: Options( context = mockContext, parameters = Parameters.Builder().set(key = OPTION_PARAMETER_RETRY_KEY, value = 0, memoryCacheKey = null).build() ) )</ID>
@@ -836,14 +839,13 @@
     <ID>Wrapping:DeleteMessageDialog.kt$</ID>
     <ID>Wrapping:DeviceDetailsViewModel.kt$DeviceDetailsViewModel$-&gt;</ID>
     <ID>Wrapping:DeviceItem.kt$(</ID>
+    <ID>Wrapping:DrawingCanvasViewModel.kt$DrawingCanvasViewModel$( currentPath = DrawingPathProperties().apply { strokeWidth = state.currentPath.strokeWidth color = state.currentPath.color drawMode = state.currentPath.drawMode }, pathsUndone = emptyList(), currentPosition = Offset.Unspecified, drawingMotionEvent = DrawingMotionEvent.Idle )</ID>
     <ID>Wrapping:DropDownMentionsSuggestions.kt$(</ID>
     <ID>Wrapping:E2EIEnrollmentScreen.kt$viewModel.onCancelEnrollmentClicked(NavigationSwitchAccountActions(navigator::navigate))</ID>
     <ID>Wrapping:EditGuestAccessScreen.kt${ isPasswordProtected -&gt; coroutineScope.launch { sheetState.hide() } if (isPasswordProtected) { navigator.navigate( NavigationCommand( CreatePasswordProtectedGuestLinkScreenDestination( CreatePasswordGuestLinkNavArgs( conversationId = editGuestAccessViewModel.conversationId ) ) ) ) } else { editGuestAccessViewModel.onRequestGuestRoomLink() } }</ID>
     <ID>Wrapping:EditMessageMenuItems.kt${ emoji: String -&gt; hideEditMessageMenu { onReactionClick(message.header.messageId, emoji) } }</ID>
     <ID>Wrapping:EditSelfDeletingMessagesScreen.kt$(</ID>
     <ID>Wrapping:EditSelfDeletingMessagesViewModel.kt$EditSelfDeletingMessagesViewModel$(</ID>
-    <ID>Wrapping:Extensions.kt$(</ID>
-    <ID>Wrapping:Extensions.kt$flow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)</ID>
     <ID>Wrapping:FeatureFlagNotificationViewModelTest.kt$FeatureFlagNotificationViewModelTest.Arrangement$coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged</ID>
     <ID>Wrapping:FileManager.kt$FileManager$context.getFileName(it)</ID>
     <ID>Wrapping:GroupConversationDetailsScreen.kt$GroupConversationDetailsTabItem.entries.size</ID>
@@ -887,7 +889,6 @@
     <ID>Wrapping:MessageDetailsScreen.kt$derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) }</ID>
     <ID>Wrapping:MessageDetailsScreen.kt$lazyListStates[currentTabState].topBarElevation(maxAppBarElevation)</ID>
     <ID>Wrapping:MessageExpiration.kt$&lt;no name provided&gt;$( when (type) { StringResourceType.WEEKS -&gt; R.plurals.weeks_left StringResourceType.DAYS -&gt; R.plurals.days_left StringResourceType.HOURS -&gt; R.plurals.hours_left StringResourceType.MINUTES -&gt; R.plurals.minutes_left StringResourceType.SECONDS -&gt; R.plurals.seconds_left }, quantity, quantity )</ID>
-    <ID>Wrapping:MessageItem.kt$(</ID>
     <ID>Wrapping:MessageMapperTest.kt$MessageMapperTest$(</ID>
     <ID>Wrapping:MessagePreviewContentMapper.kt$( userUIText, UIText.StringResource( if (isSelfMessage) R.string.last_message_self_user_shared_asset else R.string.last_message_other_user_shared_asset ) )</ID>
     <ID>Wrapping:MigrateActiveAccountsUseCase.kt$MigrateActiveAccountsUseCase$it.users(listOf(activeAccount.id))</ID>
@@ -938,7 +939,6 @@
     <ID>Wrapping:SingleUserMigrationWorker.kt$it.firstOrNull()?.state == WorkInfo.State.RUNNING</ID>
     <ID>Wrapping:SystemMessageContentMapper.kt$SystemMessageContentMapper$UIText.DynamicString(it)</ID>
     <ID>Wrapping:TextWithLearnMore.kt$append("This is text with a learn more link")</ID>
-    <ID>Wrapping:Theme.kt$(</ID>
     <ID>Wrapping:TypingIndicatorViewModelTest.kt$TypingIndicatorViewModelTest.Arrangement$savedStateHandle.scopedArgs&lt;TypingIndicatorArgs&gt;()</ID>
     <ID>Wrapping:UIMessage.kt$DeliveryStatusContent.PartialDelivery$failedRecipients.filter { it !in noClients.values.flatten() }.toImmutableList()</ID>
     <ID>Wrapping:UIMessage.kt$DeliveryStatusContent.PartialDelivery$it !in noClients.values.flatten()</ID>
@@ -953,6 +953,7 @@
     <ID>Wrapping:WireButton.kt$(</ID>
     <ID>Wrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest$arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_TOKEN.userId, any())</ID>
     <ID>Wrapping:WireNotificationManagerTest.kt$WireNotificationManagerTest.Arrangement$markMessagesAsNotified(any&lt;MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation&gt;())</ID>
+    <ID>Wrapping:WirePrimaryIconButton.kt$</ID>
     <ID>Wrapping:WireTextFieldDefaults.kt$&lt;no name provided&gt;$(</ID>
   </CurrentIssues>
 </SmellBaseline>

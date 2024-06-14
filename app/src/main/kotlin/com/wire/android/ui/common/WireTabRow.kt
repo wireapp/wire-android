@@ -18,14 +18,14 @@
 
 package com.wire.android.ui.common
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabPosition
@@ -35,12 +35,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.pager.PagerState
-import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsTabItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.UIText
 import kotlin.math.absoluteValue
 
 @Composable
@@ -48,10 +46,10 @@ fun WireTabRow(
     tabs: List<TabItem>,
     selectedTabIndex: Int,
     onTabChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.background,
-    divider: @Composable () -> Unit = @Composable { Divider() },
-    upperCaseTitles: Boolean = true,
-    modifier: Modifier = Modifier
+    divider: @Composable () -> Unit = @Composable { HorizontalDivider() },
+    upperCaseTitles: Boolean = true
 ) {
     TabRow(
         containerColor = containerColor,
@@ -64,11 +62,7 @@ fun WireTabRow(
     ) {
         tabs.forEachIndexed { index, tabItem ->
             val selected = selectedTabIndex == index
-            val text = if (tabItem is MessageDetailsTabItem) {
-                stringResource(id = tabItem.titleResId, tabItem.count)
-            } else {
-                stringResource(id = tabItem.titleResId)
-            }.let {
+            val text = tabItem.title.asString().let {
                 if (upperCaseTitles) it.uppercase() else it
             }
 
@@ -108,6 +102,5 @@ fun PagerState.calculateCurrentTab() = // change the tab if we go over half the 
     if (this.currentPageOffsetFraction.absoluteValue > 0.5f) this.targetPage else this.currentPage
 
 interface TabItem {
-    @get:StringRes
-    val titleResId: Int
+    val title: UIText
 }

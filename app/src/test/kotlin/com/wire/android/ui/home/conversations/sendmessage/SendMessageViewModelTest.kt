@@ -169,7 +169,7 @@ class SendMessageViewModelTest {
                 .withSuccessfulSendAttachmentMessage()
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.AssetTooLarge(mockedAttachment, 25))
                 .arrange()
-            val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
+            val mockedMessageBundle = ComposableMessageBundle.UriPickedBundle(
                 conversationId = conversationId,
                 attachmentUri = UriAsset("mocked_image.jpeg".toUri(), false)
             )
@@ -211,7 +211,7 @@ class SendMessageViewModelTest {
                 .withSuccessfulSendAttachmentMessage()
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.AssetTooLarge(mockedAttachment, limit))
                 .arrange()
-            val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
+            val mockedMessageBundle = ComposableMessageBundle.UriPickedBundle(
                 conversationId = conversationId,
                 attachmentUri = UriAsset("mocked_image.jpeg".toUri(), false)
             )
@@ -244,7 +244,7 @@ class SendMessageViewModelTest {
                 .withSuccessfulSendAttachmentMessage()
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.Unknown)
                 .arrange()
-            val mockedMessageBundle = ComposableMessageBundle.AttachmentPickedBundle(
+            val mockedMessageBundle = ComposableMessageBundle.UriPickedBundle(
                 conversationId = conversationId,
                 attachmentUri = UriAsset("mocked_image.jpeg".toUri(), false)
             )
@@ -419,7 +419,7 @@ class SendMessageViewModelTest {
                 )
             }
             assertEquals(
-                SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(messageBundle),
+                SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(conversationId, listOf(messageBundle)),
                 viewModel.sureAboutMessagingDialogState
             )
         }
@@ -438,7 +438,7 @@ class SendMessageViewModelTest {
             // then
             coVerify(exactly = 0) { arrangement.sendTextMessage.invoke(any(), any(), any(), any()) }
             assertEquals(
-                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(messageBundle),
+                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(conversationId, listOf(messageBundle)),
                 viewModel.sureAboutMessagingDialogState
             )
         }
@@ -497,7 +497,7 @@ class SendMessageViewModelTest {
             // then
             coVerify(exactly = 0) { arrangement.retryFailedMessageUseCase.invoke(eq(messageId), any()) }
             assertEquals(
-                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(messageId, conversationId),
+                SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(conversationId, listOf(messageId)),
                 viewModel.sureAboutMessagingDialogState
             )
         }

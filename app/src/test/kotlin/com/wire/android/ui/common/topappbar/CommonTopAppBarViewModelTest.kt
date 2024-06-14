@@ -25,10 +25,14 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
@@ -53,78 +57,72 @@ import org.junit.jupiter.api.extension.ExtendWith
 class CommonTopAppBarViewModelTest {
 
     @Test
-    fun givenNoActiveCallAndHomeScreenAndSlowSync_whenGettingState_thenShouldHaveConnectingInfo() = runTest {
-        val (_, commonTopAppBarViewModel) = Arrangement()
-            .withCurrentSessionExist()
-            .withoutActiveCall()
-            .withCurrentScreen(CurrentScreen.Home)
-            .withSyncState(SyncState.SlowSync)
-            .arrange()
+    fun givenNoCallAndHomeScreenAndSlowSync_whenGettingState_thenShouldHaveConnectingInfo() =
+        runTest {
+            val (_, commonTopAppBarViewModel) = Arrangement()
+                .withCurrentSessionExist()
+                .withoutOngoingCall()
+                .withoutOutgoingCall()
+                .withoutIncomingCall()
+                .withCurrentScreen(CurrentScreen.Home)
+                .withSyncState(SyncState.SlowSync)
+                .arrange()
 
-        advanceUntilIdle()
-        val state = commonTopAppBarViewModel.state
+            advanceUntilIdle()
+            val state = commonTopAppBarViewModel.state
 
-        val info = state.connectivityState
-        info shouldBeInstanceOf ConnectivityUIState.Connecting::class
-    }
-
-    @Test
-    fun givenNoActiveCallAndHomeScreenAndGathering_whenGettingState_thenShouldHaveConnectingInfo() = runTest {
-        val (_, commonTopAppBarViewModel) = Arrangement()
-            .withCurrentSessionExist()
-            .withoutActiveCall()
-            .withCurrentScreen(CurrentScreen.Home)
-            .withSyncState(SyncState.GatheringPendingEvents)
-            .arrange()
-
-        advanceUntilIdle()
-        val state = commonTopAppBarViewModel.state
-
-        val info = state.connectivityState
-        info shouldBeInstanceOf ConnectivityUIState.Connecting::class
-    }
+            val info = state.connectivityState
+            info shouldBeInstanceOf ConnectivityUIState.Connecting::class
+        }
 
     @Test
-    fun givenActiveCallAndHomeScreenAndConnectivityIssues_whenGettingState_thenShouldHaveActiveCallInfo() = runTest {
-        val (arrangement, commonTopAppBarViewModel) = Arrangement()
-            .withCurrentSessionExist()
-            .withActiveCall()
-            .withCurrentScreen(CurrentScreen.Home)
-            .withSyncState(SyncState.Waiting)
-            .arrange()
+    fun givenNoCallAndHomeScreenAndGathering_whenGettingState_thenShouldHaveConnectingInfo() =
+        runTest {
+            val (_, commonTopAppBarViewModel) = Arrangement()
+                .withCurrentSessionExist()
+                .withoutOngoingCall()
+                .withoutOutgoingCall()
+                .withoutIncomingCall()
+                .withCurrentScreen(CurrentScreen.Home)
+                .withSyncState(SyncState.GatheringPendingEvents)
+                .arrange()
 
-        advanceUntilIdle()
-        val state = commonTopAppBarViewModel.state
+            advanceUntilIdle()
+            val state = commonTopAppBarViewModel.state
 
-        val info = state.connectivityState
-        info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
-        info as ConnectivityUIState.EstablishedCall
-        info.conversationId shouldBeEqualTo arrangement.activeCall.conversationId
-    }
-
-    @Test
-    fun givenActiveCallAndCallScreenAndConnectivityIssues_whenGettingState_thenShouldHaveConnectivityInfo() = runTest {
-        val (_, commonTopAppBarViewModel) = Arrangement()
-            .withCurrentSessionExist()
-            .withActiveCall()
-            .withCurrentScreen(CurrentScreen.OngoingCallScreen(mockk()))
-            .withSyncState(SyncState.Waiting)
-            .arrange()
-
-        advanceUntilIdle()
-        val state = commonTopAppBarViewModel.state
-
-        val info = state.connectivityState
-        info shouldBeInstanceOf ConnectivityUIState.WaitingConnection::class
-    }
+            val info = state.connectivityState
+            info shouldBeInstanceOf ConnectivityUIState.Connecting::class
+        }
 
     @Test
-    fun givenActiveCallAndCallIsMuted_whenGettingState_thenShouldHaveMutedCallInfo() = runTest {
+    fun givenAnOngoingCallAndHomeScreenAndConnectivityIssues_whenGettingState_thenShouldHaveActiveCallInfo() =
+        runTest {
+            val (_, commonTopAppBarViewModel) = Arrangement()
+                .withCurrentSessionExist()
+                .withOngoingCall()
+                .withoutOutgoingCall()
+                .withoutIncomingCall()
+                .withCurrentScreen(CurrentScreen.Home)
+                .withSyncState(SyncState.Waiting)
+                .arrange()
+
+            advanceUntilIdle()
+            val state = commonTopAppBarViewModel.state
+
+            val info = state.connectivityState
+            info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
+            info as ConnectivityUIState.EstablishedCall
+            info.conversationId shouldBeEqualTo ongoingCall.conversationId
+        }
+
+    @Test
+    fun givenAnOngoingCallAndCallIsMuted_whenGettingState_thenShouldHaveMutedCallInfo() = runTest {
         val (_, commonTopAppBarViewModel) = Arrangement()
             .withCurrentSessionExist()
-            .withActiveCall()
+            .withOngoingCall(isMuted = true)
+            .withoutOutgoingCall()
+            .withoutIncomingCall()
             .withCurrentScreen(CurrentScreen.Conversation(mockk()))
-            .withCallMuted(true)
             .withSyncState(SyncState.Waiting)
             .arrange()
 
@@ -138,12 +136,53 @@ class CommonTopAppBarViewModelTest {
     }
 
     @Test
-    fun givenActiveCallAndCallIsNotMuted_whenGettingState_thenShouldNotHaveMutedCallInfo() = runTest {
+    fun givenAnOngoingCallAndCallIsNotMuted_whenGettingState_thenShouldNotHaveMutedCallInfo() =
+        runTest {
+            val (_, commonTopAppBarViewModel) = Arrangement()
+                .withCurrentSessionExist()
+                .withOngoingCall(isMuted = false)
+                .withoutOutgoingCall()
+                .withoutIncomingCall()
+                .withCurrentScreen(CurrentScreen.Conversation(mockk()))
+                .withSyncState(SyncState.Waiting)
+                .arrange()
+
+            advanceUntilIdle()
+            val state = commonTopAppBarViewModel.state
+
+            val info = state.connectivityState
+            info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
+            info as ConnectivityUIState.EstablishedCall
+            info.isMuted shouldBe false
+        }
+
+    @Test
+    fun givenAnOngoingCallAndConnectivityIssueAndSomeOtherScreen_whenGettingState_thenShouldHaveActiveCallInfo() =
+        runTest {
+            val (_, commonTopAppBarViewModel) = Arrangement()
+                .withCurrentSessionExist()
+                .withOngoingCall(isMuted = false)
+                .withoutOutgoingCall()
+                .withoutIncomingCall()
+                .withCurrentScreen(CurrentScreen.SomeOther)
+                .withSyncState(SyncState.Waiting)
+                .arrange()
+
+            advanceUntilIdle()
+            val state = commonTopAppBarViewModel.state
+
+            val info = state.connectivityState
+            info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
+        }
+
+    @Test
+    fun givenAnIncomingCallAnd_whenGettingState_thenShouldHaveIncomingCallInfo() = runTest {
         val (_, commonTopAppBarViewModel) = Arrangement()
             .withCurrentSessionExist()
-            .withActiveCall()
-            .withCurrentScreen(CurrentScreen.Conversation(mockk()))
-            .withCallMuted(false)
+            .withIncomingCall()
+            .withoutOngoingCall()
+            .withoutOutgoingCall()
+            .withCurrentScreen(CurrentScreen.Home)
             .withSyncState(SyncState.Waiting)
             .arrange()
 
@@ -151,26 +190,25 @@ class CommonTopAppBarViewModelTest {
         val state = commonTopAppBarViewModel.state
 
         val info = state.connectivityState
-        info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
-        info as ConnectivityUIState.EstablishedCall
-        info.isMuted shouldBe false
+        info shouldBeInstanceOf ConnectivityUIState.IncomingCall::class
     }
 
     @Test
-    fun givenActiveCallAndConnectivityIssueAndSomeOtherScreen_whenGettingState_thenShouldHaveActiveCallInfo() = runTest {
+    fun givenAnOutgoingCallAnd_whenGettingState_thenShouldHaveOutgoingCallInfo() = runTest {
         val (_, commonTopAppBarViewModel) = Arrangement()
             .withCurrentSessionExist()
-            .withActiveCall()
-            .withCurrentScreen(CurrentScreen.SomeOther)
-            .withCallMuted(false)
-            .withSyncState(SyncState.Waiting)
+            .withOutgoingCall()
+            .withoutIncomingCall()
+            .withoutOngoingCall()
+            .withCurrentScreen(CurrentScreen.Home)
+            .withSyncState(SyncState.Live)
             .arrange()
 
         advanceUntilIdle()
         val state = commonTopAppBarViewModel.state
 
         val info = state.connectivityState
-        info shouldBeInstanceOf ConnectivityUIState.EstablishedCall::class
+        info shouldBeInstanceOf ConnectivityUIState.OutgoingCall::class
     }
 
     @Test
@@ -185,15 +223,34 @@ class CommonTopAppBarViewModelTest {
         state.connectivityState shouldBeInstanceOf ConnectivityUIState.None::class
     }
 
+    @Test
+    fun givenEstablishedAndIncomingCall_whenActiveCallFlowIsCalled_thenEmitEstablishedCallOnly() = runTest {
+        val (_, commonTopAppBarViewModel) = Arrangement()
+            .withCurrentSessionExist()
+            .withOngoingCall(isMuted = true)
+            .withIncomingCall()
+            .withOutgoingCall()
+            .withCurrentScreen(CurrentScreen.Home)
+            .withSyncState(SyncState.Waiting)
+            .arrange()
+
+        val flow = commonTopAppBarViewModel.activeCallFlow(userId)
+
+        flow.collect {
+            it shouldBeEqualTo ongoingCall
+        }
+    }
+
     private class Arrangement {
 
-        val activeCall: Call = mockk()
-        val conversationId: ConversationId = mockk()
-
-        private var isCallMuted = true
+        @MockK
+        private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
         @MockK
-        private lateinit var establishedCalls: ObserveEstablishedCallsUseCase
+        private lateinit var incomingCalls: GetIncomingCallsUseCase
+
+        @MockK
+        private lateinit var observeOutgoingCall: ObserveOutgoingCallUseCase
 
         @MockK
         private lateinit var currentScreenManager: CurrentScreenManager
@@ -209,7 +266,6 @@ class CommonTopAppBarViewModelTest {
 
         init {
             MockKAnnotations.init(this)
-            every { activeCall.conversationId } returns conversationId
             every {
                 coreLogic.sessionScope(any()) {
                     observeSyncState
@@ -220,7 +276,19 @@ class CommonTopAppBarViewModelTest {
                 coreLogic.sessionScope(any()) {
                     calls.establishedCall
                 }
-            } returns establishedCalls
+            } returns observeEstablishedCalls
+
+            every {
+                coreLogic.sessionScope(any()) {
+                    calls.getIncomingCalls
+                }
+            } returns incomingCalls
+
+            every {
+                coreLogic.sessionScope(any()) {
+                    calls.observeOutgoingCall
+                }
+            } returns observeOutgoingCall
 
             every {
                 coreLogic.getGlobalScope()
@@ -231,27 +299,44 @@ class CommonTopAppBarViewModelTest {
             } returns emptyFlow()
 
             withSyncState(SyncState.Live)
-            withoutActiveCall()
+            withoutOngoingCall()
         }
 
         private val commonTopAppBarViewModel by lazy {
-            every { activeCall.isMuted } returns isCallMuted
             CommonTopAppBarViewModel(
                 currentScreenManager,
                 coreLogic
             )
         }
 
-        fun withCallMuted(isMuted: Boolean) = apply {
-            isCallMuted = isMuted
+        fun withOngoingCall(isMuted: Boolean = false) = apply {
+            coEvery { observeEstablishedCalls() } returns flowOf(
+                listOf(ongoingCall.copy(isMuted = isMuted))
+            )
         }
 
-        fun withActiveCall() = apply {
-            coEvery { establishedCalls() } returns flowOf(listOf(activeCall))
+        fun withoutOngoingCall() = apply {
+            coEvery { observeEstablishedCalls() } returns flowOf(listOf())
         }
 
-        fun withoutActiveCall() = apply {
-            coEvery { establishedCalls() } returns flowOf(listOf())
+        fun withoutOutgoingCall() = apply {
+            coEvery { observeOutgoingCall() } returns flowOf(listOf())
+        }
+
+        fun withOutgoingCall() = apply {
+            coEvery { observeOutgoingCall() } returns flowOf(
+                listOf(outgoingCall)
+            )
+        }
+
+        fun withoutIncomingCall() = apply {
+            coEvery { incomingCalls() } returns flowOf(listOf())
+        }
+
+        fun withIncomingCall() = apply {
+            coEvery { incomingCalls() } returns flowOf(
+                listOf(incomingCall)
+            )
         }
 
         fun withSyncState(syncState: SyncState) = apply {
@@ -267,15 +352,40 @@ class CommonTopAppBarViewModelTest {
         fun withCurrentSessionExist() = apply {
             every { coreLogic.globalScope { session.currentSessionFlow() } } returns flowOf(
                 CurrentSessionResult.Success(
-                    AccountInfo.Valid(UserId("userId", "domain"))
+                    AccountInfo.Valid(userId)
                 )
             )
         }
 
         fun withCurrentScreen(currentScreen: CurrentScreen) = apply {
-            coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(currentScreen)
+            coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(
+                currentScreen
+            )
         }
 
         fun arrange() = this to commonTopAppBarViewModel
+    }
+
+    companion object {
+        val userId = UserId("userId", "domain")
+        val conversationId = ConversationId("first", "domain")
+        val ongoingCall = Call(
+            conversationId,
+            CallStatus.ESTABLISHED,
+            true,
+            false,
+            false,
+            "caller-id",
+            "ONE_ON_ONE Name",
+            Conversation.Type.ONE_ON_ONE,
+            "otherUsername",
+            "team1"
+        )
+        val outgoingCall = ongoingCall.copy(
+            status = CallStatus.STARTED
+        )
+        val incomingCall = ongoingCall.copy(
+            status = CallStatus.INCOMING
+        )
     }
 }

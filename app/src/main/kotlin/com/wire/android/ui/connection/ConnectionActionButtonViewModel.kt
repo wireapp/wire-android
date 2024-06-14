@@ -31,6 +31,7 @@ import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logger.obfuscateId
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
@@ -65,6 +66,7 @@ interface ConnectionActionButtonViewModel {
     fun onUnblockUser() {}
     fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit) {}
     fun onMissingLegalHoldConsentDismissed() {}
+    fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit, onMissingKeyPackages: () -> Unit) {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -190,17 +192,19 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit) {
+    override fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit, onMissingKeyPackages: () -> Unit) {
         viewModelScope.launch {
             state = state.performAction()
             when (val result = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }) {
                 is CreateConversationResult.Failure -> {
                     appLogger.d(("Couldn't retrieve or create the conversation"))
                     state = state.finishAction()
+                    if (result.coreFailure is CoreFailure.MissingKeyPackages) onMissingKeyPackages()
                 }
 
                 is CreateConversationResult.Success -> onSuccess(result.conversation.id)
             }
+            state.finishAction()
         }
     }
 

@@ -20,6 +20,7 @@ package com.wire.android.util.ui
 
 import android.content.Context
 import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -74,7 +75,7 @@ class WireSessionImageLoader(
      */
     @Composable
     fun paint(
-        asset: ImageAsset?,
+        asset: ImageAsset.Remote?,
         fallbackData: Any? = null,
         withCrossfadeAnimation: Boolean = false,
     ): Painter {
@@ -124,7 +125,6 @@ class WireSessionImageLoader(
         private val networkStateObserver: NetworkStateObserver,
     ) {
         private val defaultImageLoader = Coil.imageLoader(context)
-        private val resources = context.resources
 
         fun newImageLoader(): WireSessionImageLoader =
             WireSessionImageLoader(
@@ -135,10 +135,10 @@ class WireSessionImageLoader(
                                 getPublicAssetUseCase = getAvatarAsset,
                                 getPrivateAssetUseCase = getPrivateAsset,
                                 deleteAssetUseCase = deleteAsset,
-                                drawableResultWrapper = DrawableResultWrapper(resources),
+                                drawableResultWrapper = DrawableResultWrapper(),
                             )
                         )
-                        if (SDK_INT >= 28) {
+                        if (SDK_INT >= VERSION_CODES.P) {
                             add(ImageDecoderDecoder.Factory())
                         } else {
                             add(GifDecoder.Factory())

@@ -24,16 +24,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -44,6 +46,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -51,10 +54,13 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialogFlow
 import com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackupDialogFlow
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.PermissionDenialType
+import com.wire.android.util.time.convertTimestampToDateTime
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
 @Destination
@@ -65,7 +71,8 @@ fun BackupAndRestoreScreen(
 ) {
     BackupAndRestoreContent(
         backUpAndRestoreState = viewModel.state,
-        onValidateBackupPassword = viewModel::validateBackupCreationPassword,
+        createBackupPasswordTextState = viewModel.createBackupPasswordState,
+        restoreBackupPasswordTextState = viewModel.restoreBackupPasswordState,
         onCreateBackup = viewModel::createBackup,
         onSaveBackup = viewModel::saveBackup,
         onShareBackup = viewModel::shareBackup,
@@ -81,16 +88,18 @@ fun BackupAndRestoreScreen(
 @Composable
 fun BackupAndRestoreContent(
     backUpAndRestoreState: BackupAndRestoreState,
-    onValidateBackupPassword: (TextFieldValue) -> Unit,
-    onCreateBackup: (String) -> Unit,
+    createBackupPasswordTextState: TextFieldState,
+    restoreBackupPasswordTextState: TextFieldState,
+    onCreateBackup: () -> Unit,
     onSaveBackup: (Uri) -> Unit,
     onShareBackup: () -> Unit,
     onCancelBackupCreation: () -> Unit,
     onCancelBackupRestore: () -> Unit,
     onChooseBackupFile: (Uri) -> Unit,
-    onRestoreBackup: (String) -> Unit,
+    onRestoreBackup: () -> Unit,
     onOpenConversations: () -> Unit,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -106,22 +115,19 @@ fun BackupAndRestoreContent(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxHeight()
                 .padding(internalPadding)
         ) {
-            Column(
+
+            BackupAndRestoreText(
+                lastBackupTime = backUpAndRestoreState.lastBackupData,
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(id = R.string.settings_backup_info),
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)
-                )
-            }
+                    .padding(MaterialTheme.wireDimensions.spacing16x)
+                    .fillMaxWidth(),
+            )
+
             Surface(
                 color = MaterialTheme.wireColorScheme.background,
                 shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
@@ -149,7 +155,7 @@ fun BackupAndRestoreContent(
         is BackupAndRestoreDialog.CreateBackup -> {
             CreateBackupDialogFlow(
                 backUpAndRestoreState = backUpAndRestoreState,
-                onValidateBackupPassword = onValidateBackupPassword,
+                backupPasswordTextState = createBackupPasswordTextState,
                 onCreateBackup = onCreateBackup,
                 onSaveBackup = onSaveBackup,
                 onShareBackup = onShareBackup,
@@ -173,6 +179,7 @@ fun BackupAndRestoreContent(
         is BackupAndRestoreDialog.RestoreBackup -> {
             RestoreBackupDialogFlow(
                 backUpAndRestoreState = backUpAndRestoreState,
+                backupPasswordTextState = restoreBackupPasswordTextState,
                 onChooseBackupFile = onChooseBackupFile,
                 onRestoreBackup = onRestoreBackup,
                 onCancelBackupRestore = {
@@ -202,12 +209,67 @@ fun BackupAndRestoreContent(
     )
 }
 
-@Preview
 @Composable
-fun PreviewBackupAndRestoreScreen() {
+private fun BackupAndRestoreText(lastBackupTime: Long?, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+    ) {
+
+        val lastBackupText: AnnotatedString = lastBackupTime?.let { timeStamp ->
+            val applicationContext = LocalContext.current.applicationContext
+            val (date, time) = convertTimestampToDateTime(timeStamp, context = applicationContext)
+
+            val formattedString = stringResource(
+                id = R.string.settings_backup_last_backup_date,
+                date,
+                time
+            )
+            val spannableString = AnnotatedString.Builder(formattedString)
+            val dateStartIndex = formattedString.indexOf(date)
+            spannableString.addStyle(
+                style = SpanStyle(fontWeight = FontWeight.Bold),
+                start = dateStartIndex,
+                end = dateStartIndex + date.length
+            )
+
+            val timeStartIndex = formattedString.indexOf(time)
+            spannableString.addStyle(
+                style = SpanStyle(fontWeight = FontWeight.Bold),
+                start = timeStartIndex,
+                end = timeStartIndex + time.length,
+            )
+
+            spannableString.toAnnotatedString()
+        } ?: AnnotatedString(stringResource(id = R.string.settings_backup_last_backup_date_no_time))
+
+        Text(
+            text = stringResource(id = R.string.settings_backup_info),
+            style = MaterialTheme.wireTypography.body01,
+            color = MaterialTheme.wireColorScheme.onBackground
+        )
+        Text(
+            text = stringResource(id = R.string.settings_backup_last_backup_title),
+            style = MaterialTheme.wireTypography.label01,
+            color = MaterialTheme.wireColorScheme.secondaryText,
+            modifier = Modifier
+                .padding(top = MaterialTheme.wireDimensions.spacing32x)
+        )
+        Text(
+            text = lastBackupText,
+            style = MaterialTheme.wireTypography.body01,
+            color = MaterialTheme.wireColorScheme.onBackground,
+            modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x)
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewBackupAndRestoreScreen() = WireTheme {
     BackupAndRestoreContent(
         backUpAndRestoreState = BackupAndRestoreState.INITIAL_STATE,
-        onValidateBackupPassword = {},
+        createBackupPasswordTextState = TextFieldState(),
+        restoreBackupPasswordTextState = TextFieldState(),
         onCreateBackup = {},
         onSaveBackup = {},
         onShareBackup = {},

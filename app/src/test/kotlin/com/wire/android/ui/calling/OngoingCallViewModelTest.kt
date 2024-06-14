@@ -18,16 +18,12 @@
 
 package com.wire.android.ui.calling
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.navArgs
-import com.wire.android.util.CurrentScreen
-import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.call.CallStatus
@@ -42,97 +38,194 @@ import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(NavigationTestExtension::class)
 @ExtendWith(CoroutineTestExtension::class)
 class OngoingCallViewModelTest {
 
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
-    private lateinit var establishedCall: ObserveEstablishedCallsUseCase
-
-    @MockK
-    private lateinit var requestVideoStreams: RequestVideoStreamsUseCase
-
-    @MockK
-    private lateinit var currentScreenManager: CurrentScreenManager
-
-    @MockK
-    private lateinit var setVideoSendState: SetVideoSendStateUseCase
-
-    @MockK
-    private lateinit var globalDataStore: GlobalDataStore
-
-    private lateinit var ongoingCallViewModel: OngoingCallViewModel
-
-    @BeforeEach
-    fun setup() {
-        MockKAnnotations.init(this)
-        every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = conversationId)
-        coEvery { establishedCall.invoke() } returns flowOf(listOf(provideCall()))
-        coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
-        coEvery { globalDataStore.getShouldShowDoubleTapToast(any()) } returns false
-        coEvery { setVideoSendState.invoke(any(), any()) } returns Unit
-
-        ongoingCallViewModel = OngoingCallViewModel(
-            savedStateHandle = savedStateHandle,
-            establishedCalls = establishedCall,
-            requestVideoStreams = requestVideoStreams,
-            currentScreenManager = currentScreenManager,
-            currentUserId = currentUserId,
-            setVideoSendState = setVideoSendState,
-            globalDataStore = globalDataStore,
-        )
-    }
-
     @Test
     fun givenAnOngoingCall_WhenTurningOnCamera_ThenSetVideoSendStateToStarted() = runTest {
+        val (arrangement, ongoingCallViewModel) = Arrangement()
+            .withCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .arrange()
+
         ongoingCallViewModel.startSendingVideoFeed()
 
-        coVerify(exactly = 1) { setVideoSendState.invoke(any(), VideoState.STARTED) }
+        coVerify(exactly = 1) { arrangement.setVideoSendState(any(), VideoState.STARTED) }
     }
 
     @Test
     fun givenAnOngoingCall_WhenTurningOffCamera_ThenSetVideoSendStateToStopped() = runTest {
+        val (arrangement, ongoingCallViewModel) = Arrangement()
+            .withCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .arrange()
+
         ongoingCallViewModel.stopSendingVideoFeed()
 
-        coVerify { setVideoSendState.invoke(any(), VideoState.STOPPED) }
+        coVerify { arrangement.setVideoSendState.invoke(any(), VideoState.STOPPED) }
     }
 
     @Test
-    fun givenParticipantsList_WhenRequestingVideoStream_ThenRequestItForOnlyParticipantsWithVideoEnabled() = runTest {
-        val expectedClients = listOf(
-            CallClient(participant1.id.toString(), participant1.clientId),
-            CallClient(participant3.id.toString(), participant3.clientId)
-        )
-        coEvery { requestVideoStreams(conversationId = conversationId, expectedClients) } returns Unit
+    fun givenParticipantsList_WhenRequestingVideoStream_ThenRequestItForOnlyParticipantsWithVideoEnabled() =
+        runTest {
+            val expectedClients = listOf(
+                CallClient(participant1.id.toString(), participant1.clientId),
+                CallClient(participant3.id.toString(), participant3.clientId)
+            )
 
-        ongoingCallViewModel.requestVideoStreams(participants)
+            val (arrangement, ongoingCallViewModel) = Arrangement()
+                .withCall(provideCall())
+                .withShouldShowDoubleTapToastReturning(false)
+                .withSetVideoSendState()
+                .withRequestVideoStreams(conversationId, expectedClients)
+                .arrange()
 
-        coVerify(exactly = 1) { requestVideoStreams(conversationId, expectedClients) }
-    }
+            ongoingCallViewModel.requestVideoStreams(participants)
+
+            coVerify(exactly = 1) {
+                arrangement.requestVideoStreams(
+                    conversationId,
+                    expectedClients
+                )
+            }
+        }
 
     @Test
     fun givenDoubleTabIndicatorIsDisplayed_whenUserTapsOnIt_thenHideIt() = runTest {
-        coEvery { globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false) } returns Unit
+        val (arrangement, ongoingCallViewModel) = Arrangement()
+            .withCall(provideCall())
+            .withShouldShowDoubleTapToastReturning(false)
+            .withSetVideoSendState()
+            .withSetShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
+            .arrange()
 
         ongoingCallViewModel.hideDoubleTapToast()
 
         assertEquals(false, ongoingCallViewModel.shouldShowDoubleTapToast)
-        coVerify(exactly = 1) { globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false) }
+        coVerify(exactly = 1) {
+            arrangement.globalDataStore.setShouldShowDoubleTapToastStatus(
+                currentUserId.toString(),
+                false
+            )
+        }
+    }
+
+    @Test
+    fun givenSetVideoSendStateUseCase_whenStartSendingVideoFeedIsCalled_thenInvokeUseCaseWithStartedStateOnce() =
+        runTest {
+            val (arrangement, ongoingCallViewModel) = Arrangement()
+                .withCall(provideCall())
+                .withShouldShowDoubleTapToastReturning(false)
+                .withSetVideoSendState()
+                .arrange()
+
+            ongoingCallViewModel.startSendingVideoFeed()
+
+            coVerify(exactly = 1) {
+                arrangement.setVideoSendState(any(), VideoState.STARTED)
+            }
+        }
+
+    @Test
+    fun givenSetVideoSendStateUseCase_whenPauseSendingVideoFeedIsCalled_thenInvokeUseCaseWithPausedStateOnce() =
+        runTest {
+            val (arrangement, ongoingCallViewModel) = Arrangement()
+                .withCall(provideCall())
+                .withShouldShowDoubleTapToastReturning(false)
+                .withSetVideoSendState()
+                .arrange()
+
+            ongoingCallViewModel.pauseSendingVideoFeed()
+
+            coVerify(exactly = 1) {
+                arrangement.setVideoSendState(any(), VideoState.PAUSED)
+            }
+        }
+
+    @Test
+    fun givenSetVideoSendStateUseCase_whenStopSendingVideoFeedIsCalled_thenInvokeUseCaseWithStoppedState() =
+        runTest {
+            val (arrangement, ongoingCallViewModel) = Arrangement()
+                .withCall(provideCall().copy(isCameraOn = true))
+                .withShouldShowDoubleTapToastReturning(false)
+                .withSetVideoSendState()
+                .arrange()
+
+            ongoingCallViewModel.stopSendingVideoFeed()
+
+            coVerify(exactly = 1) {
+                arrangement.setVideoSendState(any(), VideoState.STOPPED)
+            }
+        }
+
+    private class Arrangement {
+
+        @MockK
+        private lateinit var establishedCall: ObserveEstablishedCallsUseCase
+
+        @MockK
+        lateinit var requestVideoStreams: RequestVideoStreamsUseCase
+
+        @MockK
+        lateinit var setVideoSendState: SetVideoSendStateUseCase
+
+        @MockK
+        lateinit var globalDataStore: GlobalDataStore
+
+        private val ongoingCallViewModel by lazy {
+            OngoingCallViewModel(
+                conversationId = conversationId,
+                establishedCalls = establishedCall,
+                requestVideoStreams = requestVideoStreams,
+                currentUserId = currentUserId,
+                setVideoSendState = setVideoSendState,
+                globalDataStore = globalDataStore,
+            )
+        }
+
+        init {
+            MockKAnnotations.init(this)
+        }
+
+        fun arrange() = this to ongoingCallViewModel
+
+        fun withCall(call: Call) = apply {
+            coEvery { establishedCall() } returns flowOf(listOf(call))
+        }
+
+        fun withShouldShowDoubleTapToastReturning(shouldShow: Boolean) = apply {
+            coEvery { globalDataStore.getShouldShowDoubleTapToast(any()) } returns shouldShow
+        }
+
+        fun withSetVideoSendState() = apply {
+            coEvery { setVideoSendState.invoke(any(), any()) } returns Unit
+        }
+
+        fun withRequestVideoStreams(conversationId: ConversationId, clients: List<CallClient>) =
+            apply {
+                coEvery { requestVideoStreams.invoke(conversationId, clients) } returns Unit
+            }
+
+        fun withSetShouldShowDoubleTapToastStatus(userId: String, shouldShow: Boolean) = apply {
+            coEvery {
+                globalDataStore.setShouldShowDoubleTapToastStatus(
+                    userId,
+                    shouldShow
+                )
+            } returns Unit
+        }
     }
 
     companion object {
@@ -174,7 +267,12 @@ class OngoingCallViewModelTest {
         val participants = listOf(participant1, participant2, participant3)
     }
 
-    private fun provideCall(id: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")) = Call(
+    private fun provideCall(
+        id: ConversationId = ConversationId(
+            "some-dummy-value",
+            "some.dummy.domain"
+        )
+    ) = Call(
         conversationId = id,
         status = CallStatus.ESTABLISHED,
         callerId = "caller_id",

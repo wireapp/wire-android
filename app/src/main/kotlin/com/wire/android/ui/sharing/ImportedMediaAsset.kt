@@ -17,26 +17,9 @@
  */
 package com.wire.android.ui.sharing
 
-import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.util.ui.WireSessionImageLoader
 
-sealed class ImportedMediaAsset(
-    open val assetBundle: AssetBundle,
-    open val assetSizeExceeded: Int?
-) {
-    class GenericAsset(
-        override val assetBundle: AssetBundle,
-        override val assetSizeExceeded: Int?,
-    ) : ImportedMediaAsset(assetBundle, assetSizeExceeded)
-
-    class Image(
-        val width: Int,
-        val height: Int,
-        override val assetBundle: AssetBundle,
-        override val assetSizeExceeded: Int?,
-        val wireSessionImageLoader: WireSessionImageLoader
-    ) : ImportedMediaAsset(assetBundle, assetSizeExceeded) {
-        val localImageAsset = ImageAsset.LocalImageAsset(wireSessionImageLoader, assetBundle.dataPath, assetBundle.key)
-    }
-}
+data class ImportedMediaAsset(
+     val assetBundle: AssetBundle,
+     val assetSizeExceeded: Int?
+)

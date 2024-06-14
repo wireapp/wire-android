@@ -46,19 +46,17 @@ import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.AsyncImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
-import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
 import com.wire.android.ui.markdown.DisplayMention
 import com.wire.android.ui.markdown.MarkdownConstants.MENTION_MARK
 import com.wire.android.ui.markdown.MarkdownDocument
-import com.wire.android.ui.markdown.MarkdownNode
+import com.wire.android.ui.markdown.NodeActions
 import com.wire.android.ui.markdown.NodeData
-import com.wire.android.ui.markdown.toContent
+import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -71,11 +69,6 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_FOUND
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOAD_IN_PROGRESS
 import kotlinx.collections.immutable.PersistentList
 import okio.Path
-import org.commonmark.Extension
-import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
-import org.commonmark.ext.gfm.tables.TablesExtension
-import org.commonmark.node.Document
-import org.commonmark.parser.Parser
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 //       waiting for the backend to implement mapping logic for the MessageBody
@@ -103,19 +96,20 @@ internal fun MessageBody(
         typography = MaterialTheme.wireTypography,
         searchQuery = searchQuery,
         mentions = displayMentions,
-        onLongClick = onLongClick,
-        onOpenProfile = onOpenProfile,
-        onLinkClick = onLinkClick
+        actions = NodeActions(
+            onLongClick = onLongClick,
+            onOpenProfile = onOpenProfile,
+            onLinkClick = onLinkClick
+        )
     )
 
-    val extensions: List<Extension> = listOf(
-        StrikethroughExtension.builder().requireTwoTildes(true).build(),
-        TablesExtension.create()
-    )
-    text?.also {
-        val document = (Parser.builder().extensions(extensions).build().parse(it) as Document).toContent() as MarkdownNode.Document
+    val markdownDocument = remember(text) {
+        text?.toMarkdownDocument()
+    }
+
+    markdownDocument?.also {
         MarkdownDocument(
-            document,
+            it,
             nodeData,
             clickable
         )
@@ -173,19 +167,18 @@ fun MessageButtonsContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageImage(
-    asset: ImageAsset?,
+    asset: ImageAsset.Remote?,
     imgParams: ImageMessageParams,
     transferStatus: AssetTransferStatus,
-    onImageClick: Clickable,
-    shouldFillMaxWidth: Boolean = false,
-    isImportedMediaAsset: Boolean = false
+    onImageClick: Clickable
 ) {
     Box(
         Modifier
             .padding(top = MaterialTheme.wireDimensions.spacing4x)
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
             .background(
-                color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                color = MaterialTheme.wireColorScheme.onPrimary,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
             .border(
                 width = dimensions().spacing1x,
@@ -216,11 +209,7 @@ fun MessageImage(
                 )
             }
 
-            asset != null -> {
-                if (isImportedMediaAsset) ImportedImageMessage(asset, shouldFillMaxWidth)
-                else DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
-            }
-
+            asset != null -> DisplayableImageMessage(asset, imgParams.normalizedWidth, imgParams.normalizedHeight)
             // Show error placeholder
             transferStatus == FAILED_UPLOAD || transferStatus == FAILED_DOWNLOAD -> {
                 ImageMessageFailed(
@@ -234,7 +223,7 @@ fun MessageImage(
 
 @Composable
 fun MediaAssetImage(
-    asset: ImageAsset?,
+    asset: ImageAsset.Remote?,
     width: Dp,
     height: Dp,
     transferStatus: AssetTransferStatus?,
@@ -293,27 +282,6 @@ fun MediaAssetImage(
             }
         }
     }
-}
-
-@Composable
-internal fun MessageGenericAsset(
-    assetName: String,
-    assetExtension: String,
-    assetSizeInBytes: Long,
-    onAssetClick: Clickable,
-    assetTransferStatus: AssetTransferStatus,
-    shouldFillMaxWidth: Boolean = true,
-    isImportedMediaAsset: Boolean = false
-) {
-    MessageAsset(
-        assetName,
-        assetExtension,
-        assetSizeInBytes,
-        onAssetClick,
-        assetTransferStatus,
-        shouldFillMaxWidth,
-        isImportedMediaAsset
-    )
 }
 
 /**

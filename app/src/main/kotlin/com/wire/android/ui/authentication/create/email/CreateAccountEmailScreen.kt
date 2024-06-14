@@ -28,16 +28,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -49,11 +47,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -74,15 +70,18 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreateAccountDetailsScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @CreatePersonalAccountNavGraph
@@ -99,7 +98,7 @@ fun CreateAccountEmailScreen(
                 CreateAccountDetailsScreenDestination(
                     navArgs = createAccountNavArgs.copy(
                         userRegistrationInfo = UserRegistrationInfo(
-                            email = emailState.email.text.trim().lowercase()
+                            email = emailTextState.text.trim().toString().lowercase()
                         )
                     )
                 )
@@ -108,7 +107,7 @@ fun CreateAccountEmailScreen(
 
         EmailContent(
             state = emailState,
-            onEmailChange = ::onEmailChange,
+            emailTextState = emailTextState,
             onBackPressed = navigator::navigateBack,
             onContinuePressed = { onEmailContinue(::navigateToDetailsScreen) },
             onLoginPressed = { navigator.navigate(NavigationCommand(LoginScreenDestination(), BackStackMode.CLEAR_TILL_START)) },
@@ -121,11 +120,10 @@ fun CreateAccountEmailScreen(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun EmailContent(
     state: CreateAccountEmailViewState,
-    onEmailChange: (TextFieldValue) -> Unit,
+    emailTextState: TextFieldState,
     onBackPressed: () -> Unit,
     onContinuePressed: () -> Unit,
     onLoginPressed: () -> Unit,
@@ -170,14 +168,13 @@ private fun EmailContent(
                     .testTag("createTeamText")
             )
             WireTextField(
-                value = state.email,
-                onValueChange = onEmailChange,
+                textState = emailTextState,
                 placeholderText = stringResource(R.string.create_account_email_placeholder),
                 labelText = stringResource(R.string.create_account_email_label),
                 state = if (state.error is CreateAccountEmailViewState.EmailError.None) WireTextFieldState.Default
                 else WireTextFieldState.Error(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                onKeyboardAction = { keyboardController?.hide() },
                 modifier = Modifier
                     .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                     .testTag("emailField")
@@ -329,9 +326,18 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
 }
 
 @Composable
-@Preview
-fun PreviewCreateAccountEmailScreen() {
-    EmailContent(CreateAccountEmailViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, {}, {}, "",
-        ServerConfig.DEFAULT
+@PreviewMultipleThemes
+fun PreviewCreateAccountEmailScreen() = WireTheme {
+    EmailContent(
+        emailTextState = TextFieldState(),
+        state = CreateAccountEmailViewState(CreateAccountFlowType.CreatePersonalAccount),
+        onBackPressed = {},
+        onContinuePressed = {},
+        onLoginPressed = {},
+        onTermsDialogDismiss = {},
+        onTermsAccept = {},
+        onErrorDismiss = {},
+        tosUrl = "",
+        serverConfig = ServerConfig.DEFAULT
     )
 }

@@ -43,6 +43,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -87,6 +88,7 @@ class MessageMapperTest {
         val yesterday = serverDateFormatter.format(calendar.time)
 
         val (arrangement, mapper) = Arrangement().arrange()
+
         val userId1 = UserId("user-id1", "user-domain")
         val userId2 = UserId("user-id2", "user-domain")
         val message1 = arrangement.testMessage(senderUserId = userId1, date = now)
@@ -108,13 +110,15 @@ class MessageMapperTest {
         val uiMessage6 = mapper.toUIMessage(members, message6)
 
         // Then
-        assert(
+        assertEquals(
+            true,
             checkMessageData(
                 uiMessage = uiMessage1,
                 time = message1.date.uiMessageDateTime()
             )
         )
-        assert(
+        assertEquals(
+            true,
             checkMessageData(
                 uiMessage = uiMessage2,
                 time = message2.date.uiMessageDateTime(),
@@ -126,7 +130,8 @@ class MessageMapperTest {
                 )
             )
         )
-        assert(
+        assertEquals(
+            true,
             checkMessageData(
                 uiMessage = uiMessage3,
                 time = message3.date.uiMessageDateTime(),
@@ -137,7 +142,8 @@ class MessageMapperTest {
                 )
             )
         )
-        assert(
+        assertEquals(
+            true,
             checkMessageData(
                 uiMessage = uiMessage4,
                 time = message4.date.uiMessageDateTime(),
@@ -149,7 +155,8 @@ class MessageMapperTest {
             )
         )
 
-        assert(
+        assertEquals(
+            true,
             checkMessageData(
                 uiMessage = uiMessage5,
                 time = message5.date.uiMessageDateTime(),
@@ -161,7 +168,8 @@ class MessageMapperTest {
             )
         )
 
-        assert(
+        assertEquals(
+            true,
             checkMessageData(
                 uiMessage = uiMessage6,
                 time = message6.date.uiMessageDateTime(),

@@ -29,7 +29,7 @@ import com.wire.kalium.util.DateTimeUtil
 object AuthorHeaderHelper {
 
     @VisibleForTesting
-    internal const val AGGREGATION_TIME_WINDOW: Int = 30_000 // millis
+    internal const val AGGREGATION_TIME_WINDOW: Int = 30_000 // in millis
 
     private fun LazyPagingItems<UIMessage>.peekOrNull(index: Int) =
         if (index in 0 until this.itemCount) this.peek(index) else null

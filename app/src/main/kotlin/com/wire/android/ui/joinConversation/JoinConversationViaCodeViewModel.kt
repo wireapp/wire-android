@@ -18,15 +18,17 @@
 package com.wire.android.ui.joinConversation
 
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.util.EMPTY
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,14 +40,16 @@ class JoinConversationViaCodeViewModel @Inject constructor(
     var state: JoinViaDeepLinkDialogState by mutableStateOf(JoinViaDeepLinkDialogState.Idle)
         @VisibleForTesting set
 
-    var password: TextFieldValue by mutableStateOf(TextFieldValue(String.EMPTY))
-        private set
+    val passwordTextState: TextFieldState = TextFieldState()
 
-    private fun passwordOrNull() = password.text.ifBlank { null }
+    private fun passwordOrNull() = passwordTextState.text.toString().ifBlank { null }
 
-    fun onPasswordUpdated(newPassword: TextFieldValue) {
-        this.password = newPassword
-        state = JoinViaDeepLinkDialogState.Idle
+    init {
+        viewModelScope.launch {
+            passwordTextState.textAsFlow().distinctUntilChanged().collectLatest {
+                state = JoinViaDeepLinkDialogState.Idle
+            }
+        }
     }
 
     fun joinConversationViaCode(

@@ -18,14 +18,18 @@
 
 package com.wire.android.ui.home.conversations.details
 
-import SwipeableSnackbar
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
@@ -34,8 +38,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -47,7 +50,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -55,7 +57,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -67,6 +68,7 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
@@ -75,8 +77,10 @@ import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dimensions
@@ -91,7 +95,6 @@ import com.wire.android.ui.destinations.ConversationMediaScreenDestination
 import com.wire.android.ui.destinations.EditConversationNameScreenDestination
 import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
 import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
-import com.wire.android.ui.destinations.GroupConversationAllParticipantsScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
@@ -112,9 +115,15 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.GroupID
+import com.wire.kalium.logic.data.mls.CipherSuite
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 
 @RootNavGraph
 @Destination(
@@ -124,9 +133,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun GroupConversationDetailsScreen(
     navigator: Navigator,
-    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     groupConversationDetailResultRecipient: ResultRecipient<EditConversationNameScreenDestination, Boolean>,
+    viewModel: GroupConversationDetailsViewModel = hiltViewModel()
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
@@ -155,11 +164,8 @@ fun GroupConversationDetailsScreen(
 
     GroupConversationDetailsContent(
         conversationSheetContent = viewModel.conversationSheetContent,
-        bottomSheetEventsHandler = viewModel,
+        bottomSheetEventsHandler = viewModel as GroupConversationDetailsBottomSheetEventsHandler,
         onBackPressed = navigator::navigateBack,
-        openFullListPressed = {
-            navigator.navigate(NavigationCommand(GroupConversationAllParticipantsScreenDestination(viewModel.conversationId)))
-        },
         onProfilePressed = { participant ->
             when {
                 participant.isSelf -> navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
@@ -259,13 +265,12 @@ fun GroupConversationDetailsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun GroupConversationDetailsContent(
     conversationSheetContent: ConversationSheetContent?,
     bottomSheetEventsHandler: GroupConversationDetailsBottomSheetEventsHandler,
     onBackPressed: () -> Unit,
-    openFullListPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
     onAddParticipantsPressed: () -> Unit,
     onEditGuestAccess: () -> Unit,
@@ -324,9 +329,8 @@ private fun GroupConversationDetailsContent(
         archiveConversationDialogState.dismiss()
         legalHoldSubjectDialogState.dismiss()
     }
-
-    Scaffold(
-        topBar = {
+    CollapsingTopBarScaffold(
+        topBarHeader = {
             WireCenterAlignedTopAppBar(
                 elevation = elevationState,
                 titleContent = {
@@ -340,42 +344,66 @@ private fun GroupConversationDetailsContent(
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackPressed,
                 actions = { MoreOptionIcon(onButtonClicked = openBottomSheet) }
-            ) {
-                conversationSheetState.conversationSheetContent?.let {
-                    GroupConversationDetailsTopBarCollapsing(
-                        title = it.title,
-                        conversationId = it.conversationId,
-                        totalParticipants = groupParticipantsState.data.allCount,
-                        isLoading = isLoading,
-                        onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-                        onConversationMediaClick = onConversationMediaClick,
-                        isUnderLegalHold = it.isUnderLegalHold,
-                        onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } }
-                    )
-                }
-                WireTabRow(
-                    tabs = GroupConversationDetailsTabItem.entries,
-                    selectedTabIndex = currentTabState,
-                    onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
-                    divider = {} // no divider
+            )
+        },
+        topBarCollapsing = {
+            conversationSheetState.conversationSheetContent?.let {
+                GroupConversationDetailsTopBarCollapsing(
+                    title = it.title,
+                    conversationId = it.conversationId,
+                    totalParticipants = groupParticipantsState.data.allCount,
+                    isLoading = isLoading,
+                    onSearchConversationMessagesClick = onSearchConversationMessagesClick,
+                    onConversationMediaClick = onConversationMediaClick,
+                    isUnderLegalHold = it.isUnderLegalHold,
+                    onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } }
                 )
             }
         },
-        modifier = Modifier.fillMaxHeight(),
-        snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-                snackbar = { data ->
-                    SwipeableSnackbar(
-                        hostState = snackbarHostState,
-                        data = data,
-                        onDismiss = { data.dismiss() }
-                    )
-                }
+        topBarFooter = {
+            WireTabRow(
+                tabs = GroupConversationDetailsTabItem.entries,
+                selectedTabIndex = currentTabState,
+                onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
+                divider = {} // no divider
             )
         },
-    ) { internalPadding ->
+        bottomBar = {
+            AnimatedContent(
+                targetState = currentTabState,
+                label = "Conversation details bottom bar crossfade",
+                transitionSpec = {
+                    val enter = slideInVertically(initialOffsetY = { it })
+                    val exit = slideOutVertically(targetOffsetY = { it })
+                    enter.togetherWith(exit)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) { currentTabState ->
+                Surface(
+                    color = MaterialTheme.wireColorScheme.background,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    when (GroupConversationDetailsTabItem.entries[currentTabState]) {
+                        GroupConversationDetailsTabItem.OPTIONS -> {
+                            // no bottom bar for options tab
+                        }
+
+                        GroupConversationDetailsTabItem.PARTICIPANTS -> {
+                            if (groupParticipantsState.addParticipantsEnabled) {
+                                Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
+                                    WirePrimaryButton(
+                                        text = stringResource(R.string.conversation_details_group_participants_add),
+                                        onClick = onAddParticipantsPressed,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ) {
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
@@ -384,8 +412,7 @@ private fun GroupConversationDetailsContent(
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(internalPadding)
+                    .fillMaxSize()
             ) { pageIndex ->
                 when (GroupConversationDetailsTabItem.entries[pageIndex]) {
                     GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
@@ -397,8 +424,6 @@ private fun GroupConversationDetailsContent(
 
                     GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
                         groupParticipantsState = groupParticipantsState,
-                        openFullListPressed = openFullListPressed,
-                        onAddParticipantsPressed = onAddParticipantsPressed,
                         onProfilePressed = onProfilePressed,
                         lazyListState = lazyListStates[pageIndex]
                     )
@@ -538,20 +563,39 @@ private fun VerifiedLabel(text: String, color: Color, icon: @Composable RowScope
     }
 }
 
-enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: Int) : TabItem {
+enum class GroupConversationDetailsTabItem(@StringRes val titleResId: Int) : TabItem {
     OPTIONS(R.string.conversation_details_options_tab),
     PARTICIPANTS(R.string.conversation_details_participants_tab);
+
+    override val title: UIText = UIText.StringResource(titleResId)
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationDetails() {
     WireTheme {
         GroupConversationDetailsContent(
-            conversationSheetContent = null,
+            conversationSheetContent = ConversationSheetContent(
+                title = "title",
+                conversationId = ConversationId("value", "domain"),
+                mutingConversationState = MutedConversationStatus.AllAllowed,
+                conversationTypeDetail = ConversationTypeDetail.Group(ConversationId("value", "domain"), false),
+                selfRole = null,
+                isTeamConversation = true,
+                isArchived = false,
+                protocol = Conversation.ProtocolInfo.MLS(
+                    groupId = GroupID("groupId"),
+                    groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.ESTABLISHED,
+                    epoch = ULong.MIN_VALUE,
+                    keyingMaterialLastUpdate = Instant.fromEpochMilliseconds(1648654560000),
+                    cipherSuite = CipherSuite.MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
+                ),
+                mlsVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+                isUnderLegalHold = false,
+                proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED
+            ),
             bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},
-            openFullListPressed = {},
             onProfilePressed = {},
             onAddParticipantsPressed = {},
             onLeaveGroup = {},

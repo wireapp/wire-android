@@ -24,24 +24,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -56,13 +51,19 @@ import com.wire.android.ui.common.button.WireButtonState.Disabled
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.rememberTopBarElevationState
+import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.textfield.DefaultEmail
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.patternWithCallback
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.VerifyEmailScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.Patterns
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
 @Destination
@@ -78,22 +79,19 @@ fun ChangeEmailScreen(
             navigator.navigate(NavigationCommand(VerifyEmailScreenDestination(flowState.newEmail), BackStackMode.REMOVE_CURRENT))
         else ->
             ChangeEmailContent(
+                textState = viewModel.textState,
                 state = viewModel.state,
-                onEmailChange = viewModel::onEmailChange,
-                onEmailErrorAnimated = viewModel::onEmailErrorAnimated,
                 onBackPressed = navigator::navigateBack,
                 onSaveClicked = viewModel::onSaveClicked
             )
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ChangeEmailContent(
+    textState: TextFieldState,
     state: ChangeEmailState,
-    onEmailChange: (TextFieldValue) -> Unit,
     onSaveClicked: () -> Unit,
-    onEmailErrorAnimated: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -132,20 +130,13 @@ fun ChangeEmailContent(
 
                 Box {
                     ShakeAnimation { animate ->
-                        if (state.animatedEmailError) {
-                            animate()
-                            onEmailErrorAnimated()
-                        }
                         WireTextField(
-                            value = state.email,
-                            onValueChange = onEmailChange,
+                            textState = textState,
                             labelText = stringResource(R.string.email_label).uppercase(),
+                            inputTransformation = InputTransformation.patternWithCallback(Patterns.EMAIL_ADDRESS, animate),
                             state = computeEmailErrorState(state.flowState),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Text,
-                                imeAction = ImeAction.Done
-                            ),
-                            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                            keyboardOptions = KeyboardOptions.DefaultEmail,
+                            onKeyboardAction = { keyboardController?.hide() },
                             modifier = Modifier.padding(
                                 horizontal = MaterialTheme.wireDimensions.spacing16x
                             )
@@ -177,32 +168,31 @@ fun ChangeEmailContent(
 
 @Composable
 private fun computeEmailErrorState(state: ChangeEmailState.FlowState): WireTextFieldState =
-    if (state is ChangeEmailState.FlowState.Error.TextFieldError) {
-        when (state) {
-            ChangeEmailState.FlowState.Error.TextFieldError.AlreadyInUse -> WireTextFieldState.Error(
-                stringResource(id = R.string.settings_myaccount_email_already_in_use_error)
-            )
+    when (state) {
+        ChangeEmailState.FlowState.Error.TextFieldError.AlreadyInUse -> WireTextFieldState.Error(
+            stringResource(id = R.string.settings_myaccount_email_already_in_use_error)
+        )
 
-            ChangeEmailState.FlowState.Error.TextFieldError.InvalidEmail -> WireTextFieldState.Error(
-                stringResource(id = R.string.settings_myaccount_email_invalid_imail_error)
-            )
+        ChangeEmailState.FlowState.Error.TextFieldError.InvalidEmail -> WireTextFieldState.Error(
+            stringResource(id = R.string.settings_myaccount_email_invalid_imail_error)
+        )
 
-            ChangeEmailState.FlowState.Error.TextFieldError.Generic -> WireTextFieldState.Error(
-                stringResource(id = R.string.settings_myaccount_email_generic_error)
-            )
-        }
-    } else {
-        WireTextFieldState.Default
+        ChangeEmailState.FlowState.Error.TextFieldError.Generic -> WireTextFieldState.Error(
+            stringResource(id = R.string.settings_myaccount_email_generic_error)
+        )
+
+        ChangeEmailState.FlowState.Loading -> WireTextFieldState.ReadOnly
+
+        else -> WireTextFieldState.Default
     }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewChangeEmailName() {
+fun PreviewChangeEmailName() = WireTheme {
     ChangeEmailContent(
+        textState = TextFieldState(),
         state = ChangeEmailState(),
         onBackPressed = { },
         onSaveClicked = { },
-        onEmailChange = { },
-        onEmailErrorAnimated = { }
     )
 }

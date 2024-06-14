@@ -48,5 +48,6 @@ fun CoreFailure.uiText(): UIText = when (this) {
     else -> UIText.StringResource(R.string.error_unknown_message)
 }
 
-data class DialogErrorStrings(val title: String, val message: String)
-data class DialogAnnotatedErrorStrings(val title: String, val annotatedMessage: AnnotatedString)
+data class DialogErrorStrings(val title: String, val annotatedMessage: AnnotatedString) {
+    constructor(title: String, message: String) : this(title, AnnotatedString(message))
+}

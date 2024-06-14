@@ -22,7 +22,6 @@ import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -30,9 +29,6 @@ import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
-import com.wire.android.ui.navArgs
-import com.wire.android.util.CurrentScreen
-import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.Call
@@ -41,7 +37,7 @@ import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
@@ -55,6 +51,9 @@ import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.util.PlatformView
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharedFlow
@@ -66,12 +65,11 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class SharedCallingViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = SharedCallingViewModel.Factory::class)
+class SharedCallingViewModel @AssistedInject constructor(
+    @Assisted val conversationId: ConversationId,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val allCalls: GetAllCallsWithSortedParticipantsUseCase,
     private val endCall: EndCallUseCase,
@@ -88,12 +86,8 @@ class SharedCallingViewModel @Inject constructor(
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
-    private val currentScreenManager: CurrentScreenManager,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
-
-    private val callingNavArgs: CallingNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = callingNavArgs.conversationId
 
     var callState by mutableStateOf(CallState(conversationId))
 
@@ -118,18 +112,6 @@ class SharedCallingViewModel @Inject constructor(
             }
             launch {
                 observeOnSpeaker(this)
-            }
-            launch {
-                observeScreenState()
-            }
-        }
-    }
-
-    private suspend fun observeScreenState() {
-        currentScreenManager.observeCurrentScreen(viewModelScope).collect {
-            // clear video preview when the screen is in background to avoid memory leaks
-            if (it == CurrentScreen.InBackground && callState.isCameraOn) {
-                clearVideoPreview()
             }
         }
     }
@@ -225,7 +207,7 @@ class SharedCallingViewModel @Inject constructor(
         if (callState.isCameraOn) {
             flipToFrontCamera(conversationId)
         }
-        if (callState.isCameraOn || callState.isSpeakerOn) {
+        if (callState.isSpeakerOn) {
             turnLoudSpeakerOff()
         }
     }
@@ -301,5 +283,10 @@ class SharedCallingViewModel @Inject constructor(
             setVideoPreview(conversationId, PlatformView(null))
             setVideoPreview(conversationId, PlatformView(view))
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: ConversationId): SharedCallingViewModel
     }
 }

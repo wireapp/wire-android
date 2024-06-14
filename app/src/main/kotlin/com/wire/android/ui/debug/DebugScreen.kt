@@ -36,7 +36,6 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -45,6 +44,7 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MigrationScreenDestination
@@ -70,16 +70,16 @@ fun DebugScreen(navigator: Navigator) {
 private fun UserDebugContent(
     onNavigationPressed: () -> Unit,
     onManualMigrationPressed: (currentAccount: UserId) -> Unit,
-) {
+    userDebugViewModel: UserDebugViewModel = hiltViewModel(),
 
-    val userDebugViewModel: UserDebugViewModel = hiltViewModel()
+) {
     val debugContentState: DebugContentState = rememberDebugContentState(userDebugViewModel.logPath)
 
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 title = stringResource(R.string.label_debug_title),
-                elevation = 0.dp,
+                elevation = dimensions().spacing0x,
                 navigationIconType = NavigationIconType.Back,
                 onNavigationPressed = onNavigationPressed
             )

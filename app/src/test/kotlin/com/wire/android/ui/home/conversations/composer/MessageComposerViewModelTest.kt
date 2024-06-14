@@ -21,10 +21,14 @@ package com.wire.android.ui.home.conversations.composer
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.draft.MessageDraft
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -113,6 +117,7 @@ class MessageComposerViewModelTest {
         runTest {
             // given
             val messageDraft = MessageDraft(
+                conversationId = ConversationId("value", "domain"),
                 text = "hello",
                 editMessageId = null,
                 quotedMessageId = null,
@@ -128,6 +133,18 @@ class MessageComposerViewModelTest {
             advanceUntilIdle()
 
             // then
-            coVerify(exactly = 1) { arrangement.saveMessageDraftUseCase.invoke(eq(viewModel.conversationId), eq(messageDraft)) }
+            coVerify(exactly = 1) { arrangement.saveMessageDraftUseCase.invoke(eq(messageDraft)) }
         }
+
+    @Test
+    fun `given no current session, then disable interaction`() = runTest {
+        // given
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withCurrentSessionFlowResult(flowOf(CurrentSessionResult.Failure.SessionNotFound))
+            .arrange()
+        advanceUntilIdle()
+        // then
+        assertEquals(InteractionAvailability.DISABLED, viewModel.messageComposerViewState.value.interactionAvailability)
+    }
 }

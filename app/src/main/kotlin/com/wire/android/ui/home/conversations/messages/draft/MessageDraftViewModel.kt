@@ -18,7 +18,6 @@
 package com.wire.android.ui.home.conversations.messages.draft
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.SavedStateViewModel
@@ -29,6 +28,7 @@ import com.wire.android.ui.home.conversations.usecase.GetQuoteMessageForConversa
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.model.update
 import com.wire.android.ui.navArgs
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,7 +45,7 @@ class MessageDraftViewModel @Inject constructor(
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
-    var state = mutableStateOf(MessageComposition.DEFAULT.copy(messageTextFieldValue = TextFieldValue("")))
+    var state = mutableStateOf(MessageComposition(conversationId, String.EMPTY))
         private set
 
     init {
@@ -59,7 +59,7 @@ class MessageDraftViewModel @Inject constructor(
             draftResult?.let { draft ->
                 state.update { messageComposition ->
                     messageComposition.copy(
-                        messageTextFieldValue = TextFieldValue(draft.text),
+                        draftText = draft.text,
                         selectedMentions = draft.selectedMentionList.mapNotNull { it.toUiMention(draft.text) },
                         editMessageId = draft.editMessageId
                     )

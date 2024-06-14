@@ -19,17 +19,23 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.getOngoingCallIntent
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout2
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
@@ -44,16 +50,12 @@ import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
-import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversationslist.all.AllConversationScreenContent
-import com.wire.android.ui.home.conversationslist.call.CallsScreenContent
-import com.wire.android.ui.home.conversationslist.mention.MentionScreenContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
@@ -61,63 +63,96 @@ import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.isArchive
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
 import com.wire.android.util.permission.PermissionDenialType
+import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.flow.MutableSharedFlow
 
 // Since the HomeScreen is responsible for displaying the bottom sheet content,
 // we create a bridge that passes the content of the BottomSheet
 // also we expose the lambda which expands the BottomSheet from the HomeScreen
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("ComplexMethod")
 @Composable
 fun ConversationRouterHomeBridge(
     navigator: Navigator,
     conversationItemType: ConversationItemType,
-    onHomeBottomSheetContentChanged: (@Composable ColumnScope.() -> Unit) -> Unit,
-    onOpenBottomSheet: () -> Unit,
-    onCloseBottomSheet: () -> Unit,
-    onSnackBarStateChanged: (HomeSnackbarState) -> Unit,
     searchBarState: SearchBarState,
-    isBottomSheetVisible: () -> Boolean,
-    conversationsSource: ConversationsSource = ConversationsSource.MAIN
+    conversationsSource: ConversationsSource = ConversationsSource.MAIN,
+    conversationListViewModel: ConversationListViewModel = hiltViewModel(),
+    conversationCallListViewModel: ConversationCallListViewModel = hiltViewModel(),
 ) {
+    var currentSheetConversationItem by remember {
+        mutableStateOf<ConversationItem?>(null)
+    }
+    var currentConversationOptionNavigation by remember {
+        mutableStateOf<ConversationOptionNavigation>(ConversationOptionNavigation.Home)
+    }
+
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { true },
+    )
+    val coroutineScope = rememberCoroutineScope()
+
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
-    val viewModel: ConversationListViewModel = hiltViewModel()
+    val activity = LocalActivity.current
 
     LaunchedEffect(conversationsSource) {
-        viewModel.updateConversationsSource(conversationsSource)
+        conversationListViewModel.updateConversationsSource(conversationsSource)
+    }
+
+    LaunchedEffect(key1 = currentSheetConversationItem) {
+        if (currentSheetConversationItem != null) {
+            sheetState.show()
+        } else {
+            sheetState.hide()
+        }
+    }
+
+    LaunchedEffect(sheetState.currentValue) {
+        if (sheetState.currentValue == SheetValue.Hidden) {
+            currentSheetConversationItem = null
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        conversationListViewModel.infoMessage.collect {
+            currentSheetConversationItem = null
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        conversationListViewModel.closeBottomSheet.collect {
+            currentSheetConversationItem = null
+        }
     }
 
     val conversationRouterHomeState = rememberConversationRouterState(
         initialConversationItemType = conversationItemType,
-        homeSnackBarState = viewModel.homeSnackBarState,
-        closeBottomSheetState = viewModel.closeBottomSheet,
-        requestInProgress = viewModel.requestInProgress,
-        onSnackBarStateChanged = onSnackBarStateChanged,
-        onCloseBottomSheet = onCloseBottomSheet,
+        requestInProgress = conversationListViewModel.requestInProgress
     )
 
     with(searchBarState) {
         LaunchedEffect(isSearchActive) {
             if (isSearchActive) {
-                viewModel.refreshMissingMetadata()
+                conversationListViewModel.refreshMissingMetadata()
                 conversationRouterHomeState.openSearch()
             } else {
                 conversationRouterHomeState.closeSearch()
             }
         }
 
-        LaunchedEffect(searchQuery) {
-            viewModel.searchConversation(searchQuery)
+        LaunchedEffect(searchQueryTextState.text) {
+            conversationListViewModel.searchQueryChanged(searchQueryTextState.text.toString())
         }
     }
 
     fun showConfirmationDialogOrUnarchive(): (DialogState) -> Unit {
         return { dialogState ->
             if (dialogState.isArchived) {
-                viewModel.moveConversationToArchive(dialogState)
+                conversationListViewModel.moveConversationToArchive(dialogState)
             } else {
                 conversationRouterHomeState.archiveConversationDialogState.show(dialogState)
             }
@@ -125,69 +160,10 @@ fun ConversationRouterHomeBridge(
     }
 
     with(conversationRouterHomeState) {
-        fun openConversationBottomSheet(
-            conversationItem: ConversationItem,
-            conversationOptionNavigation: ConversationOptionNavigation = ConversationOptionNavigation.Home
-        ) {
-            onHomeBottomSheetContentChanged {
-                // if we just use [conversationItem] we won't be able to observe changes in conversation details (e.g. name changing).
-                // So we need to find ConversationItem in the State by id and use it for BottomSheet content.
-                val item: ConversationItem? = viewModel.conversationListState.findConversationById(conversationItem.conversationId)
-
-                val conversationState = rememberConversationSheetState(
-                    conversationItem = item ?: conversationItem,
-                    conversationOptionNavigation = conversationOptionNavigation
-                )
-                // if we reopen the BottomSheet of the previous conversation for example:
-                // when the user swipes down the BottomSheet manually when having mute option open
-                // we want to reopen it in the "home" section, but ONLY when the user reopens the BottomSheet
-                // by holding the conversation item, not when the notification icon is pressed, therefore when
-                // conversationOptionNavigation is equal to ConversationOptionNavigation.MutingNotificationOption
-                conversationState.conversationId?.let { conversationId ->
-                    if (conversationId == conversationItem.conversationId &&
-                        conversationOptionNavigation != ConversationOptionNavigation.MutingNotificationOption
-                    ) {
-                        conversationState.toHome()
-                    }
-                }
-
-                ConversationSheetContent(
-                    conversationSheetState = conversationState,
-                    onMutingConversationStatusChange = {
-                        viewModel.muteConversation(
-                            conversationId = conversationState.conversationId,
-                            mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
-                        )
-                    },
-                    addConversationToFavourites = viewModel::addConversationToFavourites,
-                    moveConversationToFolder = viewModel::moveConversationToFolder,
-                    updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
-                    clearConversationContent = clearContentDialogState::show,
-                    blockUser = blockUserDialogState::show,
-                    unblockUser = unblockUserDialogState::show,
-                    leaveGroup = leaveGroupDialogState::show,
-                    deleteGroup = deleteGroupDialogState::show,
-                    closeBottomSheet = onCloseBottomSheet,
-                    isBottomSheetVisible = isBottomSheetVisible
-                )
-            }
-            onOpenBottomSheet()
-        }
-
         val onEditConversationItem: (ConversationItem) -> Unit = remember {
-            { conversationItem ->
-                openConversationBottomSheet(
-                    conversationItem = conversationItem
-                )
-            }
-        }
-
-        val onEditNotifications: (ConversationItem) -> Unit = remember {
-            { conversationItem ->
-                openConversationBottomSheet(
-                    conversationItem = conversationItem,
-                    conversationOptionNavigation = ConversationOptionNavigation.MutingNotificationOption
-                )
+            {
+                currentSheetConversationItem = it
+                currentConversationOptionNavigation = ConversationOptionNavigation.Home
             }
         }
 
@@ -198,10 +174,14 @@ fun ConversationRouterHomeBridge(
             { userId -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId))) }
         }
         val onJoinedCall: (ConversationId) -> Unit = remember(navigator) {
-            { conversationId -> navigator.navigate(NavigationCommand(OngoingCallScreenDestination(conversationId))) }
+            {
+                getOngoingCallIntent(activity, it.toString()).run {
+                    activity.startActivity(this)
+                }
+            }
         }
 
-        with(viewModel.conversationListState) {
+        with(conversationListViewModel.conversationListState) {
             when (conversationRouterHomeState.conversationItemType) {
                 ConversationItemType.ALL_CONVERSATIONS ->
                     AllConversationScreenContent(
@@ -221,27 +201,11 @@ fun ConversationRouterHomeBridge(
                                     )
                                 )
                             }
-                        }
-                    )
-
-                ConversationItemType.CALLS ->
-                    CallsScreenContent(
-                        missedCalls = missedCalls,
-                        callHistory = callHistory,
-                        onCallItemClick = onOpenConversation,
-                        onEditConversationItem = onEditConversationItem,
-                        onOpenUserProfile = onOpenUserProfile,
-                        openConversationNotificationsSettings = onEditNotifications
-                    )
-
-                ConversationItemType.MENTIONS ->
-                    MentionScreenContent(
-                        unreadMentions = unreadMentions,
-                        allMentions = allMentions,
-                        onMentionItemClick = onOpenConversation,
-                        onEditConversationItem = onEditConversationItem,
-                        onOpenUserProfile = onOpenUserProfile,
-                        openConversationNotificationsSettings = onEditNotifications
+                        },
+                        conversationListCallState = conversationCallListViewModel.conversationListCallState,
+                        dismissJoinCallAnywayDialog = conversationCallListViewModel::dismissJoinCallAnywayDialog,
+                        joinCallAnyway = conversationCallListViewModel::joinAnyway,
+                        joinOngoingCall = conversationCallListViewModel::joinOngoingCall
                     )
 
                 ConversationItemType.SEARCH -> {
@@ -252,7 +216,9 @@ fun ConversationRouterHomeBridge(
                         onOpenConversation = onOpenConversation,
                         onEditConversation = onEditConversationItem,
                         onOpenUserProfile = onOpenUserProfile,
-                        onJoinCall = { viewModel.joinOngoingCall(it, onJoinedCall) },
+                        onJoinCall = {
+                            conversationCallListViewModel.joinOngoingCall(it, onJoinedCall)
+                        },
                         onPermissionPermanentlyDenied = { }
                     )
                 }
@@ -267,42 +233,81 @@ fun ConversationRouterHomeBridge(
         BlockUserDialogContent(
             isLoading = requestInProgress,
             dialogState = blockUserDialogState,
-            onBlock = viewModel::blockUser
+            onBlock = conversationListViewModel::blockUser
         )
 
         DeleteConversationGroupDialog(
             isLoading = requestInProgress,
             dialogState = deleteGroupDialogState,
-            onDeleteGroup = viewModel::deleteGroup
+            onDeleteGroup = conversationListViewModel::deleteGroup
         )
 
         LeaveConversationGroupDialog(
             dialogState = leaveGroupDialogState,
             isLoading = requestInProgress,
-            onLeaveGroup = viewModel::leaveGroup
+            onLeaveGroup = conversationListViewModel::leaveGroup
         )
 
         UnblockUserDialogContent(
             dialogState = unblockUserDialogState,
-            onUnblock = viewModel::unblockUser,
+            onUnblock = conversationListViewModel::unblockUser,
             isLoading = requestInProgress,
         )
 
         ClearConversationContentDialog(
             dialogState = clearContentDialogState,
             isLoading = requestInProgress,
-            onClearConversationContent = viewModel::clearConversationContent
+            onClearConversationContent = conversationListViewModel::clearConversationContent
         )
 
         ArchiveConversationDialog(
             dialogState = archiveConversationDialogState,
-            onArchiveButtonClicked = viewModel::moveConversationToArchive
+            onArchiveButtonClicked = conversationListViewModel::moveConversationToArchive
         )
+
+        currentSheetConversationItem?.let {
+            WireModalSheetLayout2(
+                sheetState = sheetState,
+                coroutineScope = coroutineScope,
+                sheetContent = {
+                    val conversationState = rememberConversationSheetState(
+                        conversationItem = it,
+                        conversationOptionNavigation = currentConversationOptionNavigation
+                    )
+
+                    ConversationSheetContent(
+                        conversationSheetState = conversationState,
+                        onMutingConversationStatusChange = {
+                            conversationListViewModel.muteConversation(
+                                conversationId = conversationState.conversationId,
+                                mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
+                            )
+                        },
+                        addConversationToFavourites = conversationListViewModel::addConversationToFavourites,
+                        moveConversationToFolder = conversationListViewModel::moveConversationToFolder,
+                        updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
+                        clearConversationContent = clearContentDialogState::show,
+                        blockUser = blockUserDialogState::show,
+                        unblockUser = unblockUserDialogState::show,
+                        leaveGroup = leaveGroupDialogState::show,
+                        deleteGroup = deleteGroupDialogState::show,
+                        closeBottomSheet = {
+                            currentSheetConversationItem = null
+                        }
+                    )
+                },
+                onCloseBottomSheet = {
+                    currentSheetConversationItem = null
+                }
+            )
+        }
 
         BackHandler(conversationItemType == ConversationItemType.SEARCH) {
             closeSearch()
         }
     }
+
+    SnackBarMessageHandler(infoMessages = conversationListViewModel.infoMessage)
 }
 
 @Suppress("LongParameterList")
@@ -333,10 +338,6 @@ class ConversationRouterState(
 @Composable
 fun rememberConversationRouterState(
     initialConversationItemType: ConversationItemType,
-    homeSnackBarState: MutableSharedFlow<HomeSnackbarState>,
-    onSnackBarStateChanged: (HomeSnackbarState) -> Unit,
-    closeBottomSheetState: MutableSharedFlow<Unit>,
-    onCloseBottomSheet: () -> Unit,
     requestInProgress: Boolean
 ): ConversationRouterState {
 
@@ -346,14 +347,6 @@ fun rememberConversationRouterState(
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val clearContentDialogState = rememberVisibilityState<DialogState>()
     val archiveConversationDialogState = rememberVisibilityState<DialogState>()
-
-    LaunchedEffect(Unit) {
-        homeSnackBarState.collect { onSnackBarStateChanged(it) }
-    }
-
-    LaunchedEffect(Unit) {
-        closeBottomSheetState.collect { onCloseBottomSheet() }
-    }
 
     val conversationRouterState = remember(initialConversationItemType) {
         ConversationRouterState(
@@ -385,5 +378,5 @@ fun rememberConversationRouterState(
 }
 
 enum class ConversationItemType {
-    ALL_CONVERSATIONS, CALLS, MENTIONS, SEARCH;
+    ALL_CONVERSATIONS, SEARCH;
 }

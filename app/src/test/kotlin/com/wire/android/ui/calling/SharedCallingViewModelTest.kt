@@ -19,16 +19,12 @@
 package com.wire.android.ui.calling
 
 import android.view.View
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
-import com.wire.android.ui.navArgs
-import com.wire.android.util.CurrentScreen
-import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
@@ -50,7 +46,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -62,9 +57,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 class SharedCallingViewModelTest {
-
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     private lateinit var allCalls: GetAllCallsWithSortedParticipantsUseCase
@@ -114,9 +106,6 @@ class SharedCallingViewModelTest {
     @MockK
     private lateinit var userTypeMapper: UserTypeMapper
 
-    @MockK
-    private lateinit var currentScreenManager: CurrentScreenManager
-
     @MockK(relaxed = true)
     private lateinit var onCompleted: () -> Unit
 
@@ -131,18 +120,13 @@ class SharedCallingViewModelTest {
 
     @BeforeEach
     fun setup() {
-        val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         MockKAnnotations.init(this)
-        every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
         coEvery { allCalls.invoke() } returns emptyFlow()
         coEvery { observeConversationDetails.invoke(any()) } returns emptyFlow()
         coEvery { observeSpeaker.invoke() } returns emptyFlow()
-        coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(
-            CurrentScreen.SomeOther
-        )
 
         sharedCallingViewModel = SharedCallingViewModel(
-            savedStateHandle = savedStateHandle,
+            conversationId = conversationId,
             conversationDetails = observeConversationDetails,
             allCalls = allCalls,
             endCall = endCall,
@@ -159,7 +143,6 @@ class SharedCallingViewModelTest {
             uiCallParticipantMapper = uiCallParticipantMapper,
             wireSessionImageLoader = wireSessionImageLoader,
             userTypeMapper = userTypeMapper,
-            currentScreenManager = currentScreenManager,
             dispatchers = TestDispatcherProvider()
         )
     }

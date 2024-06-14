@@ -85,9 +85,18 @@
                 android:name=".ui.AppLockActivity"
                 android:exported="true"
                 android:hardwareAccelerated="true"
-                android:launchMode="singleTask"
+                android:launchMode="singleTop"
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".ui.calling.CallActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="portrait"
+            android:taskAffinity="wire.call"
+            android:theme="@style/AppTheme" />
 
         <activity
                 android:name=".ui.WireActivity"
@@ -97,6 +106,7 @@
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.SplashScreen"
                 android:windowSoftInputMode="adjustResize|stateHidden">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

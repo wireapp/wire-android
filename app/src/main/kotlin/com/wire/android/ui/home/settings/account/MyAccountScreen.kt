@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -71,6 +70,9 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.toTitleCase
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -143,11 +145,11 @@ private fun mapToUISections(
     navigateToChangeDisplayName: () -> Unit,
     navigateToChangeHandle: () -> Unit,
     navigateToChangeEmail: () -> Unit
-): List<AccountDetailsItem> {
+): ImmutableList<AccountDetailsItem> {
     return with(state) {
         listOfNotNull(
             if (fullName.isNotBlank()) {
-                DisplayName(fullName, clickableActionIfPossible(state.isReadOnlyAccount, navigateToChangeDisplayName))
+                DisplayName(fullName, clickableActionIfPossible(!state.isEditNameAllowed, navigateToChangeDisplayName))
             } else {
                 null
             },
@@ -162,7 +164,7 @@ private fun mapToUISections(
             ) else null,
             if (!teamName.isNullOrBlank()) Team(teamName) else null,
             if (domain.isNotBlank()) Domain(domain) else null
-        )
+        ).toImmutableList()
     }
 }
 
@@ -171,7 +173,7 @@ private fun clickableActionIfPossible(shouldDisableAction: Boolean, action: () -
 
 @Composable
 fun MyAccountContent(
-    accountDetailItems: List<AccountDetailsItem> = emptyList(),
+    accountDetailItems: ImmutableList<AccountDetailsItem>,
     forgotPasswordUrl: String?,
     canDeleteAccount: Boolean,
     onDeleteAccountClicked: () -> Unit,
@@ -186,7 +188,7 @@ fun MyAccountContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onNavigateBack,
-                elevation = 0.dp,
+                elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.settings_your_account_label)
             )
         },
@@ -262,7 +264,7 @@ fun MyAccountContent(
 @Composable
 fun PreviewMyAccountScreen() {
     MyAccountContent(
-        accountDetailItems = listOf(
+        accountDetailItems = persistentListOf(
             DisplayName("Bob", Clickable(enabled = true) {}),
             Username("@bob_wire", Clickable(enabled = true) {}),
             Email("bob@wire.com", Clickable(enabled = true) {}),

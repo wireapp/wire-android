@@ -162,6 +162,7 @@ class WireActivityViewModel @Inject constructor(
         observeAppThemeState()
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun shouldEnrollToE2ei() = viewModelScope.async(dispatchers.io()) {
         try {
             val userId = userIdDeferred.await()
@@ -187,6 +188,7 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun observeSyncState() {
         viewModelScope.launch(dispatchers.io()) {
             try {
@@ -198,7 +200,7 @@ class WireActivityViewModel @Inject constructor(
                         .distinctUntilChanged()
                         .collect { _observeSyncFlowState.emit(it) }
                 }
-            } catch (e: Exception) {
+            } catch (e: NullPointerException) {
                 appLogger.e("Error while observing sync state: $e")
             }
         }
@@ -231,6 +233,7 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun observeScreenshotCensoringConfigState() {
         viewModelScope.launch(dispatchers.io()) {
             try {
@@ -247,7 +250,7 @@ class WireActivityViewModel @Inject constructor(
                         screenshotCensoringEnabled = false
                     )
                 }
-            } catch (e: NullPointerException) {
+            } catch (exception: NullPointerException) {
                 globalAppState = globalAppState.copy(
                     screenshotCensoringEnabled = false
                 )

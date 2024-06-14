@@ -265,11 +265,11 @@ class WireActivityViewModel @Inject constructor(
         val shouldLogin = viewModelScope.async(dispatchers.io()) {
             shouldLogIn()
         }
-        val shouldEnrollToE2ei = shouldEnrollToE2ei().await()
+        val shouldEnrollToE2ei = shouldEnrollToE2ei()
         return when {
             shouldMigrate.await() -> InitialAppState.NOT_MIGRATED
             shouldLogin.await() -> InitialAppState.NOT_LOGGED_IN
-            shouldEnrollToE2ei -> InitialAppState.ENROLL_E2EI
+            shouldEnrollToE2ei.await() -> InitialAppState.ENROLL_E2EI
             else -> InitialAppState.LOGGED_IN
         }
     }
@@ -506,17 +506,15 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
     }
 
-    private suspend fun shouldLogIn(): Boolean = !hasValidCurrentSession().await()
+    private suspend fun shouldLogIn(): Boolean = !hasValidCurrentSession()
 
-    private fun hasValidCurrentSession(): Deferred<Boolean> =
-        viewModelScope.async(dispatchers.io()) {
-            // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
-            currentSessionFlow.get().invoke().first().let {
-                when (it) {
-                    is CurrentSessionResult.Failure.Generic -> false
-                    CurrentSessionResult.Failure.SessionNotFound -> false
-                    is CurrentSessionResult.Success -> true
-                }
+    private suspend fun hasValidCurrentSession(): Boolean =
+        // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
+        currentSessionFlow.get().invoke().first().let {
+            when (it) {
+                is CurrentSessionResult.Failure.Generic -> false
+                CurrentSessionResult.Failure.SessionNotFound -> false
+                is CurrentSessionResult.Success -> true
             }
         }
 

@@ -1,7 +1,7 @@
 build:
-    maxIssues: 0
+#    maxIssues: 0
     excludeCorrectable: false
-    weights:
+#    weights:
     # complexity: 2
     # LongParameterList: 1
     # style: 1
@@ -10,7 +10,6 @@ build:
 config:
     validation: true
     # when writing own rules with new properties, exclude the property path e.g.: 'my_rule_set,.*>.*>[my_property]'
-    excludes: ''
 
 processors:
     active: true
@@ -59,15 +58,15 @@ complexity:
     active: true
     ComplexCondition:
         active: true
-        threshold: 4
+        allowedConditions: 4
     ComplexInterface:
         active: false
-        threshold: 10
+        allowedDefinitions: 10
         includeStaticDeclarations: false
         includePrivateDeclarations: false
     CyclomaticComplexMethod:
         active: true
-        threshold: 15
+        allowedComplexity: 15
         ignoreSingleWhenExpression: false
         ignoreSimpleWhenEntries: false
         ignoreNestingFunctions: false
@@ -77,39 +76,39 @@ complexity:
         ignoredLabels: [ ]
     LargeClass:
         active: true
-        threshold: 600
+        allowedLines: 600
     LongMethod:
         active: true
-        threshold: 60
+        allowedLines: 60
         ignoreAnnotated: [ 'Composable' ]
     LongParameterList:
         active: true
-        functionThreshold: 6
-        constructorThreshold: 10
+        allowedFunctionParameters: 6
+        allowedConstructorParameters: 10
         ignoreDefaultParameters: false
         ignoreDataClasses: true
         ignoreAnnotated: [ 'Composable' ]
     MethodOverloading:
         active: false
-        threshold: 6
+        allowedOverloads: 6
     NestedBlockDepth:
         active: true
-        threshold: 4
+        allowedDepth: 4
     StringLiteralDuplication:
         active: false
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
-        threshold: 3
+        allowedDuplications: 3
         ignoreAnnotation: true
-        excludeStringsWithLessThan5Characters: true
+        allowedWithLengthLessThan: 5
         ignoreStringsRegex: '$^'
     TooManyFunctions:
         active: true
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
-        thresholdInFiles: 14
-        thresholdInClasses: 14
-        thresholdInInterfaces: 14
-        thresholdInObjects: 14
-        thresholdInEnums: 14
+        allowedFunctionsPerFile: 14
+        allowedFunctionsPerClass: 14
+        allowedFunctionsPerInterface: 14
+        allowedFunctionsPerObject: 14
+        allowedFunctionsPerEnum: 14
         ignoreDeprecated: false
         ignorePrivate: false
         ignoreOverridden: false
@@ -145,7 +144,7 @@ empty-blocks:
         active: true
     EmptyInitBlock:
         active: true
-    EmptyKtFile:
+    EmptyKotlinFile:
         active: true
     EmptySecondaryConstructor:
         active: true
@@ -348,11 +347,11 @@ naming:
         active: false
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
         forbiddenName: [ ]
-    FunctionMaxLength:
+    FunctionNameMaxLength:
         active: false
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
         maximumFunctionNameLength: 30
-    FunctionMinLength:
+    FunctionNameMinLength:
         active: false
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
         minimumFunctionNameLength: 3
@@ -466,6 +465,12 @@ potential-bugs:
 
 style:
     active: true
+    AbstractClassCanBeConcreteClass:
+      active: true
+      ignoreAnnotated: [ 'dagger.Module' ]
+    AbstractClassCanBeInterface:
+      active: true
+      ignoreAnnotated: [ 'dagger.Module' ]
     BracesOnWhenStatements:
         active: false
     BracesOnIfStatements:
@@ -533,7 +538,7 @@ style:
         excludePackageStatements: true
         excludeImportStatements: true
         excludeCommentStatements: false
-    MayBeConst:
+    MayBeConstant:
         active: true
     ModifierOrder:
         active: true
@@ -551,9 +556,11 @@ style:
         active: false
     ProtectedMemberInFinalClass:
         active: true
+    RangeUntilInsteadOfRangeTo:
+      active: false
     RedundantExplicitType:
         active: false
-    RedundantVisibilityModifierRule:
+    RedundantVisibilityModifier:
         active: false
     ReturnCount:
         active: true
@@ -566,7 +573,7 @@ style:
         active: true
     SerialVersionUIDInSerializableClass:
         active: false
-    SpacingBetweenPackageAndImports:
+    SpacingAfterPackageDeclaration:
         active: false
     ThrowsCount:
         active: true
@@ -576,9 +583,6 @@ style:
     UnderscoresInNumericLiterals:
         active: false
         acceptableLength: 5
-    UnnecessaryAbstractClass:
-        active: true
-        ignoreAnnotated: [ 'dagger.Module' ]
     UnnecessaryAnnotationUseSiteTarget:
         active: false
     UnnecessaryApply:
@@ -589,13 +593,11 @@ style:
         active: false
     UnnecessaryParentheses:
         active: false
-    UntilInsteadOfRangeTo:
-        active: false
-    UnusedImports:
+    UnusedImport:
         active: false
     UnusedPrivateClass:
         active: true
-    UnusedPrivateMember:
+    UnusedPrivateFunction:
         active: false
         allowedNames: '(_|ignored|expected|serialVersionUID)'
     UseArrayLiteralsInAnnotations:

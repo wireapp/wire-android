@@ -70,10 +70,10 @@ class SelfDevicesViewModel @Inject constructor(
                             isLoadingClientsList = false,
                             currentDevice = result.clients
                                 .firstOrNull { it.id == currentClientId }
-                                ?.let { Device(it, e2eiCertificates[it.id.value]?.status) },
+                                ?.let { Device(it, e2eiCertificates[it.id.value]) },
                             deviceList = result.clients
                                 .filter { it.id != currentClientId }
-                                .map { Device(it, e2eiCertificates[it.id.value]?.status) }
+                                .map { Device(it, e2eiCertificates[it.id.value]) }
                         )
                     }
                 }

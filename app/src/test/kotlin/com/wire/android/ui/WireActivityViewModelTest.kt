@@ -741,26 +741,26 @@ class WireActivityViewModelTest {
 
         private val viewModel by lazy {
             WireActivityViewModel(
-                coreLogic = coreLogic,
-                dispatchers = TestDispatcherProvider(),
-                currentSessionFlow = currentSessionFlow,
-                doesValidSessionExist = doesValidSessionExist,
-                getServerConfigUseCase = getServerConfigUseCase,
-                deepLinkProcessor = deepLinkProcessor,
-                authServerConfigProvider = authServerConfigProvider,
-                getSessions = getSessionsUseCase,
-                accountSwitch = switchAccount,
-                migrationManager = migrationManager,
-                servicesManager = servicesManager,
+                coreLogic = { coreLogic },
+                dispatchers = { TestDispatcherProvider() },
+                currentSessionFlow = { currentSessionFlow },
+                doesValidSessionExist = { doesValidSessionExist },
+                getServerConfigUseCase = { getServerConfigUseCase },
+                deepLinkProcessor = { deepLinkProcessor },
+                authServerConfigProvider = { authServerConfigProvider },
+                getSessions = { getSessionsUseCase },
+                accountSwitch = { switchAccount },
+                migrationManager = { migrationManager },
+                servicesManager = { servicesManager },
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
-                observeIfAppUpdateRequired = observeIfAppUpdateRequired,
-                observeNewClients = observeNewClients,
-                clearNewClientsForUser = clearNewClientsForUser,
-                currentScreenManager = currentScreenManager,
+                observeIfAppUpdateRequired = { observeIfAppUpdateRequired },
+                observeNewClients = { observeNewClients },
+                clearNewClientsForUser = { clearNewClientsForUser },
+                currentScreenManager = { currentScreenManager },
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
-                globalDataStore = globalDataStore,
+                globalDataStore = { globalDataStore },
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
-                workManager = workManager
+                workManager = { workManager }
             )
         }
 

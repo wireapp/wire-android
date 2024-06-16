@@ -416,36 +416,6 @@ pipeline {
                         }
                     }
                 }
-                stage('Upload to Wire Beta') {
-                    when {
-                        expression {
-                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
-                                    params.RUN_ACCEPTANCE_TESTS &&
-                                    params.RUN_UNIT_TEST &&
-                                    params.RUN_STATIC_CODE_ANALYSIS &&
-                                    params.UPLOAD_TO_S3 &&
-                                    params.FLAVOR == 'Beta' &&
-                                    params.SOURCE_BRANCH == 'main' &&
-                                    params.BUILD_TYPE == 'Release' &&
-                                    params.CHANGE_ID == null
-                        }
-                    }
-                    steps {
-                        script {
-                            def trackName = "internal"
-                            echo 'Checking folder before playstore upload'
-                            sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
-                            echo 'Uploading file to Playstore track internal'
-                            androidApkUpload(
-                                    googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
-                                    filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
-                                    trackName: trackName,
-                                    rolloutPercentage: '100',
-                                    releaseName: "${trackName} Release"
-                            )
-                        }
-                    }
-                }
 
                 stage('Upload to Wire Prod') {
                     when {

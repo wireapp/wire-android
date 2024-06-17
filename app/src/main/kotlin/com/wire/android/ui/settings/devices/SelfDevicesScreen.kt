@@ -28,12 +28,14 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -48,6 +50,7 @@ import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.settings.devices.model.SelfDevicesState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.lifecycle.rememberLifecycleEvent
 
 @RootNavGraph
 @Destination
@@ -56,6 +59,11 @@ fun SelfDevicesScreen(
     navigator: Navigator,
     viewModel: SelfDevicesViewModel = hiltViewModel()
 ) {
+    val lifecycleEvent = rememberLifecycleEvent()
+    LaunchedEffect(lifecycleEvent) {
+        if (lifecycleEvent == Lifecycle.Event.ON_RESUME) viewModel.loadCertificates()
+    }
+
     SelfDevicesScreenContent(
         state = viewModel.state,
         onNavigateBack = navigator::navigateBack,
@@ -97,7 +105,7 @@ fun SelfDevicesScreenContent(
                                 isE2EIEnabled = state.isE2EIEnabled,
                                 onDeviceClick = onDeviceClick,
 
-                            )
+                                )
                         }
                         folderDeviceItems(
                             header = context.getString(R.string.other_devices_label),
@@ -113,6 +121,7 @@ fun SelfDevicesScreenContent(
         }
     )
 }
+
 @Suppress("LongParameterList")
 private fun LazyListScope.folderDeviceItems(
     header: String,

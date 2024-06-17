@@ -1,6 +1,5 @@
 import customization.ConfigurationFileImporter
 import customization.NormalizedFlavorSettings
-import scripts.Variants_gradle
 
 /*
  * Wire
@@ -48,6 +47,7 @@ repositories {
 
 val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
 val fossFlavors = setOf("fdroid")
+val internalFlavors = setOf("internal", "staging", "beta", "dev")
 val allFlavors = nonFreeFlavors + fossFlavors
 
 private fun getFlavorsSettings(): NormalizedFlavorSettings =
@@ -60,6 +60,15 @@ private fun getFlavorsSettings(): NormalizedFlavorSettings =
     }
 
 android {
+    defaultConfig {
+        val datadogApiKeyKey = "DATADOG_CLIENT_TOKEN"
+        val apiKey: String? = System.getenv(datadogApiKeyKey) ?: project.getLocalProperty(datadogApiKeyKey, null)
+        buildConfigField("String", "DATADOG_CLIENT_TOKEN", apiKey?.let { "\"$it\"" } ?: "null")
+
+        val datadogAppId = "DATADOG_APP_ID"
+        val appId: String? = System.getenv(datadogAppId) ?: project.getLocalProperty(datadogAppId, null)
+        buildConfigField("String", datadogAppId, appId?.let { "\"$it\"" } ?: "null")
+    }
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin
 
@@ -77,6 +86,14 @@ android {
     sourceSets {
         allFlavors.forEach { flavor ->
             getByName(flavor) {
+                if (flavor in internalFlavors) {
+                    java.srcDirs("src/private/kotlin")
+                    println("Adding external datadog logger internal sourceSets to '$flavor' flavor")
+                } else {
+                    java.srcDirs("src/public/kotlin")
+                    println("Adding external datadog logger sourceSets to '$flavor' flavor")
+                }
+
                 if (flavor in fossFlavors) {
                     java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
                     res.srcDirs("src/prod/res")
@@ -204,9 +221,9 @@ dependencies {
     flavors.flavorMap.entries.forEach { (key, configs) ->
         if (configs["analytics_enabled"] as? Boolean == true) {
             println(">> Adding Anonymous Analytics dependency to [$key] flavor")
-            add("${key}Implementation",project(":core:analytics-enabled"))
+            add("${key}Implementation", project(":core:analytics-enabled"))
         } else {
-            add("${key}Implementation",project(":core:analytics-disabled"))
+            add("${key}Implementation", project(":core:analytics-disabled"))
         }
     }
 

@@ -87,8 +87,11 @@ android {
         allFlavors.forEach { flavor ->
             getByName(flavor) {
                 if (flavor in internalFlavors) {
-                    java.srcDirs("src/external-logger-enabled/kotlin")
+                    java.srcDirs("src/private/kotlin")
                     println("Adding external datadog logger internal sourceSets to '$flavor' flavor")
+                } else {
+                    java.srcDirs("src/public/kotlin")
+                    println("Adding external datadog logger sourceSets to '$flavor' flavor")
                 }
 
                 if (flavor in fossFlavors) {

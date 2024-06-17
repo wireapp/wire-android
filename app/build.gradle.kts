@@ -1,6 +1,5 @@
 import customization.ConfigurationFileImporter
 import customization.NormalizedFlavorSettings
-import java.util.Properties
 
 /*
  * Wire
@@ -62,19 +61,12 @@ private fun getFlavorsSettings(): NormalizedFlavorSettings =
 
 android {
     defaultConfig {
-
-        val localProperties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            localProperties.load(localPropertiesFile.inputStream())
-        }
-
         val datadogApiKeyKey = "DATADOG_CLIENT_TOKEN"
-        val apiKey: String? = System.getenv(datadogApiKeyKey) ?: localProperties.getProperty(datadogApiKeyKey)
+        val apiKey: String? = System.getenv(datadogApiKeyKey) ?: project.getLocalProperty(datadogApiKeyKey, null)
         buildConfigField("String", "DATADOG_CLIENT_TOKEN", apiKey?.let { "\"$it\"" } ?: "null")
 
         val datadogAppId = "DATADOG_APP_ID"
-        val appId: String? = System.getenv(datadogAppId) ?: localProperties.getProperty(datadogAppId)
+        val appId: String? = System.getenv(datadogAppId) ?: project.getLocalProperty(datadogAppId, null)
         buildConfigField("String", datadogAppId, appId?.let { "\"$it\"" } ?: "null")
     }
     // Most of the configuration is done in the build-logic
@@ -226,9 +218,9 @@ dependencies {
     flavors.flavorMap.entries.forEach { (key, configs) ->
         if (configs["analytics_enabled"] as? Boolean == true) {
             println(">> Adding Anonymous Analytics dependency to [$key] flavor")
-            add("${key}Implementation",project(":core:analytics-enabled"))
+            add("${key}Implementation", project(":core:analytics-enabled"))
         } else {
-            add("${key}Implementation",project(":core:analytics-disabled"))
+            add("${key}Implementation", project(":core:analytics-disabled"))
         }
     }
 

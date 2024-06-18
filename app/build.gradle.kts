@@ -81,6 +81,9 @@ android {
                 println("Building with non-free sourceSets")
             }
         }
+        getByName("androidTest") {
+            java.srcDirs("src/androidTest/kotlin")
+        }
     }
 }
 
@@ -92,10 +95,13 @@ aboutLibraries {
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
+    androidTestImplementation("com.wire.kalium:kalium-mocks")
+    androidTestImplementation("com.wire.kalium:kalium-network")
 
     // features
     implementation(project(":features:sketch"))
     implementation(project(":core:ui-common"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
 
     // kover
     kover(project(":features:sketch"))

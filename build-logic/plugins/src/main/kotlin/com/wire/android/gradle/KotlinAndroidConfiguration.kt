@@ -102,7 +102,7 @@ private fun CommonExtension<*, *, *, *, *>.configureLint(project: Project) {
 // Add another `*` when upgrading AGP to 8.3
 internal fun CommonExtension<*, *, *, *, *>.configureAndroidKotlinTests() {
     defaultConfig {
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.wire.android.CustomTestRunner"
         testInstrumentationRunnerArguments.putAll(
             mapOf(
                 "clearPackageData" to "true",

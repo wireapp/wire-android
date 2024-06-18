@@ -44,7 +44,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltAndroidApp
-class WireApplication : Application(), Configuration.Provider {
+class WireApplication : BaseApp() {
 
     @Inject
     @KaliumCoreLogic

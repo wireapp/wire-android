@@ -15,13 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-includeBuild("kalium") {
-    // This dependency substitution should not be done on release mode once the Kalium library has been published to Maven repo
-    dependencySubstitution {
-        substitute(module("com.wire.kalium:kalium-logic")).using(project(":logic"))
-        substitute(module("com.wire.kalium:kalium-util")).using(project(":util"))
-        // test modules
-        substitute(module("com.wire.kalium:kalium-mocks")).using(project(":mocks"))
-        substitute(module("com.wire.kalium:kalium-network")).using(project(":network"))
+
+package com.wire.android
+
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
+import kotlinx.coroutines.flow.MutableStateFlow
+
+class TestNetworkStateObserver(initialState: NetworkState = NetworkState.ConnectedWithInternet) : NetworkStateObserver {
+
+    private val networkState = MutableStateFlow(initialState)
+
+    override fun observeNetworkState(): MutableStateFlow<NetworkState> = networkState
+
+    suspend fun updateNetworkState(state: NetworkState) { networkState.emit(state) }
+
+    companion object {
+        val DEFAULT_TEST_NETWORK_STATE_OBSERVER = TestNetworkStateObserver()
     }
 }

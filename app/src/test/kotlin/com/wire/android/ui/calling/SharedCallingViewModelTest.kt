@@ -285,7 +285,7 @@ class SharedCallingViewModelTest {
         coEvery { muteCall(any(), false) } returns Unit
         every { callRinger.stop() } returns Unit
         coEvery { flipToFrontCamera(any()) } returns Unit
-        every { turnLoudSpeakerOff() } returns Unit
+        coEvery { turnLoudSpeakerOff() } returns Unit
 
         sharedCallingViewModel.hangUpCall(onCompleted)
         advanceUntilIdle()

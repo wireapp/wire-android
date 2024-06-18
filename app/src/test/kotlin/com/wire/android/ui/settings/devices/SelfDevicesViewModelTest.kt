@@ -30,12 +30,9 @@ import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
-import io.mockk.coEvery
-<<<<<<< HEAD
 import io.mockk.MockKAnnotations
-=======
+import io.mockk.coEvery
 import io.mockk.coVerify
->>>>>>> fc8d8ad9d (fix: Re-fetching of devices certificates on comming back from DeviceDetails [WPB-6970] (#3103))
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf

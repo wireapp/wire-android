@@ -1007,7 +1007,8 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Wysy&#322;aj potwierdzenia odczytania</string>
-    <string name="settings_send_read_receipts_description">Je&#347;li jest to wy&#322;&#261;czone, nie b&#281;dziesz m&#243;g&#322; zobaczy&#263; potwierdze&#324; odczytania od innych os&#243;b. Ustawienie to nie dotyczy rozm&#243;w grupowych.</string>
+    <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages. 
+In group conversations, the group admin can overwrite this setting.</string>
     <string name="settings_censor_screenshots">Censor screenshots</string>
     <string name="settings_censor_screenshots_description">If this is ON, then the content of the messages will not be visible on the screenshot or screen recording.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>

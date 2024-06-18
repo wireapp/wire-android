@@ -63,7 +63,7 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
                 navArgs.certificateDetails.certificate
 
             is E2EICertificateDetails.AfterLoginCertificateDetails ->
-                navArgs.certificateDetails.mlsClientIdentity.x509Identity!!.certificateDetail
+                navArgs.certificateDetails.mlsClientIdentity.x509Identity!!.certificate
         }
 
     fun userHandle() =
@@ -72,7 +72,7 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
                 selfUserHandle
 
             is E2EICertificateDetails.AfterLoginCertificateDetails ->
-                navArgs.certificateDetails.mlsClientIdentity.x509Identity!!.certificateDetail
+                navArgs.certificateDetails.mlsClientIdentity.x509Identity!!.certificate
         }
 
     fun getCertificateName(): String {

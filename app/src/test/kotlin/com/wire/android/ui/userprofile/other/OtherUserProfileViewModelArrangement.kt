@@ -45,8 +45,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleRe
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.e2ei.CertificateStatus
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusResult
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -108,7 +107,7 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
 
     @MockK
-    lateinit var getUserE2eiCertificateStatus: GetUserE2eiCertificateStatusUseCase
+    lateinit var getUserE2eiCertificateStatus: IsOtherUserE2EIVerifiedUseCase
 
     @MockK
     lateinit var getUserE2eiCertificates: GetUserE2eiCertificatesUseCase
@@ -164,7 +163,7 @@ internal class OtherUserProfileViewModelArrangement {
         coEvery { getOneToOneConversation(USER_ID) } returns flowOf(
             GetOneToOneConversationUseCase.Result.Success(OtherUserProfileScreenViewModelTest.CONVERSATION)
         )
-        coEvery { getUserE2eiCertificateStatus.invoke(any()) } returns GetUserE2eiCertificateStatusResult.Success(CertificateStatus.VALID)
+        coEvery { getUserE2eiCertificateStatus.invoke(any()) } returns true
         coEvery { getUserE2eiCertificates.invoke(any()) } returns mapOf()
         coEvery { isOneToOneConversationCreated.invoke(any()) } returns true
     }

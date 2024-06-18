@@ -29,7 +29,7 @@ import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversatio
 import com.wire.kalium.logic.feature.e2ei.CertificateRevocationListCheckWorker
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
@@ -217,7 +217,7 @@ class UserModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetUserE2eiCertificateStatusUseCase(userScope: UserScope): GetUserE2eiCertificateStatusUseCase =
+    fun provideGetUserE2eiCertificateStatusUseCase(userScope: UserScope): IsOtherUserE2EIVerifiedUseCase =
         userScope.getUserE2eiCertificateStatus
 
     @ViewModelScoped

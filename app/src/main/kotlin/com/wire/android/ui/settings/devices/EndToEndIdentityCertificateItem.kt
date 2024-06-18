@@ -221,7 +221,7 @@ fun PreviewEndToEndIdentityCertificateItem() {
             x509Identity = X509Identity(
                 displayName = "",
                 domain = "",
-                certificateDetail = "",
+                certificate = "",
                 serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
                 notBefore = Instant.DISTANT_PAST,
                 notAfter = Instant.DISTANT_FUTURE
@@ -246,7 +246,7 @@ fun PreviewEndToEndIdentityCertificateSelfItem() {
             x509Identity = X509Identity(
                 displayName = "",
                 domain = "",
-                certificateDetail = "",
+                certificate = "",
                 serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
                 notBefore = Instant.DISTANT_PAST,
                 notAfter = Instant.DISTANT_FUTURE

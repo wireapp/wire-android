@@ -187,7 +187,7 @@
     <string name="report_bug_screen_title">දෝෂ වාර්තා</string>
     <string name="about_app_screen_title">About This App</string>
     <string name="settings_privacy_policy_label">Privacy Policy</string>
-    <string name="settings_terms_of_use_label">Terms of Use</string>
+    <string name="settings_terms_of_use_label">Legal</string>
     <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">නිදොස්කරණ සැකසුම්</string>
     <string name="item_dependencies_title">පරායත්ත:</string>
@@ -1187,9 +1187,11 @@
     <string name="title_video_could_not_be_sent">දෘශ්‍යකය යැවීමට නොහැකි විය</string>
     <string name="title_image_could_not_be_sent">ඡායාරූපය යැවීමට නොහැකි විය</string>
     <string name="title_file_could_not_be_sent">ගොනුව යැවීමට නොහැකි විය</string>
+    <string name="title_assets_could_not_be_sent">Assets could not be sent</string>
     <string name="label_shared_video_too_large">උපරිම මෙ.බ. %d ක දෘශ්‍යකයක් යැවීමට හැකිය.</string>
     <string name="label_shared_image_too_large">උපරිම මෙ.බ. %d ක රූපයක් යැවීමට හැකිය.</string>
     <string name="label_shared_file_too_large">උපරිම මෙ.බ. %d ක ගොනුවක් යැවීමට හැකිය.</string>
+    <string name="label_shared_multiple_assets_error">Remove all marked assets and try again</string>
     <string name="label_file_saved_to_device">ඔබගේ උපාංගයට ගොනුව සුරැකිණි.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">ඉබේ මැකෙන පණිවිඩය • %1$s</string>
@@ -1388,4 +1390,7 @@
     <string name="location_app_permission_dialog_body">ස්ථානය යැවීම සඳහා ඔබගේ උපාංගයෙහි ස්ථානය වෙත ප්‍රවේශයට ඉඩ දෙන්න.</string>
     <string name="location_loading_label">කරුණාකර රැඳෙන්න...</string>
     <string name="location_could_not_be_shared">ස්ථානය බෙදාගැනීමට නොහැකි විය</string>
+    <!-- Asset Preview -->
+    <string name="remove_asset_description">Remove asset</string>
+    <string name="asset_attention_description">Asset attention</string>
 </resources>

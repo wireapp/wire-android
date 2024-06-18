@@ -187,7 +187,7 @@
     <string name="report_bug_screen_title">Segnala un Problema</string>
     <string name="about_app_screen_title">About This App</string>
     <string name="settings_privacy_policy_label">Privacy Policy</string>
-    <string name="settings_terms_of_use_label">Terms of Use</string>
+    <string name="settings_terms_of_use_label">Legal</string>
     <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Impostazioni di Debug</string>
     <string name="item_dependencies_title">Dependencies:</string>
@@ -1197,9 +1197,11 @@ registrato. Sei pregato di riprovare.</string>
     <string name="title_video_could_not_be_sent">Impossibile inviare il video</string>
     <string name="title_image_could_not_be_sent">Impossibile inviare l\'immagine</string>
     <string name="title_file_could_not_be_sent">Impossibile inviare il file</string>
+    <string name="title_assets_could_not_be_sent">Assets could not be sent</string>
     <string name="label_shared_video_too_large">Puoi condividere soltanto video fino a %d MB.</string>
     <string name="label_shared_image_too_large">Puoi condividere soltanto immagini fino a %d MB.</string>
     <string name="label_shared_file_too_large">Puoi condividere soltanto file fino a %d MB.</string>
+    <string name="label_shared_multiple_assets_error">Remove all marked assets and try again</string>
     <string name="label_file_saved_to_device">Il file è stato salvato sul tuo dispositivo.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Autodistruzione messaggi • %1$s</string>
@@ -1398,4 +1400,7 @@ registrato. Sei pregato di riprovare.</string>
     <string name="location_app_permission_dialog_body">Consenti a Wire di accedere alla posizione del tuo dispositivo per inviare la tua posizione.</string>
     <string name="location_loading_label">Ti preghiamo di attendere...</string>
     <string name="location_could_not_be_shared">Impossibile condividere la posizione</string>
+    <!-- Asset Preview -->
+    <string name="remove_asset_description">Remove asset</string>
+    <string name="asset_attention_description">Asset attention</string>
 </resources>

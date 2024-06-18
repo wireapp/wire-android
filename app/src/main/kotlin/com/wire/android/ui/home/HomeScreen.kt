@@ -24,8 +24,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -36,11 +34,11 @@ import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
@@ -72,10 +70,8 @@ import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
-import com.wire.android.ui.common.WireBottomNavigationBar
-import com.wire.android.ui.common.WireBottomNavigationItemData
-import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
@@ -83,9 +79,6 @@ import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
-import com.wire.android.ui.home.conversationslist.ConversationListState
-import com.wire.android.ui.home.conversationslist.ConversationListViewModel
-import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawer
 import com.wire.android.ui.home.drawer.HomeDrawerState
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
@@ -97,19 +90,21 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     navigator: Navigator,
-    homeViewModel: HomeViewModel = hiltViewModel(),
-    appSyncViewModel: AppSyncViewModel = hiltViewModel(),
-    homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
-    conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?,
     groupDetailsScreenResultRecipient: ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    appSyncViewModel: AppSyncViewModel = hiltViewModel(),
+    homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel()
 ) {
-    homeViewModel.checkRequirements() { it.navigate(navigator::navigate) }
+    homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
     val homeScreenState = rememberHomeScreenState(navigator)
     val showNotificationsFlow = rememberRequestPushNotificationsPermissionFlow(
         onPermissionDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ })
 
     val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
+    val snackbarHostState = LocalSnackbarHostState.current
+    val coroutineScope = rememberCoroutineScope()
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -128,20 +123,6 @@ fun HomeScreen(
         showNotificationsFlow.launch()
     }
 
-    LaunchedEffect(homeScreenState.currentNavigationItem) {
-        when (homeScreenState.currentNavigationItem) {
-            HomeDestination.Archive -> conversationListViewModel.updateConversationsSource(ConversationsSource.ARCHIVE)
-            HomeDestination.Conversations -> conversationListViewModel.updateConversationsSource(ConversationsSource.MAIN)
-            else -> {}
-        }
-    }
-
-    handleSnackBarMessage(
-        snackbarHostState = homeScreenState.snackBarHostState,
-        conversationListSnackBarState = homeScreenState.snackbarState,
-        onMessageShown = homeScreenState::clearSnackbarMessage
-    )
-
     val homeState = homeViewModel.homeState
     if (homeViewModel.homeState.shouldDisplayWelcomeMessage) {
         WelcomeNewUserDialog(
@@ -153,7 +134,6 @@ fun HomeScreen(
         homeState = homeState,
         homeDrawerState = homeDrawerViewModel.drawerState,
         homeStateHolder = homeScreenState,
-        conversationListState = conversationListViewModel.conversationListState,
         onNewConversationClick = { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) },
         onSelfUserClick = remember(navigator) { { navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination)) } }
     )
@@ -176,12 +156,19 @@ fun HomeScreen(
             is NavResult.Value -> {
                 when (result.value.groupConversationActionType) {
                     GroupConversationActionType.LEAVE_GROUP -> {
-                        homeScreenState.setSnackBarState(HomeSnackbarState.LeftConversationSuccess)
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar((HomeSnackBarMessage.LeftConversationSuccess.uiText.asString(context.resources)))
+                        }
                     }
 
                     GroupConversationActionType.DELETE_GROUP -> {
-                        val groupDeletedSnackBar = HomeSnackbarState.DeletedConversationGroupSuccess(result.value.conversationName)
-                        homeScreenState.setSnackBarState(groupDeletedSnackBar)
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                HomeSnackBarMessage.DeletedConversationGroupSuccess(result.value.conversationName).uiText.asString(
+                                    context.resources
+                                )
+                            )
+                        }
                     }
                 }
             }
@@ -195,7 +182,11 @@ fun HomeScreen(
             }
 
             is NavResult.Value -> {
-                homeScreenState.setSnackBarState(HomeSnackbarState.SuccessConnectionIgnoreRequest(result.value))
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        HomeSnackBarMessage.SuccessConnectionIgnoreRequest(result.value).uiText.asString(context.resources)
+                    )
+                }
             }
         }
     }
@@ -207,9 +198,9 @@ fun HomeContent(
     homeState: HomeState,
     homeDrawerState: HomeDrawerState,
     homeStateHolder: HomeStateHolder,
-    conversationListState: ConversationListState,
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     with(homeStateHolder) {
@@ -231,6 +222,7 @@ fun HomeContent(
         }
 
         ModalNavigationDrawer(
+            modifier = modifier,
             drawerState = drawerState,
             drawerContent = {
                 BoxWithConstraints {
@@ -275,8 +267,7 @@ fun HomeContent(
                             SearchTopBar(
                                 isSearchActive = searchBarState.isSearchActive,
                                 searchBarHint = stringResource(R.string.search_bar_conversations_hint),
-                                searchQuery = searchBarState.searchQuery,
-                                onSearchQueryChanged = searchBarState::searchQueryChanged,
+                                searchQueryTextState = searchBarState.searchQueryTextState,
                                 onActiveChanged = searchBarState::searchActiveChanged,
                             )
                         }
@@ -330,107 +321,9 @@ fun HomeContent(
                                 onClick = onNewConversationClick
                             )
                         }
-                    },
-                    bottomBar = {
-                        AnimatedVisibility(
-                            visible = currentNavigationItem.withBottomTabs,
-                            enter = slideInVertically(initialOffsetY = { it }),
-                            exit = slideOutVertically(targetOffsetY = { it }),
-                        ) {
-                            WireBottomNavigationBar(
-                                items = HomeDestination.bottomTabItems.toBottomNavigationItemData(
-                                    conversationListState = conversationListState
-                                ),
-                                selectedItemRoute = homeStateHolder.currentNavigationItem.direction.route,
-                                onItemSelected = { HomeDestination.fromRoute(it.route)?.let { openHomeDestination(it) } }
-                            )
-                        }
                     }
-                )
-
-                WireModalSheetLayout(
-                    sheetState = bottomSheetState,
-                    coroutineScope = coroutineScope,
-                    // we want to render "nothing" instead of doing a if/else check
-                    // on homeBottomSheetContent and wrap homeContent() into WireModalSheetLayout
-                    // or render it without WireModalSheetLayout to avoid
-                    // recomposing the homeContent() when homeBottomSheetContent
-                    // changes from null to "something"
-                    sheetContent = homeBottomSheetContent ?: { }
                 )
             }
         )
-    }
-}
-
-@Suppress("ComplexMethod")
-@Composable
-private fun handleSnackBarMessage(
-    snackbarHostState: SnackbarHostState,
-    conversationListSnackBarState: HomeSnackbarState,
-    onMessageShown: () -> Unit
-) {
-    conversationListSnackBarState.let { messageType ->
-        val message = when (messageType) {
-            is HomeSnackbarState.SuccessConnectionIgnoreRequest ->
-                stringResource(id = R.string.connection_request_ignored, messageType.userName)
-
-            is HomeSnackbarState.BlockingUserOperationSuccess ->
-                stringResource(id = R.string.blocking_user_success, messageType.userName)
-
-            HomeSnackbarState.MutingOperationError -> stringResource(id = R.string.error_updating_muting_setting)
-            HomeSnackbarState.BlockingUserOperationError -> stringResource(id = R.string.error_blocking_user)
-            HomeSnackbarState.UnblockingUserOperationError -> stringResource(id = R.string.error_unblocking_user)
-            HomeSnackbarState.None -> ""
-            is HomeSnackbarState.DeletedConversationGroupSuccess -> stringResource(
-                id = R.string.conversation_group_removed_success,
-                messageType.groupName
-            )
-
-            HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
-            HomeSnackbarState.LeaveConversationError -> stringResource(id = R.string.leave_group_conversation_error)
-            HomeSnackbarState.DeleteConversationGroupError -> stringResource(id = R.string.delete_group_conversation_error)
-            is HomeSnackbarState.ClearConversationContentFailure -> stringResource(
-                if (messageType.isGroup) R.string.group_content_delete_failure
-                else R.string.conversation_content_delete_failure
-            )
-
-            is HomeSnackbarState.ClearConversationContentSuccess -> stringResource(
-                if (messageType.isGroup) R.string.group_content_deleted else R.string.conversation_content_deleted
-            )
-
-            is HomeSnackbarState.UpdateArchivingStatusSuccess -> {
-                stringResource(
-                    id = if (messageType.isArchiving) R.string.success_archiving_conversation
-                    else R.string.success_unarchiving_conversation
-                )
-            }
-
-            is HomeSnackbarState.UpdateArchivingStatusError -> {
-                stringResource(
-                    id = if (messageType.isArchiving) R.string.error_archiving_conversation
-                    else R.string.error_archiving_conversation
-                )
-            }
-        }
-
-        LaunchedEffect(messageType) {
-            if (messageType != HomeSnackbarState.None) {
-                snackbarHostState.showSnackbar(message)
-                onMessageShown()
-            }
-        }
-    }
-}
-
-@Composable
-private fun List<HomeDestination>.toBottomNavigationItemData(
-    conversationListState: ConversationListState
-): List<WireBottomNavigationItemData> = map {
-    when (it) {
-        HomeDestination.Conversations -> it.toBottomNavigationItemData(conversationListState.newActivityCount)
-        HomeDestination.Calls -> it.toBottomNavigationItemData(conversationListState.missedCallsCount)
-        HomeDestination.Mentions -> it.toBottomNavigationItemData(conversationListState.unreadMentionsCount)
-        else -> it.toBottomNavigationItemData(0L)
     }
 }

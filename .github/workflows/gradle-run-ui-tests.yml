@@ -1,27 +1,10 @@
 name: "Run UI Tests"
 
-on:
-  merge_group:
-  push:
-    branches:
-      - develop
-      - release/candidate
-      - prod
-      - internal
-      - main
-  pull_request:
-    types: [ opened, synchronize ] # Don't rerun on `edited` to save time
-    branches:
-      - develop
-      - release/candidate
-      - prod
-      - internal
-      - main
-  workflow_call:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+on: [ workflow_call ]
+
+permissions:
+  contents: read
 
 jobs:
   ui-tests:

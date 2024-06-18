@@ -217,7 +217,8 @@ class MediaGalleryViewModelTest {
                 conversationId = dummyConversationId,
                 messageId = dummyPrivateAsset,
                 isSelfAsset = true,
-                isEphemeral = false
+                isEphemeral = false,
+                messageOptionsEnabled = true
             )
 
             coEvery { deleteMessage(any(), any(), any()) } returns Either.Right(Unit)

@@ -18,16 +18,18 @@
 
 package com.wire.android.ui.home.conversations.details.metadata
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameValidator
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -38,6 +40,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -57,11 +60,13 @@ class EditConversationMetadataViewModel @Inject constructor(
     private val editConversationNameNavArgs: EditConversationNameNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = editConversationNameNavArgs.conversationId
 
+    val editConversationNameTextState: TextFieldState = TextFieldState()
     var editConversationState by mutableStateOf(GroupMetadataState(mode = GroupNameMode.EDITION))
         private set
 
     init {
         observeConversationDetails()
+        observeConversationNameChanges()
     }
 
     private fun observeConversationDetails() {
@@ -73,16 +78,22 @@ class EditConversationMetadataViewModel @Inject constructor(
                 .flowOn(dispatcher.io())
                 .shareIn(this, SharingStarted.WhileSubscribed(), 1)
                 .collectLatest {
+                    editConversationNameTextState.setTextAndPlaceCursorAtEnd(it.conversation.name.orEmpty())
                     editConversationState = editConversationState.copy(
-                        groupName = TextFieldValue(it.conversation.name.orEmpty()),
                         originalGroupName = it.conversation.name.orEmpty()
                     )
                 }
         }
     }
 
-    fun onGroupNameChange(newText: TextFieldValue) {
-        editConversationState = GroupNameValidator.onGroupNameChange(newText, editConversationState)
+    private fun observeConversationNameChanges() {
+        viewModelScope.launch {
+            editConversationNameTextState.textAsFlow()
+                .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
+                .collectLatest {
+                editConversationState = GroupNameValidator.onGroupNameChange(it.toString(), editConversationState)
+            }
+        }
     }
 
     fun onGroupNameErrorAnimated() {
@@ -94,9 +105,13 @@ class EditConversationMetadataViewModel @Inject constructor(
         onSuccess: () -> Unit,
     ) {
         viewModelScope.launch {
-            when (withContext(dispatcher.io()) { renameConversation(conversationId, editConversationState.groupName.text) }) {
-                is RenamingResult.Failure -> onFailure()
-                is RenamingResult.Success -> onSuccess()
+            withContext(dispatcher.io()) {
+                renameConversation(conversationId, editConversationNameTextState.text.toString())
+            }.let { renamingResult ->
+                when (renamingResult) {
+                    is RenamingResult.Failure -> onFailure()
+                    is RenamingResult.Success -> onSuccess()
+                }
             }
         }
     }

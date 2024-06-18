@@ -63,6 +63,9 @@ class ProximitySensorManager @Inject constructor(
     }
 
     fun unRegisterListener() {
+        if (wakeLock.isHeld) {
+            wakeLock.release()
+        }
         sensorManager.unregisterListener(sensorEventListener)
     }
 

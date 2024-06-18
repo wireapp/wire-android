@@ -26,6 +26,6 @@ import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun MarkdownThematicBreak() {
-    WireDivider(MaterialTheme.wireColorScheme.outline, modifier = Modifier.padding(vertical = dimensions().spacing8x))
+fun MarkdownThematicBreak(modifier: Modifier = Modifier) {
+    WireDivider(modifier = modifier.padding(vertical = dimensions().spacing8x), color = MaterialTheme.wireColorScheme.outline)
 }

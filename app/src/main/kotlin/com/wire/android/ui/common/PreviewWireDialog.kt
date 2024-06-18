@@ -19,29 +19,24 @@ package com.wire.android.ui.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
-fun PreviewWireDialog() {
-    var password by remember { mutableStateOf(TextFieldValue("")) }
+fun PreviewWireDialog() = WireTheme {
+    val password = rememberTextFieldState()
     WireTheme {
         Box(
             contentAlignment = Alignment.Center,
@@ -71,20 +66,18 @@ fun PreviewWireDialog() {
                 },
             ) {
                 WirePasswordTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    autofill = false
+                    textState = password,
+                    autoFill = false
                 )
             }
         }
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
-fun PreviewWireDialogWith2OptionButtons() {
-    var password by remember { mutableStateOf(TextFieldValue("")) }
+fun PreviewWireDialogWith2OptionButtons() = WireTheme {
+    val password = rememberTextFieldState()
     WireTheme {
         Box(
             contentAlignment = Alignment.Center,
@@ -121,19 +114,18 @@ fun PreviewWireDialogWith2OptionButtons() {
                 buttonsHorizontalAlignment = false
             ) {
                 WirePasswordTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    autofill = true
+                    textState = password,
+                    autoFill = false
                 )
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
-fun PreviewWireDialogCentered() {
-    var password by remember { mutableStateOf(TextFieldValue("")) }
+fun PreviewWireDialogCentered() = WireTheme {
+    val password = rememberTextFieldState()
     WireTheme {
         Box(
             contentAlignment = Alignment.Center,
@@ -164,9 +156,8 @@ fun PreviewWireDialogCentered() {
                 },
             ) {
                 WirePasswordTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    autofill = false
+                    textState = password,
+                    autoFill = false
                 )
             }
         }

@@ -37,7 +37,6 @@ import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.ui.theme.WireTheme
@@ -48,6 +47,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun CodeTextField(
     textState: TextFieldState,
+    modifier: Modifier = Modifier,
     codeLength: Int = integerResource(id = R.integer.code_length),
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
     colors: WireTextFieldColors = wireTextFieldColors(),
@@ -55,8 +55,7 @@ fun CodeTextField(
     state: WireTextFieldState = WireTextFieldState.Default,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     maxHorizontalSpacing: Dp = MaterialTheme.wireDimensions.spacing16x,
-    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    modifier: Modifier = Modifier
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val enabled = state !is WireTextFieldState.Disabled
@@ -85,58 +84,6 @@ fun CodeTextField(
         }
     )
 }
-
-/*
-TODO: BasicTextField2 (value, onValueChange) overload is removed completely in compose foundation 1.7.0,
-      for now we can use our custom StateSyncingModifier to sync TextFieldValue with TextFieldState,
-      but eventually we should migrate and remove this function when all usages are replaced with the TextFieldState.
-*/
-@Deprecated("Use the new one with TextFieldState.")
-@Composable
-fun CodeTextField(
-    codeLength: Int = integerResource(id = R.integer.code_length),
-    value: TextFieldValue,
-    onValueChange: (CodeFieldValue) -> Unit,
-    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x),
-    colors: WireTextFieldColors = wireTextFieldColors(),
-    textStyle: TextStyle = MaterialTheme.wireTypography.code01,
-    state: WireTextFieldState = WireTextFieldState.Default,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    maxHorizontalSpacing: Dp = MaterialTheme.wireDimensions.spacing16x,
-    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    modifier: Modifier = Modifier
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val enabled = state !is WireTextFieldState.Disabled
-    val textState = remember { TextFieldState(value.text, value.selection) }
-    val onValueChanged: (TextFieldValue) -> Unit = { onValueChange(CodeFieldValue(it, it.text.length == codeLength)) }
-    CodeTextFieldLayout(
-        textState = textState,
-        codeLength = codeLength,
-        shape = shape,
-        colors = colors,
-        textStyle = textStyle,
-        state = state,
-        maxHorizontalSpacing = maxHorizontalSpacing,
-        horizontalAlignment = horizontalAlignment,
-        modifier = modifier,
-        innerBasicTextField = { decorator, textFieldModifier ->
-            BasicTextField(
-                state = textState,
-                textStyle = textStyle,
-                enabled = enabled,
-                keyboardOptions = KeyboardOptions.DefaultCode,
-                onKeyboardAction = { keyboardController?.hide() },
-                interactionSource = interactionSource,
-                inputTransformation = MaxLengthDigitsFilter(codeLength),
-                decorator = decorator,
-                modifier = textFieldModifier.then(StateSyncingModifier(textState, value, onValueChanged)),
-            )
-        }
-    )
-}
-
-data class CodeFieldValue(val text: TextFieldValue, val isFullyFilled: Boolean)
 
 @Stable
 val KeyboardOptions.Companion.DefaultCode: KeyboardOptions

@@ -56,11 +56,10 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
+import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
-import com.wire.android.ui.home.messagecomposer.state.MessageCompositionType
 import com.wire.android.util.CurrentConversationDetailsCache
 import com.wire.android.util.permission.PermissionDenialType
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
 
@@ -72,8 +71,6 @@ fun EnabledMessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
-    onSearchMentionQueryChanged: (String) -> Unit,
-    onTypingEvent: (Conversation.TypingIndicatorMode) -> Unit,
     onSendButtonClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
@@ -83,7 +80,8 @@ fun EnabledMessageComposer(
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
-    tempWritableImageUri: Uri?
+    tempWritableImageUri: Uri?,
+    modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
     val navBarHeight = BottomNavigationBarHeight()
@@ -116,7 +114,10 @@ fun EnabledMessageComposer(
             }
         }
 
-        Surface(color = colorsScheme().messageComposerBackgroundColor) {
+        Surface(
+            modifier = modifier,
+            color = colorsScheme().messageComposerBackgroundColor
+        ) {
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -138,7 +139,7 @@ fun EnabledMessageComposer(
                     if (!inputStateHolder.isTextExpanded && messageComposerViewState.value.mentionSearchResult.isNotEmpty()) {
                         MembersMentionList(
                             membersToMention = messageComposerViewState.value.mentionSearchResult,
-                            searchQuery = messageComposition.value.messageText,
+                            searchQuery = messageComposerViewState.value.mentionSearchQuery,
                             onMentionPicked = { pickedMention ->
                                 messageCompositionHolder.addMention(pickedMention)
                                 onClearMentionSearchResult()
@@ -174,6 +175,7 @@ fun EnabledMessageComposer(
                             ActiveMessageComposerInput(
                                 conversationId = conversationId,
                                 messageComposition = messageComposition.value,
+                                messageTextState = inputStateHolder.messageTextState,
                                 isTextExpanded = inputStateHolder.isTextExpanded,
                                 inputType = messageCompositionInputStateHolder.inputType,
                                 inputFocused = messageCompositionInputStateHolder.inputFocused,
@@ -182,14 +184,6 @@ fun EnabledMessageComposer(
                                 onTextCollapse = messageCompositionInputStateHolder::collapseText,
                                 onCancelReply = messageCompositionHolder::clearReply,
                                 onCancelEdit = ::cancelEdit,
-                                onMessageTextChanged = {
-                                    messageCompositionHolder.setMessageText(
-                                        messageTextFieldValue = it,
-                                        onSearchMentionQueryChanged = onSearchMentionQueryChanged,
-                                        onClearMentionSearchResult = onClearMentionSearchResult,
-                                        onTypingEvent = onTypingEvent
-                                    )
-                                },
                                 onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                                 onSendButtonClicked = onSendButtonClicked,
                                 onEditButtonClicked = {
@@ -214,7 +208,7 @@ fun EnabledMessageComposer(
                                     currentSelectedLineIndex = currentSelectedLineIndex,
                                     cursorCoordinateY = cursorCoordinateY,
                                     membersToMention = mentionSearchResult,
-                                    searchQuery = messageComposition.value.messageText,
+                                    searchQuery = messageComposerViewState.value.mentionSearchQuery,
                                     onMentionPicked = {
                                         messageCompositionHolder.addMention(it)
                                         onClearMentionSearchResult()
@@ -229,17 +223,11 @@ fun EnabledMessageComposer(
                             AdditionalOptionsMenu(
                                 additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
                                 selectedOption = additionalOptionStateHolder.selectedOption,
-                                isEditing = messageCompositionInputStateHolder.inputType is MessageCompositionType.Editing,
+                                isEditing = messageCompositionInputStateHolder.inputType is InputType.Editing,
                                 isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
                                 isSelfDeletingActive = messageComposerViewState.value.selfDeletionTimer.duration.isPositiveNotNull(),
                                 isMentionActive = messageComposerViewState.value.mentionSearchResult.isNotEmpty(),
-                                onMentionButtonClicked = {
-                                    messageCompositionHolder.startMention(
-                                        onSearchMentionQueryChanged,
-                                        onClearMentionSearchResult,
-                                        onTypingEvent
-                                    )
-                                },
+                                onMentionButtonClicked = messageCompositionHolder::startMention,
                                 onOnSelfDeletingOptionClicked = {
                                     additionalOptionStateHolder.toSelfDeletingOptionsMenu()
                                     onChangeSelfDeletionClicked()
@@ -315,7 +303,7 @@ fun EnabledMessageComposer(
                 )
             }
 
-            BackHandler(inputStateHolder.inputType is MessageCompositionType.Editing) {
+            BackHandler(inputStateHolder.inputType is InputType.Editing) {
                 cancelEdit()
             }
             BackHandler(isImeVisible || inputStateHolder.optionsVisible) {

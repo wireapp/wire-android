@@ -20,7 +20,6 @@ package com.wire.android.ui.authentication.login
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -33,7 +32,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -42,14 +40,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -73,6 +69,7 @@ import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.rememberTopBarElevationState
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
@@ -84,6 +81,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.launch
 
@@ -95,33 +93,31 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navigator: Navigator,
     loginNavArgs: LoginNavArgs,
-    loginViewModel: LoginViewModel = hiltViewModel(),
     loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
 ) {
 
     LoginContent(
-        navigator::navigateBack,
-        { initialSyncCompleted, isE2EIRequired ->
+        onBackPressed = navigator::navigateBack,
+        onSuccess = { initialSyncCompleted, isE2EIRequired ->
             val destination = if (isE2EIRequired) E2EIEnrollmentScreenDestination
             else if (initialSyncCompleted) HomeScreenDestination
             else InitialSyncScreenDestination
 
             navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
         },
-        { navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE)) },
-        loginViewModel,
-        loginEmailViewModel,
+        onRemoveDeviceNeeded = {
+            navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+        },
+        loginEmailViewModel = loginEmailViewModel,
         ssoLoginResult = loginNavArgs.ssoLoginResult
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun LoginContent(
     onBackPressed: () -> Unit,
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
-    viewModel: LoginViewModel,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
@@ -135,22 +131,21 @@ private fun LoginContent(
             targetState = loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
             transitionSpec = { TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition) }
         ) { isCodeInputNecessary ->
-            if (isCodeInputNecessary) LoginEmailVerificationCodeScreen(onSuccess, loginEmailViewModel)
-            else MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, viewModel, loginEmailViewModel, ssoLoginResult)
+            if (isCodeInputNecessary) {
+                LoginEmailVerificationCodeScreen(loginEmailViewModel)
+            } else {
+                MainLoginContent(onBackPressed, onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, ssoLoginResult)
+            }
         }
     }
 }
 
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    ExperimentalFoundationApi::class,
-)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MainLoginContent(
     onBackPressed: () -> Unit,
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
     onRemoveDeviceNeeded: () -> Unit,
-    viewModel: LoginViewModel,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
@@ -172,9 +167,9 @@ private fun MainLoginContent(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 title = stringResource(R.string.login_title),
                 subtitleContent = {
-                    if (viewModel.serverConfig.isOnPremises) {
+                    if (loginEmailViewModel.serverConfig.isOnPremises) {
                         ServerTitle(
-                            serverLinks = viewModel.serverConfig,
+                            serverLinks = loginEmailViewModel.serverConfig,
                             style = MaterialTheme.wireTypography.body01
                         )
                     }
@@ -186,7 +181,7 @@ private fun MainLoginContent(
                     selectedTabIndex = pagerState.calculateCurrentTab(),
                     onTabChange = {
 
-                        if (viewModel.loginState.isProxyEnabled) {
+                        if (loginEmailViewModel.serverConfig.isProxyEnabled) {
                             if (pagerState.currentPage != LoginTabItem.SSO.ordinal) {
                                 ssoDisabledWithProxyDialogState.show(
                                     ssoDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
@@ -237,25 +232,25 @@ private fun MainLoginContent(
 
 @Composable
 fun LoginErrorDialog(
-    error: LoginError,
+    error: LoginState.Error,
     onDialogDismiss: () -> Unit,
     updateTheApp: () -> Unit,
     ssoLoginResult: DeepLinkResult.SSOLogin? = null
 ) {
     val dialogErrorData: LoginDialogErrorData = when (error) {
-        is LoginError.DialogError.InvalidCredentialsError -> LoginDialogErrorData(
+        is LoginState.Error.DialogError.InvalidCredentialsError -> LoginDialogErrorData(
             title = stringResource(R.string.login_error_invalid_credentials_title),
             body = AnnotatedString(stringResource(R.string.login_error_invalid_credentials_message)),
             onDismiss = onDialogDismiss
         )
 
-        is LoginError.DialogError.UserAlreadyExists -> LoginDialogErrorData(
+        is LoginState.Error.DialogError.UserAlreadyExists -> LoginDialogErrorData(
             title = stringResource(R.string.login_error_user_already_logged_in_title),
             body = AnnotatedString(stringResource(R.string.login_error_user_already_logged_in_message)),
             onDismiss = onDialogDismiss
         )
 
-        is LoginError.DialogError.ProxyError -> {
+        is LoginState.Error.DialogError.ProxyError -> {
             LoginDialogErrorData(
                 title = stringResource(R.string.error_socket_title),
                 body = AnnotatedString(stringResource(R.string.error_socket_message)),
@@ -263,7 +258,7 @@ fun LoginErrorDialog(
             )
         }
 
-        is LoginError.DialogError.GenericError -> {
+        is LoginState.Error.DialogError.GenericError -> {
             val strings = error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
             LoginDialogErrorData(
                 strings.title,
@@ -272,19 +267,19 @@ fun LoginErrorDialog(
             )
         }
 
-        is LoginError.DialogError.InvalidSSOCodeError -> LoginDialogErrorData(
+        is LoginState.Error.DialogError.InvalidSSOCodeError -> LoginDialogErrorData(
             title = stringResource(R.string.login_error_invalid_credentials_title),
             body = AnnotatedString(stringResource(R.string.login_error_invalid_sso_code)),
             onDismiss = onDialogDismiss
         )
 
-        is LoginError.DialogError.InvalidSSOCookie -> LoginDialogErrorData(
+        is LoginState.Error.DialogError.InvalidSSOCookie -> LoginDialogErrorData(
             title = stringResource(R.string.login_sso_error_invalid_cookie_title),
             body = AnnotatedString(stringResource(R.string.login_sso_error_invalid_cookie_message)),
             onDismiss = onDialogDismiss
         )
 
-        is LoginError.DialogError.SSOResultError -> {
+        is LoginState.Error.DialogError.SSOResultError -> {
             with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
                 LoginDialogErrorData(
                     title = stringResource(R.string.sso_error_dialog_title),
@@ -294,7 +289,7 @@ fun LoginErrorDialog(
             }
         }
 
-        is LoginError.DialogError.ServerVersionNotSupported -> LoginDialogErrorData(
+        is LoginState.Error.DialogError.ServerVersionNotSupported -> LoginDialogErrorData(
             title = stringResource(R.string.api_versioning_server_version_not_supported_title),
             body = AnnotatedString(stringResource(R.string.api_versioning_server_version_not_supported_message)),
             onDismiss = onDialogDismiss,
@@ -302,7 +297,7 @@ fun LoginErrorDialog(
             dismissOnClickOutside = false
         )
 
-        is LoginError.DialogError.ClientUpdateRequired -> LoginDialogErrorData(
+        is LoginState.Error.DialogError.ClientUpdateRequired -> LoginDialogErrorData(
             title = stringResource(R.string.api_versioning_client_update_required_title),
             body = AnnotatedString(stringResource(R.string.api_versioning_client_update_required_message)),
             onDismiss = onDialogDismiss,
@@ -311,7 +306,7 @@ fun LoginErrorDialog(
             dismissOnClickOutside = false
         )
 
-        LoginError.DialogError.PasswordNeededToRegisterClient -> TODO()
+        LoginState.Error.DialogError.PasswordNeededToRegisterClient -> TODO()
 
         else -> LoginDialogErrorData(
             title = stringResource(R.string.error_unknown_title),
@@ -352,10 +347,16 @@ enum class LoginTabItem(@StringRes val titleResId: Int) : TabItem {
     override val title: UIText = UIText.StringResource(titleResId)
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-private fun PreviewLoginScreen() {
+private fun PreviewLoginScreen() = WireTheme {
     WireTheme {
-        MainLoginContent({}, { _, _ -> }, {}, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
+        MainLoginContent(
+            onBackPressed = {},
+            onSuccess = { _, _ -> },
+            onRemoveDeviceNeeded = {},
+            loginEmailViewModel = hiltViewModel(),
+            ssoLoginResult = null
+        )
     }
 }

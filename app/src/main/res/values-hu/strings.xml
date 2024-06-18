@@ -187,7 +187,7 @@
     <string name="report_bug_screen_title">Hiba jelentése</string>
     <string name="about_app_screen_title">Az alkalmazás névjegye</string>
     <string name="settings_privacy_policy_label">Adatvédelmi irányelvek</string>
-    <string name="settings_terms_of_use_label">Felhasználási feltételek</string>
+    <string name="settings_terms_of_use_label">Legal</string>
     <string name="label_copyright">Szerzői jogok</string>
     <string name="debug_settings_screen_title">Hibakeresési beállítások</string>
     <string name="item_dependencies_title">Függőségek:</string>
@@ -1202,9 +1202,11 @@ Kérjük, próbálja meg újra.</string>
     <string name="title_video_could_not_be_sent">A videót nem sikerült elküldeni</string>
     <string name="title_image_could_not_be_sent">A képet nem sikerült elküldeni</string>
     <string name="title_file_could_not_be_sent">A fájlt nem sikerült elküldeni</string>
+    <string name="title_assets_could_not_be_sent">Assets could not be sent</string>
     <string name="label_shared_video_too_large">Legfeljebb %d MB méretű videót oszthat meg.</string>
     <string name="label_shared_image_too_large">Legfeljebb %d MB méretű képet oszthat meg.</string>
     <string name="label_shared_file_too_large">Legfeljebb %d MB méretű fájlt oszthat meg.</string>
+    <string name="label_shared_multiple_assets_error">Remove all marked assets and try again</string>
     <string name="label_file_saved_to_device">A fájl mentve az eszközére.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Önmegsemmisítő üzenet • %1$s</string>
@@ -1403,4 +1405,7 @@ Kérjük, próbálja meg újra.</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
     <string name="location_loading_label">Please wait...</string>
     <string name="location_could_not_be_shared">Location could not be shared</string>
+    <!-- Asset Preview -->
+    <string name="remove_asset_description">Remove asset</string>
+    <string name="asset_attention_description">Asset attention</string>
 </resources>

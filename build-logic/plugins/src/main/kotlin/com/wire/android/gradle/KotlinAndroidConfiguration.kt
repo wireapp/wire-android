@@ -31,7 +31,7 @@ import versionCatalog
 import findLibrary
 
 internal fun Project.configureKotlinAndroid(
-    commonExtension: CommonExtension<*, *, *, *, *>, // Add another `*` when upgrading AGP to 8.3
+    commonExtension: CommonExtension<*, *, *, *, *, *>,
 ): Unit = with(commonExtension) {
     compileSdk = AndroidSdk.compile
 
@@ -76,7 +76,7 @@ private fun Project.configureKotlin() {
     }
 }
 
-private fun CommonExtension<*, *, *, *, *>.configureLint(project: Project) {
+private fun CommonExtension<*, *, *, *, *, *>.configureLint(project: Project) {
     lint {
         showAll = true
         explainIssues = true
@@ -99,8 +99,7 @@ private fun CommonExtension<*, *, *, *, *>.configureLint(project: Project) {
     }
 }
 
-// Add another `*` when upgrading AGP to 8.3
-internal fun CommonExtension<*, *, *, *, *>.configureAndroidKotlinTests() {
+internal fun CommonExtension<*, *, *, *, *, *>.configureAndroidKotlinTests() {
     defaultConfig {
         testInstrumentationRunner = "com.wire.android.CustomTestRunner"
         testInstrumentationRunnerArguments.putAll(

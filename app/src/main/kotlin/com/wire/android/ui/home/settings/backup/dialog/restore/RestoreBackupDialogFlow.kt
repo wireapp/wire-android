@@ -20,6 +20,7 @@ package com.wire.android.ui.home.settings.backup.dialog.restore
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,8 +39,9 @@ import com.wire.android.util.permission.PermissionDenialType
 @Composable
 fun RestoreBackupDialogFlow(
     backUpAndRestoreState: BackupAndRestoreState,
+    backupPasswordTextState: TextFieldState,
     onChooseBackupFile: (Uri) -> Unit,
-    onRestoreBackup: (String) -> Unit,
+    onRestoreBackup: () -> Unit,
     onOpenConversations: () -> Unit,
     onCancelBackupRestore: () -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
@@ -60,6 +62,7 @@ fun RestoreBackupDialogFlow(
 
             is RestoreDialogStep.EnterPassword -> {
                 EnterPasswordStep(
+                    backupPasswordTextState = backupPasswordTextState,
                     backUpAndRestoreState = backUpAndRestoreState,
                     restoreDialogStateHolder = restoreDialogStateHolder,
                     onRestoreBackup = onRestoreBackup,
@@ -133,8 +136,9 @@ private fun ChooseBackupFileStep(
 @Composable
 fun EnterPasswordStep(
     backUpAndRestoreState: BackupAndRestoreState,
+    backupPasswordTextState: TextFieldState,
     restoreDialogStateHolder: RestoreDialogStateHolder,
-    onRestoreBackup: (String) -> Unit,
+    onRestoreBackup: () -> Unit,
     onCancelBackupRestore: () -> Unit
 ) {
     var showWrongPassword by remember { mutableStateOf(false) }
@@ -150,10 +154,11 @@ fun EnterPasswordStep(
     }
 
     EnterRestorePasswordDialog(
+        backupPasswordTextState = backupPasswordTextState,
         isWrongPassword = showWrongPassword,
-        onRestoreBackupFile = { password ->
+        onRestoreBackupFile = {
             showWrongPassword = false
-            onRestoreBackup(password)
+            onRestoreBackup()
         },
         onAcknowledgeWrongPassword = { showWrongPassword = false },
         onCancelBackupRestore = onCancelBackupRestore

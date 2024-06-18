@@ -21,8 +21,8 @@ package com.wire.android.ui.calling.controlbuttons
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -45,10 +45,12 @@ fun CallOptionsControls(
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     toggleVideo: () -> Unit,
+    modifier: Modifier = Modifier,
+    shouldShowSpeakerButton: Boolean = true,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ) {
     ConstraintLayout(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = MaterialTheme.wireDimensions.spacing32x)
     ) {
@@ -63,30 +65,49 @@ fun CallOptionsControls(
             isMuted = isMuted,
             onMicrophoneButtonClicked = toggleMute
         )
-        CallControlLabel(stringResource(id = R.string.calling_button_label_microphone), microphoneText, microphoneIcon)
+        CallControlLabel(
+            stringResource(id = R.string.calling_button_label_microphone),
+            microphoneText,
+            microphoneIcon
+        )
         CameraButton(
             modifier = Modifier
                 .size(dimensions().defaultCallingControlsSize)
                 .constrainAs(cameraIcon) {
+                    val cameraEndLink = if (shouldShowSpeakerButton) {
+                        speakerIcon.start
+                    } else {
+                        parent.end
+                    }
                     start.linkTo(microphoneIcon.end)
-                    end.linkTo(speakerIcon.start)
+                    end.linkTo(cameraEndLink)
                 },
             isCameraOn = isCameraOn,
             onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
             onCameraButtonClicked = toggleVideo
         )
-        CallControlLabel(stringResource(id = R.string.calling_button_label_camera), cameraText, cameraIcon)
-        SpeakerButton(
-            modifier = Modifier
-                .size(dimensions().defaultCallingControlsSize)
-                .constrainAs(speakerIcon) {
-                    start.linkTo(cameraIcon.end)
-                    end.linkTo(parent.end)
-                },
-            isSpeakerOn = isSpeakerOn,
-            onSpeakerButtonClicked = toggleSpeaker
+        CallControlLabel(
+            stringResource(id = R.string.calling_button_label_camera),
+            cameraText,
+            cameraIcon
         )
-        CallControlLabel(stringResource(id = R.string.calling_button_label_speaker), speakerText, speakerIcon)
+        if (shouldShowSpeakerButton) {
+            SpeakerButton(
+                modifier = Modifier
+                    .size(dimensions().defaultCallingControlsSize)
+                    .constrainAs(speakerIcon) {
+                        start.linkTo(cameraIcon.end)
+                        end.linkTo(parent.end)
+                    },
+                isSpeakerOn = isSpeakerOn,
+                onSpeakerButtonClicked = toggleSpeaker
+            )
+            CallControlLabel(
+                stringResource(id = R.string.calling_button_label_speaker),
+                speakerText,
+                speakerIcon
+            )
+        }
     }
 }
 

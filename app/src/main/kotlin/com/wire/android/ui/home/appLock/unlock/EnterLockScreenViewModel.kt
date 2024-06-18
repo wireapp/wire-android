@@ -17,18 +17,20 @@
  */
 package com.wire.android.ui.home.appLock.unlock
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.sha256
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -42,37 +44,31 @@ class EnterLockScreenViewModel @Inject constructor(
     private val lockCodeTimeManager: LockCodeTimeManager,
 ) : ViewModel() {
 
+    val passwordTextState: TextFieldState = TextFieldState()
     var state: EnterLockCodeViewState by mutableStateOf(EnterLockCodeViewState())
         private set
 
-    fun onPasswordChanged(password: TextFieldValue) {
-        state = state.copy(
-            error = EnterLockCodeError.None,
-            password = password
-        )
-        state = if (validatePassword(password.text).isValid) {
-            state.copy(
-                continueEnabled = true,
-                isUnlockEnabled = true
-            )
-        } else {
-            state.copy(
-                isUnlockEnabled = false
-            )
+    init {
+        viewModelScope.launch {
+            passwordTextState.textAsFlow().collectLatest {
+                state = state.copy(
+                    isUnlockEnabled = validatePassword(it.toString()).isValid
+                )
+            }
         }
     }
 
     fun onContinue() {
-        state = state.copy(continueEnabled = false)
-        // the continue button is enabled iff the password is valid
+        state = state.copy(loading = true)
+        // the continue button is enabled if the password is valid
         // this check is for safety only
-        if (!validatePassword(state.password.text).isValid) {
+        if (!validatePassword(passwordTextState.text.toString()).isValid) {
             state = state.copy(isUnlockEnabled = false)
         } else {
             viewModelScope.launch {
                 val storedPasscode = withContext(dispatchers.io()) { globalDataStore.getAppLockPasscodeFlow().firstOrNull() }
                 withContext(dispatchers.main()) {
-                    state = if (storedPasscode == state.password.text.sha256()) {
+                    state = if (storedPasscode == passwordTextState.text.toString().sha256()) {
                         lockCodeTimeManager.appUnlocked()
                         state.copy(done = true)
                     } else {
@@ -81,5 +77,6 @@ class EnterLockScreenViewModel @Inject constructor(
                 }
             }
         }
+        state = state.copy(loading = false)
     }
 }

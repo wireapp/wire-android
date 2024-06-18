@@ -32,6 +32,7 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.VisitLinkDialogState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.navArgs
+import com.wire.android.util.EMPTY
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.FileSharingStatus
@@ -163,13 +164,19 @@ class MessageComposerViewModel @Inject constructor(
             }
 
             messageComposerViewState.value =
-                messageComposerViewState.value.copy(mentionSearchResult = members)
+                messageComposerViewState.value.copy(
+                    mentionSearchResult = members,
+                    mentionSearchQuery = searchQuery,
+                )
         }
     }
 
     fun clearMentionSearchResult() {
         messageComposerViewState.value =
-            messageComposerViewState.value.copy(mentionSearchResult = emptyList())
+            messageComposerViewState.value.copy(
+                mentionSearchResult = emptyList(),
+                mentionSearchQuery = String.EMPTY,
+            )
     }
 
     private fun setFileSharingStatus() {

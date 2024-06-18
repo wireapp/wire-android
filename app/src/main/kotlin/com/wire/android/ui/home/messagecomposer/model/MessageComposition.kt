@@ -18,89 +18,26 @@
 package com.wire.android.ui.home.messagecomposer.model
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.util.EMPTY
-import com.wire.android.util.MENTION_SYMBOL
-import com.wire.android.util.NEW_LINE_SYMBOL
-import com.wire.android.util.WHITE_SPACE
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 
 data class MessageComposition(
     val conversationId: ConversationId,
-    val messageTextFieldValue: TextFieldValue = TextFieldValue(""),
+    val draftText: String = String.EMPTY,
     val editMessageId: String? = null,
     val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
     val quotedMessageId: String? = null,
     val selectedMentions: List<UIMention> = emptyList(),
 ) {
-
-    val messageText: String
-        get() = messageTextFieldValue.text
-
-    fun mentionSelection(): TextFieldValue {
-        val beforeSelection = messageTextFieldValue.text
-            .subSequence(0, messageTextFieldValue.selection.min)
-            .run {
-                if (endsWith(String.WHITE_SPACE) || endsWith(String.NEW_LINE_SYMBOL) || this == String.EMPTY) {
-                    this.toString()
-                } else {
-                    StringBuilder(this)
-                        .append(String.WHITE_SPACE)
-                        .toString()
-                }
-            }
-
-        val afterSelection = messageTextFieldValue.text
-            .subSequence(
-                messageTextFieldValue.selection.max,
-                messageTextFieldValue.text.length
-            )
-
-        val resultText = StringBuilder(beforeSelection)
-            .append(String.MENTION_SYMBOL)
-            .append(afterSelection)
-            .toString()
-
-        val newSelection = TextRange(beforeSelection.length + 1)
-
-        return TextFieldValue(resultText, newSelection)
-    }
-
-    fun insertMentionIntoText(mention: UIMention): TextFieldValue {
-        val beforeMentionText = messageTextFieldValue.text
-            .subSequence(0, mention.start)
-
-        val afterMentionText = messageTextFieldValue.text
-            .subSequence(
-                messageTextFieldValue.selection.max,
-                messageTextFieldValue.text.length
-            )
-
-        val resultText = StringBuilder()
-            .append(beforeMentionText)
-            .append(mention.handler)
-            .apply {
-                if (!afterMentionText.startsWith(String.WHITE_SPACE)) append(String.WHITE_SPACE)
-            }
-            .append(afterMentionText)
-            .toString()
-
-        // + 1 cause we add space after mention and move selector there
-        val newSelection = TextRange(beforeMentionText.length + mention.handler.length + 1)
-
-        return TextFieldValue(resultText, newSelection)
-    }
-
-    fun getSelectedMentions(newMessageText: TextFieldValue): List<UIMention> {
+    fun getSelectedMentions(newMessageText: String): List<UIMention> {
         val result = mutableSetOf<UIMention>()
 
         selectedMentions.forEach { mention ->
-            if (newMessageText.text.length >= mention.start + mention.length) {
-                val substringInMentionPlace = newMessageText.text.substring(
+            if (newMessageText.length >= mention.start + mention.length) {
+                val substringInMentionPlace = newMessageText.substring(
                     mention.start,
                     mention.start + mention.length
                 )
@@ -111,7 +48,7 @@ data class MessageComposition(
             }
 
             val prevMentionEnd = result.lastOrNull()?.let { it.start + it.length } ?: 0
-            val newIndexOfMention = newMessageText.text.indexOf(mention.handler, prevMentionEnd)
+            val newIndexOfMention = newMessageText.indexOf(mention.handler, prevMentionEnd)
             if (newIndexOfMention >= 0) {
                 result.add(mention.copy(start = newIndexOfMention))
             }
@@ -120,18 +57,18 @@ data class MessageComposition(
         return result.toList()
     }
 
-    fun toMessageBundle(conversationId: ConversationId): ComposableMessageBundle {
+    fun toMessageBundle(conversationId: ConversationId, messageText: String): ComposableMessageBundle {
         return if (editMessageId != null) {
             ComposableMessageBundle.EditMessageBundle(
                 conversationId = conversationId,
                 originalMessageId = editMessageId,
-                newContent = messageTextFieldValue.text,
+                newContent = messageText,
                 newMentions = selectedMentions
             )
         } else {
             ComposableMessageBundle.SendTextMessageBundle(
                 conversationId = conversationId,
-                message = messageTextFieldValue.text,
+                message = messageText,
                 mentions = selectedMentions,
                 quotedMessageId = quotedMessageId
             )
@@ -144,10 +81,10 @@ fun MutableState<MessageComposition>.update(block: (MessageComposition) -> Messa
     value = block(currentValue)
 }
 
-fun MessageComposition.toDraft(): MessageDraft {
+fun MessageComposition.toDraft(messageText: String): MessageDraft {
     return MessageDraft(
         conversationId = conversationId,
-        text = messageTextFieldValue.text,
+        text = messageText,
         editMessageId = editMessageId,
         quotedMessageId = quotedMessageId,
         selectedMentionList = selectedMentions.map { it.intoMessageMention() }

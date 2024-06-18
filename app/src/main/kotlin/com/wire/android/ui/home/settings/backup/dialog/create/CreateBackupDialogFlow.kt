@@ -20,10 +20,10 @@ package com.wire.android.ui.home.settings.backup.dialog.create
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
 import com.wire.android.ui.home.settings.backup.BackupCreationProgress
@@ -33,8 +33,8 @@ import com.wire.android.util.permission.PermissionDenialType
 @Composable
 fun CreateBackupDialogFlow(
     backUpAndRestoreState: BackupAndRestoreState,
-    onValidateBackupPassword: (TextFieldValue) -> Unit,
-    onCreateBackup: (String) -> Unit,
+    backupPasswordTextState: TextFieldState,
+    onCreateBackup: () -> Unit,
     onSaveBackup: (Uri) -> Unit,
     onShareBackup: () -> Unit,
     onCancelCreateBackup: () -> Unit,
@@ -47,10 +47,10 @@ fun CreateBackupDialogFlow(
             BackUpDialogStep.SetPassword -> {
                 SetBackupPasswordDialog(
                     passwordValidation = backUpAndRestoreState.passwordValidation,
-                    onBackupPasswordChanged = onValidateBackupPassword,
-                    onCreateBackup = { password ->
+                    backupPasswordTextState = backupPasswordTextState,
+                    onCreateBackup = {
                         toCreatingBackup()
-                        onCreateBackup(password)
+                        onCreateBackup()
                     },
                     onDismissDialog = onCancelCreateBackup
                 )

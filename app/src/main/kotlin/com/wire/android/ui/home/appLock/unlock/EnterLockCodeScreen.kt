@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,7 +47,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -58,6 +59,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
@@ -73,13 +75,13 @@ import java.util.Locale
 @Destination
 @Composable
 fun EnterLockCodeScreen(
+    navigator: Navigator,
     viewModel: EnterLockScreenViewModel = hiltViewModel(),
-    navigator: Navigator
 ) {
     EnterLockCodeScreenContent(
         state = viewModel.state,
+        passwordTextState = viewModel.passwordTextState,
         scrollState = rememberScrollState(),
-        onPasswordChanged = viewModel::onPasswordChanged,
         onContinue = viewModel::onContinue,
         onForgotCodeClicked = { navigator.navigate(NavigationCommand(ForgotLockCodeScreenDestination)) }
     )
@@ -97,14 +99,15 @@ fun EnterLockCodeScreen(
 @Composable
 fun EnterLockCodeScreenContent(
     state: EnterLockCodeViewState,
+    passwordTextState: TextFieldState,
     scrollState: ScrollState,
-    onPasswordChanged: (TextFieldValue) -> Unit,
     onContinue: () -> Unit,
     onForgotCodeClicked: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     WireScaffold { internalPadding ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
@@ -136,10 +139,9 @@ fun EnterLockCodeScreenContent(
                 )
 
                 WirePasswordTextField(
-                    value = state.password,
-                    onValueChange = onPasswordChanged,
+                    textState = passwordTextState,
                     labelMandatoryIcon = true,
-                    imeAction = ImeAction.Done,
+                    keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
                     modifier = Modifier
                         .testTag("password"),
                     state = when (state.error) {
@@ -149,7 +151,7 @@ fun EnterLockCodeScreenContent(
 
                         EnterLockCodeError.None -> WireTextFieldState.Default
                     },
-                    autofill = false,
+                    autoFill = false,
                     placeholderText = stringResource(R.string.settings_set_lock_screen_passcode_label),
                     labelText = stringResource(R.string.settings_set_lock_screen_passcode_label).uppercase(
                         Locale.getDefault()
@@ -173,7 +175,7 @@ fun EnterLockCodeScreenContent(
                 }
             ) {
                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
-                    val enabled = state.password.text.isNotBlank() && state.isUnlockEnabled
+                    val enabled = passwordTextState.text.isNotBlank() && state.isUnlockEnabled && !state.loading
                     ContinueButton(
                         enabled = enabled,
                         onContinue = onContinue
@@ -186,9 +188,9 @@ fun EnterLockCodeScreenContent(
 
 @Composable
 private fun ContinueButton(
-    modifier: Modifier = Modifier.fillMaxWidth(),
     enabled: Boolean,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth(),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {
@@ -210,8 +212,8 @@ fun PreviewEnterLockCodeScreen() {
     WireTheme {
         EnterLockCodeScreenContent(
             state = EnterLockCodeViewState(),
+            passwordTextState = TextFieldState(),
             scrollState = rememberScrollState(),
-            onPasswordChanged = {},
             onContinue = {},
             onForgotCodeClicked = {}
         )

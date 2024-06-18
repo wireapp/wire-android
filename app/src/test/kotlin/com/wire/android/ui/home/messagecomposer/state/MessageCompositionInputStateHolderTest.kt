@@ -17,12 +17,11 @@
  */
 package com.wire.android.ui.home.messagecomposer.state
 
-import androidx.compose.runtime.MutableState
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.framework.TestConversation
-import com.wire.android.ui.home.messagecomposer.model.MessageComposition
+import com.wire.android.config.SnapshotExtension
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -32,18 +31,18 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class MessageCompositionInputStateHolderTest {
 
-    private lateinit var messageComposition: MutableState<MessageComposition>
+    private lateinit var messageTextState: TextFieldState
 
     private lateinit var state: MessageCompositionInputStateHolder
 
     @BeforeEach
     fun before() {
-        messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))
+        messageTextState = TextFieldState()
         state = MessageCompositionInputStateHolder(
-            messageComposition = messageComposition,
+            messageTextState = messageTextState,
             selfDeletionTimer = mutableStateOf(SelfDeletionTimer.Disabled)
         )
     }

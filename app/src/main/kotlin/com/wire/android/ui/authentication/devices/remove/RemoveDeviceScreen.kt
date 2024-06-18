@@ -26,15 +26,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Icon
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -56,24 +54,26 @@ import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
 import com.wire.android.ui.common.dialogs.CancelLoginDialogState
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.rememberTopBarElevationState
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.dialogErrorStrings
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
 @Destination(
     style = PopUpNavigationAnimation::class,
 )
 @Composable
-fun RemoveDeviceScreen(navigator: Navigator) {
-    val viewModel: RemoveDeviceViewModel = hiltViewModel()
-    val clearSessionViewModel: ClearSessionViewModel = hiltViewModel()
-    val state: RemoveDeviceState = viewModel.state
-    val clearSessionState: ClearSessionState = clearSessionViewModel.state
-
+fun RemoveDeviceScreen(
+    navigator: Navigator,
+    viewModel: RemoveDeviceViewModel = hiltViewModel(),
+    clearSessionViewModel: ClearSessionViewModel = hiltViewModel(),
+) {
     fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean) = navigator.navigate(
         NavigationCommand(
             destination = if (isE2EIRequired) E2EIEnrollmentScreenDestination
@@ -85,10 +85,10 @@ fun RemoveDeviceScreen(navigator: Navigator) {
 
     clearAutofillTree()
     RemoveDeviceContent(
-        state = state,
-        clearSessionState = clearSessionState,
+        state = viewModel.state,
+        passwordTextState = viewModel.passwordTextState,
+        clearSessionState = clearSessionViewModel.state,
         onItemClicked = { viewModel.onItemClicked(it, ::navigateAfterSuccess) },
-        onPasswordChange = viewModel::onPasswordChange,
         onRemoveConfirm = { viewModel.onRemoveConfirmed(::navigateAfterSuccess) },
         onDialogDismiss = viewModel::onDialogDismissed,
         onErrorDialogDismiss = viewModel::clearDeleteClientError,
@@ -101,15 +101,16 @@ fun RemoveDeviceScreen(navigator: Navigator) {
 @Composable
 private fun RemoveDeviceContent(
     state: RemoveDeviceState,
+    passwordTextState: TextFieldState,
     clearSessionState: ClearSessionState,
     onItemClicked: (Device) -> Unit,
-    onPasswordChange: (TextFieldValue) -> Unit,
     onRemoveConfirm: () -> Unit,
     onDialogDismiss: () -> Unit,
     onErrorDialogDismiss: () -> Unit,
     onBackButtonClicked: () -> Unit,
     onCancelLoginClicked: () -> Unit,
-    onProceedLoginClicked: () -> Unit
+    onProceedLoginClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     BackHandler {
         onBackButtonClicked()
@@ -133,12 +134,15 @@ private fun RemoveDeviceContent(
     }
 
     val lazyListState = rememberLazyListState()
-    WireScaffold(topBar = {
-        RemoveDeviceTopBar(
-            elevation = lazyListState.rememberTopBarElevationState().value,
-            onBackButtonClicked = onBackButtonClicked
-        )
-    }) { internalPadding ->
+    WireScaffold(
+        modifier = modifier,
+        topBar = {
+            RemoveDeviceTopBar(
+                elevation = lazyListState.rememberTopBarElevationState().value,
+                onBackButtonClicked = onBackButtonClicked
+            )
+        }
+    ) { internalPadding ->
         Box(modifier = Modifier.padding(internalPadding)) {
             when (state.isLoadingClientsList) {
                 true -> RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
@@ -150,7 +154,7 @@ private fun RemoveDeviceContent(
             RemoveDeviceDialog(
                 errorState = state.error,
                 state = state.removeDeviceDialogState,
-                onPasswordChange = onPasswordChange,
+                passwordTextState = passwordTextState,
                 onDialogDismiss = onDialogDismiss,
                 onRemoveConfirm = onRemoveConfirm
             )
@@ -203,18 +207,18 @@ private fun RemoveDeviceItemsList(
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewRemoveDeviceScreen() {
+fun PreviewRemoveDeviceScreen() = WireTheme {
     RemoveDeviceContent(
         state = RemoveDeviceState(
             List(10) { Device() },
             RemoveDeviceDialogState.Hidden,
             isLoadingClientsList = false
         ),
+        passwordTextState = TextFieldState(),
         clearSessionState = ClearSessionState(),
         onItemClicked = {},
-        onPasswordChange = {},
         onRemoveConfirm = {},
         onDialogDismiss = {},
         onErrorDialogDismiss = {},

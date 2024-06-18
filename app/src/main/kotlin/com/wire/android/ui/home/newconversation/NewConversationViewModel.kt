@@ -18,15 +18,16 @@
 
 package com.wire.android.ui.home.newconversation
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameValidator
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
@@ -41,6 +42,8 @@ import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -53,6 +56,7 @@ class NewConversationViewModel @Inject constructor(
     getDefaultProtocol: GetDefaultProtocolUseCase
 ) : ViewModel() {
 
+    val newGroupNameTextState: TextFieldState = TextFieldState()
     var newGroupState: GroupMetadataState by mutableStateOf(
         GroupMetadataState().let {
             val defaultProtocol = ConversationOptions
@@ -75,6 +79,17 @@ class NewConversationViewModel @Inject constructor(
                 isGroupCreatingAllowed = !isSelfExternalTeamMember
             )
         }
+        observeGroupNameChanges()
+    }
+
+    private fun observeGroupNameChanges() {
+        viewModelScope.launch {
+            newGroupNameTextState.textAsFlow()
+                .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
+                .collectLatest {
+                newGroupState = GroupNameValidator.onGroupNameChange(it.toString(), newGroupState)
+            }
+        }
     }
 
     fun updateSelectedContacts(selected: Boolean, contact: Contact) {
@@ -86,10 +101,6 @@ class NewConversationViewModel @Inject constructor(
                         it.domain == contact.domain
             }.toImmutableSet())
         }
-    }
-
-    fun onGroupNameChange(newText: TextFieldValue) {
-        newGroupState = GroupNameValidator.onGroupNameChange(newText, newGroupState)
     }
 
     fun onCreateGroupErrorDismiss() {
@@ -166,7 +177,7 @@ class NewConversationViewModel @Inject constructor(
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
             val result = createGroupConversation(
-                name = newGroupState.groupName.text,
+                name = newGroupNameTextState.text.toString(),
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
                 options = ConversationOptions().copy(
                     protocol = ConversationOptions.Protocol.PROTEUS,
@@ -183,7 +194,7 @@ class NewConversationViewModel @Inject constructor(
         viewModelScope.launch {
             groupOptionsState = groupOptionsState.copy(isLoading = true)
             val result = createGroupConversation(
-                name = newGroupState.groupName.text,
+                name = newGroupNameTextState.text.toString(),
                 // TODO: change the id in Contact to UserId instead of String
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
                 options = ConversationOptions().copy(

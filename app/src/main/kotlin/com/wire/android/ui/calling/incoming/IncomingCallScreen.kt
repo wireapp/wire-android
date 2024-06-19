@@ -123,7 +123,6 @@ fun IncomingCallScreen(
         IncomingCallContent(
             callState = callState,
             toggleMute = { sharedCallingViewModel.toggleMute(true) },
-            toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
             declineCall = {
                 incomingCallViewModel.declineCall(
@@ -165,7 +164,6 @@ fun IncomingCallScreen(
 private fun IncomingCallContent(
     callState: CallState,
     toggleMute: () -> Unit,
-    toggleSpeaker: () -> Unit,
     toggleVideo: () -> Unit,
     declineCall: () -> Unit,
     acceptCall: () -> Unit,
@@ -189,9 +187,10 @@ private fun IncomingCallContent(
                 isMuted = callState.isMuted ?: true,
                 isCameraOn = callState.isCameraOn,
                 isSpeakerOn = callState.isSpeakerOn,
-                toggleSpeaker = toggleSpeaker,
+                toggleSpeaker = {},
                 toggleMute = toggleMute,
                 toggleVideo = toggleVideo,
+                shouldShowSpeakerButton = false,
                 onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
             )
             Box(
@@ -292,7 +291,6 @@ fun PreviewIncomingCallScreen() {
     IncomingCallContent(
         callState = CallState(ConversationId("value", "domain")),
         toggleMute = { },
-        toggleSpeaker = { },
         toggleVideo = { },
         declineCall = { },
         acceptCall = { },

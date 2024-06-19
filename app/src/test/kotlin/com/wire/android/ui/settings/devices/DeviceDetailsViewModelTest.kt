@@ -59,8 +59,6 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.IOException
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.time.Duration.Companion.days
@@ -129,8 +127,8 @@ class DeviceDetailsViewModelTest {
             arrangement.deleteClientUseCase(any()) wasNot Called
         }
         verify { arrangement.onSuccess wasNot Called }
-        assertTrue(viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
-        assertTrue(viewModel.state.error is RemoveDeviceError.None)
+        assertEquals(true, viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
+        assertEquals(true, viewModel.state.error is RemoveDeviceError.None)
     }
 
     @Test
@@ -148,8 +146,8 @@ class DeviceDetailsViewModelTest {
                 arrangement.deleteClientUseCase(any()) wasNot Called
             }
             verify { arrangement.onSuccess wasNot Called }
-            assertTrue(viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Hidden)
-            assertTrue(viewModel.state.error is RemoveDeviceError.None)
+            assertEquals(true, viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Hidden)
+            assertEquals(true, viewModel.state.error is RemoveDeviceError.None)
         }
 
     @Test
@@ -169,8 +167,8 @@ class DeviceDetailsViewModelTest {
                 arrangement.deleteClientUseCase.invoke(any()) wasNot Called
             }
             verify { arrangement.onSuccess wasNot Called }
-            assertTrue(viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
-            assertTrue(viewModel.state.error is RemoveDeviceError.None)
+            assertEquals(true, viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
+            assertEquals(true, viewModel.state.error is RemoveDeviceError.None)
         }
 
     @Test
@@ -191,9 +189,9 @@ class DeviceDetailsViewModelTest {
                 arrangement.deleteClientUseCase.invoke(any())
             }
             verify { arrangement.onSuccess() }
-            assertTrue(viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
-            assertTrue((viewModel.state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.removeEnabled == false)
-            assertTrue(viewModel.state.error is RemoveDeviceError.None)
+            assertEquals(true, viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
+            assertEquals(true, (viewModel.state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.removeEnabled == false)
+            assertEquals(true, viewModel.state.error is RemoveDeviceError.None)
         }
 
     @Test
@@ -212,8 +210,8 @@ class DeviceDetailsViewModelTest {
                 arrangement.deleteClientUseCase(any())
             }
             verify { arrangement.onSuccess() }
-            assertTrue(viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Hidden)
-            assertTrue(viewModel.state.error is RemoveDeviceError.None)
+            assertEquals(true, viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Hidden)
+            assertEquals(true, viewModel.state.error is RemoveDeviceError.None)
         }
 
     @Test
@@ -224,7 +222,7 @@ class DeviceDetailsViewModelTest {
             .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT.copy(type = ClientType.LegalHold), false))
             .arrange()
         // then
-        assertFalse(viewModel.state.canBeRemoved)
+        assertEquals(false, viewModel.state.canBeRemoved)
     }
 
     @Test
@@ -235,7 +233,7 @@ class DeviceDetailsViewModelTest {
             .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT.copy(type = ClientType.Temporary), false))
             .arrange()
         // then
-        assertFalse(viewModel.state.canBeRemoved)
+        assertEquals(true, viewModel.state.canBeRemoved)
     }
 
     @Test
@@ -246,7 +244,7 @@ class DeviceDetailsViewModelTest {
             .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT.copy(type = ClientType.Permanent), false))
             .arrange()
         // then
-        assertTrue(viewModel.state.canBeRemoved)
+        assertEquals(true, viewModel.state.canBeRemoved)
     }
 
     @Test
@@ -257,7 +255,29 @@ class DeviceDetailsViewModelTest {
             .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT.copy(type = ClientType.Permanent), true))
             .arrange()
         // then
-        assertFalse(viewModel.state.canBeRemoved)
+        assertEquals(false, viewModel.state.canBeRemoved)
+    }
+
+    @Test
+    fun `given self client with null type, when fetching state, then canBeRemoved is true`() = runTest {
+        // given
+        val (_, viewModel) = Arrangement()
+            .withRequiredMockSetup()
+            .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT.copy(type = null), false))
+            .arrange()
+        // then
+        assertEquals(true, viewModel.state.canBeRemoved)
+    }
+
+    @Test
+    fun `given other user temporary client, when fetching state, then canBeRemoved is false`() = runTest {
+        // given
+        val (_, viewModel) = Arrangement()
+            .withRequiredMockSetup(userId = UserId("otherUserId", "otherUserDomain"))
+            .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT.copy(type = ClientType.Temporary), false))
+            .arrange()
+        // then
+        assertEquals(false, viewModel.state.canBeRemoved)
     }
 
     @Test
@@ -268,7 +288,7 @@ class DeviceDetailsViewModelTest {
             .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT.copy(type = ClientType.Permanent), false))
             .arrange()
         // then
-        assertFalse(viewModel.state.canBeRemoved)
+        assertEquals(false, viewModel.state.canBeRemoved)
     }
 
     @Test
@@ -281,8 +301,8 @@ class DeviceDetailsViewModelTest {
 
             viewModel.enrollE2EICertificate()
 
-            assertTrue(viewModel.state.isLoadingCertificate)
-            assertTrue(viewModel.state.startGettingE2EICertificate)
+            assertEquals(true, viewModel.state.isLoadingCertificate)
+            assertEquals(true, viewModel.state.startGettingE2EICertificate)
         }
 
     @Test

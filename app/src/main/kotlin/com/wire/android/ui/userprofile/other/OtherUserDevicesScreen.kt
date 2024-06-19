@@ -27,8 +27,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,7 +39,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
-import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
@@ -54,14 +52,14 @@ import com.wire.android.util.ui.LinkTextData
 
 @Composable
 fun OtherUserDevicesScreen(
-    lazyListState: LazyListState = rememberLazyListState(),
     state: OtherUserProfileState,
+    lazyListState: LazyListState = rememberLazyListState(),
     onDeviceClick: (Device) -> Unit
 ) {
     if (state.otherUserDevices.isEmpty()) {
         OtherUserEmptyDevicesContent()
     } else {
-        OtherUserDevicesContent(lazyListState, state, onDeviceClick)
+        OtherUserDevicesContent(state, lazyListState, onDeviceClick)
     }
 }
 
@@ -84,8 +82,8 @@ private fun OtherUserEmptyDevicesContent() {
 
 @Composable
 private fun OtherUserDevicesContent(
-    lazyListState: LazyListState = rememberLazyListState(),
     state: OtherUserProfileState,
+    lazyListState: LazyListState = rememberLazyListState(),
     onDeviceClick: (Device) -> Unit
 ) {
     val context = LocalContext.current
@@ -117,12 +115,12 @@ private fun OtherUserDevicesContent(
 
             itemsIndexed(otherUserDevices) { index, item ->
                 DeviceItem(
-                    item,
+                    device = item,
                     placeholder = false,
-                    background = MaterialTheme.wireColorScheme.surface,
+                    modifier = Modifier.background(MaterialTheme.wireColorScheme.surface),
                     isWholeItemClickable = true,
                     onClickAction = onDeviceClick,
-                    icon = Icons.Filled.ChevronRight.Icon(),
+                    icon =  { ArrowRightIcon() },
                     shouldShowVerifyLabel = true,
                     shouldShowE2EIInfo = item.e2eiCertificate != null
                 )

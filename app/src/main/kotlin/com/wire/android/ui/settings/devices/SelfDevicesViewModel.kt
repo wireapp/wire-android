@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
+import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,37 +54,47 @@ class SelfDevicesViewModel @Inject constructor(
         private set
 
     init {
-        // this will cause the list to be refreshed
-        loadClientsList()
-        observeClientList()
+        fetchAndObserveClientList()
     }
 
-    private fun observeClientList() {
+    private fun fetchAndObserveClientList() {
         viewModelScope.launch {
-            observeClientList(currentAccountId).collect { result ->
-                state = when (result) {
-                    is ObserveClientsByUserIdUseCase.Result.Failure -> state.copy(isLoadingClientsList = false)
-                    is ObserveClientsByUserIdUseCase.Result.Success -> {
-                        val currentClientId = currentClientIdUseCase().firstOrNull()
-                        val e2eiCertificates = getUserE2eiCertificates(currentAccountId)
-                        state.copy(
-                            isLoadingClientsList = false,
-                            currentDevice = result.clients
-                                .firstOrNull { it.id == currentClientId }
-                                ?.let { Device(it, e2eiCertificates[it.id.value]) },
-                            deviceList = result.clients
-                                .filter { it.id != currentClientId }
-                                .map { Device(it, e2eiCertificates[it.id.value]) }
-                        )
-                    }
-                }
+            fetchSelfClientsFromRemote() // this will cause the list to be refreshed
+            observeClientList(currentAccountId)
+                .collect(::intoState)
+        }
+    }
+
+    private suspend fun intoState(result: ObserveClientsByUserIdUseCase.Result) {
+        state = when (result) {
+            is ObserveClientsByUserIdUseCase.Result.Success -> {
+                val currentClientId = currentClientIdUseCase().firstOrNull()
+                val e2eiCertificates = getUserE2eiCertificates(currentAccountId)
+                state.copy(
+                    isLoadingClientsList = false,
+                    currentDevice = result.clients
+                        .firstOrNull { it.id == currentClientId }
+                        ?.let { Device(it, e2eiCertificates[it.id.value]) },
+                    deviceList = result.clients
+                        .filter { it.id != currentClientId }
+                        .map { Device(it, e2eiCertificates[it.id.value]) }
+                )
+            }
+            is ObserveClientsByUserIdUseCase.Result.Failure -> {
+                state.copy(isLoadingClientsList = false, error = SelfDevicesState.Error.InitError)
             }
         }
     }
 
-    private fun loadClientsList() {
+    fun retryFetch() {
+        state = state.copy(isLoadingClientsList = true, error = SelfDevicesState.Error.None)
         viewModelScope.launch {
-            fetchSelfClientsFromRemote()
+            fetchSelfClientsFromRemote().let {
+                state = state.copy(isLoadingClientsList = false)
+                if (it is SelfClientsResult.Failure) { // if success then observeClientList will update the state
+                    state = state.copy(error = SelfDevicesState.Error.InitError)
+                }
+            }
         }
     }
 }

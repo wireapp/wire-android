@@ -23,6 +23,9 @@ package com.wire.android.ui.settings.devices
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestClient
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.settings.devices.model.SelfDevicesState
+import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
@@ -32,10 +35,13 @@ import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import io.mockk.coEvery
 import io.mockk.MockKAnnotations
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -44,18 +50,53 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SelfDevicesViewModelTest {
 
     @Test
-    fun `given a self client id, when fetching self clients, then returns devices list without current device`() =
+    fun `given a self client id, when observing self clients, then returns devices list without current device`() =
         runTest {
             // given
+            val currentClient = TestClient.CLIENT
+            val otherClient = TestClient.CLIENT.copy(id = ClientId("anotherId"))
             val (_, viewModel) = Arrangement()
+                .withCurrentClientId(currentClient.id)
+                .withObserveClientsByUserIdResult(ObserveClientsByUserIdUseCase.Result.Success(listOf(currentClient, otherClient)))
                 .arrange()
 
             // when
-            val currentDevice = Device(TestClient.CLIENT)
+            val currentDevice = Device(currentClient)
+            val otherDevice = Device(otherClient)
 
             // then
-            assert(!viewModel.state.deviceList.contains(currentDevice))
+            assertEquals(false, viewModel.state.isLoadingClientsList)
+            assertEquals(SelfDevicesState.Error.None, viewModel.state.error)
+            assertEquals(false, viewModel.state.deviceList.contains(currentDevice))
+            assertEquals(true, viewModel.state.deviceList.contains(otherDevice))
         }
+
+    @Test
+    fun `given error, when observing devices, then show init error`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withFetchSelfClientsResult(SelfClientsResult.Failure.Generic(NetworkFailure.NoNetworkConnection(null)))
+            .withObserveClientsByUserIdResult(ObserveClientsByUserIdUseCase.Result.Failure(NetworkFailure.NoNetworkConnection(null)))
+            .arrange()
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.state.isLoadingClientsList)
+        assertEquals(SelfDevicesState.Error.InitError, viewModel.state.error)
+        assertEquals(emptyList(), viewModel.state.deviceList)
+    }
+
+    @Test
+    fun `given error, when retrying, then execute fetch properly`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withFetchSelfClientsResult(SelfClientsResult.Failure.Generic(NetworkFailure.NoNetworkConnection(null)))
+            .arrange()
+        advanceUntilIdle()
+
+        viewModel.retryFetch()
+
+        coVerify(exactly = 2) { // first time during init, second time when retrying
+            arrangement.fetchSelfClientsFromRemote()
+        }
+    }
 
     private class Arrangement {
 
@@ -92,15 +133,21 @@ class SelfDevicesViewModelTest {
 
             coEvery { currentClientId.invoke() } returns flowOf(TestClient.CLIENT_ID)
             coEvery { fetchSelfClientsFromRemote.invoke() } returns SelfClientsResult.Success(listOf(), null)
-            coEvery { observeClientsByUserId(any()) } returns flowOf(
-                ObserveClientsByUserIdUseCase.Result.Success(
-                    listOf(
-                        TestClient.CLIENT
-                    )
-                )
-            )
+            coEvery { observeClientsByUserId(any()) } returns flowOf(ObserveClientsByUserIdUseCase.Result.Success(listOf()))
             coEvery { getUserE2eiCertificates.invoke(any()) } returns mapOf()
             coEvery { isE2EIEnabledUseCase() } returns true
+        }
+
+        fun withCurrentClientId(clientId: ClientId) = apply {
+            coEvery { currentClientId.invoke() } returns flowOf(clientId)
+        }
+
+        fun withFetchSelfClientsResult(result: SelfClientsResult) = apply {
+            coEvery { fetchSelfClientsFromRemote() } returns result
+        }
+
+        fun withObserveClientsByUserIdResult(result: ObserveClientsByUserIdUseCase.Result) = apply {
+            coEvery { observeClientsByUserId(any()) } returns flowOf(result)
         }
 
         fun arrange() = this to viewModel

@@ -55,11 +55,11 @@ import kotlinx.collections.immutable.persistentMapOf
 
 @Composable
 fun DebugDataOptions(
-    viewModel: DebugDataOptionsViewModel =
-        hiltViewModelScoped<DebugDataOptionsViewModelImpl, DebugDataOptionsViewModel, DebugDataOptions>(DebugDataOptions),
     appVersion: String,
     buildVariant: String,
     onCopyText: (String) -> Unit,
+    viewModel: DebugDataOptionsViewModel =
+        hiltViewModelScoped<DebugDataOptionsViewModelImpl, DebugDataOptionsViewModel, DebugDataOptions>(DebugDataOptions),
     onManualMigrationPressed: (currentAccount: UserId) -> Unit
 ) {
     DebugDataOptionsContent(

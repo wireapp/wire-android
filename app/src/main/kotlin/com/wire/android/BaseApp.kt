@@ -20,10 +20,9 @@ package com.wire.android
 import android.app.Application
 import androidx.work.Configuration
 
-open class BaseApp : Application(),  Configuration.Provider {
+open class BaseApp : Application(), Configuration.Provider {
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setMinimumLoggingLevel(android.util.Log.INFO)
             .build()
-
 }

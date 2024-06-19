@@ -50,7 +50,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
-
 @ViewModelScopedPreview
 interface DebugDataOptionsViewModel {
 
@@ -66,7 +65,7 @@ interface DebugDataOptionsViewModel {
     fun disableEventProcessing(disabled: Boolean) {}
 }
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class DebugDataOptionsViewModelImpl
 @Inject constructor(

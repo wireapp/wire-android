@@ -82,8 +82,7 @@ class TestCoreLogicModule {
 
     @Singleton
     @Provides
-    fun provideNetworkStateObserver(@KaliumCoreLogic coreLogic: CoreLogic): NetworkStateObserver =
-        TestNetworkStateObserver()
+    fun provideNetworkStateObserver(): NetworkStateObserver = TestNetworkStateObserver()
 
     @Provides
     fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
@@ -120,26 +119,27 @@ class TestCoreLogicModule {
         return AuthServerConfigProvider().apply {
             updateAuthServer(
                 ServerConfig.Links(
-                api = TestServerConfig.TEST_BACKEND_URL_BASE_API,
-                accounts = TestServerConfig.TEST_BACKEND_URL_ACCOUNTS,
-                webSocket = TestServerConfig.TEST_BACKEND_URL_BASE_WEBSOCKET,
-                teams = TestServerConfig.TEST_BACKEND_URL_TEAM_MANAGEMENT,
-                blackList = TestServerConfig.TEST_BACKEND_URL_BLACKLIST,
-                website = TestServerConfig.TEST_BACKEND_URL_WEBSITE,
-                title = TestServerConfig.TEST_BACKEND_TITLE,
-                isOnPremises = false,
-                apiProxy = null
-            ))
+                    api = TestServerConfig.TEST_BACKEND_URL_BASE_API,
+                    accounts = TestServerConfig.TEST_BACKEND_URL_ACCOUNTS,
+                    webSocket = TestServerConfig.TEST_BACKEND_URL_BASE_WEBSOCKET,
+                    teams = TestServerConfig.TEST_BACKEND_URL_TEAM_MANAGEMENT,
+                    blackList = TestServerConfig.TEST_BACKEND_URL_BLACKLIST,
+                    website = TestServerConfig.TEST_BACKEND_URL_WEBSITE,
+                    title = TestServerConfig.TEST_BACKEND_TITLE,
+                    isOnPremises = false,
+                    apiProxy = null
+                )
+            )
         }
     }
 }
 
 object TestServerConfig {
-    val TEST_BACKEND_URL_BASE_API = "https://test.api.com/"
-    val TEST_BACKEND_URL_ACCOUNTS = "https://test.api.com/"
-    val TEST_BACKEND_URL_BASE_WEBSOCKET = "wss://test.api.com/"
-    val TEST_BACKEND_URL_TEAM_MANAGEMENT = "https://test.api.com/"
-    val TEST_BACKEND_URL_BLACKLIST = "https://test.api.com/"
-    val TEST_BACKEND_URL_WEBSITE = "https://test.api.com/"
-    val TEST_BACKEND_TITLE = "Test Backend"
+    const val TEST_BACKEND_URL_BASE_API = "https://test.api.com/"
+    const val TEST_BACKEND_URL_ACCOUNTS = "https://test.api.com/"
+    const val TEST_BACKEND_URL_BASE_WEBSOCKET = "wss://test.api.com/"
+    const val TEST_BACKEND_URL_TEAM_MANAGEMENT = "https://test.api.com/"
+    const val TEST_BACKEND_URL_BLACKLIST = "https://test.api.com/"
+    const val TEST_BACKEND_URL_WEBSITE = "https://test.api.com/"
+    const val TEST_BACKEND_TITLE = "Test Backend"
 }

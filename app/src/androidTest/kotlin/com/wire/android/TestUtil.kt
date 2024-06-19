@@ -61,5 +61,4 @@ fun AndroidComposeTestRule<ActivityScenarioRule<WireActivity>, WireActivity>.wai
     timeoutMillis: Long = WAIT_UNTIL_TIMEOUT
 ) = waitUntilNodeCount(matcher, 0, timeoutMillis)
 
-
 private const val WAIT_UNTIL_TIMEOUT = 2_000L

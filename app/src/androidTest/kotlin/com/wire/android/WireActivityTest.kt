@@ -46,7 +46,8 @@ class WireActivityTest {
     var hiltRule = HiltAndroidRule(this)
 
     @get:Rule(order = 1)
-    val composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<WireActivity>, WireActivity> = createAndroidComposeRule<WireActivity>()
+    val composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<WireActivity>, WireActivity> =
+        createAndroidComposeRule<WireActivity>()
 
     @Before
     fun init() {
@@ -70,7 +71,6 @@ class WireActivityTest {
         composeTestRule.onNodeWithTag("loginButton").performClick()
 
         composeTestRule.waitUntilExists(R.string.migration_title, timeoutMillis = 10_000)
-
     }
 
     private fun initializeApplicationLoggingFrameworks() {

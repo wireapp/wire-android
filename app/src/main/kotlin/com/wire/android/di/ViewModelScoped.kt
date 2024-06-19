@@ -62,7 +62,7 @@ fun <R : ScopedArgs> scopedArgs(argsClass: KClass<R>, argsContainer: SavedStateH
 inline fun <reified T, reified S, reified R : ScopedArgs> hiltViewModelScoped(arguments: R): S where T : ViewModel, T : S = when {
     LocalInspectionMode.current -> ViewModelScopedPreviews.firstNotNullOf { it as? S }
     try {
-        Class.forName("androidx.test.espresso.Espresso");
+        Class.forName("androidx.test.espresso.Espresso")
         true
     } catch (e: ClassNotFoundException) {
         false

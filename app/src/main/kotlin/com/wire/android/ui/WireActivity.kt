@@ -166,7 +166,7 @@ class WireActivity : AppCompatActivity() {
             legalHoldRequestedViewModel.observeLegalHoldRequest()
 
             appLogger.i("$TAG start destination")
-            val startDestination = when (viewModel.initialAppState) {
+            val startDestination = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
                 InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
                 InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination

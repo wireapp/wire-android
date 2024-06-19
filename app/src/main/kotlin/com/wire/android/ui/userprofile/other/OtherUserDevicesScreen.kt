@@ -120,7 +120,7 @@ private fun OtherUserDevicesContent(
                     modifier = Modifier.background(MaterialTheme.wireColorScheme.surface),
                     isWholeItemClickable = true,
                     onClickAction = onDeviceClick,
-                    icon =  { ArrowRightIcon() },
+                    icon = { ArrowRightIcon() },
                     shouldShowVerifyLabel = true,
                     shouldShowE2EIInfo = item.e2eiCertificate != null
                 )

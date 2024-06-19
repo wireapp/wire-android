@@ -38,7 +38,6 @@ import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class RemoveDeviceViewModelTest {
@@ -82,7 +81,7 @@ class RemoveDeviceViewModelTest {
         }
     }
 
-    inner class Arrangement() {
+    inner class Arrangement {
 
         @MockK
         lateinit var fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase

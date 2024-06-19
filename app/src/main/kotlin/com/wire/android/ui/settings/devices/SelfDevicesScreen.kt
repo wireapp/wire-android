@@ -175,7 +175,7 @@ private fun LazyListScope.folderDeviceItems(
                 .background(MaterialTheme.wireColorScheme.surface),
             placeholder = placeholders,
             onClickAction = onDeviceClick,
-            icon =  { ArrowRightIcon() },
+            icon = { ArrowRightIcon() },
             isWholeItemClickable = true,
             shouldShowVerifyLabel = shouldShowVerifyLabel,
             isCurrentClient = isCurrentClient,

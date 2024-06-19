@@ -28,7 +28,7 @@ data class SelfDevicesState (
     val error: Error = Error.None,
 ) {
     sealed class Error {
-        data object None: Error()
-        data object InitError: Error()
+        data object None : Error()
+        data object InitError : Error()
     }
 }

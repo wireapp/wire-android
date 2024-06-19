@@ -28,10 +28,10 @@ import co.touchlab.kermit.platformLogWriter
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.util.CurrentScreenManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
 import com.wire.android.feature.analytics.model.AnalyticsSettings
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.getGitBuildId
@@ -135,12 +135,12 @@ class WireApplication : Application(), Configuration.Provider {
         // 2. Initialize our internal logging framework
         val isLoggingEnabled = globalDataStore.get().isLoggingEnabled().first()
         val config = if (isLoggingEnabled) {
-            KaliumLogger.Config.DEFAULT.apply {
-                setLogLevel(KaliumLogLevel.VERBOSE)
-                setLogWriterList(listOf(DataDogLogger, platformLogWriter()))
-            }
+            KaliumLogger.Config(
+                initialLevel = KaliumLogLevel.VERBOSE,
+                initialLogWriterList = listOf(DataDogLogger, platformLogWriter()),
+            )
         } else {
-            KaliumLogger.Config.disabled()
+            KaliumLogger.Config.DISABLED
         }
         // 2. Initialize our internal logging framework
         AppLogger.init(config)

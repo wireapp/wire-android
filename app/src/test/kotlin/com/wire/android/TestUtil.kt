@@ -17,6 +17,7 @@
  */
 package com.wire.android
 
+import org.junit.jupiter.api.Assertions
 import kotlin.random.Random
 
 val charPoolWithNumbers: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
@@ -29,3 +30,5 @@ fun Random.stringWithNumbers(length: Int) = (1..length)
 fun Random.string(length: Int) = (1..length)
     .map { Random.nextInt(0, charPool.size).let { charPool[it] } }
     .joinToString("")
+
+inline fun <reified T> assertIs(actualValue: Any): T = Assertions.assertInstanceOf(T::class.java, actualValue)

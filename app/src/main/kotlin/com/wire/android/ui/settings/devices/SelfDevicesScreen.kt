@@ -32,7 +32,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -42,9 +41,6 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -66,25 +62,6 @@ fun SelfDevicesScreen(
         onNavigateBack = navigator::navigateBack,
         onDeviceClick = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(viewModel.currentAccountId, it.clientId))) }
     )
-
-    if (viewModel.state.error is SelfDevicesState.Error.InitError) {
-        WireDialog(
-            properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = false, usePlatformDefaultWidth = false),
-            title = stringResource(id = R.string.label_general_error),
-            text = stringResource(id = R.string.devices_loading_error),
-            onDismiss = navigator::navigateBack,
-            dismissButtonProperties = WireDialogButtonProperties(
-                onClick = navigator::navigateBack,
-                text = stringResource(id = R.string.label_close),
-                type = WireDialogButtonType.Secondary,
-            ),
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = viewModel::retryFetch,
-                text = stringResource(id = R.string.label_retry),
-                type = WireDialogButtonType.Primary,
-            ),
-        )
-    }
 }
 
 @Composable

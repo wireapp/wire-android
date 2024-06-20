@@ -18,6 +18,7 @@
 package com.wire.android.ui.settings.devices
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestClient
@@ -91,7 +92,7 @@ class DeviceDetailsViewModelTest {
             .arrange()
 
         // then
-        assert(viewModel.state.error is RemoveDeviceError.InitError)
+        assertIs<RemoveDeviceError.InitError>(viewModel.state.error)
     }
 
     @Test
@@ -127,8 +128,8 @@ class DeviceDetailsViewModelTest {
             arrangement.deleteClientUseCase(any()) wasNot Called
         }
         verify { arrangement.onSuccess wasNot Called }
-        assertEquals(true, viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
-        assertEquals(true, viewModel.state.error is RemoveDeviceError.None)
+        assertIs<RemoveDeviceDialogState.Visible>(viewModel.state.removeDeviceDialogState)
+        assertIs<RemoveDeviceError.None>(viewModel.state.error)
     }
 
     @Test
@@ -146,8 +147,8 @@ class DeviceDetailsViewModelTest {
                 arrangement.deleteClientUseCase(any()) wasNot Called
             }
             verify { arrangement.onSuccess wasNot Called }
-            assertEquals(true, viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Hidden)
-            assertEquals(true, viewModel.state.error is RemoveDeviceError.None)
+            assertIs<RemoveDeviceDialogState.Hidden>(viewModel.state.removeDeviceDialogState)
+            assertIs<RemoveDeviceError.None>(viewModel.state.error)
         }
 
     @Test
@@ -167,8 +168,8 @@ class DeviceDetailsViewModelTest {
                 arrangement.deleteClientUseCase.invoke(any()) wasNot Called
             }
             verify { arrangement.onSuccess wasNot Called }
-            assertEquals(true, viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
-            assertEquals(true, viewModel.state.error is RemoveDeviceError.None)
+            assertIs<RemoveDeviceDialogState.Visible>(viewModel.state.removeDeviceDialogState)
+            assertIs<RemoveDeviceError.None>(viewModel.state.error)
         }
 
     @Test
@@ -189,9 +190,10 @@ class DeviceDetailsViewModelTest {
                 arrangement.deleteClientUseCase.invoke(any())
             }
             verify { arrangement.onSuccess() }
-            assertEquals(true, viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
-            assertEquals(true, (viewModel.state.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.removeEnabled == false)
-            assertEquals(true, viewModel.state.error is RemoveDeviceError.None)
+            assertIs<RemoveDeviceDialogState.Visible>(viewModel.state.removeDeviceDialogState).let {
+                assertEquals(true, it.removeEnabled == false)
+            }
+            assertIs<RemoveDeviceError.None>(viewModel.state.error)
         }
 
     @Test
@@ -210,8 +212,8 @@ class DeviceDetailsViewModelTest {
                 arrangement.deleteClientUseCase(any())
             }
             verify { arrangement.onSuccess() }
-            assertEquals(true, viewModel.state.removeDeviceDialogState is RemoveDeviceDialogState.Hidden)
-            assertEquals(true, viewModel.state.error is RemoveDeviceError.None)
+            assertIs<RemoveDeviceDialogState.Hidden>(viewModel.state.removeDeviceDialogState)
+            assertIs<RemoveDeviceError.None>(viewModel.state.error)
         }
 
     @Test

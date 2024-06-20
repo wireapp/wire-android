@@ -25,10 +25,4 @@ data class SelfDevicesState (
     val deviceList: List<Device>,
     val isLoadingClientsList: Boolean,
     val isE2EIEnabled: Boolean = false,
-    val error: Error = Error.None,
-) {
-    sealed class Error {
-        data object None : Error()
-        data object InitError : Error()
-    }
-}
+)

@@ -327,6 +327,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                         )
                     ).also {
                         if (it is ScheduleNewAssetMessageResult.Failure) {
+                            
                             appLogger.e("Failed to import asset message to conversationId=${conversation.conversationId.toLogString()} ")
                         } else {
                             appLogger.d("Success importing asset message to conversationId=${conversation.conversationId.toLogString()}")
@@ -457,5 +458,10 @@ data class ImportMediaAuthenticatedState(
     val isImporting: Boolean = false,
     val shareableConversationListState: ShareableConversationListState = ShareableConversationListState(),
     val selectedConversationItem: List<ConversationItem> = emptyList(),
-    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
+    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null),
+    val assetSendError: AssetSendError? = null
 )
+
+enum class AssetSendError {
+    DISABLED_BY_TEAM, RESTRICTED_ASSET
+}

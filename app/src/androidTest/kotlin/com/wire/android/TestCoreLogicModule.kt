@@ -38,7 +38,7 @@ import com.wire.kalium.mocks.requests.FeatureConfigRequests
 import com.wire.kalium.mocks.requests.LoginRequests
 import com.wire.kalium.mocks.requests.NotificationRequests
 import com.wire.kalium.network.NetworkStateObserver
-import com.wire.kalium.network.utils.MockUnboundNetworkClient
+import com.wire.kalium.network.utils.TestRequestHandler
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -62,7 +62,7 @@ class TestCoreLogicModule {
         userAgentProvider: UserAgentProvider
     ): CoreLogic {
         val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
-        val mockedRequests = mutableListOf<MockUnboundNetworkClient.TestRequestHandler>().apply {
+        val mockedRequests = mutableListOf<TestRequestHandler>().apply {
             addAll(LoginRequests.loginRequestResponseSuccess)
             addAll(ClientRequests.clientRequestResponseSuccess)
             addAll(FeatureConfigRequests.responseSuccess)

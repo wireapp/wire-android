@@ -965,12 +965,13 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="settings_myaccount_handle_updated">Il tuo nome utente è cambiato</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Invia Avviso di Lettura</string>
-    <string name="settings_send_read_receipts_description">Se disattivato, non potrai vedere gli avvisi di lettura degli altri utenti. Questa impostazione non si applica alle conversazioni di gruppo.</string>
+    <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages. 
+In group conversations, the group admin can overwrite this setting.</string>
     <string name="settings_censor_screenshots">Censura screenshot</string>
     <string name="settings_censor_screenshots_description">Se è ATTIVA, i contenuti dei messaggi non saranno visibili sullo screenshot o sulla registrazione dello schermo.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">Questo è applicato dall\'impostazione del team di eliminazione automatica dei messaggi e non è modificabile.\nI contenuti dei messaggi non saranno visibili sullo screenshot o sulla registrazione dello schermo.</string>
     <string name="settings_show_typing_indicator_title">Indicatore di digitazione</string>
-    <string name="settings_show_typing_indicator_description">Quando è disattivato, non potrai vedere quando le altre persone stanno scrivendo, e gli altri non vedranno quando stai scrivendo. Quest\'impostazione si applica a tutte le conversazioni su questo dispositivo.</string>
+    <string name="settings_show_typing_indicator_description">When this is on, you see when other people are writing a message, and others notice when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Blocca con codice d\'accesso</string>
     <string name="settings_send_anonymous_usage_data_title">Send anonymous usage data</string>
     <string name="settings_send_anonymous_usage_data_description">Usage data allows Wire to understand how the app is being used and how it can be improved. The data is anonymous and does not include the content of your communications (such as messages, files, locations, or calls).</string>

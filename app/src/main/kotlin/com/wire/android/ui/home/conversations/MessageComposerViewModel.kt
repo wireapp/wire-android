@@ -305,19 +305,7 @@ class MessageComposerViewModel @Inject constructor(
                                 assetMimeType = mimeType,
                                 audioLengthInMs = 0L
                             ).also {
-                                when (it) {
-                                    is ScheduleNewAssetMessageResult.Failure.Generic,
-                                    is ScheduleNewAssetMessageResult.Success -> {
-                                        /* no-op */
-                                    }
-
-                                    ScheduleNewAssetMessageResult.Failure.DisabledByTeam,
-                                    ScheduleNewAssetMessageResult.Failure.RestrictedFileType -> {
-                                        withContext(dispatchers.main()) {
-                                            onSnackbarMessage(ConversationSnackbarMessages.ErrorAssetRestriction)
-                                        }
-                                    }
-                                }
+                                handleAssetSendingResult(it)
                             }
                         }
 
@@ -338,19 +326,7 @@ class MessageComposerViewModel @Inject constructor(
                                         mimeType = mimeType
                                     )
                                 ).also {
-                                    when (it) {
-                                        is ScheduleNewAssetMessageResult.Failure.Generic,
-                                        is ScheduleNewAssetMessageResult.Success -> {
-                                            /* no-op */
-                                        }
-
-                                        ScheduleNewAssetMessageResult.Failure.DisabledByTeam,
-                                        ScheduleNewAssetMessageResult.Failure.RestrictedFileType -> {
-                                            withContext(dispatchers.main()) {
-                                                onSnackbarMessage(ConversationSnackbarMessages.ErrorAssetRestriction)
-                                            }
-                                        }
-                                    }
+                                    handleAssetSendingResult(it)
                                 }
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
@@ -363,6 +339,21 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
+    private suspend fun handleAssetSendingResult(result: ScheduleNewAssetMessageResult) {
+        when (result) {
+            is ScheduleNewAssetMessageResult.Failure.Generic,
+            is ScheduleNewAssetMessageResult.Success -> {
+                /* no-op */
+            }
+
+            ScheduleNewAssetMessageResult.Failure.DisabledByTeam,
+            ScheduleNewAssetMessageResult.Failure.RestrictedFileType -> {
+                withContext(dispatchers.main()) {
+                    onSnackbarMessage(ConversationSnackbarMessages.ErrorAssetRestriction)
+                }
+            }
+        }
+    }
     fun retrySendingMessage(messageId: String) {
         viewModelScope.launch {
             retryFailedMessage(messageId = messageId, conversationId = conversationId)

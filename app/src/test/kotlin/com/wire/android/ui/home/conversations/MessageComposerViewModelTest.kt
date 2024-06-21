@@ -32,6 +32,7 @@ import com.wire.android.ui.home.messagecomposer.state.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.state.Ping
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import io.mockk.coVerify
 import io.mockk.verify
@@ -534,6 +535,84 @@ class MessageComposerViewModelTest {
             }
             assertInstanceOf(SelfDeletionTimer.Enabled::class.java, viewModel.messageComposerViewState.value.selfDeletionTimer)
             assertEquals(expectedDuration, viewModel.messageComposerViewState.value.selfDeletionTimer.duration)
+        }
+
+    @Test
+    fun `given mimeType is DisabledByTeam, when trying to send, then show message to user`() =
+        runTest {
+            // Given
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .withSendAssetsResult(ScheduleNewAssetMessageResult.Failure.DisabledByTeam)
+                .arrange()
+            val mockedAttachment = AssetBundle(
+                "application/pdf",
+                "some-data-path".toPath(),
+                1L,
+                "mocked_file.pdf",
+                AttachmentType.GENERIC_FILE
+            )
+
+            // When
+            viewModel.infoMessage.test {
+                viewModel.sendAttachment(mockedAttachment)
+
+                // Then
+                coVerify(exactly = 1) {
+                    arrangement.sendAssetMessage.invoke(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any()
+                    )
+                }
+                assertEquals(ConversationSnackbarMessages.ErrorAssetRestriction, awaitItem())
+            }
+        }
+
+    @Test
+    fun `given mimeType is RestrictedFileType, when trying to send, then show message to user`() =
+        runTest {
+            // Given
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .withSendAssetsResult(ScheduleNewAssetMessageResult.Failure.RestrictedFileType)
+                .arrange()
+            val mockedAttachment = AssetBundle(
+                "application/pdf",
+                "some-data-path".toPath(),
+                1L,
+                "mocked_file.pdf",
+                AttachmentType.GENERIC_FILE
+            )
+
+            // When
+            viewModel.infoMessage.test {
+                viewModel.sendAttachment(mockedAttachment)
+
+                // Then
+                coVerify(exactly = 1) {
+                    arrangement.sendAssetMessage.invoke(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any()
+                    )
+                }
+                assertEquals(ConversationSnackbarMessages.ErrorAssetRestriction, awaitItem())
+            }
         }
 
     @Test

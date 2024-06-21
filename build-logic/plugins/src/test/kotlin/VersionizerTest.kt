@@ -17,6 +17,7 @@
  */
 
 import com.wire.android.gradle.version.Versionizer
+import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessThan
@@ -44,11 +45,24 @@ class VersionizerTest {
     }
 
     @Test
-    fun `given version generator when I generate a new version AFTER 10 SECONDS then I should get an directly incremented number`() {
-        val versionCodeOld = Versionizer(LocalDateTime.now().minusSeconds(10)).versionCode
-        val versionCodeNew = Versionizer().versionCode
+    fun `given before than 21 of June 2024 Build, then bump every 10 seconds`() {
+        val oldDate = LocalDateTime.of(2024, 6, 20, 0, 0)
+        val oldVersionCode = Versionizer(oldDate).versionCode
+        val newVersionCode = Versionizer(oldDate.plusSeconds(10)).versionCode
 
-        versionCodeNew shouldBeEqualTo versionCodeOld + 1
+        assertVersionCodeAreProperlyIncremented(oldVersionCode, newVersionCode)
+        assertEquals(1, newVersionCode - oldVersionCode)
+    }
+
+    @Test
+    fun `given after 21 of June 2024 Build, then bump every 5 minutes`() {
+        val oldDate = LocalDateTime.of(2024, 6, 22, 14, 0)
+        val oldVersionCode = Versionizer(oldDate).versionCode
+        val newVersionCode = Versionizer(oldDate.plusMinutes(5)).versionCode
+
+        println("Version number: $newVersionCode")
+        assertVersionCodeAreProperlyIncremented(oldVersionCode, newVersionCode)
+        assertEquals(1, newVersionCode - oldVersionCode)
     }
 
     @Test

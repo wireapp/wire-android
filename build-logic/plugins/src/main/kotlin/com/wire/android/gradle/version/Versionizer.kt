@@ -32,16 +32,29 @@ class Versionizer(private val localDateTime: LocalDateTime = LocalDateTime.now()
     val versionCode = generateVersionCode()
 
     private fun generateVersionCode(): Int {
-        val duration = Duration.between(DATE_OFFSET, localDateTime)
-        return (duration.seconds / 10).toInt()
+        return if (localDateTime <= V2_DATE_OFFSET) {
+            val duration = Duration.between(V1_DATE_OFFSET, localDateTime)
+            (duration.seconds / V1_SECONDS_PER_BUMP).toInt()
+        } else { // Use V2
+            val duration = Duration.between(V2_DATE_OFFSET, localDateTime)
+            V2_VERSION_CODE_OFFSET + (duration.toMinutes() / V2_MINUTES_PER_BUMP).toInt()
+        }
     }
 
     companion object {
-        //This is Google Play Max Version Code allowed
-        //https://developer.android.com/studio/publish/versioning
-        const val MAX_VERSION_CODE_ALLOWED = 2100000000
+        // This is Google Play Max Version Code allowed
+        // https://developer.android.com/studio/publish/versioning
+        const val MAX_VERSION_CODE_ALLOWED = 2_100_000_000
 
         // The time-based versioning on the current Android project subtracts from this date to start the count
-        private val DATE_OFFSET = LocalDateTime.of(2021, 4, 21, 1, 0)
+        private val V1_DATE_OFFSET = LocalDateTime.of(2021, 4, 21, 1, 0)
+        private const val V1_SECONDS_PER_BUMP = 10
+
+        // V2 starts at 100 million and 1 thousand
+        private const val V2_VERSION_CODE_OFFSET = 100_001_000
+
+        // From this date onwards, we bump every 5 min instead of every 10 seconds
+        private val V2_DATE_OFFSET = LocalDateTime.of(2024, 6, 21, 0, 0)
+        private const val V2_MINUTES_PER_BUMP = 5
     }
 }

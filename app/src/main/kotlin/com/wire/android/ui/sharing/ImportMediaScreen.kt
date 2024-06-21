@@ -443,7 +443,6 @@ fun PreviewImportMediaScreenAllowSome() {
     ImportMediaRestrictedContent(FeatureFlagState.FileSharingState.AllowSome(listOf("wire")), ImportMediaAuthenticatedState()) {}
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewImportMediaScreenRegular() {

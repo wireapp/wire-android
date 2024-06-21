@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations
 
+import android.content.Context
 import android.net.Uri
 import android.webkit.URLUtil
 import androidx.compose.runtime.getValue
@@ -54,6 +55,7 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
@@ -72,6 +74,7 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -84,6 +87,7 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class MessageComposerViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     override val savedStateHandle: SavedStateHandle,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
@@ -283,6 +287,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
+    @Suppress("LongMethod")
     internal fun sendAttachment(attachmentBundle: AssetBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
@@ -302,7 +307,21 @@ class MessageComposerViewModel @Inject constructor(
                                 assetDataSize = dataSize,
                                 assetMimeType = mimeType,
                                 audioLengthInMs = 0L
-                            )
+                            ).also {
+                                when (it) {
+                                    is ScheduleNewAssetMessageResult.Failure.Generic,
+                                    is ScheduleNewAssetMessageResult.Success -> {
+                                        /* no-op */
+                                    }
+
+                                    ScheduleNewAssetMessageResult.Failure.DisabledByTeam,
+                                    ScheduleNewAssetMessageResult.Failure.RestrictedFileType -> {
+                                        withContext(dispatchers.main()) {
+                                            onSnackbarMessage(ConversationSnackbarMessages.ErrorAssetRestriction)
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         AttachmentType.VIDEO,
@@ -321,7 +340,21 @@ class MessageComposerViewModel @Inject constructor(
                                         dataPath = dataPath,
                                         mimeType = mimeType
                                     )
-                                )
+                                ).also {
+                                    when (it) {
+                                        is ScheduleNewAssetMessageResult.Failure.Generic,
+                                        is ScheduleNewAssetMessageResult.Success -> {
+                                            /* no-op */
+                                        }
+
+                                        ScheduleNewAssetMessageResult.Failure.DisabledByTeam,
+                                        ScheduleNewAssetMessageResult.Failure.RestrictedFileType -> {
+                                            withContext(dispatchers.main()) {
+                                                onSnackbarMessage(ConversationSnackbarMessages.ErrorAssetRestriction)
+                                            }
+                                        }
+                                    }
+                                }
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)

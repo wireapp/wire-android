@@ -21,7 +21,6 @@
 package com.wire.android.ui.home
 
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
-import com.wire.kalium.logic.configuration.FileSharingStatus
 import kotlin.time.Duration
 
 data class FeatureFlagState(
@@ -37,11 +36,10 @@ data class FeatureFlagState(
 ) {
 
     sealed interface FileSharingState {
-        data object NoUser: FileSharingState
-        data object AllowAll: FileSharingState
-        data class AllowSome(val allowedList: List<String>): FileSharingState
-        data object DisabledByTeam: FileSharingState
-
+        data object NoUser : FileSharingState
+        data object AllowAll : FileSharingState
+        data class AllowSome(val allowedList: List<String>) : FileSharingState
+        data object DisabledByTeam : FileSharingState
     }
 
     data class E2EISnooze(val timeLeft: Duration)

@@ -87,7 +87,6 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class MessageComposerViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
     override val savedStateHandle: SavedStateHandle,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,

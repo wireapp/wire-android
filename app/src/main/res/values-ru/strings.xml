@@ -114,7 +114,7 @@
     <string name="content_description_conversation_send_emoticon">Кнопка отправки смайлика</string>
     <string name="content_description_conversation_send_gif">Кнопка отправки GIF</string>
     <string name="content_description_conversation_mention_someone">Упомянуть кого-нибудь</string>
-    <string name="content_description_new_conversation">Создать новую беседу</string>
+    <string name="content_description_new_conversation">Начать новую беседу</string>
     <string name="content_description_back_button">Кнопка назад</string>
     <string name="content_description_send_button">Отправить</string>
     <string name="content_description_timed_message_button">Самоудаляющиеся сообщения, кнопка</string>
@@ -462,7 +462,7 @@
     <string name="delete_group_conversation_dialog_description">Группа будет удалена из списка бесед на всех устройствах. Вы больше не сможете получить доступ к группе и ее контенту.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Поделиться с Wire</string>
-    <string name="import_media_searchbar_title">Поиск беседы</string>
+    <string name="import_media_searchbar_title">Поиск по беседе</string>
     <string name="import_media_send_button_title">Отправить</string>
     <string name="export_media_subject_title">Поделиться медиа из Wire</string>
     <!--Read receipts -->
@@ -1005,12 +1005,13 @@
     <string name="settings_myaccount_handle_updated">Ваш псевдоним изменен</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Отправлять отчет о прочтении</string>
-    <string name="settings_send_read_receipts_description">При выключении этого параметра, вы не сможете видеть отчеты о прочтении от ваших собеседников. Он не применяется к групповым беседам.</string>
+    <string name="settings_send_read_receipts_description">Если этот параметр включен, другие пользователи могут видеть, прочитали ли вы их сообщения. 
+В групповых беседах администратор группы может управлять этой настройкой.</string>
     <string name="settings_censor_screenshots">Запретить скриншоты</string>
     <string name="settings_censor_screenshots_description">При включении этого параметра содержимое сообщений не будет видно на скриншоте или при записи экрана.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">Это определяется настройкой самоудаления сообщений для команды и не может быть изменено.\nСодержимое сообщений не будет видно на скриншоте или при записи экрана.</string>
     <string name="settings_show_typing_indicator_title">Индикатор набора текста</string>
-    <string name="settings_show_typing_indicator_description">При выключении этого параметра вы не сможете видеть, когда собеседники набирают текст, а собеседники не смогут видеть, когда вы набираете текст. Эта настройка применяется ко всем беседам на этом устройстве.</string>
+    <string name="settings_show_typing_indicator_description">При включении этого параметра вы можете видеть, когда ваши собеседники пишут сообщение, а собеседники, когда пишете вы. Эта настройка применяется ко всем беседам на этом устройстве.</string>
     <string name="settings_app_lock_title">Блокировка кодом доступа</string>
     <string name="settings_send_anonymous_usage_data_title">Отправка анонимных данных об использовании</string>
     <string name="settings_send_anonymous_usage_data_description">Данные об использовании позволяют Wire определить, как используется приложение и как его можно улучшить. Эти данные анонимны и не включают в себя содержимое вашего общения (такое как, сообщения, файлы, местоположение или звонки).</string>

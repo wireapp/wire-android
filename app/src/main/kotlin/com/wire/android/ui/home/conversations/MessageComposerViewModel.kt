@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.conversations
 
-import android.content.Context
 import android.net.Uri
 import android.webkit.URLUtil
 import androidx.compose.runtime.getValue
@@ -74,7 +73,6 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch

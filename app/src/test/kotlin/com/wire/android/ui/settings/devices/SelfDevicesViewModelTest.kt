@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -55,15 +56,31 @@ class SelfDevicesViewModelTest {
                 .withCurrentClientId(currentClient.id)
                 .withObserveClientsByUserIdResult(ObserveClientsByUserIdUseCase.Result.Success(listOf(currentClient, otherClient)))
                 .arrange()
-
-            // when
             val currentDevice = Device(currentClient)
             val otherDevice = Device(otherClient)
+
+            // when
+            viewModel.loadCertificates()
 
             // then
             assertEquals(false, viewModel.state.isLoadingClientsList)
             assertEquals(false, viewModel.state.deviceList.contains(currentDevice))
             assertEquals(true, viewModel.state.deviceList.contains(otherDevice))
+        }
+
+    @Test
+    fun `given a self client id, when loadCertificates is called, then E2EI Certificates is fetched again`() =
+        runTest {
+            // given
+            val (arragne, viewModel) = Arrangement()
+                .arrange()
+
+            // when
+            viewModel.loadCertificates()
+            viewModel.loadCertificates()
+
+            // then
+            coVerify(exactly = 2) { arragne.getUserE2eiCertificates(any()) }
         }
 
     private class Arrangement {

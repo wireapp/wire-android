@@ -39,6 +39,7 @@ runs:
         output-file-url: 'true'
         public: true
     - name: Show URL
+      if: github.event.pull_request.number != ''
       shell: bash
       env:
         EVENT_FILE_PATH: artifacts/Event File/event.json

@@ -27,12 +27,14 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
@@ -49,6 +51,7 @@ import com.wire.android.ui.settings.devices.model.SelfDevicesState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.folderWithElements
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.android.util.lifecycle.rememberLifecycleEvent
 
 @RootNavGraph
 @Destination
@@ -57,6 +60,11 @@ fun SelfDevicesScreen(
     navigator: Navigator,
     viewModel: SelfDevicesViewModel = hiltViewModel()
 ) {
+    val lifecycleEvent = rememberLifecycleEvent()
+    LaunchedEffect(lifecycleEvent) {
+        if (lifecycleEvent == Lifecycle.Event.ON_RESUME) viewModel.loadCertificates()
+    }
+
     SelfDevicesScreenContent(
         state = viewModel.state,
         onNavigateBack = navigator::navigateBack,

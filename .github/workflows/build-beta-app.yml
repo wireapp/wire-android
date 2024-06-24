@@ -4,15 +4,13 @@ on:
   push:
     branches:
       - main
-  merge_group:
   pull_request:
     branches:
       - main
-    types: [ opened, synchronize ]
   workflow_call:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -26,6 +24,12 @@ jobs:
     needs: [ code-analysis, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     steps:
+      - name: Check if triggered by a pull request or non-main branch
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" || "${{ github.ref }}" != "refs/heads/main" ]]; then
+            echo "This workflow should only run on pushes to the main branch.";
+            exit 1;
+          fi
       - name: Checkout
         uses: actions/checkout@v4
         with:

@@ -85,6 +85,7 @@ class SelfDevicesViewModel @Inject constructor(
                         }
                     }
                 }
+        }
     }
 
     fun loadCertificates() {

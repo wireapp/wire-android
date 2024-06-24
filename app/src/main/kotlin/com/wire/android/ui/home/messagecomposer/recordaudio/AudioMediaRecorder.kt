@@ -106,51 +106,51 @@ class AudioMediaRecorder @Inject constructor(
     }
 
     private fun writeWavHeader(bufferedSink: okio.BufferedSink, sampleRate: Int, channels: Int, bitsPerSample: Int) {
-        val byteRate = sampleRate * channels * (bitsPerSample / 8)
-        val blockAlign = channels * (bitsPerSample / 8)
+        val byteRate = sampleRate * channels * (bitsPerSample / BITS_PER_BYTE)
+        val blockAlign = channels * (bitsPerSample / BITS_PER_BYTE)
 
-        // Używamy buffer() aby poprawnie zapisać wartości ciągów znaków
-        bufferedSink.writeUtf8("RIFF") // Chunk ID
-        bufferedSink.writeIntLe(0) // Placeholder for Chunk Size (will be updated later)
-        bufferedSink.writeUtf8("WAVE") // Format
-        bufferedSink.writeUtf8("fmt ") // Subchunk1 ID
-        bufferedSink.writeIntLe(16) // Subchunk1 Size (PCM)
-        bufferedSink.writeShortLe(1) // Audio Format (PCM)
+        // We use buffer() to correctly write the string values.
+        bufferedSink.writeUtf8(CHUNK_ID_RIFF) // Chunk ID
+        bufferedSink.writeIntLe(PLACEHOLDER_SIZE) // Placeholder for Chunk Size (will be updated later)
+        bufferedSink.writeUtf8(FORMAT_WAVE) // Format
+        bufferedSink.writeUtf8(SUBCHUNK1_ID_FMT) // Subchunk1 ID
+        bufferedSink.writeIntLe(SUBCHUNK1_SIZE_PCM) // Subchunk1 Size (PCM)
+        bufferedSink.writeShortLe(AUDIO_FORMAT_PCM) // Audio Format (PCM)
         bufferedSink.writeShortLe(channels) // Number of Channels
         bufferedSink.writeIntLe(sampleRate) // Sample Rate
         bufferedSink.writeIntLe(byteRate) // Byte Rate
         bufferedSink.writeShortLe(blockAlign) // Block Align
         bufferedSink.writeShortLe(bitsPerSample) // Bits Per Sample
-        bufferedSink.writeUtf8("data") // Subchunk2 ID
-        bufferedSink.writeIntLe(0) // Placeholder for Subchunk2 Size (will be updated later)
+        bufferedSink.writeUtf8(SUBCHUNK2_ID_DATA) // Subchunk2 ID
+        bufferedSink.writeIntLe(PLACEHOLDER_SIZE) // Placeholder for Subchunk2 Size (will be updated later)
     }
 
     private fun updateWavHeader(filePath: Path) {
         val file = filePath.toFile()
         val fileSize = file.length().toInt()
-        val dataSize = fileSize - 44
+        val dataSize = fileSize - HEADER_SIZE
 
-        val chunkSizeBuffer = ByteBuffer.allocate(4)
+        val chunkSizeBuffer = ByteBuffer.allocate(INT_SIZE)
         chunkSizeBuffer.order(ByteOrder.LITTLE_ENDIAN)
-        chunkSizeBuffer.putInt(fileSize - 8)
+        chunkSizeBuffer.putInt(fileSize - CHUNK_ID_SIZE)
 
-        val dataSizeBuffer = ByteBuffer.allocate(4)
+        val dataSizeBuffer = ByteBuffer.allocate(INT_SIZE)
         dataSizeBuffer.order(ByteOrder.LITTLE_ENDIAN)
         dataSizeBuffer.putInt(dataSize)
 
         val randomAccessFile = java.io.RandomAccessFile(file, "rw")
 
         // Update Chunk Size
-        randomAccessFile.seek(4)
+        randomAccessFile.seek(CHUNK_SIZE_OFFSET.toLong())
         randomAccessFile.write(chunkSizeBuffer.array())
 
         // Update Subchunk2 Size
-        randomAccessFile.seek(40)
+        randomAccessFile.seek(SUBCHUNK2_SIZE_OFFSET.toLong())
         randomAccessFile.write(dataSizeBuffer.array())
 
         randomAccessFile.close()
 
-        appLogger.i("Updated WAV Header: Chunk Size = ${fileSize - 8}, Data Size = $dataSize")
+        appLogger.i("Updated WAV Header: Chunk Size = ${fileSize - CHUNK_ID_SIZE}, Data Size = $dataSize")
     }
 
     fun stop() {
@@ -219,5 +219,19 @@ class AudioMediaRecorder @Inject constructor(
         const val BUFFER_SIZE = 1024
         const val AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT
         const val BITS_PER_SAMPLE = 16
+        const val BITS_PER_BYTE = 8
+        const val HEADER_SIZE = 44
+        const val CHUNK_ID_SIZE = 8
+        const val INT_SIZE = 4
+        const val PLACEHOLDER_SIZE = 0
+        const val CHUNK_SIZE_OFFSET = 4
+        const val SUBCHUNK2_SIZE_OFFSET = 40
+        const val AUDIO_FORMAT_PCM = 1
+        const val SUBCHUNK1_SIZE_PCM = 16
+
+        const val CHUNK_ID_RIFF = "RIFF"
+        const val FORMAT_WAVE = "WAVE"
+        const val SUBCHUNK1_ID_FMT = "fmt "
+        const val SUBCHUNK2_ID_DATA = "data"
     }
 }

@@ -81,6 +81,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
@@ -122,19 +123,23 @@ fun OngoingCallScreen(
             hangUpCall = { sharedCallingViewModel.hangUpCall(navigator::navigateBack) },
             toggleVideo = sharedCallingViewModel::toggleVideo,
             flipCamera = sharedCallingViewModel::flipCamera,
-            setVideoPreview = {
-                sharedCallingViewModel.setVideoPreview(it)
-                ongoingCallViewModel.startSendingVideoFeed()
-            },
-            clearVideoPreview = {
-                sharedCallingViewModel.clearVideoPreview()
-                ongoingCallViewModel.stopSendingVideoFeed()
-            },
+            setVideoPreview = sharedCallingViewModel::setVideoPreview,
+            clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
             navigateBack = navigator::navigateBack,
             requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
             hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
         )
         BackHandler(enabled = isCameraOn, navigator::navigateBack)
+    }
+
+    // Start/stop sending video feed based on the camera state when the call is established.
+    LaunchedEffect(sharedCallingViewModel.callState.callStatus, sharedCallingViewModel.callState.isCameraOn) {
+        if (sharedCallingViewModel.callState.callStatus == CallStatus.ESTABLISHED) {
+            when (sharedCallingViewModel.callState.isCameraOn) {
+                true -> ongoingCallViewModel.startSendingVideoFeed()
+                false -> ongoingCallViewModel.stopSendingVideoFeed()
+            }
+        }
     }
 }
 

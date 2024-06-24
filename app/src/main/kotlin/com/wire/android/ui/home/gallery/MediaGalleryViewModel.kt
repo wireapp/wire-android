@@ -76,7 +76,12 @@ class MediaGalleryViewModel @Inject constructor(
 
     private val messageId = imageAsset.messageId
     private val conversationId = imageAsset.conversationId
-    var mediaGalleryViewState by mutableStateOf(MediaGalleryViewState(isEphemeral = imageAsset.isEphemeral))
+    var mediaGalleryViewState by mutableStateOf(
+        MediaGalleryViewState(
+            isEphemeral = imageAsset.isEphemeral,
+            messageBottomSheetOptionsEnabled = mediaGalleryNavArgs.messageOptionsEnabled
+        )
+    )
         private set
 
     val deleteMessageHelper = DeleteMessageDialogHelper(

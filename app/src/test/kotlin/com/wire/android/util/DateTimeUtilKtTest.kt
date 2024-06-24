@@ -44,68 +44,89 @@ class DateTimeUtilKtTest {
 
     @Test
     fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Now`() {
-        val result = "2024-01-20T07:00:00.000Z".uiMessageDateTime(getDummyCalendar().timeInMillis)
-        assertEquals(MessageDateTime.Now, result)
+        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(getDummyCalendar().timeInMillis)
+        assertEquals(MessageDateTimeGroup.Now, result)
     }
 
     @Test
     fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Within30Minutes`() {
-        val result = "2024-01-20T07:00:00.000Z".uiMessageDateTime(
+        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.MINUTE, 10)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.Within30Minutes(10), result)
+        assertEquals(MessageDateTimeGroup.Within30Minutes, result)
     }
 
     @Test
     fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Today`() {
-        val result = "2024-01-20T07:00:00.000Z".uiMessageDateTime(
+        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.MINUTE, 31)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.Today("7:00 AM"), result)
+        assertEquals(
+            MessageDateTimeGroup.Daily.Type.Today,
+            (result as MessageDateTimeGroup.Daily).type
+        )
+        assertEquals(
+            "2024-01-20",
+            result.date.toString()
+        )
     }
 
     @Test
     fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Yesterday`() {
-        val result = "2024-01-20T07:00:00.000Z".uiMessageDateTime(
+        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.DATE, 1)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.Yesterday("7:00 AM"), result)
+
+        assertEquals(
+            MessageDateTimeGroup.Daily.Type.Yesterday,
+            (result as MessageDateTimeGroup.Daily).type
+        )
     }
 
     @Test
     fun `given valid date, when transforming to ui message date time, then return MessageDateTime_WithinWeek`() {
-        val result = "2024-01-20T07:00:00.000Z".uiMessageDateTime(
+        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.DATE, 3)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.WithinWeek("Saturday Jan 20, 07:00 AM"), result)
+
+        assertEquals(
+            MessageDateTimeGroup.Daily.Type.WithinWeek,
+            (result as MessageDateTimeGroup.Daily).type
+        )
     }
 
     @Test
     fun `given valid date, when transforming to ui message date time, then return MessageDateTime_NotWithinWeekButSameYear`() {
-        val result = "2024-01-20T07:00:00.000Z".uiMessageDateTime(
+        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.DATE, 10)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.NotWithinWeekButSameYear("Jan 20, 07:00 AM"), result)
+        assertEquals(
+            MessageDateTimeGroup.Daily.Type.NotWithinWeekButSameYear,
+            (result as MessageDateTimeGroup.Daily).type
+        )
     }
 
     @Test
     fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Other`() {
-        val result = "2024-01-20T07:00:00.000Z".uiMessageDateTime(
+        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 set(Calendar.YEAR, 2025)
             }.timeInMillis
         )
-        assertEquals(MessageDateTime.Other("Jan 20 2024, 07:00 AM"), result)
+        assertEquals(
+            MessageDateTimeGroup.Daily.Type.Other,
+            (result as MessageDateTimeGroup.Daily).type
+        )
     }
 
     private fun getDummyCalendar(): Calendar = Calendar.getInstance().apply {

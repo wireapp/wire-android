@@ -26,8 +26,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
@@ -35,14 +35,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
@@ -55,29 +52,34 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GroupNameScreen(
     newGroupState: GroupMetadataState,
-    onGroupNameChange: (TextFieldValue) -> Unit,
+    newGroupNameTextState: TextFieldState,
     onContinuePressed: () -> Unit,
     onGroupNameErrorAnimated: () -> Unit,
     onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     with(newGroupState) {
         val scrollState = rememberScrollState()
 
-        WireScaffold(topBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = scrollState.rememberTopBarElevationState().value,
-                onNavigationPressed = onBackPressed,
-                title = stringResource(id = if (mode == CREATION) R.string.new_group_title else R.string.group_name_title)
-            )
-        }) { internalPadding ->
+        WireScaffold(
+            modifier = modifier,
+            topBar = {
+                WireCenterAlignedTopAppBar(
+                    elevation = scrollState.rememberTopBarElevationState().value,
+                    onNavigationPressed = onBackPressed,
+                    title = stringResource(id = if (mode == CREATION) R.string.new_group_title else R.string.group_name_title)
+                )
+            }
+        ) { internalPadding ->
 
             Column(
                 modifier = Modifier
@@ -108,13 +110,12 @@ fun GroupNameScreen(
                                 onGroupNameErrorAnimated()
                             }
                             WireTextField(
-                                value = groupName,
-                                onValueChange = onGroupNameChange,
+                                textState = newGroupNameTextState,
                                 placeholderText = stringResource(R.string.group_name_placeholder),
                                 labelText = stringResource(R.string.group_name_title).uppercase(),
                                 state = computeGroupMetadataState(error),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
-                                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                                onKeyboardAction = { keyboardController?.hide() },
                                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                             )
                         }
@@ -175,12 +176,12 @@ private fun computeGroupMetadataState(error: GroupMetadataState.NewGroupError) =
         WireTextFieldState.Default
     }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewGroupNameScreenEdit() {
+fun PreviewGroupNameScreenEdit() = WireTheme {
     GroupNameScreen(
-        GroupMetadataState(groupName = TextFieldValue("group name")),
-        onGroupNameChange = {},
+        newGroupState = GroupMetadataState(),
+        newGroupNameTextState = TextFieldState("group name"),
         onContinuePressed = {},
         onGroupNameErrorAnimated = {},
         onBackPressed = {}

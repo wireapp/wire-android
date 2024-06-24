@@ -16,6 +16,11 @@ ij_smart_tabs = false
 ij_visual_guides = none
 ij_wrap_on_typing = false
 
+# Specific settings for YAML files
+[{*.yml,*.yaml}]
+indent_style = space
+indent_size = 2
+
 [{*.gradle.kts,*.kt,*.kts,*.main.kts,*.space.kts}]
 max_line_length = 140
 ij_kotlin_name_count_to_use_star_import = 999

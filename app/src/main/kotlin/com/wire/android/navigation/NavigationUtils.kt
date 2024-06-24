@@ -35,6 +35,8 @@ import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.destinations.Destination
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logger.obfuscateId
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
 
 @SuppressLint("RestrictedApi")
 internal fun NavController.navigateToItem(command: NavigationCommand) {
@@ -44,6 +46,7 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
     fun lastNestedGraph() = lastDestination()?.takeIf { it.navGraph() != navGraph }?.navGraph()
     fun firstDestinationWithRoute(route: String) =
         currentBackStack.value.firstOrNull { it.destination.route?.getBaseRoute() == route.getBaseRoute() }
+
     fun lastDestinationFromOtherGraph(graph: NavGraphSpec) = currentBackStack.value.lastOrNull { it.navGraph() != graph }
 
     appLogger.d("[$TAG] -> command: ${command.destination.route.obfuscateId()}")
@@ -113,6 +116,21 @@ fun Direction.handleNavigation(context: Context, handleOtherDirection: (Directio
     is ExternalUriStringResDirection -> CustomTabsHelper.launchUri(context, this.getUri(context.resources))
     is IntentDirection -> context.startActivity(this.intent(context))
     else -> handleOtherDirection(this)
+}
+
+object ArgsSerializer {
+    @OptIn(ExperimentalSerializationApi::class)
+    private val instance: Json by lazy {
+        Json {
+            encodeDefaults = true
+            explicitNulls = false
+            // to enable the serialization of maps with complex keys
+            // e.g. Map<QualifiedIDEntity, PersistenceSession>
+            allowStructuredMapKeys = true
+        }
+    }
+
+    operator fun invoke() = instance
 }
 
 private const val TAG = "NavigationUtils"

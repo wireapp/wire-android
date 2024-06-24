@@ -18,9 +18,9 @@
 
 package com.wire.android.util.permission
 
-import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -35,17 +35,18 @@ import com.wire.android.util.extension.getActivity
  * @param onPermissionDenied action to be executed when the permissions is denied
  */
 @Composable
-fun rememberOpenGalleryFlow(
-    onGalleryItemPicked: (Uri) -> Unit,
+fun <T> rememberOpenGalleryFlow(
+    contract: ActivityResultContract<String, T>,
+    onGalleryItemPicked: (T) -> Unit,
     onPermissionDenied: () -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
-): UseStorageRequestFlow {
+): UseStorageRequestFlow<T> {
     val context = LocalContext.current
-    val openGalleryLauncher: ManagedActivityResultLauncher<String, Uri?> =
+    val openGalleryLauncher: ManagedActivityResultLauncher<String, T> =
         rememberLauncherForActivityResult(
-            ActivityResultContracts.GetContent()
+            contract
         ) { onChosenPictureUri ->
-            onChosenPictureUri?.let { onGalleryItemPicked(it) }
+            onGalleryItemPicked(onChosenPictureUri)
         }
 
     val requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =

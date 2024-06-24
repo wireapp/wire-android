@@ -18,10 +18,8 @@
 
 package com.wire.android.ui.common
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -60,9 +58,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 fun Modifier.selectableBackground(isSelected: Boolean, onClick: () -> Unit): Modifier =
     this.selectable(
         selected = isSelected,
-        onClick = { onClick() },
-        interactionSource = remember { MutableInteractionSource() },
-        indication = rememberRipple(bounded = true, color = MaterialTheme.colorScheme.onBackground.copy(0.5f)),
+        onClick = onClick,
         role = Role.Tab
     )
 

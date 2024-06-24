@@ -18,7 +18,7 @@
 package com.wire.android.ui.home.conversations.messages
 
 import android.os.Bundle
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
@@ -26,6 +26,7 @@ import androidx.paging.map
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
@@ -50,12 +51,12 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class, SnapshotExtension::class)
 class SearchConversationMessagesViewModelTest {
 
     @Test
@@ -109,14 +110,11 @@ class SearchConversationMessagesViewModelTest {
             .arrange()
 
         // when
-        viewModel.searchQueryChanged(TextFieldValue(searchTerm))
+        viewModel.searchQueryTextState.setTextAndPlaceCursorAtEnd(searchTerm)
         advanceUntilIdle()
 
         // then
-        assertEquals(
-            TextFieldValue(searchTerm),
-            viewModel.searchConversationMessagesState.searchQuery
-        )
+        assertEquals(searchTerm, viewModel.searchQueryTextState.text.toString())
         coVerify(exactly = 0) {
             arrangement.getSearchMessagesForConversation(
                 searchTerm,
@@ -155,14 +153,11 @@ class SearchConversationMessagesViewModelTest {
             .arrange()
 
         // when
-        viewModel.searchQueryChanged(TextFieldValue(searchTerm))
+        viewModel.searchQueryTextState.setTextAndPlaceCursorAtEnd(searchTerm)
         advanceUntilIdle()
 
         // then
-        assertEquals(
-            TextFieldValue(searchTerm),
-            viewModel.searchConversationMessagesState.searchQuery
-        )
+        Assertions.assertEquals(searchTerm, viewModel.searchQueryTextState.text.toString())
         coVerify(exactly = 0) {
             arrangement.getSearchMessagesForConversation(
                 searchTerm,
@@ -194,7 +189,7 @@ class SearchConversationMessagesViewModelTest {
                 .arrange()
 
             // when
-            viewModel.searchQueryChanged(TextFieldValue(searchTerm))
+            viewModel.searchQueryTextState.setTextAndPlaceCursorAtEnd(searchTerm)
 
             // then
             viewModel.searchConversationMessagesState.searchResult.test {

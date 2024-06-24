@@ -18,6 +18,14 @@
 
 package com.wire.android.ui.home.conversations.messages.item
 
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.splineBasedDecay
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,25 +33,46 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -58,15 +87,14 @@ import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
-import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
@@ -75,15 +103,14 @@ import com.wire.android.ui.home.conversations.model.messagetypes.location.Locati
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.MessageDateTime
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isSaved
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlin.math.absoluteValue
+import kotlin.math.min
 
 // TODO: a definite candidate for a refactor and cleanup
 @Suppress("ComplexMethod")
@@ -96,6 +123,7 @@ fun RegularMessageItem(
     audioMessagesState: PersistentMap<String, AudioState>,
     assetStatus: AssetTransferStatus? = null,
     onLongClicked: (UIMessage.Regular) -> Unit,
+    swipableMessageConfiguration: SwipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
@@ -112,10 +140,10 @@ fun RegularMessageItem(
     onReplyClickable: Clickable? = null,
     isInteractionAvailable: Boolean = true,
     useSmallBottomPadding: Boolean = false,
-    currentTimeInMillisFlow: Flow<Long> = flow { },
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable
-) {
-    with(message) {
+): Unit = with(message) {
+    @Composable
+    fun messageContent() {
         MessageItemTemplate(
             showAuthor,
             useSmallBottomPadding = useSmallBottomPadding,
@@ -133,7 +161,7 @@ fun RegularMessageItem(
                 Column {
                     if (showAuthor) {
                         Spacer(modifier = Modifier.height(dimensions().avatarClickablePadding))
-                        MessageAuthorRow(messageHeader = message.header, currentTimeInMillisFlow)
+                        MessageAuthorRow(messageHeader = message.header)
                         Spacer(modifier = Modifier.height(dimensions().spacing4x))
                     }
                     if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
@@ -238,6 +266,140 @@ fun RegularMessageItem(
             }
         )
     }
+    if (swipableMessageConfiguration is SwipableMessageConfiguration.SwipableToReply && isReplyable) {
+        val onSwipe = remember(message) { { swipableMessageConfiguration.onSwipedToReply(message) } }
+        SwipableToReplyBox(onSwipedToReply = onSwipe) {
+            messageContent()
+        }
+    } else {
+        messageContent()
+    }
+}
+
+@Stable
+sealed interface SwipableMessageConfiguration {
+    data object NotSwipable : SwipableMessageConfiguration
+    class SwipableToReply(val onSwipedToReply: (uiMessage: UIMessage.Regular) -> Unit) : SwipableMessageConfiguration
+}
+
+enum class SwipeAnchor {
+    CENTERED,
+    START_TO_END
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun SwipableToReplyBox(
+    modifier: Modifier = Modifier,
+    onSwipedToReply: () -> Unit = {},
+    content: @Composable () -> Unit
+) {
+    val density = LocalDensity.current
+    val haptic = LocalHapticFeedback.current
+    val configuration = LocalConfiguration.current
+    val screenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }
+    var didVibrateOnCurrentDrag by remember { mutableStateOf(false) }
+
+    // Finish the animation in the first 25% of the drag
+    val progressUntilAnimationCompletion = 0.25f
+    val dragWidth = screenWidth * progressUntilAnimationCompletion
+
+    val currentViewConfiguration = LocalViewConfiguration.current
+    val scopedViewConfiguration = object : ViewConfiguration by currentViewConfiguration {
+        // Make it easier to scroll by giving the user a bit more length to identify the gesture as vertical
+        override val touchSlop: Float
+            get() = currentViewConfiguration.touchSlop * 3f
+    }
+    CompositionLocalProvider(LocalViewConfiguration provides scopedViewConfiguration) {
+        val dragState = remember {
+            AnchoredDraggableState(
+                initialValue = SwipeAnchor.CENTERED,
+                positionalThreshold = { dragWidth },
+                velocityThreshold = { screenWidth },
+                snapAnimationSpec = tween(),
+                decayAnimationSpec = splineBasedDecay(density),
+                confirmValueChange = { changedValue ->
+                    if (changedValue == SwipeAnchor.START_TO_END) {
+                        // Attempt to finish dismiss, notify reply intention
+                        onSwipedToReply()
+                    }
+                    if (changedValue == SwipeAnchor.CENTERED) {
+                        // Reset the haptic feedback when drag is stopped
+                        didVibrateOnCurrentDrag = false
+                    }
+                    // Reject state change, only allow returning back to rest position
+                    changedValue == SwipeAnchor.CENTERED
+                },
+                anchors = DraggableAnchors {
+                    SwipeAnchor.CENTERED at 0f
+                    SwipeAnchor.START_TO_END at screenWidth
+                }
+            )
+        }
+        val primaryColor = colorsScheme().primary
+
+        Box(
+            modifier = modifier.fillMaxSize(),
+        ) {
+            // Drag indication
+            Row(
+                modifier = Modifier
+                    .matchParentSize()
+                    .drawBehind {
+                        // TODO(RTL): Might need adjusting once RTL is supported
+                        drawRect(
+                            color = primaryColor,
+                            topLeft = Offset(0f, 0f),
+                            size = Size(dragState.requireOffset().absoluteValue, size.height),
+                        )
+                    },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                if (dragState.offset > 0f) {
+                    val dragProgress = dragState.offset / dragWidth
+                    val adjustedProgress = min(1f, dragProgress)
+                    val progress = FastOutLinearInEasing.transform(adjustedProgress)
+                    // Got to the end, user can release to perform action, so we vibrate to show it
+                    if (progress == 1f && !didVibrateOnCurrentDrag) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        didVibrateOnCurrentDrag = true
+                    }
+
+                    ReplySwipeIcon(dragWidth, density, progress)
+                }
+            }
+            // Message content, which is draggable
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .anchoredDraggable(dragState, Orientation.Horizontal, startDragImmediately = false)
+                    .offset {
+                        val x = dragState.requireOffset().toInt()
+                        IntOffset(x, 0)
+                    },
+            ) { content() }
+        }
+    }
+}
+
+@Composable
+private fun ReplySwipeIcon(dragWidth: Float, density: Density, progress: Float) {
+    val midPointBetweenStartAndGestureEnd = dragWidth / 2
+    val iconSize = dimensions().fabIconSize
+    val targetIconAnchorPosition = midPointBetweenStartAndGestureEnd - with(density) { iconSize.toPx() / 2 }
+    val xOffset = with(density) {
+        val totalTravelDistance = iconSize.toPx() + targetIconAnchorPosition
+        -iconSize.toPx() + (totalTravelDistance * progress)
+    }
+    Icon(
+        painter = painterResource(id = R.drawable.ic_reply),
+        contentDescription = "",
+        modifier = Modifier
+            .size(iconSize)
+            .offset { IntOffset(xOffset.toInt(), 0) },
+        tint = colorsScheme().onPrimary
+    )
 }
 
 @Composable
@@ -329,7 +491,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, assetTransferStatus: A
 }
 
 @Composable
-private fun MessageAuthorRow(messageHeader: MessageHeader, currentTimeInMillisFlow: Flow<Long>) {
+private fun MessageAuthorRow(messageHeader: MessageHeader) {
     with(messageHeader) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Row(
@@ -352,8 +514,7 @@ private fun MessageAuthorRow(messageHeader: MessageHeader, currentTimeInMillisFl
                 }
             }
             MessageTimeLabel(
-                messageTime = messageHeader.messageTime,
-                currentTimeInMillisFlow = currentTimeInMillisFlow,
+                messageTime = messageHeader.messageTime.formattedDate,
                 modifier = Modifier.padding(start = dimensions().spacing6x)
             )
         }
@@ -392,35 +553,11 @@ private fun MessageFooter(
 
 @Composable
 private fun MessageTimeLabel(
-    messageTime: MessageTime,
-    currentTimeInMillisFlow: Flow<Long>,
+    messageTime: String,
     modifier: Modifier = Modifier
 ) {
-
-    val currentTime by currentTimeInMillisFlow.collectAsState(initial = System.currentTimeMillis())
-
-    val messageDateTime = messageTime.formattedDate(now = currentTime)
-
-    val context = LocalContext.current
-
-    val timeString = when (messageDateTime) {
-        is MessageDateTime.Now -> context.resources.getString(R.string.message_datetime_now)
-        is MessageDateTime.Within30Minutes -> context.resources.getQuantityString(
-            R.plurals.message_datetime_minutes_ago,
-            messageDateTime.minutes,
-            messageDateTime.minutes
-        )
-
-        is MessageDateTime.Today -> context.resources.getString(R.string.message_datetime_today, messageDateTime.time)
-        is MessageDateTime.Yesterday -> context.resources.getString(R.string.message_datetime_yesterday, messageDateTime.time)
-        is MessageDateTime.WithinWeek -> context.resources.getString(R.string.message_datetime_other, messageDateTime.date)
-        is MessageDateTime.NotWithinWeekButSameYear -> context.resources.getString(R.string.message_datetime_other, messageDateTime.date)
-        is MessageDateTime.Other -> context.resources.getString(R.string.message_datetime_other, messageDateTime.date)
-        null -> ""
-    }
-
     Text(
-        text = timeString,
+        text = messageTime,
         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
         maxLines = 1,
         modifier = modifier
@@ -527,7 +664,7 @@ private fun MessageContent(
 
         is UIMessageContent.AssetMessage -> {
             Column {
-                MessageGenericAsset(
+                MessageAsset(
                     assetName = messageContent.assetName,
                     assetExtension = messageContent.assetExtension,
                     assetSizeInBytes = messageContent.assetSizeInBytes,

@@ -18,14 +18,10 @@
 
 package com.wire.android.ui.authentication.verificationcode
 
-import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.android.ui.common.textfield.CodeFieldValue
-
 data class VerificationCodeState(
     val codeLength: Int = DEFAULT_VERIFICATION_CODE_LENGTH,
     val emailUsed: String = "",
     val isCodeInputNecessary: Boolean = false,
-    val codeInput: CodeFieldValue = CodeFieldValue(TextFieldValue(""), false),
     val isCurrentCodeInvalid: Boolean = false,
 ) {
     companion object {

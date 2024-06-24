@@ -18,20 +18,20 @@
 
 package com.wire.android.ui.home.settings.account.displayname
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -39,64 +39,26 @@ import javax.inject.Inject
 class ChangeDisplayNameViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val updateDisplayName: UpdateDisplayNameUseCase,
-    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
+    val textState: TextFieldState = TextFieldState()
     var displayNameState: DisplayNameState by mutableStateOf(DisplayNameState())
         private set
 
     init {
         viewModelScope.launch {
-            getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1)).collect {
-                displayNameState = displayNameState.copy(
-                    originalDisplayName = it.name.orEmpty(),
-                    displayName = TextFieldValue(it.name.orEmpty())
-                )
-            }
-        }
-    }
-
-    fun onNameChange(newText: TextFieldValue) {
-        displayNameState = validateNewNameChange(newText)
-    }
-
-    private fun validateNewNameChange(newText: TextFieldValue): DisplayNameState {
-        val cleanText = newText.text.trim()
-        return when {
-            cleanText.isEmpty() -> {
-                displayNameState.copy(
-                    animatedNameError = true,
-                    displayName = newText,
-                    continueEnabled = false,
-                    error = DisplayNameState.NameError.TextFieldError.NameEmptyError
-                )
-            }
-
-            cleanText.count() > NAME_MAX_COUNT -> {
-                displayNameState.copy(
-                    animatedNameError = true,
-                    displayName = newText,
-                    continueEnabled = false,
-                    error = DisplayNameState.NameError.TextFieldError.NameExceedLimitError
-                )
-            }
-
-            cleanText == displayNameState.originalDisplayName -> {
-                displayNameState.copy(
-                    animatedNameError = false,
-                    displayName = newText,
-                    continueEnabled = false,
-                    error = DisplayNameState.NameError.None
-                )
-            }
-
-            else -> {
-                displayNameState.copy(
-                    animatedNameError = false,
-                    displayName = newText,
-                    continueEnabled = true,
-                    error = DisplayNameState.NameError.None
-                )
+            getSelf().firstOrNull()?.name.orEmpty().let { currentDisplayName ->
+                textState.setTextAndPlaceCursorAtEnd(currentDisplayName)
+                textState.textAsFlow().collectLatest {
+                    displayNameState = displayNameState.copy(
+                        saveEnabled = it.trim().isNotEmpty() && it.length <= NAME_MAX_COUNT && it.trim() != currentDisplayName,
+                        error = when {
+                            it.trim().isEmpty() -> DisplayNameState.NameError.TextFieldError.NameEmptyError
+                            it.length > NAME_MAX_COUNT -> DisplayNameState.NameError.TextFieldError.NameExceedLimitError
+                            else -> DisplayNameState.NameError.None
+                        }
+                    )
+                }
             }
         }
     }
@@ -105,19 +67,20 @@ class ChangeDisplayNameViewModel @Inject constructor(
         onFailure: () -> Unit,
         onSuccess: () -> Unit,
     ) {
+        displayNameState = displayNameState.copy(loading = true)
         viewModelScope.launch {
-            when (updateDisplayName(displayNameState.displayName.text)) {
-                is DisplayNameUpdateResult.Failure -> onFailure()
-                is DisplayNameUpdateResult.Success -> onSuccess()
-            }
+            updateDisplayName(textState.text.toString().trim())
+                .also { displayNameState = displayNameState.copy(loading = false) }
+                .let {
+                    when (it) {
+                        is DisplayNameUpdateResult.Failure -> onFailure()
+                        is DisplayNameUpdateResult.Success -> onSuccess()
+                    }
+                }
         }
     }
 
-    fun onNameErrorAnimated() {
-        displayNameState = displayNameState.copy(animatedNameError = false)
-    }
-
     companion object {
-        private const val NAME_MAX_COUNT = 64
+        const val NAME_MAX_COUNT = 64
     }
 }

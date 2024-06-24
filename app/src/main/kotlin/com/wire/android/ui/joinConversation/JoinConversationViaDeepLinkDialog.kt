@@ -20,14 +20,13 @@
 package com.wire.android.ui.joinConversation
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -37,7 +36,6 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
@@ -45,13 +43,16 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.capitalizeFirstLetter
 import com.wire.android.util.toTitleCase
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
@@ -68,7 +69,6 @@ sealed interface JoinConversationViaCodeState {
     data class Error(val error: CheckConversationInviteCodeUseCase.Result.Failure) : JoinConversationViaCodeState
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun JoinConversationViaDeepLinkDialog(
     name: String?,
@@ -76,7 +76,8 @@ fun JoinConversationViaDeepLinkDialog(
     key: String,
     domain: String?,
     requirePassword: Boolean,
-    onFlowCompleted: (conversationId: ConversationId?) -> Unit
+    onFlowCompleted: (conversationId: ConversationId?) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val viewModel = hiltViewModelScoped<JoinConversationViaCodeViewModel>()
 
@@ -88,7 +89,7 @@ fun JoinConversationViaDeepLinkDialog(
         isLoading -> WireButtonState.Disabled
         viewModel.state is JoinViaDeepLinkDialogState.WrongPassword -> WireButtonState.Disabled
         viewModel.state is JoinViaDeepLinkDialogState.UnknownError -> WireButtonState.Disabled
-        requirePassword && viewModel.password.text.isBlank() -> WireButtonState.Disabled
+        requirePassword && viewModel.passwordTextState.text.isBlank() -> WireButtonState.Disabled
         else -> WireButtonState.Default
     }
     val onJoinClick: () -> Unit = remember {
@@ -117,6 +118,7 @@ fun JoinConversationViaDeepLinkDialog(
     var keyboardController: SoftwareKeyboardController?
 
     WireDialog(
+        modifier = modifier,
         title = stringResource(R.string.join_conversation_dialog_title),
         text = LocalContext.current.resources.stringWithStyledArgs(
             R.string.join_conversation_dialog_message,
@@ -150,8 +152,7 @@ fun JoinConversationViaDeepLinkDialog(
                 WirePasswordTextField(
                     labelText = stringResource(id = R.string.join_conversation_dialog_password_label).toTitleCase(),
                     placeholderText = stringResource(id = R.string.join_conversation_dialog_password_placeholder).capitalizeFirstLetter(),
-                    value = viewModel.password,
-                    onValueChange = viewModel::onPasswordUpdated,
+                    textState = viewModel.passwordTextState,
                     state = when {
                         isLoading -> WireTextFieldState.Disabled
                         viewModel.state is JoinViaDeepLinkDialogState.WrongPassword ->
@@ -159,13 +160,13 @@ fun JoinConversationViaDeepLinkDialog(
 
                         else -> WireTextFieldState.Default
                     },
-                    imeAction = ImeAction.Done,
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                    keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
+                    onKeyboardAction = { keyboardController?.hide() },
                     modifier = Modifier
                         .focusRequester(focusRequester)
                         .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
                         .testTag("remove device password field"),
-                    autofill = false
+                    autoFill = false
                 )
                 LaunchedEffect(Unit) { // executed only once when showing the dialog
                     focusRequester.requestFocus()
@@ -179,9 +180,9 @@ fun JoinConversationViaDeepLinkDialog(
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun JoinConversationViaDeepLinkDialogPreview() {
+fun JoinConversationViaDeepLinkDialogPreview() = WireTheme {
     JoinConversationViaDeepLinkDialog(
         onFlowCompleted = { _ -> },
         requirePassword = true,

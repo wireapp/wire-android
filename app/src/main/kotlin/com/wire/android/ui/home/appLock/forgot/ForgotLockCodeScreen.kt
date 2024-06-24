@@ -83,16 +83,19 @@ fun ForgotLockCodeScreen(
             onResetDevice = viewModel::onResetDevice,
         )
         if (dialogState is ForgotLockCodeDialogState.Visible) {
-            if (dialogState.loading) ForgotLockCodeResettingDeviceDialog()
-            else ForgotLockCodeResetDeviceDialog(
-                username = dialogState.username,
-                isPasswordRequired = dialogState.passwordRequired,
-                isPasswordValid = dialogState.passwordValid,
-                isResetDeviceEnabled = dialogState.resetDeviceEnabled,
-                onPasswordChanged = viewModel::onPasswordChanged,
-                onResetDeviceClicked = viewModel::onResetDeviceConfirmed,
-                onDialogDismissed = viewModel::onDialogDismissed,
-            )
+            if (dialogState.loading) {
+                ForgotLockCodeResettingDeviceDialog()
+            } else {
+                ForgotLockCodeResetDeviceDialog(
+                    passwordTextState = viewModel.passwordTextState,
+                    username = dialogState.username,
+                    isPasswordRequired = dialogState.passwordRequired,
+                    isPasswordValid = dialogState.passwordValid,
+                    isResetDeviceEnabled = dialogState.resetDeviceEnabled,
+                    onResetDeviceClicked = viewModel::onResetDeviceConfirmed,
+                    onDialogDismissed = viewModel::onDialogDismissed,
+                )
+            }
         }
         if (error != null) {
             val (title, message) = error.dialogErrorStrings(LocalContext.current.resources)
@@ -115,10 +118,11 @@ fun ForgotLockCodeScreen(
 fun ForgotLockCodeScreenContent(
     scrollState: ScrollState,
     onResetDevice: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     WireScaffold { internalPadding ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
@@ -183,9 +187,9 @@ fun ForgotLockCodeScreenContent(
 
 @Composable
 private fun ContinueButton(
-    modifier: Modifier = Modifier.fillMaxWidth(),
     enabled: Boolean,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth(),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(modifier = modifier) {

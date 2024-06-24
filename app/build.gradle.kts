@@ -1,4 +1,5 @@
-import scripts.Variants_gradle
+import customization.ConfigurationFileImporter
+import customization.NormalizedFlavorSettings
 
 /*
  * Wire
@@ -35,7 +36,6 @@ plugins {
     id(ScriptPlugins.quality)
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
-    id(ScriptPlugins.spotless)
     id(libs.plugins.wire.kover.get().pluginId)
 }
 
@@ -45,12 +45,30 @@ repositories {
     google()
 }
 
-fun isFossSourceSet(): Boolean {
-    return (Variants_gradle.Default.explicitBuildFlavor() ?: gradle.startParameter.taskRequests.toString())
-        .lowercase()
-        .contains("fdroid")
-}
+val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
+val fossFlavors = setOf("fdroid")
+val internalFlavors = setOf("internal", "staging", "beta", "dev")
+val allFlavors = nonFreeFlavors + fossFlavors
+
+private fun getFlavorsSettings(): NormalizedFlavorSettings =
+    try {
+        val file = file("${project.rootDir}/default.json")
+        val configurationFileImporter = ConfigurationFileImporter()
+        configurationFileImporter.loadConfigsFromFile(file)
+    } catch (e: Exception) {
+        error(">> Error reading current flavors, exception: ${e.localizedMessage}")
+    }
+
 android {
+    defaultConfig {
+        val datadogApiKeyKey = "DATADOG_CLIENT_TOKEN"
+        val apiKey: String? = System.getenv(datadogApiKeyKey) ?: project.getLocalProperty(datadogApiKeyKey, null)
+        buildConfigField("String", "DATADOG_CLIENT_TOKEN", apiKey?.let { "\"$it\"" } ?: "null")
+
+        val datadogAppId = "DATADOG_APP_ID"
+        val appId: String? = System.getenv(datadogAppId) ?: project.getLocalProperty(datadogAppId, null)
+        buildConfigField("String", datadogAppId, appId?.let { "\"$it\"" } ?: "null")
+    }
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin
 
@@ -65,24 +83,33 @@ android {
     }
     android.buildFeatures.buildConfig = true
 
-    val fdroidBuild = isFossSourceSet()
-
     sourceSets {
-        // Add the "foss" sourceSets for the fdroid flavor
-        if (fdroidBuild) {
-            getByName("fdroid") {
-                java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
-                res.srcDirs("src/prod/res")
-                println("Building with FOSS sourceSets")
-            }
-            // For all other flavors use the "nonfree" sourceSets
-        } else {
-            getByName("main") {
-                java.srcDirs("src/nonfree/kotlin")
-                println("Building with non-free sourceSets")
+        allFlavors.forEach { flavor ->
+            getByName(flavor) {
+                if (flavor in internalFlavors) {
+                    java.srcDirs("src/private/kotlin")
+                    println("Adding external datadog logger internal sourceSets to '$flavor' flavor")
+                } else {
+                    java.srcDirs("src/public/kotlin")
+                    println("Adding external datadog logger sourceSets to '$flavor' flavor")
+                }
+
+                if (flavor in fossFlavors) {
+                    java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
+                    res.srcDirs("src/prod/res")
+                    println("Adding FOSS sourceSets to '$flavor' flavor")
+                } else {
+                    java.srcDirs("src/nonfree/kotlin")
+                    println("Adding non-free sourceSets to '$flavor' flavor")
+                }
             }
         }
     }
+}
+
+aboutLibraries {
+    val isAboutLibrariesDisabled = System.getenv("DISABLE_ABOUT_LIBRARIES")?.equals("true", true) ?: false
+    registerAndroidTasks = !isAboutLibrariesDisabled
 }
 
 dependencies {
@@ -126,6 +153,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewModel)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.androidx.lifecycle.liveData)
+    implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.viewModelSavedState)
 
@@ -136,6 +164,7 @@ dependencies {
 
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
+    implementation(libs.compose.material.android)
     // we still cannot get rid of material2 because swipeable is still missing - https://issuetracker.google.com/issues/229839039
     // https://developer.android.com/jetpack/compose/designsystems/material2-material3#components-and
     implementation(libs.compose.material.core)
@@ -175,17 +204,28 @@ dependencies {
     implementation(libs.resaca.hilt)
     implementation(libs.bundlizer.core)
 
-    var fdroidBuild = isFossSourceSet()
-
-    if (!fdroidBuild) {
-        // firebase
-        implementation(platform(libs.firebase.bom))
-        implementation(libs.firebase.fcm)
-        implementation(libs.googleGms.location)
-    } else {
-        println("Excluding FireBase for FDroid build")
+    allFlavors.forEach { flavor ->
+        if (flavor in nonFreeFlavors) {
+            println("Adding nonfree libraries to '$flavor' flavor")
+            add("${flavor}Implementation", platform(libs.firebase.bom))
+            add("${flavor}Implementation", libs.firebase.fcm)
+            add("${flavor}Implementation", libs.googleGms.location)
+        } else {
+            println("Skipping nonfree libraries for '$flavor' flavor")
+        }
     }
     implementation(libs.androidx.work)
+
+    // Anonymous Analytics
+    val flavors = getFlavorsSettings()
+    flavors.flavorMap.entries.forEach { (key, configs) ->
+        if (configs["analytics_enabled"] as? Boolean == true) {
+            println(">> Adding Anonymous Analytics dependency to [$key] flavor")
+            add("${key}Implementation", project(":core:analytics-enabled"))
+        } else {
+            add("${key}Implementation", project(":core:analytics-disabled"))
+        }
+    }
 
     // commonMark
     implementation(libs.commonmark.core)

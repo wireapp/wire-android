@@ -17,16 +17,16 @@
  */
 package com.wire.android.ui.home.conversations.search.messages
 
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.paging.PagingData
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
 data class SearchConversationMessagesState(
     val conversationId: ConversationId,
-    val searchQuery: TextFieldValue = TextFieldValue(""),
+    val searchQuery: String = String.EMPTY,
     val searchResult: Flow<PagingData<UIMessage>> = emptyFlow(),
     val isLoading: Boolean = false
 )

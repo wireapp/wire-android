@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.settings.devices
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +29,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.Divider
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,10 +41,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -79,19 +77,24 @@ import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.home.E2EIUpdateErrorWithDismissDialog
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
-import com.wire.android.util.deviceDateTimeFormat
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.feature.e2ei.CertificateStatus
+import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.functional.Either
+import kotlinx.datetime.Instant
 
 @RootNavGraph
 @Destination(
@@ -106,8 +109,8 @@ fun DeviceDetailsScreen(
     else {
         DeviceDetailsContent(
             state = viewModel.state,
+            passwordTextState = viewModel.passwordTextState,
             onDeleteDevice = { viewModel.removeDevice(navigator::navigateBack) },
-            onPasswordChange = viewModel::onPasswordChange,
             onRemoveConfirm = { viewModel.onRemoveConfirmed(navigator::navigateBack) },
             onDialogDismiss = viewModel::onDialogDismissed,
             onErrorDialogDismiss = viewModel::clearDeleteClientError,
@@ -126,24 +129,27 @@ fun DeviceDetailsScreen(
     }
 }
 
+@Suppress("ComplexMethod")
 @Composable
 fun DeviceDetailsContent(
     state: DeviceDetailsState,
+    passwordTextState: TextFieldState,
+    handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
+    modifier: Modifier = Modifier,
     onDeleteDevice: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
     onNavigateToE2eiCertificateDetailsScreen: (String) -> Unit = {},
-    onPasswordChange: (TextFieldValue) -> Unit = {},
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
     onErrorDialogDismiss: () -> Unit = {},
     enrollE2eiCertificate: () -> Unit = {},
-    handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
     onUpdateClientVerification: (Boolean) -> Unit = {},
     onEnrollE2EIErrorDismiss: () -> Unit = {},
     onEnrollE2EISuccessDismiss: () -> Unit = {}
 ) {
     val screenState = rememberConversationScreenState()
     WireScaffold(
+        modifier = modifier,
         topBar = { DeviceDetailsTopBar(onNavigateBack, state.device, state.isCurrentDevice, state.isE2EIEnabled) },
         bottomBar = {
             Column(
@@ -185,10 +191,10 @@ fun DeviceDetailsContent(
                 .background(MaterialTheme.wireColorScheme.surface)
         ) {
 
-            state.device.mlsPublicKeys?.forEach { (mlsProtocolType, mlsThumbprint) ->
+            state.device.e2eiCertificate?.let { certificate ->
                 item {
-                    DeviceMLSSignatureItem(mlsThumbprint, mlsProtocolType, screenState::copyMessage)
-                    Divider(color = MaterialTheme.wireColorScheme.background)
+                    DeviceMLSSignatureItem(certificate.thumbprint, screenState::copyMessage)
+                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
 
@@ -202,7 +208,7 @@ fun DeviceDetailsContent(
                         enrollE2eiCertificate = { enrollE2eiCertificate() },
                         showCertificate = onNavigateToE2eiCertificateDetailsScreen
                     )
-                    Divider(color = colorsScheme().background)
+                    HorizontalDivider(color = colorsScheme().background)
                 }
             }
             item {
@@ -213,7 +219,7 @@ fun DeviceDetailsContent(
                         .fillMaxWidth()
                 )
                 DeviceIdItem(state, screenState::copyMessage)
-                Divider(color = MaterialTheme.wireColorScheme.background)
+                HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
             }
 
             state.device.registrationTime?.deviceDateTimeFormat()?.let {
@@ -222,7 +228,7 @@ fun DeviceDetailsContent(
                         stringResource(id = R.string.label_client_added_time),
                         AnnotatedString(it)
                     )
-                    Divider(color = MaterialTheme.wireColorScheme.background)
+                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
 
@@ -232,13 +238,13 @@ fun DeviceDetailsContent(
                         stringResource(id = R.string.label_client_last_active_label),
                         AnnotatedString(state.device.lastActiveDescription() ?: "")
                     )
-                    Divider(color = MaterialTheme.wireColorScheme.background)
+                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
 
             item {
                 DeviceKeyFingerprintItem(state.fingerPrint, screenState::copyMessage)
-                Divider(color = MaterialTheme.wireColorScheme.background)
+                HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
             }
 
             if (!state.isCurrentDevice) {
@@ -250,7 +256,7 @@ fun DeviceDetailsContent(
                         state.userName,
                         onUpdateClientVerification
                     )
-                    Divider(color = MaterialTheme.wireColorScheme.background)
+                    HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
         }
@@ -258,7 +264,7 @@ fun DeviceDetailsContent(
             RemoveDeviceDialog(
                 errorState = state.error,
                 state = state.removeDeviceDialogState,
-                onPasswordChange = onPasswordChange,
+                passwordTextState = passwordTextState,
                 onDialogDismiss = onDialogDismiss,
                 onRemoveConfirm = onRemoveConfirm
             )
@@ -321,7 +327,7 @@ private fun DeviceDetailsTopBar(
                 )
 
                 if (shouldShowE2EIInfo) {
-                    MLSVerificationIcon(device.e2eiCertificateStatus)
+                    MLSVerificationIcon(device.e2eiCertificate?.status)
                 }
 
                 if (!isCurrentDevice && device.isVerifiedProteus) {
@@ -371,16 +377,10 @@ fun DeviceKeyFingerprintItem(
 @Composable
 fun DeviceMLSSignatureItem(
     mlsThumbprint: String,
-    mlsProtocolType: String,
-    onCopy: (String) -> Unit
+    onCopy: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-
-    FolderHeader(
-        name = stringResource(id = R.string.label_mls_signature, mlsProtocolType).uppercase(),
-        modifier = Modifier
-            .background(MaterialTheme.wireColorScheme.background)
-            .fillMaxWidth()
-    )
+    Column(modifier = modifier) {
 
     DeviceDetailSectionContent(
         stringResource(id = R.string.label_mls_thumbprint),
@@ -392,6 +392,7 @@ fun DeviceMLSSignatureItem(
             )
         }
     )
+        }
 }
 
 @Composable
@@ -401,34 +402,39 @@ fun DeviceVerificationItem(
     isSelfClient: Boolean,
     userName: String?,
     onStatusChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    @StringRes
-    val subTitle = if (state) {
-        R.string.label_client_verified
-    } else {
-        R.string.label_client_unverified
+    Column(modifier = modifier) {
+        DeviceDetailSectionContent(
+            sectionTitle = stringResource(id = R.string.title_device_key_fingerprint),
+            sectionText = AnnotatedString(
+                stringResource(
+                    id = when (state) {
+                        true -> R.string.label_client_verified
+                        false -> R.string.label_client_unverified
+                    }
+                )
+            ),
+            titleTrailingItem = {
+                WireSwitch(
+                    checked = state,
+                    onCheckedChange = onStatusChange,
+                    enabled = enabled
+                )
+            }
+        )
+        VerificationDescription(isSelfClient, userName)
     }
-    DeviceDetailSectionContent(
-        stringResource(id = R.string.title_device_key_fingerprint),
-        AnnotatedString(stringResource(id = subTitle)),
-        titleTrailingItem = {
-            WireSwitch(
-                checked = state,
-                onCheckedChange = onStatusChange,
-                enabled = enabled
-            )
-        }
-    )
-    VerificationDescription(isSelfClient, userName)
 }
 
 @Composable
 private fun VerificationDescription(
     isSelfClient: Boolean,
-    userName: String?
+    userName: String?,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(
                 start = dimensions().spacing16x,
@@ -527,12 +533,13 @@ private fun DescriptionText(
 private fun DeviceDetailSectionContent(
     sectionTitle: String,
     sectionText: AnnotatedString,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     titleTrailingItem: (@Composable () -> Unit)? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .padding(
                 top = MaterialTheme.wireDimensions.spacing12x,
                 bottom = MaterialTheme.wireDimensions.spacing12x,
@@ -567,24 +574,37 @@ private fun DeviceDetailSectionContent(
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
-fun PreviewDeviceDetailsScreen() {
+fun PreviewDeviceDetailsScreen() = WireTheme {
     DeviceDetailsContent(
+        passwordTextState = TextFieldState(),
         state = DeviceDetailsState(
             device = Device(
                 clientId = ClientId(""),
                 name = UIText.DynamicString("My Device"),
                 registrationTime = "2022-03-24T18:02:30.360Z",
-                mlsPublicKeys = mapOf("Ed25519" to "lekvmrlkgvnrelkmvrlgkvlknrgb0348gi34t09gj34v034ithjoievw")
+                e2eiCertificate = E2eiCertificate(
+                    "handler",
+                    CertificateStatus.VALID,
+                    "serial",
+                    "Details",
+                    "Thumbprint",
+                    Instant.DISTANT_FUTURE
+                )
             ),
             isCurrentDevice = false
         ),
-        onPasswordChange = { },
-        enrollE2eiCertificate = { },
+        enrollE2eiCertificate = {},
         handleE2EIEnrollmentResult = {},
-        onRemoveConfirm = { },
-        onDialogDismiss = { },
-        onErrorDialogDismiss = { }
+        onRemoveConfirm = {},
+        onDialogDismiss = {},
+        onErrorDialogDismiss = {},
+        onNavigateBack = {},
+        onNavigateToE2eiCertificateDetailsScreen = {},
+        onUpdateClientVerification = {},
+        onEnrollE2EIErrorDismiss = {},
+        onEnrollE2EISuccessDismiss = {},
+        onDeleteDevice = {},
     )
 }

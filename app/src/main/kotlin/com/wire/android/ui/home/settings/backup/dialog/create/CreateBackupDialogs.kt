@@ -24,17 +24,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
 import com.wire.android.ui.common.WireCheckIcon
 import com.wire.android.ui.common.WireDialog
@@ -55,14 +52,15 @@ import kotlin.math.roundToInt
 
 @Composable
 fun SetBackupPasswordDialog(
+    backupPasswordTextState: TextFieldState,
     passwordValidation: ValidatePasswordResult,
-    onBackupPasswordChanged: (TextFieldValue) -> Unit,
-    onCreateBackup: (String) -> Unit,
-    onDismissDialog: () -> Unit
+    onCreateBackup: () -> Unit,
+    onDismissDialog: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    var backupPassword by remember { mutableStateOf(TextFieldValue("")) }
 
     WireDialog(
+        modifier = modifier,
         title = stringResource(R.string.backup_dialog_create_backup_set_password_title),
         text = stringResource(R.string.backup_dialog_create_backup_set_password_message),
         onDismiss = onDismissDialog,
@@ -72,7 +70,7 @@ fun SetBackupPasswordDialog(
             state = WireButtonState.Default
         ),
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = { onCreateBackup(backupPassword.text) },
+            onClick = onCreateBackup,
             text = stringResource(id = R.string.backup_dialog_create_backup_now),
             type = WireDialogButtonType.Primary,
             state = if (passwordValidation.isValid) WireButtonState.Default else WireButtonState.Disabled
@@ -83,12 +81,8 @@ fun SetBackupPasswordDialog(
             labelText = stringResource(R.string.label_textfield_optional_password).uppercase(Locale.getDefault()),
             descriptionText = stringResource(R.string.create_account_details_password_description),
             state = if (passwordValidation.isValid) WireTextFieldState.Default else WireTextFieldState.Error(),
-            value = backupPassword,
-            onValueChange = {
-                backupPassword = it
-                onBackupPasswordChanged(it)
-            },
-            autofill = false
+            textState = backupPasswordTextState,
+            autoFill = false
         )
     }
 }
@@ -101,7 +95,8 @@ fun CreateBackupDialog(
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     onSaveBackup: (Uri) -> Unit,
     onShareBackup: () -> Unit,
-    onDismissDialog: () -> Unit
+    onDismissDialog: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val progress by animateFloatAsState(targetValue = createBackupProgress)
     val fileStep = rememberCreateFileFlow(
@@ -114,6 +109,7 @@ fun CreateBackupDialog(
         fileName = backupFileName
     )
     WireDialog(
+        modifier = modifier,
         title = stringResource(R.string.backup_dialog_create_backup_title),
         onDismiss = onDismissDialog,
         buttonsHorizontalAlignment = false,
@@ -155,7 +151,7 @@ fun CreateBackupDialog(
                 }
             }
             VerticalSpace.x16()
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = progress)
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = { progress })
             VerticalSpace.x16()
         }
     }

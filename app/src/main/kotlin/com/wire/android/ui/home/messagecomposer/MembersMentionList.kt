@@ -19,7 +19,7 @@ package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -38,7 +38,9 @@ fun MembersMentionList(
     onMentionPicked: (Contact) -> Unit,
     modifier: Modifier
 ) {
-    if (membersToMention.isNotEmpty()) Divider()
+    if (membersToMention.isNotEmpty()) {
+        HorizontalDivider()
+    }
     LazyColumn(
         modifier = modifier.background(colorsScheme().background),
         reverseLayout = true
@@ -55,9 +57,9 @@ fun MembersMentionList(
                         searchQuery = searchQuery,
                         modifier = Modifier
                     )
-                    Divider(
-                        color = MaterialTheme.wireColorScheme.divider,
-                        thickness = Dp.Hairline
+                    HorizontalDivider(
+                        thickness = Dp.Hairline,
+                        color = MaterialTheme.wireColorScheme.divider
                     )
                 }
             }

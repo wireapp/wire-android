@@ -17,9 +17,13 @@
  */
 package com.wire.android.ui.home.conversations
 
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ConversationNavArgs(
     val conversationId: ConversationId,
-    val searchedMessageId: String? = null
+    val searchedMessageId: String? = null,
+    val pendingBundles: ArrayList<AssetBundle>? = null
 )

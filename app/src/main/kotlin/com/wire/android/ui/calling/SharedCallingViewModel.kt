@@ -29,8 +29,6 @@ import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
-import com.wire.android.util.CurrentScreen
-import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.Call
@@ -88,7 +86,6 @@ class SharedCallingViewModel @AssistedInject constructor(
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
-    private val currentScreenManager: CurrentScreenManager,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
@@ -115,18 +112,6 @@ class SharedCallingViewModel @AssistedInject constructor(
             }
             launch {
                 observeOnSpeaker(this)
-            }
-            launch {
-                observeScreenState()
-            }
-        }
-    }
-
-    private suspend fun observeScreenState() {
-        currentScreenManager.observeCurrentScreen(viewModelScope).collect {
-            // clear video preview when the screen is in background to avoid memory leaks
-            if (it == CurrentScreen.InBackground && callState.isCameraOn) {
-                clearVideoPreview()
             }
         }
     }
@@ -222,7 +207,7 @@ class SharedCallingViewModel @AssistedInject constructor(
         if (callState.isCameraOn) {
             flipToFrontCamera(conversationId)
         }
-        if (callState.isCameraOn || callState.isSpeakerOn) {
+        if (callState.isSpeakerOn) {
             turnLoudSpeakerOff()
         }
     }

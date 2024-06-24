@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -153,7 +154,12 @@ fun SelectParticipantsButtonsRow(
                 .padding(horizontal = dimensions().spacing16x)
                 .height(dimensions().groupButtonHeight),
         ) {
-            val buttonText = if (showTotalSelectedItemsCount) "$mainButtonText ($selectedParticipantsCount)" else mainButtonText
+            val countText = pluralStringResource(
+                R.plurals.label_x_participants,
+                selectedParticipantsCount,
+                selectedParticipantsCount
+            )
+            val buttonText = if (showTotalSelectedItemsCount) "$mainButtonText ($countText)" else mainButtonText
             WirePrimaryButton(
                 text = buttonText,
                 leadingIcon = leadingIcon,

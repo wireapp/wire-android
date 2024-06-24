@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.appLock.forgot
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.kalium.logic.CoreFailure
 
 data class ForgotLockCodeViewState(
@@ -30,7 +29,6 @@ sealed class ForgotLockCodeDialogState {
     data object Hidden : ForgotLockCodeDialogState()
     data class Visible(
         val username: String,
-        val password: TextFieldValue = TextFieldValue(""),
         val passwordRequired: Boolean = false,
         val passwordValid: Boolean = true,
         val resetDeviceEnabled: Boolean = false,

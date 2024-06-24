@@ -27,7 +27,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
-import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
@@ -42,10 +41,7 @@ import android.provider.MediaStore.MediaColumns.SIZE
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.webkit.MimeTypeMap
-import androidx.annotation.AnyRes
-import androidx.annotation.NonNull
 import androidx.annotation.VisibleForTesting
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -62,27 +58,10 @@ import kotlinx.serialization.json.Json
 import okio.Path
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.io.InputStream
 import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
-
-/**
- * Gets the uri of any drawable or given resource
- * @param context - context
- * @param drawableId - drawable res id
- * @return - uri
- */
-fun getUriFromDrawable(
-    @NonNull context: Context,
-    @AnyRes drawableId: Int
-): Uri {
-    return Uri.parse(
-        ContentResolver.SCHEME_ANDROID_RESOURCE +
-                "://" + context.resources.getResourcePackageName(drawableId) +
-                '/' + context.resources.getResourceTypeName(drawableId) +
-                '/' + context.resources.getResourceEntryName(drawableId)
-    )
-}
 
 @Suppress("MagicNumber")
 suspend fun Uri.toByteArray(context: Context, dispatcher: DispatcherProvider = DefaultDispatcherProvider()): ByteArray {
@@ -90,21 +69,6 @@ suspend fun Uri.toByteArray(context: Context, dispatcher: DispatcherProvider = D
         context.contentResolver.openInputStream(this@toByteArray)?.use { it.readBytes() } ?: ByteArray(16)
     }
 }
-
-suspend fun Uri.toDrawable(context: Context, dispatcher: DispatcherProvider = DefaultDispatcherProvider()): Drawable? {
-    val dataUri = this
-    return withContext(dispatcher.io()) {
-        try {
-            context.contentResolver.openInputStream(dataUri).use { inputStream ->
-                Drawable.createFromStream(inputStream, dataUri.toString())
-            }
-        } catch (e: FileNotFoundException) {
-            defaultGalleryIcon(context)
-        }
-    }
-}
-
-private fun defaultGalleryIcon(context: Context) = ContextCompat.getDrawable(context, R.drawable.ic_gallery)
 
 fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
     val file = attachmentPath.toFile()
@@ -243,9 +207,17 @@ suspend fun Uri.resampleImageAndCopyToTempPath(
 
         ImageUtil.resample(originalImage, sizeClass).let { processedImage ->
             val file = tempCachePath.toFile()
-            size = processedImage.size.toLong()
-            file.setWritable(true)
-            file.outputStream().use { it.write(processedImage) }
+            try {
+                size = processedImage.size.toLong()
+                file.setWritable(true)
+                file.outputStream().use { it.write(processedImage) }
+            } catch (e: FileNotFoundException) {
+                appLogger.e("[ResampleImage] Cannot find file ${file.path}", e)
+                throw e
+            } catch (e: IOException) {
+                appLogger.e("[ResampleImage] I/O error while writing the image", e)
+                throw e
+            }
         }
 
         size

@@ -18,9 +18,13 @@
 
 package com.wire.android.ui.home.messagecomposer.state
 
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalDensity
@@ -28,6 +32,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.message.mention.MessageMention
@@ -35,18 +40,38 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 @Suppress("LongParameterList")
 @Composable
 fun rememberMessageComposerStateHolder(
-    messageComposerViewState: MutableState<MessageComposerViewState>,
+    messageComposerViewState: State<MessageComposerViewState>,
     modalBottomSheetState: WireModalSheetState,
-    messageComposition: MutableState<MessageComposition>,
+    draftMessageComposition: MessageComposition,
     onSaveDraft: (MessageDraft) -> Unit,
+    onSearchMentionQueryChanged: (String) -> Unit,
+    onClearMentionSearchResult: () -> Unit,
+    onTypingEvent: (Conversation.TypingIndicatorMode) -> Unit,
 ): MessageComposerStateHolder {
     val density = LocalDensity.current
+
+    val messageComposition = remember(draftMessageComposition) {
+        mutableStateOf(draftMessageComposition)
+    }
+    val messageTextState = rememberTextFieldState()
+    LaunchedEffect(draftMessageComposition.draftText) {
+        if (draftMessageComposition.draftText.isNotBlank()) {
+            messageTextState.setTextAndPlaceCursorAtEnd(draftMessageComposition.draftText)
+        }
+    }
 
     val messageCompositionHolder = remember {
         MessageCompositionHolder(
             messageComposition = messageComposition,
-            onSaveDraft = onSaveDraft
+            messageTextState = messageTextState,
+            onSaveDraft = onSaveDraft,
+            onSearchMentionQueryChanged = onSearchMentionQueryChanged,
+            onClearMentionSearchResult = onClearMentionSearchResult,
+            onTypingEvent = onTypingEvent,
         )
+    }
+    LaunchedEffect(Unit) {
+        messageCompositionHolder.handleMessageTextUpdates()
     }
 
     // we derive the selfDeletionTimer from the messageCompositionHolder as a state in order to "observe" the changes to it
@@ -59,13 +84,13 @@ fun rememberMessageComposerStateHolder(
 
     val messageCompositionInputStateHolder = rememberSaveable(
         saver = MessageCompositionInputStateHolder.saver(
-            messageComposition = messageComposition,
+            messageTextState = messageTextState,
             selfDeletionTimer = selfDeletionTimer,
             density = density
         )
     ) {
         MessageCompositionInputStateHolder(
-            messageComposition = messageComposition,
+            messageTextState = messageTextState,
             selfDeletionTimer = selfDeletionTimer
         )
     }
@@ -92,7 +117,7 @@ fun rememberMessageComposerStateHolder(
  * of the state to the parent Composables
  */
 class MessageComposerStateHolder(
-    val messageComposerViewState: MutableState<MessageComposerViewState>,
+    val messageComposerViewState: State<MessageComposerViewState>,
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
     val messageCompositionHolder: MessageCompositionHolder,
     val additionalOptionStateHolder: AdditionalOptionStateHolder,
@@ -105,11 +130,10 @@ class MessageComposerStateHolder(
 
     fun toEdit(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
         messageCompositionHolder.setEditText(messageId, editMessageText, mentions)
-        messageCompositionInputStateHolder.toEdit()
+        messageCompositionInputStateHolder.toEdit(editMessageText)
     }
 
     fun toReply(message: UIMessage.Regular) {
-        messageCompositionHolder.clearMessage()
         messageCompositionHolder.setReply(message)
         messageCompositionInputStateHolder.toComposing()
     }

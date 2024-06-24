@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -109,7 +108,7 @@ fun IncomingCallScreen(
     LaunchedEffect(incomingCallViewModel.incomingCallState.flowState) {
         when (incomingCallViewModel.incomingCallState.flowState) {
             is IncomingCallState.FlowState.CallClosed -> {
-                activity.finish()
+                activity.finishAndRemoveTask()
             }
 
             is IncomingCallState.FlowState.CallAccepted -> {
@@ -124,7 +123,6 @@ fun IncomingCallScreen(
         IncomingCallContent(
             callState = callState,
             toggleMute = { sharedCallingViewModel.toggleMute(true) },
-            toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
             declineCall = {
                 incomingCallViewModel.declineCall(
@@ -132,7 +130,7 @@ fun IncomingCallScreen(
                         (activity as CallActivity).openAppLockActivity()
                     },
                     onCallRejected = {
-                        activity.finish()
+                        activity.finishAndRemoveTask()
                     }
                 )
             },
@@ -148,6 +146,9 @@ fun IncomingCallScreen(
                         )
                     )
                 }
+            },
+            onMinimiseScreen = {
+                activity.moveTaskToBack(true)
             }
         )
     }
@@ -163,13 +164,13 @@ fun IncomingCallScreen(
 private fun IncomingCallContent(
     callState: CallState,
     toggleMute: () -> Unit,
-    toggleSpeaker: () -> Unit,
     toggleVideo: () -> Unit,
     declineCall: () -> Unit,
     acceptCall: () -> Unit,
     onVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onMinimiseScreen: () -> Unit
 ) {
     BackHandler {
         // DO NOTHING
@@ -186,9 +187,10 @@ private fun IncomingCallContent(
                 isMuted = callState.isMuted ?: true,
                 isCameraOn = callState.isCameraOn,
                 isSpeakerOn = callState.isSpeakerOn,
-                toggleSpeaker = toggleSpeaker,
+                toggleSpeaker = {},
                 toggleMute = toggleMute,
                 toggleVideo = toggleVideo,
+                shouldShowSpeakerButton = false,
                 onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
             )
             Box(
@@ -205,7 +207,8 @@ private fun IncomingCallContent(
                     modifier = Modifier.align(alignment = Alignment.CenterStart)
                 ) {
                     HangUpButton(
-                        modifier = Modifier.size(dimensions().initiatingCallHangUpButtonSize),
+                        size = dimensions().bigCallingControlsSize,
+                        iconSize = dimensions().bigCallingHangUpButtonIconSize,
                         onHangUpButtonClicked = { declineCall() }
                     )
                     Text(
@@ -224,6 +227,8 @@ private fun IncomingCallContent(
                         .align(alignment = Alignment.CenterEnd)
                 ) {
                     AcceptButton(
+                        size = dimensions().bigCallingControlsSize,
+                        iconSize = dimensions().bigCallingAcceptButtonIconSize,
                         buttonClicked = acceptCall
                     )
                     Text(
@@ -260,7 +265,8 @@ private fun IncomingCallContent(
                 callingLabel = isCallingString,
                 protocolInfo = callState.protocolInfo,
                 mlsVerificationStatus = callState.mlsVerificationStatus,
-                proteusVerificationStatus = callState.proteusVerificationStatus
+                proteusVerificationStatus = callState.proteusVerificationStatus,
+                onMinimiseScreen = onMinimiseScreen
             )
         }
     }
@@ -285,12 +291,12 @@ fun PreviewIncomingCallScreen() {
     IncomingCallContent(
         callState = CallState(ConversationId("value", "domain")),
         toggleMute = { },
-        toggleSpeaker = { },
         toggleVideo = { },
         declineCall = { },
         acceptCall = { },
         onVideoPreviewCreated = { },
         onSelfClearVideoPreview = { },
         onPermissionPermanentlyDenied = { },
+        onMinimiseScreen = { }
     )
 }

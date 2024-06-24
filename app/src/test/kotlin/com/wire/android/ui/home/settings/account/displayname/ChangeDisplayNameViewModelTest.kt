@@ -18,9 +18,9 @@
 
 package com.wire.android.ui.home.settings.account.displayname
 
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestUser
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
@@ -28,18 +28,18 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class ChangeDisplayNameViewModelTest {
 
     @Test
@@ -82,55 +82,59 @@ class ChangeDisplayNameViewModelTest {
     fun `when validating new name, and we have an empty value, then should propagate NameEmptyError`() = runTest {
         val (_, viewModel) = Arrangement().arrange()
 
-        val newValue = TextFieldValue(" ")
-        viewModel.onNameChange(newValue)
+        val newValue = " "
+        viewModel.textState.setTextAndPlaceCursorAtEnd(newValue)
 
         assertEquals(DisplayNameState.NameError.TextFieldError.NameEmptyError, viewModel.displayNameState.error)
-        assertTrue(viewModel.displayNameState.animatedNameError)
-        assertFalse(viewModel.displayNameState.continueEnabled)
+        assertEquals(false, viewModel.displayNameState.saveEnabled)
     }
 
     @Test
     fun `when validating new name, and the value exceeds 64 chars, then should propagate NameExceedLimitError`() = runTest {
         val (_, viewModel) = Arrangement().arrange()
 
-        val over64CharString = TextFieldValue("a9p8fIRG12wvOJ8AKH77UqwHt8lzTTOBlSdIlq1N6xxYBsEIUomLKoRY2IZ1hClOM")
-        viewModel.onNameChange(over64CharString)
+        val over64CharString = "a9p8fIRG12wvOJ8AKH77UqwHt8lzTTOBlSdIlq1N6xxYBsEIUomLKoRY2IZ1hClOM"
+        viewModel.textState.setTextAndPlaceCursorAtEnd(over64CharString)
 
         assertEquals(DisplayNameState.NameError.TextFieldError.NameExceedLimitError, viewModel.displayNameState.error)
-        assertTrue(viewModel.displayNameState.animatedNameError)
-        assertFalse(viewModel.displayNameState.continueEnabled)
+        assertEquals(false, viewModel.displayNameState.saveEnabled)
     }
 
     @Test
     fun `when validating new name, and the value is the same, then should propagate None`() = runTest {
         val (_, viewModel) = Arrangement().arrange()
 
-        viewModel.onNameChange(TextFieldValue("username "))
+        val sameValue = "username "
+        viewModel.textState.setTextAndPlaceCursorAtEnd(sameValue)
 
         assertEquals(DisplayNameState.NameError.None, viewModel.displayNameState.error)
-        assertFalse(viewModel.displayNameState.animatedNameError)
-        assertFalse(viewModel.displayNameState.continueEnabled)
+        assertEquals(false, viewModel.displayNameState.saveEnabled)
     }
 
     @Test
     fun `when validating new name, and the value is valid, then should propagate None and enable 'continue'`() = runTest {
         val (_, viewModel) = Arrangement().arrange()
 
-        viewModel.onNameChange(TextFieldValue("valid new name"))
+        val newValue = "valid new name"
+        viewModel.textState.setTextAndPlaceCursorAtEnd(newValue)
 
         assertEquals(DisplayNameState.NameError.None, viewModel.displayNameState.error)
-        assertFalse(viewModel.displayNameState.animatedNameError)
-        assertTrue(viewModel.displayNameState.continueEnabled)
+        assertEquals(true, viewModel.displayNameState.saveEnabled)
     }
 
     @Test
-    fun `when calling onAnimatedError, should emit animatedNameError false to clean state`() = runTest {
-        val (_, viewModel) = Arrangement().arrange()
+    fun `given valid name, when updating, then should take only text value not the whole state toString`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withUserSaveNameResult(DisplayNameUpdateResult.Success)
+            .arrange()
 
-        viewModel.onNameErrorAnimated()
+        val newValue = "valid new name"
+        viewModel.textState.setTextAndPlaceCursorAtEnd(newValue)
+        advanceUntilIdle()
 
-        assertFalse(viewModel.displayNameState.animatedNameError)
+        viewModel.saveDisplayName(onFailure = {}, onSuccess = {})
+
+        coVerify(exactly = 1) { arrangement.updateDisplayNameUseCase(newValue) }
     }
 
     private class Arrangement {
@@ -153,7 +157,6 @@ class ChangeDisplayNameViewModelTest {
         fun arrange() = this to ChangeDisplayNameViewModel(
             getSelfUserUseCase,
             updateDisplayNameUseCase,
-            TestDispatcherProvider()
         )
     }
 }

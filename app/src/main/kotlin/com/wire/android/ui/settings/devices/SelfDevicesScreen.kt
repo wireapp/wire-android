@@ -25,7 +25,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -126,9 +126,9 @@ private fun LazyListScope.folderDeviceItems(
         header = header.uppercase(),
         items = items.associateBy { it.clientId.value },
         divider = {
-            Divider(
-                color = MaterialTheme.wireColorScheme.background,
-                thickness = Dp.Hairline
+            HorizontalDivider(
+                thickness = Dp.Hairline,
+                color = MaterialTheme.wireColorScheme.background
             )
         }
     ) { item: Device ->

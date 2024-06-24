@@ -17,14 +17,16 @@
  */
 package com.wire.android.ui.legalhold.dialog.requested
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
@@ -37,6 +39,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
@@ -50,8 +53,19 @@ class LegalHoldRequestedViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) : ViewModel() {
 
+    val passwordTextState: TextFieldState = TextFieldState()
     var state: LegalHoldRequestedState by mutableStateOf(LegalHoldRequestedState.Hidden)
         private set
+
+    init {
+        viewModelScope.launch {
+            passwordTextState.textAsFlow().distinctUntilChanged().collectLatest {
+                state.ifVisible {
+                    state = it.copy(acceptEnabled = !it.requiresPassword || validatePassword(it.toString()).isValid)
+                }
+            }
+        }
+    }
 
     private val legalHoldRequestDataStateFlow = currentSessionFlow(noSession = LegalHoldRequestData.None) { userId ->
         observeLegalHoldRequest()
@@ -96,6 +110,7 @@ class LegalHoldRequestedViewModel @Inject constructor(
             legalHoldRequestDataStateFlow.collectLatest { legalHoldRequestData ->
                 state = when (legalHoldRequestData) {
                     is LegalHoldRequestData.Pending -> {
+                        passwordTextState.clearText()
                         LegalHoldRequestedState.Visible(
                             requiresPassword = legalHoldRequestData.isPasswordRequired,
                             acceptEnabled = !legalHoldRequestData.isPasswordRequired,
@@ -114,18 +129,13 @@ class LegalHoldRequestedViewModel @Inject constructor(
         if (this is LegalHoldRequestedState.Visible) action(this)
     }
 
-    fun passwordChanged(password: TextFieldValue) {
-        state.ifVisible {
-            state = it.copy(password = password, acceptEnabled = !it.requiresPassword || validatePassword(password.text).isValid)
-        }
-    }
-
     fun notNowClicked() {
         state = LegalHoldRequestedState.Hidden
     }
 
     fun show() {
         (legalHoldRequestDataStateFlow.value as? LegalHoldRequestData.Pending)?.let {
+            passwordTextState.clearText()
             state = LegalHoldRequestedState.Visible(
                 requiresPassword = it.isPasswordRequired,
                 acceptEnabled = !it.isPasswordRequired,
@@ -139,10 +149,10 @@ class LegalHoldRequestedViewModel @Inject constructor(
         state.ifVisible {
             state = it.copy(acceptEnabled = false, loading = true)
             // the accept button is enabled if the password is valid, this check is for safety only
-            if (it.requiresPassword && validatePassword(it.password.text).isValid.not()) {
+            if (it.requiresPassword && validatePassword(passwordTextState.text.toString()).isValid.not()) {
                 state = it.copy(loading = false, error = LegalHoldRequestedError.InvalidCredentialsError)
             } else {
-                val password = if (it.requiresPassword) it.password.text else null
+                val password = if (it.requiresPassword) passwordTextState.text.toString() else null
                 viewModelScope.launch {
                     coreLogic.sessionScope(it.userId) {
                         approveLegalHoldRequest(password).let { approveLegalHoldResult ->

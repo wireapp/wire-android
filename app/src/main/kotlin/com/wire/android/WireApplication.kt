@@ -22,11 +22,16 @@ import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
 import android.os.StrictMode
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.util.CurrentScreenManager
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
+import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
+import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.getGitBuildId
@@ -39,8 +44,10 @@ import com.wire.kalium.logic.CoreLogic
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -69,6 +76,9 @@ class WireApplication : Application(), Configuration.Provider {
     @ApplicationScope
     lateinit var globalAppScope: CoroutineScope
 
+    @Inject
+    lateinit var currentScreenManager: CurrentScreenManager
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(wireWorkerFactory.get())
@@ -84,6 +94,9 @@ class WireApplication : Application(), Configuration.Provider {
             initializeApplicationLoggingFrameworks()
 
             appLogger.i("$TAG app lifecycle")
+            withContext(Dispatchers.Main) {
+                ProcessLifecycleOwner.get().lifecycle.addObserver(currentScreenManager)
+            }
             connectionPolicyManager.get().startObservingAppLifecycle()
 
             appLogger.i("$TAG api version update")
@@ -122,12 +135,12 @@ class WireApplication : Application(), Configuration.Provider {
         // 2. Initialize our internal logging framework
         val isLoggingEnabled = globalDataStore.get().isLoggingEnabled().first()
         val config = if (isLoggingEnabled) {
-            KaliumLogger.Config.DEFAULT.apply {
-                setLogLevel(KaliumLogLevel.VERBOSE)
-                setLogWriterList(listOf(DataDogLogger, platformLogWriter()))
-            }
+            KaliumLogger.Config(
+                KaliumLogLevel.VERBOSE,
+                listOf(DataDogLogger, platformLogWriter())
+            )
         } else {
-            KaliumLogger.Config.disabled()
+            KaliumLogger.Config.DISABLED
         }
         // 2. Initialize our internal logging framework
         AppLogger.init(config)
@@ -137,6 +150,25 @@ class WireApplication : Application(), Configuration.Provider {
         // 4. Everything ready, now we can log device info
         appLogger.i("Logger enabled")
         logDeviceInformation()
+        // 5. Verify if we can initialize Anonymous Analytics
+        initializeAnonymousAnalytics()
+    }
+
+    private fun initializeAnonymousAnalytics() {
+        val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl()
+        val analyticsSettings = AnalyticsSettings(
+            countlyAppKey = BuildConfig.ANALYTICS_APP_KEY,
+            countlyServerUrl = BuildConfig.ANALYTICS_SERVER_URL,
+            enableDebugLogging = BuildConfig.DEBUG
+        )
+
+        AnonymousAnalyticsManagerImpl.init(
+            context = this,
+            analyticsSettings = analyticsSettings,
+            isEnabledFlowProvider = globalDataStore.get()::isAnonymousUsageDataEnabled,
+            anonymousAnalyticsRecorder = anonymousAnalyticsRecorder,
+            dispatcher = Dispatchers.IO
+        )
     }
 
     private fun logDeviceInformation() {

@@ -31,7 +31,9 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.Copyable
-import com.wire.android.util.MessageDateTime
+import com.wire.android.util.MessageDateTimeGroup
+import com.wire.android.util.groupedUIMessageDateTime
+import com.wire.android.util.shouldDisplayDatesDifferenceDivider
 import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
@@ -74,10 +76,35 @@ sealed interface UIMessage {
         val isAvailable: Boolean = !isDeleted && !sendingFailed && !decryptionFailed
         override val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val isMyMessage = source == MessageSource.Self
+
         val isAssetMessage = messageContent is UIMessageContent.AssetMessage
                 || messageContent is UIMessageContent.ImageMessage
                 || messageContent is UIMessageContent.AudioAssetMessage
+
+        private val isReplyableContent: Boolean
+            get() = messageContent is UIMessageContent.TextMessage ||
+                    messageContent is UIMessageContent.AssetMessage ||
+                    messageContent is UIMessageContent.AudioAssetMessage ||
+                    messageContent is UIMessageContent.Location ||
+                    messageContent is UIMessageContent.Regular
+
+        /**
+         * The message was sent from the sender (either self or others), and is available for other users
+         * to retrieve from the backend, or is already retrieved.
+         */
+        private val isTheMessageAvailableToOtherUsers: Boolean
+            get() = header.messageStatus.flowStatus is MessageFlowStatus.Delivered ||
+                    header.messageStatus.flowStatus is MessageFlowStatus.Sent ||
+                    header.messageStatus.flowStatus is MessageFlowStatus.Read
+
+        val isReplyable: Boolean
+            get() = isReplyableContent &&
+                    isTheMessageAvailableToOtherUsers &&
+                    !isDeleted &&
+                    header.messageStatus.expirationStatus is ExpirationStatus.NotExpirable
+
         val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
+
         val isLocation: Boolean = messageContent is UIMessageContent.Location
     }
 
@@ -133,8 +160,8 @@ sealed class MessageEditStatus {
 
 sealed class MessageFlowStatus {
 
-    object Sending : MessageFlowStatus()
-    object Sent : MessageFlowStatus()
+    data object Sending : MessageFlowStatus()
+    data object Sent : MessageFlowStatus()
     sealed class Failure(val errorText: UIText) : MessageFlowStatus() {
         sealed class Send(errorText: UIText) : Failure(errorText) {
             data class Locally(val isEdited: Boolean) : Send(
@@ -165,7 +192,7 @@ sealed class MessageFlowStatus {
         )
     }
 
-    object Delivered : MessageFlowStatus()
+    data object Delivered : MessageFlowStatus()
 
     data class Read(val count: Long) : MessageFlowStatus()
 }
@@ -598,7 +625,10 @@ enum class MessageSource {
 }
 
 data class MessageTime(val utcISO: String) {
-    fun formattedDate(now: Long): MessageDateTime? = utcISO.uiMessageDateTime(now = now)
+    val formattedDate: String = utcISO.uiMessageDateTime() ?: ""
+    fun getFormattedDateGroup(now: Long): MessageDateTimeGroup? = utcISO.groupedUIMessageDateTime(now = now)
+    fun shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean =
+        utcISO.shouldDisplayDatesDifferenceDivider(previousDate = previousDate)
 }
 
 @Stable

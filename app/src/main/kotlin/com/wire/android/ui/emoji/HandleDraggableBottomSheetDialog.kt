@@ -224,7 +224,7 @@ class HandleDraggableBottomSheetDialog : AppCompatDialog {
                 }
             }
         )
-        bottomSheet!!.setOnTouchListener { _, event -> // Consume the event and prevent it from falling through
+        bottomSheet!!.setOnTouchListener { _, _ -> // Consume the event and prevent it from falling through
             true
         }
         return container

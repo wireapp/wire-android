@@ -23,6 +23,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -40,10 +41,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -51,18 +54,23 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
+import com.wire.android.feature.analytics.globalAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LocalNavigator
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.getOngoingCallIntent
+import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
@@ -107,6 +115,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -134,6 +143,7 @@ class WireActivity : AppCompatActivity() {
 
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
+    private var isNavigationCollecting = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -145,10 +155,9 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
 
-        lifecycle.addObserver(currentScreenManager)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        lifecycleScope.launch(Dispatchers.Default) {
+        lifecycleScope.launch {
 
             appLogger.i("$TAG persistent connection status")
             viewModel.observePersistentConnectionStatus()
@@ -157,29 +166,36 @@ class WireActivity : AppCompatActivity() {
             legalHoldRequestedViewModel.observeLegalHoldRequest()
 
             appLogger.i("$TAG start destination")
-            val startDestination = when (viewModel.initialAppState) {
+            val startDestination = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
                 InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
                 InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
                 InitialAppState.LOGGED_IN -> HomeScreenDestination
             }
             appLogger.i("$TAG composable content")
-            withContext(Dispatchers.Main) {
-                setComposableContent(startDestination) {
-                    appLogger.i("$TAG splash hide")
-                    shouldKeepSplashOpen = false
-                    handleDeepLink(intent, savedInstanceState)
-                }
+
+            setComposableContent(startDestination) {
+                appLogger.i("$TAG splash hide")
+                shouldKeepSplashOpen = false
+                handleDeepLink(intent, savedInstanceState)
             }
         }
     }
 
     override fun onNewIntent(intent: Intent?) {
-        if (viewModel.isSharingIntent(intent)) {
-            setIntent(intent)
-        }
-        handleDeepLink(intent)
         super.onNewIntent(intent)
+        setIntent(intent)
+        if (isNavigationCollecting) {
+            /*
+             * - When true then navigationCommands is subscribed and can handle navigation commands right away.
+             * - When false then navigationCommands needs to be subscribed again to be able to receive and handle navigation commands.
+             *
+             * Activity intent is updated anyway using setIntent(intent) so that we always keep the latest intent received, so when
+             * isNavigationCollecting is false then we handle it after navigationCommands is subscribed again and onComplete called again.
+             * We make sure to handle particular intent only once thanks to the flag HANDLED_DEEPLINK_FLAG put into the handled intent.
+             */
+            handleDeepLink(intent)
+        }
     }
 
     private fun setComposableContent(
@@ -214,6 +230,16 @@ class WireActivity : AppCompatActivity() {
                                     startActivity(this)
                                 }
                             },
+                            onReturnToIncomingCallClick = {
+                                getIncomingCallIntent(this@WireActivity, it.conversationId.toString(), null).run {
+                                    startActivity(this)
+                                }
+                            },
+                            onReturnToOutgoingCallClick = {
+                                getOutgoingCallIntent(this@WireActivity, it.conversationId.toString()).run {
+                                    startActivity(this)
+                                }
+                            }
                         )
                         CompositionLocalProvider(LocalNavigator provides navigator) {
                             NavigationGraph(
@@ -224,9 +250,9 @@ class WireActivity : AppCompatActivity() {
 
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-                        setUpNavigation(navigator.navController, onComplete)
-                        handleScreenshotCensoring()
-                        handleDialogs(navigator::navigate)
+                        SetUpNavigation(navigator.navController, onComplete)
+                        HandleScreenshotCensoring()
+                        HandleDialogs(navigator::navigate)
                     }
                 }
             }
@@ -234,7 +260,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun setUpNavigation(
+    private fun SetUpNavigation(
         navController: NavHostController,
         onComplete: () -> Unit,
     ) {
@@ -244,7 +270,13 @@ class WireActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     navigationCommands
-                        .onSubscription { onComplete() }
+                        .onSubscription {
+                            isNavigationCollecting = true
+                            onComplete()
+                        }
+                        .onCompletion {
+                            isNavigationCollecting = false
+                        }
                         .collectLatest {
                             currentKeyboardController?.hide()
                             currentNavController.navigateToItem(it)
@@ -254,7 +286,7 @@ class WireActivity : AppCompatActivity() {
         }
 
         DisposableEffect(navController) {
-            val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, navDestination, _ ->
+            val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, _, _ ->
                 currentKeyboardController?.hide()
             }
             navController.addOnDestinationChangedListener(updateScreenSettingsListener)
@@ -265,10 +297,29 @@ class WireActivity : AppCompatActivity() {
                 navController.removeOnDestinationChangedListener(currentScreenManager)
             }
         }
+
+        val lifecycleOwner = LocalLifecycleOwner.current
+        val activity = LocalContext.current as Activity
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_START) {
+                    globalAnalyticsManager.onStart(activity = activity)
+                    globalAnalyticsManager.sendEvent(AnalyticsEvent.AppOpen())
+                }
+                if (event == Lifecycle.Event.ON_STOP) {
+                    globalAnalyticsManager.onStop()
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+            }
+        }
     }
 
     @Composable
-    private fun handleScreenshotCensoring() {
+    private fun HandleScreenshotCensoring() {
         LaunchedEffect(viewModel.globalAppState.screenshotCensoringEnabled) {
             if (viewModel.globalAppState.screenshotCensoringEnabled) {
                 window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -280,7 +331,7 @@ class WireActivity : AppCompatActivity() {
 
     @Suppress("ComplexMethod")
     @Composable
-    private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {
+    private fun HandleDialogs(navigate: (NavigationCommand) -> Unit) {
         val context = LocalContext.current
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {
@@ -314,7 +365,7 @@ class WireActivity : AppCompatActivity() {
                 if (legalHoldRequestedViewModel.state is LegalHoldRequestedState.Visible) {
                     LegalHoldRequestedDialog(
                         state = legalHoldRequestedViewModel.state as LegalHoldRequestedState.Visible,
-                        passwordChanged = legalHoldRequestedViewModel::passwordChanged,
+                        passwordTextState = legalHoldRequestedViewModel.passwordTextState,
                         notNowClicked = legalHoldRequestedViewModel::notNowClicked,
                         acceptClicked = legalHoldRequestedViewModel::acceptClicked,
                     )
@@ -458,7 +509,7 @@ class WireActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        lifecycleScope.launch(Dispatchers.Default) {
+        lifecycleScope.launch {
             lockCodeTimeManager.get().observeAppLock()
                 // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
                 .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
@@ -495,8 +546,29 @@ class WireActivity : AppCompatActivity() {
             viewModel.handleDeepLink(
                 intent = intent,
                 onResult = ::handleDeepLinkResult,
-                onOpenConversation = { navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.CLEAR_TILL_START)) },
-                onIsSharingIntent = { navigate(NavigationCommand(ImportMediaScreenDestination, BackStackMode.UPDATE_EXISTED)) }
+                onOpenConversation = {
+                    navigate(
+                        NavigationCommand(
+                            ConversationScreenDestination(it),
+                            BackStackMode.CLEAR_TILL_START
+                        )
+                    )
+                },
+                onIsSharingIntent = {
+                    navigate(
+                        NavigationCommand(
+                            ImportMediaScreenDestination,
+                            BackStackMode.UPDATE_EXISTED
+                        )
+                    )
+                },
+                onCannotLoginDuringACall = {
+                    Toast.makeText(
+                        this,
+                        resources.getString(R.string.cant_switch_account_in_call),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             )
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
         }

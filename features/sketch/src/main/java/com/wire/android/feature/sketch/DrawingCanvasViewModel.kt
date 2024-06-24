@@ -36,6 +36,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
 import com.wire.android.feature.sketch.model.DrawingPathProperties
 import com.wire.android.feature.sketch.model.DrawingState
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -89,7 +91,7 @@ class DrawingCanvasViewModel : ViewModel() {
      * Stores the initial point of the drawing.
      */
     fun onStartDrawingEvent() {
-        state = state.copy(paths = state.paths + state.currentPath).apply {
+        state = state.copy(paths = (state.paths + state.currentPath).toPersistentList()).apply {
             currentPath.path.moveTo(state.currentPosition.x, state.currentPosition.y)
         }
     }
@@ -111,7 +113,8 @@ class DrawingCanvasViewModel : ViewModel() {
                 strokeWidth = state.currentPath.strokeWidth
                 color = state.currentPath.color
                 drawMode = state.currentPath.drawMode
-            }, pathsUndone = emptyList(),
+            },
+            pathsUndone = persistentListOf(),
             currentPosition = Offset.Unspecified,
             drawingMotionEvent = DrawingMotionEvent.Idle
         )
@@ -130,8 +133,8 @@ class DrawingCanvasViewModel : ViewModel() {
     fun onUndoLastStroke() {
         if (state.paths.isNotEmpty()) {
             state = state.copy(
-                paths = state.paths.dropLast(1),
-                pathsUndone = state.pathsUndone + state.paths.last()
+                paths = state.paths.distinct().dropLast(1).toPersistentList(),
+                pathsUndone = (state.pathsUndone + state.paths.last()).toPersistentList()
             )
         }
     }
@@ -157,7 +160,7 @@ class DrawingCanvasViewModel : ViewModel() {
                         Bitmap.Config.ARGB_8888
                     )
                     val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.White.toArgb() }) }
-                    context.contentResolver.openFileDescriptor(tempSketchFile, "rw")?.use { fileDescriptor ->
+                    context.contentResolver.openFileDescriptor(tempSketchFile, "rwt")?.use { fileDescriptor ->
                         FileOutputStream(fileDescriptor.fileDescriptor).use { fileOutputStream ->
                             paths.forEach { path -> path.drawNative(canvas) }
                             bitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY, fileOutputStream)

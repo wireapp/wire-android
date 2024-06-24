@@ -18,13 +18,11 @@
 
 package com.wire.android.ui.authentication.create.email
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.kalium.logic.CoreFailure
 
 data class CreateAccountEmailViewState(
     val type: CreateAccountFlowType,
-    val email: TextFieldValue = TextFieldValue(""),
     val termsDialogVisible: Boolean = false,
     val termsAccepted: Boolean = false,
     val continueEnabled: Boolean = false,
@@ -34,17 +32,16 @@ data class CreateAccountEmailViewState(
     val showServerVersionNotSupportedDialog: Boolean = false
 ) {
     sealed class EmailError {
-        object None : EmailError()
+        data object None : EmailError()
         sealed class TextFieldError : EmailError() {
-            object InvalidEmailError : TextFieldError()
-            object BlacklistedEmailError : TextFieldError()
-            object AlreadyInUseError : TextFieldError()
-            object DomainBlockedError : TextFieldError()
+            data object InvalidEmailError : TextFieldError()
+            data object BlacklistedEmailError : TextFieldError()
+            data object AlreadyInUseError : TextFieldError()
+            data object DomainBlockedError : TextFieldError()
         }
 
         sealed class DialogError : EmailError() {
             data class GenericError(val coreFailure: CoreFailure) : DialogError()
         }
     }
-
 }

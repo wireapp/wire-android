@@ -6,7 +6,10 @@
             "logging_enabled": false,
             "application_is_private_build": false,
             "development_api_enabled": false,
-            "mls_support_enabled": false
+            "mls_support_enabled": false,
+            "analytics_enabled": true,
+            "analytics_app_key": "4483f7a58ae3e70b3780319c4ccb5c88a037be49",
+            "analytics_server_url": "https://countly.wire.com/"
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",
@@ -27,7 +30,10 @@
             "default_backend_url_website": "https://wire.com",
             "default_backend_title": "wire-staging",
             "is_password_protected_guest_link_enabled": true,
-            "encrypt_proteus_storage": true
+            "encrypt_proteus_storage": true,
+            "analytics_enabled": true,
+            "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
+            "analytics_server_url": "https://countly.wire.com/"
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -46,7 +52,10 @@
             "default_backend_url_blacklist": "https://clientblacklist.wire.com/staging",
             "default_backend_url_website": "https://wire.com",
             "default_backend_title": "wire-staging",
-            "encrypt_proteus_storage": true
+            "encrypt_proteus_storage": true,
+            "analytics_enabled": true,
+            "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
+            "analytics_server_url": "https://countly.wire.com/"
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -55,7 +64,10 @@
             "application_is_private_build": true,
             "development_api_enabled": false,
             "mls_support_enabled": false,
-            "encrypt_proteus_storage": true
+            "encrypt_proteus_storage": true,
+            "analytics_enabled": true,
+            "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
+            "analytics_server_url": "https://countly.wire.com/"
         },
         "internal": {
             "application_id": "com.wire.internal",
@@ -63,7 +75,10 @@
             "logging_enabled": true,
             "application_is_private_build": true,
             "development_api_enabled": false,
-            "encrypt_proteus_storage": true
+            "encrypt_proteus_storage": true,
+            "analytics_enabled": true,
+            "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
+            "analytics_server_url": "https://countly.wire.com/"
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -71,7 +86,10 @@
             "logging_enabled": false,
             "application_is_private_build": false,
             "development_api_enabled": false,
-            "mls_support_enabled": false
+            "mls_support_enabled": false,
+            "analytics_enabled": false,
+            "analytics_app_key": "",
+            "analytics_server_url": ""
         }
     },
     "application_name": "Wire",

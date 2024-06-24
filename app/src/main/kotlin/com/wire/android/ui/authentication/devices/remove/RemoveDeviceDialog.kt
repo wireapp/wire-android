@@ -18,12 +18,12 @@
 package com.wire.android.ui.authentication.devices.remove
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -32,25 +32,25 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.deviceDateTimeFormat
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RemoveDeviceDialog(
     errorState: RemoveDeviceError,
     state: RemoveDeviceDialogState.Visible,
-    onPasswordChange: (TextFieldValue) -> Unit,
+    passwordTextState: TextFieldState,
     onDialogDismiss: () -> Unit,
-    onRemoveConfirm: () -> Unit
+    onRemoveConfirm: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var keyboardController: SoftwareKeyboardController? = null
     val onDialogDismissHideKeyboard: () -> Unit = {
@@ -58,6 +58,7 @@ fun RemoveDeviceDialog(
         onDialogDismiss()
     }
     WireDialog(
+        modifier = modifier,
         title = stringResource(R.string.remove_device_dialog_title),
         text = state.device.name.asString() + "\n" +
             stringResource(
@@ -87,8 +88,7 @@ fun RemoveDeviceDialog(
             keyboardController = LocalSoftwareKeyboardController.current
             val focusRequester = remember { FocusRequester() }
             WirePasswordTextField(
-                value = state.password,
-                onValueChange = onPasswordChange,
+                textState = passwordTextState,
                 state = when {
                     errorState is RemoveDeviceError.InvalidCredentialsError ->
                         WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
@@ -96,13 +96,13 @@ fun RemoveDeviceDialog(
                     state.loading -> WireTextFieldState.Disabled
                     else -> WireTextFieldState.Default
                 },
-                imeAction = ImeAction.Done,
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
+                onKeyboardAction = { keyboardController?.hide() },
                 modifier = Modifier
                     .focusRequester(focusRequester)
                     .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
                     .testTag("remove device password field"),
-                autofill = true
+                autoFill = true
             )
             LaunchedEffect(Unit) { // executed only once when showing the dialog
                 focusRequester.requestFocus()

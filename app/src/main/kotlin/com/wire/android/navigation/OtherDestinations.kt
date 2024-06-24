@@ -57,6 +57,16 @@ object SupportScreenDestination : ExternalUriDirection {
         get() = Uri.parse(BuildConfig.URL_SUPPORT)
 }
 
+object PrivacyPolicyScreenDestination : ExternalUriStringResDirection {
+    override val uriStringRes: Int
+        get() = R.string.url_privacy_policy
+}
+
+object TermsOfUseScreenDestination : ExternalUriStringResDirection {
+    override val uriStringRes: Int
+        get() = R.string.url_terms_of_use_legal
+}
+
 object GiveFeedbackDestination : IntentDirection {
     override fun intent(context: Context): Intent {
         val intent = Intent(Intent.ACTION_SEND)

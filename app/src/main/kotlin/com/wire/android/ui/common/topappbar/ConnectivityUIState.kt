@@ -33,4 +33,14 @@ sealed interface ConnectivityUIState {
         val conversationId: ConversationId,
         val isMuted: Boolean
     ) : ConnectivityUIState
+
+    data class IncomingCall(
+        val conversationId: ConversationId,
+        val callerName: String?
+    ) : ConnectivityUIState
+
+    data class OutgoingCall(
+        val conversationId: ConversationId,
+        val callerName: String?
+    ) : ConnectivityUIState
 }

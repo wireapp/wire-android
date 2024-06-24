@@ -44,8 +44,8 @@ class FeatureFlagNotificationViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            expected = FeatureFlagState.SharingRestrictedState.NO_USER,
-            actual = viewModel.featureFlagState.fileSharingRestrictedState
+            expected = FeatureFlagState.FileSharingState.NoUser,
+            actual = viewModel.featureFlagState.isFileSharingState
         )
     }
 
@@ -59,8 +59,8 @@ class FeatureFlagNotificationViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            expected = FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
-            actual = viewModel.featureFlagState.fileSharingRestrictedState
+            expected = FeatureFlagState.FileSharingState.DisabledByTeam,
+            actual = viewModel.featureFlagState.isFileSharingState
         )
     }
 
@@ -92,8 +92,8 @@ class FeatureFlagNotificationViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            expected = FeatureFlagState.SharingRestrictedState.NONE,
-            actual = viewModel.featureFlagState.fileSharingRestrictedState
+            expected = FeatureFlagState.FileSharingState.AllowAll,
+            actual = viewModel.featureFlagState.isFileSharingState
         )
     }
 

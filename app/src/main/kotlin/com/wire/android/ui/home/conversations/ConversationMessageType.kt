@@ -31,6 +31,7 @@ sealed class ConversationSnackbarMessages(override val uiText: UIText) : SnackBa
     object ErrorDownloadingAsset : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_downloading_asset))
     object ErrorOpeningAssetFile : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_opening_asset_file))
     object ErrorDeletingMessage : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_deleting_message))
+    data object ErrorAssetRestriction : ConversationSnackbarMessages(UIText.StringResource(R.string.restricted_asset_error_toast_message))
     data class ErrorMaxAssetSize(val maxLimitInMB: Int) :
         ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_max_asset_size_limit, maxLimitInMB))
 

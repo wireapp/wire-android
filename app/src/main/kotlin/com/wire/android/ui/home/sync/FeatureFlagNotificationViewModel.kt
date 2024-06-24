@@ -72,7 +72,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             when (currentSessionResult) {
                 is CurrentSessionResult.Failure -> {
                     appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
-                    featureFlagState = featureFlagState.copy(fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER)
+                    featureFlagState = featureFlagState.copy()
                 }
 
                 is CurrentSessionResult.Success -> {
@@ -92,22 +92,17 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private fun setFileSharingState(userId: UserId) = viewModelScope.launch {
         coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
-            fileSharingStatus.state?.let {
-                // TODO: handle restriction when sending assets
-                val (fileSharingRestrictedState, state) = if (it is FileSharingStatus.Value.EnabledAll) {
-                    FeatureFlagState.SharingRestrictedState.NONE to true
-                } else {
-                    FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM to false
-                }
-
-                featureFlagState = featureFlagState.copy(
-                    fileSharingRestrictedState = fileSharingRestrictedState,
-                    isFileSharingEnabledState = state
+            val state: FeatureFlagState.FileSharingState = when (fileSharingStatus.state) {
+                FileSharingStatus.Value.Disabled -> FeatureFlagState.FileSharingState.DisabledByTeam
+                FileSharingStatus.Value.EnabledAll -> FeatureFlagState.FileSharingState.AllowAll
+                is FileSharingStatus.Value.EnabledSome -> FeatureFlagState.FileSharingState.AllowSome(
+                    (fileSharingStatus.state as FileSharingStatus.Value.EnabledSome).allowedType
                 )
             }
-            fileSharingStatus.isStatusChanged?.let {
-                featureFlagState = featureFlagState.copy(showFileSharingDialog = it)
-            }
+            featureFlagState = featureFlagState.copy(
+                isFileSharingState = state,
+                showFileSharingDialog = fileSharingStatus.isStatusChanged ?: false
+            )
         }
     }
 

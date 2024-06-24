@@ -25,8 +25,7 @@ import kotlin.time.Duration
 
 data class FeatureFlagState(
     val showFileSharingDialog: Boolean = false,
-    val isFileSharingEnabledState: Boolean = true,
-    val fileSharingRestrictedState: SharingRestrictedState? = null,
+    val isFileSharingState: FileSharingState = FileSharingState.NoUser,
     val shouldShowGuestRoomLinkDialog: Boolean = false,
     val isGuestRoomLinkEnabled: Boolean = true,
     val shouldShowSelfDeletingMessagesDialog: Boolean = false,
@@ -35,8 +34,12 @@ data class FeatureFlagState(
     val e2EIRequired: E2EIRequired? = null,
     val e2EISnoozeInfo: E2EISnooze? = null
 ) {
-    enum class SharingRestrictedState {
-        NONE, NO_USER, RESTRICTED_IN_TEAM
+
+    sealed interface FileSharingState {
+        data object NoUser : FileSharingState
+        data object AllowAll : FileSharingState
+        data class AllowSome(val allowedList: List<String>) : FileSharingState
+        data object DisabledByTeam : FileSharingState
     }
 
     data class E2EISnooze(val timeLeft: Duration)

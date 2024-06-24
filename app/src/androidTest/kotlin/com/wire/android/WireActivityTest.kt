@@ -27,6 +27,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.work.testing.WorkManagerTestInitHelper
 import co.touchlab.kermit.platformLogWriter
+import com.wire.android.extensions.performClickWithNodeWithText
+import com.wire.android.extensions.waitUntilExists
 import com.wire.android.ui.WireActivity
 import com.wire.android.util.DataDogLogger
 import com.wire.kalium.logger.KaliumLogLevel
@@ -36,6 +38,7 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -58,6 +61,7 @@ class WireActivityTest {
         hiltRule.inject()
     }
 
+//    @Ignore
     @Test
     fun loginTest() = runTest {
         composeTestRule.waitUntilExists(R.string.label_login)
@@ -74,11 +78,10 @@ class WireActivityTest {
     }
 
     private fun initializeApplicationLoggingFrameworks() {
-        val config =
-            KaliumLogger.Config.DEFAULT.apply {
-                setLogLevel(KaliumLogLevel.VERBOSE)
-                setLogWriterList(listOf(DataDogLogger, platformLogWriter()))
-            }
+        val config = KaliumLogger.Config(
+            KaliumLogLevel.VERBOSE,
+            listOf(DataDogLogger, platformLogWriter())
+        )
         // 2. Initialize our internal logging framework
         AppLogger.init(config)
         CoreLogger.init(config)

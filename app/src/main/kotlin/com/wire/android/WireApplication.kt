@@ -134,12 +134,12 @@ class WireApplication : BaseApp() {
         // 2. Initialize our internal logging framework
         val isLoggingEnabled = globalDataStore.get().isLoggingEnabled().first()
         val config = if (isLoggingEnabled) {
-            KaliumLogger.Config.DEFAULT.apply {
-                setLogLevel(KaliumLogLevel.VERBOSE)
-                setLogWriterList(listOf(DataDogLogger, platformLogWriter()))
-            }
+            KaliumLogger.Config(
+                KaliumLogLevel.VERBOSE,
+                listOf(DataDogLogger, platformLogWriter())
+            )
         } else {
-            KaliumLogger.Config.disabled()
+            KaliumLogger.Config.DISABLED
         }
         // 2. Initialize our internal logging framework
         AppLogger.init(config)

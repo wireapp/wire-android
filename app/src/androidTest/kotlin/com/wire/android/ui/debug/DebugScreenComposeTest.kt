@@ -17,14 +17,11 @@
  */
 package com.wire.android.ui.debug
 
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.theme.WireTheme
+import androidx.test.core.app.ApplicationProvider
+import com.wire.android.R
+import com.wire.android.extensions.waitUntilExists
+import com.wire.android.ui.WireTestTheme
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -37,10 +34,7 @@ class DebugScreenComposeTest {
     @Test
     fun givenAUserIsInDebugScreen_TitleShouldBeDisplayed() = runTest {
         composeTestRule.setContent {
-            val snackbarHostState = remember { SnackbarHostState() }
-            CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
-                WireTheme {
-                    LocalSnackbarHostState.current
+                WireTestTheme {
                     UserDebugContent(
                         onNavigationPressed = { },
                         onManualMigrationPressed = {},
@@ -48,10 +42,9 @@ class DebugScreenComposeTest {
                         onLoggingEnabledChange = {},
                         onDeleteLogs = {}
                     )
-                }
             }
         }
 
-        composeTestRule.onNodeWithText("Debug Settings").assertIsDisplayed()
+        composeTestRule.waitUntilExists(ApplicationProvider.getApplicationContext(), R.string.debug_settings_screen_title)
     }
 }

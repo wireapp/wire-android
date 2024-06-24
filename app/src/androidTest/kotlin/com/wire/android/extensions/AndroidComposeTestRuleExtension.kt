@@ -17,7 +17,7 @@
  */
 @file:OptIn(ExperimentalTestApi::class)
 
-package com.wire.android
+package com.wire.android.extensions
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.test.ExperimentalTestApi

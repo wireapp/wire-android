@@ -15,16 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android
+package com.wire.android.provider
 
-import android.app.Application
 import android.content.Context
-import androidx.test.runner.AndroidJUnitRunner
-import dagger.hilt.android.testing.HiltTestApplication
+import androidx.compose.runtime.staticCompositionLocalOf
 
-class WireTestRunner : AndroidJUnitRunner() {
-
-    override fun newApplication(cl: ClassLoader?, name: String?, context: Context?): Application {
-        return super.newApplication(cl, HiltTestApplication::class.java.name, context)
-    }
+val LocalAppContext = staticCompositionLocalOf<Context> {
+    error("CompositionLocal LocalAppContext not provided")
 }

@@ -124,7 +124,6 @@ dependencies {
     // features
     implementation(project(":features:sketch"))
     implementation(project(":core:ui-common"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
 
     // kover
     kover(project(":features:sketch"))

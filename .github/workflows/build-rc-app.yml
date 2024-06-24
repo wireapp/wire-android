@@ -50,6 +50,8 @@ jobs:
         run:
           ./gradlew app:assembleInternalCompat
         env:
+          DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+          DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
           KEYSTORE_FILE_PATH_DEBUG: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_FILE_PATH_COMPAT: ${{ vars.KEYSTORE_FILE_PATH }}
@@ -62,6 +64,8 @@ jobs:
         run:
           ./gradlew app:bundleInternalCompat
         env:
+          DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+          DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
           KEYSTORE_FILE_PATH_DEBUG: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_FILE_PATH_COMPAT: ${{ vars.KEYSTORE_FILE_PATH }}
@@ -75,6 +79,8 @@ jobs:
         run:
           ./gradlew app:assembleStagingCompat
         env:
+          DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+          DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
           KEYSTORE_FILE_PATH_DEBUG: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_FILE_PATH_COMPAT: ${{ vars.KEYSTORE_FILE_PATH }}

@@ -84,12 +84,14 @@ class RemoveDeviceViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isLoadingClientsList = true)
             val selfClientsResult = fetchSelfClientsFromRemote()
-            if (selfClientsResult is SelfClientsResult.Success) {
-                state = state.copy(
+            state = if (selfClientsResult is SelfClientsResult.Success) {
+                state.copy(
                     isLoadingClientsList = false,
                     deviceList = selfClientsResult.clients.filter { it.type == ClientType.Permanent }.map { Device(it) },
                     removeDeviceDialogState = RemoveDeviceDialogState.Hidden
                 )
+            } else {
+                state.copy(isLoadingClientsList = false, error = RemoveDeviceError.InitError)
             }
         }
     }
@@ -101,6 +103,11 @@ class RemoveDeviceViewModel @Inject constructor(
 
     fun clearDeleteClientError() {
         updateStateIfDialogVisible { state.copy(error = RemoveDeviceError.None) }
+    }
+
+    fun retryFetch() {
+        state = state.copy(isLoadingClientsList = true, error = RemoveDeviceError.None)
+        loadClientsList()
     }
 
     fun onItemClicked(device: Device, onCompleted: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit) {

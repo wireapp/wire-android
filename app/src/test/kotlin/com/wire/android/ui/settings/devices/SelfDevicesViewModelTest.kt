@@ -23,6 +23,7 @@ package com.wire.android.ui.settings.devices
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestClient
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
@@ -37,6 +38,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -45,18 +47,25 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SelfDevicesViewModelTest {
 
     @Test
-    fun `given a self client id, when fetching self clients, then returns devices list without current device`() =
+    fun `given a self client id, when observing self clients, then returns devices list without current device`() =
         runTest {
             // given
+            val currentClient = TestClient.CLIENT
+            val otherClient = TestClient.CLIENT.copy(id = ClientId("anotherId"))
             val (_, viewModel) = Arrangement()
+                .withCurrentClientId(currentClient.id)
+                .withObserveClientsByUserIdResult(ObserveClientsByUserIdUseCase.Result.Success(listOf(currentClient, otherClient)))
                 .arrange()
-            val currentDevice = Device(TestClient.CLIENT)
+            val currentDevice = Device(currentClient)
+            val otherDevice = Device(otherClient)
 
             // when
             viewModel.loadCertificates()
 
             // then
-            assert(!viewModel.state.deviceList.contains(currentDevice))
+            assertEquals(false, viewModel.state.isLoadingClientsList)
+            assertEquals(false, viewModel.state.deviceList.contains(currentDevice))
+            assertEquals(true, viewModel.state.deviceList.contains(otherDevice))
         }
 
     @Test
@@ -109,15 +118,21 @@ class SelfDevicesViewModelTest {
 
             coEvery { currentClientId.invoke() } returns flowOf(TestClient.CLIENT_ID)
             coEvery { fetchSelfClientsFromRemote.invoke() } returns SelfClientsResult.Success(listOf(), null)
-            coEvery { observeClientsByUserId(any()) } returns flowOf(
-                ObserveClientsByUserIdUseCase.Result.Success(
-                    listOf(
-                        TestClient.CLIENT
-                    )
-                )
-            )
+            coEvery { observeClientsByUserId(any()) } returns flowOf(ObserveClientsByUserIdUseCase.Result.Success(listOf()))
             coEvery { getUserE2eiCertificates.invoke(any()) } returns mapOf()
             coEvery { isE2EIEnabledUseCase() } returns true
+        }
+
+        fun withCurrentClientId(clientId: ClientId) = apply {
+            coEvery { currentClientId.invoke() } returns flowOf(clientId)
+        }
+
+        fun withFetchSelfClientsResult(result: SelfClientsResult) = apply {
+            coEvery { fetchSelfClientsFromRemote() } returns result
+        }
+
+        fun withObserveClientsByUserIdResult(result: ObserveClientsByUserIdUseCase.Result) = apply {
+            coEvery { observeClientsByUserId(any()) } returns flowOf(result)
         }
 
         fun arrange() = this to viewModel

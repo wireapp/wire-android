@@ -59,14 +59,14 @@ class SelfDevicesViewModel @Inject constructor(
     private val observeUserE2eiCertificates = refreshE2eiCertificates.map { getUserE2eiCertificates(currentAccountId) }
 
     init {
-        // this will cause the list to be refreshed
-        loadClientsList()
-        observeClientList()
+        fetchAndObserveClientList()
     }
 
-    private fun observeClientList() {
+    private fun fetchAndObserveClientList() {
         viewModelScope.launch {
-            observeClientList(currentAccountId).combine(observeUserE2eiCertificates, ::Pair)
+            fetchSelfClientsFromRemote() // this will cause the list to be refreshed
+            observeClientList(currentAccountId)
+                .combine(observeUserE2eiCertificates, ::Pair)
                 .collect { (result, e2eiCertificates) ->
                     state = when (result) {
                         is ObserveClientsByUserIdUseCase.Result.Failure -> state.copy(isLoadingClientsList = false)
@@ -84,12 +84,6 @@ class SelfDevicesViewModel @Inject constructor(
                         }
                     }
                 }
-        }
-    }
-
-    private fun loadClientsList() {
-        viewModelScope.launch {
-            fetchSelfClientsFromRemote()
         }
     }
 

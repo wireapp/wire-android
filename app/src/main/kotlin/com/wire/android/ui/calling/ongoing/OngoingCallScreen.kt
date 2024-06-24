@@ -137,6 +137,7 @@ fun OngoingCallScreen(
             hangUpCall = { sharedCallingViewModel.hangUpCall { activity.finishAndRemoveTask() } },
             toggleVideo = sharedCallingViewModel::toggleVideo,
             flipCamera = sharedCallingViewModel::flipCamera,
+<<<<<<< HEAD
             setVideoPreview = {
                 sharedCallingViewModel.setVideoPreview(it)
                 ongoingCallViewModel.startSendingVideoFeed()
@@ -146,6 +147,11 @@ fun OngoingCallScreen(
                 ongoingCallViewModel.stopSendingVideoFeed()
             },
             onCollapse = { activity.moveTaskToBack(true) },
+=======
+            setVideoPreview = sharedCallingViewModel::setVideoPreview,
+            clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+            navigateBack = navigator::navigateBack,
+>>>>>>> 37e8ed56b (fix: camera on/off button when in fullscreen [WPB-9815] (#3121))
             requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
             hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
             onPermissionPermanentlyDenied = {
@@ -195,6 +201,16 @@ fun OngoingCallScreen(
 
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    // Start/stop sending video feed based on the camera state when the call is established.
+    LaunchedEffect(sharedCallingViewModel.callState.callStatus, sharedCallingViewModel.callState.isCameraOn) {
+        if (sharedCallingViewModel.callState.callStatus == CallStatus.ESTABLISHED) {
+            when (sharedCallingViewModel.callState.isCameraOn) {
+                true -> ongoingCallViewModel.startSendingVideoFeed()
+                false -> ongoingCallViewModel.stopSendingVideoFeed()
+            }
         }
     }
 }

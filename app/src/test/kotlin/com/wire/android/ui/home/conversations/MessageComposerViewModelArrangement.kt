@@ -276,6 +276,21 @@ internal class MessageComposerViewModelArrangement {
         } returns Unit
     }
 
+    fun withSendAssetsResult(result: ScheduleNewAssetMessageResult) = apply {
+        coEvery {
+            sendAssetMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns result
+    }
+
     fun withFailureOnDeletingMessages() = apply {
         coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
         return this

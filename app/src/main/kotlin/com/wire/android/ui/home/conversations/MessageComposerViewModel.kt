@@ -55,6 +55,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
@@ -287,6 +288,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
+    @Suppress("LongMethod")
     internal fun sendAttachment(attachmentBundle: AssetBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
@@ -306,7 +308,9 @@ class MessageComposerViewModel @Inject constructor(
                                 assetDataSize = dataSize,
                                 assetMimeType = mimeType,
                                 audioLengthInMs = 0L
-                            )
+                            ).also {
+                                handleAssetSendingResult(it)
+                            }
                         }
 
                         AttachmentType.VIDEO,
@@ -325,7 +329,9 @@ class MessageComposerViewModel @Inject constructor(
                                         dataPath = dataPath,
                                         mimeType = mimeType
                                     )
-                                )
+                                ).also {
+                                    handleAssetSendingResult(it)
+                                }
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
@@ -337,6 +343,21 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
+    private suspend fun handleAssetSendingResult(result: ScheduleNewAssetMessageResult) {
+        when (result) {
+            is ScheduleNewAssetMessageResult.Failure.Generic,
+            is ScheduleNewAssetMessageResult.Success -> {
+                /* no-op */
+            }
+
+            ScheduleNewAssetMessageResult.Failure.DisabledByTeam,
+            ScheduleNewAssetMessageResult.Failure.RestrictedFileType -> {
+                withContext(dispatchers.main()) {
+                    onSnackbarMessage(ConversationSnackbarMessages.ErrorAssetRestriction)
+                }
+            }
+        }
+    }
     fun retrySendingMessage(messageId: String) {
         viewModelScope.launch {
             retryFailedMessage(messageId = messageId, conversationId = conversationId)
@@ -374,13 +395,12 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     private fun setFileSharingStatus() {
-        // TODO: handle restriction when sending assets
         viewModelScope.launch {
             messageComposerViewState.value = when (isFileSharingEnabled().state) {
-                FileSharingStatus.Value.Disabled,
-                is FileSharingStatus.Value.EnabledSome ->
+                FileSharingStatus.Value.Disabled ->
                     messageComposerViewState.value.copy(isFileSharingEnabled = false)
 
+                is FileSharingStatus.Value.EnabledSome,
                 FileSharingStatus.Value.EnabledAll ->
                     messageComposerViewState.value.copy(isFileSharingEnabled = true)
             }

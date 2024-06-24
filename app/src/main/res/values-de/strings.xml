@@ -1157,4 +1157,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Passwort in Zwischenablage kopiert</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
+
+    <string name="restricted_asset_error_toast_message">Das Senden von Dateien ist nicht erlaubt.</string>
 </resources>

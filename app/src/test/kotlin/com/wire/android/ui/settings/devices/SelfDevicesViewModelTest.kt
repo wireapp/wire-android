@@ -30,8 +30,9 @@ import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
-import io.mockk.coEvery
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -49,12 +50,28 @@ class SelfDevicesViewModelTest {
             // given
             val (_, viewModel) = Arrangement()
                 .arrange()
+            val currentDevice = Device(TestClient.CLIENT)
 
             // when
-            val currentDevice = Device(TestClient.CLIENT)
+            viewModel.loadCertificates()
 
             // then
             assert(!viewModel.state.deviceList.contains(currentDevice))
+        }
+
+    @Test
+    fun `given a self client id, when loadCertificates is called, then E2EI Certificates is fetched again`() =
+        runTest {
+            // given
+            val (arragne, viewModel) = Arrangement()
+                .arrange()
+
+            // when
+            viewModel.loadCertificates()
+            viewModel.loadCertificates()
+
+            // then
+            coVerify(exactly = 2) { arragne.getUserE2eiCertificates(any()) }
         }
 
     private class Arrangement {

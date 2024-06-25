@@ -37,7 +37,8 @@ import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
+import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
+import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
@@ -166,6 +167,13 @@ class CallsModule {
         callsScope: CallsScope
     ): UpdateVideoStateUseCase =
         callsScope.updateVideoState
+
+    @ViewModelScoped
+    @Provides
+    fun provideSetVideoSendStateUseCase(
+        callsScope: CallsScope
+    ): SetVideoSendStateUseCase =
+        callsScope.setVideoSendState
 
     @ViewModelScoped
     @Provides

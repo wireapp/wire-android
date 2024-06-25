@@ -40,7 +40,6 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     wireDetektRulesRepo()
     google()
 }
@@ -62,12 +61,12 @@ private fun getFlavorsSettings(): NormalizedFlavorSettings =
 android {
     defaultConfig {
         val datadogApiKeyKey = "DATADOG_CLIENT_TOKEN"
-        val apiKey: String? = System.getenv(datadogApiKeyKey) ?: project.getLocalProperty(datadogApiKeyKey, null)
-        buildConfigField("String", "DATADOG_CLIENT_TOKEN", apiKey?.let { "\"$it\"" } ?: "null")
+        val datadogApiKey: String? = System.getenv(datadogApiKeyKey) ?: project.getLocalProperty(datadogApiKeyKey, null)
+        buildConfigField("String", datadogApiKeyKey, datadogApiKey?.let { "\"$it\"" } ?: "null")
 
-        val datadogAppId = "DATADOG_APP_ID"
-        val appId: String? = System.getenv(datadogAppId) ?: project.getLocalProperty(datadogAppId, null)
-        buildConfigField("String", datadogAppId, appId?.let { "\"$it\"" } ?: "null")
+        val datadogAppIdKey = "DATADOG_APP_ID"
+        val appId: String? = System.getenv(datadogAppIdKey) ?: project.getLocalProperty(datadogAppIdKey, null)
+        buildConfigField("String", datadogAppIdKey, appId?.let { "\"$it\"" } ?: "null")
     }
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin

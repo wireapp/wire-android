@@ -24,5 +24,5 @@ data class SelfDevicesState (
     val currentDevice: Device?,
     val deviceList: List<Device>,
     val isLoadingClientsList: Boolean,
-    val isE2EIEnabled: Boolean = false
+    val isE2EIEnabled: Boolean = false,
 )

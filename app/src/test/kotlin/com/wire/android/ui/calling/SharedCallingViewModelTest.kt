@@ -283,13 +283,11 @@ class SharedCallingViewModelTest {
     @Test
     fun `given a call, when setVideoPreview is called, then set the video preview`() = runTest {
         coEvery { setVideoPreview(any(), any()) } returns Unit
-        coEvery { updateVideoState(any(), any()) } returns Unit
 
         sharedCallingViewModel.setVideoPreview(view)
         advanceUntilIdle()
 
         coVerify(exactly = 2) { setVideoPreview(any(), any()) }
-        coVerify(exactly = 1) { updateVideoState(any(), VideoState.STARTED) }
     }
 
     @Test

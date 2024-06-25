@@ -30,9 +30,9 @@ import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.ui.UIText
@@ -179,11 +179,11 @@ class RecordAudioViewModel @Inject constructor(
             appLogger.i("[$tag] -> Releasing audioMediaRecorder")
             audioMediaRecorder.release()
 
-        if (state.originalOutputFile != null && state.effectsOutputFile != null) {
-            state = state.copy(
-                buttonState = RecordAudioButtonState.ENCODING,
-                audioState = state.audioState.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching)
-            )
+            if (state.originalOutputFile != null && state.effectsOutputFile != null) {
+                state = state.copy(
+                    buttonState = RecordAudioButtonState.ENCODING,
+                    audioState = state.audioState.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching)
+                )
                 generateAudioFileWithEffects(
                     context = context,
                     originalFilePath = state.originalOutputFile!!.path,

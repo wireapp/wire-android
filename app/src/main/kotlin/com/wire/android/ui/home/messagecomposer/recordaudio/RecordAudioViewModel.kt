@@ -30,9 +30,9 @@ import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.util.AUDIO_MIME_TYPE
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.ui.UIText
@@ -159,8 +159,8 @@ class RecordAudioViewModel @Inject constructor(
                 audioMediaRecorder.setUp(assetSizeLimit)
                 if (audioMediaRecorder.startRecording()) {
                     state = state.copy(
-                        originalOutputFile = audioMediaRecorder.originalOutputFile,
-                        effectsOutputFile = audioMediaRecorder.effectsOutputFile,
+                        originalOutputFile = audioMediaRecorder.originalOutputPath!!.toFile(),
+                        effectsOutputFile = audioMediaRecorder.effectsOutputPath!!.toFile(),
                         buttonState = RecordAudioButtonState.RECORDING
                     )
                 } else {
@@ -173,11 +173,17 @@ class RecordAudioViewModel @Inject constructor(
     fun stopRecording() {
         viewModelScope.launch(dispatchers.default()) {
             if (state.buttonState == RecordAudioButtonState.RECORDING) {
+                appLogger.i("[$tag] -> Stopping audioMediaRecorder")
                 audioMediaRecorder.stop()
             }
+            appLogger.i("[$tag] -> Releasing audioMediaRecorder")
             audioMediaRecorder.release()
 
             if (state.originalOutputFile != null && state.effectsOutputFile != null) {
+                state = state.copy(
+                    buttonState = RecordAudioButtonState.ENCODING,
+                    audioState = state.audioState.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching)
+                )
                 generateAudioFileWithEffects(
                     context = context,
                     originalFilePath = state.originalOutputFile!!.path,
@@ -191,7 +197,7 @@ class RecordAudioViewModel @Inject constructor(
                             getPlayableAudioFile()?.let {
                                 getAudioLengthInMs(
                                     dataPath = it.path.toPath(),
-                                    mimeType = AUDIO_MIME_TYPE
+                                    mimeType = SUPPORTED_AUDIO_MIME_TYPE
                                 ).toInt()
                             } ?: 0
                         )
@@ -205,7 +211,8 @@ class RecordAudioViewModel @Inject constructor(
         when (state.buttonState) {
             RecordAudioButtonState.ENABLED -> onCloseRecordAudio()
             RecordAudioButtonState.RECORDING,
-            RecordAudioButtonState.READY_TO_SEND -> {
+            RecordAudioButtonState.READY_TO_SEND,
+            RecordAudioButtonState.ENCODING -> {
                 state = state.copy(
                     discardDialogState = RecordAudioDialogState.Shown
                 )

@@ -54,7 +54,7 @@ import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
+import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -129,8 +129,9 @@ class SharedCallingViewModel @Inject constructor(
 
     private suspend fun observeScreenState() {
         currentScreenManager.observeCurrentScreen(viewModelScope).collect {
-            if (it == CurrentScreen.InBackground) {
-                stopVideo()
+            // clear video preview when the screen is in background to avoid memory leaks
+            if (it == CurrentScreen.InBackground && callState.isCameraOn) {
+                clearVideoPreview()
             }
         }
     }
@@ -275,6 +276,11 @@ class SharedCallingViewModel @Inject constructor(
             callState = callState.copy(
                 isCameraOn = !callState.isCameraOn
             )
+            if (callState.isCameraOn) {
+                updateVideoState(conversationId, VideoState.STARTED)
+            } else {
+                updateVideoState(conversationId, VideoState.STOPPED)
+            }
         }
     }
 
@@ -282,7 +288,6 @@ class SharedCallingViewModel @Inject constructor(
         viewModelScope.launch {
             appLogger.i("SharedCallingViewModel: clearing video preview..")
             setVideoPreview(conversationId, PlatformView(null))
-            updateVideoState(conversationId, VideoState.STOPPED)
         }
     }
 
@@ -291,18 +296,6 @@ class SharedCallingViewModel @Inject constructor(
             appLogger.i("SharedCallingViewModel: setting video preview..")
             setVideoPreview(conversationId, PlatformView(null))
             setVideoPreview(conversationId, PlatformView(view))
-            updateVideoState(conversationId, VideoState.STARTED)
-        }
-    }
-
-    fun stopVideo() {
-        viewModelScope.launch {
-            if (callState.isCameraOn) {
-                appLogger.i("SharedCallingViewModel: stopping video..")
-                callState = callState.copy(isCameraOn = false, isSpeakerOn = false)
-                clearVideoPreview()
-                turnLoudSpeakerOff()
-            }
         }
     }
 }

@@ -33,12 +33,14 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
+import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -71,6 +73,9 @@ class OngoingCallViewModelTest {
     private lateinit var currentScreenManager: CurrentScreenManager
 
     @MockK
+    private lateinit var setVideoSendState: SetVideoSendStateUseCase
+
+    @MockK
     private lateinit var globalDataStore: GlobalDataStore
 
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
@@ -89,8 +94,23 @@ class OngoingCallViewModelTest {
             requestVideoStreams = requestVideoStreams,
             currentScreenManager = currentScreenManager,
             currentUserId = currentUserId,
+            setVideoSendState = setVideoSendState,
             globalDataStore = globalDataStore,
         )
+    }
+
+    @Test
+    fun givenAnOngoingCall_WhenTurningOnCamera_ThenSetVideoSendStateToStarted() = runTest {
+        ongoingCallViewModel.startSendingVideoFeed()
+
+        coVerify(exactly = 1) { setVideoSendState.invoke(any(), VideoState.STARTED) }
+    }
+
+    @Test
+    fun givenAnOngoingCall_WhenTurningOffCamera_ThenSetVideoSendStateToStopped() = runTest {
+        ongoingCallViewModel.stopSendingVideoFeed()
+
+        coVerify { setVideoSendState.invoke(any(), VideoState.STOPPED) }
     }
 
     @Test

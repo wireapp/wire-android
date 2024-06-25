@@ -970,12 +970,13 @@
     <string name="settings_myaccount_handle_updated">Profilneve megváltozott</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Olvasási visszaigazolás küldése</string>
-    <string name="settings_send_read_receipts_description">Ha ez ki van kapcsolva, akkor nem fogja látni a másoktól származó olvasási visszaigazolásokat. Ez a beállítás nem vonatkozik a csoportos beszélgetésekre.</string>
+    <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages. 
+In group conversations, the group admin can overwrite this setting.</string>
     <string name="settings_censor_screenshots">Képernyőmentések cenzúrázása</string>
     <string name="settings_censor_screenshots_description">Ha ez aktív, az üzenetek tartalma nem lesz látható a képernyőmentésen vagy -rögzítésen.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">Ezt az önmegsemmisítő üzenet csapatbeállítás kényszeríti ki, nem megváltoztatható.\nAz üzenetek tartalma nem lesz látható a képernyőmentésen vagy -rögzítésen.</string>
     <string name="settings_show_typing_indicator_title">Gépelésjelző</string>
-    <string name="settings_show_typing_indicator_description">Ha ki van kapcsolva, nem fogja látni, ha mások gépelnek, és mások sem látják, ha Ön gépel. Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</string>
+    <string name="settings_show_typing_indicator_description">When this is on, you see when other people are writing a message, and others notice when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lezárás jelkóddal</string>
     <string name="settings_send_anonymous_usage_data_title">Anonimizált használati adatok küldése</string>
     <string name="settings_send_anonymous_usage_data_description">A használati adatok lehetővé teszik a Wire számára, hogy megértse, hogyan használják az appot, és miként lehetne fejleszteni. Az adatok névtelenek, és nem hordozzák magukban a kommunikációja tartalmát (mint pl. üzenetek, fájlok, földrajzi helyzet, hívások).</string>
@@ -1009,6 +1010,7 @@
     <string name="devices_title">Saját eszközei</string>
     <string name="current_device_label">Ez az eszköz</string>
     <string name="other_devices_label">Egyéb eszközök</string>
+    <string name="devices_loading_error">There was an error when trying to fetch devices. Please check your Internet connection and try again.</string>
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Feloldja a felhasználótiltást?</string>
     <string name="unblock_user_dialog_body">%1$s kapcsolatba tud lépni Önnel, és hozzáadhatja csoportos beszélgetésekhez. Lehetővé válik négyszemközti beszélgetés vele.</string>

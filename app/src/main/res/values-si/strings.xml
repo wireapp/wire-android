@@ -956,12 +956,13 @@
     <string name="settings_myaccount_handle_updated">පරිශ්‍රීලක නාමය වෙනස් විය</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">කියවූ බවට ලදුපත යවන්න</string>
-    <string name="settings_send_read_receipts_description">මෙය අක්‍රිය නම්, ඔබට අන් අයගෙන් කියවූ බවට ලදුපත් දැකීමට නොහැකියි. සමූහ සංවාද සඳහා මෙම සැකසුම අදාළ නොවේ.</string>
+    <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages. 
+In group conversations, the group admin can overwrite this setting.</string>
     <string name="settings_censor_screenshots">තිරසේයා වාරණය</string>
     <string name="settings_censor_screenshots_description">මෙය සක්‍රිය නම්, පණිවිඩවල අන්තර්ගතය තිරසේයා හෝ තිර පටිගතවල නොපෙනෙනු ඇත.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">කණ්ඩායමේ සැකසුම හරහා පණිවිඩ ඉබේ මැකීමට බලාත්මක කර ඇති අතර වෙනස් කිරීමට නොහැකිය.\nතිර සේයා හෝ තිර පටිගත වලට පණිවිඩවල අන්තර්ගතය නොපෙනෙනු ඇත.</string>
     <string name="settings_show_typing_indicator_title">ලිවීමේ දර්ශකය</string>
-    <string name="settings_show_typing_indicator_description">මෙය අක්‍රිය නම්, ඔබට වෙනත් පුද්ගලයින් ලියන විට දැකීමට නොහැකි අතර, ඔබ ලියන විට ද අන් අයට නොපෙනේ. මෙම සැකසුම උපාංගයේ සියළුම සංවාද සඳහා අදාළ වේ.</string>
+    <string name="settings_show_typing_indicator_description">When this is on, you see when other people are writing a message, and others notice when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">මුරකේතයකින් අගුළුලන්න</string>
     <string name="settings_send_anonymous_usage_data_title">Send anonymous usage data</string>
     <string name="settings_send_anonymous_usage_data_description">Usage data allows Wire to understand how the app is being used and how it can be improved. The data is anonymous and does not include the content of your communications (such as messages, files, locations, or calls).</string>
@@ -995,6 +996,7 @@
     <string name="devices_title">ඔබගේ උපාංග</string>
     <string name="current_device_label">වත්මන් උපාංගය</string>
     <string name="other_devices_label">වෙනත් උපාංග</string>
+    <string name="devices_loading_error">There was an error when trying to fetch devices. Please check your Internet connection and try again.</string>
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">අනවහිර කරන්නද?</string>
     <string name="unblock_user_dialog_body">%1$s හට ඔබ ඇමතීමට සහ ඔබව සමූහ සංවාද වලට එක් කිරීමට හැකි වනු ඇත. ඔබට ඔවුන් සමඟ සෘජු සංවාදයකට ප්‍රවේශ වීමට හැකිය.</string>

@@ -971,12 +971,13 @@
     <string name="settings_myaccount_handle_updated">Ihr Benutzername wurde geändert</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Lesebestätigungen senden</string>
-    <string name="settings_send_read_receipts_description">Wenn diese Option deaktiviert ist, sehen Sie keine Lesebestätigungen von anderen. Gilt nicht für Gruppen.</string>
+    <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages. 
+In group conversations, the group admin can overwrite this setting.</string>
     <string name="settings_censor_screenshots">Aufnahme von Screenshots verhindern</string>
     <string name="settings_censor_screenshots_description">Wenn diese Option aktiviert ist, werden Ihre Screenshots oder Bildschirmaufnahmen in Wire ohne Inhalt schwarz dargestellt.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">Dies wird durch die Team-Einstellung für selbstlöschende Nachrichten erzwungen und kann nicht geändert werden.\nDer Nachrichteninhalt ist auf Bildschirmfoto oder -aufzeichnung nicht sichtbar.</string>
     <string name="settings_show_typing_indicator_title">Eingabeanzeige</string>
-    <string name="settings_show_typing_indicator_description">Wenn diese Option deaktiviert ist, können Sie nicht sehen, wenn andere Personen tippen, und andere sehen nicht, wenn Sie tippen. Gilt für alle Unterhaltungen auf diesem Gerät.</string>
+    <string name="settings_show_typing_indicator_description">Wenn diese Option aktiviert ist, sehen Sie, wenn andere Personen eine Nachricht schreiben, und andere sehen, wenn Sie tippen. Gilt für alle Unterhaltungen auf diesem Gerät.</string>
     <string name="settings_app_lock_title">Mit Kennwort sperren</string>
     <string name="settings_send_anonymous_usage_data_title">Anonyme Nutzungsdaten senden</string>
     <string name="settings_send_anonymous_usage_data_description">Anhand der Nutzungsdaten kann Wire verstehen, wie die App genutzt wird und wie sie verbessert werden kann. Die Daten sind anonym und umfassen nicht den Inhalt Ihrer Kommunikation (wie Nachrichten, Dateien, Standorte oder Anrufe).</string>
@@ -1010,6 +1011,7 @@
     <string name="devices_title">Ihre Geräte</string>
     <string name="current_device_label">Aktuelles Gerät</string>
     <string name="other_devices_label">Andere Geräte</string>
+    <string name="devices_loading_error">There was an error when trying to fetch devices. Please check your Internet connection and try again.</string>
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Benutzer freigeben?</string>
     <string name="unblock_user_dialog_body">%1$s wird Sie kontaktieren oder Sie zu Gruppenunterhaltungen hinzufügen können. Sie können auf ein entsprechendes Einzelgespräch zugreifen.</string>

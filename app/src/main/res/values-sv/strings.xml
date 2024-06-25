@@ -33,7 +33,7 @@
     <string name="label_proceed">Gå vidare</string>
     <string name="label_leave">Lämna</string>
     <string name="label_add_device">Lägg till enhet</string>
-    <string name="label_learn_more">Lär dig mer</string>
+    <string name="label_learn_more">Läs mer</string>
     <string name="label_removing">Tar bort…</string>
     <string name="label_logging_in">Loggar in…</string>
     <string name="label_membership_guest">Gäst</string>
@@ -392,7 +392,7 @@
     <string name="sent_a_message_with_unknown_content">skickade ett meddelande med okänt innehåll</string>
     <string name="new_group_title">Ny grupp</string>
     <string name="new_group_description">Upp till 500 personer kan ansluta till en grupp-konversation.</string>
-    <string name="group_name_title">Grupp-namn</string>
+    <string name="group_name_title">Gruppnamn</string>
     <string name="group_name_placeholder">Fyll i namn</string>
     <string name="group_name_description">Ge den här gruppen ett meningsfullt namn.</string>
     <string name="protocol">Protokoll</string>
@@ -934,7 +934,7 @@
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">General</string>
-    <string name="settings_account_settings_label">Account Settings</string>
+    <string name="settings_account_settings_label">Kontoinställningar</string>
     <string name="settings_devices_label">Enheter</string>
     <string name="settings_backups_label">Backups</string>
     <string name="settings_others_label">OTHERS</string>
@@ -955,7 +955,7 @@
     <string name="settings_appearance_theme_option_dark">Dark mode</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Account Data</string>
-    <string name="settings_myaccount_display_name">PROFILE NAME</string>
+    <string name="settings_myaccount_display_name">PROFILNAMN</string>
     <string name="settings_myaccount_username">ANVÄNDARNAMN</string>
     <string name="settings_myaccount_email">EMAIL</string>
     <string name="settings_myaccount_team">TEAM</string>
@@ -1010,6 +1010,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="devices_title">Dina enheter</string>
     <string name="current_device_label">Current Device</string>
     <string name="other_devices_label">Other Devices</string>
+    <string name="devices_loading_error">There was an error when trying to fetch devices. Please check your Internet connection and try again.</string>
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Unblock user?</string>
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>

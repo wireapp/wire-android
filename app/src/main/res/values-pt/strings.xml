@@ -967,7 +967,8 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Enviar confirmações de leitura</string>
-    <string name="settings_send_read_receipts_description">Se isso está desligado, voce não poderá ver confirmações de leitura de outras pessoas. Essa configuração não se aplica a conversas em grupo.</string>
+    <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages. 
+In group conversations, the group admin can overwrite this setting.</string>
     <string name="settings_censor_screenshots">Censor screenshots</string>
     <string name="settings_censor_screenshots_description">If this is ON, then the content of the messages will not be visible on the screenshot or screen recording.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>
@@ -1006,6 +1007,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="devices_title">Seus Dispositivos</string>
     <string name="current_device_label">Dispositivos Atuais</string>
     <string name="other_devices_label">Outros Dispositivos</string>
+    <string name="devices_loading_error">There was an error when trying to fetch devices. Please check your Internet connection and try again.</string>
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Desbloquear usuário?</string>
     <string name="unblock_user_dialog_body">%1$s poderá contactá-lo e adicioná-lo a conversas em grupo. Você poderá acessar uma conversa com ele(a).</string>

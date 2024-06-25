@@ -987,6 +987,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>
     <string name="other_devices_label">Other Devices</string>
+    <string name="devices_loading_error">There was an error when trying to fetch devices. Please check your Internet connection and try again.</string>
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Unblock user?</string>
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>

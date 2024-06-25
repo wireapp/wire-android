@@ -82,6 +82,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.call.CallStatus
 import java.util.Locale
 
 @RootNavGraph
@@ -125,6 +126,16 @@ fun OngoingCallScreen(
             hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
         )
         BackHandler(enabled = isCameraOn, navigator::navigateBack)
+    }
+
+    // Start/stop sending video feed based on the camera state when the call is established.
+    LaunchedEffect(sharedCallingViewModel.callState.callStatus, sharedCallingViewModel.callState.isCameraOn) {
+        if (sharedCallingViewModel.callState.callStatus == CallStatus.ESTABLISHED) {
+            when (sharedCallingViewModel.callState.isCameraOn) {
+                true -> ongoingCallViewModel.startSendingVideoFeed()
+                false -> ongoingCallViewModel.stopSendingVideoFeed()
+            }
+        }
     }
 }
 

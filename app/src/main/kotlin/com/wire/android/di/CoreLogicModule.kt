@@ -51,7 +51,8 @@ import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
+import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
+import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
@@ -693,6 +694,14 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateVideoStateUseCase =
         coreLogic.getSessionScope(currentAccount).calls.updateVideoState
+
+    @ViewModelScoped
+    @Provides
+    fun provideSetVideoSendStateUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SetVideoSendStateUseCase =
+        coreLogic.getSessionScope(currentAccount).calls.setVideoSendState
 
     @ViewModelScoped
     @Provides

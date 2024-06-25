@@ -267,7 +267,7 @@
 
     <issue
         id="RestrictedApi"
-        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`AndroidReloaded`)"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`wire-android`)"
         errorLine1="    val isAlreadyRunning = getWorkInfosForUniqueWork(MigrationWorker.NAME).await().let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }"
         errorLine2="                                                                           ~~~~~">
         <location
@@ -278,7 +278,7 @@
 
     <issue
         id="RestrictedApi"
-        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`AndroidReloaded`)"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`wire-android`)"
         errorLine1="        getWorkInfosForUniqueWork(SingleUserMigrationWorker.NAME).await().let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }"
         errorLine2="                                                                  ~~~~~">
         <location
@@ -427,6 +427,17 @@
         <location
             file="src/main/res/values/strings.xml"
             line="900"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;record_audio_encoding_label&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;fi&quot; (Finnish), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;si&quot; (Sinhala), &quot;uk&quot; (Ukrainian), &quot;sk&quot; (Slovak), &quot;sl&quot; (Slovenian), &quot;id&quot; (Indonesian), &quot;ca&quot; (Catalan), &quot;mk&quot; (Macedonian), &quot;sr&quot; (Serbian), &quot;sv&quot; (Swedish), &quot;ko&quot; (Korean), &quot;af&quot; (Afrikaans), &quot;el&quot; (Greek), &quot;it&quot; (Italian), &quot;es&quot; (Spanish), &quot;zh&quot; (Chinese), &quot;et&quot; (Estonian), &quot;cs&quot; (Czech), &quot;ar&quot; (Arabic), &quot;pa&quot; (Punjabi), &quot;vi&quot; (Vietnamese), &quot;ja&quot; (Japanese), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;he&quot; (Hebrew), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;record_audio_encoding_label&quot;>Encoding Audio…&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="1318"
             column="13"/>
     </issue>
 
@@ -3550,18 +3561,7 @@
         errorLine2="^">
         <location
             file="src/main/kotlin/com/wire/android/ui/settings/devices/DeviceDetailsScreen.kt"
-            line="371"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeContentEmitterReturningValues"
-        message="Composable functions should either emit content into the composition or return a value, but not both.If a composable should offer additional control surfaces to its caller, those control surfaces or callbacks should be provided as parameters to the composable function by the caller.See https://slackhq.github.io/compose-lints/rules/#do-not-emit-content-and-return-a-result for more information."
-        errorLine1="@Composable"
-        errorLine2="^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/settings/devices/DeviceDetailsScreen.kt"
-            line="397"
+            line="393"
             column="1"/>
     </issue>
 
@@ -4078,18 +4078,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/settings/devices/DeviceDetailsScreen.kt"
-            line="130"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun DeviceMLSSignatureItem("
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/settings/devices/DeviceDetailsScreen.kt"
-            line="372"
+            line="134"
             column="5"/>
     </issue>
 
@@ -5090,7 +5079,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/RegularMessageItem.kt"
-            line="405"
+            line="406"
             column="5"/>
     </issue>
 
@@ -5277,7 +5266,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/settings/devices/SelfDevicesScreen.kt"
-            line="67"
+            line="75"
             column="5"/>
     </issue>
 
@@ -6010,61 +5999,6 @@
     <issue
         id="ComposeModifierWithoutDefault"
         message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/RecordAudioButtons.kt"
-            line="71"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/RecordAudioButtons.kt"
-            line="89"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/RecordAudioButtons.kt"
-            line="108"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/RecordAudioButtons.kt"
-            line="157"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/RecordAudioButtons.kt"
-            line="191"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
         errorLine1="    modifier: Modifier,"
         errorLine2="    ~~~~~~~~~~~~~~~~~~">
         <location
@@ -6212,18 +6146,7 @@
         errorLine2="^">
         <location
             file="src/main/kotlin/com/wire/android/ui/settings/devices/DeviceDetailsScreen.kt"
-            line="371"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="ComposeMultipleContentEmitters"
-        message="Composable functions should only be emitting content into the composition from one source at their top level.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#do-not-emit-multiple-pieces-of-content for more information."
-        errorLine1="@Composable"
-        errorLine2="^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/settings/devices/DeviceDetailsScreen.kt"
-            line="397"
+            line="393"
             column="1"/>
     </issue>
 
@@ -6791,39 +6714,6 @@
     <issue
         id="ComposeNamingUppercase"
         message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    private fun setUpNavigation("
-        errorLine2="                ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/WireActivity.kt"
-            line="251"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    private fun handleScreenshotCensoring() {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/WireActivity.kt"
-            line="285"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="    private fun handleDialogs(navigate: (NavigationCommand) -> Unit) {"
-        errorLine2="                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/WireActivity.kt"
-            line="297"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
         errorLine1="private fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -7334,7 +7224,7 @@
         errorLine2="                        ^">
         <location
             file="src/main/kotlin/com/wire/android/ui/settings/devices/DeviceDetailsScreen.kt"
-            line="130"
+            line="134"
             column="25"/>
     </issue>
 
@@ -7890,17 +7780,6 @@
 
     <issue
         id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [onClick: () -> Unit, modifier: Modifier, topContent: @Composable () -> Unit, @DrawableRes iconResId: Int, @StringRes contentDescription: Int, buttonColor: Color, @StringRes bottomText: Int, buttonState: WireButtonState = WireButtonState.Default, applyAudioFilterState: Boolean, applyAudioFilterClick: (Boolean) -> Unit, isAudioFilterEnabled: Boolean = true] but should be [onClick: () -> Unit, modifier: Modifier, topContent: @Composable () -> Unit, @DrawableRes iconResId: Int, @StringRes contentDescription: Int, buttonColor: Color, @StringRes bottomText: Int, applyAudioFilterState: Boolean, applyAudioFilterClick: (Boolean) -> Unit, buttonState: WireButtonState = WireButtonState.Default, isAudioFilterEnabled: Boolean = true].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="private fun RecordAudioButton("
-        errorLine2="                             ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/RecordAudioButtons.kt"
-            line="189"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
         message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current, onAudioRecorded: (UriAsset) -> Unit, onCloseRecordAudio: () -> Unit] but should be [onAudioRecorded: (UriAsset) -> Unit, lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current, onCloseRecordAudio: () -> Unit].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
         errorLine1="fun RecordAudioComponent("
         errorLine2="                        ^">
@@ -7928,7 +7807,7 @@
         errorLine2="                          ^">
         <location
             file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/RegularMessageItem.kt"
-            line="580"
+            line="581"
             column="27"/>
     </issue>
 
@@ -8049,7 +7928,7 @@
         errorLine2="                            ^">
         <location
             file="src/main/kotlin/com/wire/android/ui/settings/devices/SelfDevicesScreen.kt"
-            line="67"
+            line="75"
             column="29"/>
     </issue>
 

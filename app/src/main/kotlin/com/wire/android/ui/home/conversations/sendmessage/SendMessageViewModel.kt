@@ -36,7 +36,7 @@ import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
-import com.wire.android.util.AUDIO_MIME_TYPE
+import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
@@ -165,7 +165,7 @@ class SendMessageViewModel @Inject constructor(
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
                     conversationId = messageBundle.conversationId,
-                    specifiedMimeType = AUDIO_MIME_TYPE,
+                    specifiedMimeType = SUPPORTED_AUDIO_MIME_TYPE,
                 )
             }
 

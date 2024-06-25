@@ -20,6 +20,7 @@ package com.wire.android.ui.home.messagecomposer.recordaudio
 import android.content.Context
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.audiomessage.AudioState
@@ -277,6 +278,7 @@ class RecordAudioViewModelTest {
         val globalDataStore = mockk<GlobalDataStore>()
         val generateAudioFileWithEffects = mockk<GenerateAudioFileWithEffectsUseCase>()
         val context = mockk<Context>()
+        val dispatchers = TestDispatcherProvider()
 
         val viewModel by lazy {
             RecordAudioViewModel(
@@ -287,7 +289,8 @@ class RecordAudioViewModelTest {
                 audioMediaRecorder = audioMediaRecorder,
                 getAssetSizeLimit = getAssetSizeLimit,
                 generateAudioFileWithEffects = generateAudioFileWithEffects,
-                globalDataStore = globalDataStore
+                globalDataStore = globalDataStore,
+                dispatchers = dispatchers
             )
         }
 

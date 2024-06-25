@@ -23,11 +23,10 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onAllNodesWithText
 
 fun ComposeContentTestRule.waitUntilExists(
-    context: Context,
-    @StringRes resId: Int,
+    text: String,
     timeoutMillis: Long = WAIT_UNTIL_TIMEOUT,
 ) = waitUntil(timeoutMillis = timeoutMillis) {
-    onAllNodesWithText(context.getString(resId))
+    onAllNodesWithText(text)
         .fetchSemanticsNodes().size == 1
 }
 

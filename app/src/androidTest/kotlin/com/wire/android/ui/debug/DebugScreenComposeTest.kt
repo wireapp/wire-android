@@ -45,6 +45,6 @@ class DebugScreenComposeTest {
             }
         }
 
-        composeTestRule.waitUntilExists(ApplicationProvider.getApplicationContext(), R.string.debug_settings_screen_title)
+        composeTestRule.waitUntilExists("Debug Settings")
     }
 }

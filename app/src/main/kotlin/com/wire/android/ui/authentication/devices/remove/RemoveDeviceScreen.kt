@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -63,6 +64,7 @@ import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.conversation.ClientId
 
 @RootNavGraph
 @Destination(
@@ -96,6 +98,25 @@ fun RemoveDeviceScreen(
         onCancelLoginClicked = { clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) },
         onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
     )
+
+    if (viewModel.state.error is RemoveDeviceError.InitError) {
+        WireDialog(
+            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false),
+            title = stringResource(id = R.string.label_general_error),
+            text = stringResource(id = R.string.devices_loading_error),
+            onDismiss = viewModel::clearDeleteClientError,
+            dismissButtonProperties = WireDialogButtonProperties(
+                onClick = clearSessionViewModel::onBackButtonClicked,
+                text = stringResource(id = R.string.label_cancel),
+                type = WireDialogButtonType.Secondary,
+            ),
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = viewModel::retryFetch,
+                text = stringResource(id = R.string.label_retry),
+                type = WireDialogButtonType.Primary,
+            )
+        )
+    }
 }
 
 @Composable
@@ -118,12 +139,8 @@ private fun RemoveDeviceContent(
     val cancelLoginDialogState = rememberVisibilityState<CancelLoginDialogState>()
     CancelLoginDialogContent(
         dialogState = cancelLoginDialogState,
-        onActionButtonClicked = {
-            onCancelLoginClicked()
-        },
-        onProceedButtonClicked = {
-            onProceedLoginClicked()
-        }
+        onActionButtonClicked = onCancelLoginClicked,
+        onProceedButtonClicked = onProceedLoginClicked,
     )
     if (clearSessionState.showCancelLoginDialog) {
         cancelLoginDialogState.show(
@@ -144,10 +161,15 @@ private fun RemoveDeviceContent(
         }
     ) { internalPadding ->
         Box(modifier = Modifier.padding(internalPadding)) {
-            when (state.isLoadingClientsList) {
-                true -> RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
-                false -> RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
-            }
+            RemoveDeviceItemsList(
+                lazyListState = lazyListState,
+                items = when (state.isLoadingClientsList) {
+                    true -> List(4) { Device(clientId = ClientId("placeholder_$it")) }
+                    false -> state.deviceList
+                },
+                placeholders = state.isLoadingClientsList,
+                onItemClicked = onItemClicked
+            )
         }
         // TODO handle list loading errors
         if (!state.isLoadingClientsList && state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {

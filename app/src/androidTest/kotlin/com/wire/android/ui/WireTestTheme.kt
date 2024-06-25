@@ -40,9 +40,7 @@ fun WireTestTheme(
     wireDimensions: WireDimensions = WireDimensionsTypes.currentScreenSize.currentOrientation,
     content: @Composable () -> Unit
 ) {
-    val context = ApplicationProvider.getApplicationContext<Context>()
     val snackbarHostState = remember { SnackbarHostState() }
-    CompositionLocalProvider(LocalAppContext provides context) {
         CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
             WireTheme(
                 wireColorScheme,
@@ -51,5 +49,4 @@ fun WireTestTheme(
                 content
             )
         }
-    }
 }

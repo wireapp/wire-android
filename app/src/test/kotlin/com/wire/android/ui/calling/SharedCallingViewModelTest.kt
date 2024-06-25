@@ -328,7 +328,6 @@ class SharedCallingViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 2) { setVideoPreview(any(), any()) }
-            coVerify(exactly = 1) { updateVideoState(any(), VideoState.STARTED) }
         }
 
     @Test

@@ -87,6 +87,7 @@ class OngoingCallViewModelTest {
         coEvery { establishedCall.invoke() } returns flowOf(listOf(provideCall()))
         coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
         coEvery { globalDataStore.getShouldShowDoubleTapToast(any()) } returns false
+        coEvery { setVideoSendState.invoke(any(), any()) } returns Unit
 
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,

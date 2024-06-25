@@ -133,7 +133,7 @@ class CommonTopAppBarViewModel @Inject constructor(
             return if (activeCall.status == CallStatus.INCOMING) {
                 ConnectivityUIState.IncomingCall(activeCall.conversationId, activeCall.callerName)
             } else if (activeCall.status == CallStatus.STARTED) {
-                ConnectivityUIState.OutgoingCall(activeCall.conversationId, activeCall.callerName)
+                ConnectivityUIState.OutgoingCall(activeCall.conversationId, activeCall.conversationName)
             } else {
                 ConnectivityUIState.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
             }

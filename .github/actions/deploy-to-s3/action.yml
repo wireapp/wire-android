@@ -46,7 +46,7 @@ runs:
         public: true
     - name: Upload to S3 from branch
       if: github.event.pull_request.number == ''
-      id: upload
+      id: upload-from-branch
       uses: hkusu/s3-upload-action@v2.1.0
       env:
         APK_FULL_PATH: ${{ steps.path.outputs.apk_full_path }}

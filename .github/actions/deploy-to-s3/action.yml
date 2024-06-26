@@ -25,6 +25,7 @@ runs:
     - name: Copy build to tmp file
       shell: bash
       run:
+        echo "$(set -- app/build/outputs/apk/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/com.wire.*.apk; echo "$1")
         cp app/build/outputs/apk/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/com.wire.*.apk wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk
     - name: Upload to S3
       id: upload

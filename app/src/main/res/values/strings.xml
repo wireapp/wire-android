@@ -875,6 +875,10 @@
     <!-- Missing keyPackages dialog -->
     <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
     <string name="missing_keypackage_dialog_body">You can’t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
+    <!-- No Common protocol dialog -->
+    <string name="no_common_protocol_dialog_title">Unable to start conversation</string>
+    <string name="no_common_protocol_dialog_body_self_need_update">You can’t communicate with %1$s, as your device doesn’t support the suitable protocol. Download the latest MLS Wire version, to call, and send messages and files.</string>
+    <string name="no_common_protocol_dialog_body_other_need_update">You can’t communicate with %1$s, as you two use different protocols. When %1$s gets an update, you can call and send messages and files.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>

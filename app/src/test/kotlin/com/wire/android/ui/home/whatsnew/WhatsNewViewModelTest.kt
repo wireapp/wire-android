@@ -73,7 +73,7 @@ class WhatsNewViewModelTest {
         }
     }
 
-    inner class Arrangement() {
+    inner class Arrangement {
 
         @MockK
         lateinit var context: Context

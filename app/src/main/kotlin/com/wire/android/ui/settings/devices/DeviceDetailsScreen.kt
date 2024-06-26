@@ -51,7 +51,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.model.Device
@@ -92,6 +91,9 @@ import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.id.QualifiedClientID
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.e2ei.Handle
 import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
@@ -192,8 +194,6 @@ fun DeviceDetailsContent(
                 .padding(internalPadding)
                 .background(MaterialTheme.wireColorScheme.surface)
         ) {
-
-            appLogger.e("device info:"+state.device.toString())
             state.device.mlsClientIdentity?.let { identity ->
                 item {
                     DeviceMLSSignatureItem(identity.thumbprint, screenState::copyMessage)
@@ -578,10 +578,12 @@ fun PreviewDeviceDetailsScreen() {
                 name = UIText.DynamicString("My Device"),
                 registrationTime = "2022-03-24T18:02:30.360Z",
                 mlsClientIdentity = MLSClientIdentity(
+                    clientId = QualifiedClientID(ClientId(""), UserId("", "")),
                     e2eiStatus = MLSClientE2EIStatus.VALID,
                     thumbprint = "thumbprint",
                     credentialType = MLSCredentialsType.X509,
                     x509Identity = X509Identity(
+                        handle = Handle("", "", ""),
                         displayName = "",
                         domain = "",
                         certificate = "",

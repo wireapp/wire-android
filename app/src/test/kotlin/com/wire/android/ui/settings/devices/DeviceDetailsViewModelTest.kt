@@ -26,9 +26,12 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangement.Companion.CLIENT_ID
+import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangement.Companion.MLS_CLIENT_IDENTITY_WITH_VALID_E2EI
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.client.ClientType
+import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.id.QualifiedClientID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
@@ -37,14 +40,18 @@ import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.Result
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
-import com.wire.kalium.logic.feature.e2ei.CertificateStatus
-import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
+import com.wire.kalium.logic.feature.e2ei.Handle
+import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
+import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
+import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
+import com.wire.kalium.logic.feature.e2ei.X509Identity
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
-import com.wire.kalium.util.DateTimeUtil
+import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.functional.right
 import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -56,13 +63,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import okio.IOException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import kotlin.time.Duration.Companion.days
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -286,24 +293,16 @@ class DeviceDetailsViewModelTest {
 
     @Test
     fun `given a client with E2EI certificate, when fetching details, then returns device information`() {
-        val certificate = E2eiCertificate(
-            userHandle = "userHandle",
-            serialNumber = "serialNumber",
-            certificateDetail = "certificateDetail",
-            status = CertificateStatus.VALID,
-            thumbprint = "thumbprint",
-            endAt = DateTimeUtil.currentInstant().plus(1.days)
-        )
         runTest {
             // given
             val (_, viewModel) = Arrangement()
                 .withRequiredMockSetup()
                 .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT, true))
-                .withE2eiCertificate(GetE2EICertificateUseCaseResult.Success(certificate))
+                .withE2eiCertificate(MLS_CLIENT_IDENTITY_WITH_VALID_E2EI.right())
                 .arrange()
 
             // then
-            assertEquals(certificate, viewModel.state.device.e2eiCertificate)
+            assertEquals(MLS_CLIENT_IDENTITY_WITH_VALID_E2EI, viewModel.state.device.mlsClientIdentity)
         }
     }
 
@@ -360,7 +359,7 @@ class DeviceDetailsViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             withFingerprintSuccess()
             coEvery { observeUserInfo(any()) } returns flowOf(GetUserInfoResult.Success(TestUser.OTHER_USER, null))
-            coEvery { getE2eiCertificate(any()) } returns GetE2EICertificateUseCaseResult.NotActivated
+            coEvery { getE2eiCertificate(any()) } returns MLS_CLIENT_IDENTITY_WITHOUT_E2EI.right()
             coEvery { isE2EIEnabledUseCase() } returns true
         }
 
@@ -396,7 +395,7 @@ class DeviceDetailsViewModelTest {
             )
         }
 
-        fun withE2eiCertificate(result: GetE2EICertificateUseCaseResult) = apply {
+        fun withE2eiCertificate(result: Either<CoreFailure, MLSClientIdentity>) = apply {
             coEvery { getE2eiCertificate(any()) } returns result
         }
 
@@ -404,6 +403,28 @@ class DeviceDetailsViewModelTest {
 
         companion object {
             val CLIENT_ID = TestClient.CLIENT.id
+            val MLS_CLIENT_IDENTITY_WITH_VALID_E2EI = MLSClientIdentity(
+                clientId = QualifiedClientID(ClientId(""), UserId("", "")),
+                e2eiStatus = MLSClientE2EIStatus.VALID,
+                thumbprint = "thumbprint",
+                credentialType = MLSCredentialsType.X509,
+                x509Identity = X509Identity(
+                    handle = Handle("", "", ""),
+                    displayName = "",
+                    domain = "",
+                    certificate = "",
+                    serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
+                    notBefore = Instant.DISTANT_PAST,
+                    notAfter = Instant.DISTANT_FUTURE
+                )
+            )
+            val MLS_CLIENT_IDENTITY_WITHOUT_E2EI = MLSClientIdentity(
+                clientId = QualifiedClientID(ClientId(""), UserId("", "")),
+                e2eiStatus = MLSClientE2EIStatus.NOT_ACTIVATED,
+                thumbprint = "thumbprint",
+                credentialType = MLSCredentialsType.BASIC,
+                x509Identity = null
+            )
         }
     }
 }

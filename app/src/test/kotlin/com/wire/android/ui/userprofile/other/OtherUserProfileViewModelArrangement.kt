@@ -44,7 +44,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase

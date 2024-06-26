@@ -40,6 +40,10 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.id.QualifiedClientID
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.e2ei.Handle
 import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
@@ -121,7 +125,7 @@ fun EndToEndIdentityCertificateItem(
                             )
                         }
                     }
-                    MLSClientE2EIStatus.NOT_ACTIVATED->{
+                    MLSClientE2EIStatus.NOT_ACTIVATED -> {
                         E2EIStatusRow(
                             label = stringResource(id = R.string.e2ei_certificat_status_not_activated),
                             labelColor = colorsScheme().error,
@@ -215,10 +219,12 @@ fun PreviewEndToEndIdentityCertificateItem() {
         isE2eiCertificateActivated = true,
         isCurrentDevice = false,
         mlsClientIdentity = MLSClientIdentity(
+            clientId = QualifiedClientID(ClientId(""), UserId("", "")),
             e2eiStatus = MLSClientE2EIStatus.VALID,
             thumbprint = "thumbprint",
             credentialType = MLSCredentialsType.X509,
             x509Identity = X509Identity(
+                handle = Handle("", "", ""),
                 displayName = "",
                 domain = "",
                 certificate = "",
@@ -240,10 +246,12 @@ fun PreviewEndToEndIdentityCertificateSelfItem() {
         isE2eiCertificateActivated = true,
         isCurrentDevice = true,
         mlsClientIdentity = MLSClientIdentity(
+            clientId = QualifiedClientID(ClientId(""), UserId("", "")),
             e2eiStatus = MLSClientE2EIStatus.VALID,
             thumbprint = "thumbprint",
             credentialType = MLSCredentialsType.X509,
             x509Identity = X509Identity(
+                handle = Handle("", "", ""),
                 displayName = "",
                 domain = "",
                 certificate = "",

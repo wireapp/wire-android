@@ -139,7 +139,7 @@ private fun ConnectivityStatusBar(
                     IncomingCallContent(callerName = connectivityInfo.callerName)
 
                 is ConnectivityUIState.OutgoingCall ->
-                    OutgoingCallContent(callerName = connectivityInfo.callerName)
+                    OutgoingCallContent(conversationName = connectivityInfo.conversationName)
 
                 ConnectivityUIState.Connecting ->
                     StatusLabel(
@@ -183,11 +183,11 @@ private fun IncomingCallContent(callerName: String?) {
 }
 
 @Composable
-private fun OutgoingCallContent(callerName: String?) {
+private fun OutgoingCallContent(conversationName: String?) {
     Row {
         StatusLabelWithValue(
             stringResource = R.string.connectivity_status_bar_return_to_outgoing_call,
-            callerName = callerName,
+            callerName = conversationName,
             color = MaterialTheme.wireColorScheme.onPositive
         )
     }

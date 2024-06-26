@@ -186,7 +186,7 @@ class MessageMapper @Inject constructor(
             editStatus = if (message is Message.Regular && message.editStatus is Message.EditStatus.Edited) {
                 MessageEditStatus.Edited(
                     isoFormatter.fromISO8601ToTimeFormat(
-                        utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
+                        utcISO = (message.editStatus as Message.EditStatus.Edited).lastEditInstant
                     )
                 )
             } else {

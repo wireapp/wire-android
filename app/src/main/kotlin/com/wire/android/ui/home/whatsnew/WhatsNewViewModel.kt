@@ -18,7 +18,6 @@
 package com.wire.android.ui.home.whatsnew
 
 import android.content.Context
-import android.icu.text.SimpleDateFormat
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,10 +25,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prof18.rssparser.RssParser
 import com.wire.android.R
-import com.wire.android.util.sha256
 import com.wire.android.util.toMediumOnlyDateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 
@@ -51,10 +50,10 @@ class WhatsNewViewModel @Inject constructor(context: Context) : ViewModel() {
                         releaseNotesItems = it.items
                             .map { item ->
                                 ReleaseNotesItem(
-                                    id = item.guid.orEmpty().sha256(),
+                                    id = item.guid.orEmpty(),
                                     title = item.title.orEmpty(),
                                     link = item.link.orEmpty(),
-                                    publishDate = item.pubDate?.let { publishDateFormat.parse(it).toMediumOnlyDateTime() }.orEmpty(),
+                                    publishDate = item.pubDate?.let { publishDateFormat.parse(it)?.toMediumOnlyDateTime() }.orEmpty(),
                                 )
                             }
                             .filter {

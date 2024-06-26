@@ -75,6 +75,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.datetime.Instant
 import okio.Path
 import okio.buffer
 
@@ -251,7 +252,7 @@ internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUs
             every { it.messageId } returns id
             every { it.username } returns UIText.DynamicString(userName)
             every { it.isLegalHold } returns false
-            every { it.messageTime } returns MessageTime("")
+            every { it.messageTime } returns MessageTime(Instant.DISTANT_PAST)
             every { it.messageStatus } returns MessageStatus(
                 flowStatus = MessageFlowStatus.Sent,
                 expirationStatus = ExpirationStatus.NotExpirable

@@ -60,6 +60,7 @@ class GlobalObserversManager @Inject constructor(
     private val userDataStoreProvider: UserDataStoreProvider,
     private val currentScreenManager: CurrentScreenManager,
 ) {
+    // TODO(tests): refactor so scope/dispatcher can be injected and properly stopped
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
 
     fun observe() {

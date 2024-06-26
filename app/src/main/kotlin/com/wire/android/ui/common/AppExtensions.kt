@@ -45,7 +45,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import java.time.format.TextStyle
 import java.util.Locale
@@ -122,6 +121,6 @@ fun List<UIAssetMessage>.toImageAssetGroupedByMonthAndYear(timeZone: TimeZone) =
 }
 
 fun List<Message.Standalone>.toGenericAssetGroupedByMonthAndYear(timeZone: TimeZone) = this.groupBy { message ->
-    val localDateTime = message.date.toInstant().toLocalDateTime(timeZone)
+    val localDateTime = message.date.toLocalDateTime(timeZone)
     monthYearHeader(year = localDateTime.year, month = localDateTime.monthNumber)
 }

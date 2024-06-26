@@ -77,26 +77,42 @@ fun WhatsNewScreenContent(
             items = buildList {
                 add(WhatsNewItem.WelcomeToNewAndroidApp)
             },
-            onItemClicked = onItemClicked
+            onItemClicked = onItemClicked,
+            placeholder = false,
         )
 
         folderWithElements(
             header = context.getString(R.string.whats_new_release_notes_group_title),
             items = buildList {
-                state.releaseNotesItems.forEach {
-                    add(
-                        WhatsNewItem.AndroidReleaseNotes(
-                            id = it.id,
-                            title = UIText.DynamicString(it.title),
-                            boldTitle = true,
-                            text = UIText.DynamicString(it.publishDate),
-                            url = it.link,
+                if (state.isLoading) {
+                    for (i in 0..3) {
+                        add(
+                            WhatsNewItem.AndroidReleaseNotes(
+                                id = "placeholder_$i",
+                                title = UIText.DynamicString("Android X.X.X"), // this text won't be displayed
+                                boldTitle = true,
+                                text = UIText.DynamicString("01 Jan 2024"), // this text won't be displayed
+                                url = "",
+                            )
                         )
-                    )
+                    }
+                } else {
+                    state.releaseNotesItems.forEach {
+                        add(
+                            WhatsNewItem.AndroidReleaseNotes(
+                                id = it.id,
+                                title = UIText.DynamicString(it.title),
+                                boldTitle = true,
+                                text = UIText.DynamicString(it.publishDate),
+                                url = it.link,
+                            )
+                        )
+                    }
                 }
                 add(WhatsNewItem.AllAndroidReleaseNotes)
             },
-            onItemClicked = onItemClicked
+            onItemClicked = onItemClicked,
+            placeholder = state.isLoading,
         )
     }
 }
@@ -104,7 +120,8 @@ fun WhatsNewScreenContent(
 private fun LazyListScope.folderWithElements(
     header: String? = null,
     items: List<WhatsNewItem>,
-    onItemClicked: (WhatsNewItem) -> Unit
+    onItemClicked: (WhatsNewItem) -> Unit,
+    placeholder: Boolean,
 ) {
     folderWithElements(
         header = header?.uppercase(),
@@ -114,8 +131,9 @@ private fun LazyListScope.folderWithElements(
             title = item.title.asString(),
             boldTitle = item.boldTitle,
             text = item.text?.asString(),
-            onRowPressed = remember { Clickable(enabled = true) { onItemClicked(item) } },
+            onRowPressed = remember { Clickable(enabled = !placeholder) { onItemClicked(item) } },
             trailingIcon = R.drawable.ic_arrow_right,
+            placeholder = placeholder,
         )
     }
 }
@@ -123,5 +141,11 @@ private fun LazyListScope.folderWithElements(
 @Preview(showBackground = false)
 @Composable
 fun PreviewWhatsNewScreen() {
-    WhatsNewScreenContent(WhatsNewState()) {}
+    WhatsNewScreenContent(WhatsNewState(isLoading = false)) {}
+}
+
+@Preview(showBackground = false)
+@Composable
+fun PreviewWhatsNewScreenLoading() {
+    WhatsNewScreenContent(WhatsNewState(isLoading = true)) {}
 }

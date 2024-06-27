@@ -17,11 +17,8 @@
  */
 package com.wire.android.ui.home.messagecomposer.location
 
-import android.content.Context
-import com.wire.android.di.ApplicationScope
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.CoroutineScope
 
 @Singleton
 class LocationPickerHelperFlavor @Inject constructor(

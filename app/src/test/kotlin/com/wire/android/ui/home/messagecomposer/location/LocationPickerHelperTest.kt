@@ -153,8 +153,8 @@ class LocationPickerHelperTest {
     }
 
     inner class Arrangement(
-            val lastLocationTimeLimit: Duration = 1.minutes,
-            val requestLocationTimeout: Duration = 10.seconds
+        val lastLocationTimeLimit: Duration = 1.minutes,
+        val requestLocationTimeout: Duration = 10.seconds
     ) {
         private val context: Context = ApplicationProvider.getApplicationContext()
         private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + dispatcher)
@@ -190,7 +190,6 @@ class LocationPickerHelperTest {
             shadowOf(locationManager).simulateLocation(location)
         }
 
-
         fun arrange() = this to locationPickerHelper
     }
 
@@ -218,5 +217,3 @@ class LocationPickerHelperTest {
         }
     }
 }
-
-

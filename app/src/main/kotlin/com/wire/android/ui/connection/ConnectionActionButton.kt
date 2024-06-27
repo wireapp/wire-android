@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.ClickBlockParams
@@ -52,6 +53,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -105,7 +107,7 @@ fun ConnectionActionButton(
             loading = viewModel.actionableState().isPerformingAction,
             onClick = {
                 viewModel.onOpenConversation(onOpenConversation) {
-                    unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
+                    unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName, it))
                 }
             },
         )
@@ -196,16 +198,60 @@ fun ConnectionActionButton(
 @Composable
 fun UnableStartConversationDialogContent(dialogState: VisibilityState<UnableStartConversationDialogState>) {
     VisibilityState(dialogState) { state ->
+        val title: String
+        val text: AnnotatedString
+
+        when (state.error) {
+            is CoreFailure.MissingKeyPackages -> {
+                title = stringResource(id = R.string.missing_keypackage_dialog_title)
+                text = LocalContext.current.resources.stringWithStyledArgs(
+                    R.string.missing_keypackage_dialog_body,
+                    MaterialTheme.wireTypography.body01,
+                    MaterialTheme.wireTypography.body02,
+                    colorsScheme().onBackground,
+                    colorsScheme().onBackground,
+                    state.userName
+                )
+            }
+
+            is CoreFailure.NoCommonProtocolFound.SelfNeedToUpdate -> {
+                title = stringResource(id = R.string.missing_keypackage_dialog_title)
+                text = LocalContext.current.resources.stringWithStyledArgs(
+                    R.string.no_common_protocol_dialog_body_self_need_update,
+                    MaterialTheme.wireTypography.body01,
+                    MaterialTheme.wireTypography.body02,
+                    colorsScheme().onBackground,
+                    colorsScheme().onBackground,
+                    state.userName
+                )
+            }
+
+            is CoreFailure.NoCommonProtocolFound.OtherNeedToUpdate -> {
+                title = stringResource(id = R.string.missing_keypackage_dialog_title)
+                text = LocalContext.current.resources.stringWithStyledArgs(
+                    R.string.no_common_protocol_dialog_body_other_need_update,
+                    MaterialTheme.wireTypography.body01,
+                    MaterialTheme.wireTypography.body02,
+                    colorsScheme().onBackground,
+                    colorsScheme().onBackground,
+                    state.userName
+                )
+            }
+
+            else -> {
+                title = stringResource(id = R.string.error_unknown_title)
+                text = LocalContext.current.resources.stringWithStyledArgs(
+                    R.string.error_unknown_message,
+                    MaterialTheme.wireTypography.body01,
+                    MaterialTheme.wireTypography.body02,
+                    colorsScheme().onBackground,
+                    colorsScheme().onBackground
+                )
+            }
+        }
         WireDialog(
-            title = stringResource(id = R.string.missing_keypackage_dialog_title),
-            text = LocalContext.current.resources.stringWithStyledArgs(
-                R.string.missing_keypackage_dialog_body,
-                MaterialTheme.wireTypography.body01,
-                MaterialTheme.wireTypography.body02,
-                colorsScheme().onBackground,
-                colorsScheme().onBackground,
-                state.userName
-            ),
+            title = title,
+            text = text,
             onDismiss = dialogState::dismiss,
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = dialogState::dismiss,
@@ -216,7 +262,7 @@ fun UnableStartConversationDialogContent(dialogState: VisibilityState<UnableStar
     }
 }
 
-data class UnableStartConversationDialogState(val userName: String)
+data class UnableStartConversationDialogState(val userName: String, val error: CoreFailure)
 
 @Composable
 @PreviewMultipleThemes

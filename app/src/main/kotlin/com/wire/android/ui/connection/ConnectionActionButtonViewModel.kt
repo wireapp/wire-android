@@ -26,8 +26,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.di.scopedArgs
 import com.wire.android.di.ViewModelScopedPreview
+import com.wire.android.di.scopedArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logger.obfuscateId
@@ -58,6 +58,7 @@ import javax.inject.Inject
 interface ConnectionActionButtonViewModel {
     val infoMessage: SharedFlow<UIText>
         get() = MutableSharedFlow()
+
     fun actionableState(): ConnectionActionState = ConnectionActionState()
     fun onSendConnectionRequest() {}
     fun onCancelConnectionRequest() {}
@@ -66,7 +67,7 @@ interface ConnectionActionButtonViewModel {
     fun onUnblockUser() {}
     fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit) {}
     fun onMissingLegalHoldConsentDismissed() {}
-    fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit, onMissingKeyPackages: () -> Unit) {}
+    fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit, onFailure: (CoreFailure) -> Unit) {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -192,14 +193,17 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onOpenConversation(onSuccess: (conversationId: ConversationId) -> Unit, onMissingKeyPackages: () -> Unit) {
+    override fun onOpenConversation(
+        onSuccess: (conversationId: ConversationId) -> Unit,
+        onFailure: (error: CoreFailure) -> Unit
+    ) {
         viewModelScope.launch {
             state = state.performAction()
             when (val result = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }) {
                 is CreateConversationResult.Failure -> {
-                    appLogger.d(("Couldn't retrieve or create the conversation"))
+                    appLogger.d(("Couldn't retrieve or create the conversation. Error ${result.coreFailure}"))
                     state = state.finishAction()
-                    if (result.coreFailure is CoreFailure.MissingKeyPackages) onMissingKeyPackages()
+                    onFailure(result.coreFailure)
                 }
 
                 is CreateConversationResult.Success -> onSuccess(result.conversation.id)

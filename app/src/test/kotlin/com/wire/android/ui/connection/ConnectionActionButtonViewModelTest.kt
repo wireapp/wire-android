@@ -267,14 +267,14 @@ class ConnectionActionButtonViewModelTest {
                 .arrange()
 
             // when
-            viewModel.onOpenConversation(arrangement.onOpenConversation, arrangement.onMissingKeyPackages)
+            viewModel.onOpenConversation(arrangement.onOpenConversation, arrangement.onStartConversationError)
 
             // then
             coVerify {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
             }
             verify { arrangement.onOpenConversation(any()) }
-            verify { arrangement.onMissingKeyPackages wasNot Called }
+            verify { arrangement.onStartConversationError wasNot Called }
         }
 
     @Test
@@ -286,33 +286,34 @@ class ConnectionActionButtonViewModelTest {
                 .arrange()
 
             // when
-            viewModel.onOpenConversation(arrangement.onOpenConversation, arrangement.onMissingKeyPackages)
+            viewModel.onOpenConversation(arrangement.onOpenConversation, arrangement.onStartConversationError)
 
             // then
             coVerify {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
             }
             verify { arrangement.onOpenConversation wasNot Called }
-            verify { arrangement.onMissingKeyPackages wasNot Called }
+            verify { arrangement.onStartConversationError(eq(failure)) }
         }
 
     @Test
     fun `given a conversationId, when trying to open the conversation and fails with MissingKeyPackages, then call MissingKeyPackage()`() =
         runTest {
             // given
+            val errorResult = CoreFailure.MissingKeyPackages(setOf())
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
-                .withGetOneToOneConversation(CreateConversationResult.Failure(CoreFailure.MissingKeyPackages(setOf())))
+                .withGetOneToOneConversation(CreateConversationResult.Failure(errorResult))
                 .arrange()
 
             // when
-            viewModel.onOpenConversation(arrangement.onOpenConversation, arrangement.onMissingKeyPackages)
+            viewModel.onOpenConversation(arrangement.onOpenConversation, arrangement.onStartConversationError)
 
             // then
             coVerify {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
             }
             verify { arrangement.onOpenConversation wasNot Called }
-            verify { arrangement.onMissingKeyPackages() }
+            verify { arrangement.onStartConversationError(eq(errorResult)) }
         }
 
     companion object {
@@ -356,7 +357,7 @@ internal class ConnectionActionButtonHiltArrangement {
     lateinit var onOpenConversation: (conversationId: ConversationId) -> Unit
 
     @MockK(relaxed = true)
-    lateinit var onMissingKeyPackages: () -> Unit
+    lateinit var onStartConversationError: (CoreFailure) -> Unit
 
     private val viewModel by lazy {
         ConnectionActionButtonViewModelImpl(

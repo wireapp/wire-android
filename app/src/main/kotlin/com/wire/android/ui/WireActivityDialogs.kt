@@ -240,7 +240,7 @@ fun MaxAccountDialog(shouldShow: Boolean, onConfirm: () -> Unit, onDismiss: () -
 @Composable
 fun AccountLoggedOutDialog(blockUserUI: CurrentSessionErrorState?, navigateAway: () -> Unit) {
     blockUserUI?.let {
-        accountLoggedOutDialog(reason = it, navigateAway)
+        AccountLoggedOutDialogContent(reason = it, navigateAway)
     }
 }
 
@@ -259,7 +259,7 @@ fun GuestCallWasEndedBecauseOfVerificationDegradedDialog(onDismiss: () -> Unit) 
 }
 
 @Composable
-private fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
+private fun AccountLoggedOutDialogContent(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
     appLogger.e("AccountLongedOutDialog: $reason")
     val (@StringRes title: Int, text: String) = when (reason) {
         CurrentSessionErrorState.SessionExpired -> {
@@ -365,7 +365,7 @@ fun NewClientDialog(
 
 @PreviewMultipleThemes
 @Composable
-fun previewFileRestrictionDialog() {
+fun PreviewFileRestrictionDialog() {
     WireTheme {
         FileRestrictionDialog(true) {}
     }
@@ -373,7 +373,7 @@ fun previewFileRestrictionDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewGuestRoomLinkFeatureFlagDialog() {
+fun PreviewGuestRoomLinkFeatureFlagDialog() {
     WireTheme {
         GuestRoomLinkFeatureFlagDialog(true) {}
     }
@@ -381,7 +381,7 @@ fun previewGuestRoomLinkFeatureFlagDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewTeamAppLockFeatureFlagDialog() {
+fun PreviewTeamAppLockFeatureFlagDialog() {
     WireTheme {
         TeamAppLockFeatureFlagDialog(true) {}
     }
@@ -389,7 +389,7 @@ fun previewTeamAppLockFeatureFlagDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewUpdateAppDialog() {
+fun PreviewUpdateAppDialog() {
     WireTheme {
         UpdateAppDialog(true) {}
     }
@@ -397,7 +397,7 @@ fun previewUpdateAppDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewJoinConversationDialogWithPassword() {
+fun PreviewJoinConversationDialogWithPassword() {
     WireTheme {
         JoinConversationDialog(
             JoinConversationViaCodeState.Show("convName", "code", "key", "domain", true),
@@ -407,7 +407,7 @@ fun previewJoinConversationDialogWithPassword() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewJoinConversationDialogWithoutPassword() {
+fun PreviewJoinConversationDialogWithoutPassword() {
     WireTheme {
         JoinConversationDialog(
             JoinConversationViaCodeState.Show("convName", "code", "key", "domain", false),
@@ -417,7 +417,7 @@ fun previewJoinConversationDialogWithoutPassword() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewJoinConversationDialogError() {
+fun PreviewJoinConversationDialogError() {
     WireTheme {
         JoinConversationDialog(
             JoinConversationViaCodeState.Error(CheckConversationInviteCodeUseCase.Result.Failure.InvalidCodeOrKey),
@@ -427,7 +427,7 @@ fun previewJoinConversationDialogError() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewCustomBackendDialog() {
+fun PreviewCustomBackendDialog() {
     WireTheme {
         CustomBackendDialog(
             GlobalAppState(
@@ -440,7 +440,7 @@ fun previewCustomBackendDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewMaxAccountDialog() {
+fun PreviewMaxAccountDialog() {
     WireTheme {
         MaxAccountDialog(true, {}, {})
     }
@@ -448,15 +448,15 @@ fun previewMaxAccountDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewAccountLoggedOutDialog() {
+fun PreviewAccountLoggedOutDialog() {
     WireTheme {
-        AccountLoggedOutDialog(CurrentSessionErrorState.DeletedAccount) {}
+        AccountLoggedOutDialogContent(CurrentSessionErrorState.DeletedAccount) {}
     }
 }
 
 @PreviewMultipleThemes
 @Composable
-fun previewGuestCallWasEndedBecauseOfVerificationDegradedDialog() {
+fun PreviewGuestCallWasEndedBecauseOfVerificationDegradedDialog() {
     WireTheme {
         GuestCallWasEndedBecauseOfVerificationDegradedDialog {}
     }
@@ -464,7 +464,7 @@ fun previewGuestCallWasEndedBecauseOfVerificationDegradedDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewNewClientDialog() {
+fun PreviewNewClientDialog() {
     WireTheme {
         NewClientDialog(
             NewClientsData.CurrentUser(listOf(NewClientInfo("date", UIText.DynamicString("name"))), UserId("id", "domain")),
@@ -474,7 +474,7 @@ fun previewNewClientDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewTestDialog() {
+fun PreviewTestDialog() {
     WireTheme {
         FileRestrictionDialog(true) {}
     }

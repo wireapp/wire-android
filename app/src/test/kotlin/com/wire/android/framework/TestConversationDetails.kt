@@ -22,6 +22,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.type.UserType
+import kotlinx.datetime.Instant
 
 object TestConversationDetails {
 
@@ -29,7 +30,7 @@ object TestConversationDetails {
         TestConversation.ID,
         TestUser.OTHER_USER,
         UserType.EXTERNAL,
-        "2022-03-30T15:36:00.000Z",
+        Instant.parse("2022-03-30T15:36:00.000Z"),
         TestConnection.CONNECTION,
         protocolInfo = ProtocolInfo.Proteus,
         access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),

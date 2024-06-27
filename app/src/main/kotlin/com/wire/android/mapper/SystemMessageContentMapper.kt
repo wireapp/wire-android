@@ -37,6 +37,8 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
+import kotlinx.datetime.Instant
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -74,16 +76,17 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.LegalHold -> mapLegalHoldMessage(content, message.senderUserId, members)
     }
 
-    private fun mapConversationCreated(senderUserId: UserId, date: String, userList: List<User>): UIMessageContent.SystemMessage {
+    private fun mapConversationCreated(senderUserId: UserId, date: Instant, userList: List<User>): UIMessageContent.SystemMessage {
         val sender = userList.findUser(userId = senderUserId)
         val authorName = mapMemberName(
             user = sender,
             type = SelfNameType.ResourceTitleCase
         )
+        val dateString = date.toIsoDateTimeString()
         return UIMessageContent.SystemMessage.ConversationMessageCreated(
             author = authorName,
             isAuthorSelfUser = sender is SelfUser,
-            date.formatFullDateShortTime().orDefault(date).uppercase(Locale.getDefault())
+            dateString.formatFullDateShortTime().orDefault(dateString).uppercase(Locale.getDefault())
         )
     }
 

@@ -41,7 +41,7 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.util.DateTimeUtil
+import kotlinx.datetime.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -72,17 +72,16 @@ class MigrationMapper @Inject constructor() {
 
     fun fromScalaConversationToConversation(scalaConversation: ScalaConversationData, selfUserId: UserId) = with(scalaConversation) {
         mapConversationType(type)?.let {
-            val lastEventTime: String =
-                if (orderTime == null || orderTime == 0L) {
-                    "1970-01-01T00:00:00.000Z"
-                } else {
-                    DateTimeUtil.fromEpochMillisToIsoDateTimeString(orderTime)
-                }
-
-            val conversationLastReadTime = if (lastReadTime == null || lastReadTime == 0L) {
-                "1970-01-01T00:00:00.000Z"
+            val lastEventTime: Instant = if (orderTime == null || orderTime == 0L) {
+                Instant.DISTANT_PAST
             } else {
-                DateTimeUtil.fromEpochMillisToIsoDateTimeString(lastReadTime)
+                Instant.fromEpochMilliseconds(orderTime)
+            }
+
+            val conversationLastReadTime = if (lastReadTimeInMillis == null || lastReadTimeInMillis == 0L) {
+                Instant.DISTANT_PAST
+            } else {
+                Instant.fromEpochMilliseconds(lastReadTimeInMillis)
             }
 
             Conversation(

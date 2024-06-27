@@ -184,6 +184,7 @@
     <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365-Federation</string>
     <string name="url_create_account_learn_more" translatable="false">https://support.wire.com/hc/articles/115004082129</string>
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
+    <string name="url_android_release_notes_feed" translatable="false">https://medium.com/feed/wire-news/tagged/android</string>
     <string name="url_maps_location_coordinates_fallback" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -875,6 +876,10 @@
     <!-- Missing keyPackages dialog -->
     <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
     <string name="missing_keypackage_dialog_body">You can’t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
+    <!-- No Common protocol dialog -->
+    <string name="no_common_protocol_dialog_title">Unable to start conversation</string>
+    <string name="no_common_protocol_dialog_body_self_need_update">You can’t communicate with %1$s, as your device doesn’t support the suitable protocol. Download the latest MLS Wire version, to call, and send messages and files.</string>
+    <string name="no_common_protocol_dialog_body_other_need_update">You can’t communicate with %1$s, as you two use different protocols. When %1$s gets an update, you can call and send messages and files.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>

@@ -38,6 +38,7 @@ import com.wire.android.navigation.ExternalUriDirection
 import com.wire.android.navigation.WelcomeToNewAndroidAppDestination
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -51,6 +52,7 @@ fun WhatsNewItem(
     text: String? = null,
     @DrawableRes trailingIcon: Int? = null,
     onRowPressed: Clickable = Clickable(false),
+    isLoading: Boolean = false,
 ) {
     RowItemTemplate(
         title = {
@@ -59,7 +61,9 @@ fun WhatsNewItem(
                     style = if (boldTitle) MaterialTheme.wireTypography.body02 else MaterialTheme.wireTypography.body01,
                     color = MaterialTheme.wireColorScheme.onBackground,
                     text = title,
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                    modifier = Modifier
+                        .padding(start = dimensions().spacing8x)
+                        .shimmerPlaceholder(visible = isLoading)
                 )
             }
         },
@@ -69,7 +73,9 @@ fun WhatsNewItem(
                     style = MaterialTheme.wireTypography.label04,
                     color = MaterialTheme.wireColorScheme.secondaryText,
                     text = text,
-                    modifier = Modifier.padding(start = dimensions().spacing8x, top = dimensions().spacing8x)
+                    modifier = Modifier
+                        .padding(start = dimensions().spacing8x, top = dimensions().spacing8x)
+                        .shimmerPlaceholder(visible = isLoading)
                 )
             }
         },
@@ -82,6 +88,7 @@ fun WhatsNewItem(
                     modifier = Modifier
                         .defaultMinSize(dimensions().wireIconButtonSize)
                         .padding(end = dimensions().spacing8x)
+                        .shimmerPlaceholder(visible = isLoading)
                 )
             } ?: Icons.Filled.ChevronRight
         },
@@ -129,12 +136,25 @@ sealed class WhatsNewItem(
 
 @PreviewMultipleThemes
 @Composable
-fun previewFileRestrictionDialog() {
+fun PreviewFileRestrictionDialog() {
     WireTheme {
         WhatsNewItem(
             title = "What's new item",
             text = "This is the text of the item",
             trailingIcon = R.drawable.ic_arrow_right
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewFileRestrictionDialogLoading() {
+    WireTheme {
+        WhatsNewItem(
+            title = "What's new item",
+            text = "This is the text of the item",
+            trailingIcon = R.drawable.ic_arrow_right,
+            isLoading = true,
         )
     }
 }

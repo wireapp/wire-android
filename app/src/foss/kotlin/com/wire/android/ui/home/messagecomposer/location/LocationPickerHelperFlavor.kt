@@ -18,15 +18,19 @@
 package com.wire.android.ui.home.messagecomposer.location
 
 import android.content.Context
+import com.wire.android.di.ApplicationScope
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
 
 @Singleton
-class LocationPickerHelperFlavor @Inject constructor(context: Context) : LocationPickerHelper(context) {
+class LocationPickerHelperFlavor @Inject constructor(
+    private val locationPickerHelper: LocationPickerHelper,
+) {
     suspend fun getLocation(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
-        getLocationWithoutGms(
+        locationPickerHelper.getLocationWithoutGms(
             onSuccess = onSuccess,
-            onError = onError
+            onError = onError,
         )
     }
 }

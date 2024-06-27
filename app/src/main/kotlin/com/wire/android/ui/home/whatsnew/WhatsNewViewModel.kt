@@ -17,41 +17,43 @@
  */
 package com.wire.android.ui.home.whatsnew
 
-import android.icu.text.SimpleDateFormat
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prof18.rssparser.RssParser
-import com.wire.android.BuildConfig
-import com.wire.android.util.sha256
+import com.wire.android.R
 import com.wire.android.util.toMediumOnlyDateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class WhatsNewViewModel @Inject constructor() : ViewModel() {
+class WhatsNewViewModel @Inject constructor(context: Context) : ViewModel() {
     private val rssParser = RssParser()
     private val publishDateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", Locale.ENGLISH)
 
-    var state by mutableStateOf(WhatsNewState())
+    var state by mutableStateOf(WhatsNewState(isLoading = true))
         private set
 
     init {
         viewModelScope.launch {
-            if (BuildConfig.URL_RSS_RELEASE_NOTES.isNotBlank()) {
-                rssParser.getRssChannel(BuildConfig.URL_RSS_RELEASE_NOTES).let {
+            val feedUrl = context.resources.getString(R.string.url_android_release_notes_feed)
+            if (feedUrl.isNotBlank()) {
+                rssParser.getRssChannel(feedUrl).let {
                     state = state.copy(
+                        isLoading = false,
                         releaseNotesItems = it.items
                             .map { item ->
                                 ReleaseNotesItem(
-                                    id = item.guid.orEmpty().sha256(),
+                                    id = item.guid.orEmpty(),
                                     title = item.title.orEmpty(),
                                     link = item.link.orEmpty(),
-                                    publishDate = item.pubDate?.let { publishDateFormat.parse(it).toMediumOnlyDateTime() }.orEmpty(),
+                                    publishDate = item.pubDate?.let { publishDateFormat.parse(it)?.toMediumOnlyDateTime() }.orEmpty(),
                                 )
                             }
                             .filter {
@@ -59,6 +61,11 @@ class WhatsNewViewModel @Inject constructor() : ViewModel() {
                             }
                     )
                 }
+            } else {
+                state = state.copy(
+                    isLoading = false,
+                    releaseNotesItems = emptyList()
+                )
             }
         }
     }

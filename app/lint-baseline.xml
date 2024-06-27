@@ -146,7 +146,7 @@
 
     <issue
         id="RestrictedApi"
-        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`AndroidReloaded`)"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`wire-android`)"
         errorLine1="    val isAlreadyRunning = getWorkInfosForUniqueWork(MigrationWorker.NAME).await().let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }"
         errorLine2="                                                                           ~~~~~">
         <location
@@ -157,7 +157,7 @@
 
     <issue
         id="RestrictedApi"
-        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`AndroidReloaded`)"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`wire-android`)"
         errorLine1="        getWorkInfosForUniqueWork(SingleUserMigrationWorker.NAME).await().let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }"
         errorLine2="                                                                  ~~~~~">
         <location
@@ -167,6 +167,163 @@
     </issue>
 
     <issue
+<<<<<<< HEAD
+=======
+        id="MissingTranslation"
+        message="&quot;message_datetime_minutes_ago&quot; is not translated in &quot;af&quot; (Afrikaans)"
+        errorLine1="    &lt;plurals name=&quot;message_datetime_minutes_ago&quot;>"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="491"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;message_datetime_today&quot; is not translated in &quot;af&quot; (Afrikaans)"
+        errorLine1="    &lt;string name=&quot;message_datetime_today&quot;>Today, %s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="495"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;message_datetime_yesterday&quot; is not translated in &quot;af&quot; (Afrikaans)"
+        errorLine1="    &lt;string name=&quot;message_datetime_yesterday&quot;>Yesterday, %s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="496"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;message_datetime_other&quot; is not translated in &quot;af&quot; (Afrikaans)"
+        errorLine1="    &lt;string name=&quot;message_datetime_other&quot;>%s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="497"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;label_create_new_group&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;fi&quot; (Finnish), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;si&quot; (Sinhala), &quot;uk&quot; (Ukrainian), &quot;sk&quot; (Slovak), &quot;sl&quot; (Slovenian), &quot;id&quot; (Indonesian), &quot;ca&quot; (Catalan), &quot;mk&quot; (Macedonian), &quot;sr&quot; (Serbian), &quot;sv&quot; (Swedish), &quot;ko&quot; (Korean), &quot;af&quot; (Afrikaans), &quot;el&quot; (Greek), &quot;it&quot; (Italian), &quot;es&quot; (Spanish), &quot;zh&quot; (Chinese), &quot;et&quot; (Estonian), &quot;cs&quot; (Czech), &quot;ar&quot; (Arabic), &quot;pa&quot; (Punjabi), &quot;vi&quot; (Vietnamese), &quot;ja&quot; (Japanese), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;he&quot; (Hebrew), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;label_create_new_group&quot;>Create New Group&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="751"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;label_x_participants&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;fi&quot; (Finnish), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;si&quot; (Sinhala), &quot;uk&quot; (Ukrainian), &quot;sk&quot; (Slovak), &quot;sl&quot; (Slovenian), &quot;id&quot; (Indonesian), &quot;ca&quot; (Catalan), &quot;mk&quot; (Macedonian), &quot;sr&quot; (Serbian), &quot;sv&quot; (Swedish), &quot;ko&quot; (Korean), &quot;af&quot; (Afrikaans), &quot;el&quot; (Greek), &quot;it&quot; (Italian), &quot;es&quot; (Spanish), &quot;zh&quot; (Chinese), &quot;et&quot; (Estonian), &quot;cs&quot; (Czech), &quot;ar&quot; (Arabic), &quot;pa&quot; (Punjabi), &quot;vi&quot; (Vietnamese), &quot;ja&quot; (Japanese), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;he&quot; (Hebrew), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;plurals name=&quot;label_x_participants&quot;>"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="752"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;error_process_user_avatar&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;fi&quot; (Finnish), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;si&quot; (Sinhala), &quot;uk&quot; (Ukrainian), &quot;sk&quot; (Slovak), &quot;sl&quot; (Slovenian), &quot;id&quot; (Indonesian), &quot;ca&quot; (Catalan), &quot;mk&quot; (Macedonian), &quot;sr&quot; (Serbian), &quot;sv&quot; (Swedish), &quot;ko&quot; (Korean), &quot;af&quot; (Afrikaans), &quot;el&quot; (Greek), &quot;it&quot; (Italian), &quot;es&quot; (Spanish), &quot;zh&quot; (Chinese), &quot;et&quot; (Estonian), &quot;cs&quot; (Czech), &quot;ar&quot; (Arabic), &quot;pa&quot; (Punjabi), &quot;vi&quot; (Vietnamese), &quot;ja&quot; (Japanese), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;he&quot; (Hebrew), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;error_process_user_avatar&quot;>Picture could not be processed&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="777"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;label_start_conversation&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;fi&quot; (Finnish), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;si&quot; (Sinhala), &quot;uk&quot; (Ukrainian), &quot;sk&quot; (Slovak), &quot;sl&quot; (Slovenian), &quot;id&quot; (Indonesian), &quot;ca&quot; (Catalan), &quot;mk&quot; (Macedonian), &quot;sr&quot; (Serbian), &quot;sv&quot; (Swedish), &quot;ko&quot; (Korean), &quot;af&quot; (Afrikaans), &quot;el&quot; (Greek), &quot;it&quot; (Italian), &quot;es&quot; (Spanish), &quot;zh&quot; (Chinese), &quot;et&quot; (Estonian), &quot;cs&quot; (Czech), &quot;ar&quot; (Arabic), &quot;pa&quot; (Punjabi), &quot;vi&quot; (Vietnamese), &quot;ja&quot; (Japanese), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;he&quot; (Hebrew), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;label_start_conversation&quot;>Start Conversation&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="812"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;notification_outgoing_call_tap_to_return&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;fi&quot; (Finnish), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;si&quot; (Sinhala), &quot;uk&quot; (Ukrainian), &quot;sk&quot; (Slovak), &quot;sl&quot; (Slovenian), &quot;id&quot; (Indonesian), &quot;ca&quot; (Catalan), &quot;mk&quot; (Macedonian), &quot;sr&quot; (Serbian), &quot;sv&quot; (Swedish), &quot;ko&quot; (Korean), &quot;af&quot; (Afrikaans), &quot;el&quot; (Greek), &quot;it&quot; (Italian), &quot;es&quot; (Spanish), &quot;zh&quot; (Chinese), &quot;et&quot; (Estonian), &quot;cs&quot; (Czech), &quot;ar&quot; (Arabic), &quot;pa&quot; (Punjabi), &quot;vi&quot; (Vietnamese), &quot;ja&quot; (Japanese), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;he&quot; (Hebrew), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;notification_outgoing_call_tap_to_return&quot;>Tap to return to call - Calling...&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="837"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;connectivity_status_bar_return_to_incoming_call&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;fi&quot; (Finnish), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;si&quot; (Sinhala), &quot;uk&quot; (Ukrainian), &quot;sk&quot; (Slovak), &quot;sl&quot; (Slovenian), &quot;id&quot; (Indonesian), &quot;ca&quot; (Catalan), &quot;mk&quot; (Macedonian), &quot;sr&quot; (Serbian), &quot;sv&quot; (Swedish), &quot;ko&quot; (Korean), &quot;af&quot; (Afrikaans), &quot;el&quot; (Greek), &quot;it&quot; (Italian), &quot;es&quot; (Spanish), &quot;zh&quot; (Chinese), &quot;et&quot; (Estonian), &quot;cs&quot; (Czech), &quot;ar&quot; (Arabic), &quot;pa&quot; (Punjabi), &quot;vi&quot; (Vietnamese), &quot;ja&quot; (Japanese), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;he&quot; (Hebrew), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;connectivity_status_bar_return_to_incoming_call&quot;>%1$s is calling…&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="872"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;connectivity_status_bar_return_to_outgoing_call&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;fi&quot; (Finnish), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;si&quot; (Sinhala), &quot;uk&quot; (Ukrainian), &quot;sk&quot; (Slovak), &quot;sl&quot; (Slovenian), &quot;id&quot; (Indonesian), &quot;ca&quot; (Catalan), &quot;mk&quot; (Macedonian), &quot;sr&quot; (Serbian), &quot;sv&quot; (Swedish), &quot;ko&quot; (Korean), &quot;af&quot; (Afrikaans), &quot;el&quot; (Greek), &quot;it&quot; (Italian), &quot;es&quot; (Spanish), &quot;zh&quot; (Chinese), &quot;et&quot; (Estonian), &quot;cs&quot; (Czech), &quot;ar&quot; (Arabic), &quot;pa&quot; (Punjabi), &quot;vi&quot; (Vietnamese), &quot;ja&quot; (Japanese), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;he&quot; (Hebrew), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;connectivity_status_bar_return_to_outgoing_call&quot;>Calling %1$s…&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="873"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;missing_keypackage_dialog_title&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;fi&quot; (Finnish), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;si&quot; (Sinhala), &quot;uk&quot; (Ukrainian), &quot;sk&quot; (Slovak), &quot;sl&quot; (Slovenian), &quot;id&quot; (Indonesian), &quot;ca&quot; (Catalan), &quot;mk&quot; (Macedonian), &quot;sr&quot; (Serbian), &quot;sv&quot; (Swedish), &quot;ko&quot; (Korean), &quot;af&quot; (Afrikaans), &quot;el&quot; (Greek), &quot;it&quot; (Italian), &quot;es&quot; (Spanish), &quot;zh&quot; (Chinese), &quot;et&quot; (Estonian), &quot;cs&quot; (Czech), &quot;ar&quot; (Arabic), &quot;pa&quot; (Punjabi), &quot;vi&quot; (Vietnamese), &quot;ja&quot; (Japanese), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;he&quot; (Hebrew), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;missing_keypackage_dialog_title&quot;>Unable to start conversation&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="899"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;missing_keypackage_dialog_body&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;fi&quot; (Finnish), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;si&quot; (Sinhala), &quot;uk&quot; (Ukrainian), &quot;sk&quot; (Slovak), &quot;sl&quot; (Slovenian), &quot;id&quot; (Indonesian), &quot;ca&quot; (Catalan), &quot;mk&quot; (Macedonian), &quot;sr&quot; (Serbian), &quot;sv&quot; (Swedish), &quot;ko&quot; (Korean), &quot;af&quot; (Afrikaans), &quot;el&quot; (Greek), &quot;it&quot; (Italian), &quot;es&quot; (Spanish), &quot;zh&quot; (Chinese), &quot;et&quot; (Estonian), &quot;cs&quot; (Czech), &quot;ar&quot; (Arabic), &quot;pa&quot; (Punjabi), &quot;vi&quot; (Vietnamese), &quot;ja&quot; (Japanese), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;he&quot; (Hebrew), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;missing_keypackage_dialog_body&quot;>You can’t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="900"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;record_audio_encoding_label&quot; is not translated in &quot;de&quot; (German), &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;fi&quot; (Finnish), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;lt&quot; (Lithuanian), &quot;hr&quot; (Croatian), &quot;bn&quot; (Bangla), &quot;fr&quot; (French), &quot;hu&quot; (Hungarian), &quot;si&quot; (Sinhala), &quot;uk&quot; (Ukrainian), &quot;sk&quot; (Slovak), &quot;sl&quot; (Slovenian), &quot;id&quot; (Indonesian), &quot;ca&quot; (Catalan), &quot;mk&quot; (Macedonian), &quot;sr&quot; (Serbian), &quot;sv&quot; (Swedish), &quot;ko&quot; (Korean), &quot;af&quot; (Afrikaans), &quot;el&quot; (Greek), &quot;it&quot; (Italian), &quot;es&quot; (Spanish), &quot;zh&quot; (Chinese), &quot;et&quot; (Estonian), &quot;cs&quot; (Czech), &quot;ar&quot; (Arabic), &quot;pa&quot; (Punjabi), &quot;vi&quot; (Vietnamese), &quot;ja&quot; (Japanese), &quot;fa&quot; (Persian), &quot;pl&quot; (Polish), &quot;da&quot; (Danish), &quot;he&quot; (Hebrew), &quot;ro&quot; (Romanian), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)"
+        errorLine1="    &lt;string name=&quot;record_audio_encoding_label&quot;>Encoding Audio…&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="1318"
+            column="13"/>
+    </issue>
+
+    <issue
+>>>>>>> a2d1a9b76 (fix: audio converting time - rc 4.7 [WPB-9705]  (#3132))
         id="ImpliedQuantity"
         message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
         errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute ago&lt;/item>"
@@ -3285,6 +3442,20 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
+<<<<<<< HEAD
+=======
+            file="src/main/kotlin/com/wire/android/ui/settings/devices/DeviceDetailsScreen.kt"
+            line="393"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="ComposeContentEmitterReturningValues"
+        message="Composable functions should either emit content into the composition or return a value, but not both.If a composable should offer additional control surfaces to its caller, those control surfaces or callbacks should be provided as parameters to the composable function by the caller.See https://slackhq.github.io/compose-lints/rules/#do-not-emit-content-and-return-a-result for more information."
+        errorLine1="@Composable"
+        errorLine2="^">
+        <location
+>>>>>>> a2d1a9b76 (fix: audio converting time - rc 4.7 [WPB-9705]  (#3132))
             file="src/main/kotlin/com/wire/android/ui/authentication/devices/DeviceItem.kt"
             line="158"
             column="1"/>
@@ -3678,6 +3849,31 @@
     <issue
         id="ComposeModifierMissing"
         message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
+<<<<<<< HEAD
+=======
+        errorLine1="fun DeclineButton(buttonClicked: () -> Unit) {"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/calling/controlbuttons/DeclineButton.kt"
+            line="39"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierMissing"
+        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
+        errorLine1="fun DeviceDetailsContent("
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/settings/devices/DeviceDetailsScreen.kt"
+            line="134"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierMissing"
+        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
+>>>>>>> a2d1a9b76 (fix: audio converting time - rc 4.7 [WPB-9705]  (#3132))
         errorLine1="fun DropDownMentionsSuggestions("
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4519,6 +4715,20 @@
         <location
             file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/RegularMessageItem.kt"
             line="406"
+<<<<<<< HEAD
+=======
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ComposeModifierMissing"
+        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
+        errorLine1="fun RemoveDeviceDialog("
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/authentication/devices/remove/RemoveDeviceDialog.kt"
+            line="48"
+>>>>>>> a2d1a9b76 (fix: audio converting time - rc 4.7 [WPB-9705]  (#3132))
             column="5"/>
     </issue>
 
@@ -4683,7 +4893,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/settings/devices/SelfDevicesScreen.kt"
-            line="67"
+            line="75"
             column="5"/>
     </issue>
 
@@ -5339,61 +5549,6 @@
     <issue
         id="ComposeModifierWithoutDefault"
         message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/RecordAudioButtons.kt"
-            line="71"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/RecordAudioButtons.kt"
-            line="89"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/RecordAudioButtons.kt"
-            line="108"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/RecordAudioButtons.kt"
-            line="157"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
-        errorLine1="    modifier: Modifier,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/RecordAudioButtons.kt"
-            line="191"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierWithoutDefault"
-        message="This @Composable function has a modifier parameter but it doesn&apos;t have a default value.See https://slackhq.github.io/compose-lints/rules/#modifiers-should-have-default-parameters for more information."
         errorLine1="    modifier: Modifier,"
         errorLine2="    ~~~~~~~~~~~~~~~~~~">
         <location
@@ -5551,6 +5706,20 @@
         errorLine1="@Composable"
         errorLine2="^">
         <location
+<<<<<<< HEAD
+=======
+            file="src/main/kotlin/com/wire/android/ui/settings/devices/DeviceDetailsScreen.kt"
+            line="393"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="ComposeMultipleContentEmitters"
+        message="Composable functions should only be emitting content into the composition from one source at their top level.&#xA;&#xA;See https://slackhq.github.io/compose-lints/rules/#do-not-emit-multiple-pieces-of-content for more information."
+        errorLine1="@Composable"
+        errorLine2="^">
+        <location
+>>>>>>> a2d1a9b76 (fix: audio converting time - rc 4.7 [WPB-9705]  (#3132))
             file="src/main/kotlin/com/wire/android/ui/authentication/devices/DeviceItem.kt"
             line="158"
             column="1"/>
@@ -6537,6 +6706,20 @@
 
     <issue
         id="ComposeParameterOrder"
+<<<<<<< HEAD
+=======
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [state: DeviceDetailsState, onDeleteDevice: () -> Unit = {}, onNavigateBack: () -> Unit = {}, onNavigateToE2eiCertificateDetailsScreen: (String) -> Unit = {}, onPasswordChange: (TextFieldValue) -> Unit = {}, onRemoveConfirm: () -> Unit = {}, onDialogDismiss: () -> Unit = {}, onErrorDialogDismiss: () -> Unit = {}, enrollE2eiCertificate: () -> Unit = {}, handleE2EIEnrollmentResult: (Either&lt;CoreFailure, E2EIEnrollmentResult>) -> Unit, onUpdateClientVerification: (Boolean) -> Unit = {}, onEnrollE2EIErrorDismiss: () -> Unit = {}, onEnrollE2EISuccessDismiss: () -> Unit = {}] but should be [state: DeviceDetailsState, handleE2EIEnrollmentResult: (Either&lt;CoreFailure, E2EIEnrollmentResult>) -> Unit, onDeleteDevice: () -> Unit = {}, onNavigateBack: () -> Unit = {}, onNavigateToE2eiCertificateDetailsScreen: (String) -> Unit = {}, onPasswordChange: (TextFieldValue) -> Unit = {}, onRemoveConfirm: () -> Unit = {}, onDialogDismiss: () -> Unit = {}, onErrorDialogDismiss: () -> Unit = {}, enrollE2eiCertificate: () -> Unit = {}, onUpdateClientVerification: (Boolean) -> Unit = {}, onEnrollE2EIErrorDismiss: () -> Unit = {}, onEnrollE2EISuccessDismiss: () -> Unit = {}].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun DeviceDetailsContent("
+        errorLine2="                        ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/settings/devices/DeviceDetailsScreen.kt"
+            line="134"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+>>>>>>> a2d1a9b76 (fix: audio converting time - rc 4.7 [WPB-9705]  (#3132))
         message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [device: Device, placeholder: Boolean, shouldShowVerifyLabel: Boolean, isCurrentClient: Boolean = false, shouldShowE2EIInfo: Boolean = false, background: Color? = null, icon: @Composable (() -> Unit), isWholeItemClickable: Boolean = false, onClickAction: ((Device) -> Unit)? = null] but should be [device: Device, placeholder: Boolean, shouldShowVerifyLabel: Boolean, icon: @Composable (() -> Unit), isCurrentClient: Boolean = false, shouldShowE2EIInfo: Boolean = false, background: Color? = null, isWholeItemClickable: Boolean = false, onClickAction: ((Device) -> Unit)? = null].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
         errorLine1="fun DeviceItem("
         errorLine2="              ^">
@@ -6999,17 +7182,6 @@
 
     <issue
         id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [onClick: () -> Unit, modifier: Modifier, topContent: @Composable () -> Unit, @DrawableRes iconResId: Int, @StringRes contentDescription: Int, buttonColor: Color, @StringRes bottomText: Int, buttonState: WireButtonState = WireButtonState.Default, applyAudioFilterState: Boolean, applyAudioFilterClick: (Boolean) -> Unit, isAudioFilterEnabled: Boolean = true] but should be [onClick: () -> Unit, modifier: Modifier, topContent: @Composable () -> Unit, @DrawableRes iconResId: Int, @StringRes contentDescription: Int, buttonColor: Color, @StringRes bottomText: Int, applyAudioFilterState: Boolean, applyAudioFilterClick: (Boolean) -> Unit, buttonState: WireButtonState = WireButtonState.Default, isAudioFilterEnabled: Boolean = true].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="private fun RecordAudioButton("
-        errorLine2="                             ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/RecordAudioButtons.kt"
-            line="189"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
         message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current, onAudioRecorded: (UriAsset) -> Unit, onCloseRecordAudio: () -> Unit] but should be [onAudioRecorded: (UriAsset) -> Unit, lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current, onCloseRecordAudio: () -> Unit].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
         errorLine1="fun RecordAudioComponent("
         errorLine2="                        ^">
@@ -7158,7 +7330,7 @@
         errorLine2="                            ^">
         <location
             file="src/main/kotlin/com/wire/android/ui/settings/devices/SelfDevicesScreen.kt"
-            line="67"
+            line="75"
             column="29"/>
     </issue>
 

@@ -78,7 +78,7 @@ fun WhatsNewScreenContent(
                 add(WhatsNewItem.WelcomeToNewAndroidApp)
             },
             onItemClicked = onItemClicked,
-            placeholder = false,
+            isLoading = false,
         )
 
         folderWithElements(
@@ -112,7 +112,7 @@ fun WhatsNewScreenContent(
                 add(WhatsNewItem.AllAndroidReleaseNotes)
             },
             onItemClicked = onItemClicked,
-            placeholder = state.isLoading,
+            isLoading = state.isLoading,
         )
     }
 }
@@ -121,7 +121,7 @@ private fun LazyListScope.folderWithElements(
     header: String? = null,
     items: List<WhatsNewItem>,
     onItemClicked: (WhatsNewItem) -> Unit,
-    placeholder: Boolean,
+    isLoading: Boolean,
 ) {
     folderWithElements(
         header = header?.uppercase(),
@@ -131,9 +131,9 @@ private fun LazyListScope.folderWithElements(
             title = item.title.asString(),
             boldTitle = item.boldTitle,
             text = item.text?.asString(),
-            onRowPressed = remember { Clickable(enabled = !placeholder) { onItemClicked(item) } },
+            onRowPressed = remember { Clickable(enabled = !isLoading) { onItemClicked(item) } },
             trailingIcon = R.drawable.ic_arrow_right,
-            placeholder = placeholder,
+            isLoading = isLoading,
         )
     }
 }

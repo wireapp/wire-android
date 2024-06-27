@@ -52,7 +52,7 @@ fun WhatsNewItem(
     text: String? = null,
     @DrawableRes trailingIcon: Int? = null,
     onRowPressed: Clickable = Clickable(false),
-    placeholder: Boolean = false,
+    isLoading: Boolean = false,
 ) {
     RowItemTemplate(
         title = {
@@ -63,7 +63,7 @@ fun WhatsNewItem(
                     text = title,
                     modifier = Modifier
                         .padding(start = dimensions().spacing8x)
-                        .shimmerPlaceholder(visible = placeholder)
+                        .shimmerPlaceholder(visible = isLoading)
                 )
             }
         },
@@ -75,7 +75,7 @@ fun WhatsNewItem(
                     text = text,
                     modifier = Modifier
                         .padding(start = dimensions().spacing8x, top = dimensions().spacing8x)
-                        .shimmerPlaceholder(visible = placeholder)
+                        .shimmerPlaceholder(visible = isLoading)
                 )
             }
         },
@@ -88,7 +88,7 @@ fun WhatsNewItem(
                     modifier = Modifier
                         .defaultMinSize(dimensions().wireIconButtonSize)
                         .padding(end = dimensions().spacing8x)
-                        .shimmerPlaceholder(visible = placeholder)
+                        .shimmerPlaceholder(visible = isLoading)
                 )
             } ?: Icons.Filled.ChevronRight
         },
@@ -136,7 +136,7 @@ sealed class WhatsNewItem(
 
 @PreviewMultipleThemes
 @Composable
-fun previewFileRestrictionDialog() {
+fun PreviewFileRestrictionDialog() {
     WireTheme {
         WhatsNewItem(
             title = "What's new item",
@@ -148,13 +148,13 @@ fun previewFileRestrictionDialog() {
 
 @PreviewMultipleThemes
 @Composable
-fun previewFileRestrictionDialogPlaceholder() {
+fun PreviewFileRestrictionDialogLoading() {
     WireTheme {
         WhatsNewItem(
             title = "What's new item",
             text = "This is the text of the item",
             trailingIcon = R.drawable.ic_arrow_right,
-            placeholder = true,
+            isLoading = true,
         )
     }
 }

@@ -22,12 +22,17 @@ package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
+import com.wire.android.framework.TestConversationDetails
+import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.configuration.GuestRoomLinkStatus
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
@@ -37,21 +42,26 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoom
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
+import com.wire.kalium.logic.functional.Either
+import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-// TODO test not working, fix it
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
 class EditGuestAccessViewModelTest {
+
+    val dispatcher = TestDispatcherProvider()
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
@@ -64,9 +74,6 @@ class EditGuestAccessViewModelTest {
 
     @MockK
     lateinit var observeConversationMembers: ObserveParticipantsForConversationUseCase
-
-    @MockK
-    lateinit var updateConversationAccessRole: UpdateConversationAccessRoleUseCase
 
     @MockK
     lateinit var generateGuestRoomLink: GenerateGuestRoomLinkUseCase
@@ -85,21 +92,12 @@ class EditGuestAccessViewModelTest {
 
     private lateinit var editGuestAccessViewModel: EditGuestAccessViewModel
 
-    @Before
+    private val conversationDetailsChannel = Channel<ObserveConversationDetailsUseCase.Result>(capacity = Channel.UNLIMITED)
+
+    @BeforeEach
     fun setUp() {
-        editGuestAccessViewModel = EditGuestAccessViewModel(
-            dispatcher = TestDispatcherProvider(),
-            observeConversationDetails = observeConversationDetails,
-            observeConversationMembers = observeConversationMembers,
-            updateConversationAccessRole = updateConversationAccessRole,
-            generateGuestRoomLink = generateGuestRoomLink,
-            revokeGuestRoomLink = revokeGuestRoomLink,
-            observeGuestRoomLink = observeGuestRoomLink,
-            savedStateHandle = savedStateHandle,
-            observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag,
-            canCreatePasswordProtectedLinks = canCreatePasswordProtectedLinks
-        )
-        every { savedStateHandle.navArgs<EditGuestAccessNavArgs>() } returns EditGuestAccessNavArgs(
+        MockKAnnotations.init(this, relaxUnitFun = true)
+        coEvery { savedStateHandle.navArgs<EditGuestAccessNavArgs>() } returns EditGuestAccessNavArgs(
             conversationId = TestConversation.ID,
             editGuessAccessParams = EditGuestAccessParams(
                 isGuestAccessAllowed = true,
@@ -107,11 +105,37 @@ class EditGuestAccessViewModelTest {
                 isUpdatingGuestAccessAllowed = true
             )
         )
+        coEvery {
+            observeConversationDetails(any())
+        } returns conversationDetailsChannel.consumeAsFlow()
+        coEvery {
+            observeConversationMembers(any())
+        } returns flowOf(ConversationParticipantsData())
+        coEvery {
+            observeGuestRoomLink(any())
+        } returns flowOf(Either.Right(null))
+        coEvery {
+            observeGuestRoomLinkFeatureFlag()
+        } returns flowOf(GuestRoomLinkStatus(null, null))
+
+        editGuestAccessViewModel = EditGuestAccessViewModel(
+            observeConversationDetails = observeConversationDetails,
+            observeConversationMembers = observeConversationMembers,
+            updateConversationAccessRole = updateConversationAccessRoleUseCase,
+            generateGuestRoomLink = generateGuestRoomLink,
+            revokeGuestRoomLink = revokeGuestRoomLink,
+            observeGuestRoomLink = observeGuestRoomLink,
+            savedStateHandle = savedStateHandle,
+            observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag,
+            canCreatePasswordProtectedLinks = canCreatePasswordProtectedLinks,
+            dispatcher = dispatcher,
+        )
+        conversationDetailsChannel.trySend(ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP))
     }
 
     @Test
     fun `given updateConversationAccessRole use case runs successfully, when trying to enable guest access, then enable guest access`() =
-        runTest {
+        runTest(dispatcher.default()) {
             editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = false)
             coEvery {
                 updateConversationAccessRoleUseCase(any(), any(), any())
@@ -163,7 +187,7 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given useCase runs with success, when_generating guest link, then invoke it once`() = runTest {
+    fun `given useCase runs with success, when_generating guest link, then invoke it once`() = runTest(dispatcher.default()) {
         coEvery {
             generateGuestRoomLink.invoke(any(), any())
         } returns GenerateGuestRoomLinkResult.Success
@@ -176,7 +200,7 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given useCase runs with failure, when generating guest link, then show dialog error`() = runTest {
+    fun `given useCase runs with failure, when generating guest link, then show dialog error`() = runTest(dispatcher.default()) {
         coEvery {
             generateGuestRoomLink(any(), any())
         } returns GenerateGuestRoomLinkResult.Failure(NetworkFailure.NoNetworkConnection(null))
@@ -190,7 +214,7 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given useCase runs with success, when revoking guest link, then invoke it once`() = runTest {
+    fun `given useCase runs with success, when revoking guest link, then invoke it once`() = runTest(dispatcher.default()) {
         coEvery {
             revokeGuestRoomLink(any())
         } returns RevokeGuestRoomLinkResult.Success
@@ -204,7 +228,7 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given useCase runs with failure when revoking guest link then show dialog error`() = runTest {
+    fun `given useCase runs with failure when revoking guest link then show dialog error`() = runTest(dispatcher.default()) {
         coEvery {
             revokeGuestRoomLink(any())
         } returns RevokeGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration)
@@ -220,11 +244,19 @@ class EditGuestAccessViewModelTest {
 
     @Test
     fun `given updateConversationAccessRole use case runs successfully, when trying to disable guest access, then disable guest access`() =
-        runTest {
+        runTest(dispatcher.default()) {
             editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
             coEvery {
                 updateConversationAccessRoleUseCase(any(), any(), any())
-            } returns UpdateConversationAccessRoleUseCase.Result.Success
+            } coAnswers {
+                val accessRoles = secondArg<Set<Conversation.AccessRole>>()
+                val newConversationDetails = TestConversationDetails.GROUP.copy(
+                    conversation = TestConversationDetails.GROUP.conversation.copy(accessRole = accessRoles.toList())
+                )
+                // mock emitting updated conversation details with new access roles
+                conversationDetailsChannel.send(ObserveConversationDetailsUseCase.Result.Success(newConversationDetails))
+                UpdateConversationAccessRoleUseCase.Result.Success
+            }
 
             editGuestAccessViewModel.onGuestDialogConfirm()
 

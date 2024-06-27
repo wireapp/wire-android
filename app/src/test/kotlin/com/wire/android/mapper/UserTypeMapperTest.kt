@@ -21,7 +21,7 @@ package com.wire.android.mapper
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.user.type.UserType
 import org.amshove.kluent.internal.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class UserTypeMapperTest {
 
@@ -46,9 +46,9 @@ class UserTypeMapperTest {
     }
 
     @Test
-    fun `given internal as a user type correctly map to none as membership`() {
+    fun `given internal as a user type correctly map to standard as membership`() {
         val result = userTypeMapper.toMembership(UserType.INTERNAL)
-        assertEquals(Membership.None, result)
+        assertEquals(Membership.Standard, result)
     }
 
 }

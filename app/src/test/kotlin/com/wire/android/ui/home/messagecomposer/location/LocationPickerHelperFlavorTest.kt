@@ -30,7 +30,6 @@ import com.google.android.gms.tasks.Task
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import io.mockk.MockKAnnotations
-import io.mockk.MockKMatcherScope
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -109,13 +108,6 @@ class LocationPickerHelperFlavorTest {
             coVerify(exactly = 0) {
                 arrangement.onError()
             }
-        }
-
-    private fun MockKMatcherScope.match(expected: GeoLocatedAddress): GeoLocatedAddress =
-        match {
-            it.location.latitude == expected.location.latitude &&
-                    it.location.longitude == expected.location.longitude &&
-                    it.address?.getAddressLine(0) == expected.address?.getAddressLine(0)
         }
 
     inner class Arrangement {

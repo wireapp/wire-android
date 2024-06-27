@@ -117,6 +117,9 @@ class EditGuestAccessViewModelTest {
         coEvery {
             observeGuestRoomLinkFeatureFlag()
         } returns flowOf(GuestRoomLinkStatus(null, null))
+        coEvery {
+            canCreatePasswordProtectedLinks()
+        } returns true
 
         editGuestAccessViewModel = EditGuestAccessViewModel(
             observeConversationDetails = observeConversationDetails,

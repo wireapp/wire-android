@@ -132,6 +132,11 @@ fun RecordAudioComponent(
                 onPlayAudio = viewModel::onPlayAudio,
                 onSliderPositionChange = viewModel::onSliderPositionChange
             )
+
+            RecordAudioButtonState.ENCODING -> RecordAudioButtonEncoding(
+                applyAudioFilterState = viewModel.state.shouldApplyEffects,
+                modifier = buttonModifier
+            )
         }
     }
 

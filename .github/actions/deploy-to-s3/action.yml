@@ -25,8 +25,8 @@ runs:
     - name: Set APK full path
       id: path
       shell: bash
-      run:
-        APK_FULL_PATH_REF="$(set -- app/build/outputs/apk/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/com.wire.*.apk; echo "$1")"
+      run: |
+        APK_FULL_PATH_REF="$(set -- app/build/outputs/apk/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/com.wire.*.apk; echo $1)"
         echo "apk_full_path=$APK_FULL_PATH_REF" >> $GITHUB_OUTPUT
         unset APK_FULL_PATH_REF
     - name: Upload to S3 from PR

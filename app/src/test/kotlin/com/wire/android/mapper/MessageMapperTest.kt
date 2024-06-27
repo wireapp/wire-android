@@ -37,21 +37,23 @@ import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.time.Duration.Companion.days
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -82,10 +84,8 @@ class MessageMapperTest {
         val serverDateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
 
-        val now = serverDateFormatter.format(Date())
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DATE, -1)
-        val yesterday = serverDateFormatter.format(calendar.time)
+        val now = Instant.parse(serverDateFormatter.format(Date()))
+        val yesterday = now - 1.days
 
         val (arrangement, mapper) = Arrangement().arrange()
 
@@ -114,14 +114,14 @@ class MessageMapperTest {
             true,
             checkMessageData(
                 uiMessage = uiMessage1,
-                time = message1.date.uiMessageDateTime()
+                time = message1.date
             )
         )
         assertEquals(
             true,
             checkMessageData(
                 uiMessage = uiMessage2,
-                time = message2.date.uiMessageDateTime(),
+                time = message2.date,
                 source = MessageSource.OtherUser,
                 membership = Membership.Guest,
                 status = MessageStatus(
@@ -134,10 +134,10 @@ class MessageMapperTest {
             true,
             checkMessageData(
                 uiMessage = uiMessage3,
-                time = message3.date.uiMessageDateTime(),
+                time = message3.date,
                 status = MessageStatus(
                     flowStatus = MessageFlowStatus.Sent,
-                    editStatus = MessageEditStatus.Edited(now.uiMessageDateTime() ?: ""),
+                    editStatus = MessageEditStatus.Edited(now.toIsoDateTimeString().uiMessageDateTime()!!),
                     expirationStatus = ExpirationStatus.NotExpirable
                 )
             )
@@ -146,7 +146,7 @@ class MessageMapperTest {
             true,
             checkMessageData(
                 uiMessage = uiMessage4,
-                time = message4.date.uiMessageDateTime(),
+                time = message4.date,
                 status = MessageStatus(
                     flowStatus = MessageFlowStatus.Sent,
                     isDeleted = true,
@@ -159,7 +159,7 @@ class MessageMapperTest {
             true,
             checkMessageData(
                 uiMessage = uiMessage5,
-                time = message5.date.uiMessageDateTime(),
+                time = message5.date,
                 status = MessageStatus(
                     flowStatus = MessageFlowStatus.Failure.Decryption(false),
                     isDeleted = false,
@@ -172,7 +172,7 @@ class MessageMapperTest {
             true,
             checkMessageData(
                 uiMessage = uiMessage6,
-                time = message6.date.uiMessageDateTime(),
+                time = message6.date,
                 status = MessageStatus(
                     flowStatus = MessageFlowStatus.Failure.Decryption(true),
                     isDeleted = false,
@@ -208,7 +208,7 @@ class MessageMapperTest {
 
     private fun checkMessageData(
         uiMessage: UIMessage?,
-        time: String?,
+        time: Instant?,
         source: MessageSource = MessageSource.Self,
         membership: Membership = Membership.None,
         status: MessageStatus = MessageStatus(
@@ -217,7 +217,7 @@ class MessageMapperTest {
         )
     ): Boolean {
         return (uiMessage?.source == source && uiMessage.header.membership == membership
-                && uiMessage.header.messageTime.formattedDate == time
+                && uiMessage.header.messageTime.formattedDate == time?.toIsoDateTimeString()?.uiMessageDateTime()
                 && uiMessage.header.messageStatus.flowStatus == status.flowStatus
                 && uiMessage.header.messageStatus.isDeleted == status.isDeleted
                 && uiMessage.header.messageStatus.editStatus == status.editStatus
@@ -248,7 +248,9 @@ class MessageMapperTest {
             coEvery { messageContentMapper.fromMessage(any(), any()) } returns TextMessage(
                 MessageBody(UIText.DynamicString("some message text"))
             )
-            every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers { firstArg<String>().uiMessageDateTime() ?: "" }
+            every { isoFormatter.fromInstantToTimeFormatter(any()) } answers {
+                firstArg<Instant>().toIsoDateTimeString().uiMessageDateTime() ?: ""
+            }
         }
 
         fun arrange() = this to messageMapper
@@ -258,7 +260,7 @@ class MessageMapperTest {
             status: Message.Status = Message.Status.Sent,
             visibility: Message.Visibility = Message.Visibility.VISIBLE,
             editStatus: Message.EditStatus = Message.EditStatus.NotEdited,
-            date: String = "2016-09-18T17:34:02.666Z"
+            date: Instant = Instant.parse("2016-09-18T17:34:02.666Z")
         ): Message.Regular = TestMessage.TEXT_MESSAGE.copy(
             senderUserId = senderUserId,
             status = status,

@@ -43,6 +43,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.datetime.Instant
 
 internal class NewConversationViewModelArrangement {
     init {
@@ -86,7 +87,7 @@ internal class NewConversationViewModelArrangement {
             removedBy = null,
             lastNotificationDate = null,
             lastModifiedDate = null,
-            lastReadDate = "2022-04-04T16:11:28.388Z",
+            lastReadDate = Instant.parse("2022-04-04T16:11:28.388Z"),
             access = listOf(Conversation.Access.INVITE),
             accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
             creatorId = null,

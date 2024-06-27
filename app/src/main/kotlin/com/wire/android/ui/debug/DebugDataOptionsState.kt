@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.debug
 
+import androidx.compose.runtime.Stable
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
@@ -33,4 +34,10 @@ data class DebugDataOptionsState(
     val showCertificate: Boolean = false,
     val startGettingE2EICertificate: Boolean = false,
     val dependencies: ImmutableMap<String, String?> = persistentMapOf()
-)
+) {
+    @Stable
+    fun getDependenciesAsStringFormat(): String =
+        dependencies.entries.joinToString(separator = "\n") { (key, value) ->
+            "$key: $value"
+        }
+}

@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.debug
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,8 +25,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,15 +49,13 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.functional.Either
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentMapOf
 
 @Composable
 fun DebugDataOptions(
-    viewModel: DebugDataOptionsViewModel = hiltViewModel(),
     appVersion: String,
     buildVariant: String,
     onCopyText: (String) -> Unit,
+    viewModel: DebugDataOptionsViewModel = hiltViewModel(),
     onManualMigrationPressed: (currentAccount: UserId) -> Unit
 ) {
     DebugDataOptionsContent(
@@ -75,10 +72,10 @@ fun DebugDataOptions(
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         dismissCertificateDialog = viewModel::dismissCertificateDialog,
         checkCrlRevocationList = viewModel::checkCrlRevocationList,
-        dependenciesMap = viewModel.state.dependencies
     )
 }
 
+@SuppressLint("ComposeModifierMissing")
 @Suppress("LongParameterList")
 @Composable
 fun DebugDataOptionsContent(
@@ -94,8 +91,7 @@ fun DebugDataOptionsContent(
     enrollE2EICertificate: () -> Unit,
     handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
     dismissCertificateDialog: () -> Unit,
-    checkCrlRevocationList: () -> Unit,
-    dependenciesMap: ImmutableMap<String, String?>
+    checkCrlRevocationList: () -> Unit
 ) {
     Column {
 
@@ -130,8 +126,9 @@ fun DebugDataOptionsContent(
                 onClick = { onCopyText(state.commitish) }
             )
         )
-        DependenciesItem(dependenciesMap)
+
         if (BuildConfig.PRIVATE_BUILD) {
+            DependenciesItem(state.getDependenciesAsStringFormat())
 
             SettingsItem(
                 title = stringResource(R.string.debug_id),
@@ -430,19 +427,23 @@ private fun DebugToolsOptions(
  * Compose function that will display the list of dependencies
  * @param dependencies an Immutable map of a dependency name to its version number
  */
+@SuppressLint("ComposeModifierMissing")
 @Composable
-fun DependenciesItem(dependencies: ImmutableMap<String, String?>) {
+fun DependenciesItem(dependenciesAsString: String) {
     val title = stringResource(id = R.string.item_dependencies_title)
-    val text = remember {
-        prettyPrintMap(dependencies, title)
-    }
     RowItemTemplate(
         modifier = Modifier.wrapContentWidth(),
         title = {
             Text(
+                style = MaterialTheme.wireTypography.label01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
+                text = title,
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+            Text(
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.onBackground,
-                text = text,
+                text = dependenciesAsString,
                 modifier = Modifier.padding(start = dimensions().spacing8x)
             )
         }
@@ -478,14 +479,6 @@ private fun DisableEventProcessingSwitch(
     )
 }
 
-@Stable
-private fun prettyPrintMap(map: ImmutableMap<String, String?>, title: String): String = StringBuilder().apply {
-    append("$title\n")
-    map.forEach { (key, value) ->
-        append("$key: $value\n")
-    }
-}.toString()
-
 //endregion
 
 @PreviewMultipleThemes
@@ -512,7 +505,6 @@ fun PreviewOtherDebugOptions() {
         enrollE2EICertificate = {},
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
-        checkCrlRevocationList = {},
-        dependenciesMap = persistentMapOf()
+        checkCrlRevocationList = {}
     )
 }

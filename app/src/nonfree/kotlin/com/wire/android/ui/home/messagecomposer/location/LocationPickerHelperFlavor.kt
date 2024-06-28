@@ -24,10 +24,7 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.wire.android.AppJsonStyledLogger
 import com.wire.android.util.extension.isGoogleServicesAvailable
-<<<<<<< HEAD
 import com.wire.kalium.logger.KaliumLogLevel
-=======
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -58,16 +55,12 @@ class LocationPickerHelperFlavor @Inject constructor(
      */
     @SuppressLint("MissingPermission")
     private suspend fun getLocationWithGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
-<<<<<<< HEAD
-        if (isLocationServicesEnabled()) {
+        if (locationPickerHelper.isLocationServicesEnabled()) {
             AppJsonStyledLogger.log(
                 level = KaliumLogLevel.INFO,
                 leadingMessage = "GetLocation",
                 jsonStringKeyValues = mapOf("isUsingGms" to true)
             )
-=======
-        if (locationPickerHelper.isLocationServicesEnabled()) {
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
             val locationProvider = LocationServices.getFusedLocationProviderClient(context)
             val currentLocation =
                 locationProvider.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).await()

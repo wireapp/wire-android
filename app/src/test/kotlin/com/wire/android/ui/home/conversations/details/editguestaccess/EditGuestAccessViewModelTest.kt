@@ -24,19 +24,12 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
-<<<<<<< HEAD
-=======
-import com.wire.android.framework.TestConversation
-import com.wire.android.framework.TestConversationDetails
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.configuration.GuestRoomLinkStatus
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -47,133 +40,34 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoom
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
-<<<<<<< HEAD
-=======
-import com.wire.kalium.logic.functional.Either
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-<<<<<<< HEAD
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
-=======
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
-import org.junit.jupiter.api.BeforeEach
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-<<<<<<< HEAD
-@ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
-class EditGuestAccessViewModelTest {
-
-    @Test
-    fun `given updateConversationAccessRole use case runs successfully, when trying to enable guest access, then enable guest access`() =
-        runTest {
-            // given
-            val (arrangement, editGuestAccessViewModel) = Arrangement()
-                .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success)
-                .arrange()
-            advanceUntilIdle()
-=======
 @ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
 class EditGuestAccessViewModelTest {
 
     val dispatcher = TestDispatcherProvider()
 
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
-    lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
-
-    @MockK
-    lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
-
-    @MockK
-    lateinit var observeConversationMembers: ObserveParticipantsForConversationUseCase
-
-    @MockK
-    lateinit var generateGuestRoomLink: GenerateGuestRoomLinkUseCase
-
-    @MockK
-    lateinit var observeGuestRoomLink: ObserveGuestRoomLinkUseCase
-
-    @MockK
-    lateinit var revokeGuestRoomLink: RevokeGuestRoomLinkUseCase
-
-    @MockK
-    lateinit var observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase
-
-    @MockK
-    lateinit var canCreatePasswordProtectedLinks: CanCreatePasswordProtectedLinksUseCase
-
-    private lateinit var editGuestAccessViewModel: EditGuestAccessViewModel
-
-    private val conversationDetailsChannel = Channel<ObserveConversationDetailsUseCase.Result>(capacity = Channel.UNLIMITED)
-
-    @BeforeEach
-    fun setUp() {
-        MockKAnnotations.init(this, relaxUnitFun = true)
-        coEvery { savedStateHandle.navArgs<EditGuestAccessNavArgs>() } returns EditGuestAccessNavArgs(
-            conversationId = TestConversation.ID,
-            editGuessAccessParams = EditGuestAccessParams(
-                isGuestAccessAllowed = true,
-                isServicesAllowed = true,
-                isUpdatingGuestAccessAllowed = true
-            )
-        )
-        coEvery {
-            observeConversationDetails(any())
-        } returns conversationDetailsChannel.consumeAsFlow()
-        coEvery {
-            observeConversationMembers(any())
-        } returns flowOf(ConversationParticipantsData())
-        coEvery {
-            observeGuestRoomLink(any())
-        } returns flowOf(Either.Right(null))
-        coEvery {
-            observeGuestRoomLinkFeatureFlag()
-        } returns flowOf(GuestRoomLinkStatus(null, null))
-        coEvery {
-            canCreatePasswordProtectedLinks()
-        } returns true
-
-        editGuestAccessViewModel = EditGuestAccessViewModel(
-            observeConversationDetails = observeConversationDetails,
-            observeConversationMembers = observeConversationMembers,
-            updateConversationAccessRole = updateConversationAccessRoleUseCase,
-            generateGuestRoomLink = generateGuestRoomLink,
-            revokeGuestRoomLink = revokeGuestRoomLink,
-            observeGuestRoomLink = observeGuestRoomLink,
-            savedStateHandle = savedStateHandle,
-            observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag,
-            canCreatePasswordProtectedLinks = canCreatePasswordProtectedLinks,
-            dispatcher = dispatcher,
-        )
-        conversationDetailsChannel.trySend(ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP))
-    }
-
     @Test
     fun `given updateConversationAccessRole use case runs successfully, when trying to enable guest access, then enable guest access`() =
         runTest(dispatcher.default()) {
-            editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = false)
-            coEvery {
-                updateConversationAccessRoleUseCase(any(), any(), any())
-            } returns UpdateConversationAccessRoleUseCase.Result.Success
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
+            // given
+            val (arrangement, editGuestAccessViewModel) = Arrangement()
+                .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success)
+                .arrange()
+            advanceUntilIdle()
 
             // when
             editGuestAccessViewModel.updateGuestAccess(true)
@@ -185,7 +79,7 @@ class EditGuestAccessViewModelTest {
 
     @Test
     fun `given a failure when running updateConversationAccessRole, when trying to enable guest access, then do not enable guest access`() =
-        runTest {
+        runTest(dispatcher.default()) {
             // given
             val (arrangement, editGuestAccessViewModel) = Arrangement()
                 .withUpdateConversationAccessRoleResult(
@@ -203,7 +97,7 @@ class EditGuestAccessViewModelTest {
 
     @Test
     fun `given guest access is activated, when trying to disable guest access, then display dialog before disabling guest access`() =
-        runTest {
+        runTest(dispatcher.default()) {
             // given
             val (arrangement, editGuestAccessViewModel) = Arrangement()
                 .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success)
@@ -214,24 +108,17 @@ class EditGuestAccessViewModelTest {
             editGuestAccessViewModel.updateGuestAccess(false)
 
             // then
-            coVerify(inverse = true) { arrangement.updateConversationAccessRoleUseCase(any(), any(), any()) }
+            coVerify(inverse = true) { arrangement.updateConversationAccessRole(any(), any(), any()) }
             assertEquals(true, editGuestAccessViewModel.editGuestAccessState.shouldShowGuestAccessChangeConfirmationDialog)
         }
 
     @Test
-<<<<<<< HEAD
-    fun `given useCase runs with success, when_generating guest link, then invoke it once`() = runTest {
+    fun `given useCase runs with success, when_generating guest link, then invoke it once`() = runTest(dispatcher.default()) {
         // given
         val (arrangement, editGuestAccessViewModel) = Arrangement()
             .withGenerateGuestRoomResult(GenerateGuestRoomLinkResult.Success)
             .arrange()
         advanceUntilIdle()
-=======
-    fun `given useCase runs with success, when_generating guest link, then invoke it once`() = runTest(dispatcher.default()) {
-        coEvery {
-            generateGuestRoomLink.invoke(any(), any())
-        } returns GenerateGuestRoomLinkResult.Success
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
 
         // when
         editGuestAccessViewModel.onRequestGuestRoomLink()
@@ -242,20 +129,13 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-<<<<<<< HEAD
-    fun `given useCase runs with failure, when generating guest link, then show dialog error`() = runTest {
+    fun `given useCase runs with failure, when generating guest link, then show dialog error`() = runTest(dispatcher.default()) {
         // given
         val (arrangement, editGuestAccessViewModel) = Arrangement()
             .withGenerateGuestRoomResult(
                 GenerateGuestRoomLinkResult.Failure(NetworkFailure.NoNetworkConnection(RuntimeException("no network")))
             ).arrange()
         advanceUntilIdle()
-=======
-    fun `given useCase runs with failure, when generating guest link, then show dialog error`() = runTest(dispatcher.default()) {
-        coEvery {
-            generateGuestRoomLink(any(), any())
-        } returns GenerateGuestRoomLinkResult.Failure(NetworkFailure.NoNetworkConnection(null))
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
 
         // when
         editGuestAccessViewModel.onRequestGuestRoomLink()
@@ -266,19 +146,12 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-<<<<<<< HEAD
-    fun `given useCase runs with success, when revoking guest link, then invoke it once`() = runTest {
+    fun `given useCase runs with success, when revoking guest link, then invoke it once`() = runTest(dispatcher.default()) {
         // given
         val (arrangement, editGuestAccessViewModel) = Arrangement()
             .withRevokeGuestRoomLinkResult(RevokeGuestRoomLinkResult.Success)
             .arrange()
         advanceUntilIdle()
-=======
-    fun `given useCase runs with success, when revoking guest link, then invoke it once`() = runTest(dispatcher.default()) {
-        coEvery {
-            revokeGuestRoomLink(any())
-        } returns RevokeGuestRoomLinkResult.Success
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
 
         // when
         editGuestAccessViewModel.removeGuestLink()
@@ -289,19 +162,12 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-<<<<<<< HEAD
-    fun `given useCase runs with failure when revoking guest link then show dialog error`() = runTest {
+    fun `given useCase runs with failure when revoking guest link then show dialog error`() = runTest(dispatcher.default()) {
         // given
         val (arrangement, editGuestAccessViewModel) = Arrangement()
             .withRevokeGuestRoomLinkResult(RevokeGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration))
             .arrange()
         advanceUntilIdle()
-=======
-    fun `given useCase runs with failure when revoking guest link then show dialog error`() = runTest(dispatcher.default()) {
-        coEvery {
-            revokeGuestRoomLink(any())
-        } returns RevokeGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration)
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
 
         // when
         editGuestAccessViewModel.removeGuestLink()
@@ -314,28 +180,12 @@ class EditGuestAccessViewModelTest {
 
     @Test
     fun `given updateConversationAccessRole use case runs successfully, when trying to disable guest access, then disable guest access`() =
-<<<<<<< HEAD
-        runTest {
+        runTest(dispatcher.default()) {
             // given
             val (arrangement, editGuestAccessViewModel) = Arrangement()
                 .withUpdateConversationAccessRoleResult(UpdateConversationAccessRoleUseCase.Result.Success)
                 .arrange()
             advanceUntilIdle()
-=======
-        runTest(dispatcher.default()) {
-            editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
-            coEvery {
-                updateConversationAccessRoleUseCase(any(), any(), any())
-            } coAnswers {
-                val accessRoles = secondArg<Set<Conversation.AccessRole>>()
-                val newConversationDetails = TestConversationDetails.GROUP.copy(
-                    conversation = TestConversationDetails.GROUP.conversation.copy(accessRole = accessRoles.toList())
-                )
-                // mock emitting updated conversation details with new access roles
-                conversationDetailsChannel.send(ObserveConversationDetailsUseCase.Result.Success(newConversationDetails))
-                UpdateConversationAccessRoleUseCase.Result.Success
-            }
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
 
             // when
             editGuestAccessViewModel.onGuestDialogConfirm()
@@ -347,7 +197,7 @@ class EditGuestAccessViewModelTest {
 
     @Test
     fun `given a failure running updateConversationAccessRole, when trying to disable guest access, then do not disable guest access`() =
-        runTest {
+        runTest(dispatcher.default()) {
             // given
             val (arrangement, editGuestAccessViewModel) = Arrangement()
                 .withUpdateConversationAccessRoleResult(
@@ -367,9 +217,6 @@ class EditGuestAccessViewModelTest {
     private class Arrangement {
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
-        lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
 
         @MockK
         lateinit var observeConversationDetails: ObserveConversationDetailsUseCase

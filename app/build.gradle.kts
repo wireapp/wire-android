@@ -1,5 +1,3 @@
-import scripts.Variants_gradle
-
 /*
  * Wire
  * Copyright (C) 2024 Wire Swiss GmbH
@@ -210,8 +208,6 @@ dependencies {
     testRuntimeOnly(libs.junit5.vintage.engine)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.androidx.paging.testing)
-    testImplementation(libs.robolectric)
-    testRuntimeOnly(libs.junit.vintage.engine)
 
     // Acceptance/Functional tests dependencies
     androidTestImplementation(libs.androidx.test.runner)

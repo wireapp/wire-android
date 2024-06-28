@@ -19,13 +19,6 @@ package com.wire.android.ui.home.messagecomposer.location
 
 import android.app.Application
 import android.content.Context
-<<<<<<< HEAD
-import android.location.LocationManager
-import android.os.Build
-import androidx.test.core.app.ApplicationProvider
-import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertTrue
-=======
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -39,73 +32,11 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-<<<<<<< HEAD
-
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Build.VERSION_CODES.TIRAMISU])
-class LocationPickerHelperTest {
-
-    @Test
-    fun `given user has device location disabled, when sharing location, then error lambda is called`() = runTest {
-        // given
-        val (arrangement, locationHelper) = Arrangement()
-            .withLocationEnabled(false)
-            .arrange()
-
-        // when - then
-        locationHelper.getLocation(
-            onSuccess = {
-                assertTrue(false) // this should not be called, so it will fail the test otherwise.
-            },
-            onError = { assertTrue(true) }
-        )
-    }
-
-    @Test
-    fun `given user has device location enabled, when sharing location, then on success lambda is called`() = runTest {
-        // given
-        val (arrangement, locationHelper) = Arrangement()
-            .withLocationEnabled(true)
-            .arrange()
-
-        // when - then
-        locationHelper.getLocation(
-            onSuccess = {
-                assertTrue(true)
-            },
-            onError = {
-                assertTrue(false) // this should not be called, so it will fail the test otherwise.
-            }
-        )
-    }
-
-    private class Arrangement {
-        val context: Context = ApplicationProvider.getApplicationContext()
-        val locationManager: LocationManager = context.getSystemService(Application.LOCATION_SERVICE) as LocationManager
-
-        init {
-            shadowOf(locationManager).apply {
-                setProviderEnabled(LocationManager.GPS_PROVIDER, true)
-                setProviderEnabled(LocationManager.NETWORK_PROVIDER, true)
-            }
-        }
-
-        fun withLocationEnabled(enabled: Boolean) = apply {
-            locationManager.apply {
-                shadowOf(this).apply {
-                    setLocationEnabled(enabled)
-                }
-            }
-        }
-
-        fun arrange() = this to LocationPickerHelperFlavor(context)
-=======
 import org.robolectric.shadows.ShadowSystemClock
 import java.util.Locale
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -285,6 +216,5 @@ class LocationPickerHelperTest {
                 assertEquals(expectedLocations[index].location.time, geoLocatedAddress.location.time)
             }
         }
->>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
     }
 }

@@ -210,6 +210,8 @@ dependencies {
     testRuntimeOnly(libs.junit5.vintage.engine)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.androidx.paging.testing)
+    testImplementation(libs.robolectric)
+    testRuntimeOnly(libs.junit.vintage.engine)
 
     // Acceptance/Functional tests dependencies
     androidTestImplementation(libs.androidx.test.runner)

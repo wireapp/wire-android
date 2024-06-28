@@ -19,20 +19,25 @@ package com.wire.android.ui.home.messagecomposer.location
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Geocoder
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.wire.android.AppJsonStyledLogger
 import com.wire.android.util.extension.isGoogleServicesAvailable
+<<<<<<< HEAD
 import com.wire.kalium.logger.KaliumLogLevel
+=======
+>>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class LocationPickerHelperFlavor @Inject constructor(context: Context) : LocationPickerHelper(context) {
-
+class LocationPickerHelperFlavor @Inject constructor(
+    private val context: Context,
+    private val geocoderHelper: GeocoderHelper,
+    private val locationPickerHelper: LocationPickerHelper,
+) {
     suspend fun getLocation(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
         if (context.isGoogleServicesAvailable()) {
             getLocationWithGms(
@@ -40,7 +45,7 @@ class LocationPickerHelperFlavor @Inject constructor(context: Context) : Locatio
                 onError = onError
             )
         } else {
-            getLocationWithoutGms(
+            locationPickerHelper.getLocationWithoutGms(
                 onSuccess = onSuccess,
                 onError = onError
             )
@@ -53,17 +58,20 @@ class LocationPickerHelperFlavor @Inject constructor(context: Context) : Locatio
      */
     @SuppressLint("MissingPermission")
     private suspend fun getLocationWithGms(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
+<<<<<<< HEAD
         if (isLocationServicesEnabled()) {
             AppJsonStyledLogger.log(
                 level = KaliumLogLevel.INFO,
                 leadingMessage = "GetLocation",
                 jsonStringKeyValues = mapOf("isUsingGms" to true)
             )
+=======
+        if (locationPickerHelper.isLocationServicesEnabled()) {
+>>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
             val locationProvider = LocationServices.getFusedLocationProviderClient(context)
             val currentLocation =
                 locationProvider.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).await()
-            val address = Geocoder(context).getFromLocation(currentLocation.latitude, currentLocation.longitude, 1).orEmpty()
-            onSuccess(GeoLocatedAddress(address.firstOrNull(), currentLocation))
+            onSuccess(geocoderHelper.getGeoLocatedAddress(currentLocation))
         } else {
             AppJsonStyledLogger.log(
                 level = KaliumLogLevel.WARN,

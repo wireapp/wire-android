@@ -97,10 +97,17 @@ androidx-text-archCore = "2.2.0"
 junit4 = "4.13.2"
 junit5 = "5.10.2"
 kluent = "1.73"
+<<<<<<< HEAD
 mockk = "1.13.10"
 okio = "3.9.0"
 turbine = "1.1.0"
 robolectric = "4.12.1"
+=======
+mockk = "1.13.9"
+okio = "3.6.0"
+turbine = "1.0.0"
+robolectric = "4.12.2"
+>>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))
 
 [plugins]
 # 3rd Party plugins
@@ -269,3 +276,7 @@ mockk-core = { module = "io.mockk:mockk", version.ref = "mockk" }
 okio-fakeFileSystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+<<<<<<< HEAD
+=======
+junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit5" } # needed for tests that use Robolectric because it doesn't yet support JUnit5
+>>>>>>> 395395269 (fix: location sharing without gms when not moving [WPB-9724] (#3136))

@@ -18,16 +18,17 @@
 
 package com.wire.android.util.time
 
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
 import java.text.DateFormat
-import java.time.Instant
 import java.util.Date
 import javax.inject.Inject
 
 class ISOFormatter @Inject constructor() {
 
-    fun fromISO8601ToTimeFormat(utcISO: String): String {
+    fun fromInstantToTimeFormatter(instant: Instant): String {
         val formatter = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT)
-        val date = Date.from(Instant.parse(utcISO))
+        val date = Date.from(instant.toJavaInstant())
 
         return formatter.format(date)
     }

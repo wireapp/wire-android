@@ -58,6 +58,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.wire.android.R
 import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CameraButton
@@ -138,14 +139,8 @@ fun OngoingCallScreen(
             hangUpCall = { sharedCallingViewModel.hangUpCall { activity.finishAndRemoveTask() } },
             toggleVideo = sharedCallingViewModel::toggleVideo,
             flipCamera = sharedCallingViewModel::flipCamera,
-            setVideoPreview = {
-                sharedCallingViewModel.setVideoPreview(it)
-                ongoingCallViewModel.startSendingVideoFeed()
-            },
-            clearVideoPreview = {
-                sharedCallingViewModel.clearVideoPreview()
-                ongoingCallViewModel.stopSendingVideoFeed()
-            },
+            setVideoPreview = sharedCallingViewModel::setVideoPreview,
+            clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
             onCollapse = { activity.moveTaskToBack(true) },
             requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
             hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
@@ -170,25 +165,36 @@ fun OngoingCallScreen(
         hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 
+    HandleSendingVideoFeed(
+        callState = sharedCallingViewModel.callState,
+        pauseSendingVideoFeed = ongoingCallViewModel::pauseSendingVideoFeed,
+        startSendingVideoFeed = ongoingCallViewModel::startSendingVideoFeed,
+        stopSendingVideoFeed = ongoingCallViewModel::stopSendingVideoFeed,
+        clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+        )
+}
+
+@Composable
+private fun HandleSendingVideoFeed(
+    callState: CallState,
+    pauseSendingVideoFeed: () -> Unit,
+    startSendingVideoFeed: () -> Unit,
+    stopSendingVideoFeed: () -> Unit,
+    clearVideoPreview: () -> Unit,
+) {
     // Pause the video feed when the lifecycle is paused and resume it when the lifecycle is resumed.
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
 
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_PAUSE &&
-                sharedCallingViewModel.callState.callStatus == CallStatus.ESTABLISHED &&
-                sharedCallingViewModel.callState.isCameraOn
-            ) {
-                ongoingCallViewModel.pauseSendingVideoFeed()
+            if (event == Lifecycle.Event.ON_PAUSE && callState.callStatus == CallStatus.ESTABLISHED && callState.isCameraOn) {
+                pauseSendingVideoFeed()
             }
-            if (event == Lifecycle.Event.ON_RESUME &&
-                sharedCallingViewModel.callState.callStatus == CallStatus.ESTABLISHED &&
-                sharedCallingViewModel.callState.isCameraOn
-            ) {
-                ongoingCallViewModel.startSendingVideoFeed()
+            if (event == Lifecycle.Event.ON_RESUME && callState.callStatus == CallStatus.ESTABLISHED && callState.isCameraOn) {
+                startSendingVideoFeed()
             }
             if (event == Lifecycle.Event.ON_DESTROY) {
-                sharedCallingViewModel.clearVideoPreview()
+                clearVideoPreview()
             }
         }
 
@@ -196,6 +202,16 @@ fun OngoingCallScreen(
 
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    // Start/stop sending video feed based on the camera state when the call is established.
+    LaunchedEffect(callState.callStatus, callState.isCameraOn) {
+        if (callState.callStatus == CallStatus.ESTABLISHED) {
+            when (callState.isCameraOn) {
+                true -> startSendingVideoFeed()
+                false -> stopSendingVideoFeed()
+            }
         }
     }
 }

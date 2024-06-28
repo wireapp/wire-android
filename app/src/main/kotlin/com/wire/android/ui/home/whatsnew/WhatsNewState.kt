@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.whatsnew
 
 data class WhatsNewState(
+    val isLoading: Boolean = false,
     val releaseNotesItems: List<ReleaseNotesItem> = emptyList()
 )
 

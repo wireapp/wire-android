@@ -45,6 +45,7 @@ import io.mockk.Called
 import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -272,7 +273,7 @@ class OtherUserProfileScreenViewModelTest {
             removedBy = null,
             lastNotificationDate = null,
             lastModifiedDate = null,
-            lastReadDate = "2022-04-04T16:11:28.388Z",
+            lastReadDate = Instant.parse("2022-04-04T16:11:28.388Z"),
             access = listOf(Conversation.Access.INVITE),
             accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
             creatorId = null,

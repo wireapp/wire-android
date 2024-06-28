@@ -22,11 +22,15 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Copy build to tmp file
+    - name: Set APK full path
+      id: path
       shell: bash
-      run:
-        cp app/build/outputs/apk/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/com.wire.*.apk wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk
-    - name: Upload to S3
+      run: |
+        APK_FULL_PATH_REF="$(set -- app/build/outputs/apk/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/com.wire.*.apk; echo $1)"
+        echo "apk_full_path=$APK_FULL_PATH_REF" >> $GITHUB_OUTPUT
+        unset APK_FULL_PATH_REF
+    - name: Upload to S3 from PR
+      if: github.event.pull_request.number != ''
       id: upload
       uses: hkusu/s3-upload-action@v2.1.0
       with:
@@ -34,8 +38,21 @@ runs:
         aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
         aws-region: 'us-west-1'
         aws-bucket: ${{ inputs.aws-bucket }}
+        destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/PR-${{ github.event.pull_request.number }}/"
+        file-path: ${{ steps.path.outputs.apk_full_path }}
+        output-file-url: 'true'
+        public: true
+    - name: Upload to S3 from branch
+      if: github.event.pull_request.number == ''
+      id: upload-from-branch
+      uses: hkusu/s3-upload-action@v2.1.0
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-region: 'us-west-1'
+        aws-bucket: ${{ inputs.aws-bucket }}
         destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/"
-        file-path: './wire-android-${{ inputs.build-flavour }}-${{ inputs.build-variant }}-pr-${{ github.event.pull_request.number }}.apk'
+        file-path: ${{ steps.path.outputs.apk_full_path }}
         output-file-url: 'true'
         public: true
     - name: Show URL

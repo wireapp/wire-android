@@ -41,6 +41,6 @@ sealed interface ConnectivityUIState {
 
     data class OutgoingCall(
         val conversationId: ConversationId,
-        val callerName: String?
+        val conversationName: String?
     ) : ConnectivityUIState
 }

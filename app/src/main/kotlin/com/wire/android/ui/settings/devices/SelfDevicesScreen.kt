@@ -149,7 +149,6 @@ private fun LazyListScope.folderDeviceItems(
         items = items.associateBy { it.clientId.value },
         divider = {
             HorizontalDivider(
-                thickness = Dp.Hairline,
                 color = MaterialTheme.wireColorScheme.background
             )
         }

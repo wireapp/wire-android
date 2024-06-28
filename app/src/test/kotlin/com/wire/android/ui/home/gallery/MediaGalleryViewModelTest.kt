@@ -55,6 +55,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
@@ -294,7 +295,7 @@ class MediaGalleryViewModelTest {
                 removedBy = null,
                 lastNotificationDate = null,
                 lastModifiedDate = null,
-                lastReadDate = "2022-04-04T16:11:28.388Z",
+                lastReadDate = Instant.parse("2022-04-04T16:11:28.388Z"),
                 access = listOf(Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
                 creatorId = null,

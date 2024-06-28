@@ -45,12 +45,14 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.datetime.Instant
 import kotlin.time.Duration
 
 sealed interface UIMessage {
@@ -624,7 +626,8 @@ enum class MessageSource {
     Self, OtherUser
 }
 
-data class MessageTime(val utcISO: String) {
+data class MessageTime(val instant: Instant) {
+    val utcISO: String = instant.toIsoDateTimeString()
     val formattedDate: String = utcISO.uiMessageDateTime() ?: ""
     fun getFormattedDateGroup(now: Long): MessageDateTimeGroup? = utcISO.groupedUIMessageDateTime(now = now)
     fun shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean =

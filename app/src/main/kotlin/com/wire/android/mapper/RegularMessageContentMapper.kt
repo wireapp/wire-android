@@ -194,9 +194,9 @@ class RegularMessageMapper @Inject constructor(
         it.messageId,
         it.senderId,
         it.senderName.orUnknownName(),
-        UIText.StringResource(R.string.label_quote_original_message_date, isoFormatter.fromISO8601ToTimeFormat(it.timeInstant.toString())),
+        UIText.StringResource(R.string.label_quote_original_message_date, isoFormatter.fromInstantToTimeFormatter(it.timeInstant)),
         it.editInstant?.let { instant ->
-            UIText.StringResource(R.string.label_message_status_edited_with_date, isoFormatter.fromISO8601ToTimeFormat(instant.toString()))
+            UIText.StringResource(R.string.label_message_status_edited_with_date, isoFormatter.fromInstantToTimeFormatter(instant))
         },
         when (val quotedContent = it.quotedContent) {
             is MessageContent.QuotedMessageDetails.Asset -> when (AttachmentType.fromMimeTypeString(quotedContent.assetMimeType)) {

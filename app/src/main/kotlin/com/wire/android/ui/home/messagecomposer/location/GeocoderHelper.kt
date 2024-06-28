@@ -25,6 +25,7 @@ import javax.inject.Singleton
 @Singleton
 class GeocoderHelper @Inject constructor(private val geocoder: Geocoder) {
 
+    @Suppress("TooGenericExceptionCaught")
     fun getGeoLocatedAddress(location: Location): GeoLocatedAddress =
         try {
             geocoder.getFromLocation(location.latitude, location.longitude, 1).orEmpty()

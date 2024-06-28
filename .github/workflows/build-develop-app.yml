@@ -3,12 +3,13 @@ on:
   push:
     branches:
       - develop
+  merge_group:
   pull_request:
     branches:
       - develop
     types: [ opened, synchronize ]
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.merge_group.head_sha }}
   cancel-in-progress: true
 jobs:
   code-analysis:

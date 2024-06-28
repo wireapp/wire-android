@@ -19,7 +19,6 @@ package com.wire.android.ui.home.settings.privacy
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase

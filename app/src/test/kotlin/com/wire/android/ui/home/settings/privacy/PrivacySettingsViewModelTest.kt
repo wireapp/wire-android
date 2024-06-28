@@ -20,6 +20,7 @@ package com.wire.android.ui.home.settings.privacy
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.datastore.UserDataStore
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ReadReceiptStatusConfigResult
@@ -114,7 +115,7 @@ class PrivacySettingsViewModelTest {
         val observeScreenshotCensoringConfig = mockk<ObserveScreenshotCensoringConfigUseCase>()
         val persistTypingIndicatorStatusConfig = mockk<PersistTypingIndicatorStatusConfigUseCase>()
         val observeTypingIndicatorEnabled = mockk<ObserveTypingIndicatorEnabledUseCase>()
-        val globalDataStore = mockk<GlobalDataStore>()
+        val dataStore = mockk<UserDataStore>()
 
         val viewModel by lazy {
             PrivacySettingsViewModel(
@@ -125,7 +126,7 @@ class PrivacySettingsViewModelTest {
                 observeScreenshotCensoringConfig = observeScreenshotCensoringConfig,
                 persistTypingIndicatorStatusConfig = persistTypingIndicatorStatusConfig,
                 observeTypingIndicatorEnabled = observeTypingIndicatorEnabled,
-                globalDataStore = globalDataStore
+                dataStore = dataStore
             )
         }
 
@@ -139,15 +140,15 @@ class PrivacySettingsViewModelTest {
                     flowOf(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)
             coEvery { persistTypingIndicatorStatusConfig.invoke(true) } returns TypingIndicatorConfigResult.Success
             coEvery { observeTypingIndicatorEnabled() } returns flowOf(true)
-            coEvery { globalDataStore.setAnonymousUsageDataEnabled(any()) } returns Unit
+            coEvery { dataStore.setIsAnonymousAnalyticsEnabled(any()) } returns Unit
         }
 
         fun withEnabledAnonymousUsageData() = apply {
-            every { globalDataStore.isAnonymousUsageDataEnabled() } returns flowOf(true)
+            every { dataStore.isAnonymousUsageDataEnabled() } returns flowOf(true)
         }
 
         fun withDisabledAnonymousUsageData() = apply {
-            every { globalDataStore.isAnonymousUsageDataEnabled() } returns flowOf(false)
+            every { dataStore.isAnonymousUsageDataEnabled() } returns flowOf(false)
         }
 
         fun arrange() = this to viewModel

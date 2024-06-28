@@ -90,6 +90,7 @@ kluent = "1.73"
 mockk = "1.13.9"
 okio = "3.6.0"
 turbine = "1.0.0"
+robolectric = "4.12.2"
 
 [plugins]
 # 3rd Party plugins
@@ -245,3 +246,5 @@ mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk-core = { module = "io.mockk:mockk", version.ref = "mockk" }
 okio-fakeFileSystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit5" } # needed for tests that use Robolectric because it doesn't yet support JUnit5

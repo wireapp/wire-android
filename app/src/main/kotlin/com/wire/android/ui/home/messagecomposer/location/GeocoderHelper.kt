@@ -17,17 +17,21 @@
  */
 package com.wire.android.ui.home.messagecomposer.location
 
+import android.location.Geocoder
+import android.location.Location
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class LocationPickerHelperFlavor @Inject constructor(
-    private val locationPickerHelper: LocationPickerHelper,
-) {
-    suspend fun getLocation(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
-        locationPickerHelper.getLocationWithoutGms(
-            onSuccess = onSuccess,
-            onError = onError,
-        )
-    }
+class GeocoderHelper @Inject constructor(private val geocoder: Geocoder) {
+
+    @Suppress("TooGenericExceptionCaught")
+    fun getGeoLocatedAddress(location: Location): GeoLocatedAddress =
+        try {
+            geocoder.getFromLocation(location.latitude, location.longitude, 1).orEmpty()
+        } catch (e: Exception) {
+            emptyList()
+        }.let { addressList ->
+            GeoLocatedAddress(addressList.firstOrNull(), location)
+        }
 }

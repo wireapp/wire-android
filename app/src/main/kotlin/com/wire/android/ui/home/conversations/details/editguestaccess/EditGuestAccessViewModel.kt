@@ -123,6 +123,8 @@ class EditGuestAccessViewModel @Inject constructor(
                 conversationDetailsFlow,
                 isSelfAdminFlow
             ) { conversationDetails, isSelfAnAdmin ->
+                isSelfAnAdmin to conversationDetails
+            }.collect { (isSelfAnAdmin, conversationDetails) ->
 
                 val isGuestAllowed =
                     conversationDetails.conversation.isGuestAllowed() || conversationDetails.conversation.isNonTeamMemberAllowed()

@@ -19,7 +19,6 @@ package com.wire.android.ui.home.messagecomposer.location
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -49,7 +48,7 @@ class LocationPickerHelper @Inject constructor(
     @ApplicationContext private val context: Context,
     @ApplicationScope private val scope: CoroutineScope,
     private val currentTimestampProvider: CurrentTimestampProvider,
-    private val geocoder: Geocoder,
+    private val geocoderHelper: GeocoderHelper,
     private val parameters: LocationPickerParameters,
 ) {
 
@@ -67,7 +66,8 @@ class LocationPickerHelper @Inject constructor(
                     lastLocation != null
                         && currentTimestampProvider() - lastLocation.time <= parameters.lastLocationTimeLimit.inWholeMilliseconds
                 ) {
-                    onSuccess(lastLocation.toGeoLocatedAddress()) // use last known location if present and not older than given limit
+                    // use last known location if present and not older than given limit
+                    onSuccess(geocoderHelper.getGeoLocatedAddress(lastLocation))
                 } else {
                     locationManager.requestCurrentLocationWithoutGms(onSuccess, onError)
                 }
@@ -98,7 +98,7 @@ class LocationPickerHelper @Inject constructor(
             val consumer: Consumer<Location?> = Consumer { location ->
                 timeoutJob.cancel()
                 if (location != null) {
-                    onSuccess(location.toGeoLocatedAddress())
+                    onSuccess(geocoderHelper.getGeoLocatedAddress(location))
                 } else {
                     onError()
                 }
@@ -107,7 +107,7 @@ class LocationPickerHelper @Inject constructor(
         } else {
             val listener = LocationListener { location ->
                 timeoutJob.cancel()
-                onSuccess(location.toGeoLocatedAddress())
+                onSuccess(geocoderHelper.getGeoLocatedAddress(location))
             }
             cancellationSignal.setOnCancelListener {
                 this.removeUpdates(listener)
@@ -121,11 +121,6 @@ class LocationPickerHelper @Inject constructor(
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return LocationManagerCompat.isLocationEnabled(locationManager)
     }
-
-    private fun Location.toGeoLocatedAddress(): GeoLocatedAddress =
-        geocoder.getFromLocation(latitude, longitude, 1).orEmpty().let { addressList ->
-            GeoLocatedAddress(addressList.firstOrNull(), this)
-        }
 }
 
 data class LocationPickerParameters(

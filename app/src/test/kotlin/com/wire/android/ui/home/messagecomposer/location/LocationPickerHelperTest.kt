@@ -159,6 +159,7 @@ class LocationPickerHelperTest {
         private val context: Context = ApplicationProvider.getApplicationContext()
         private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + dispatcher)
         private val geocoder: Geocoder = Geocoder(context)
+        private val geocoderHelper: GeocoderHelper = GeocoderHelper(geocoder)
         private val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val address = Address(Locale.getDefault()).apply {
             setAddressLine(0, "address")
@@ -169,7 +170,7 @@ class LocationPickerHelperTest {
                 context = context,
                 scope = scope,
                 currentTimestampProvider = dispatcher.scheduler::currentTime,
-                geocoder = geocoder,
+                geocoderHelper = geocoderHelper,
                 parameters = LocationPickerParameters(
                     lastLocationTimeLimit = lastLocationTimeLimit,
                     requestLocationTimeout = requestLocationTimeout

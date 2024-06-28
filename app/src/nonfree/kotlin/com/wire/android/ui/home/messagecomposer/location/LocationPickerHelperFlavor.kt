@@ -19,7 +19,6 @@ package com.wire.android.ui.home.messagecomposer.location
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Geocoder
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
@@ -31,7 +30,7 @@ import javax.inject.Singleton
 @Singleton
 class LocationPickerHelperFlavor @Inject constructor(
     private val context: Context,
-    private val geocoder: Geocoder,
+    private val geocoderHelper: GeocoderHelper,
     private val locationPickerHelper: LocationPickerHelper,
 ) {
     suspend fun getLocation(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
@@ -58,8 +57,7 @@ class LocationPickerHelperFlavor @Inject constructor(
             val locationProvider = LocationServices.getFusedLocationProviderClient(context)
             val currentLocation =
                 locationProvider.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).await()
-            val address = geocoder.getFromLocation(currentLocation.latitude, currentLocation.longitude, 1).orEmpty()
-            onSuccess(GeoLocatedAddress(address.firstOrNull(), currentLocation))
+            onSuccess(geocoderHelper.getGeoLocatedAddress(currentLocation))
         } else {
             onError()
         }

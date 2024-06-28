@@ -19,7 +19,6 @@ package com.wire.android.ui.home.messagecomposer.location
 
 import android.content.Context
 import android.location.Address
-import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -95,7 +94,7 @@ class LocationPickerHelperFlavorTest {
                 .withIsGoogleServicesAvailable(true)
                 .withIsLocationServiceEnabled(true)
                 .withGetCurrentLocation(location)
-                .withGeocoderGetFromLocation(1.0, 1.0, address)
+                .withGetGeoLocatedAddress(location, address)
                 .arrange()
 
             // when
@@ -122,7 +121,7 @@ class LocationPickerHelperFlavorTest {
         private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
         @MockK
-        private lateinit var geocoder: Geocoder
+        private lateinit var geocoderHelper: GeocoderHelper
 
         @MockK
         lateinit var locationPickerHelper: LocationPickerHelper
@@ -133,7 +132,7 @@ class LocationPickerHelperFlavorTest {
         private val locationPickerHelperFlavor by lazy {
             LocationPickerHelperFlavor(
                 context = context,
-                geocoder = geocoder,
+                geocoderHelper = geocoderHelper,
                 locationPickerHelper = locationPickerHelper,
             )
         }
@@ -166,20 +165,20 @@ class LocationPickerHelperFlavorTest {
             coEvery { fusedLocationProviderClient.getCurrentLocation(any<Int>(), any<CancellationToken>()) } returns task
         }
 
-        fun withGeocoderGetFromLocation(latitude: Double, longitude: Double, result: Address) = apply {
-            coEvery { geocoder.getFromLocation(latitude, longitude, 1) } returns listOf(result)
+        fun withGetGeoLocatedAddress(location: Location, result: Address) = apply {
+            coEvery { geocoderHelper.getGeoLocatedAddress(location) } returns GeoLocatedAddress(result, location)
         }
 
         fun arrange() = this to locationPickerHelperFlavor
     }
+}
 
-    fun mockLocation(latitude: Double, longitude: Double) = mockk<Location>().let {
-        coEvery { it.latitude } returns latitude
-        coEvery { it.longitude } returns longitude
-        it
-    }
+fun mockLocation(latitude: Double, longitude: Double) = mockk<Location>().let {
+    coEvery { it.latitude } returns latitude
+    coEvery { it.longitude } returns longitude
+    it
+}
 
-    fun mockAddress(addressFirstLine: String) = mockk<Address>().also {
-        coEvery { it.getAddressLine(0) } returns addressFirstLine
-    }
+fun mockAddress(addressFirstLine: String) = mockk<Address>().also {
+    coEvery { it.getAddressLine(0) } returns addressFirstLine
 }

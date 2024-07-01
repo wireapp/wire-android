@@ -81,9 +81,12 @@ pipeline {
         }
 
         stage("Run smoke tests") {
+            when {
+                expression { BRANCH_NAME ==~ /PR-[0-9]+/ }
+            }
             steps {
                 // Check: Send in_progress
-                build job: 'android_reloaded_smoke', parameters: [string(name: 'AppBuildNumber', value: "/artifacts/megazord/android/reloaded/staging/release/wire-android-staging-release-pr-${PR_NUMBER}.apk"), string(name: 'TAGS', value: '@smoke'), string(name: 'Branch', value: 'main')]
+                build job: 'android_reloaded_smoke', parameters: [string(name: 'AppBuildNumber', value: "/artifacts/megazord/android/reloaded/staging/release/wire-android-staging-release-${BRANCH_NAME}.apk"), string(name: 'TAGS', value: '@smoke'), string(name: 'Branch', value: 'main')]
             }
         }
 
@@ -94,34 +97,39 @@ pipeline {
             // wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ FAILED ($last_started) 👎")
             script {
                 def sha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-                def payload = [
-                    name: "QA-Jenkins Smoke Run",
-                    status: "",
-                    conclusion: 'success', // Can be one of: action_required, cancelled, failure, neutral, success, skipped, stale, timed_out 
-                    details_url: env.BUILD_URL,
-                    external_id: env.BUILD_ID,
-                    head_sha: sha,
-                    output: [
-                       title: "Smoke run successful",
-                       summary: "All test finished successfully",
+                echo(sha)
+                if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
+                    def payload = [
+                        name: "QA-Jenkins Smoke Run",
+                        status: "",
+                        conclusion: 'success', // Can be one of: action_required, cancelled, failure, neutral, success, skipped, stale, timed_out 
+                        details_url: env.BUILD_URL,
+                        external_id: env.BUILD_ID,
+                        head_sha: sha,
+                        output: [
+                           title: "Smoke run successful",
+                           summary: "All test finished successfully",
+                        ]
                     ]
-                ]
-                def jsonPayload = groovy.json.JsonOutput.toJson(payload)
-                sh """
-                    curl -X POST \
-                    -H "Authorization: token ${GITHUB_TOKEN}" \
-                    -H "X-GitHub-Api-Version: 2022-11-28" \
-                    -H "Accept: application/vnd.github+json" \
-                    https://api.github.com/repos/wireapp/wire-android/check-runs \
-                    -d '${jsonPayload}'
-                """
+                    def jsonPayload = groovy.json.JsonOutput.toJson(payload)
+                    sh """
+                        curl -X POST \
+                        -H "Authorization: token ${GITHUB_TOKEN}" \
+                        -H "X-GitHub-Api-Version: 2022-11-28" \
+                        -H "Accept: application/vnd.github+json" \
+                        https://api.github.com/repos/wireapp/wire-android/check-runs \
+                        -d '${jsonPayload}'
+                    """
+                }
             }
         }
 
         unsuccessful {
             // Check: Send failure
             script {
-                echo("Unsuccesful")
+                if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
+                    echo("Unsuccesful")
+                }
             }
             // wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ ABORTED ($last_started) ")
         }

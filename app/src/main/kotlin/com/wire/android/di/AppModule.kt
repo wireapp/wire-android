@@ -88,7 +88,6 @@ object AppModule {
     @Provides
     fun provideGeocoder(appContext: Context): Geocoder = Geocoder(appContext)
 
-    @Singleton
     @Provides
     fun provideLocationPickerParameters(): LocationPickerParameters = LocationPickerParameters()
 }

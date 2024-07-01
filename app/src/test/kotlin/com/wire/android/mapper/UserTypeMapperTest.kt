@@ -46,7 +46,7 @@ class UserTypeMapperTest {
     }
 
     @Test
-    fun `given internal as a user type correctly map to none as membership`() {
+    fun `given internal as a user type correctly map to standard as membership`() {
         val result = userTypeMapper.toMembership(UserType.INTERNAL)
         assertEquals(Membership.Standard, result)
     }

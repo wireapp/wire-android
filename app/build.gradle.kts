@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 import customization.ConfigurationFileImporter
 import customization.NormalizedFlavorSettings
 
+=======
+>>>>>>> 64b43fc5a (fix: location sharing without gms when not moving [WPB-9724] 🍒 (#3143))
 /*
  * Wire
  * Copyright (C) 2024 Wire Swiss GmbH

@@ -20,12 +20,14 @@ package com.wire.android.di
 
 import android.app.NotificationManager
 import android.content.Context
+import android.location.Geocoder
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.BuildConfig
 import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.ui.home.appLock.CurrentTimestampProvider
+import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameters
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.Module
@@ -82,4 +84,11 @@ object AppModule {
     @Singleton
     @Provides
     fun provideCurrentTimestampProvider(): CurrentTimestampProvider = { System.currentTimeMillis() }
+
+    @Provides
+    fun provideGeocoder(appContext: Context): Geocoder = Geocoder(appContext)
+
+    @Singleton
+    @Provides
+    fun provideLocationPickerParameters(): LocationPickerParameters = LocationPickerParameters()
 }

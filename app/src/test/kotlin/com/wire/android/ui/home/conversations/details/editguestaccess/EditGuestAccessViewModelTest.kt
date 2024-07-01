@@ -55,10 +55,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
 class EditGuestAccessViewModelTest {
     private val dispatcher = TestDispatcherProvider()
+
+    val dispatcher = TestDispatcherProvider()
 
     @Test
     fun `given updateConversationAccessRole use case runs successfully, when trying to enable guest access, then enable guest access`() =
@@ -108,7 +109,7 @@ class EditGuestAccessViewModelTest {
             editGuestAccessViewModel.updateGuestAccess(false)
 
             // then
-            coVerify(inverse = true) { arrangement.updateConversationAccessRoleUseCase(any(), any(), any()) }
+            coVerify(inverse = true) { arrangement.updateConversationAccessRole(any(), any(), any()) }
             assertEquals(true, editGuestAccessViewModel.editGuestAccessState.shouldShowGuestAccessChangeConfirmationDialog)
         }
 
@@ -217,9 +218,6 @@ class EditGuestAccessViewModelTest {
     private class Arrangement(dispatcherProvider: TestDispatcherProvider) {
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
-        lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
 
         @MockK
         lateinit var observeConversationDetails: ObserveConversationDetailsUseCase

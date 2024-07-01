@@ -88,11 +88,7 @@ private fun CommonExtension<*, *, *, *, *, *>.configureLint(project: Project) {
         disable.add("IconDensities") // For testing purpose. This is safe to remove.
         disable.add("IconMissingDensityFolder") // For testing purpose. This is safe to remove.
         disable.add("ComposePreviewPublic") // Needed for screenshot testing.
-<<<<<<< HEAD
-        disable.add("MissingTranslation") // translations are added asynchronously
-=======
         disable.add("MissingTranslation") // We don't want to hardcode translations in English for other languages.
->>>>>>> 64b43fc5a (fix: location sharing without gms when not moving [WPB-9724] 🍒 (#3143))
         baseline = project.file("lint-baseline.xml")
     }
 

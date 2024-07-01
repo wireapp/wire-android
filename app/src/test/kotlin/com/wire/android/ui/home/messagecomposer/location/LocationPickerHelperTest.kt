@@ -49,19 +49,12 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 @RunWith(RobolectricTestRunner::class)
-<<<<<<< HEAD
-@Config(
-    sdk = [Build.VERSION_CODES.TIRAMISU],
-    /*
-     * Run tests in isolation, use basic Application class instead of initializing WireApplication.
-     * It won't work with WireApplication because of Datadog - for each test new WireApplication instance is created but Datadog uses
-     * singleton and initializes itself only once for the first instance of WireApplication which then crashes for other instances.
-     */
-    application = Application::class,
-)
-=======
+/*
+ * Run tests in isolation, use basic Application class instead of initializing WireApplication.
+ * It won't work with WireApplication because of Datadog - for each test new WireApplication instance is created but Datadog uses
+ * singleton and initializes itself only once for the first instance of WireApplication which then crashes for other instances.
+ */
 @Config(application = Application::class)
->>>>>>> 64b43fc5a (fix: location sharing without gms when not moving [WPB-9724] 🍒 (#3143))
 class LocationPickerHelperTest {
 
     private val dispatcher = StandardTestDispatcher()

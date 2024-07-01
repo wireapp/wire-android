@@ -18,9 +18,7 @@
 package com.wire.android.ui.home.messagecomposer.location
 
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class LocationPickerHelperFlavor @Inject constructor(
     private val locationPickerHelper: LocationPickerHelper,
 ) {

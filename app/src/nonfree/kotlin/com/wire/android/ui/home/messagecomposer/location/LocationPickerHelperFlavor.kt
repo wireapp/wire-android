@@ -27,9 +27,7 @@ import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.kalium.logger.KaliumLogLevel
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class LocationPickerHelperFlavor @Inject constructor(
     private val context: Context,
     private val geocoderHelper: GeocoderHelper,

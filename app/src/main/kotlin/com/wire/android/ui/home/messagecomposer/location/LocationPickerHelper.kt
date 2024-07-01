@@ -37,13 +37,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.function.Consumer
 import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("MissingPermission")
-@Singleton
 class LocationPickerHelper @Inject constructor(
     @ApplicationContext private val context: Context,
     @ApplicationScope private val scope: CoroutineScope,

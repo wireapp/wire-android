@@ -1,7 +1,7 @@
 pipeline {
     agent {
         node {
-            label 'spawner'
+            label 'built-in'
         }
     }
 

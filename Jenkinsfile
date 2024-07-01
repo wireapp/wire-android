@@ -9,7 +9,6 @@ pipeline {
 
     environment { 
         CREDENTIALS = credentials('GITHUB_TOKEN_ANDROID') 
-        PR_NUMBER = BRANCH_NAME =~ /[0-9]+$/
     }
 
     stages {
@@ -20,6 +19,7 @@ pipeline {
             steps {
                 // Check: Send pending
                 script {
+                    def PR_NUMBER = BRANCH_NAME =~ /[0-9]+$/
                     echo("Wait for github actions to start for ${BRANCH_NAME}")
                     timeout(time: 3, unit: 'MINUTES') {
                        waitUntil {

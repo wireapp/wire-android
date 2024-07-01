@@ -63,7 +63,7 @@ jobs:
           echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/the.keystore
       - name: build staging flavour
         run:
-          ./gradlew app:assembleStagingRelease
+          ./gradlew app:assembleStagingCompat
         env:
           DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
           DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
@@ -89,7 +89,7 @@ jobs:
           aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           build-flavour: staging
-          build-variant: release
+          build-variant: compat
       - name: Deploy DevDebug to S3
         uses: ./.github/actions/deploy-to-s3
         with:

@@ -17,8 +17,6 @@
  */
 package com.wire.android.extensions
 
-import android.content.Context
-import androidx.annotation.StringRes
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onAllNodesWithText
 

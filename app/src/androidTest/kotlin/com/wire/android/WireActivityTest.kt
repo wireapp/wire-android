@@ -61,7 +61,7 @@ class WireActivityTest {
         hiltRule.inject()
     }
 
-//    @Ignore
+    @Ignore // TODO add other api mocks to not have flaky test
     @Test
     fun loginTest() = runTest {
         composeTestRule.waitUntilExists(R.string.label_login)

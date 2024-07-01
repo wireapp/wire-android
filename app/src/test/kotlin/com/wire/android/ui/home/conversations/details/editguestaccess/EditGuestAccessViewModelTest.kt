@@ -59,8 +59,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class EditGuestAccessViewModelTest {
     private val dispatcher = TestDispatcherProvider()
 
-    val dispatcher = TestDispatcherProvider()
-
     @Test
     fun `given updateConversationAccessRole use case runs successfully, when trying to enable guest access, then enable guest access`() =
         runTest(dispatcher.default()) {

@@ -1,5 +1,3 @@
-import scripts.Variants_gradle
-
 /*
  * Wire
  * Copyright (C) 2024 Wire Swiss GmbH

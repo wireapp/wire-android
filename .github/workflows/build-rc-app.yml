@@ -39,7 +39,7 @@ jobs:
           cache: gradle
       - name: Decode Keystore
         env:
-          ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_INTERNAL_RELEASE }}
+          ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
         run: |
           TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
           mkdir "${TMP_KEYSTORE_FILE_PATH}"
@@ -75,6 +75,12 @@ jobs:
           KEYPWD_COMPAT: ${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}
           KEYSTOREPWD_COMPAT: ${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+      - name: Decode release Keystore
+        env:
+          ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
+        run: |
+          TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/the.keystore
       - name: Build Staging flavour
         run:
           ./gradlew app:assembleStagingRelease

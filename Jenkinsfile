@@ -78,6 +78,7 @@ pipeline {
                    }
                 }
             }
+        }
 
         stage("Run smoke tests") {
             steps {

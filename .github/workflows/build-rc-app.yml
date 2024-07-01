@@ -39,7 +39,7 @@ jobs:
           cache: gradle
       - name: Decode Keystore
         env:
-          ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_INTERNAL_RELEASE }}
+          ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
         run: |
           TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
           mkdir "${TMP_KEYSTORE_FILE_PATH}"
@@ -75,9 +75,15 @@ jobs:
           KEYPWD_COMPAT: ${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}
           KEYSTOREPWD_COMPAT: ${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+      - name: Decode release Keystore
+        env:
+          ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
+        run: |
+          TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/the.keystore
       - name: Build Staging flavour
         run:
-          ./gradlew app:assembleStagingCompat
+          ./gradlew app:assembleStagingRelease
         env:
           DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
           DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
@@ -85,9 +91,9 @@ jobs:
           KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_FILE_PATH_COMPAT: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_FILE_PATH_COMPAT_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
-          KEYSTORE_KEY_NAME_COMPAT: ${{ secrets.SIGNING_KEY_ALIAS_INTERNAL_RELEASE }}
-          KEYPWD_COMPAT: ${{ secrets.SIGNING_KEY_PASSWORD_INTERNAL_RELEASE }}
-          KEYSTOREPWD_COMPAT: ${{ secrets.SIGNING_STORE_PASSWORD_INTERNAL_RELEASE }}
+          KEYSTORE_KEY_NAME_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}
+          KEYPWD_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}
+          KEYSTOREPWD_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
       - name: Upload
         if: success()
@@ -95,7 +101,7 @@ jobs:
         with:
           name: Build Artifacts
           path: app/build/outputs/
-      - name: Deploy StagingCompat to S3
+      - name: Deploy StagingRelease to S3
         uses: ./.github/actions/deploy-to-s3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -103,7 +109,7 @@ jobs:
           aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           build-flavour: staging
-          build-variant: compat
+          build-variant: release
       - name: Deploy InternalCompat to S3
         uses: ./.github/actions/deploy-to-s3
         with:

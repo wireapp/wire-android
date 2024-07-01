@@ -17,13 +17,10 @@
  */
 package com.wire.android.ui
 
-import android.content.Context
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.test.core.app.ApplicationProvider
-import com.wire.android.provider.LocalAppContext
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.WireColorSchemeTypes

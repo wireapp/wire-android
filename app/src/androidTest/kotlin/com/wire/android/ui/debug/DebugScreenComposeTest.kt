@@ -18,8 +18,6 @@
 package com.wire.android.ui.debug
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.core.app.ApplicationProvider
-import com.wire.android.R
 import com.wire.android.extensions.waitUntilExists
 import com.wire.android.ui.WireTestTheme
 import kotlinx.coroutines.test.runTest

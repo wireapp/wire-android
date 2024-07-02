@@ -15,16 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.whatsnew
+package com.wire.android.ui.home.messagecomposer.location
 
-data class WhatsNewState(
-    val isLoading: Boolean = false,
-    val releaseNotesItems: List<ReleaseNotesItem> = emptyList()
-)
+import android.location.Geocoder
+import android.location.Location
+import javax.inject.Inject
+import javax.inject.Singleton
 
-data class ReleaseNotesItem(
-    val id: String,
-    val title: String,
-    val link: String,
-    val publishDate: String
-)
+@Singleton
+class GeocoderHelper @Inject constructor(private val geocoder: Geocoder) {
+
+    @Suppress("TooGenericExceptionCaught")
+    fun getGeoLocatedAddress(location: Location): GeoLocatedAddress =
+        try {
+            geocoder.getFromLocation(location.latitude, location.longitude, 1).orEmpty()
+        } catch (e: Exception) {
+            emptyList()
+        }.let { addressList ->
+            GeoLocatedAddress(addressList.firstOrNull(), location)
+        }
+}

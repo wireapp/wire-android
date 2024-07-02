@@ -17,7 +17,7 @@ pipeline {
                 expression { BRANCH_NAME ==~ /PR-[0-9]+/ }
             }
             steps {
-                publishChecks name: 'QA-Jenkins', title: 'Smoke Tests' status: 'QUEUED', conclusion: 'NONE'
+                publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'QUEUED', conclusion: 'NONE'
                 script {
                     def PR_NUMBER = BRANCH_NAME =~ /[0-9]+$/
                     echo("Wait for github actions to start for ${BRANCH_NAME}")
@@ -85,7 +85,7 @@ pipeline {
                 expression { BRANCH_NAME ==~ /PR-[0-9]+/ }
             }
             steps {
-                publishChecks name: 'QA-Jenkins', title: 'Smoke Tests' status: 'IN_PROGRESS', conclusion: 'NONE'
+                publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'IN_PROGRESS', conclusion: 'NONE'
                 script {
                     withChecks(name: 'Smoke Tests') {
                         // Check: Send in_progress
@@ -100,7 +100,7 @@ pipeline {
     post {
         always {
             // wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ FAILED ($last_started) 👎")
-            publishChecks name: 'QA-Jenkins', title: 'Smoke Tests' status: 'COMPLETED', conclusion: 'SUCCESS'
+            publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'COMPLETED', conclusion: 'SUCCESS'
             script {
                 if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
                     echo("Success")
@@ -115,7 +115,7 @@ pipeline {
                     echo("Unsuccesful")
                 }
             }
-            publishChecks name: 'QA-Jenkins', title: 'Smoke Tests' status: 'COMPLETED', conclusion: 'FAILED'
+            publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'COMPLETED', conclusion: 'FAILED'
             // wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ ABORTED ($last_started) ")
         }
     }

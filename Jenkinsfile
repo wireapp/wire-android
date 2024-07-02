@@ -34,7 +34,7 @@ pipeline {
                            echo("Looking for PR-" + pr_number + " with hash" + commit_hash)
                            for (run in runs) {
                                if (run['head_sha'] == commit_hash) {
-                                   echo("Found PR-" + pull_request['number'])
+                                   echo("Found " + commit_hash)
                                    echo("status: " + run['status'])
                                    // status can be queued, in_progress, or completed
                                    if (run['status'] == 'queued' || run['status'] == 'in_progress' || run['status'] == 'completed') {

@@ -94,7 +94,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     currentSessionResult is CurrentSessionResult.Success && !currentSessionResult.accountInfo.isValid() -> {
                         appLogger.i("$TAG: Invalid current session")
                         featureFlagState = FeatureFlagState( // invalid session, clear feature flag state to default and set NO_USER
-                            fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER
+                            isFileSharingState = FeatureFlagState.FileSharingState.NoUser
                         )
                     }
 

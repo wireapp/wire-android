@@ -35,7 +35,6 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
-import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi

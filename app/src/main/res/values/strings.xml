@@ -1286,4 +1286,6 @@
     <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
     <string name="call_ended_because_of_verification_title">Conversation no longer verified</string>
     <string name="call_ended_because_of_verification_message">The call was disconnected because at least one participant is no longer a verified contact.</string>
+
+    <string name="restricted_asset_error_toast_message">Sending of files is forbidden due to company restrictions</string>
 </resources>

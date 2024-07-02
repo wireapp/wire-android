@@ -12,6 +12,12 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage("Wait for GitHub action to finish") {
             when {
                 expression { BRANCH_NAME ==~ /PR-[0-9]+/ }

@@ -368,7 +368,6 @@ class MessageComposerViewModel @Inject constructor(
                                 assetMimeType = mimeType,
                                 audioLengthInMs = 0L
                             ).also {
-                                handleLegalHoldFailureAfterSendingMessage()
                                 handleAssetSendingResult(it)
                             }
                         }
@@ -390,7 +389,6 @@ class MessageComposerViewModel @Inject constructor(
                                         mimeType = mimeType
                                     )
                                 ).also {
-                                    handleLegalHoldFailureAfterSendingMessage()
                                     handleAssetSendingResult(it)
                                 }
                             } catch (e: OutOfMemoryError) {
@@ -406,7 +404,9 @@ class MessageComposerViewModel @Inject constructor(
 
     private suspend fun handleAssetSendingResult(result: ScheduleNewAssetMessageResult) {
         when (result) {
-            is ScheduleNewAssetMessageResult.Failure.Generic,
+            is ScheduleNewAssetMessageResult.Failure.Generic -> {
+                result.coreFailure.handleLegalHoldFailureAfterSendingMessage()
+            }
             is ScheduleNewAssetMessageResult.Success -> {
                 /* no-op */
             }
@@ -427,12 +427,6 @@ class MessageComposerViewModel @Inject constructor(
 
     private fun Either<CoreFailure, Unit>.handleLegalHoldFailureAfterSendingMessage() =
         onFailure { it.handleLegalHoldFailureAfterSendingMessage() }
-
-    private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage() = also {
-        if (it is ScheduleNewAssetMessageResult.Failure) {
-            it.coreFailure.handleLegalHoldFailureAfterSendingMessage()
-        }
-    }
 
     fun retrySendingMessage(messageId: String) {
         viewModelScope.launch {

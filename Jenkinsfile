@@ -115,7 +115,7 @@ pipeline {
                     echo("Unsuccesful")
                 }
             }
-            publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'COMPLETED', conclusion: 'FAILED'
+            publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'COMPLETED', conclusion: 'FAILURE'
             // wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ ABORTED ($last_started) ")
         }
     }

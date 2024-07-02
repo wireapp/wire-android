@@ -24,7 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
@@ -51,7 +51,7 @@ class PrivacySettingsViewModel @Inject constructor(
     private val observeScreenshotCensoringConfig: ObserveScreenshotCensoringConfigUseCase,
     private val persistTypingIndicatorStatusConfig: PersistTypingIndicatorStatusConfigUseCase,
     private val observeTypingIndicatorEnabled: ObserveTypingIndicatorEnabledUseCase,
-    private val globalDataStore: GlobalDataStore
+    private val dataStore: UserDataStore
 ) : ViewModel() {
 
     var state by mutableStateOf(PrivacySettingsState())
@@ -63,7 +63,7 @@ class PrivacySettingsViewModel @Inject constructor(
                 observeReadReceiptsEnabled(),
                 observeTypingIndicatorEnabled(),
                 observeScreenshotCensoringConfig(),
-                globalDataStore.isAnonymousUsageDataEnabled()
+                dataStore.isAnonymousUsageDataEnabled()
             ) { readReceiptsEnabled, typingIndicatorEnabled, screenshotCensoringConfig, anonymousUsageDataEnabled ->
                 PrivacySettingsState(
                     isAnonymousUsageDataEnabled = anonymousUsageDataEnabled,
@@ -134,7 +134,7 @@ class PrivacySettingsViewModel @Inject constructor(
 
     fun setAnonymousUsageDataEnabled(enabled: Boolean) {
         viewModelScope.launch {
-            globalDataStore.setAnonymousUsageDataEnabled(enabled)
+            dataStore.setIsAnonymousAnalyticsEnabled(enabled)
         }
         state = state.copy(
             isAnonymousUsageDataEnabled = enabled

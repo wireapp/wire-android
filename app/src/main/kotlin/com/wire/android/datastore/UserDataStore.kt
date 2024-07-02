@@ -78,6 +78,12 @@ class UserDataStore(private val context: Context, userId: UserId) {
 
     suspend fun setInitialSyncCompleted() { context.dataStore.edit { it[INITIAL_SYNC_COMPLETED] = true } }
 
+    fun isAnonymousUsageDataEnabled(): Flow<Boolean> = context.dataStore.data.map { it[ANONYMOUS_ANALYTICS] ?: true }
+
+    suspend fun setIsAnonymousAnalyticsEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[ANONYMOUS_ANALYTICS] = enabled }
+    }
+
     companion object {
         private const val PREFERENCES_NAME = "user_data"
 
@@ -89,6 +95,7 @@ class UserDataStore(private val context: Context, userId: UserId) {
         private val USER_AVATAR_ASSET_ID = stringPreferencesKey("user_avatar_asset_id")
         private val INITIAL_SYNC_COMPLETED = booleanPreferencesKey("initial_sync_completed")
         private val LAST_BACKUP_DATE_INSTANT = longPreferencesKey("last_backup_date_instant")
+        private val ANONYMOUS_ANALYTICS = booleanPreferencesKey("anonymous_analytics")
     }
 
 }

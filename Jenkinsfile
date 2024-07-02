@@ -8,22 +8,16 @@ pipeline {
     options { disableConcurrentBuilds(abortPrevious: true) }
 
     environment { 
-        CREDENTIALS = credentials('GITHUB_TOKEN_ANDROID') 
+        CREDENTIALS = credentials('GITHUB_TOKEN_ANDROID')
+        WIRE_BOT_SECRET = credentials('JENKINSBOT_NEW_ANDROID_REGRESSION')
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage("Wait for GitHub action to finish") {
             when {
                 expression { BRANCH_NAME ==~ /PR-[0-9]+/ }
             }
             steps {
-                publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'QUEUED', conclusion: 'NONE'
                 script {
                     def PR_NUMBER = BRANCH_NAME =~ /[0-9]+$/
                     echo("Wait for github actions to start for ${BRANCH_NAME}")
@@ -91,7 +85,6 @@ pipeline {
                 expression { BRANCH_NAME ==~ /PR-[0-9]+/ }
             }
             steps {
-                publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'IN_PROGRESS', conclusion: 'NONE'
                 script {
                     build job: 'android_reloaded_smoke', parameters: [string(name: 'AppBuildNumber', value: "/artifacts/megazord/android/reloaded/staging/release/wire-android-staging-release-${BRANCH_NAME}.apk"), string(name: 'TAGS', value: '@smoke'), string(name: 'Branch', value: 'main')]
                 }
@@ -101,25 +94,20 @@ pipeline {
     }
 
     post {
-        always {
-            // wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ FAILED ($last_started) 👎")
-            publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'COMPLETED', conclusion: 'SUCCESS', detailsURL: env.BUILD_URL
+        success {
             script {
                 if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
-                    echo("Success")
+                    wireSend(secret: env.WIRE_BOT_SECRET, message: "✅ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Smoke Tests [Details](${BUILD_URL})")
 		}
             }
         }
 
         unsuccessful {
-            // Check: Send failure
             script {
                 if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
-                    echo("Unsuccesful")
+                    wireSend(secret: env.WIRE_BOT_SECRET, message: "❌ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Smoke Tests failed! [Details](${BUILD_URL})")
                 }
             }
-            publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'COMPLETED', conclusion: 'FAILURE'
-            // wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ ABORTED ($last_started) ")
         }
     }
 }

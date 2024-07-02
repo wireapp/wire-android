@@ -98,16 +98,15 @@ fun ImportMediaScreen(
     navigator: Navigator,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel()
 ) {
-    when (val fileSharingRestrictedState =
-        featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState) {
-        FeatureFlagState.SharingRestrictedState.NO_USER -> {
+    when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
+        FeatureFlagState.FileSharingState.NoUser -> {
             ImportMediaLoggedOutContent(
                 fileSharingRestrictedState = fileSharingRestrictedState,
                 navigateBack = navigator::navigateBack
             )
         }
 
-        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM -> {
+        FeatureFlagState.FileSharingState.DisabledByTeam -> {
             val importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
             ImportMediaRestrictedContent(
                 fileSharingRestrictedState = fileSharingRestrictedState,
@@ -116,7 +115,8 @@ fun ImportMediaScreen(
             )
         }
 
-        FeatureFlagState.SharingRestrictedState.NONE -> {
+        FeatureFlagState.FileSharingState.AllowAll,
+        is FeatureFlagState.FileSharingState.AllowSome -> {
             val importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
             ImportMediaRegularContent(
                 importMediaAuthenticatedState = importMediaViewModel.importMediaState,
@@ -144,10 +144,6 @@ fun ImportMediaScreen(
                 }
             }
         }
-
-        null -> {
-            // state is not calculated yet, need to wait to avoid crash while requesting currentUser where it's absent
-        }
     }
 
     BackHandler { navigator.navigateBack() }
@@ -155,7 +151,7 @@ fun ImportMediaScreen(
 
 @Composable
 fun ImportMediaRestrictedContent(
-    fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
+    fileSharingRestrictedState: FeatureFlagState.FileSharingState,
     importMediaAuthenticatedState: ImportMediaAuthenticatedState,
     navigateBack: () -> Unit,
 ) {
@@ -247,7 +243,7 @@ fun ImportMediaRegularContent(
 
 @Composable
 fun ImportMediaLoggedOutContent(
-    fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
+    fileSharingRestrictedState: FeatureFlagState.FileSharingState,
     navigateBack: () -> Unit,
 ) {
     WireScaffold(
@@ -272,7 +268,7 @@ fun ImportMediaLoggedOutContent(
 @Composable
 fun FileSharingRestrictedContent(
     internalPadding: PaddingValues,
-    sharingRestrictedState: FeatureFlagState.SharingRestrictedState,
+    sharingRestrictedState: FeatureFlagState.FileSharingState,
     openWireAction: () -> Unit
 ) {
     val context = LocalContext.current
@@ -287,7 +283,7 @@ fun FileSharingRestrictedContent(
             .padding(horizontal = dimensions().spacing48x)
     ) {
         val textRes =
-            if (sharingRestrictedState == FeatureFlagState.SharingRestrictedState.NO_USER) {
+            if (sharingRestrictedState == FeatureFlagState.FileSharingState.NoUser) {
                 R.string.file_sharing_restricted_description_no_users
             } else {
                 R.string.file_sharing_restricted_description_by_team
@@ -301,7 +297,7 @@ fun FileSharingRestrictedContent(
 
         Spacer(modifier = Modifier.height(dimensions().spacing16x))
 
-        if (sharingRestrictedState == FeatureFlagState.SharingRestrictedState.NO_USER) {
+        if (sharingRestrictedState == FeatureFlagState.FileSharingState.NoUser) {
             WirePrimaryButton(
                 onClick = openWireAction,
                 text = stringResource(R.string.file_sharing_restricted_button_text_no_users),
@@ -459,14 +455,14 @@ private fun SnackBarMessage(
 @Preview(showBackground = true)
 @Composable
 fun PreviewImportMediaScreenLoggedOut() {
-    ImportMediaLoggedOutContent(FeatureFlagState.SharingRestrictedState.NO_USER) {}
+    ImportMediaLoggedOutContent(FeatureFlagState.FileSharingState.NoUser) {}
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewImportMediaScreenRestricted() {
     ImportMediaRestrictedContent(
-        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
+        FeatureFlagState.FileSharingState.DisabledByTeam,
         ImportMediaAuthenticatedState()
     ) {}
 }

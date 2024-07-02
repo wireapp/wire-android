@@ -26,7 +26,7 @@ import com.wire.android.R
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
+import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.util.inWholeWeeks
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import kotlinx.datetime.Clock
@@ -38,16 +38,16 @@ data class Device(
     val lastActiveInWholeWeeks: Int? = null,
     val isValid: Boolean = true,
     val isVerifiedProteus: Boolean = false,
-    val e2eiCertificate: E2eiCertificate? = null
+    val mlsClientIdentity: MLSClientIdentity? = null
 ) {
-    constructor(client: Client, e2eiCertificate: E2eiCertificate? = null) : this(
+    constructor(client: Client, mlsClientIdentity: MLSClientIdentity? = null) : this(
         name = client.displayName(),
         clientId = client.id,
         registrationTime = client.registrationTime?.toIsoDateTimeString(),
         lastActiveInWholeWeeks = client.lastActiveInWholeWeeks(),
         isValid = client.isValid,
         isVerifiedProteus = client.isVerified,
-        e2eiCertificate = e2eiCertificate
+        mlsClientIdentity = mlsClientIdentity
     )
 
     fun updateFromClient(client: Client): Device = copy(
@@ -57,11 +57,11 @@ data class Device(
         lastActiveInWholeWeeks = client.lastActiveInWholeWeeks(),
         isValid = client.isValid,
         isVerifiedProteus = client.isVerified,
-        e2eiCertificate = null,
+        mlsClientIdentity = null,
     )
 
-    fun updateE2EICertificate(e2eiCertificate: E2eiCertificate): Device = copy(
-        e2eiCertificate = e2eiCertificate
+    fun updateE2EICertificate(mlsClientIdentity: MLSClientIdentity): Device = copy(
+        mlsClientIdentity = mlsClientIdentity
     )
 }
 

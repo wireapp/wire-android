@@ -29,14 +29,13 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import javax.inject.Inject
 
 class UIParticipantMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader
 ) {
-    fun toUIParticipant(user: User, mlsCertificateStatus: CertificateStatus? = null): UIParticipant = with(user) {
+    fun toUIParticipant(user: User, isMLSVerified: Boolean = false): UIParticipant = with(user) {
         val (userType, connectionState, unavailable) = when (this) {
             is OtherUser -> Triple(this.userType, this.connectionStatus, this.isUnavailableUser)
             // TODO(refactor): does self user need a type ? to false
@@ -56,7 +55,7 @@ class UIParticipantMapper @Inject constructor(
             botService = (user as? OtherUser)?.botService,
             isDefederated = (user is OtherUser && user.defederated),
             isProteusVerified = (user is OtherUser && user.isProteusVerified),
-            isMLSVerified = mlsCertificateStatus == CertificateStatus.VALID,
+            isMLSVerified = isMLSVerified,
             supportedProtocolList = supportedProtocols.orEmpty().toList()
         )
     }

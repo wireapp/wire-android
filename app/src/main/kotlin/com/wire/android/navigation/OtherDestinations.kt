@@ -64,7 +64,11 @@ object PrivacyPolicyScreenDestination : ExternalUriStringResDirection {
 
 object TermsOfUseScreenDestination : ExternalUriStringResDirection {
     override val uriStringRes: Int
+<<<<<<< HEAD
         get() = R.string.url_terms_of_use_legal
+=======
+        get() = R.string.url_terms_of_use
+>>>>>>> 80766552f (feat: cherrypick privacy links and terms of use sections (WPB-8846) 🍒 (#3151))
 }
 
 object GiveFeedbackDestination : IntentDirection {

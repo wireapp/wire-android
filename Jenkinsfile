@@ -87,10 +87,7 @@ pipeline {
             steps {
                 publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'IN_PROGRESS', conclusion: 'NONE'
                 script {
-                    withChecks(name: 'Smoke Tests') {
-                        // Check: Send in_progress
-                        build job: 'android_reloaded_smoke', parameters: [string(name: 'AppBuildNumber', value: "/artifacts/megazord/android/reloaded/staging/release/wire-android-staging-release-${BRANCH_NAME}.apk"), string(name: 'TAGS', value: '@smoke'), string(name: 'Branch', value: 'main')]
-                    }
+                    build job: 'android_reloaded_smoke', parameters: [string(name: 'AppBuildNumber', value: "/artifacts/megazord/android/reloaded/staging/release/wire-android-staging-release-${BRANCH_NAME}.apk"), string(name: 'TAGS', value: '@smoke'), string(name: 'Branch', value: 'main')]
                 }
             }
         }
@@ -100,7 +97,7 @@ pipeline {
     post {
         always {
             // wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ FAILED ($last_started) 👎")
-            publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'COMPLETED', conclusion: 'SUCCESS'
+            publishChecks name: 'QA-Jenkins', title: 'Smoke Tests', status: 'COMPLETED', conclusion: 'SUCCESS', detailsURL: env.BUILD_URL
             script {
                 if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
                     echo("Success")

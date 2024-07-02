@@ -19,9 +19,10 @@ pipeline {
             }
             steps {
                 script {
-                    def PR_NUMBER = BRANCH_NAME =~ /[0-9]+$/
+                    def commit_hash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                    def pr_number = BRANCH_NAME.replaceAll(/\D/, '')
                     echo("Wait for github actions to start for ${BRANCH_NAME}")
-                    timeout(time: 3, unit: 'MINUTES') {
+                    timeout(time: 30, unit: 'MINUTES') {
                        waitUntil {
                            def output = sh label: 'Get runs', returnStdout: true, script: 'curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${CREDENTIALS}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/wireapp/wire-android/actions/workflows/98603098/runs'
                            def json = readJSON text: output
@@ -30,19 +31,14 @@ pipeline {
                                error("**Trigger script failed:** " + json['message'])
                            }
                            def runs = json['workflow_runs']
-                           echo("Looking for PR-" + PR_NUMBER)
+                           echo("Looking for PR-" + pr_number + " with hash" + commit_hash)
                            for (run in runs) {
-                               def pull_requests = run['pull_requests']
-                               for (pull_request in pull_requests) {
-                                   if (pull_request['number'] ==~ /PR-${PR_NUMBER}/) {
-                                       def run_id = run['id']
-                                       echo("Found PR-" + pull_request['number'])
-                                       echo("run: " + run_id)
-                                       echo("status: " + run['status'])
-                                       // status can be queued, in_progress, or completed
-                                       if (run['status'] == 'queued' || run['status'] == 'in_progress' || run['status'] == 'completed') {
-                                           return true
-                                       }
+                               if (run['head_sha'] == commit_hash) {
+                                   echo("Found PR-" + pull_request['number'])
+                                   echo("status: " + run['status'])
+                                   // status can be queued, in_progress, or completed
+                                   if (run['status'] == 'queued' || run['status'] == 'in_progress' || run['status'] == 'completed') {
+                                       return true
                                    }
                                }
                            }
@@ -59,8 +55,7 @@ pipeline {
                            def runs = json['workflow_runs']
                            echo("Looking for hash " + commit_hash)
                            for (run in runs) {
-                               if (run['id'] == run_id) {
-                                   echo("Found run " + run['id'])
+                               if (run['head_sha'] == commit_hash) {
                                    echo("conclusion: " + run['conclusion'])
                                    // conclusion can be: success, failure, neutral, cancelled, skipped, timed_out, or action_required
                                    if (run['conclusion'] == 'success') {
@@ -86,7 +81,7 @@ pipeline {
             }
             steps {
                 script {
-                    build job: 'android_reloaded_smoke', parameters: [string(name: 'AppBuildNumber', value: "/artifacts/megazord/android/reloaded/staging/release/wire-android-staging-release-${BRANCH_NAME}.apk"), string(name: 'TAGS', value: '@smoke'), string(name: 'Branch', value: 'main')]
+                    build job: 'android_reloaded_smoke', parameters: [string(name: 'AppBuildNumber', value: "/artifacts/megazord/android/reloaded/staging/release/$BRANCH_NAME/wire-android-staging-release-${BRANCH_NAME}.apk"), string(name: 'TAGS', value: '@smoke'), string(name: 'Branch', value: 'main')]
                 }
             }
         }
@@ -98,7 +93,7 @@ pipeline {
             script {
                 if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
                     wireSend(secret: env.WIRE_BOT_SECRET, message: "✅ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Smoke Tests [Details](${BUILD_URL})")
-		}
+                }
             }
         }
 

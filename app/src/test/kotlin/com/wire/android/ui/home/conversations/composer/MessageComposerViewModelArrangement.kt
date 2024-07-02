@@ -188,6 +188,86 @@ internal class MessageComposerViewModelArrangement {
         }
     }
 
+    fun withSuccessfulSendAttachmentMessage() = apply {
+        coEvery {
+            sendAssetMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns ScheduleNewAssetMessageResult.Success("some-message-id")
+    }
+
+    fun withSuccessfulSendTextMessage() = apply {
+        coEvery {
+            sendTextMessage(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Right(Unit)
+    }
+
+    fun withSuccessfulSendEditTextMessage() = apply {
+        coEvery {
+            sendEditTextMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Either.Right(Unit)
+    }
+
+    fun withSuccessfulSendTypingEvent() = apply {
+        coEvery {
+            sendTypingEvent(
+                any(),
+                any()
+            )
+        } returns Unit
+    }
+
+    fun withSendAssetsResult(result: ScheduleNewAssetMessageResult) = apply {
+        coEvery {
+            sendAssetMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns result
+    }
+
+    fun withFailureOnDeletingMessages() = apply {
+        coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
+        return this
+    }
+
+    fun withGetAssetSizeLimitUseCase(isImage: Boolean, assetSizeLimit: Long) = apply {
+        coEvery { getAssetSizeLimitUseCase(eq(isImage)) } returns assetSizeLimit
+        return this
+    }
+
+    fun withGetAssetBundleFromUri(assetBundle: AssetBundle?) = apply {
+        coEvery { fileManager.getAssetBundleFromUri(any(), any(), any(), any()) } returns assetBundle
+    }
+
+    fun withSaveToExternalMediaStorage(resultFileName: String?) = apply {
+        coEvery { fileManager.saveToExternalMediaStorage(any(), any(), any(), any(), any()) } returns resultFileName
+    }
+
     fun withObserveSelfDeletingStatus(expectedSelfDeletionTimer: SelfDeletionTimer) = apply {
         coEvery { observeConversationSelfDeletionStatus(conversationId, true) } returns flowOf(expectedSelfDeletionTimer)
     }

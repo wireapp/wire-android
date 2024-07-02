@@ -20,6 +20,7 @@ package com.wire.android.ui.sharing
 import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -30,6 +31,7 @@ import androidx.core.app.ShareCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toUIPreview
@@ -68,6 +70,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -88,6 +91,7 @@ import javax.inject.Inject
 @OptIn(FlowPreview::class)
 @Suppress("LongParameterList", "TooManyFunctions")
 class ImportMediaAuthenticatedViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val getSelf: GetSelfUserUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
@@ -357,17 +361,27 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                                 mimeType = importedAsset.assetBundle.mimeType,
                             )
                         ).also {
-                            val logConversationId = conversation.conversationId.toLogString()
-                            if (it is ScheduleNewAssetMessageResult.Failure) {
+                            when (it) {
+                                is ScheduleNewAssetMessageResult.Success -> appLogger.d(
+                                    "Successfully imported asset message to conversationId=${conversation.conversationId.toLogString()}"
+                                )
+
+                                is ScheduleNewAssetMessageResult.Failure.Generic ->
                                 appLogger.e(
-                                    "Failed to import asset message to " +
-                                            "conversationId=$logConversationId"
-                                )
-                            } else {
-                                appLogger.d(
-                                    "Success importing asset message to " +
-                                            "conversationId=$logConversationId"
-                                )
+                                    "Failed to import asset message to conversationId=${conversation.conversationId.toLogString()}"
+                                            )
+
+                                ScheduleNewAssetMessageResult.Failure.RestrictedFileType,
+                                ScheduleNewAssetMessageResult.Failure.DisabledByTeam -> {
+                                    Toast.makeText(
+                                        context,
+                                        R.string.restricted_asset_error_toast_message,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    appLogger.e(
+                                        "Failed to import asset message to conversationId=${conversation.conversationId.toLogString()}"
+                                            )
+                                }
                             }
                         }
                     }
@@ -465,5 +479,10 @@ data class ImportMediaAuthenticatedState(
     val isImporting: Boolean = false,
     val shareableConversationListState: ShareableConversationListState = ShareableConversationListState(),
     val selectedConversationItem: List<ConversationItem> = emptyList(),
-    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
+    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null),
+    val assetSendError: AssetSendError? = null
 )
+
+enum class AssetSendError {
+    DISABLED_BY_TEAM, RESTRICTED_ASSET
+}

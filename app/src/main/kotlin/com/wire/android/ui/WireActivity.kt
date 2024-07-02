@@ -79,6 +79,7 @@ import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
+import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.theme.ThemeOption
@@ -295,7 +296,7 @@ class WireActivity : AppCompatActivity() {
             } else {
                 if (showFileSharingDialog) {
                     FileRestrictionDialog(
-                        isFileSharingEnabled = isFileSharingEnabledState,
+                        isFileSharingEnabled = (isFileSharingState !is FeatureFlagState.FileSharingState.DisabledByTeam),
                         hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
                     )
                 }

@@ -105,6 +105,7 @@ mockk = "1.13.10"
 okio = "3.9.0"
 turbine = "1.1.0"
 robolectric = "4.12.1"
+hamcrest = "2.2"
 
 [plugins]
 # 3rd Party plugins
@@ -277,3 +278,4 @@ mockk-core = { module = "io.mockk:mockk", version.ref = "mockk" }
 okio-fakeFileSystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }

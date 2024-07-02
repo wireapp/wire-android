@@ -39,7 +39,8 @@ data class UserDebugState(
     val isLoggingEnabled: Boolean = false,
     val clientId: String = String.EMPTY,
     val commitish: String = String.EMPTY,
-    val debugId: String = String.EMPTY
+    val debugId: String = String.EMPTY,
+    val logPath: String
 )
 
 @Suppress("LongParameterList")
@@ -52,10 +53,8 @@ class UserDebugViewModel
     private val globalDataStore: GlobalDataStore
 ) : ViewModel() {
 
-    val logPath: String = logFileWriter.activeLoggingFile.absolutePath
-
     var state by mutableStateOf(
-        UserDebugState()
+        UserDebugState(logPath = logFileWriter.activeLoggingFile.absolutePath)
     )
 
     init {

@@ -101,7 +101,7 @@ private fun CommonExtension<*, *, *, *, *, *>.configureLint(project: Project) {
 
 internal fun CommonExtension<*, *, *, *, *, *>.configureAndroidKotlinTests() {
     defaultConfig {
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.wire.android.CustomTestRunner"
         testInstrumentationRunnerArguments.putAll(
             mapOf(
                 "clearPackageData" to "true",

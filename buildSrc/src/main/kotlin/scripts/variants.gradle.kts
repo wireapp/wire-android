@@ -25,6 +25,7 @@ import customization.Customization.getBuildtimeConfiguration
 import customization.FeatureConfigs
 import customization.FeatureFlags
 import customization.Features
+import customization.ResType
 import customization.overrideResourcesForAllFlavors
 import flavor.FlavorDimensions
 import flavor.ProductFlavors
@@ -195,39 +196,42 @@ android {
         }
 
         FeatureConfigs.values().forEach { configs ->
-            when (configs.configType) {
-                ConfigType.STRING -> {
-                    buildStringConfig(
-                        flavor,
-                        configs.configType.type,
-                        configs.name,
-                        flavorMap[flavor.name]?.get(configs.value)?.toString()
-                    )
-                }
+            when (configs.resType) {
+                ResType.STRING_RES -> buildStringRes(flavor, configs.name, flavorMap[flavor.name]?.get(configs.value)?.toString())
+                ResType.BUILD_CONFIG -> when (configs.configType) {
+                    ConfigType.STRING -> {
+                        buildStringConfig(
+                            flavor,
+                            configs.configType.type,
+                            configs.name,
+                            flavorMap[flavor.name]?.get(configs.value)?.toString()
+                        )
+                    }
 
-                ConfigType.INT,
-                ConfigType.BOOLEAN -> {
-                    buildNonStringConfig(
-                        flavor,
-                        configs.configType.type,
-                        configs.name,
-                        flavorMap[flavor.name]?.get(configs.value).toString()
-                    )
-                }
+                    ConfigType.INT,
+                    ConfigType.BOOLEAN -> {
+                        buildNonStringConfig(
+                            flavor,
+                            configs.configType.type,
+                            configs.name,
+                            flavorMap[flavor.name]?.get(configs.value).toString()
+                        )
+                    }
 
-                ConfigType.MapOfStringToListOfStrings -> {
-                    val map = flavorMap[flavor.name]?.get(configs.value) as? Map<*, *>
-                    val mapString = map?.map { (key, value) ->
-                        "\"$key\", java.util.Arrays.asList(${(value as? List<*>)?.joinToString { "\"$it\"" } ?: ""})".let {
-                            "put($it);"
-                        }
-                    }?.joinToString(",\n") ?: ""
-                    buildNonStringConfig(
-                        flavor,
-                        configs.configType.type,
-                        configs.name,
-                        "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
-                    )
+                    ConfigType.MapOfStringToListOfStrings -> {
+                        val map = flavorMap[flavor.name]?.get(configs.value) as? Map<*, *>
+                        val mapString = map?.map { (key, value) ->
+                            "\"$key\", java.util.Arrays.asList(${(value as? List<*>)?.joinToString { "\"$it\"" } ?: ""})".let {
+                                "put($it);"
+                            }
+                        }?.joinToString(",\n") ?: ""
+                        buildNonStringConfig(
+                            flavor,
+                            configs.configType.type,
+                            configs.name,
+                            "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
+                        )
+                    }
                 }
             }
         }
@@ -248,4 +252,11 @@ fun buildNonStringConfig(productFlavour: ProductFlavor, type: String, name: Stri
         name,
         value
     )
+}
+
+fun buildStringRes(productFlavour: ProductFlavor, name: String, value: String?) {
+    requireNotNull(value) {
+        "Missing default value for stringRes $name"
+    }
+    productFlavour.resValue("string", name.lowercase(), value)
 }

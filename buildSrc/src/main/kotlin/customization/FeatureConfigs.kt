@@ -17,6 +17,9 @@
  */
 package customization
 
+import customization.ResType.BUILD_CONFIG
+import customization.ResType.STRING_RES
+
 enum class ConfigType(val type: String) {
     STRING("String"),
     BOOLEAN("Boolean"),
@@ -24,7 +27,12 @@ enum class ConfigType(val type: String) {
     MapOfStringToListOfStrings("java.util.HashMap<String, java.util.List<String>>")
 }
 
-enum class FeatureConfigs(val value: String, val configType: ConfigType) {
+enum class ResType {
+    BUILD_CONFIG,
+    STRING_RES
+}
+
+enum class FeatureConfigs(val value: String, val configType: ConfigType, val resType: ResType = BUILD_CONFIG) {
     /**
      * General APP Coordinates
      */
@@ -79,8 +87,25 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     DEVELOPMENT_API_ENABLED("development_api_enabled", ConfigType.BOOLEAN),
     REPORT_BUG_MENU_ITEM_ENABLED("report_bug_menu_item_enabled", ConfigType.BOOLEAN),
 
-    URL_SUPPORT("url_support", ConfigType.STRING),
+    /**
+     * Urls
+     */
     URL_RSS_RELEASE_NOTES("url_rss_release_notes", ConfigType.STRING),
+    URL_SUPPORT("url_support", ConfigType.STRING),
+    URL_PRIVACY_POLICY("url_privacy_policy", ConfigType.STRING, STRING_RES),
+    URL_TERMS_OF_USE_LEGAL("url_terms_of_use_legal", ConfigType.STRING, STRING_RES),
+    URL_DECRYPTION_FAILURE_LEARN_MORE("url_decryption_failure_learn_more", ConfigType.STRING, STRING_RES),
+    URL_WELCOME_TO_NEW_ANDROID("url_welcome_to_new_android", ConfigType.STRING, STRING_RES),
+    URL_MESSAGE_DETAILS_REACTIONS_LEARN_MORE("url_message_details_reactions_learn_more", ConfigType.STRING, STRING_RES),
+    URL_MESSAGE_DETAILS_READ_RECEIPTS_LEARN_MORE("url_message_details_read_receipts_learn_more", ConfigType.STRING, STRING_RES),
+    URL_MESSAGE_DETAILS_OFFLINE_BACKENDS_LEARN_MORE("url_message_details_offline_backends_learn_more", ConfigType.STRING, STRING_RES),
+    URL_SELF_CLIENT_VERIFICATION_LEARN_MORE("url_self_client_verification_learn_more", ConfigType.STRING, STRING_RES),
+    URL_SELF_CLIENT_FINGERPRINT_LEARN_MORE("url_self_client_fingerprint_learn_more", ConfigType.STRING, STRING_RES),
+    URL_FEDERATION_SUPPORT("url_federation_support", ConfigType.STRING, STRING_RES),
+    URL_CREATE_ACCOUNT_LEARN_MORE("url_create_account_learn_more", ConfigType.STRING, STRING_RES),
+    URL_LEGAL_HOLD_LEARN_MORE("url_legal_hold_learn_more", ConfigType.STRING, STRING_RES),
+    URL_FILE_SHARING_RESTRICTED_LEARN_MORE("url_file_sharing_restricted_learn_more", ConfigType.STRING, STRING_RES),
+    URL_SYSTEM_MESSAGE_LEARN_MORE_ABOUT_MLS("url_system_message_learn_more_about_mls", ConfigType.STRING, STRING_RES),
 
     /**
      * In runtime, will use these values to determine which backend to use.

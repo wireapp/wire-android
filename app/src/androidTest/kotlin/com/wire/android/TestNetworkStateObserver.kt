@@ -15,17 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.messagecomposer.location
 
-import javax.inject.Inject
+package com.wire.android
 
-class LocationPickerHelperFlavor @Inject constructor(
-    private val locationPickerHelper: LocationPickerHelper,
-) {
-    suspend fun getLocation(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
-        locationPickerHelper.getLocationWithoutGms(
-            onSuccess = onSuccess,
-            onError = onError,
-        )
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
+import kotlinx.coroutines.flow.MutableStateFlow
+
+class TestNetworkStateObserver(initialState: NetworkState = NetworkState.ConnectedWithInternet) : NetworkStateObserver {
+
+    private val networkState = MutableStateFlow(initialState)
+
+    override fun observeNetworkState(): MutableStateFlow<NetworkState> = networkState
+
+    suspend fun updateNetworkState(state: NetworkState) { networkState.emit(state) }
+
+    companion object {
+        val DEFAULT_TEST_NETWORK_STATE_OBSERVER = TestNetworkStateObserver()
     }
 }

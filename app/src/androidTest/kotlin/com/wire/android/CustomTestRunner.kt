@@ -15,17 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.messagecomposer.location
+package com.wire.android
 
-import javax.inject.Inject
+import android.app.Application
+import android.content.Context
+import androidx.test.runner.AndroidJUnitRunner
 
-class LocationPickerHelperFlavor @Inject constructor(
-    private val locationPickerHelper: LocationPickerHelper,
-) {
-    suspend fun getLocation(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
-        locationPickerHelper.getLocationWithoutGms(
-            onSuccess = onSuccess,
-            onError = onError,
-        )
+class CustomTestRunner : AndroidJUnitRunner() {
+    override fun newApplication(cl: ClassLoader?, className: String?, context: Context?): Application {
+        return super.newApplication(cl, HiltTestApp_Application::class.java.name, context)
     }
 }

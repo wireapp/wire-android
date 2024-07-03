@@ -103,6 +103,9 @@ android {
                 }
             }
         }
+        getByName("androidTest") {
+            java.srcDirs("src/androidTest/kotlin")
+        }
     }
 }
 
@@ -114,6 +117,8 @@ aboutLibraries {
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
+    androidTestImplementation("com.wire.kalium:kalium-mocks")
+    androidTestImplementation("com.wire.kalium:kalium-network")
 
     // features
     implementation(project(":features:sketch"))
@@ -255,6 +260,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.espresso.intents)
     androidTestImplementation(libs.androidx.espresso.accessibility)
+    androidTestImplementation(libs.hamcrest)
+    androidTestImplementation(libs.hilt.test)
+    kspAndroidTest(libs.hilt.compiler)
+
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.test.uiAutomator)
     androidTestImplementation(libs.androidx.test.work)

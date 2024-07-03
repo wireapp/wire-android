@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.messagecomposer.location
+package com.wire.android.extensions
 
-import javax.inject.Inject
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.onAllNodesWithText
 
-class LocationPickerHelperFlavor @Inject constructor(
-    private val locationPickerHelper: LocationPickerHelper,
-) {
-    suspend fun getLocation(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
-        locationPickerHelper.getLocationWithoutGms(
-            onSuccess = onSuccess,
-            onError = onError,
-        )
-    }
+fun ComposeContentTestRule.waitUntilExists(
+    text: String,
+    timeoutMillis: Long = WAIT_UNTIL_TIMEOUT,
+) = waitUntil(timeoutMillis = timeoutMillis) {
+    onAllNodesWithText(text)
+        .fetchSemanticsNodes().size == 1
 }
+
+private const val WAIT_UNTIL_TIMEOUT = 2_000L

@@ -15,17 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.messagecomposer.location
+package com.wire.android.provider
 
-import javax.inject.Inject
+import android.content.Context
+import androidx.compose.runtime.staticCompositionLocalOf
 
-class LocationPickerHelperFlavor @Inject constructor(
-    private val locationPickerHelper: LocationPickerHelper,
-) {
-    suspend fun getLocation(onSuccess: (GeoLocatedAddress) -> Unit, onError: () -> Unit) {
-        locationPickerHelper.getLocationWithoutGms(
-            onSuccess = onSuccess,
-            onError = onError,
-        )
-    }
+val LocalAppContext = staticCompositionLocalOf<Context> {
+    error("CompositionLocal LocalAppContext not provided")
 }

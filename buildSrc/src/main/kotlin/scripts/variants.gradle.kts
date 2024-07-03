@@ -25,7 +25,6 @@ import customization.Customization.getBuildtimeConfiguration
 import customization.FeatureConfigs
 import customization.FeatureFlags
 import customization.Features
-import customization.ResType
 import customization.overrideResourcesForAllFlavors
 import flavor.FlavorDimensions
 import flavor.ProductFlavors
@@ -183,71 +182,54 @@ android {
         overrideResourcesForAllFlavors(it)
     }
 
-    // Process defined product flavors and generates: BuildConfig values or Android Resources.
+    /**
+     * Process feature flags and if the feature is not included in a product flavor,
+     * a default value of "false" or "deactivated" is used.
+     *
+     * @see "FeatureFlags.kt" file definition.
+     */
     productFlavors.forEach { flavor ->
-        /**
-         * Process feature flags and if the feature is not included in a product flavor,
-         * a default value of "false" or "deactivated" is used.
-         *
-         * @see "FeatureFlags.kt" file definition.
-         */
         Features.values().forEach { feature ->
             val activated = FeatureFlags.activated.mapKeys { it.key.buildName }[flavor.name].orEmpty().contains(feature)
             flavor.buildConfigField("Boolean", feature.name, activated.toString())
         }
 
         FeatureConfigs.values().forEach { configs ->
-            when (configs.resType) {
-                ResType.STRING_RES -> buildStringRes(
-                    productFlavour = flavor,
-                    name = configs.name,
-                    value = flavorMap[flavor.name]?.get(configs.value)?.toString()
-                )
-
-                ResType.BUILD_CONFIG -> buildCompilationConfig(configs = configs, flavor = flavor, flavorMap = flavorMap)
-            }
-        }
-    }
-}
-
-fun buildCompilationConfig(
-    configs: FeatureConfigs,
-    flavor: ProductFlavor,
-    flavorMap: Map<String, Map<String, Any?>>
-) {
-    when (configs.configType) {
-        ConfigType.STRING -> {
-            buildStringConfig(
-                flavor,
-                configs.configType.type,
-                configs.name,
-                flavorMap[flavor.name]?.get(configs.value)?.toString()
-            )
-        }
-
-        ConfigType.INT,
-        ConfigType.BOOLEAN -> {
-            buildNonStringConfig(
-                flavor,
-                configs.configType.type,
-                configs.name,
-                flavorMap[flavor.name]?.get(configs.value).toString()
-            )
-        }
-
-        ConfigType.MapOfStringToListOfStrings -> {
-            val map = flavorMap[flavor.name]?.get(configs.value) as? Map<*, *>
-            val mapString = map?.map { (key, value) ->
-                "\"$key\", java.util.Arrays.asList(${(value as? List<*>)?.joinToString { "\"$it\"" } ?: ""})".let {
-                    "put($it);"
+            when (configs.configType) {
+                ConfigType.STRING -> {
+                    buildStringConfig(
+                        flavor,
+                        configs.configType.type,
+                        configs.name,
+                        flavorMap[flavor.name]?.get(configs.value)?.toString()
+                    )
                 }
-            }?.joinToString(",\n") ?: ""
-            buildNonStringConfig(
-                flavor,
-                configs.configType.type,
-                configs.name,
-                "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
-            )
+
+                ConfigType.INT,
+                ConfigType.BOOLEAN -> {
+                    buildNonStringConfig(
+                        flavor,
+                        configs.configType.type,
+                        configs.name,
+                        flavorMap[flavor.name]?.get(configs.value).toString()
+                    )
+                }
+
+                ConfigType.MapOfStringToListOfStrings -> {
+                    val map = flavorMap[flavor.name]?.get(configs.value) as? Map<*, *>
+                    val mapString = map?.map { (key, value) ->
+                        "\"$key\", java.util.Arrays.asList(${(value as? List<*>)?.joinToString { "\"$it\"" } ?: ""})".let {
+                            "put($it);"
+                        }
+                    }?.joinToString(",\n") ?: ""
+                    buildNonStringConfig(
+                        flavor,
+                        configs.configType.type,
+                        configs.name,
+                        "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
+                    )
+                }
+            }
         }
     }
 }
@@ -266,11 +248,4 @@ fun buildNonStringConfig(productFlavour: ProductFlavor, type: String, name: Stri
         name,
         value
     )
-}
-
-fun buildStringRes(productFlavour: ProductFlavor, name: String, value: String?) {
-    requireNotNull(value) {
-        "Missing default value for stringRes $name"
-    }
-    productFlavour.resValue("string", name.lowercase(), value)
 }

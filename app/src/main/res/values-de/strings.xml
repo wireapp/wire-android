@@ -925,7 +925,7 @@
     <string name="settings_your_account_label">Kontodetails</string>
     <string name="settings_app_settings_label">App-Einstellungen</string>
     <string name="settings_privacy_policy_label">Datenschutzerklärung</string>
-    <string name="settings_terms_of_use_label">Nutzungsbedingungen</string>
+    <string name="settings_terms_of_use_label">Datenschutz und AGB</string>
     <string name="settings_network_settings_label">Netzwerkeinstellungen</string>
     <string name="settings_manage_devices_label">Geräte verwalten</string>
     <string name="settings_keep_connection_to_websocket">Verbindung zu Websocket behalten</string>

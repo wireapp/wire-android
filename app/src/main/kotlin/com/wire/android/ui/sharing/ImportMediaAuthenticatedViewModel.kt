@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.sharing
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
@@ -67,10 +68,10 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTim
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -361,28 +362,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                                 mimeType = importedAsset.assetBundle.mimeType,
                             )
                         ).also {
-                            when (it) {
-                                is ScheduleNewAssetMessageResult.Success -> appLogger.d(
-                                    "Successfully imported asset message to conversationId=${conversation.conversationId.toLogString()}"
-                                )
-
-                                is ScheduleNewAssetMessageResult.Failure.Generic ->
-                                appLogger.e(
-                                    "Failed to import asset message to conversationId=${conversation.conversationId.toLogString()}"
-                                            )
-
-                                ScheduleNewAssetMessageResult.Failure.RestrictedFileType,
-                                ScheduleNewAssetMessageResult.Failure.DisabledByTeam -> {
-                                    Toast.makeText(
-                                        context,
-                                        R.string.restricted_asset_error_toast_message,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    appLogger.e(
-                                        "Failed to import asset message to conversationId=${conversation.conversationId.toLogString()}"
-                                            )
-                                }
-                            }
+                            handleError(it, conversation.conversationId)
                         }
                     }
                     jobs.add(job)
@@ -394,6 +374,31 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 }
             }
         }
+
+    private fun handleError(result: ScheduleNewAssetMessageResult, conversationId: ConversationId) {
+        when (result) {
+            is ScheduleNewAssetMessageResult.Success -> appLogger.d(
+                "Successfully imported asset message to conversationId=${conversationId.toLogString()}"
+            )
+
+            is ScheduleNewAssetMessageResult.Failure.Generic ->
+                appLogger.e(
+                    "Failed to import asset message to conversationId=${conversationId.toLogString()}"
+                )
+
+            ScheduleNewAssetMessageResult.Failure.RestrictedFileType,
+            ScheduleNewAssetMessageResult.Failure.DisabledByTeam -> {
+                Toast.makeText(
+                    context,
+                    R.string.restricted_asset_error_toast_message,
+                    Toast.LENGTH_SHORT
+                ).show()
+                appLogger.e(
+                    "Failed to import asset message to conversationId=${conversationId.toLogString()}"
+                )
+            }
+        }
+    }
 
     fun onNewConversationPicked(conversationId: ConversationId) = viewModelScope.launch {
         importMediaState = importMediaState.copy(

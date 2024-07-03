@@ -36,8 +36,8 @@ import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
-import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.ImageUtil
+import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.logic.CoreFailure
@@ -294,18 +294,29 @@ class SendMessageViewModel @Inject constructor(
         }
     }
 
-    private fun Either<CoreFailure, Unit>.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) =
+    private fun Either<CoreFailure, Unit>.handleLegalHoldFailureAfterSendingMessage(
+        conversationId: ConversationId
+    ): Either<CoreFailure, Unit> =
         onFailure { it.handleLegalHoldFailureAfterSendingMessage(conversationId) }
 
-    private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) = let {
-        if (it is ScheduleNewAssetMessageResult.Failure) {
-            it.coreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId)
+    private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage(
+        conversationId: ConversationId
+    ): Either<CoreFailure?, Unit> =
+        let {
+            when (this) {
+                is ScheduleNewAssetMessageResult.Success -> Either.Right(Unit)
+                ScheduleNewAssetMessageResult.Failure.DisabledByTeam,
+                ScheduleNewAssetMessageResult.Failure.RestrictedFileType -> {
+                    onSnackbarMessage(ConversationSnackbarMessages.ErrorAssetRestriction)
+                    Either.Left(null)
+                }
+
+                is ScheduleNewAssetMessageResult.Failure.Generic -> {
+                    this.coreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId)
+                    Either.Left(coreFailure)
+                }
+            }
         }
-        when (this) {
-            is ScheduleNewAssetMessageResult.Failure -> Either.Left(coreFailure)
-            is ScheduleNewAssetMessageResult.Success -> Either.Right(Unit)
-        }
-    }
 
     fun retrySendingMessage(messageId: String, conversationId: ConversationId) {
         viewModelScope.launch {
@@ -357,7 +368,7 @@ class SendMessageViewModel @Inject constructor(
         viewState = viewState.copy(messageSent = false, inProgress = true)
     }
 
-    private fun Either<CoreFailure, Unit>.handleAfterMessageResult() {
+    private fun Either<CoreFailure?, Unit>.handleAfterMessageResult() {
         viewState = viewState.copy(messageSent = this.isRight(), inProgress = false)
     }
 }

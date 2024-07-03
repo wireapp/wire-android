@@ -23,12 +23,12 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.util.ui.UIText
 
 sealed class ConversationSnackbarMessages(override val uiText: UIText) : SnackBarMessage {
-    object ErrorPickingAttachment : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_generic))
-    object ErrorSendingAsset : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_sending_asset))
-    object ErrorSendingImage : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_sending_image))
-    object ErrorDownloadingAsset : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_downloading_asset))
-    object ErrorOpeningAssetFile : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_opening_asset_file))
-    object ErrorDeletingMessage : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_deleting_message))
+    data object ErrorPickingAttachment : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_generic))
+    data object ErrorSendingAsset : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_sending_asset))
+    data object ErrorSendingImage : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_sending_image))
+    data object ErrorDownloadingAsset : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_downloading_asset))
+    data object ErrorOpeningAssetFile : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_opening_asset_file))
+    data object ErrorDeletingMessage : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_deleting_message))
     data object ErrorAssetRestriction : ConversationSnackbarMessages(UIText.StringResource(R.string.restricted_asset_error_toast_message))
     data class ErrorMaxAssetSize(val maxLimitInMB: Int) :
         ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_max_asset_size_limit, maxLimitInMB))
@@ -43,6 +43,6 @@ sealed class MediaGallerySnackbarMessages(override val uiText: UIText) : SnackBa
     class OnImageDownloaded(val assetName: String? = null) :
         MediaGallerySnackbarMessages(UIText.StringResource(R.string.media_gallery_on_image_downloaded, assetName ?: ""))
 
-    object OnImageDownloadError : MediaGallerySnackbarMessages(UIText.StringResource(R.string.media_gallery_on_image_download_error))
-    object DeletingMessageError : MediaGallerySnackbarMessages(UIText.StringResource(R.string.error_conversation_deleting_message))
+    data object OnImageDownloadError : MediaGallerySnackbarMessages(UIText.StringResource(R.string.media_gallery_on_image_download_error))
+    data object DeletingMessageError : MediaGallerySnackbarMessages(UIText.StringResource(R.string.error_conversation_deleting_message))
 }

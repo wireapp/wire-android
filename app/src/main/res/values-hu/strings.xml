@@ -897,7 +897,6 @@
     <string name="block_user_dialog_confirm_button">Letiltás</string>
     <string name="other_user_devices_description">A Wire minden eszköznek egyedi ujjlenyomatot ad. Hasonlítsa össze őket %1$s partnerrel, és ellenőrizze a beszélgetést.</string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Általános</string>
     <string name="settings_account_settings_label">Fiók beállításai</string>
     <string name="settings_devices_label">Eszközök</string>

@@ -894,7 +894,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="block_user_dialog_confirm_button">Bloquear</string>
     <string name="other_user_devices_description">Wire asigna una huella digital &#250;nica a cada dispositivo. Comparelas con %1$s y verifique su conversaci&#243;n. </string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/es/articles/207859815</string>
     <string name="settings_general_label">General</string>
     <string name="settings_account_settings_label">Configuraci&#243;n de la cuenta</string>
     <string name="settings_devices_label">Dispositivos</string>

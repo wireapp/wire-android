@@ -928,7 +928,6 @@
     <string name="block_user_dialog_confirm_button">Заблокировать</string>
     <string name="other_user_devices_description">Wire присваивает каждому устройству уникальный отпечаток. Сравните их с %1$s и верифицируйте вашу беседу.</string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Основные</string>
     <string name="settings_account_settings_label">Настройки аккаунта</string>
     <string name="settings_devices_label">Устройства</string>

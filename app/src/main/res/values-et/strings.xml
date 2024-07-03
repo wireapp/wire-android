@@ -897,7 +897,6 @@
     <string name="block_user_dialog_confirm_button">Blokeeri</string>
     <string name="other_user_devices_description">Wire annab igale seadmele unikaalse sõrmejälje. Võrdle neid kasutaja %1$s-ga ja kinnita oma vestluse turvalisus.</string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Üldine</string>
     <string name="settings_account_settings_label">Konto seaded</string>
     <string name="settings_devices_label">Seadmed</string>

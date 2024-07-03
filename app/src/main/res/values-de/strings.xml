@@ -899,7 +899,6 @@
     <string name="block_user_dialog_confirm_button">Blockieren</string>
     <string name="other_user_devices_description">Wire gibt jedem Gerät einen einzigartigen Fingerabdruck. Vergleichen Sie diese mit %1$s und überprüfen Sie Ihre Unterhaltung.</string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/de/articles/207859815</string>
     <string name="settings_general_label">Allgemein</string>
     <string name="settings_account_settings_label">Kontoeinstellungen</string>
     <string name="settings_devices_label">Geräte</string>

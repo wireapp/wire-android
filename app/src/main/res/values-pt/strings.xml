@@ -894,7 +894,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="block_user_dialog_confirm_button">Bloquear</string>
     <string name="other_user_devices_description">Wire cria uma identificação única para cada dispositivo. Compare-as com %1$s para verificar conversa.</string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/pt/articles/207859815</string>
     <string name="settings_general_label">Geral</string>
     <string name="settings_account_settings_label">Configurações da Conta</string>
     <string name="settings_devices_label">Dispositivos</string>

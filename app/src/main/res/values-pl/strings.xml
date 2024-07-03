@@ -930,7 +930,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="block_user_dialog_confirm_button">Zablokuj</string>
     <string name="other_user_devices_description">\Wire nadaje ka&#380;demu urz&#261;dzeniu unikalny odcisk palca. Por&#243;wnaj je z %1$s i zweryfikuj swoj&#261; konwersacj&#281;. \</string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Og&#243;lne</string>
     <string name="settings_account_settings_label">Ustawienia konta</string>
     <string name="settings_devices_label">Urz&#261;dzenia</string>

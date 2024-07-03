@@ -885,7 +885,6 @@
     <string name="block_user_dialog_confirm_button">අවහිර කරන්න</string>
     <string name="other_user_devices_description">වයර් සෑම උපාංගයකටම අනන්‍ය ඇඟිලි සටහනක් ලබා දෙයි. ඒවා %1$s සමඟ සැසඳීමෙන් සංවාදය සත්‍යාපනය කරගන්න.</string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">සාමාන්‍ය</string>
     <string name="settings_account_settings_label">ගිණුමේ සැකසුම්</string>
     <string name="settings_devices_label">උපාංග</string>

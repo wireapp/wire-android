@@ -161,16 +161,16 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private suspend fun initializeAnonymousAnalytics() {
+        val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl()
+        val analyticsSettings = AnalyticsSettings(
+            countlyAppKey = BuildConfig.ANALYTICS_APP_KEY,
+            countlyServerUrl = BuildConfig.ANALYTICS_SERVER_URL,
+            enableDebugLogging = BuildConfig.DEBUG
+        )
+
         coreLogic.get().getGlobalScope().session.currentSessionFlow().collectLatest { sessionResult ->
             if (sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid()) {
                 val userDataStore = userDataStoreProvider.get().getOrCreate(sessionResult.accountInfo.userId)
-
-                val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl()
-                val analyticsSettings = AnalyticsSettings(
-                    countlyAppKey = BuildConfig.ANALYTICS_APP_KEY,
-                    countlyServerUrl = BuildConfig.ANALYTICS_SERVER_URL,
-                    enableDebugLogging = BuildConfig.DEBUG
-                )
 
                 coreLogic.get().updateApiVersionsScheduler
 

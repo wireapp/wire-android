@@ -81,7 +81,17 @@ pipeline {
             }
             steps {
                 script {
-                    build job: 'android_reloaded_smoke', parameters: [string(name: 'AppBuildNumber', value: "/artifacts/megazord/android/reloaded/staging/release/$BRANCH_NAME/wire-android-staging-release-${BRANCH_NAME}.apk"), string(name: 'TAGS', value: '@smoke'), string(name: 'Branch', value: 'main')]
+                    def files = []
+                    withAWS(region: 'eu-west-1', credentials: "S3_CREDENTIALS") {
+                        files = s3FindFiles bucket: "z-lohika", path: "artifacts/megazord/android/reloaded/staging/compat/$BRANCH_NAME/", onlyFiles: true, glob: '*.apk'
+                    }
+                    files.sort { a, b -> a.lastModified <=> b.lastModified }
+                    if (files.size() < 1) {
+                        error("Could not find any apk at provided location!")
+                    } else {
+                        def lastModifiedFileName = files[-1].name
+                        build job: 'android_reloaded_smoke', parameters: [string(name: 'AppBuildNumber', value: "artifacts/megazord/android/reloaded/staging/compat/$BRANCH_NAME/${lastModifiedFileName}"), string(name: 'TAGS', value: '@smoke'), string(name: 'Branch', value: 'main')]
+                    }
                 }
             }
         }

@@ -172,8 +172,6 @@ class WireApplication : Application(), Configuration.Provider {
             if (sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid()) {
                 val userDataStore = userDataStoreProvider.get().getOrCreate(sessionResult.accountInfo.userId)
 
-                coreLogic.get().updateApiVersionsScheduler
-
                 AnonymousAnalyticsManagerImpl.init(
                     context = this,
                     analyticsSettings = analyticsSettings,

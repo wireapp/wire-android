@@ -38,7 +38,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
@@ -64,19 +63,18 @@ fun EmptySearchQueryScreen() {
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(dimensions().spacing16x))
+            val aboutSearchUrl = stringResource(id = R.string.url_learn_about_search)
             Text(
                 text = stringResource(R.string.label_learn_more_searching_user),
                 style = MaterialTheme.wireTypography.body02.copy(
                     textDecoration = TextDecoration.Underline,
                     color = MaterialTheme.colorScheme.primary
                 ),
-                modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, LEARN_ABOUT_SEARCH_URL) }
+                modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, aboutSearchUrl) }
             )
         }
     }
 }
-
-private const val LEARN_ABOUT_SEARCH_URL = "${BuildConfig.URL_SUPPORT}/hc/en-us/articles/203121850-How-can-I-find-someone"
 
 @Preview
 @Composable

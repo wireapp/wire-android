@@ -91,7 +91,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType, val res
      * Urls
      */
     URL_RSS_RELEASE_NOTES("url_rss_release_notes", ConfigType.STRING),
-    URL_SUPPORT("url_support", ConfigType.STRING),
+    URL_SUPPORT("url_support", ConfigType.STRING, STRING_RES),
     URL_PRIVACY_POLICY("url_privacy_policy", ConfigType.STRING, STRING_RES),
     URL_TERMS_OF_USE_LEGAL("url_terms_of_use_legal", ConfigType.STRING, STRING_RES),
     URL_DECRYPTION_FAILURE_LEARN_MORE("url_decryption_failure_learn_more", ConfigType.STRING, STRING_RES),
@@ -106,6 +106,9 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType, val res
     URL_LEGAL_HOLD_LEARN_MORE("url_legal_hold_learn_more", ConfigType.STRING, STRING_RES),
     URL_FILE_SHARING_RESTRICTED_LEARN_MORE("url_file_sharing_restricted_learn_more", ConfigType.STRING, STRING_RES),
     URL_SYSTEM_MESSAGE_LEARN_MORE_ABOUT_MLS("url_system_message_learn_more_about_mls", ConfigType.STRING, STRING_RES),
+    URL_WHY_VERIFY_CONVERSATION("url_why_verify_conversation", ConfigType.STRING, STRING_RES),
+    URL_LEARN_ABOUT_SEARCH("url_learn_about_search", ConfigType.STRING, STRING_RES),
+    URL_LEARN_ABOUT_CONVERSATION_SEARCH("url_learn_about_conversation_search", ConfigType.STRING, STRING_RES),
 
     /**
      * In runtime, will use these values to determine which backend to use.

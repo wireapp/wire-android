@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyriextracted024 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -183,13 +183,14 @@ android {
         overrideResourcesForAllFlavors(it)
     }
 
-    /**
-     * Process feature flags and if the feature is not included in a product flavor,
-     * a default value of "false" or "deactivated" is used.
-     *
-     * @see "FeatureFlags.kt" file definition.
-     */
+    // Process defined product flavors and generates: BuildConfig values or Android Resources.
     productFlavors.forEach { flavor ->
+        /**
+         * Process feature flags and if the feature is not included in a product flavor,
+         * a default value of "false" or "deactivated" is used.
+         *
+         * @see "FeatureFlags.kt" file definition.
+         */
         Features.values().forEach { feature ->
             val activated = FeatureFlags.activated.mapKeys { it.key.buildName }[flavor.name].orEmpty().contains(feature)
             flavor.buildConfigField("Boolean", feature.name, activated.toString())
@@ -197,43 +198,56 @@ android {
 
         FeatureConfigs.values().forEach { configs ->
             when (configs.resType) {
-                ResType.STRING_RES -> buildStringRes(flavor, configs.name, flavorMap[flavor.name]?.get(configs.value)?.toString())
-                ResType.BUILD_CONFIG -> when (configs.configType) {
-                    ConfigType.STRING -> {
-                        buildStringConfig(
-                            flavor,
-                            configs.configType.type,
-                            configs.name,
-                            flavorMap[flavor.name]?.get(configs.value)?.toString()
-                        )
-                    }
+                ResType.STRING_RES -> buildStringRes(
+                    productFlavour = flavor,
+                    name = configs.name,
+                    value = flavorMap[flavor.name]?.get(configs.value)?.toString()
+                )
 
-                    ConfigType.INT,
-                    ConfigType.BOOLEAN -> {
-                        buildNonStringConfig(
-                            flavor,
-                            configs.configType.type,
-                            configs.name,
-                            flavorMap[flavor.name]?.get(configs.value).toString()
-                        )
-                    }
-
-                    ConfigType.MapOfStringToListOfStrings -> {
-                        val map = flavorMap[flavor.name]?.get(configs.value) as? Map<*, *>
-                        val mapString = map?.map { (key, value) ->
-                            "\"$key\", java.util.Arrays.asList(${(value as? List<*>)?.joinToString { "\"$it\"" } ?: ""})".let {
-                                "put($it);"
-                            }
-                        }?.joinToString(",\n") ?: ""
-                        buildNonStringConfig(
-                            flavor,
-                            configs.configType.type,
-                            configs.name,
-                            "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
-                        )
-                    }
-                }
+                ResType.BUILD_CONFIG -> buildCompilationConfig(configs = configs, flavor = flavor, flavorMap = flavorMap)
             }
+        }
+    }
+}
+
+fun buildCompilationConfig(
+    configs: FeatureConfigs,
+    flavor: ProductFlavor,
+    flavorMap: Map<String, Map<String, Any?>>
+) {
+    when (configs.configType) {
+        ConfigType.STRING -> {
+            buildStringConfig(
+                flavor,
+                configs.configType.type,
+                configs.name,
+                flavorMap[flavor.name]?.get(configs.value)?.toString()
+            )
+        }
+
+        ConfigType.INT,
+        ConfigType.BOOLEAN -> {
+            buildNonStringConfig(
+                flavor,
+                configs.configType.type,
+                configs.name,
+                flavorMap[flavor.name]?.get(configs.value).toString()
+            )
+        }
+
+        ConfigType.MapOfStringToListOfStrings -> {
+            val map = flavorMap[flavor.name]?.get(configs.value) as? Map<*, *>
+            val mapString = map?.map { (key, value) ->
+                "\"$key\", java.util.Arrays.asList(${(value as? List<*>)?.joinToString { "\"$it\"" } ?: ""})".let {
+                    "put($it);"
+                }
+            }?.joinToString(",\n") ?: ""
+            buildNonStringConfig(
+                flavor,
+                configs.configType.type,
+                configs.name,
+                "new java.util.HashMap<String, java.util.List<String>>() {{\n$mapString\n}}"
+            )
         }
     }
 }

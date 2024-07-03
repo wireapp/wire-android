@@ -37,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
@@ -88,7 +87,7 @@ private fun OtherUserDevicesContent(
     onDeviceClick: (Device) -> Unit
 ) {
     val context = LocalContext.current
-    val supportUrl = BuildConfig.URL_SUPPORT + stringResource(id = R.string.url_why_verify_conversation)
+    val supportUrl = stringResource(id = R.string.url_why_verify_conversation)
     with(state) {
         LazyColumn(
             state = lazyListState,

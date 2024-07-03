@@ -144,9 +144,9 @@ fun SettingsScreenContent(
                     if (BuildConfig.DEBUG_SCREEN_ENABLED) {
                         add(SettingsItem.DebugSettings)
                     }
-                    add(SettingsItem.Licenses)
                     add(SettingsItem.GiveFeedback)
                     add(SettingsItem.ReportBug)
+                    add(SettingsItem.AboutApp)
                 },
 
                 onItemClicked = onItemClicked

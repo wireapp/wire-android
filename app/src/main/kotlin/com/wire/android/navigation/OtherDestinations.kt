@@ -64,7 +64,7 @@ object PrivacyPolicyScreenDestination : ExternalUriStringResDirection {
 
 object TermsOfUseScreenDestination : ExternalUriStringResDirection {
     override val uriStringRes: Int
-        get() = R.string.url_terms_of_use
+        get() = R.string.url_terms_of_use_legal
 }
 
 object GiveFeedbackDestination : IntentDirection {

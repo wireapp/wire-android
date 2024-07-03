@@ -68,7 +68,7 @@ class GetAssetMessagesFromConversationUseCase @Inject constructor(
             val uiMessagePagingData: PagingData<UIPagingItem> = pagingData.flatMap { messageItem ->
                 val usersForMessage = getUsersForMessage(messageItem)
                 messageMapper.toUIMessage(usersForMessage, messageItem)
-                    ?.let { listOf(UIPagingItem.Message(it, Instant.parse(messageItem.date))) }
+                    ?.let { listOf(UIPagingItem.Message(it, messageItem.date)) }
                     ?: emptyList()
             }.insertSeparators { before: UIPagingItem.Message?, after: UIPagingItem.Message? ->
                 if (before == null && after != null) {

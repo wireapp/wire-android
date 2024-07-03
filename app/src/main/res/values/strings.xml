@@ -187,6 +187,7 @@
     <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365-Federation</string>
     <string name="url_create_account_learn_more" translatable="false">https://support.wire.com/hc/articles/115004082129</string>
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
+    <string name="url_android_release_notes_feed" translatable="false">https://medium.com/feed/wire-news/tagged/android</string>
     <string name="url_maps_location_coordinates_fallback" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
     <string name="url_privacy_policy" translatable="false">https://wire.com/privacy-policy#:~:text=We%20process%20individual%20data%20about,%C2%A7%201%20a)%20GDPR).</string>
     <string name="url_terms_of_use_legal" translatable="false">https://wire.com/legal</string>

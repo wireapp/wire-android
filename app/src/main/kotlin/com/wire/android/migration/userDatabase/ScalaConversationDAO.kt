@@ -40,7 +40,7 @@ data class ScalaConversationData(
     val creatorId: String,
     val receiptMode: Int?,
     val orderTime: Long?,
-    val lastReadTime: Long?
+    val lastReadTimeInMillis: Long?
 )
 
 class ScalaConversationDAO(
@@ -86,7 +86,7 @@ class ScalaConversationDAO(
                     creatorId = cursor.getStringOrNull(creatorIdIndex).orEmpty(),
                     receiptMode = receiptModeIndex?.let { cursor.getIntOrNull(it) },
                     orderTime = lastEventTimeIndex?.let { cursor.getLongOrNull(it) },
-                    lastReadTime = lastReadTimeIndex?.let { cursor.getLongOrNull(it) }
+                    lastReadTimeInMillis = lastReadTimeIndex?.let { cursor.getLongOrNull(it) }
                 )
             } while (cursor.moveToNext())
             accumulator

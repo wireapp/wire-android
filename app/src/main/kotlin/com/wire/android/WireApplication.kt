@@ -18,7 +18,6 @@
 
 package com.wire.android
 
-import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
 import android.os.StrictMode
@@ -54,7 +53,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltAndroidApp
-class WireApplication : Application(), Configuration.Provider {
+class WireApplication : BaseApp() {
 
     @Inject
     @KaliumCoreLogic

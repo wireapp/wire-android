@@ -623,7 +623,6 @@
     <string name="label_system_message_conversation_protocol_changed_during_a_call">При переходе на MLS могут возникнуть проблемы с текущим вызовом. В этом случае прервите разговор и позвоните снова.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Началась миграция протокола шифрования. Убедитесь, что все ваши клиенты Wire обновлены.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Теперь в этой беседе используется новый протокол Messaging Layer Security (MLS). Для обеспечения надежной связи всегда используйте последнюю версию Wire на своих устройствах.</string>
-    <string name="label_system_message_learn_more_about_mls_link">https://support.wire.com/hc/en-us/articles/12434725011485-Messaging-Layer-Security-MLS-</string>
     <string name="label_system_message_receipt_mode_on">вкл</string>
     <string name="label_system_message_receipt_mode_off">выкл</string>
     <string name="label_system_message_conversation_started_by_self">**Вы** начали беседу</string>
@@ -948,7 +947,6 @@
     <string name="block_user_dialog_confirm_button">Заблокировать</string>
     <string name="other_user_devices_description">Wire присваивает каждому устройству уникальный отпечаток. Сравните их с %1$s и верифицируйте вашу беседу.</string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Основные</string>
     <string name="settings_account_settings_label">Настройки аккаунта</string>
     <string name="settings_devices_label">Устройства</string>
@@ -1147,7 +1145,6 @@
     <string name="label_system_message_session_reset">%1$s не смог расшифровать некоторые из ваших сообщений, но решил проблему. Это затронуло все ваши совместные беседы.</string>
     <string name="label_manual_migration_title">Миграция с версии 3.82.38</string>
     <string name="start_manual_migration">Начать</string>
-    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
     <string name="file_sharing_restricted_description_by_team">Вы не можете поделиться этим файлом, поскольку данная возможность отключена для данного аккаунта.</string>
     <string name="file_sharing_restricted_description_no_users">Чтобы поделиться чем-либо, необходимо авторизоваться в Wire</string>
     <string name="file_sharing_restricted_button_text_no_users">Открыть Wire</string>

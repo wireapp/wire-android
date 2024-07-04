@@ -23,7 +23,6 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,7 +32,6 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
@@ -74,24 +72,14 @@ fun rememberMessageComposerStateHolder(
         messageCompositionHolder.handleMessageTextUpdates()
     }
 
-    // we derive the selfDeletionTimer from the messageCompositionHolder as a state in order to "observe" the changes to it
-    // which are made "externally" and not inside the MessageComposer.
-    val selfDeletionTimer = remember {
-        derivedStateOf {
-            messageComposerViewState.value.selfDeletionTimer
-        }
-    }
-
     val messageCompositionInputStateHolder = rememberSaveable(
         saver = MessageCompositionInputStateHolder.saver(
             messageTextState = messageTextState,
-            selfDeletionTimer = selfDeletionTimer,
             density = density
         )
     ) {
         MessageCompositionInputStateHolder(
             messageTextState = messageTextState,
-            selfDeletionTimer = selfDeletionTimer
         )
     }
 
@@ -124,9 +112,6 @@ class MessageComposerStateHolder(
     val modalBottomSheetState: WireModalSheetState
 ) {
     val messageComposition = messageCompositionHolder.messageComposition
-
-    val isSelfDeletingSettingEnabled = messageComposerViewState.value.selfDeletionTimer !is SelfDeletionTimer.Disabled &&
-            messageComposerViewState.value.selfDeletionTimer !is SelfDeletionTimer.Enforced
 
     fun toEdit(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
         messageCompositionHolder.setEditText(messageId, editMessageText, mentions)

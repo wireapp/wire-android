@@ -24,16 +24,13 @@ import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MessageId
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import kotlin.time.Duration.Companion.ZERO
 
 data class MessageComposerViewState(
     val isFileSharingEnabled: Boolean = true,
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val mentionSearchResult: List<Contact> = listOf(),
-    val mentionSearchQuery: String = String.EMPTY,
-    val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)
+    val mentionSearchQuery: String = String.EMPTY
 )
 
 sealed class AssetTooLargeDialogState {

@@ -40,7 +40,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
-import com.wire.android.ui.home.messagecomposer.FileBrowserFlow
+import com.wire.android.ui.home.messagecomposer.fileBrowserFlow
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.PermissionDenialType
 import kotlin.math.roundToInt
@@ -52,7 +52,7 @@ fun PickRestoreFileDialog(
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val fileFlow = FileBrowserFlow(onChooseBackupFile, onPermissionPermanentlyDenied)
+    val fileFlow = fileBrowserFlow(onChooseBackupFile, onPermissionPermanentlyDenied)
 
     WireDialog(
         modifier = modifier,

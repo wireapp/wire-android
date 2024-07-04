@@ -176,6 +176,24 @@
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
     <string name="url_android_release_notes_feed" translatable="false">https://medium.com/feed/wire-news/tagged/android</string>
     <string name="url_maps_location_coordinates_fallback" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
+    <string name="url_create_account_learn_more" translatable="false">https://support.wire.com/hc/articles/115004082129</string>
+    <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/articles/207948115</string>
+    <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365</string>
+    <string name="url_file_sharing_restricted_learn_more" translatable="false">https://support.wire.com/hc/articles/4406404582673</string>
+    <string name="url_learn_about_conversation_search" translatable="false">https://support.wire.com/hc/articles/115001426529</string>
+    <string name="url_learn_about_search" translatable="false">https://support.wire.com/hc/articles/203121850</string>
+    <string name="url_legal_hold_learn_more" translatable="false">https://support.wire.com/hc/articles/360002018278</string>
+    <string name="url_message_details_offline_backends_learn_more" translatable="false">https://support.wire.com/hc/articles/9357718008093</string>
+    <string name="url_message_details_reactions_learn_more" translatable="false">https://support.wire.com/hc/articles/212053645</string>
+    <string name="url_message_details_read_receipts_learn_more" translatable="false">https://support.wire.com/hc/articles/360000665277</string>
+    <string name="url_privacy_policy" translatable="false">https://wire.com/privacy-policy#:~:text=We%20process%20individual%20data%20about,%C2%A7%201%20a)%20GDPR).</string>
+    <string name="url_self_client_fingerprint_learn_more" translatable="false">https://support.wire.com/hc/articles/207692235</string>
+    <string name="url_self_client_verification_learn_more" translatable="false">https://support.wire.com/hc/articles/207693005</string>
+    <string name="url_support" translatable="false">https://support.wire.com</string>
+    <string name="url_system_message_learn_more_about_mls" translatable="false">https://support.wire.com/hc/articles/12434725011485</string>
+    <string name="url_terms_of_use_legal" translatable="false">https://wire.com/legal</string>
+    <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/articles/6655706999581</string>
+    <string name="url_why_verify_conversation" translatable="false">https://support.wire.com/hc/articles/207859815</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>

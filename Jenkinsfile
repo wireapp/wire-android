@@ -1,146 +1,118 @@
-List<String> defineFlavor() {
-    //check if the pipeline has the custom flavor env variable set
-    def overwrite = env.CUSTOM_FLAVOR
-    if (overwrite != null) {
-        return overwrite
-    }
-
-    def branchName = env.BRANCH_NAME
-
-    if (branchName == "main") {
-        return ['Beta']
-    } else if (branchName == "develop") {
-        return ['Staging', 'Dev']
-    } else if (branchName == "prod") {
-        return ['Prod', 'Fdroid']
-    } else if (branchName == "internal") {
-        return ['Internal']
-    }
-    return ['Staging']
-}
-
-String defineBuildType(String flavor) {
-    def overwrite = env.CUSTOM_BUILD_TYPE
-    if (overwrite != null) {
-        return overwrite
-    }
-
-    // internal is used for wire beta builds
-    if (flavor == 'Beta') {
-        return 'Release'
-    } else if (flavor == 'Prod' || flavor == 'Fdroid') {
-        return "Compatrelease"
-    }
-    // use the scala client signing keys for testing upgrades.
-    return "Compat"
-}
-
-String shellQuote(String s) {
-    // Quote a string so it's suitable to pass to the shell
-    return "'" + s.replaceAll("'", "'\"'\"'") + "'"
-}
-
-def postGithubComment(String changeId, String body) {
-    def authHeader = shellQuote("Authorization: token ${env.GITHUB_API_TOKEN}")
-    def apiUrl = shellQuote("https://api.github.com/repos/wireapp/wire-android/issues/${changeId}/comments")
-
-    // The comment body must be quoted for embedding into a JSON string,
-    // and the JSON string must be quoted for embedding into the shell command
-    // line. Note well: the backslash character has a special meaning in
-    // both the first argument (regular expression pattern) and the second
-    // (Matcher.replaceAll() escaping character) of String.replaceAll(); hence,
-    // yet another level of escaping is required here!
-
-    def payload = body.replaceAll('\\\\', '\\\\\\\\').replaceAll('"', '\\\\"').replaceAll('\n', '\\\\n')
-    def json = shellQuote('{"body":"' + payload + '"}')
-
-    // Note the interpolated variables here come from Groovy -- the command
-    // line which the shell interpreter executes is fully rendered, and contains
-    // no unsubstituted variables
-    sh "curl -s -H ${authHeader} -X POST -d ${json} ${apiUrl}"
-
-}
-
-/**
-* Checks if the parameter is defined, otherwise sets it to the BRANCH_NAME env var
-*
-* @param changeBranch env var to use as the branch name if the changeBranch is not empty
-*/
-String handleChangeBranch(String changeBranch) {
-    if (changeBranch?.trim()) {
-        return changeBranch
-    }
-    return env.BRANCH_NAME
-}
-
 pipeline {
     agent {
         node {
-            label 'spawner'
+            label 'built-in'
         }
     }
 
     options { disableConcurrentBuilds(abortPrevious: true) }
 
-    stages {
-        stage("check builder file") {
-            steps {
-                readTrusted "AR-builder.groovy"
-            }
-        }
+    environment { 
+        CREDENTIALS = credentials('GITHUB_TOKEN_ANDROID')
+        WIRE_BOT_SECRET = credentials('JENKINSBOT_ANDROID_SMOKE')
+    }
 
-        stage("run pipeline") {
+    stages {
+        stage("Wait for GitHub action to finish") {
+            when {
+                expression { BRANCH_NAME ==~ /PR-[0-9]+/ }
+            }
             steps {
                 script {
-                    def dynamicStages = [:]
-                    List<String> flavorList = defineFlavor()
-                    for (x in flavorList) {
-                        String flavor = x
-                        String buildType = defineBuildType(flavor)
-                        String stageName = "Build $flavor$buildType"
-                        String definedChangeBranch = handleChangeBranch(env.CHANGE_BRANCH)
-                        dynamicStages[stageName] = {
-                            node {
-                                stage(stageName) {
-                                    build(
-                                            job: 'AR-build-pipeline',
-                                            parameters: [
-                                                    string(name: 'SOURCE_BRANCH', value: env.BRANCH_NAME),
-                                                    string(name: 'CHANGE_BRANCH', value: definedChangeBranch),
-                                                    string(name: 'BUILD_TYPE', value: buildType),
-                                                    string(name: 'FLAVOR', value: flavor),
-                                                    booleanParam(name: 'UPLOAD_TO_S3', value: true),
-                                                    booleanParam(name: 'UPLOAD_TO_PLAYSTORE_ENABLED', value: true),
-                                                    booleanParam(name: 'RUN_UNIT_TEST', value: true),
-                                                    booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: true),
-                                                    booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: true),
-                                                    string(name: 'GITHUB_CHANGE_ID', value: env.CHANGE_ID)]
-                                    )
-                                }
-                            }
-                        }
+                    def commit_hash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                    def pr_number = BRANCH_NAME.replaceAll(/\D/, '')
+                    echo("Wait for github actions to start for ${BRANCH_NAME}")
+                    timeout(time: 30, unit: 'MINUTES') {
+                       waitUntil {
+                           def output = sh label: 'Get runs', returnStdout: true, script: 'curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${CREDENTIALS}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/wireapp/wire-android/actions/workflows/98603098/runs'
+                           def json = readJSON text: output
+                           if (json['message']) {
+                               echo("Output: " + output)
+                               error("**Trigger script failed:** " + json['message'])
+                           }
+                           def runs = json['workflow_runs']
+                           echo("Looking for PR-" + pr_number + " with hash" + commit_hash)
+                           for (run in runs) {
+                               if (run['head_sha'] == commit_hash) {
+                                   echo("Found " + commit_hash)
+                                   echo("status: " + run['status'])
+                                   // status can be queued, in_progress, or completed
+                                   if (run['status'] == 'queued' || run['status'] == 'in_progress' || run['status'] == 'completed') {
+                                       return true
+                                   }
+                               }
+                           }
+                           sleep(20)
+                           return false
+                       }
                     }
-                    parallel dynamicStages
+
+                    echo("Wait for apk to be build for ${BRANCH_NAME}")
+                    timeout(time: 70, unit: 'MINUTES') {
+                       waitUntil {
+                           def output = sh label: 'Get runs', returnStdout: true, script: 'curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${CREDENTIALS}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/wireapp/wire-android/actions/workflows/98603098/runs'
+                           def json = readJSON text: output
+                           def runs = json['workflow_runs']
+                           echo("Looking for hash " + commit_hash)
+                           for (run in runs) {
+                               if (run['head_sha'] == commit_hash) {
+                                   echo("conclusion: " + run['conclusion'])
+                                   // conclusion can be: success, failure, neutral, cancelled, skipped, timed_out, or action_required
+                                   if (run['conclusion'] == 'success') {
+                                       return true
+                                   } else if (run['conclusion'] == 'failure') {
+                                       error("❌ **Build failed for branch '${GIT_BRANCH_WEBAPP}'** See [Github Actions](" + run['url'] + ")")
+                                   } else if (run['conclusion'] == 'cancelled') {
+                                       error("⚠️ **Build aborted for branch '${GIT_BRANCH_WEBAPP}'** See [Github Actions](" + run['url'] + ")")
+                                   }
+                               }
+                           }
+                           sleep(20)
+                           return false;
+                       }
+                   }
                 }
             }
         }
+
+        stage("Smoke Tests") {
+            when {
+                expression { BRANCH_NAME ==~ /PR-[0-9]+/ }
+            }
+            steps {
+                script {
+                    def files = []
+                    withAWS(region: 'eu-west-1', credentials: "S3_CREDENTIALS") {
+                        files = s3FindFiles bucket: "z-lohika", path: "artifacts/megazord/android/reloaded/staging/compat/$BRANCH_NAME/", onlyFiles: true, glob: '*.apk'
+                    }
+                    files.sort { a, b -> a.lastModified <=> b.lastModified }
+                    if (files.size() < 1) {
+                        error("Could not find any apk at provided location!")
+                    } else {
+                        def lastModifiedFileName = files[-1].name
+                        build job: 'android_reloaded_smoke', parameters: [string(name: 'AppBuildNumber', value: "artifacts/megazord/android/reloaded/staging/compat/$BRANCH_NAME/${lastModifiedFileName}"), string(name: 'TAGS', value: '@smoke'), string(name: 'Branch', value: 'main')]
+                    }
+                }
+            }
+        }
+
     }
 
     post {
-        failure {
+        success {
             script {
-                if (env.BRANCH_NAME.startsWith('PR-')) {
-                    def payload = "Build [${env.BUILD_NUMBER}](${env.BUILD_URL}) **failed**."
-                    postGithubComment(env.CHANGE_ID, payload)
+                if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
+                    wireSend(secret: env.WIRE_BOT_SECRET, message: "✅ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Smoke Tests [Details](${BUILD_URL})")
                 }
             }
-
-            wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ FAILED ($last_started) 👎")
         }
 
-        aborted {
-            wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ ABORTED ($last_started) ")
+        unsuccessful {
+            script {
+                if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
+                    wireSend(secret: env.WIRE_BOT_SECRET, message: "❌ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Smoke Tests failed! [Details](${BUILD_URL})")
+                }
+            }
         }
-
     }
 }

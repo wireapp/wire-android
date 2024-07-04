@@ -590,7 +590,6 @@
     <string name="label_system_message_conversation_protocol_changed_during_a_call">MLS වෙත සංක්‍රමණය හේතුවෙන් ඔබගේ වත්මන් ඇමතුම ගැටලු සහගත විය හැකිය. එසේ වුවහොත්, විසන්ධි කර නැවත අමතන්න.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">මෙම සංවාදය දැන් නව පණිවිඩකරණ ස්ථර ආරක්‍ෂණ (MLS) කෙටුම්පත භාවිතා කරයි. බාධාවකින් තොරව සන්නිවේදනය සඳහා සැමවිටම ඔබගේ උපාංග වලට නවතම වයර් අනුවාදය බාගන්න.</string>
-    <string name="label_system_message_learn_more_about_mls_link">https://support.wire.com/hc/en-us/articles/12434725011485-Messaging-Layer-Security-MLS-</string>
     <string name="label_system_message_receipt_mode_on">සක්‍රියයි</string>
     <string name="label_system_message_receipt_mode_off">අක්‍රියයි</string>
     <string name="label_system_message_conversation_started_by_self">**ඔබ** සංවාදය ආරම්භ කළා</string>
@@ -886,7 +885,6 @@
     <string name="block_user_dialog_confirm_button">අවහිර කරන්න</string>
     <string name="other_user_devices_description">වයර් සෑම උපාංගයකටම අනන්‍ය ඇඟිලි සටහනක් ලබා දෙයි. ඒවා %1$s සමඟ සැසඳීමෙන් සංවාදය සත්‍යාපනය කරගන්න.</string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">සාමාන්‍ය</string>
     <string name="settings_account_settings_label">ගිණුමේ සැකසුම්</string>
     <string name="settings_devices_label">උපාංග</string>
@@ -1079,7 +1077,6 @@
     <string name="label_system_message_session_reset">%1$s මගින් ඔබගේ ඇතැම් පණිවිඩ විසංකේතනයට නොහැකි වූ නමුත් ගැටළුව විසඳා ඇත. මෙය ඔබ එකවර බෙදා ගන්නා සියළුම සංවාද වලට බලපාන ලදි.</string>
     <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
     <string name="start_manual_migration">අරඹන්න</string>
-    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
     <string name="file_sharing_restricted_description_by_team">මෙම ගිණුමට මෙම විශේෂාංගය අබල කර ඇති නිසා ඔබට මෙම ගොනුව බෙදා ගැනීමට නොහැකිය.</string>
     <string name="file_sharing_restricted_description_no_users">ඕනෑම දෙයක් බෙදා ගැනීමට පෙර ඔබ වයර් වෙත ඇතුළු විය යුතුය</string>
     <string name="file_sharing_restricted_button_text_no_users">වයර් අරින්න</string>

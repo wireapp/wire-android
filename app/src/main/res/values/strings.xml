@@ -176,6 +176,7 @@
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
     <string name="url_android_release_notes_feed" translatable="false">https://medium.com/feed/wire-news/tagged/android</string>
     <string name="url_maps_location_coordinates_fallback" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
+    <!-- Wire Urls - Non translatable -->
     <string name="url_create_account_learn_more" translatable="false">https://support.wire.com/hc/articles/115004082129</string>
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/articles/207948115</string>
     <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365</string>

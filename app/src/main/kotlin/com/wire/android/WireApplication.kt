@@ -160,6 +160,8 @@ class WireApplication : BaseApp() {
     }
 
     private suspend fun initializeAnonymousAnalytics() {
+        if (!BuildConfig.ANALYTICS_ENABLED) return
+
         val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl()
         val analyticsSettings = AnalyticsSettings(
             countlyAppKey = BuildConfig.ANALYTICS_APP_KEY,

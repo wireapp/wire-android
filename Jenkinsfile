@@ -9,7 +9,7 @@ pipeline {
 
     environment { 
         CREDENTIALS = credentials('GITHUB_TOKEN_ANDROID')
-        WIRE_BOT_SECRET = credentials('JENKINSBOT_NEW_ANDROID_REGRESSION')
+        WIRE_BOT_SECRET = credentials('JENKINSBOT_ANDROID_SMOKE')
     }
 
     stages {

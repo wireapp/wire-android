@@ -40,7 +40,8 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
             analyticsSettings.countlyAppKey,
             analyticsSettings.countlyServerUrl
         )
-        countlyConfig.setLoggingEnabled(analyticsSettings.enableDebugLogging)
+            .enableTemporaryDeviceIdMode() // Nothing is sent until a proper ID is placed
+            .setLoggingEnabled(analyticsSettings.enableDebugLogging)
 
         Countly.sharedInstance().init(countlyConfig)
 

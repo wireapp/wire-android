@@ -43,7 +43,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.android.ui.markdown.MarkdownConstants
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -59,11 +58,11 @@ fun ConversationItemFactory(
     isSelectableItem: Boolean = false,
     isChecked: Boolean = false,
     onConversationSelectedOnRadioGroup: () -> Unit = {},
-    openConversation: (ConversationId) -> Unit,
-    openMenu: (ConversationItem) -> Unit,
-    openUserProfile: (UserId) -> Unit,
-    joinCall: (ConversationId) -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit = { }
+    openConversation: (ConversationId) -> Unit = {},
+    openMenu: (ConversationItem) -> Unit = {},
+    openUserProfile: (UserId) -> Unit = {},
+    joinCall: (ConversationId) -> Unit = {},
+    onAudioPermissionPermanentlyDenied: () -> Unit = {}
 ) {
     val onConversationItemClick = remember(conversation) {
         Clickable(
@@ -110,7 +109,7 @@ fun ConversationItemFactory(
         onJoinCallClick = {
             joinCall(conversation.conversationId)
         },
-        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+        onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied
     )
 }
 
@@ -120,12 +119,12 @@ private fun GeneralConversationItem(
     searchQuery: String,
     conversation: ConversationItem,
     isChecked: Boolean,
-    selectOnRadioGroup: () -> Unit = {},
     isSelectable: Boolean,
-    subTitle: @Composable () -> Unit = {},
     onConversationItemClick: Clickable,
     onJoinCallClick: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    selectOnRadioGroup: () -> Unit = {},
+    subTitle: @Composable () -> Unit = {},
+    onAudioPermissionPermanentlyDenied: () -> Unit
 ) {
     when (conversation) {
         is ConversationItem.GroupConversation -> {
@@ -155,7 +154,7 @@ private fun GeneralConversationItem(
                             if (hasOnGoingCall) {
                                 JoinButton(
                                     buttonClick = onJoinCallClick,
-                                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+                                    onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
                                 )
                             } else {
                                 Row(

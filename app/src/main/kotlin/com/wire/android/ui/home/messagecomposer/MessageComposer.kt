@@ -53,6 +53,7 @@ import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversa
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
@@ -65,7 +66,6 @@ import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSta
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.id.ConversationId
@@ -81,7 +81,7 @@ fun MessageComposer(
     onSendMessageBundle: (MessageBundle) -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onClearMentionSearchResult: () -> Unit,
-    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     onImagesPicked: (List<Uri>) -> Unit
@@ -149,7 +149,7 @@ fun MessageComposer(
                     },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onClearMentionSearchResult = onClearMentionSearchResult,
-                    onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
+                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                     tempWritableVideoUri = tempWritableVideoUri,
                     tempWritableImageUri = tempWritableImageUri,
                 )
@@ -276,7 +276,7 @@ private fun BaseComposerPreview(
         messageListContent = { },
         onChangeSelfDeletionClicked = { },
         onClearMentionSearchResult = { },
-        onCaptureVideoPermissionPermanentlyDenied = { },
+        onPermissionPermanentlyDenied = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
         tempWritableImageUri = null,

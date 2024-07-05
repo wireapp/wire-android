@@ -515,7 +515,7 @@ private fun ImportMediaContent(
             onEditConversation = {},
             onOpenUserProfile = {},
             onJoinCall = {},
-            onPermissionPermanentlyDenied = {}
+            onAudioPermissionPermanentlyDenied = {}
         )
     }
     BackHandler(enabled = searchBarState.isSearchActive) {

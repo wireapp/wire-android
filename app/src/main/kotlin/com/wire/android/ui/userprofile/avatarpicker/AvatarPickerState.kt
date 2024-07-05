@@ -31,7 +31,6 @@ import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.imagepreview.AvatarPickerFlow
 import com.wire.android.ui.common.imagepreview.rememberPickPictureState
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -39,21 +38,23 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberAvatarPickerState(
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    modalBottomSheetState: WireModalSheetState = rememberWireModalSheetState(),
     onImageSelected: (Uri) -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onCameraPermissionPermanentlyDenied: () -> Unit,
+    onGalleryPermissionPermanentlyDenied: () -> Unit,
     onPictureTaken: () -> Unit,
-    targetPictureFileUri: Uri
+    targetPictureFileUri: Uri,
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    modalBottomSheetState: WireModalSheetState = rememberWireModalSheetState()
 ): AvatarPickerState {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
 
     val avatarPickerFlow: AvatarPickerFlow = rememberPickPictureState(
-        onImageSelected,
-        onPictureTaken,
-        targetPictureFileUri,
-        onPermissionPermanentlyDenied
+        onImageSelected = onImageSelected,
+        onPictureTaken = onPictureTaken,
+        targetPictureFileUri = targetPictureFileUri,
+        onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
+        onGalleryPermissionPermanentlyDenied = onGalleryPermissionPermanentlyDenied,
     )
 
     return remember(avatarPickerFlow) {

@@ -44,7 +44,6 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.permission.rememberCreateFileFlow
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import java.util.Locale
@@ -92,7 +91,7 @@ fun CreateBackupDialog(
     isBackupCreationCompleted: Boolean,
     createBackupProgress: Float,
     backupFileName: String,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onPermissionPermanentlyDenied: () -> Unit,
     onSaveBackup: (Uri) -> Unit,
     onShareBackup: () -> Unit,
     onDismissDialog: () -> Unit,

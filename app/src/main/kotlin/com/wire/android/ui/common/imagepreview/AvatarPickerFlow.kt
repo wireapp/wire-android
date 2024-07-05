@@ -19,19 +19,17 @@
 package com.wire.android.ui.common.imagepreview
 
 import android.net.Uri
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.wire.android.ui.userprofile.avatarpicker.ImageSource
-import com.wire.android.util.permission.PermissionDenialType
-import com.wire.android.util.permission.UseCameraRequestFlow
-import com.wire.android.util.permission.UseStorageRequestFlow
-import com.wire.android.util.permission.rememberOpenGalleryFlow
+import com.wire.android.util.permission.FileType
+import com.wire.android.util.permission.RequestLauncher
+import com.wire.android.util.permission.rememberChooseSingleFileFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 
 class AvatarPickerFlow(
-    private val takePictureFlow: UseCameraRequestFlow,
-    private val openGalleryFlow: UseStorageRequestFlow<Uri?>
+    private val takePictureFlow: RequestLauncher,
+    private val openGalleryFlow: RequestLauncher,
 ) {
     fun launch(imageSource: ImageSource) {
         when (imageSource) {
@@ -46,21 +44,22 @@ fun rememberPickPictureState(
     onImageSelected: (Uri) -> Unit,
     onPictureTaken: () -> Unit,
     targetPictureFileUri: Uri,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onCameraPermissionPermanentlyDenied: () -> Unit,
+    onGalleryPermissionPermanentlyDenied: () -> Unit,
 ): AvatarPickerFlow {
 
     val takePictureFLow = rememberTakePictureFlow(
         onPictureTaken = { wasSaved -> if (wasSaved) onPictureTaken() },
         onPermissionDenied = { /* Nothing to do */ },
-        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
-        targetPictureFileUri = targetPictureFileUri
+        onPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
+        targetPictureFileUri = targetPictureFileUri,
     )
 
-    val openGalleryFlow = rememberOpenGalleryFlow(
-        contract = ActivityResultContracts.GetContent(),
-        onGalleryItemPicked = { pickedPictureUri -> pickedPictureUri?.let { onImageSelected(it) } },
+    val openGalleryFlow = rememberChooseSingleFileFlow(
+        fileType = FileType.Image,
+        onFileBrowserItemPicked = { pickedPictureUri -> pickedPictureUri?.let { onImageSelected(it) } },
         onPermissionDenied = { /* Nothing to do */ },
-        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+        onPermissionPermanentlyDenied = onGalleryPermissionPermanentlyDenied,
     )
 
     return remember {

@@ -63,7 +63,6 @@ import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -75,27 +74,27 @@ fun ConversationScreenTopAppBar(
     conversationInfoViewState: ConversationInfoViewState,
     onBackButtonClick: () -> Unit,
     onDropDownClick: () -> Unit,
-    isDropDownEnabled: Boolean = false,
     onSearchButtonClick: () -> Unit,
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     onJoinCallButtonClick: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onAudioPermissionPermanentlyDenied: () -> Unit,
     isInteractionEnabled: Boolean,
+    isDropDownEnabled: Boolean = false
 ) {
     val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
     ConversationScreenTopAppBarContent(
-        conversationInfoViewState,
-        onBackButtonClick,
-        onDropDownClick,
-        isDropDownEnabled,
-        onSearchButtonClick,
-        onPhoneButtonClick,
-        hasOngoingCall,
-        onJoinCallButtonClick,
-        onPermissionPermanentlyDenied,
-        isInteractionEnabled,
-        featureVisibilityFlags.ConversationSearchIcon
+        conversationInfoViewState = conversationInfoViewState,
+        onBackButtonClick = onBackButtonClick,
+        onDropDownClick = onDropDownClick,
+        isDropDownEnabled = isDropDownEnabled,
+        onSearchButtonClick = onSearchButtonClick,
+        onPhoneButtonClick = onPhoneButtonClick,
+        hasOngoingCall = hasOngoingCall,
+        onJoinCallButtonClick = onJoinCallButtonClick,
+        onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
+        isInteractionEnabled = isInteractionEnabled,
+        isSearchEnabled = featureVisibilityFlags.ConversationSearchIcon
     )
 }
 
@@ -105,14 +104,14 @@ private fun ConversationScreenTopAppBarContent(
     conversationInfoViewState: ConversationInfoViewState,
     onBackButtonClick: () -> Unit,
     onDropDownClick: () -> Unit,
-    isDropDownEnabled: Boolean = false,
     onSearchButtonClick: () -> Unit,
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     onJoinCallButtonClick: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onAudioPermissionPermanentlyDenied: () -> Unit,
     isInteractionEnabled: Boolean,
     isSearchEnabled: Boolean,
+    isDropDownEnabled: Boolean = false
 ) {
     TopAppBar(
         title = {
@@ -179,10 +178,11 @@ private fun ConversationScreenTopAppBarContent(
                     onJoinCallButtonClick = onJoinCallButtonClick,
                     onPhoneButtonClick = onPhoneButtonClick,
                     isCallingEnabled = isInteractionEnabled,
-                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+                    onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
                 )
             }
-        }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             titleContentColor = MaterialTheme.colorScheme.onBackground,
             actionIconContentColor = MaterialTheme.colorScheme.onBackground,
@@ -223,20 +223,20 @@ private fun Avatar(
 private fun CallControlButton(
     hasOngoingCall: Boolean,
     onJoinCallButtonClick: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onAudioPermissionPermanentlyDenied: () -> Unit,
     onPhoneButtonClick: () -> Unit,
     isCallingEnabled: Boolean
 ) {
     if (hasOngoingCall) {
         JoinButton(
             buttonClick = onJoinCallButtonClick,
-            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+            onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
             horizontalPadding = dimensions().spacing0x,
         )
     } else {
         StartCallButton(
             onPhoneButtonClick = onPhoneButtonClick,
-            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+            onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
             isCallingEnabled = isCallingEnabled
         )
     }
@@ -261,7 +261,7 @@ fun PreviewConversationScreenTopAppBarLongTitle() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
-        onPermissionPermanentlyDenied = {},
+        onAudioPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = false
     )
@@ -286,7 +286,7 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearch() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
-        onPermissionPermanentlyDenied = {},
+        onAudioPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = true
     )
@@ -311,7 +311,7 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearchAndOngoingCall() {
         onPhoneButtonClick = {},
         hasOngoingCall = true,
         onJoinCallButtonClick = {},
-        onPermissionPermanentlyDenied = {},
+        onAudioPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = true
     )
@@ -335,7 +335,7 @@ fun PreviewConversationScreenTopAppBarShortTitle() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
-        onPermissionPermanentlyDenied = {},
+        onAudioPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = false
     )
@@ -359,7 +359,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
         onPhoneButtonClick = {},
         hasOngoingCall = true,
         onJoinCallButtonClick = {},
-        onPermissionPermanentlyDenied = {},
+        onAudioPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = false
     )
@@ -386,7 +386,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithVerified() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
-        onPermissionPermanentlyDenied = {},
+        onAudioPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = false
     )
@@ -412,7 +412,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithLegalHold() {
         onPhoneButtonClick = {},
         hasOngoingCall = false,
         onJoinCallButtonClick = {},
-        onPermissionPermanentlyDenied = {},
+        onAudioPermissionPermanentlyDenied = {},
         isInteractionEnabled = true,
         isSearchEnabled = false
     )

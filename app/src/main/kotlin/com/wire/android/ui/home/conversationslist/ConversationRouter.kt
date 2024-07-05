@@ -62,7 +62,6 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.isArchive
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -192,15 +191,13 @@ fun ConversationRouterHomeBridge(
                         onOpenConversation = onOpenConversation,
                         onOpenUserProfile = onOpenUserProfile,
                         onJoinedCall = onJoinedCall,
-                        onPermissionPermanentlyDenied = {
-                            if (it == PermissionDenialType.CallingMicrophone) {
-                                permissionPermanentlyDeniedDialogState.show(
-                                    PermissionPermanentlyDeniedDialogState.Visible(
-                                        R.string.app_permission_dialog_title,
-                                        R.string.call_permission_dialog_description
-                                    )
+                        onAudioPermissionPermanentlyDenied = {
+                            permissionPermanentlyDeniedDialogState.show(
+                                PermissionPermanentlyDeniedDialogState.Visible(
+                                    R.string.app_permission_dialog_title,
+                                    R.string.call_permission_dialog_description
                                 )
-                            }
+                            )
                         },
                         conversationListCallState = conversationCallListViewModel.conversationListCallState,
                         dismissJoinCallAnywayDialog = conversationCallListViewModel::dismissJoinCallAnywayDialog,
@@ -219,7 +216,7 @@ fun ConversationRouterHomeBridge(
                         onJoinCall = {
                             conversationCallListViewModel.joinOngoingCall(it, onJoinedCall)
                         },
-                        onPermissionPermanentlyDenied = { }
+                        onAudioPermissionPermanentlyDenied = { }
                     )
                 }
             }

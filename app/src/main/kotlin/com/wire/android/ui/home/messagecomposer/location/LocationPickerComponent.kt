@@ -63,7 +63,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.orDefault
 import com.wire.android.util.permission.PermissionsDeniedRequestDialog
-import com.wire.android.util.permission.rememberCurrentLocationFlow
+import com.wire.android.util.permission.rememberCurrentLocationPermissionFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -75,15 +75,16 @@ import kotlinx.coroutines.launch
 fun LocationPickerComponent(
     onLocationPicked: (GeoLocatedAddress) -> Unit,
     onLocationClosed: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: LocationPickerViewModel = hiltViewModel<LocationPickerViewModel>()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberDismissibleWireModalSheetState(initialValue = SheetValue.Expanded, onLocationClosed)
 
-    val locationFlow = rememberCurrentLocationFlow(
-        onPermissionAllowed = viewModel::getCurrentLocation,
-        onPermissionDenied = { /* do nothing */ },
-        onPermissionPermanentlyDenied = viewModel::onPermissionPermanentlyDenied
+    val locationFlow = rememberCurrentLocationPermissionFlow(
+        onAllPermissionsGranted = viewModel::getCurrentLocation,
+        onAnyPermissionDenied = { /* do nothing */ },
+        onAnyPermissionPermanentlyDenied = viewModel::onPermissionPermanentlyDenied
     )
 
     LaunchedEffect(Unit) {
@@ -91,7 +92,11 @@ fun LocationPickerComponent(
     }
 
     with(viewModel.state) {
-        WireModalSheetLayout(sheetState = sheetState, coroutineScope = coroutineScope) {
+        WireModalSheetLayout(
+            modifier = modifier,
+            sheetState = sheetState,
+            coroutineScope = coroutineScope
+        ) {
             MenuModalSheetContent(
                 header = MenuModalSheetHeader.Visible(title = stringResource(R.string.location_attachment_share_title)),
                 menuItems = buildList {

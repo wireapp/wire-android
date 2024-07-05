@@ -55,8 +55,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.permission.PermissionDenialType
-import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
+import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.id.ConversationId
 
@@ -137,15 +136,13 @@ fun IncomingCallScreen(
             acceptCall = audioPermissionCheck::launch,
             onVideoPreviewCreated = ::setVideoPreview,
             onSelfClearVideoPreview = ::clearVideoPreview,
-            onPermissionPermanentlyDenied = {
-                if (it is PermissionDenialType.CallingCamera) {
-                    permissionPermanentlyDeniedDialogState.show(
-                        PermissionPermanentlyDeniedDialogState.Visible(
-                            title = R.string.app_permission_dialog_title,
-                            description = R.string.camera_permission_dialog_description
-                        )
+            onCameraPermissionPermanentlyDenied = {
+                permissionPermanentlyDeniedDialogState.show(
+                    PermissionPermanentlyDeniedDialogState.Visible(
+                        title = R.string.app_permission_dialog_title,
+                        description = R.string.camera_permission_dialog_description
                     )
-                }
+                )
             },
             onMinimiseScreen = {
                 activity.moveTaskToBack(true)
@@ -169,7 +166,7 @@ private fun IncomingCallContent(
     acceptCall: () -> Unit,
     onVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onCameraPermissionPermanentlyDenied: () -> Unit,
     onMinimiseScreen: () -> Unit
 ) {
     BackHandler {
@@ -191,7 +188,7 @@ private fun IncomingCallContent(
                 toggleMute = toggleMute,
                 toggleVideo = toggleVideo,
                 shouldShowSpeakerButton = false,
-                onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+                onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied
             )
             Box(
                 modifier = Modifier
@@ -276,13 +273,13 @@ private fun IncomingCallContent(
 fun AudioPermissionCheckFlow(
     onAcceptCall: () -> Unit,
     onPermanentPermissionDecline: () -> Unit,
-) = rememberCallingRecordAudioRequestFlow(
-    onAudioPermissionGranted = {
+) = rememberRecordAudioPermissionFlow(
+    onPermissionGranted = {
         appLogger.d("IncomingCall - Audio permission granted")
         onAcceptCall()
     },
-    onAudioPermissionDenied = { /* Nothing to do */ },
-    onAudioPermissionPermanentlyDenied = onPermanentPermissionDecline
+    onPermissionDenied = { /* Nothing to do */ },
+    onPermissionPermanentlyDenied = onPermanentPermissionDecline
 )
 
 @Preview
@@ -296,7 +293,7 @@ fun PreviewIncomingCallScreen() {
         acceptCall = { },
         onVideoPreviewCreated = { },
         onSelfClearVideoPreview = { },
-        onPermissionPermanentlyDenied = { },
+        onCameraPermissionPermanentlyDenied = { },
         onMinimiseScreen = { }
     )
 }

@@ -28,7 +28,6 @@ import com.wire.android.R
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
 import com.wire.android.ui.home.settings.backup.BackupCreationProgress
 import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
-import com.wire.android.util.permission.PermissionDenialType
 
 @Composable
 fun CreateBackupDialogFlow(
@@ -38,7 +37,7 @@ fun CreateBackupDialogFlow(
     onSaveBackup: (Uri) -> Unit,
     onShareBackup: () -> Unit,
     onCancelCreateBackup: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onPermissionPermanentlyDenied: () -> Unit,
 ) {
     val backupDialogStateHolder = rememberBackUpDialogState()
 
@@ -64,7 +63,7 @@ fun CreateBackupDialogFlow(
                     onSaveBackup = onSaveBackup,
                     onShareBackup = onShareBackup,
                     onCancelCreateBackup = onCancelCreateBackup,
-                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                 )
             }
 
@@ -90,7 +89,7 @@ private fun CreateBackupStep(
     onSaveBackup: (Uri) -> Unit,
     onShareBackup: () -> Unit,
     onCancelCreateBackup: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onPermissionPermanentlyDenied: () -> Unit,
 ) {
     with(backupDialogStateHolder) {
         LaunchedEffect(backUpAndRestoreState.backupCreationProgress) {
@@ -108,7 +107,7 @@ private fun CreateBackupStep(
             onShareBackup = onShareBackup,
             backupFileName = backupFileName,
             onDismissDialog = onCancelCreateBackup,
-            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         )
     }
 }

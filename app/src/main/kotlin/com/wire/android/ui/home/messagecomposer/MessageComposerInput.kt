@@ -49,7 +49,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
@@ -71,7 +70,6 @@ import com.wire.android.ui.common.textfield.DefaultText
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
@@ -210,14 +208,7 @@ private fun InputContent(
         MessageComposerTextInput(
             isTextExpanded = isTextExpanded,
             inputFocused = inputFocused,
-            colors = viewModel.state().duration?.let {
-                wireTextFieldColors(
-                    backgroundColor = Color.Transparent,
-                    borderColor = Color.Transparent,
-                    focusColor = Color.Transparent,
-                    placeholderColor = colorsScheme().primary
-                )
-            } ?: inputType.inputTextColor(),
+            colors = inputType.inputTextColor(isPrimaryColor = viewModel.state().duration != null),
             messageTextState = messageTextState,
             placeHolderText = viewModel.state().duration?.let { stringResource(id = R.string.self_deleting_message_label) }
                 ?: inputType.labelText(),

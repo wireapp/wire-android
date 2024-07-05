@@ -181,7 +181,8 @@ private fun ConversationScreenTopAppBarContent(
                     onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
                 )
             }
-        }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             titleContentColor = MaterialTheme.colorScheme.onBackground,
             actionIconContentColor = MaterialTheme.colorScheme.onBackground,

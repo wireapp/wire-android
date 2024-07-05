@@ -1278,7 +1278,7 @@ private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
 }
 
 enum class ConversationActionPermissionType {
-    CaptureVideo, TakePicture, ChooseImage, ChooseFile, CallAudio;
+    CaptureVideo, TakePicture, ChooseImage, ChooseFile, CallAudio
 }
 
 @PreviewMultipleThemes

@@ -63,7 +63,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.orDefault
 import com.wire.android.util.permission.PermissionsDeniedRequestDialog
-import com.wire.android.util.permission.rememberCurrentLocationFlow
+import com.wire.android.util.permission.rememberCurrentLocationPermissionFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -80,10 +80,10 @@ fun LocationPickerComponent(
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberDismissibleWireModalSheetState(initialValue = SheetValue.Expanded, onLocationClosed)
 
-    val locationFlow = rememberCurrentLocationFlow(
-        onPermissionAllowed = viewModel::getCurrentLocation,
-        onPermissionDenied = { /* do nothing */ },
-        onPermissionPermanentlyDenied = viewModel::onPermissionPermanentlyDenied
+    val locationFlow = rememberCurrentLocationPermissionFlow(
+        onAllPermissionsGranted = viewModel::getCurrentLocation,
+        onAnyPermissionDenied = { /* do nothing */ },
+        onAnyPermissionPermanentlyDenied = viewModel::onPermissionPermanentlyDenied
     )
 
     LaunchedEffect(Unit) {

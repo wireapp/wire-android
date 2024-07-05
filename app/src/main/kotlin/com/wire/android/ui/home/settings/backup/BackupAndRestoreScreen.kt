@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +48,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -58,9 +60,9 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.time.convertTimestampToDateTime
 import com.wire.android.util.ui.PreviewMultipleThemes
+import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination
@@ -164,14 +166,12 @@ fun BackupAndRestoreContent(
                     onCancelBackupCreation()
                 },
                 onPermissionPermanentlyDenied = {
-                    if (it == PermissionDenialType.WriteFile) {
-                        permissionPermanentlyDeniedDialogState.show(
-                            PermissionPermanentlyDeniedDialogState.Visible(
-                                R.string.app_permission_dialog_title,
-                                R.string.save_backup_file_permission_dialog_description
-                            )
+                    permissionPermanentlyDeniedDialogState.show(
+                        PermissionPermanentlyDeniedDialogState.Visible(
+                            R.string.app_permission_dialog_title,
+                            R.string.save_backup_file_permission_dialog_description
                         )
-                    }
+                    )
                 }
             )
         }
@@ -187,15 +187,13 @@ fun BackupAndRestoreContent(
                     onCancelBackupRestore()
                 },
                 onOpenConversations = onOpenConversations,
-                onPermissionPermanentlyDenied = {
-                    if (it == PermissionDenialType.ReadFile) {
-                        permissionPermanentlyDeniedDialogState.show(
-                            PermissionPermanentlyDeniedDialogState.Visible(
-                                R.string.app_permission_dialog_title,
-                                R.string.restore_backup_permission_dialog_description
-                            )
+                onChooseFilePermissionPermanentlyDenied = {
+                    permissionPermanentlyDeniedDialogState.show(
+                        PermissionPermanentlyDeniedDialogState.Visible(
+                            R.string.app_permission_dialog_title,
+                            R.string.restore_backup_permission_dialog_description
                         )
-                    }
+                    )
                 }
             )
         }

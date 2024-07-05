@@ -51,6 +51,7 @@ import com.wire.android.feature.sketch.DrawingCanvasBottomSheet
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
@@ -59,7 +60,6 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuSta
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.util.CurrentConversationDetailsCache
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
 
@@ -76,7 +76,7 @@ fun EnabledMessageComposer(
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onLocationPicked: (GeoLocatedAddress) -> Unit,
-    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
@@ -278,7 +278,7 @@ fun EnabledMessageComposer(
                                     onAttachmentPicked = onAttachmentPicked,
                                     onAudioRecorded = onAudioRecorded,
                                     onLocationPicked = onLocationPicked,
-                                    onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
+                                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                                     tempWritableImageUri = tempWritableImageUri,
                                     tempWritableVideoUri = tempWritableVideoUri,
                                     modifier = Modifier.fillMaxSize()

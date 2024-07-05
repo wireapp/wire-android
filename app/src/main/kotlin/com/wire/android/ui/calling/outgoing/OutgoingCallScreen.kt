@@ -49,7 +49,6 @@ import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Suppress("ParameterWrapping")
@@ -79,7 +78,8 @@ fun OutgoingCallScreen(
                 onCallAccepted()
             }
 
-            OutgoingCallState.FlowState.Default -> { /* do nothing */ }
+            OutgoingCallState.FlowState.Default -> { /* do nothing */
+            }
         }
     }
     with(sharedCallingViewModel) {
@@ -91,15 +91,13 @@ fun OutgoingCallScreen(
             onHangUpCall = outgoingCallViewModel::hangUpCall,
             onVideoPreviewCreated = ::setVideoPreview,
             onSelfClearVideoPreview = ::clearVideoPreview,
-            onPermissionPermanentlyDenied = {
-                if (it is PermissionDenialType.CallingCamera) {
-                    permissionPermanentlyDeniedDialogState.show(
-                        PermissionPermanentlyDeniedDialogState.Visible(
-                            title = R.string.app_permission_dialog_title,
-                            description = R.string.camera_permission_dialog_description
-                        )
+            onCameraPermissionPermanentlyDenied = {
+                permissionPermanentlyDeniedDialogState.show(
+                    PermissionPermanentlyDeniedDialogState.Visible(
+                        title = R.string.app_permission_dialog_title,
+                        description = R.string.camera_permission_dialog_description
                     )
-                }
+                )
             },
             onMinimiseScreen = {
                 activity.moveTaskToBack(true)
@@ -123,7 +121,7 @@ private fun OutgoingCallContent(
     onHangUpCall: () -> Unit,
     onVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onCameraPermissionPermanentlyDenied: () -> Unit,
     onMinimiseScreen: () -> Unit
 ) {
     BackHandler {
@@ -149,7 +147,7 @@ private fun OutgoingCallContent(
                     toggleSpeaker = toggleSpeaker,
                     toggleMute = toggleMute,
                     toggleVideo = toggleVideo,
-                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+                    onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied
                 )
                 Spacer(
                     modifier = Modifier

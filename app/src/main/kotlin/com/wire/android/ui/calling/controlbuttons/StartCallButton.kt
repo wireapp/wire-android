@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
@@ -34,26 +35,23 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.permission.PermissionDenialType
-import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
+import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun StartCallButton(
     onPhoneButtonClick: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
-    isCallingEnabled: Boolean
+    onAudioPermissionPermanentlyDenied: () -> Unit,
+    isCallingEnabled: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     val audioPermissionCheck = AudioPermissionCheckFlow(
         startCall = onPhoneButtonClick,
-        onPermanentPermissionDecline = {
-            onPermissionPermanentlyDenied(
-                PermissionDenialType.CallingMicrophone
-            )
-        }
+        onPermanentPermissionDecline = onAudioPermissionPermanentlyDenied
     )
 
     WireSecondaryButton(
+        modifier = modifier,
         onClick = audioPermissionCheck::launch,
         leadingIcon = {
             Icon(
@@ -78,13 +76,13 @@ fun StartCallButton(
 private fun AudioPermissionCheckFlow(
     startCall: () -> Unit,
     onPermanentPermissionDecline: () -> Unit
-) = rememberCallingRecordAudioRequestFlow(
-    onAudioPermissionGranted = {
+) = rememberRecordAudioPermissionFlow(
+    onPermissionGranted = {
         appLogger.d("startCall - Audio permission granted")
         startCall()
     },
-    onAudioPermissionDenied = { },
-    onAudioPermissionPermanentlyDenied = onPermanentPermissionDecline
+    onPermissionDenied = { },
+    onPermissionPermanentlyDenied = onPermanentPermissionDecline
 )
 
 @PreviewMultipleThemes
@@ -92,7 +90,7 @@ private fun AudioPermissionCheckFlow(
 fun PreviewStartCallButton() = WireTheme {
     StartCallButton(
         onPhoneButtonClick = {},
-        onPermissionPermanentlyDenied = {},
+        onAudioPermissionPermanentlyDenied = {},
         isCallingEnabled = true
     )
 }

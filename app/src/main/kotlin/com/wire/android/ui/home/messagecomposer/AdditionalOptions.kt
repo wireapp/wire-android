@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerComponent
@@ -37,7 +38,6 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.RichTextMarkdown
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.permission.PermissionDenialType
 
 @Composable
 fun AdditionalOptionsMenu(
@@ -47,16 +47,16 @@ fun AdditionalOptionsMenu(
     isSelfDeletingActive: Boolean,
     isEditing: Boolean,
     isMentionActive: Boolean,
-    onOnSelfDeletingOptionClicked: (() -> Unit)? = null,
     onAdditionalOptionsMenuClicked: () -> Unit,
     onMentionButtonClicked: (() -> Unit),
-    onGifOptionClicked: (() -> Unit)? = null,
     onPingOptionClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit,
     onCloseRichEditingButtonClicked: () -> Unit,
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
     onDrawingModeClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onOnSelfDeletingOptionClicked: (() -> Unit)? = null,
+    onGifOptionClicked: (() -> Unit)? = null
 ) {
     Box(modifier.background(colorsScheme().messageComposerBackgroundColor)) {
         when (additionalOptionsState) {
@@ -94,7 +94,7 @@ fun AdditionalOptionsMenu(
 @Composable
 fun AdditionalOptionSubMenu(
     isFileSharingEnabled: Boolean,
-    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     onLocationPickerClicked: () -> Unit,
     onCloseAdditionalAttachment: () -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
@@ -105,7 +105,7 @@ fun AdditionalOptionSubMenu(
     onLocationPicked: (GeoLocatedAddress) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    modifier: Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
         AttachmentOptionsComponent(
@@ -116,7 +116,7 @@ fun AdditionalOptionSubMenu(
             isFileSharingEnabled = isFileSharingEnabled,
             onRecordAudioMessageClicked = onRecordAudioMessageClicked,
             onLocationPickerClicked = onLocationPickerClicked,
-            onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied
+            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         )
         when (additionalOptionsState) {
             AdditionalOptionSubMenuState.AttachFile -> {
@@ -150,15 +150,15 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     selectedOption: AdditionalOptionSelectItem,
     isMentionActive: Boolean,
     onMentionButtonClicked: () -> Unit,
-    onAdditionalOptionsMenuClicked: () -> Unit = {},
-    onPingClicked: () -> Unit = {},
     onSelfDeletionOptionButtonClicked: () -> Unit,
     isSelfDeletingSettingEnabled: Boolean,
     isSelfDeletingActive: Boolean,
+    modifier: Modifier = Modifier,
+    onAdditionalOptionsMenuClicked: () -> Unit = {},
+    onPingClicked: () -> Unit = {},
     onGifButtonClicked: () -> Unit = {},
     onRichEditingButtonClicked: () -> Unit = {},
-    onDrawingModeClicked: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onDrawingModeClicked: () -> Unit = {}
 ) {
     Column(modifier.wrapContentSize()) {
         HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)

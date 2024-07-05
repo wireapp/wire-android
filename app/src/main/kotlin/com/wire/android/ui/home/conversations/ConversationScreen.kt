@@ -154,7 +154,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.MessageDateTimeGroup
 import com.wire.android.util.normalizeLink
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -476,29 +475,11 @@ fun ConversationScreen(
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult,
         onPermissionPermanentlyDenied = {
             val description = when (it) {
-                is PermissionDenialType.CaptureVideo -> {
-                    R.string.record_video_permission_dialog_description
-                }
-
-                is PermissionDenialType.TakePicture -> {
-                    R.string.take_picture_permission_dialog_description
-                }
-
-                is PermissionDenialType.Gallery -> {
-                    R.string.open_gallery_permission_dialog_description
-                }
-
-                is PermissionDenialType.ReadFile -> {
-                    R.string.attach_file_permission_dialog_description
-                }
-
-                is PermissionDenialType.CallingMicrophone -> {
-                    R.string.call_permission_dialog_description
-                }
-
-                else -> {
-                    R.string.app_permission_dialog_title
-                }
+                ConversationActionPermissionType.CaptureVideo -> R.string.record_video_permission_dialog_description
+                ConversationActionPermissionType.TakePicture -> R.string.take_picture_permission_dialog_description
+                ConversationActionPermissionType.ChooseImage -> R.string.open_gallery_permission_dialog_description
+                ConversationActionPermissionType.ChooseFile -> R.string.attach_file_permission_dialog_description
+                ConversationActionPermissionType.CallAudio -> R.string.call_permission_dialog_description
             }
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
@@ -738,11 +719,11 @@ private fun ConversationScreen(
     tempWritableVideoUri: Uri?,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
     onClearMentionSearchResult: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     conversationScreenState: ConversationScreenState,
     messageComposerStateHolder: MessageComposerStateHolder,
     onLinkClick: (String) -> Unit,
-    currentTimeInMillisFlow: Flow<Long> = flow { }
+    currentTimeInMillisFlow: Flow<Long> = flow { },
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -801,7 +782,9 @@ private fun ConversationScreen(
                     onPhoneButtonClick = onStartCall,
                     hasOngoingCall = conversationCallViewState.hasOngoingCall,
                     onJoinCallButtonClick = onJoinCall,
-                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+                    onAudioPermissionPermanentlyDenied = {
+                        onPermissionPermanentlyDenied(ConversationActionPermissionType.CallAudio)
+                    },
                     isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
                 )
                 ConversationBanner(bannerMessage)
@@ -848,7 +831,7 @@ private fun ConversationScreen(
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                     onChangeSelfDeletionClicked = { conversationScreenState.showSelfDeletionContextMenu() },
                     onClearMentionSearchResult = onClearMentionSearchResult,
-                    onCaptureVideoPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
                     onLinkClick = onLinkClick,
@@ -896,7 +879,7 @@ private fun ConversationScreenContent(
     onFailedMessageCancelClicked: (String) -> Unit,
     onChangeSelfDeletionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
-    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
@@ -943,7 +926,7 @@ private fun ConversationScreenContent(
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
-        onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         tempWritableVideoUri = tempWritableVideoUri,
         tempWritableImageUri = tempWritableImageUri,
         onImagesPicked = onImagesPicked
@@ -1292,6 +1275,10 @@ private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
     val smoothAnimationDuration = 200.milliseconds
     delay(smoothAnimationDuration) // we wait a bit until the whole screen is loaded to show the animation properly
     block()
+}
+
+enum class ConversationActionPermissionType {
+    CaptureVideo, TakePicture, ChooseImage, ChooseFile, CallAudio;
 }
 
 @PreviewMultipleThemes

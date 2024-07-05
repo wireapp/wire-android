@@ -41,7 +41,7 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.openAppInfoScreen
-import com.wire.android.util.permission.rememberRecordAudioRequestFlow
+import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
 
 @Composable
 fun RecordAudioComponent(
@@ -164,10 +164,8 @@ fun RecordAudioComponent(
 private fun RecordAudioFlow(
     startRecording: () -> Unit,
     onAudioPermissionPermanentlyDenied: () -> Unit
-) = rememberRecordAudioRequestFlow(
-    onPermissionAllowed = {
-        startRecording()
-    },
+) = rememberRecordAudioPermissionFlow(
+    onPermissionGranted = startRecording,
     onPermissionDenied = { /** Nothing to do **/ },
-    onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied
+    onPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied
 )

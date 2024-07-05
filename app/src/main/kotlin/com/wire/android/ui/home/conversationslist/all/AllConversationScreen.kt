@@ -51,7 +51,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -80,7 +79,7 @@ fun AllConversationScreenContent(
     onOpenConversation: (ConversationId) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onJoinedCall: (ConversationId) -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onAudioPermissionPermanentlyDenied: () -> Unit,
     dismissJoinCallAnywayDialog: () -> Unit,
     joinCallAnyway: (conversationId: ConversationId, onJoinedCall: (ConversationId) -> Unit) -> Unit,
     isFromArchive: Boolean = false,
@@ -114,15 +113,15 @@ fun AllConversationScreenContent(
                 callConversationIdToJoin.value = it
                 joinOngoingCall(it, onJoinedCall)
             },
-            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+            onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
         )
     }
 }
 
 @Composable
-fun ConversationListEmptyStateScreen() {
+fun ConversationListEmptyStateScreen(modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(
                 dimensions().spacing40x
@@ -166,7 +165,7 @@ fun PreviewAllConversationScreen() = WireTheme {
         onOpenConversation = {},
         onOpenUserProfile = {},
         onJoinedCall = {},
-        onPermissionPermanentlyDenied = {},
+        onAudioPermissionPermanentlyDenied = {},
         conversationListCallState = ConversationListCallState(),
         isFromArchive = false,
         dismissJoinCallAnywayDialog = {},
@@ -185,7 +184,7 @@ fun ConversationListEmptyStateScreenPreview() = WireTheme {
         onOpenConversation = {},
         onOpenUserProfile = {},
         onJoinedCall = {},
-        onPermissionPermanentlyDenied = {},
+        onAudioPermissionPermanentlyDenied = {},
         conversationListCallState = ConversationListCallState(),
         isFromArchive = false,
         dismissJoinCallAnywayDialog = {},

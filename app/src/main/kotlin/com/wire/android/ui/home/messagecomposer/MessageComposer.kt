@@ -72,7 +72,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlin.math.roundToInt
-import kotlin.time.Duration
 
 @Composable
 fun MessageComposer(
@@ -80,7 +79,7 @@ fun MessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
-    onChangeSelfDeletionClicked: () -> Unit,
+    onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     tempWritableVideoUri: Uri?,
@@ -255,7 +254,6 @@ private fun BaseComposerPreview(
     }
     val messageTextState = rememberTextFieldState()
     val messageComposition = remember { mutableStateOf(MessageComposition(ConversationId("value", "domain"))) }
-    val selfDeletionTimer = remember { mutableStateOf(SelfDeletionTimer.Enabled(Duration.ZERO)) }
 
     MessageComposer(
         conversationId = ConversationId("value", "domain"),
@@ -263,7 +261,6 @@ private fun BaseComposerPreview(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
                 messageTextState = messageTextState,
-                selfDeletionTimer = selfDeletionTimer
             ),
             messageCompositionHolder = MessageCompositionHolder(
                 messageComposition = messageComposition,

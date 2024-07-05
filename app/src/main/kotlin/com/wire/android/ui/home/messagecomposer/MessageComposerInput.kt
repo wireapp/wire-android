@@ -62,6 +62,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.atMost
 import com.wire.android.R
+import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -71,17 +72,18 @@ import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
+import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
+import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModel
+import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelImpl
 import com.wire.android.ui.home.messagecomposer.attachments.AdditionalOptionButton
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.InputType
-import com.wire.android.ui.home.messagecomposer.state.MessageType
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
-import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun ActiveMessageComposerInput(
@@ -93,7 +95,7 @@ fun ActiveMessageComposerInput(
     inputFocused: Boolean,
     onSendButtonClicked: () -> Unit,
     onEditButtonClicked: () -> Unit,
-    onChangeSelfDeletionClicked: () -> Unit,
+    onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onToggleInputSize: () -> Unit,
     onTextCollapse: () -> Unit,
     onCancelReply: () -> Unit,
@@ -170,7 +172,7 @@ private fun InputContent(
     inputType: InputType,
     inputFocused: Boolean,
     onSendButtonClicked: () -> Unit,
-    onChangeSelfDeletionClicked: () -> Unit,
+    onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onInputFocusedChanged: (Boolean) -> Unit,
     onSelectedLineIndexChanged: (Int) -> Unit,
     onLineBottomYCoordinateChanged: (Float) -> Unit,
@@ -178,6 +180,10 @@ private fun InputContent(
     onPlusClick: () -> Unit,
     onTextCollapse: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: SelfDeletingMessageActionViewModel =
+        hiltViewModelScoped<SelfDeletingMessageActionViewModelImpl, SelfDeletingMessageActionViewModel, SelfDeletingMessageActionArgs>(
+            SelfDeletingMessageActionArgs(conversationId = conversationId)
+        ),
 ) {
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()
@@ -202,9 +208,10 @@ private fun InputContent(
         MessageComposerTextInput(
             isTextExpanded = isTextExpanded,
             inputFocused = inputFocused,
-            colors = inputType.inputTextColor(),
+            colors = inputType.inputTextColor(isSelfDeleting = viewModel.state().duration != null),
             messageTextState = messageTextState,
-            placeHolderText = inputType.labelText(),
+            placeHolderText = viewModel.state().duration?.let { stringResource(id = R.string.self_deleting_message_label) }
+                ?: inputType.labelText(),
             onFocusChanged = onInputFocusedChanged,
             onSelectedLineIndexChanged = onSelectedLineIndexChanged,
             onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
@@ -213,17 +220,17 @@ private fun InputContent(
                 .fillMaxWidth()
                 .constrainAs(input) {
                     width = Dimension.fillToConstraints
-                    if (isTextExpanded) {
+                    height = if (isTextExpanded) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                         top.linkTo(parent.top)
                         bottom.linkTo(buttonsTopBarrier)
-                        height = Dimension.fillToConstraints
+                        Dimension.fillToConstraints
                     } else {
                         start.linkTo(additionalOptionButton.end)
                         end.linkTo(actions.start)
                         bottom.linkTo(parent.bottom)
-                        height = Dimension.preferredWrapContent.atMost(collapsedMaxHeight)
+                        Dimension.preferredWrapContent.atMost(collapsedMaxHeight)
                     }
                 }
         )
@@ -243,25 +250,13 @@ private fun InputContent(
             }
             if (showOptions) {
                 if (inputType is InputType.Composing) {
-                    when (val messageType = inputType.messageType) {
-                        is MessageType.Normal -> {
-                            MessageSendActions(
-                                onSendButtonClicked = onSendButtonClicked,
-                                sendButtonEnabled = inputType.isSendButtonEnabled,
-                                modifier = Modifier.padding(end = dimensions().spacing8x)
-                            )
-                        }
-
-                        is MessageType.SelfDeleting -> {
-                            SelfDeletingActions(
-                                onSendButtonClicked = onSendButtonClicked,
-                                sendButtonEnabled = inputType.isSendButtonEnabled,
-                                selfDeletionTimer = messageType.selfDeletionTimer,
-                                onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                                modifier = Modifier.padding(end = dimensions().spacing8x)
-                            )
-                        }
-                    }
+                    MessageSendActions(
+                        onSendButtonClicked = onSendButtonClicked,
+                        sendButtonEnabled = inputType.isSendButtonEnabled,
+                        selfDeletionTimer = viewModel.state(),
+                        onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                        modifier = Modifier.padding(end = dimensions().spacing8x)
+                    )
                 }
             }
         }
@@ -399,19 +394,7 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
 @Composable
 fun PreviewActiveMessageComposerInputCollapsed() = WireTheme {
     PreviewActiveMessageComposerInput(
-        inputType = InputType.Composing(isSendButtonEnabled = true, messageType = MessageType.Normal),
-        isTextExpanded = false
-    )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewActiveMessageComposerInputCollapsedSelfDeleting() = WireTheme {
-    PreviewActiveMessageComposerInput(
-        inputType = InputType.Composing(
-            isSendButtonEnabled = true,
-            messageType = MessageType.SelfDeleting(SelfDeletionTimer.Enabled(1.minutes))
-        ),
+        inputType = InputType.Composing(isSendButtonEnabled = true),
         isTextExpanded = false
     )
 }
@@ -429,7 +412,7 @@ fun PreviewActiveMessageComposerInputCollapsedEdit() = WireTheme {
 @Composable
 fun PreviewActiveMessageComposerInputExpanded() = WireTheme {
     PreviewActiveMessageComposerInput(
-        inputType = InputType.Composing(isSendButtonEnabled = true, messageType = MessageType.Normal),
+        inputType = InputType.Composing(isSendButtonEnabled = true),
         isTextExpanded = true
     )
 }

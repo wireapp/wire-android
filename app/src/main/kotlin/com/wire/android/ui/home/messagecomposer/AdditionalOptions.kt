@@ -38,13 +38,14 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.RichTextMarkdown
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 
 @Composable
 fun AdditionalOptionsMenu(
+    conversationId: ConversationId,
     additionalOptionsState: AdditionalOptionMenuState,
     selectedOption: AdditionalOptionSelectItem,
-    isSelfDeletingSettingEnabled: Boolean,
-    isSelfDeletingActive: Boolean,
     isEditing: Boolean,
     isMentionActive: Boolean,
     onAdditionalOptionsMenuClicked: () -> Unit,
@@ -55,17 +56,16 @@ fun AdditionalOptionsMenu(
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
     onDrawingModeClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    onOnSelfDeletingOptionClicked: (() -> Unit)? = null,
+    onOnSelfDeletingOptionClicked: ((SelfDeletionTimer) -> Unit)? = null,
     onGifOptionClicked: (() -> Unit)? = null
 ) {
     Box(modifier.background(colorsScheme().messageComposerBackgroundColor)) {
         when (additionalOptionsState) {
             AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
                 AttachmentAndAdditionalOptionsMenuItems(
+                    conversationId = conversationId,
                     selectedOption = selectedOption,
                     isEditing = isEditing,
-                    isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-                    isSelfDeletingActive = isSelfDeletingActive,
                     isMentionActive = isMentionActive,
                     onMentionButtonClicked = onMentionButtonClicked,
                     onAdditionalOptionsMenuClicked = onAdditionalOptionsMenuClicked,
@@ -146,13 +146,12 @@ fun AdditionalOptionSubMenu(
 
 @Composable
 fun AttachmentAndAdditionalOptionsMenuItems(
+    conversationId: ConversationId,
     isEditing: Boolean,
     selectedOption: AdditionalOptionSelectItem,
     isMentionActive: Boolean,
     onMentionButtonClicked: () -> Unit,
-    onSelfDeletionOptionButtonClicked: () -> Unit,
-    isSelfDeletingSettingEnabled: Boolean,
-    isSelfDeletingActive: Boolean,
+    onSelfDeletionOptionButtonClicked: (SelfDeletionTimer) -> Unit,
     modifier: Modifier = Modifier,
     onAdditionalOptionsMenuClicked: () -> Unit = {},
     onPingClicked: () -> Unit = {},
@@ -163,6 +162,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     Column(modifier.wrapContentSize()) {
         HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
         MessageComposeActions(
+            conversationId = conversationId,
             isEditing = isEditing,
             selectedOption = selectedOption,
             isMentionActive = isMentionActive,
@@ -170,8 +170,6 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             onAdditionalOptionButtonClicked = onAdditionalOptionsMenuClicked,
             onPingButtonClicked = onPingClicked,
             onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
-            isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-            isSelfDeletingActive = isSelfDeletingActive,
             onGifButtonClicked = onGifButtonClicked,
             onRichEditingButtonClicked = onRichEditingButtonClicked,
             onDrawingModeClicked = onDrawingModeClicked

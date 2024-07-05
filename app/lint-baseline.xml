@@ -327,7 +327,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="629"
+=======
+            line="624"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -338,7 +342,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="629"
+=======
+            line="624"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -349,7 +357,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="634"
+=======
+            line="629"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -360,7 +372,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="634"
+=======
+            line="629"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -371,7 +387,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="638"
+=======
+            line="633"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -382,7 +402,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="638"
+=======
+            line="633"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -393,7 +417,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="639"
+=======
+            line="634"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -404,7 +432,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-bn/strings.xml"
+<<<<<<< HEAD
             line="641"
+=======
+            line="636"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -415,7 +447,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
+<<<<<<< HEAD
             line="641"
+=======
+            line="636"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -426,7 +462,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
+<<<<<<< HEAD
             line="641"
+=======
+            line="636"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -437,7 +477,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
+<<<<<<< HEAD
             line="641"
+=======
+            line="636"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -448,7 +492,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="641"
+=======
+            line="636"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -459,7 +507,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="642"
+=======
+            line="637"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -470,7 +522,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="642"
+=======
+            line="637"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -481,7 +537,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="642"
+=======
+            line="637"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -492,7 +552,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="645"
+=======
+            line="640"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -503,7 +567,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="645"
+=======
+            line="640"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -514,7 +582,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-bn/strings.xml"
+<<<<<<< HEAD
             line="646"
+=======
+            line="641"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -525,7 +597,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
+<<<<<<< HEAD
             line="646"
+=======
+            line="641"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -536,7 +612,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="646"
+=======
+            line="641"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -547,7 +627,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
+<<<<<<< HEAD
             line="646"
+=======
+            line="641"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -558,7 +642,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
+<<<<<<< HEAD
             line="646"
+=======
+            line="641"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -569,7 +657,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="646"
+=======
+            line="641"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -580,7 +672,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="646"
+=======
+            line="641"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -591,7 +687,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="647"
+=======
+            line="642"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -602,7 +702,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="648"
+=======
+            line="643"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -613,7 +717,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sl/strings.xml"
+<<<<<<< HEAD
             line="649"
+=======
+            line="644"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -624,7 +732,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-lt/strings.xml"
+<<<<<<< HEAD
             line="649"
+=======
+            line="644"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -635,7 +747,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="649"
+=======
+            line="644"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -646,7 +762,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-bn/strings.xml"
+<<<<<<< HEAD
             line="650"
+=======
+            line="645"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -657,7 +777,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
+<<<<<<< HEAD
             line="650"
+=======
+            line="645"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -668,7 +792,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
+<<<<<<< HEAD
             line="650"
+=======
+            line="645"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -679,7 +807,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
+<<<<<<< HEAD
             line="650"
+=======
+            line="645"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -690,7 +822,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="650"
+=======
+            line="645"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -701,7 +837,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="650"
+=======
+            line="645"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -712,7 +852,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="651"
+=======
+            line="646"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -723,7 +867,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="651"
+=======
+            line="646"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -734,7 +882,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="651"
+=======
+            line="646"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -745,7 +897,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="651"
+=======
+            line="646"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -756,7 +912,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-bn/strings.xml"
+<<<<<<< HEAD
             line="654"
+=======
+            line="649"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -767,7 +927,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
+<<<<<<< HEAD
             line="654"
+=======
+            line="649"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -778,7 +942,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
+<<<<<<< HEAD
             line="654"
+=======
+            line="649"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -789,7 +957,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
+<<<<<<< HEAD
             line="654"
+=======
+            line="649"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -800,7 +972,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="654"
+=======
+            line="649"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -811,7 +987,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="655"
+=======
+            line="650"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -822,7 +1002,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="655"
+=======
+            line="650"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -833,7 +1017,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="655"
+=======
+            line="650"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -844,7 +1032,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="655"
+=======
+            line="650"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -855,7 +1047,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="655"
+=======
+            line="650"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -866,7 +1062,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sl/strings.xml"
+<<<<<<< HEAD
             line="656"
+=======
+            line="651"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -877,7 +1077,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-lt/strings.xml"
+<<<<<<< HEAD
             line="656"
+=======
+            line="651"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -888,7 +1092,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="656"
+=======
+            line="651"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -899,7 +1107,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="656"
+=======
+            line="651"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -910,7 +1122,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-bn/strings.xml"
+<<<<<<< HEAD
             line="658"
+=======
+            line="653"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -921,7 +1137,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
+<<<<<<< HEAD
             line="658"
+=======
+            line="653"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -932,7 +1152,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
+<<<<<<< HEAD
             line="658"
+=======
+            line="653"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -943,7 +1167,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
+<<<<<<< HEAD
             line="658"
+=======
+            line="653"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -954,7 +1182,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="658"
+=======
+            line="653"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -965,7 +1197,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="659"
+=======
+            line="654"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -976,7 +1212,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="660"
+=======
+            line="655"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -987,7 +1227,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="661"
+=======
+            line="656"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -998,7 +1242,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="661"
+=======
+            line="656"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1009,7 +1257,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sl/strings.xml"
+<<<<<<< HEAD
             line="662"
+=======
+            line="657"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1020,7 +1272,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-lt/strings.xml"
+<<<<<<< HEAD
             line="662"
+=======
+            line="657"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1031,7 +1287,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="662"
+=======
+            line="657"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1042,7 +1302,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-bn/strings.xml"
+<<<<<<< HEAD
             line="663"
+=======
+            line="658"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1053,7 +1317,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
+<<<<<<< HEAD
             line="663"
+=======
+            line="658"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1064,7 +1332,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
+<<<<<<< HEAD
             line="663"
+=======
+            line="658"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1075,7 +1347,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
+<<<<<<< HEAD
             line="663"
+=======
+            line="658"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1086,7 +1362,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="663"
+=======
+            line="658"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1097,7 +1377,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="664"
+=======
+            line="659"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1108,7 +1392,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="666"
+=======
+            line="661"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1119,7 +1407,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="666"
+=======
+            line="661"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1130,7 +1422,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-bn/strings.xml"
+<<<<<<< HEAD
             line="667"
+=======
+            line="662"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1141,7 +1437,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
+<<<<<<< HEAD
             line="667"
+=======
+            line="662"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1152,7 +1452,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
+<<<<<<< HEAD
             line="667"
+=======
+            line="662"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1163,7 +1467,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
+<<<<<<< HEAD
             line="667"
+=======
+            line="662"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1174,7 +1482,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="667"
+=======
+            line="662"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1185,7 +1497,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="667"
+=======
+            line="662"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1196,7 +1512,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="668"
+=======
+            line="663"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1207,7 +1527,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sl/strings.xml"
+<<<<<<< HEAD
             line="668"
+=======
+            line="663"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1218,7 +1542,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-lt/strings.xml"
+<<<<<<< HEAD
             line="668"
+=======
+            line="663"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1229,7 +1557,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="668"
+=======
+            line="663"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1240,7 +1572,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="671"
+=======
+            line="666"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1251,7 +1587,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="672"
+=======
+            line="667"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1262,7 +1602,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="673"
+=======
+            line="668"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1273,7 +1617,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sl/strings.xml"
+<<<<<<< HEAD
             line="674"
+=======
+            line="669"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1284,7 +1632,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-lt/strings.xml"
+<<<<<<< HEAD
             line="674"
+=======
+            line="669"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1295,7 +1647,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="674"
+=======
+            line="669"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1306,7 +1662,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="677"
+=======
+            line="672"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1317,7 +1677,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="680"
+=======
+            line="675"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1328,7 +1692,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sl/strings.xml"
+<<<<<<< HEAD
             line="681"
+=======
+            line="676"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1339,7 +1707,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-lt/strings.xml"
+<<<<<<< HEAD
             line="681"
+=======
+            line="676"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1350,7 +1722,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="681"
+=======
+            line="676"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1361,7 +1737,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="686"
+=======
+            line="681"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1372,7 +1752,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sl/strings.xml"
+<<<<<<< HEAD
             line="687"
+=======
+            line="682"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1383,7 +1767,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-lt/strings.xml"
+<<<<<<< HEAD
             line="687"
+=======
+            line="682"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1394,7 +1782,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="687"
+=======
+            line="682"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1405,7 +1797,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="690"
+=======
+            line="685"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1416,7 +1812,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="1004"
+=======
+            line="983"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1427,7 +1827,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="1007"
+=======
+            line="985"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1438,7 +1842,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="1008"
+=======
+            line="987"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1449,7 +1857,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="1011"
+=======
+            line="989"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1460,7 +1872,154 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="1015"
+=======
+            line="994"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>one account active&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="997"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>one account active&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="997"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>one account active&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="997"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>one account active&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="997"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>one account active&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-mk/strings.xml"
+            line="997"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>You can only be logged in with one account at once. Log out from one to add another.&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/strings.xml"
+            line="998"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>You can only be logged in with one account at once. Log out from one to add another.&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1001"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>You can only be logged in with one account at once. Log out from one to add another.&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1001"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>You can only be logged in with one account at once. Log out from one to add another.&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1001"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>You can only be logged in with one account at once. Log out from one to add another.&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1001"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>You can only be logged in with one account at once. Log out from one to add another.&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-mk/strings.xml"
+            line="1001"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>one account active&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hr/strings.xml"
+            line="1008"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>You can only be logged in with one account at once. Log out from one to add another.&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hr/strings.xml"
+            line="1013"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1614,7 +2173,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="1037"
+=======
+            line="1014"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1625,7 +2188,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="1042"
+=======
+            line="1019"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1636,7 +2203,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="1053"
+=======
+            line="1030"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1647,7 +2218,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sl/strings.xml"
+<<<<<<< HEAD
             line="1055"
+=======
+            line="1031"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1658,7 +2233,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-lt/strings.xml"
+<<<<<<< HEAD
             line="1055"
+=======
+            line="1031"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1669,7 +2248,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="1055"
+=======
+            line="1031"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1680,7 +2263,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="1059"
+=======
+            line="1036"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1691,7 +2278,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sl/strings.xml"
+<<<<<<< HEAD
             line="1061"
+=======
+            line="1037"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1702,7 +2293,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-lt/strings.xml"
+<<<<<<< HEAD
             line="1061"
+=======
+            line="1037"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1713,7 +2308,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="1061"
+=======
+            line="1037"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1724,7 +2323,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="1207"
+=======
+            line="1183"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1735,7 +2338,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="1210"
+=======
+            line="1185"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1746,7 +2353,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="1211"
+=======
+            line="1187"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1757,7 +2368,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="1214"
+=======
+            line="1189"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1768,7 +2383,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="1215"
+=======
+            line="1191"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1779,7 +2398,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="1218"
+=======
+            line="1193"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1790,7 +2413,66 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="1219"
+=======
+            line="1195"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1197"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1197"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="1197"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1197"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1197"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1801,6 +2483,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="1221"
             column="9"/>
     </issue>
@@ -1857,6 +2540,9 @@
         <location
             file="src/main/res/values-pa/strings.xml"
             line="1222"
+=======
+            line="1197"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1867,7 +2553,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="1222"
+=======
+            line="1197"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1878,7 +2568,66 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="1223"
+=======
+            line="1199"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1201"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1201"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="1201"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1201"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1201"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1889,6 +2638,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="1225"
             column="9"/>
     </issue>
@@ -1945,6 +2695,9 @@
         <location
             file="src/main/res/values-pa/strings.xml"
             line="1226"
+=======
+            line="1201"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1955,7 +2708,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="1226"
+=======
+            line="1201"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1966,7 +2723,66 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="1227"
+=======
+            line="1203"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1205"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1205"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="1205"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1205"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1205"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -1977,6 +2793,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="1229"
             column="9"/>
     </issue>
@@ -2033,6 +2850,9 @@
         <location
             file="src/main/res/values-pa/strings.xml"
             line="1230"
+=======
+            line="1205"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2043,7 +2863,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="1230"
+=======
+            line="1205"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2054,7 +2878,66 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="1231"
+=======
+            line="1207"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1209"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1209"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="1209"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1209"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1209"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2065,6 +2948,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="1233"
             column="9"/>
     </issue>
@@ -2121,6 +3005,9 @@
         <location
             file="src/main/res/values-pa/strings.xml"
             line="1234"
+=======
+            line="1209"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2131,18 +3018,10 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="1234"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>පැය 1&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-si/strings.xml"
-            line="1235"
+=======
+            line="1209"
             column="9"/>
     </issue>
 
@@ -2153,7 +3032,83 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+            line="1210"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>පැය 1&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="1235"
+=======
+            line="1211"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+<<<<<<< HEAD
+            file="src/main/res/values-hr/strings.xml"
+            line="1235"
+=======
+            file="src/main/res/values-bn/strings.xml"
+            line="1213"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1213"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="1213"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1213"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1213"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2164,6 +3119,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="1237"
             column="9"/>
     </issue>
@@ -2220,6 +3176,9 @@
         <location
             file="src/main/res/values-pa/strings.xml"
             line="1238"
+=======
+            line="1213"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2230,7 +3189,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="1238"
+=======
+            line="1213"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2241,7 +3204,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="1239"
+=======
+            line="1215"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2252,7 +3219,77 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="1240"
+=======
+            line="1215"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sr/strings.xml"
+            line="1216"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1217"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1217"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="1217"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1217"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1217"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2263,6 +3300,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="1241"
             column="9"/>
     </issue>
@@ -2319,6 +3357,9 @@
         <location
             file="src/main/res/values-pa/strings.xml"
             line="1242"
+=======
+            line="1217"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2329,6 +3370,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="1242"
             column="9"/>
     </issue>
@@ -2341,6 +3383,9 @@
         <location
             file="src/main/res/values-sr/strings.xml"
             line="1242"
+=======
+            line="1217"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2351,6 +3396,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-si/strings.xml"
+<<<<<<< HEAD
             line="1243"
             column="9"/>
     </issue>
@@ -2363,6 +3409,9 @@
         <location
             file="src/main/res/values-pt/strings.xml"
             line="1245"
+=======
+            line="1219"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2373,7 +3422,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="1245"
+=======
+            line="1220"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2384,7 +3437,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-bn/strings.xml"
+<<<<<<< HEAD
             line="1246"
+=======
+            line="1221"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2395,7 +3452,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fa/strings.xml"
+<<<<<<< HEAD
             line="1246"
+=======
+            line="1221"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2406,7 +3467,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
+<<<<<<< HEAD
             line="1246"
+=======
+            line="1221"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2417,7 +3482,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hi/strings.xml"
+<<<<<<< HEAD
             line="1246"
+=======
+            line="1221"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2428,7 +3497,22 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pa/strings.xml"
+<<<<<<< HEAD
             line="1246"
+=======
+            line="1221"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/strings.xml"
+            line="1221"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2439,7 +3523,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="1246"
+=======
+            line="1221"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2450,7 +3538,55 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="1247"
+=======
+            line="1221"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1225"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1225"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1225"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1225"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2461,6 +3597,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="1249"
             column="9"/>
     </issue>
@@ -2506,6 +3643,9 @@
         <location
             file="src/main/res/values-pa/strings.xml"
             line="1250"
+=======
+            line="1225"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2516,7 +3656,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="1250"
+=======
+            line="1225"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2527,7 +3671,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="1250"
+=======
+            line="1225"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2538,7 +3686,55 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="1252"
+=======
+            line="1226"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1229"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1229"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1229"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1229"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2549,6 +3745,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="1253"
             column="9"/>
     </issue>
@@ -2594,6 +3791,9 @@
         <location
             file="src/main/res/values-pa/strings.xml"
             line="1254"
+=======
+            line="1229"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2604,7 +3804,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="1254"
+=======
+            line="1229"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2615,7 +3819,66 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="1255"
+=======
+            line="1230"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sr/strings.xml"
+            line="1231"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="1233"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/strings.xml"
+            line="1233"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hi/strings.xml"
+            line="1233"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (0, 1), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pa/strings.xml"
+            line="1233"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2626,6 +3889,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt/strings.xml"
+<<<<<<< HEAD
             line="1257"
             column="9"/>
     </issue>
@@ -2682,6 +3946,9 @@
         <location
             file="src/main/res/values-pa/strings.xml"
             line="1258"
+=======
+            line="1233"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2692,7 +3959,22 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-mk/strings.xml"
+<<<<<<< HEAD
             line="1258"
+=======
+            line="1233"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1235"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2703,7 +3985,22 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="1260"
+=======
+            line="1235"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1235"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2714,6 +4011,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="1261"
             column="9"/>
     </issue>
@@ -2748,6 +4046,9 @@
         <location
             file="src/main/res/values-sr/strings.xml"
             line="1262"
+=======
+            line="1235"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2758,7 +4059,22 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="1262"
+=======
+            line="1235"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sr/strings.xml"
+            line="1236"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2769,7 +4085,33 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="1265"
+=======
+            line="1240"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1241"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1241"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2780,7 +4122,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="1267"
+=======
+            line="1241"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2791,6 +4137,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="1267"
             column="9"/>
     </issue>
@@ -2814,6 +4161,9 @@
         <location
             file="src/main/res/values-lt/strings.xml"
             line="1268"
+=======
+            line="1241"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2824,7 +4174,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="1268"
+=======
+            line="1241"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2835,7 +4189,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="1270"
+=======
+            line="1245"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2846,7 +4204,33 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="1272"
+=======
+            line="1246"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1247"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1247"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2857,6 +4241,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="1273"
             column="9"/>
     </issue>
@@ -2880,6 +4265,9 @@
         <location
             file="src/main/res/values-lt/strings.xml"
             line="1274"
+=======
+            line="1247"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2890,7 +4278,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="1274"
+=======
+            line="1247"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2901,7 +4293,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="1275"
+=======
+            line="1250"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2912,18 +4308,10 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="1277"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ImpliedQuantity"
-        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
-        errorLine1="        &lt;item quantity=&quot;one&quot;>Осталась 1 минута&lt;/item>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ru/strings.xml"
-            line="1279"
+=======
+            line="1251"
             column="9"/>
     </issue>
 
@@ -2934,7 +4322,50 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sl/strings.xml"
+            line="1253"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1253"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>Осталась 1 минута&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
+            line="1279"
+=======
+            line="1253"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+<<<<<<< HEAD
+            file="src/main/res/values-sl/strings.xml"
             line="1280"
+=======
+            file="src/main/res/values-uk/strings.xml"
+            line="1253"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2945,6 +4376,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
+<<<<<<< HEAD
             line="1280"
             column="9"/>
     </issue>
@@ -2968,6 +4400,9 @@
         <location
             file="src/main/res/values-uk/strings.xml"
             line="1280"
+=======
+            line="1255"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2978,7 +4413,33 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="1282"
+=======
+            line="1256"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1259"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second left&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1259"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -2989,6 +4450,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="1285"
             column="9"/>
     </issue>
@@ -3012,6 +4474,9 @@
         <location
             file="src/main/res/values-lt/strings.xml"
             line="1286"
+=======
+            line="1259"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3022,7 +4487,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="1286"
+=======
+            line="1259"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3033,7 +4502,33 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-sr/strings.xml"
+<<<<<<< HEAD
             line="1287"
+=======
+            line="1261"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1265"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 week&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1265"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3044,6 +4539,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="1291"
             column="9"/>
     </issue>
@@ -3067,6 +4563,9 @@
         <location
             file="src/main/res/values-lt/strings.xml"
             line="1292"
+=======
+            line="1265"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3077,7 +4576,33 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="1292"
+=======
+            line="1265"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1271"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 day&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1271"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3088,6 +4613,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="1297"
             column="9"/>
     </issue>
@@ -3111,6 +4637,9 @@
         <location
             file="src/main/res/values-lt/strings.xml"
             line="1298"
+=======
+            line="1271"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3121,7 +4650,33 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="1298"
+=======
+            line="1271"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1277"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 hour&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1277"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3132,6 +4687,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="1303"
             column="9"/>
     </issue>
@@ -3155,6 +4711,9 @@
         <location
             file="src/main/res/values-lt/strings.xml"
             line="1304"
+=======
+            line="1277"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3165,7 +4724,33 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="1304"
+=======
+            line="1277"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1283"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 minute&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1283"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3176,6 +4761,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="1309"
             column="9"/>
     </issue>
@@ -3199,6 +4785,9 @@
         <location
             file="src/main/res/values-lt/strings.xml"
             line="1310"
+=======
+            line="1283"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3209,7 +4798,33 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="1310"
+=======
+            line="1283"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 101, 201, 301, 401, 501, 601, 701, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sl/strings.xml"
+            line="1289"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ImpliedQuantity"
+        message="The quantity `&apos;one&apos;` matches more than one specific number in this locale (1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …), but the message did not \&#xA;include a formatting argument (such as `%d`). This is usually an internationalization error. See full issue \&#xA;explanation for more."
+        errorLine1="        &lt;item quantity=&quot;one&quot;>1 second&lt;/item>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/strings.xml"
+            line="1289"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3220,6 +4835,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ru/strings.xml"
+<<<<<<< HEAD
             line="1315"
             column="9"/>
     </issue>
@@ -3243,6 +4859,9 @@
         <location
             file="src/main/res/values-lt/strings.xml"
             line="1316"
+=======
+            line="1289"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3253,7 +4872,11 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
+<<<<<<< HEAD
             line="1316"
+=======
+            line="1289"
+>>>>>>> ffa09d08d (chore: externalize all wire links to support custom builds (WPB-9811) 🍒 (#3160))
             column="9"/>
     </issue>
 
@@ -3616,7 +5239,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/connection/ConnectionActionButton.kt"
-            line="60"
+            line="62"
             column="5"/>
     </issue>
 
@@ -3759,7 +5382,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/home/conversations/search/EmptySearchQueryScreen.kt"
-            line="49"
+            line="48"
             column="5"/>
     </issue>
 
@@ -4595,7 +6218,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/SearchConversationMessagesEmptyScreen.kt"
-            line="47"
+            line="46"
             column="5"/>
     </issue>
 
@@ -4936,7 +6559,7 @@
         errorLine2="    ~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/home/whatsnew/WhatsNewItem.kt"
-            line="48"
+            line="49"
             column="5"/>
     </issue>
 
@@ -5937,7 +7560,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/SearchConversationMessagesEmptyScreen.kt"
-            line="85"
+            line="82"
             column="5"/>
     </issue>
 
@@ -6027,17 +7650,6 @@
             file="src/main/kotlin/com/wire/android/ui/common/spacers/VerticalSpace.kt"
             line="50"
             column="9"/>
-    </issue>
-
-    <issue
-        id="ComposeNamingUppercase"
-        message="Composable functions that return Unit should start with an uppercase letter.They are considered declarative entities that can be either present or absent in a composition and therefore follow the naming rules for classes.See https://slackhq.github.io/compose-lints/rules/#naming-composable-functions-properly for more information."
-        errorLine1="fun previewFileRestrictionDialog() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/whatsnew/WhatsNewItem.kt"
-            line="132"
-            column="5"/>
     </issue>
 
     <issue
@@ -6203,6 +7815,17 @@
             file="src/main/kotlin/com/wire/android/ui/common/textfield/WireTextFieldLayout.kt"
             line="205"
             column="18"/>
+    </issue>
+
+    <issue
+        id="ComposeParameterOrder"
+        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [viewModel: AboutThisAppViewModel = hiltViewModel(), navigator: Navigator] but should be [navigator: Navigator, viewModel: AboutThisAppViewModel = hiltViewModel()].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
+        errorLine1="fun AboutThisAppScreen("
+        errorLine2="                      ^">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/settings/about/AboutThisAppScreen.kt"
+            line="56"
+            column="23"/>
     </issue>
 
     <issue
@@ -6828,7 +8451,7 @@
         errorLine2="                          ^">
         <location
             file="src/main/kotlin/com/wire/android/ui/userprofile/other/OtherUserDevicesScreen.kt"
-            line="56"
+            line="55"
             column="27"/>
     </issue>
 
@@ -6839,7 +8462,7 @@
         errorLine2="                                   ^">
         <location
             file="src/main/kotlin/com/wire/android/ui/userprofile/other/OtherUserDevicesScreen.kt"
-            line="86"
+            line="85"
             column="36"/>
     </issue>
 

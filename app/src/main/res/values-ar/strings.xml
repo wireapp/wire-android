@@ -1082,6 +1082,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>
     <string name="other_devices_label">Other Devices</string>
+    <string name="devices_loading_error">There was an error when trying to fetch devices. Please check your Internet connection and try again.</string>
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Unblock user?</string>
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
@@ -1422,6 +1423,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
+    <string name="record_audio_encoding_label">Encoding Audio…</string>
     <string name="record_audio_send_label">Send Audio Message</string>
     <string name="record_audio_apply_filter_label">Apply audio filter</string>
     <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
@@ -1511,6 +1513,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="app_permission_dialog_title">App permissions</string>
     <string name="app_permission_dialog_settings_positive_button">Settings</string>
     <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <string name="notifications_permission_dialog_description">To make full use of the app, receive messages and answer phone calls, please allow Wire to show notifications.</string>
     <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone in your device settings.</string>
     <string name="record_video_permission_dialog_description">To record a video, allow Wire to access your camera in your device settings.</string>
     <string name="take_picture_permission_dialog_description">To take a picture, allow Wire to access your camera in your device settings.</string>
@@ -1528,4 +1531,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Remove asset</string>
     <string name="asset_attention_description">Asset attention</string>
+    <!-- No Activity Errors -->
+    <string name="no_camera_app">No camera app found to complete this action.</string>
+    <string name="no_gallery_app">No gallery app found to complete this action.</string>
+    <string name="no_file_manager_app">No file manager app found to complete this action.</string>
 </resources>

@@ -55,7 +55,7 @@ fun rememberTakePictureFlow(
         requiredPermissions = arrayOf(Manifest.permission.CAMERA),
         onResult = onPictureTaken,
         onAnyPermissionDenied = onPermissionDenied,
-        onAnyPermissionPermanentlyDenied = { onPermissionPermanentlyDenied() },
+        onAnyPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         onActivityNotFound = {
             scope.launch {
                 snackbarHostState.showSnackbar(message)
@@ -92,7 +92,7 @@ fun rememberCaptureVideoFlow(
         },
         onResult = onVideoCaptured,
         onAnyPermissionDenied = onPermissionDenied,
-        onAnyPermissionPermanentlyDenied = { onPermissionPermanentlyDenied() },
+        onAnyPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         onActivityNotFound = {
             scope.launch {
                 snackbarHostState.showSnackbar(message)
@@ -133,7 +133,7 @@ fun rememberCreateFileFlow(
             onFileCreatedUri?.let { onFileCreated(it) }
         },
         onAnyPermissionDenied = onPermissionDenied,
-        onAnyPermissionPermanentlyDenied = { onPermissionPermanentlyDenied() },
+        onAnyPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         onActivityNotFound = {
             scope.launch {
                 snackbarHostState.showSnackbar(message)
@@ -170,7 +170,7 @@ fun rememberChooseSingleFileFlow(
         },
         onResult = onFileBrowserItemPicked,
         onAnyPermissionDenied = onPermissionDenied,
-        onAnyPermissionPermanentlyDenied = { onPermissionPermanentlyDenied() },
+        onAnyPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         onActivityNotFound = {
             scope.launch {
                 snackbarHostState.showSnackbar(message)
@@ -207,7 +207,7 @@ fun rememberChooseMultipleFilesFlow(
         },
         onResult = onFileBrowserItemPicked,
         onAnyPermissionDenied = onPermissionDenied,
-        onAnyPermissionPermanentlyDenied = { onPermissionPermanentlyDenied() },
+        onAnyPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         onActivityNotFound = {
             scope.launch {
                 snackbarHostState.showSnackbar(message)

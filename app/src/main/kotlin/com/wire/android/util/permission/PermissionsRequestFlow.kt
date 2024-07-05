@@ -51,7 +51,7 @@ fun rememberCheckPermissionsRequestFlow(
                 context.getActivity()?.let { activity ->
                     val shouldShowRequestPermissionRationaleForAnyPermission = permissions
                         .map { permission -> shouldShowRequestPermissionRationale(activity, permission) }
-                        .any { true }
+                        .any { it }
 
                     if (shouldShowRequestPermissionRationaleForAnyPermission) {
                         onAnyPermissionDenied()

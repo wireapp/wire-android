@@ -39,8 +39,7 @@ fun DownloadedAssetDialog(
         val assetName = downloadedAssetDialogState.assetData.fileName
         val messageId = downloadedAssetDialogState.messageId
 
-        val onSaveFileWriteStorageRequest = /** Nothing to do **/
-            rememberWriteStoragePermissionFlow(
+        val onSaveFileWriteStorageRequest = rememberWriteStoragePermissionFlow(
             onPermissionGranted = { onSaveFileToExternalStorage(messageId) },
             onPermissionDenied = { /** Nothing to do **/ },
             onPermissionPermanentlyDenied = onPermissionPermanentlyDenied

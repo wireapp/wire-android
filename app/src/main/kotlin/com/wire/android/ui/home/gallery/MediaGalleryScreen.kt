@@ -69,8 +69,7 @@ fun MediaGalleryScreen(
     val mediaGalleryScreenState = rememberMediaGalleryScreenState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val onSaveImageWriteStorageRequest = /** Nothing to do **/
-        rememberWriteStoragePermissionFlow(
+    val onSaveImageWriteStorageRequest = rememberWriteStoragePermissionFlow(
         onPermissionGranted = {
             mediaGalleryScreenState.showContextualMenu(false)
             mediaGalleryViewModel.saveImageToExternalStorage()

@@ -25,14 +25,62 @@ import java.util.Properties
 
 object Customization {
 
-    internal const val GIT_PROPERTIES_FILE_NAME = "local.properties"
-    internal const val CUSTOM_CHECKOUT_DIR_NAME = "custom"
-    internal const val CUSTOM_RESOURCES_OVERRIDE_DIR_NAME = "resources"
-    internal const val CUSTOM_JSON_FILE_NAME = "custom-reloaded.json"
-    internal const val DEFAULT_JSON_FILE_NAME = "default.json"
+    /**
+     * Where the custom properties git checkout coordinates are located.
+     * These values can be set as environment variables, or in this file.
+     * @see CustomizationGitProperty
+     */
+    private const val GIT_PROPERTIES_FILE_NAME = "local.properties"
+
+    /**
+     * The name of the directory used for storing customization files temporarily.
+     * When checking out the customization repository, the files will be stored into this directory.
+     */
+    private const val CUSTOM_CHECKOUT_DIR_NAME = "custom"
+
+    /**
+     * The name of the folder which contains custom resources, that will overwrite the default resources in the app.
+     * These resources will replace the flavor-specific resources from the Android app. Take the following structure:
+     * ```
+     * -custom/
+     *      |-resources/
+     *          |-mipmap/
+     *          |    |-file1.png
+     *          |-values/
+     *          |    |-custom-strings.xml
+     * ```
+     * These files will me copied to every single flavor, like `prod` in this example:
+     *
+     * ```
+     * -src/prod/res/
+     *      |-resources/
+     *          |-mipmap/
+     *          |    |-file1.png
+     *          |-values/
+     *          |    |-custom-strings.xml
+     * ```
+     * Keep in mind that [Resource Merging](https://developer.android.com/studio/write/add-resources#resource_merging) can be used to our
+     * advantage. For example, you don't need to copy all the strings from the `main/src/res/values`
+     */
+    private const val CUSTOM_RESOURCES_OVERRIDE_DIR_NAME = "resources"
+
+    /**
+     * The name of the JSON file for custom builds.
+     * It is expected that custom builds provide this file in the root of the customization files.
+     * The values in this file will overwrite the values in the default JSON configuration file.
+     * @see DEFAULT_JSON_FILE_NAME
+     */
+    private const val CUSTOM_JSON_FILE_NAME = "custom-reloaded.json"
+
+    /**
+     * The JSON file name used for loading default build variables in various functions and classes.
+     * This constant value is set to "default.json".
+     * If configured, customiz builds will overwrite these values during build time.
+     */
+    private const val DEFAULT_JSON_FILE_NAME = "default.json"
 
     private val configurationFileImporter = ConfigurationFileImporter()
-    private val properties = java.util.Properties().apply {
+    private val properties = Properties().apply {
         val localProperties = File(GIT_PROPERTIES_FILE_NAME)
         if (localProperties.exists()) {
             load(localProperties.inputStream())
@@ -49,7 +97,7 @@ object Customization {
     fun getBuildtimeConfiguration(
         rootDir: File
     ): BuildTimeConfiguration {
-        val isCustomFromGit = properties.readCustomizationProperty(CustomizationGitProperty.CUSTOM_REPOSITORY) != null
+        val isCustomFromGit = readCustomizationProperty(CustomizationGitProperty.CUSTOM_REPOSITORY) != null
         return if (isCustomFromGit) {
             val customFile = getCustomisationFileFromGitProperties(rootDir)
             getBuildtimeConfiguration(rootDir, CustomizationOption.FromFile(customFile))
@@ -104,7 +152,7 @@ object Customization {
         val customFolder: String = requireCustomizationProperty(CustomizationGitProperty.CUSTOM_FOLDER)
         val clientFolder: String = requireCustomizationProperty(CustomizationGitProperty.CLIENT_FOLDER)
         val gitUser: String = requireCustomizationProperty(CustomizationGitProperty.GIT_USER)
-        val gitPassword: String = properties.readCustomizationProperty(CustomizationGitProperty.GIT_PASSWORD).orEmpty()
+        val gitPassword: String = readCustomizationProperty(CustomizationGitProperty.GIT_PASSWORD).orEmpty()
 
         if (customCheckoutDir.exists()) {
             customCheckoutDir.deleteRecursively()
@@ -141,12 +189,35 @@ object Customization {
         return NormalizedFlavorSettings(overwrittenFlavors)
     }
 
+    /**
+     * The expected values needed in order to check out the customization files.
+     * The [variableName] can be set using environment variable or using the [GIT_PROPERTIES_FILE_NAME] file.
+     */
     enum class CustomizationGitProperty(val variableName: String) {
+        /**
+         * The Git repository where the customization files are located.
+         */
         CUSTOM_REPOSITORY("CUSTOM_REPOSITORY"),
+
+        /**
+         * The path to the root of the customization files within the [CUSTOM_REPOSITORY] files.
+         */
         CUSTOM_FOLDER("CUSTOM_FOLDER"),
+
+        /**
+         * The name of the specific directory within the [CUSTOM_FOLDER] that contains the customization files for the build.
+         */
         CLIENT_FOLDER("CLIENT_FOLDER"),
+
+        /**
+         * The git username for checking out the [CUSTOM_REPOSITORY].
+         */
         GIT_USER("GRGIT_USER"),
-        GIT_PASSWORD("GRGIT_PASSWORD");
+
+        /**
+         * The git password for checking out the [CUSTOM_REPOSITORY].
+         */
+        GIT_PASSWORD("GRGIT_PASSWORD"),
     }
 
     sealed class CustomizationOption {
@@ -162,11 +233,11 @@ object Customization {
         data class FromFile(val customJsonFile: File) : CustomizationOption()
     }
 
-    private fun Properties.readCustomizationProperty(property: CustomizationGitProperty): String? =
+    private fun readCustomizationProperty(property: CustomizationGitProperty): String? =
         System.getenv(property.variableName) ?: properties.getProperty(property.variableName)
 
     private fun requireCustomizationProperty(property: CustomizationGitProperty): String =
-        requireNotNull(properties.readCustomizationProperty(property)) {
+        requireNotNull(readCustomizationProperty(property)) {
             "Missing ${property.variableName} property defined in $GIT_PROPERTIES_FILE_NAME or environment variable"
         }
 }

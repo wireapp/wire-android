@@ -55,9 +55,10 @@ fun SearchConversationScreen(
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onJoinCall: (ConversationId) -> Unit,
-    onAudioPermissionPermanentlyDenied: () -> Unit
+    onAudioPermissionPermanentlyDenied: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Box(Modifier.fillMaxSize()) {
+    Box(modifier.fillMaxSize()) {
         if (conversationSearchResult.values.isEmpty()) {
             EmptySearchResult(onOpenNewConversation)
         } else {

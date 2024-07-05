@@ -75,6 +75,7 @@ import kotlinx.coroutines.launch
 fun LocationPickerComponent(
     onLocationPicked: (GeoLocatedAddress) -> Unit,
     onLocationClosed: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: LocationPickerViewModel = hiltViewModel<LocationPickerViewModel>()
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -91,7 +92,11 @@ fun LocationPickerComponent(
     }
 
     with(viewModel.state) {
-        WireModalSheetLayout(sheetState = sheetState, coroutineScope = coroutineScope) {
+        WireModalSheetLayout(
+            modifier = modifier,
+            sheetState = sheetState,
+            coroutineScope = coroutineScope
+        ) {
             MenuModalSheetContent(
                 header = MenuModalSheetHeader.Visible(title = stringResource(R.string.location_attachment_share_title)),
                 menuItems = buildList {

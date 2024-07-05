@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -48,7 +47,6 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -62,7 +60,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.time.convertTimestampToDateTime
 import com.wire.android.util.ui.PreviewMultipleThemes
-import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination

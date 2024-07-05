@@ -42,9 +42,10 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun JoinButton(
     buttonClick: () -> Unit,
     onAudioPermissionPermanentlyDenied: () -> Unit,
+    modifier: Modifier = Modifier,
     minSize: DpSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
     minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-    horizontalPadding: Dp = MaterialTheme.wireDimensions.spacing8x,
+    horizontalPadding: Dp = MaterialTheme.wireDimensions.spacing8x
 ) {
     val audioPermissionCheck = AudioPermissionCheckFlow(
         onJoinCall = buttonClick,
@@ -60,7 +61,7 @@ fun JoinButton(
         state = WireButtonState.Positive,
         minSize = minSize,
         minClickableSize = minClickableSize,
-        modifier = Modifier.padding(
+        modifier = modifier.padding(
             horizontal = horizontalPadding
         ),
         contentPadding = PaddingValues(

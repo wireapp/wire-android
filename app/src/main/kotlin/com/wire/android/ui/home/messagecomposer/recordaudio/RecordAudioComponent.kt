@@ -45,9 +45,10 @@ import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
 
 @Composable
 fun RecordAudioComponent(
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     onAudioRecorded: (UriAsset) -> Unit,
-    onCloseRecordAudio: () -> Unit
+    onCloseRecordAudio: () -> Unit,
+    modifier: Modifier = Modifier,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
     val viewModel: RecordAudioViewModel = hiltViewModelScoped<RecordAudioViewModel>()
     val context = LocalContext.current
@@ -87,7 +88,7 @@ fun RecordAudioComponent(
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
             .background(colorsScheme().background)

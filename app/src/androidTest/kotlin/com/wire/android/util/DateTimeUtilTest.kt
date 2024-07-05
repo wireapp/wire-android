@@ -29,7 +29,7 @@ class DateTimeUtilTest {
         // warmup
         val date = Clock.System.now().toIsoDateTimeString()
         repeat(ITERATIONS / 2) {
-            date.serverDateOld()
+            ServerDateTimeFormatter.serverDateOld(date)
             date.serverDate()
         }
 
@@ -43,12 +43,12 @@ class DateTimeUtilTest {
         // datetime format
         val duration2 = measureTime {
             repeat(ITERATIONS) {
-                date.serverDateOld()
+                ServerDateTimeFormatter.serverDateOld(date)
             }
         }
 
-        println("The duration of using ServerDateOld/SimpleDateFormat was: $duration1")
-        println("The duration of using ServerDate/Instant was: $duration2")
+        println("The duration of using ServerDate/LocalDateTimeFormat was: $duration1")
+        println("The duration of using ServerDateOld/SimpleDateFormat was: $duration2")
     }
 
     companion object {

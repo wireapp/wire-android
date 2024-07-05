@@ -26,17 +26,16 @@ import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-private val serverDateTimeFormat = SimpleDateFormat(
-    "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-    Locale.getDefault()
-).apply { timeZone = TimeZone.getTimeZone("UTC") }
 private val mediumDateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
 private val longDateShortTimeFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
 private val mediumOnlyDateTimeFormat = DateFormat.getDateInstance(DateFormat.MEDIUM)
@@ -80,17 +79,10 @@ fun String.formatFullDateShortTime(): String? =
         null
     }
 
+private val dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneId.of("UTC"))
 fun String.serverDate(): Date? = try {
-    Date(Instant.parse(this).toEpochMilliseconds())
-} catch (e: ParseException) {
-    appLogger.e("There was an error parsing the server date")
-    null
-}
-
-@Deprecated("Prefer using serverDate()")
-fun String.serverDateOld(): Date? = try {
-    serverDateTimeFormat.parse(this)
-} catch (e: ParseException) {
+    Date(LocalDateTime.parse(this, dateTimeFormatter).toInstant(ZoneOffset.UTC).toEpochMilli())
+} catch (e: Exception) {
     appLogger.e("There was an error parsing the server date")
     null
 }
@@ -246,17 +238,25 @@ fun String.groupedUIMessageDateTime(now: Long): MessageDateTimeGroup? = this
     }
 
 fun Date.toMediumOnlyDateTime(): String = mediumOnlyDateTimeFormat.format(this)
-
 fun Instant.uiReadReceiptDateTime(): String = readReceiptDateTimeFormat.format(Date(this.toEpochMilliseconds()))
+fun Instant.fileDateTime(): String = fileDateTimeFormat.format(Date(this.toEpochMilliseconds()))
 
-fun Instant.fileDateTime(): String = fileDateTimeFormat
-    .format(Date(this.toEpochMilliseconds()))
+/**
+ * Deprecated Wrapper class for old server date formatter.
+ * Just keeping it around to validate old behavior and benchmarks.
+ */
+sealed class ServerDateTimeFormatter {
 
-fun getCurrentParsedDateTime(): String = mediumDateTimeFormat.format(System.currentTimeMillis())
+    companion object {
+        private val serverDateTimeFormat =
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).apply { timeZone = TimeZone.getTimeZone("UTC") }
 
-fun Long.timestampToServerDate(): String? = try {
-    serverDateTimeFormat.format(Date(this))
-} catch (e: ParseException) {
-    appLogger.e("There was an error parsing the timestamp")
-    null
+        @Deprecated("Prefer using serverDate()")
+        fun serverDateOld(stringDate: String): Date? = try {
+            serverDateTimeFormat.parse(stringDate)
+        } catch (e: ParseException) {
+            appLogger.e("There was an error parsing the server date")
+            null
+        }
+    }
 }

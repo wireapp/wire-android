@@ -138,8 +138,8 @@ class DateTimeUtilKtTest {
         private val baseDate = "2024-01-20T07:00:00.000Z"
 
         @Test
-        fun `given a serverDate is called, the format should be the same with DateTimeFormatter`() {
-            assertEquals(baseDate.serverDateOld(), baseDate.serverDate())
+        fun `given a new serverDate is called, the formatted result should be the same with LocalDateTime format`() {
+            assertEquals(ServerDateTimeFormatter.serverDateOld(baseDate), baseDate.serverDate())
         }
     }
 

@@ -43,7 +43,6 @@ import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
@@ -61,7 +60,6 @@ import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
-import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -76,8 +74,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Instant
-import okio.Path
-import okio.buffer
 
 internal class MessageComposerViewModelArrangement {
 
@@ -132,9 +128,6 @@ internal class MessageComposerViewModelArrangement {
     private lateinit var enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase
 
     @MockK
-    lateinit var observeConversationSelfDeletionStatus: ObserveSelfDeletionTimerSettingsForConversationUseCase
-
-    @MockK
     lateinit var persistSelfDeletionStatus: PersistNewSelfDeletionTimerUseCase
 
     @MockK
@@ -161,7 +154,6 @@ internal class MessageComposerViewModelArrangement {
             contactMapper = contactMapper,
             membersToMention = membersToMention,
             enqueueMessageSelfDeletion = enqueueMessageSelfDeletionUseCase,
-            observeSelfDeletingMessages = observeConversationSelfDeletionStatus,
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
             sendTypingEvent = sendTypingEvent,
             saveMessageDraft = saveMessageDraftUseCase,
@@ -175,26 +167,11 @@ internal class MessageComposerViewModelArrangement {
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
-        coEvery { observeConversationSelfDeletionStatus(any(), any()) } returns emptyFlow()
         coEvery { observeConversationInteractionAvailabilityUseCase(any()) } returns flowOf(
             IsInteractionAvailableResult.Success(
                 InteractionAvailability.ENABLED
             )
         )
-    }
-
-    fun withStoredAsset(dataPath: Path, dataContent: ByteArray) = apply {
-        fakeKaliumFileSystem.sink(dataPath).buffer().use {
-            it.write(dataContent)
-        }
-    }
-
-    fun withObserveSelfDeletingStatus(expectedSelfDeletionTimer: SelfDeletionTimer) = apply {
-        coEvery { observeConversationSelfDeletionStatus(conversationId, true) } returns flowOf(expectedSelfDeletionTimer)
-    }
-
-    fun withPersistSelfDeletionStatus() = apply {
-        coEvery { persistSelfDeletionStatus(any(), any()) } returns Unit
     }
 
     fun withSaveDraftMessage() = apply {

@@ -68,7 +68,8 @@ fun AttachmentOptionsComponent(
     tempWritableVideoUri: Uri?,
     isFileSharingEnabled: Boolean,
     onLocationPickerClicked: () -> Unit,
-    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
@@ -105,7 +106,7 @@ fun AttachmentOptionsComponent(
         }
         .maxBy { it }
 
-    BoxWithConstraints(Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier.fillMaxSize()) {
         val fullWidth: Dp = with(density) { constraints.maxWidth.toDp() }
         val minPadding: Dp = dimensions().spacing2x
         val minColumnWidth: Dp = with(density) { maxTextWidth.toDp() + dimensions().spacing28x }
@@ -156,7 +157,7 @@ private fun calculateGridParams(
 }
 
 @Composable
-fun FileBrowserFlow(
+fun fileBrowserFlow(
     onFilePicked: (Uri) -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ): UseStorageRequestFlow<Uri?> {
@@ -171,7 +172,7 @@ fun FileBrowserFlow(
 }
 
 @Composable
-fun MultipleFileBrowserFlow(
+fun multipleFileBrowserFlow(
     onFilesPicked: (List<Uri>) -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ): UseStorageRequestFlow<List<Uri>> {
@@ -188,7 +189,7 @@ fun MultipleFileBrowserFlow(
 }
 
 @Composable
-private fun MultipleGalleryFlow(
+private fun multipleGalleryFlow(
     onImagesPicked: (List<Uri>) -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ): UseStorageRequestFlow<List<Uri>> {
@@ -205,7 +206,7 @@ private fun MultipleGalleryFlow(
 }
 
 @Composable
-private fun TakePictureFlow(
+private fun takePictureFlow(
     tempWritableVideoUri: Uri?,
     onPictureTaken: (Uri) -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
@@ -253,15 +254,15 @@ private fun buildAttachmentOptionItems(
     onLocationPickerClicked: () -> Unit,
     onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
 ): List<AttachmentOptionItem> {
-    val fileFlow = MultipleFileBrowserFlow(
+    val fileFlow = multipleFileBrowserFlow(
         remember { { onImagesPicked(it) } },
         onPermissionPermanentlyDenied
     )
-    val galleryFlow = MultipleGalleryFlow(
+    val galleryFlow = multipleGalleryFlow(
         remember { { onImagesPicked(it) } },
         onPermissionPermanentlyDenied
     )
-    val cameraFlow = TakePictureFlow(
+    val cameraFlow = takePictureFlow(
         tempWritableImageUri,
         remember { { onFilePicked(UriAsset(it, false)) } },
         onPermissionPermanentlyDenied

@@ -38,34 +38,34 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuSta
 import com.wire.android.ui.home.messagecomposer.state.RichTextMarkdown
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.permission.PermissionDenialType
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 
 @Composable
 fun AdditionalOptionsMenu(
+    conversationId: ConversationId,
     additionalOptionsState: AdditionalOptionMenuState,
     selectedOption: AdditionalOptionSelectItem,
-    isSelfDeletingSettingEnabled: Boolean,
-    isSelfDeletingActive: Boolean,
     isEditing: Boolean,
     isMentionActive: Boolean,
-    onOnSelfDeletingOptionClicked: (() -> Unit)? = null,
     onAdditionalOptionsMenuClicked: () -> Unit,
     onMentionButtonClicked: (() -> Unit),
-    onGifOptionClicked: (() -> Unit)? = null,
     onPingOptionClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit,
     onCloseRichEditingButtonClicked: () -> Unit,
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
     onDrawingModeClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onOnSelfDeletingOptionClicked: ((SelfDeletionTimer) -> Unit)? = null,
+    onGifOptionClicked: (() -> Unit)? = null
 ) {
     Box(modifier.background(colorsScheme().messageComposerBackgroundColor)) {
         when (additionalOptionsState) {
             AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
                 AttachmentAndAdditionalOptionsMenuItems(
+                    conversationId = conversationId,
                     selectedOption = selectedOption,
                     isEditing = isEditing,
-                    isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-                    isSelfDeletingActive = isSelfDeletingActive,
                     isMentionActive = isMentionActive,
                     onMentionButtonClicked = onMentionButtonClicked,
                     onAdditionalOptionsMenuClicked = onAdditionalOptionsMenuClicked,
@@ -105,7 +105,7 @@ fun AdditionalOptionSubMenu(
     onLocationPicked: (GeoLocatedAddress) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
         AttachmentOptionsComponent(
@@ -146,23 +146,23 @@ fun AdditionalOptionSubMenu(
 
 @Composable
 fun AttachmentAndAdditionalOptionsMenuItems(
+    conversationId: ConversationId,
     isEditing: Boolean,
     selectedOption: AdditionalOptionSelectItem,
     isMentionActive: Boolean,
     onMentionButtonClicked: () -> Unit,
+    onSelfDeletionOptionButtonClicked: (SelfDeletionTimer) -> Unit,
+    modifier: Modifier = Modifier,
     onAdditionalOptionsMenuClicked: () -> Unit = {},
     onPingClicked: () -> Unit = {},
-    onSelfDeletionOptionButtonClicked: () -> Unit,
-    isSelfDeletingSettingEnabled: Boolean,
-    isSelfDeletingActive: Boolean,
     onGifButtonClicked: () -> Unit = {},
     onRichEditingButtonClicked: () -> Unit = {},
-    onDrawingModeClicked: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onDrawingModeClicked: () -> Unit = {}
 ) {
     Column(modifier.wrapContentSize()) {
         HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
         MessageComposeActions(
+            conversationId = conversationId,
             isEditing = isEditing,
             selectedOption = selectedOption,
             isMentionActive = isMentionActive,
@@ -170,8 +170,6 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             onAdditionalOptionButtonClicked = onAdditionalOptionsMenuClicked,
             onPingButtonClicked = onPingClicked,
             onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
-            isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-            isSelfDeletingActive = isSelfDeletingActive,
             onGifButtonClicked = onGifButtonClicked,
             onRichEditingButtonClicked = onRichEditingButtonClicked,
             onDrawingModeClicked = onDrawingModeClicked

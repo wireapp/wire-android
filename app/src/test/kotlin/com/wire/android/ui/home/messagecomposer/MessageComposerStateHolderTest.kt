@@ -38,9 +38,7 @@ import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
-import com.wire.android.ui.home.messagecomposer.state.MessageType
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -73,10 +71,7 @@ class MessageComposerStateHolderTest {
         messageComposerViewState = mutableStateOf(MessageComposerViewState())
         messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))
         messageTextState = TextFieldState()
-        messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
-            messageTextState = messageTextState,
-            selfDeletionTimer = mutableStateOf(SelfDeletionTimer.Disabled)
-        )
+        messageCompositionInputStateHolder = MessageCompositionInputStateHolder(messageTextState = messageTextState)
         messageCompositionHolder = MessageCompositionHolder(
             messageComposition = messageComposition,
             messageTextState = messageTextState,
@@ -147,9 +142,7 @@ class MessageComposerStateHolderTest {
 
             // then
             assertEquals(String.EMPTY, messageCompositionHolder.messageTextState.text.toString())
-            assertInstanceOf(InputType.Composing::class.java, messageCompositionInputStateHolder.inputType).also {
-                assertInstanceOf(MessageType.Normal::class.java, it.messageType)
-            }
+            assertInstanceOf(InputType.Composing::class.java, messageCompositionInputStateHolder.inputType)
         }
 
     @Test

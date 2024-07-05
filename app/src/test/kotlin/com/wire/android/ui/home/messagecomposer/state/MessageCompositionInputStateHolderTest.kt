@@ -18,11 +18,9 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -41,10 +39,7 @@ class MessageCompositionInputStateHolderTest {
     @BeforeEach
     fun before() {
         messageTextState = TextFieldState()
-        state = MessageCompositionInputStateHolder(
-            messageTextState = messageTextState,
-            selfDeletionTimer = mutableStateOf(SelfDeletionTimer.Disabled)
-        )
+        state = MessageCompositionInputStateHolder(messageTextState = messageTextState)
     }
 
     @Test

@@ -50,7 +50,6 @@ import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
-import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -75,7 +74,6 @@ class MessageComposerViewModel @Inject constructor(
     private val contactMapper: ContactMapper,
     private val membersToMention: MembersToMentionUseCase,
     private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
-    private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
     private val saveMessageDraft: SaveMessageDraftUseCase,
@@ -108,7 +106,6 @@ class MessageComposerViewModel @Inject constructor(
         initTempWritableVideoUri()
         initTempWritableImageUri()
         observeIsTypingAvailable()
-        observeSelfDeletingMessagesStatus()
         setFileSharingStatus()
     }
 
@@ -145,16 +142,6 @@ class MessageComposerViewModel @Inject constructor(
             .collectLatest {
                 messageComposerViewState.value = messageComposerViewState.value.copy(interactionAvailability = it)
             }
-    }
-
-    private fun observeSelfDeletingMessagesStatus() = viewModelScope.launch {
-        observeSelfDeletingMessages(
-            conversationId,
-            considerSelfUserSettings = true
-        ).collect { selfDeletingStatus ->
-            messageComposerViewState.value =
-                messageComposerViewState.value.copy(selfDeletionTimer = selfDeletingStatus)
-        }
     }
 
     fun searchMembersToMention(searchQuery: String) {
@@ -205,8 +192,6 @@ class MessageComposerViewModel @Inject constructor(
 
     fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) =
         viewModelScope.launch {
-            messageComposerViewState.value =
-                messageComposerViewState.value.copy(selfDeletionTimer = newSelfDeletionTimer)
             persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
         }
 

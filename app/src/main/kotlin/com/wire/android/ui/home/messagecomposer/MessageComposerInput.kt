@@ -208,7 +208,7 @@ private fun InputContent(
         MessageComposerTextInput(
             isTextExpanded = isTextExpanded,
             inputFocused = inputFocused,
-            colors = inputType.inputTextColor(isPrimaryColor = viewModel.state().duration != null),
+            colors = inputType.inputTextColor(isSelfDeleting = viewModel.state().duration != null),
             messageTextState = messageTextState,
             placeHolderText = viewModel.state().duration?.let { stringResource(id = R.string.self_deleting_message_label) }
                 ?: inputType.labelText(),

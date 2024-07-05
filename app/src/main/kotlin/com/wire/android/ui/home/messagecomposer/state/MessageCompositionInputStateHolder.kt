@@ -239,11 +239,11 @@ private sealed class CompositionState {
 
 sealed class InputType {
     @Composable
-    open fun inputTextColor(isPrimaryColor: Boolean = false): WireTextFieldColors = wireTextFieldColors(
+    open fun inputTextColor(isSelfDeleting: Boolean): WireTextFieldColors = wireTextFieldColors(
         backgroundColor = Color.Transparent,
         borderColor = Color.Transparent,
         focusColor = Color.Transparent,
-        placeholderColor = if (isPrimaryColor) {
+        placeholderColor = if (isSelfDeleting) {
             colorsScheme().primary
         } else {
             colorsScheme().secondaryText

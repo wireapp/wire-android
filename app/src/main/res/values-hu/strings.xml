@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
   ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
@@ -616,7 +615,6 @@
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Az MLS-re átállás miatt gondok lehetnek a jelenlegi hívással. Ha ez áll fenn, fejezze be azt, majd indítson új hívást.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">A titkosítási eljárás megváltoztatása elkezdődött. Gondoskodjon összes Wire-kliense frissítéséről.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Ez a beszélgetés immár az új Messaging Layer Security (MLS) protokollt használja. A zökkenőmentes kommunikációhoz mindig a Wire legfrissebb verzióját használja.</string>
-    <string name="label_system_message_learn_more_about_mls_link">https://support.wire.com/hc/en-us/articles/12434725011485-Messaging-Layer-Security-MLS-</string>
     <string name="label_system_message_receipt_mode_on">be</string>
     <string name="label_system_message_receipt_mode_off">ki</string>
     <string name="label_system_message_conversation_started_by_self">**Ön** indította a beszélgetést</string>
@@ -915,7 +913,6 @@
     <string name="block_user_dialog_confirm_button">Letiltás</string>
     <string name="other_user_devices_description">A Wire minden eszköznek egyedi ujjlenyomatot ad. Hasonlítsa össze őket %1$s partnerrel, és ellenőrizze a beszélgetést.</string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Általános</string>
     <string name="settings_account_settings_label">Fiók beállításai</string>
     <string name="settings_devices_label">Eszközök</string>
@@ -1110,7 +1107,6 @@
     <string name="label_system_message_session_reset">%1$s nem tudta visszafejteni néhány üzenetét, de megoldotta a problémát. Ez érintette az összes közös beszélgetésüket.</string>
     <string name="label_manual_migration_title">Átlépés a 3.82.38-as verzióról</string>
     <string name="start_manual_migration">Indítás</string>
-    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
     <string name="file_sharing_restricted_description_by_team">Nem tudja megosztani ezt a fájlt, mivel ez a lehetőség le van tiltva e fiók számára.</string>
     <string name="file_sharing_restricted_description_no_users">Be kell jelentkeznie a Wire-be, mielőtt bármit is meg tudna osztani</string>
     <string name="file_sharing_restricted_button_text_no_users">Wire megnyitása</string>

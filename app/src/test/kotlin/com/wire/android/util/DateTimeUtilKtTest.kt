@@ -19,6 +19,8 @@
 package com.wire.android.util
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.Calendar
 
@@ -127,6 +129,18 @@ class DateTimeUtilKtTest {
             MessageDateTimeGroup.Daily.Type.Other,
             (result as MessageDateTimeGroup.Daily).type
         )
+    }
+
+    @Nested
+    @DisplayName("Tests for datetime formatters")
+    inner class DateTimeFormatters {
+
+        private val baseDate = "2024-01-20T07:00:00.000Z"
+
+        @Test
+        fun `given a serverDate is called, the format should be the same with DateTimeFormatter`() {
+            assertEquals(baseDate.serverDateOld(), baseDate.serverDate())
+        }
     }
 
     private fun getDummyCalendar(): Calendar = Calendar.getInstance().apply {

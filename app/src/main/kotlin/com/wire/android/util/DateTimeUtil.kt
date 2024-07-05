@@ -37,15 +37,10 @@ private val serverDateTimeFormat = SimpleDateFormat(
     "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
     Locale.getDefault()
 ).apply { timeZone = TimeZone.getTimeZone("UTC") }
-private val mediumDateTimeFormat = DateFormat
-    .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
-private val longDateShortTimeFormat = DateFormat
-    .getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
-private val mediumOnlyDateTimeFormat = DateFormat
-    .getDateInstance(DateFormat.MEDIUM)
-private val messageTimeFormatter = DateFormat
-    .getTimeInstance(DateFormat.SHORT)
-    .apply { timeZone = TimeZone.getDefault() }
+private val mediumDateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
+private val longDateShortTimeFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
+private val mediumOnlyDateTimeFormat = DateFormat.getDateInstance(DateFormat.MEDIUM)
+private val messageTimeFormatter = DateFormat.getTimeInstance(DateFormat.SHORT).apply { timeZone = TimeZone.getDefault() }
 private const val ONE_MINUTE_FROM_MILLIS = 60 * 1000
 private const val THIRTY_MINUTES = 30
 private const val ONE_WEEK_IN_DAYS = 7
@@ -86,6 +81,14 @@ fun String.formatFullDateShortTime(): String? =
     }
 
 fun String.serverDate(): Date? = try {
+    Date(Instant.parse(this).toEpochMilliseconds())
+} catch (e: ParseException) {
+    appLogger.e("There was an error parsing the server date")
+    null
+}
+
+@Deprecated("Prefer using serverDate()")
+fun String.serverDateOld(): Date? = try {
     serverDateTimeFormat.parse(this)
 } catch (e: ParseException) {
     appLogger.e("There was an error parsing the server date")
@@ -219,18 +222,22 @@ fun String.groupedUIMessageDateTime(now: Long): MessageDateTimeGroup? = this
                 type = MessageDateTimeGroup.Daily.Type.Today,
                 date = localDate
             )
+
             isYesterday(serverDateInMillis, now) -> MessageDateTimeGroup.Daily(
                 type = MessageDateTimeGroup.Daily.Type.Yesterday,
                 date = localDate
             )
+
             withinWeek -> MessageDateTimeGroup.Daily(
                 type = MessageDateTimeGroup.Daily.Type.WithinWeek,
                 date = localDate
             )
+
             !withinWeek && isSameYear -> MessageDateTimeGroup.Daily(
                 type = MessageDateTimeGroup.Daily.Type.NotWithinWeekButSameYear,
                 date = localDate
             )
+
             else -> MessageDateTimeGroup.Daily(
                 type = MessageDateTimeGroup.Daily.Type.Other,
                 date = localDate

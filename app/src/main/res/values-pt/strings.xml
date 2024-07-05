@@ -1105,12 +1105,7 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s não conseguiu decifrar algumas de suas mensagens, mas resolveu o problema. Isso afetou todas as conversas que você compartilha juntos.</string>
     <string name="label_manual_migration_title">Migrar da versão 3.82.38</string>
-<<<<<<< HEAD
     <string name="start_manual_migration">Iniciar</string>
-    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/pt-br/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
-=======
-    <string name="start_manual_migration">Start</string>
->>>>>>> 5777d3e42 (chore: externalize all wire links to support custom builds (WPB-9811) (#3158))
     <string name="file_sharing_restricted_description_by_team">Você não pode compartilhar este arquivo porque esta funcionalidade está desativado para esta conta.</string>
     <string name="file_sharing_restricted_description_no_users">Você precisa estar conectado ao Wire antes de compartilhar qualquer coisa</string>
     <string name="file_sharing_restricted_button_text_no_users">Abrir Wire</string>

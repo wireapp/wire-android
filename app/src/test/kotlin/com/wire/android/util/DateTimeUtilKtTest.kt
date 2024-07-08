@@ -19,12 +19,16 @@
 package com.wire.android.util
 
 import kotlinx.datetime.Clock
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 class DateTimeUtilKtTest {
 
@@ -189,6 +193,27 @@ class DateTimeUtilKtTest {
         @Test
         fun `return the same MediumOnlyDateTime format result, when calling date with new DateTimeFormatter format`() {
             assertEquals(baseDate.toMediumOnlyDateTime(), baseDate.toMediumOnlyDateTimeOld())
+        }
+    }
+
+    companion object {
+        private var systemDefaultLocale: Locale? = null
+        private var systemDefaultTimeZone: TimeZone? = null
+
+        @JvmStatic
+        @BeforeAll
+        fun setup() {
+            systemDefaultTimeZone = TimeZone.getDefault()
+            systemDefaultLocale = Locale.getDefault()
+            TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+            Locale.setDefault(Locale.US)
+        }
+
+        @JvmStatic
+        @AfterAll
+        fun tearDown() {
+            TimeZone.setDefault(systemDefaultTimeZone!!)
+            Locale.setDefault(systemDefaultLocale!!)
         }
     }
 }

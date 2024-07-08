@@ -115,7 +115,7 @@ class DateTimeUtilKtTest {
         }
 
         @Test
-        fun `return MessageDateTime_NotWithinWeekButSameYear when a valid date over 7 days and same year is calling groupedUIMessageDateTime`() {
+        fun `return MessageDateTime_NotWithinWeekButSameYear when date over 7 days and same year is calling groupedUIMessageDateTime`() {
             val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
                 getDummyCalendar().apply {
                     add(Calendar.DATE, 10)
@@ -150,7 +150,6 @@ class DateTimeUtilKtTest {
             set(Calendar.YEAR, 2024)
         }
     }
-
 
     @Nested
     @DisplayName("DateAndTimeParser for retro compatibility Should")

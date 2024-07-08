@@ -109,7 +109,6 @@ class DateTimeUtilTest {
         assertTrue(duration1 > duration2)
     }
 
-
     companion object {
         const val ITERATIONS = 500_000
     }

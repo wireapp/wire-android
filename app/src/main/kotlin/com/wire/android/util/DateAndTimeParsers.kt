@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooGenericExceptionCaught")
+
 package com.wire.android.util
 
 import com.wire.android.appLogger
@@ -88,5 +90,4 @@ class DateAndTimeParsers private constructor() {
 
         fun toMediumOnlyDateTime(date: Date): String = mediumOnlyDateTimeFormat.format(date.toInstant())
     }
-
 }

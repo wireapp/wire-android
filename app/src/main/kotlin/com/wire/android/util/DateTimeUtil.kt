@@ -38,7 +38,8 @@ private val serverDateTimeFormat =
 private val mediumDateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
 private val longDateShortTimeFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
 private val mediumOnlyDateTimeFormat = DateFormat.getDateInstance(DateFormat.MEDIUM)
-private val messageTimeFormatter = DateFormat.getTimeInstance(DateFormat.SHORT).apply { timeZone = TimeZone.getDefault() }
+private val messageTimeFormatter = DateFormat.getTimeInstance(DateFormat.SHORT)
+    .apply { timeZone = TimeZone.getDefault() }
 private const val ONE_MINUTE_FROM_MILLIS = 60 * 1000
 private const val THIRTY_MINUTES = 30
 private const val ONE_WEEK_IN_DAYS = 7

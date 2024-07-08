@@ -94,6 +94,12 @@ fun EnabledMessageComposer(
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
 
+        LaunchedEffect(isImeVisible) {
+            if (!isImeVisible) {
+                inputStateHolder.clearFocus()
+            }
+        }
+
         LaunchedEffect(offsetY) {
             with(density) {
                 inputStateHolder.handleImeOffsetChange(

@@ -315,7 +315,7 @@ private fun MessageComposerTextInput(
             .focusRequester(focusRequester)
             .onFocusChanged { focusState ->
                 if (focusState.isFocused) {
-                    onFocusChanged(focusState.isFocused)
+                    onFocusChanged(true)
                 }
             }
             .onPreInterceptKeyBeforeSoftKeyboard { event ->

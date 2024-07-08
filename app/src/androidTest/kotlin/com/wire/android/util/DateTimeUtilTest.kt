@@ -25,11 +25,11 @@ import kotlin.time.measureTime
 class DateTimeUtilTest {
 
     @Test
-    fun givenDates_OutputPerformanceOfFormattersInDevice() {
+    fun givenDates_OutputPerformanceForServerDateFormattersInDevice() {
         // warmup
         val date = Clock.System.now().toIsoDateTimeString()
         repeat(ITERATIONS / 2) {
-            ServerDateTimeFormatter.serverDateOld(date)
+            serverDateOld(date)
             date.serverDate()
         }
 
@@ -43,12 +43,39 @@ class DateTimeUtilTest {
         // datetime format
         val duration2 = measureTime {
             repeat(ITERATIONS) {
-                ServerDateTimeFormatter.serverDateOld(date)
+                serverDateOld(date)
             }
         }
 
         println("The duration of using ServerDate/LocalDateTimeFormat was: $duration1")
         println("The duration of using ServerDateOld/SimpleDateFormat was: $duration2")
+    }
+
+    @Test
+    fun givenDates_OutputPerformanceForDeviceDateFormattersInDevice() {
+        // warmup
+        val date = Clock.System.now().toIsoDateTimeString()
+        repeat(ITERATIONS / 2) {
+            date.deviceDateTimeFormat()
+            date.deviceDateTimeFormatOld()
+        }
+
+        // Old DateFormat from text api
+        val duration1 = measureTime {
+            repeat(ITERATIONS) {
+                date.deviceDateTimeFormat()
+            }
+        }
+
+        // New DateTimeFormatter from time api
+        val duration2 = measureTime {
+            repeat(ITERATIONS) {
+                date.deviceDateTimeFormatOld()
+            }
+        }
+
+        println("The duration of using TextApi/DateFormat was: $duration1")
+        println("The duration of using TimeApi/DateTimeFormatter was: $duration2")
     }
 
     companion object {

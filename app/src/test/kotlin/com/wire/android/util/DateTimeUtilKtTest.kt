@@ -139,7 +139,13 @@ class DateTimeUtilKtTest {
 
         @Test
         fun `given a new serverDate is called, the formatted result should be the same with LocalDateTime format`() {
-            assertEquals(ServerDateTimeFormatter.serverDateOld(baseDate), baseDate.serverDate())
+            assertEquals(serverDateOld(baseDate), baseDate.serverDate())
+        }
+
+        @Test
+        fun `given a valid date, when performing a transformation, then the formatted result should be the same with DateTimeFormatter`() {
+            val result = "2022-03-24T18:02:30.360Z"
+            assertEquals(result.deviceDateTimeFormat(), result.deviceDateTimeFormatOld())
         }
     }
 

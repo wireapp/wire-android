@@ -19,6 +19,7 @@ package com.wire.android.util
 
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import kotlinx.datetime.Clock
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.time.measureTime
 
@@ -36,19 +37,20 @@ class DateTimeUtilTest {
         // simple date format
         val duration1 = measureTime {
             repeat(ITERATIONS) {
-                date.serverDate()
+                serverDateOld(date)
             }
         }
 
         // datetime format
         val duration2 = measureTime {
             repeat(ITERATIONS) {
-                serverDateOld(date)
+                date.serverDate()
             }
         }
 
-        println("The duration of using ServerDate/LocalDateTimeFormat was: $duration1")
-        println("The duration of using ServerDateOld/SimpleDateFormat was: $duration2")
+        println("The duration of using ServerDateOld/SimpleDateFormat was: $duration1")
+        println("The duration of using ServerDate/LocalDateTimeFormat was: $duration2")
+        assertTrue(duration1 > duration2)
     }
 
     @Test
@@ -76,6 +78,7 @@ class DateTimeUtilTest {
 
         println("The duration of using TextApi/DateFormat was: $duration1")
         println("The duration of using TimeApi/DateTimeFormatter was: $duration2")
+        assertTrue(duration1 > duration2)
     }
 
     companion object {

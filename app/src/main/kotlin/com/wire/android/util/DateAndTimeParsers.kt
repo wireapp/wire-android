@@ -38,6 +38,9 @@ fun Instant.fileDateTime(): String = DateAndTimeParsers.fileDateTime(this)
 fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDateTime(this)
 fun Date.toMediumOnlyDateTime(): String = DateAndTimeParsers.toMediumOnlyDateTime(this)
 
+/**
+ * Date and time parsers between different formats and types.
+ */
 class DateAndTimeParsers private constructor() {
 
     companion object {

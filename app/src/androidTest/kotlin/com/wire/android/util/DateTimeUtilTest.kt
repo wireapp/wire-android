@@ -81,6 +81,35 @@ class DateTimeUtilTest {
         assertTrue(duration1 > duration2)
     }
 
+    @Test
+    fun givenDates_OutputPerformanceForMediumDateFormattersInDevice() {
+        // warmup
+        val date = Clock.System.now().toIsoDateTimeString()
+        repeat(ITERATIONS / 2) {
+            date.formatMediumDateTime()
+            date.formatMediumDateTimeOld()
+        }
+
+        // Old DateFormat from text api
+        val duration1 = measureTime {
+            repeat(ITERATIONS) {
+                date.formatMediumDateTimeOld()
+            }
+        }
+
+        // New DateTimeFormatter from time api
+        val duration2 = measureTime {
+            repeat(ITERATIONS) {
+                date.formatMediumDateTime()
+            }
+        }
+
+        println("The duration of using TextApi/DateFormat was: $duration1")
+        println("The duration of using TimeApi/DateTimeFormatter was: $duration2")
+        assertTrue(duration1 > duration2)
+    }
+
+
     companion object {
         const val ITERATIONS = 1_000_000
     }

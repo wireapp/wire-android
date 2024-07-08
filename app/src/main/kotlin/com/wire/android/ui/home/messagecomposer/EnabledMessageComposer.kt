@@ -95,7 +95,7 @@ fun EnabledMessageComposer(
         val inputStateHolder = messageCompositionInputStateHolder
 
         LaunchedEffect(isImeVisible) {
-            if(!isImeVisible) {
+            if (!isImeVisible) {
                 inputStateHolder.clearFocus()
             }
         }

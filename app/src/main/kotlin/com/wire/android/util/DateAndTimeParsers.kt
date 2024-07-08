@@ -18,7 +18,6 @@
 package com.wire.android.util
 
 import com.wire.android.appLogger
-import java.text.ParseException
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -55,21 +54,21 @@ class DateAndTimeParsers private constructor() {
 
         fun deviceDateTimeFormat(stringDate: String): String? = try {
             stringDate.serverDate()?.let { longDateShortTimeFormat.format(it.toInstant()) }
-        } catch (e: ParseException) {
+        } catch (e: Exception) {
             null
         }
 
         fun formatMediumDateTime(stringDate: String): String? =
             try {
                 stringDate.serverDate()?.let { mediumDateTimeFormat.format(it.toInstant()) }
-            } catch (e: ParseException) {
+            } catch (e: Exception) {
                 null
             }
 
         fun formatFullDateShortTime(stringDate: String): String? =
             try {
                 stringDate.serverDate()?.let { fullDateShortTimeFormatter.format(it.toInstant()) }
-            } catch (e: ParseException) {
+            } catch (e: Exception) {
                 null
             }
     }

@@ -63,14 +63,14 @@ class DateTimeUtilTest {
         // Old DateFormat from text api
         val duration1 = measureTime {
             repeat(ITERATIONS) {
-                date.deviceDateTimeFormat()
+                date.deviceDateTimeFormatOld()
             }
         }
 
         // New DateTimeFormatter from time api
         val duration2 = measureTime {
             repeat(ITERATIONS) {
-                date.deviceDateTimeFormatOld()
+                date.deviceDateTimeFormat()
             }
         }
 

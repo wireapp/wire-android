@@ -253,7 +253,12 @@ fun String.groupedUIMessageDateTime(now: Long): MessageDateTimeGroup? = this
     }
 
 fun Date.toMediumOnlyDateTime(): String = mediumOnlyDateTimeFormat.format(this)
-fun Instant.uiReadReceiptDateTime(): String = readReceiptDateTimeFormat.format(Date(this.toEpochMilliseconds()))
+
+@Deprecated(
+    message = "This implementation will be removed in the future as it uses discouraged/outdated SimpleDateFormat",
+    replaceWith = ReplaceWith("DateAndTimeParsers.uiReadReceiptDateTime() or Instant.uiReadReceiptDateTime()"),
+)
+fun Instant.uiReadReceiptDateTimeOld(): String = readReceiptDateTimeFormat.format(Date(this.toEpochMilliseconds()))
 
 @Deprecated(
     message = "This implementation will be removed in the future as it uses discouraged/outdated SimpleDateFormat",

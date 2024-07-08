@@ -137,6 +137,7 @@ class DateTimeUtilKtTest {
     inner class DateTimeFormatters {
 
         private val baseDate = "2024-01-20T07:00:00.000Z"
+        private val baseInstant = Clock.System.now()
 
         @Test
         fun `given a new serverDate is called, the formatted result should be the same with LocalDateTime format`() {
@@ -160,8 +161,12 @@ class DateTimeUtilKtTest {
 
         @Test
         fun `given a valid Instant, when requesting a fileDateTime, then the formatted result should be the same with DateTimeFormatter`() {
-            val instant = Clock.System.now()
-            assertEquals(instant.fileDateTime(), instant.fileDateTimeOld())
+            assertEquals(baseInstant.fileDateTime(), baseInstant.fileDateTimeOld())
+        }
+
+        @Test
+        fun `given a valid Instant, when requesting a readReceiptDateTime, then the formatted result should be the same with DateTimeFormatter`() {
+            assertEquals(baseInstant.uiReadReceiptDateTime(), baseInstant.uiReadReceiptDateTimeOld())
         }
     }
 

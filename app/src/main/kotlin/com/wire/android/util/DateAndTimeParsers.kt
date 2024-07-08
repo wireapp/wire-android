@@ -33,6 +33,7 @@ fun String.serverDate(): Date? = DateAndTimeParsers.serverDate(this)
 fun String.formatMediumDateTime(): String? = DateAndTimeParsers.formatMediumDateTime(this)
 fun String.formatFullDateShortTime(): String? = DateAndTimeParsers.formatFullDateShortTime(this)
 fun Instant.fileDateTime(): String = DateAndTimeParsers.fileDateTime(this)
+fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDateTime(this)
 
 class DateAndTimeParsers private constructor() {
 
@@ -46,7 +47,8 @@ class DateAndTimeParsers private constructor() {
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
         private val fileDateTimeFormat =
             DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss", Locale.getDefault()).withZone(ZoneId.systemDefault())
-
+        private val readReceiptDateTimeFormat =
+            DateTimeFormatter.ofPattern("MMM dd yyyy,  hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
 
         fun serverDate(stringDate: String): Date? {
             return try {
@@ -78,6 +80,8 @@ class DateAndTimeParsers private constructor() {
             }
 
         fun fileDateTime(instant: Instant): String = fileDateTimeFormat.format(instant.toJavaInstant())
+
+        fun uiReadReceiptDateTime(instant: Instant): String = readReceiptDateTimeFormat.format(instant.toJavaInstant())
     }
 
 }

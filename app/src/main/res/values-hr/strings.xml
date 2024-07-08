@@ -614,7 +614,6 @@
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">This conversation now uses the new Messaging Layer Security (MLS) protocol. To communicate seamlessly, always use the latest version of Wire on your devices.</string>
-    <string name="label_system_message_learn_more_about_mls_link">https://support.wire.com/hc/en-us/articles/12434725011485-Messaging-Layer-Security-MLS-</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
@@ -926,7 +925,6 @@
     <string name="block_user_dialog_confirm_button">Blokiraj</string>
     <string name="other_user_devices_description">Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation.</string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">General</string>
     <string name="settings_account_settings_label">Postavke Računa</string>
     <string name="settings_devices_label">Devices</string>
@@ -1123,7 +1121,6 @@
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
     <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
     <string name="start_manual_migration">Start</string>
-    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
     <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
     <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
     <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>

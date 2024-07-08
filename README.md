@@ -76,6 +76,9 @@ To do so, you will find instructions there, but you can do the following:
 We have a few different app flavours with different intended usages. Each app flavour has a different icon background colour to enable easier distinction.
 To see how they are customised in details, check [the flavour configuration file](./default.json).
 
+> [!NOTE]  
+> For custom builds, we overwrite some of the flags, strings, and icons. Check the [CUSTOMIZATION.md](./CUSTOMIZATION.md) for details.
+
 | Name     | Icon background colour | Description / Intended Usage                                                                                                                                                                      | Logging Enabled | Default Backend |
 |----------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|-----------------|
 | Dev      | 🔴                     | For developing new features. Bleeding edge. Unstable. Staging Backend. Eats experimental features for breakfast and drinks developers tears as dessert.                                           | ✅               | Wire Staging    |

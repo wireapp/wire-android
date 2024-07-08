@@ -25,6 +25,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreenManager
@@ -40,10 +41,12 @@ import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -70,6 +73,9 @@ class WireApplication : BaseApp() {
 
     @Inject
     lateinit var globalDataStore: Lazy<GlobalDataStore>
+
+    @Inject
+    lateinit var userDataStoreProvider: Lazy<UserDataStoreProvider>
 
     @Inject
     @ApplicationScope
@@ -153,7 +159,9 @@ class WireApplication : BaseApp() {
         initializeAnonymousAnalytics()
     }
 
-    private fun initializeAnonymousAnalytics() {
+    private suspend fun initializeAnonymousAnalytics() {
+        if (!BuildConfig.ANALYTICS_ENABLED) return
+
         val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl()
         val analyticsSettings = AnalyticsSettings(
             countlyAppKey = BuildConfig.ANALYTICS_APP_KEY,
@@ -161,13 +169,19 @@ class WireApplication : BaseApp() {
             enableDebugLogging = BuildConfig.DEBUG
         )
 
-        AnonymousAnalyticsManagerImpl.init(
-            context = this,
-            analyticsSettings = analyticsSettings,
-            isEnabledFlowProvider = globalDataStore.get()::isAnonymousUsageDataEnabled,
-            anonymousAnalyticsRecorder = anonymousAnalyticsRecorder,
-            dispatcher = Dispatchers.IO
-        )
+        coreLogic.get().getGlobalScope().session.currentSessionFlow().collectLatest { sessionResult ->
+            if (sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid()) {
+                val userDataStore = userDataStoreProvider.get().getOrCreate(sessionResult.accountInfo.userId)
+
+                AnonymousAnalyticsManagerImpl.init(
+                    context = this,
+                    analyticsSettings = analyticsSettings,
+                    isEnabledFlowProvider = userDataStore::isAnonymousUsageDataEnabled,
+                    anonymousAnalyticsRecorder = anonymousAnalyticsRecorder,
+                    dispatcher = Dispatchers.IO
+                )
+            }
+        }
     }
 
     private fun logDeviceInformation() {

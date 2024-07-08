@@ -25,25 +25,24 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.permission.PermissionDenialType
-import com.wire.android.util.permission.rememberCallingCameraRequestFlow
+import com.wire.android.util.permission.rememberCameraPermissionFlow
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun CameraButton(
-    isCameraOn: Boolean = false,
     onCameraButtonClicked: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
-    size: Dp = dimensions().defaultCallingControlsSize,
+    onPermissionPermanentlyDenied: () -> Unit,
     modifier: Modifier = Modifier,
+    isCameraOn: Boolean = false,
+    size: Dp = dimensions().defaultCallingControlsSize,
 ) {
-    val cameraPermissionCheck = CameraPermissionCheckFlow(
-        onPermissionGranted = onCameraButtonClicked,
-        onPermanentPermissionDecline = {
-            onPermissionPermanentlyDenied(
-                PermissionDenialType.CallingCamera
-            )
-        }
+    val cameraPermissionCheck = rememberCameraPermissionFlow(
+        onPermissionGranted = {
+            appLogger.d("Camera permission granted")
+            onCameraButtonClicked()
+        },
+        onPermissionDenied = { },
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
     )
 
     WireCallControlButton(
@@ -61,19 +60,6 @@ fun CameraButton(
         modifier = modifier,
     )
 }
-
-@Composable
-private fun CameraPermissionCheckFlow(
-    onPermissionGranted: () -> Unit,
-    onPermanentPermissionDecline: () -> Unit
-) = rememberCallingCameraRequestFlow(
-    onPermissionGranted = {
-        appLogger.d("Camera permission granted")
-        onPermissionGranted()
-    },
-    onPermissionDenied = { },
-    onPermissionPermanentlyDenied = onPermanentPermissionDecline
-)
 
 @PreviewMultipleThemes
 @Composable

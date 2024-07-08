@@ -80,7 +80,7 @@ import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewMo
 import com.wire.android.ui.home.conversations.media.preview.AssetTilePreview
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
-import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
+import com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuItems
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
@@ -280,7 +280,7 @@ fun ImportMediaRegularContent(
             }
         )
         MenuModalSheetLayout(
-            menuItems = SelfDeletionMenuItems(
+            menuItems = selfDeletionMenuItems(
                 currentlySelected = importMediaAuthenticatedState.selfDeletingTimer.duration.toSelfDeletionDuration(),
                 hideEditMessageMenu = importMediaScreenState::hideBottomSheetMenu,
                 onSelfDeletionDurationChanged = onNewSelfDeletionTimerPicked,
@@ -327,7 +327,7 @@ fun FileSharingRestrictedContent(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val learnMoreUrl = stringResource(R.string.file_sharing_restricted_learn_more_link)
+    val learnMoreUrl = stringResource(R.string.url_file_sharing_restricted_learn_more)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -515,7 +515,7 @@ private fun ImportMediaContent(
             onEditConversation = {},
             onOpenUserProfile = {},
             onJoinCall = {},
-            onPermissionPermanentlyDenied = {}
+            onAudioPermissionPermanentlyDenied = {}
         )
     }
     BackHandler(enabled = searchBarState.isSearchActive) {

@@ -47,7 +47,7 @@ import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.edit.assetEditMenuItems
-import com.wire.android.util.permission.rememberWriteStorageRequestFlow
+import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
 import com.wire.android.util.ui.openDownloadFolder
 
 @RootNavGraph
@@ -69,8 +69,8 @@ fun MediaGalleryScreen(
     val mediaGalleryScreenState = rememberMediaGalleryScreenState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val onSaveImageWriteStorageRequest = rememberWriteStorageRequestFlow(
-        onGranted = {
+    val onSaveImageWriteStorageRequest = rememberWriteStoragePermissionFlow(
+        onPermissionGranted = {
             mediaGalleryScreenState.showContextualMenu(false)
             mediaGalleryViewModel.saveImageToExternalStorage()
         },

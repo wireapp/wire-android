@@ -86,7 +86,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -144,15 +143,13 @@ fun OngoingCallScreen(
             onCollapse = { activity.moveTaskToBack(true) },
             requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
             hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
-            onPermissionPermanentlyDenied = {
-                if (it is PermissionDenialType.CallingCamera) {
-                    permissionPermanentlyDeniedDialogState.show(
-                        PermissionPermanentlyDeniedDialogState.Visible(
-                            title = R.string.app_permission_dialog_title,
-                            description = R.string.camera_permission_dialog_description
-                        )
+            onCameraPermissionPermanentlyDenied = {
+                permissionPermanentlyDeniedDialogState.show(
+                    PermissionPermanentlyDeniedDialogState.Visible(
+                        title = R.string.app_permission_dialog_title,
+                        description = R.string.camera_permission_dialog_description
                     )
-                }
+                )
             }
         )
         BackHandler {
@@ -171,7 +168,7 @@ fun OngoingCallScreen(
         startSendingVideoFeed = ongoingCallViewModel::startSendingVideoFeed,
         stopSendingVideoFeed = ongoingCallViewModel::stopSendingVideoFeed,
         clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
-        )
+    )
 }
 
 @Composable
@@ -240,7 +237,7 @@ private fun OngoingCallContent(
     clearVideoPreview: () -> Unit,
     onCollapse: () -> Unit,
     hideDoubleTapToast: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onCameraPermissionPermanentlyDenied: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
 
@@ -286,7 +283,7 @@ private fun OngoingCallContent(
                 onHangUpCall = hangUpCall,
                 onToggleVideo = toggleVideo,
                 flipCamera = flipCamera,
-                onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+                onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied
             )
         },
     ) {
@@ -433,7 +430,7 @@ private fun CallingControls(
     onHangUpCall: () -> Unit,
     onToggleVideo: () -> Unit,
     flipCamera: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onCameraPermissionPermanentlyDenied: () -> Unit
 ) {
     Column(
         modifier = Modifier.height(dimensions().defaultSheetPeekHeight)
@@ -449,7 +446,7 @@ private fun CallingControls(
             MicrophoneButton(isMuted = isMuted, onMicrophoneButtonClicked = toggleMute)
             CameraButton(
                 isCameraOn = isCameraOn,
-                onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+                onPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
                 onCameraButtonClicked = onToggleVideo
             )
 
@@ -497,7 +494,7 @@ fun PreviewOngoingCallScreen() = WireTheme {
         clearVideoPreview = {},
         onCollapse = {},
         hideDoubleTapToast = {},
-        onPermissionPermanentlyDenied = {},
+        onCameraPermissionPermanentlyDenied = {},
         requestVideoStreams = {},
     )
 }

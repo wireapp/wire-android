@@ -35,7 +35,6 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.permission.PermissionDenialType
 
 @Composable
 fun CallOptionsControls(
@@ -47,7 +46,7 @@ fun CallOptionsControls(
     toggleVideo: () -> Unit,
     modifier: Modifier = Modifier,
     shouldShowSpeakerButton: Boolean = true,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onCameraPermissionPermanentlyDenied: () -> Unit
 ) {
     ConstraintLayout(
         modifier = modifier
@@ -83,7 +82,7 @@ fun CallOptionsControls(
                     end.linkTo(cameraEndLink)
                 },
             isCameraOn = isCameraOn,
-            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+            onPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
             onCameraButtonClicked = toggleVideo
         )
         CallControlLabel(
@@ -141,6 +140,6 @@ fun PreviewCallOptionsControls() {
         toggleSpeaker = { },
         toggleMute = { },
         toggleVideo = { },
-        onPermissionPermanentlyDenied = {}
+        onCameraPermissionPermanentlyDenied = {}
     )
 }

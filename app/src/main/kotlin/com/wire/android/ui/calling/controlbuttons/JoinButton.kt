@@ -35,25 +35,21 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.permission.PermissionDenialType
-import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
+import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun JoinButton(
     buttonClick: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onAudioPermissionPermanentlyDenied: () -> Unit,
+    modifier: Modifier = Modifier,
     minSize: DpSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
     minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-    horizontalPadding: Dp = MaterialTheme.wireDimensions.spacing8x,
+    horizontalPadding: Dp = MaterialTheme.wireDimensions.spacing8x
 ) {
     val audioPermissionCheck = AudioPermissionCheckFlow(
         onJoinCall = buttonClick,
-        onPermanentPermissionDecline = {
-            onPermissionPermanentlyDenied(
-                PermissionDenialType.CallingMicrophone
-            )
-        }
+        onPermanentPermissionDecline = onAudioPermissionPermanentlyDenied,
     )
 
     WirePrimaryButton(
@@ -65,7 +61,7 @@ fun JoinButton(
         state = WireButtonState.Positive,
         minSize = minSize,
         minClickableSize = minClickableSize,
-        modifier = Modifier.padding(
+        modifier = modifier.padding(
             horizontal = horizontalPadding
         ),
         contentPadding = PaddingValues(
@@ -79,13 +75,13 @@ fun JoinButton(
 private fun AudioPermissionCheckFlow(
     onJoinCall: () -> Unit,
     onPermanentPermissionDecline: () -> Unit
-) = rememberCallingRecordAudioRequestFlow(
-    onAudioPermissionGranted = {
+) = rememberRecordAudioPermissionFlow(
+    onPermissionGranted = {
         appLogger.d("IncomingCall - Audio permission granted")
         onJoinCall()
     },
-    onAudioPermissionDenied = { },
-    onAudioPermissionPermanentlyDenied = onPermanentPermissionDecline
+    onPermissionDenied = { },
+    onPermissionPermanentlyDenied = onPermanentPermissionDecline
 )
 
 @PreviewMultipleThemes
@@ -93,6 +89,6 @@ private fun AudioPermissionCheckFlow(
 fun PreviewJoinButton() = WireTheme {
     JoinButton(
         buttonClick = {},
-        onPermissionPermanentlyDenied = {}
+        onAudioPermissionPermanentlyDenied = {}
     )
 }

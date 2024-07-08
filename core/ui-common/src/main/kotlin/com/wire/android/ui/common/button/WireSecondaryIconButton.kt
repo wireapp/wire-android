@@ -42,9 +42,10 @@ import com.wire.android.ui.theme.wireDimensions
 @Composable
 fun WireSecondaryIconButton(
     onButtonClicked: () -> Unit,
-    loading: Boolean = false,
     @DrawableRes iconResource: Int,
     @StringRes contentDescription: Int,
+    modifier: Modifier = Modifier,
+    loading: Boolean = false,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     minSize: DpSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
     minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
@@ -52,7 +53,6 @@ fun WireSecondaryIconButton(
     state: WireButtonState = WireButtonState.Default,
     colors: WireButtonColors = wireSecondaryButtonColors(),
     clickBlockParams: ClickBlockParams = ClickBlockParams(),
-    modifier: Modifier = Modifier,
     fillMaxWidth: Boolean = false
 ) {
     WireSecondaryButton(
@@ -81,13 +81,23 @@ fun WireSecondaryIconButton(
 @Preview
 @Composable
 fun PreviewWireSecondaryIconButton() {
-    WireSecondaryIconButton({}, false, com.google.android.material.R.drawable.m3_password_eye, 0)
+    WireSecondaryIconButton(
+        {},
+        loading = false,
+        iconResource = com.google.android.material.R.drawable.m3_password_eye,
+        contentDescription = 0
+    )
 }
 
 @Preview
 @Composable
 fun PreviewWireSecondaryIconButtonLoading() {
-    WireSecondaryIconButton({}, true, com.google.android.material.R.drawable.m3_password_eye, 0)
+    WireSecondaryIconButton(
+        {},
+        loading = true,
+        iconResource = com.google.android.material.R.drawable.m3_password_eye,
+        contentDescription = 0
+    )
 }
 
 @Preview
@@ -95,11 +105,11 @@ fun PreviewWireSecondaryIconButtonLoading() {
 fun PreviewWireSecondaryIconButtonRound() {
     WireSecondaryIconButton(
         {},
-        false,
-        com.google.android.material.R.drawable.m3_password_eye,
-        0,
-        CircleShape,
-        DpSize(40.dp, 40.dp),
-        DpSize(48.dp, 48.dp)
+        loading = false,
+        iconResource = com.google.android.material.R.drawable.m3_password_eye,
+        contentDescription = 0,
+        shape = CircleShape,
+        minSize = DpSize(40.dp, 40.dp),
+        minClickableSize = DpSize(48.dp, 48.dp)
     )
 }

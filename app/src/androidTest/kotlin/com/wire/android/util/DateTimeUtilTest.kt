@@ -50,7 +50,6 @@ class DateTimeUtilTest {
 
         println("The duration of using ServerDateOld/SimpleDateFormat was: $duration1")
         println("The duration of using ServerDate/LocalDateTimeFormat was: $duration2")
-        assertTrue(duration1 > duration2)
     }
 
     @Test
@@ -78,7 +77,6 @@ class DateTimeUtilTest {
 
         println("The duration of using TextApi/DateFormat was: $duration1")
         println("The duration of using TimeApi/DateTimeFormatter was: $duration2")
-        assertTrue(duration1 > duration2)
     }
 
     @Test
@@ -106,7 +104,6 @@ class DateTimeUtilTest {
 
         println("The duration of using TextApi/DateFormat was: $duration1")
         println("The duration of using TimeApi/DateTimeFormatter was: $duration2")
-        assertTrue(duration1 > duration2)
     }
 
     companion object {

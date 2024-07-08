@@ -31,9 +31,9 @@ import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.android.ui.home.toFeatureFlagState
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.message.TeamSelfDeleteTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
@@ -132,13 +132,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private suspend fun setFileSharingState(userId: UserId) {
         coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
-            val state: FeatureFlagState.FileSharingState = when (fileSharingStatus.state) {
-                FileSharingStatus.Value.Disabled -> FeatureFlagState.FileSharingState.DisabledByTeam
-                FileSharingStatus.Value.EnabledAll -> FeatureFlagState.FileSharingState.AllowAll
-                is FileSharingStatus.Value.EnabledSome -> FeatureFlagState.FileSharingState.AllowSome(
-                    (fileSharingStatus.state as FileSharingStatus.Value.EnabledSome).allowedType
-                )
-            }
+            val state: FeatureFlagState.FileSharingState = fileSharingStatus.state.toFeatureFlagState()
             featureFlagState = featureFlagState.copy(
                 isFileSharingState = state,
                 showFileSharingDialog = fileSharingStatus.isStatusChanged ?: false

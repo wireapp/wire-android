@@ -19,6 +19,7 @@
 package com.wire.android.ui.home
 
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.kalium.logic.configuration.FileSharingStatus
 import kotlin.time.Duration
 
 data class FeatureFlagState(
@@ -65,5 +66,15 @@ data class FeatureFlagState(
     sealed class E2EIResult {
         data class Failure(val e2EIRequired: E2EIRequired) : E2EIResult()
         data class Success(val certificate: String) : E2EIResult()
+    }
+}
+
+fun FileSharingStatus.Value.toFeatureFlagState(): FeatureFlagState.FileSharingState {
+    return when (this) {
+        FileSharingStatus.Value.Disabled -> FeatureFlagState.FileSharingState.DisabledByTeam
+        FileSharingStatus.Value.EnabledAll -> FeatureFlagState.FileSharingState.AllowAll
+        is FileSharingStatus.Value.EnabledSome -> FeatureFlagState.FileSharingState.AllowSome(
+            allowedType
+        )
     }
 }

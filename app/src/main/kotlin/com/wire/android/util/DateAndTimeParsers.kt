@@ -18,6 +18,8 @@
 package com.wire.android.util
 
 import com.wire.android.appLogger
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -30,6 +32,7 @@ fun String.deviceDateTimeFormat(): String? = DateAndTimeParsers.deviceDateTimeFo
 fun String.serverDate(): Date? = DateAndTimeParsers.serverDate(this)
 fun String.formatMediumDateTime(): String? = DateAndTimeParsers.formatMediumDateTime(this)
 fun String.formatFullDateShortTime(): String? = DateAndTimeParsers.formatFullDateShortTime(this)
+fun Instant.fileDateTime(): String = DateAndTimeParsers.fileDateTime(this)
 
 class DateAndTimeParsers private constructor() {
 
@@ -41,6 +44,8 @@ class DateAndTimeParsers private constructor() {
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
         private val fullDateShortTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
+        private val fileDateTimeFormat =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss", Locale.getDefault()).withZone(ZoneId.systemDefault())
 
 
         fun serverDate(stringDate: String): Date? {
@@ -71,6 +76,8 @@ class DateAndTimeParsers private constructor() {
             } catch (e: Exception) {
                 null
             }
+
+        fun fileDateTime(instant: Instant): String = fileDateTimeFormat.format(instant.toJavaInstant())
     }
 
 }

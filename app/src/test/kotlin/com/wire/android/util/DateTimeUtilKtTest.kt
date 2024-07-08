@@ -18,6 +18,7 @@
 
 package com.wire.android.util
 
+import kotlinx.datetime.Clock
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -155,6 +156,12 @@ class DateTimeUtilKtTest {
         @Test
         fun `given a valid date, when requesting a fullDateShortTime, then the formatted result should be the same with DateTimeFormatter`() {
             assertEquals(baseDate.formatFullDateShortTime(), baseDate.formatFullDateShortTimeOld())
+        }
+
+        @Test
+        fun `given a valid Instant, when requesting a fileDateTime, then the formatted result should be the same with DateTimeFormatter`() {
+            val instant = Clock.System.now()
+            assertEquals(instant.fileDateTime(), instant.fileDateTimeOld())
         }
     }
 

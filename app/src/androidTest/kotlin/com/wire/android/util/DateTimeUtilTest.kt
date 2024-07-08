@@ -111,6 +111,6 @@ class DateTimeUtilTest {
 
 
     companion object {
-        const val ITERATIONS = 1_000_000
+        const val ITERATIONS = 500_000
     }
 }

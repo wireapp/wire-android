@@ -65,7 +65,7 @@ fun String.formatMediumDateTime(): String? =
     }
 
 @Deprecated(
-    message = "This implementation uses discouraged SimpleDateFormat and it will be removed",
+    message = "This implementation will be removed in the future as it uses discouraged/outdated 'java.text.DateFormat'",
     replaceWith = ReplaceWith("DateAndTimeParsers.serverDate() or String.serverDate()"),
 )
 fun String.deviceDateTimeFormatOld(): String? =
@@ -83,7 +83,7 @@ fun String.formatFullDateShortTime(): String? =
     }
 
 @Deprecated(
-    message = "This implementation uses discouraged SimpleDateFormat and it will be removed",
+    message = "This implementation will be removed in the future as it uses discouraged/outdated SimpleDateFormat",
     replaceWith = ReplaceWith("DateAndTimeParsers.serverDate() or String.serverDate()"),
 )
 fun serverDateOld(stringDate: String): Date? = try {

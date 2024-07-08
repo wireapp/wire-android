@@ -80,7 +80,11 @@ fun String.deviceDateTimeFormatOld(): String? =
         null
     }
 
-fun String.formatFullDateShortTime(): String? =
+@Deprecated(
+    message = "This implementation will be removed in the future as it uses discouraged/outdated 'java.text.DateFormat'",
+    replaceWith = ReplaceWith("DateAndTimeParsers.formatFullDateShortTime() or String.formatFullDateShortTime()"),
+)
+fun String.formatFullDateShortTimeOld(): String? =
     try {
         this.serverDate()?.let { fullDateShortTimeFormatter.format(it) }
     } catch (e: ParseException) {

@@ -30,6 +30,7 @@ import java.util.Locale
 fun String.deviceDateTimeFormat(): String? = DateAndTimeParsers.deviceDateTimeFormat(this)
 fun String.serverDate(): Date? = DateAndTimeParsers.serverDate(this)
 fun String.formatMediumDateTime(): String? = DateAndTimeParsers.formatMediumDateTime(this)
+fun String.formatFullDateShortTime(): String? = DateAndTimeParsers.formatFullDateShortTime(this)
 
 class DateAndTimeParsers private constructor() {
 
@@ -38,6 +39,8 @@ class DateAndTimeParsers private constructor() {
         private val longDateShortTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT)
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
         private val mediumDateTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.MEDIUM)
+            .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
+        private val fullDateShortTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
 
 
@@ -50,17 +53,22 @@ class DateAndTimeParsers private constructor() {
             }
         }
 
-        fun deviceDateTimeFormat(stringDate: String): String? {
-            return try {
-                stringDate.serverDate()?.let { longDateShortTimeFormat.format(it.toInstant()) }
-            } catch (e: ParseException) {
-                null
-            }
+        fun deviceDateTimeFormat(stringDate: String): String? = try {
+            stringDate.serverDate()?.let { longDateShortTimeFormat.format(it.toInstant()) }
+        } catch (e: ParseException) {
+            null
         }
 
         fun formatMediumDateTime(stringDate: String): String? =
             try {
                 stringDate.serverDate()?.let { mediumDateTimeFormat.format(it.toInstant()) }
+            } catch (e: ParseException) {
+                null
+            }
+
+        fun formatFullDateShortTime(stringDate: String): String? =
+            try {
+                stringDate.serverDate()?.let { fullDateShortTimeFormatter.format(it.toInstant()) }
             } catch (e: ParseException) {
                 null
             }

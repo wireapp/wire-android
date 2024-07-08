@@ -19,12 +19,12 @@
 package com.wire.android.ui.home
 
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.kalium.logic.configuration.FileSharingStatus
 import kotlin.time.Duration
 
 data class FeatureFlagState(
     val showFileSharingDialog: Boolean = false,
-    val isFileSharingEnabledState: Boolean = true,
-    val fileSharingRestrictedState: SharingRestrictedState? = null,
+    val isFileSharingState: FileSharingState = FileSharingState.NoUser,
     val shouldShowGuestRoomLinkDialog: Boolean = false,
     val shouldShowE2eiCertificateRevokedDialog: Boolean = false,
     val shouldShowTeamAppLockDialog: Boolean = false,
@@ -40,8 +40,12 @@ data class FeatureFlagState(
     val showCallEndedBecauseOfConversationDegraded: Boolean = false,
     val startGettingE2EICertificate: Boolean = false
 ) {
-    enum class SharingRestrictedState {
-        NONE, NO_USER, RESTRICTED_IN_TEAM
+
+    sealed interface FileSharingState {
+        data object NoUser : FileSharingState
+        data object AllowAll : FileSharingState
+        data class AllowSome(val allowedList: List<String>) : FileSharingState
+        data object DisabledByTeam : FileSharingState
     }
 
     data class E2EISnooze(val timeLeft: Duration)
@@ -62,5 +66,15 @@ data class FeatureFlagState(
     sealed class E2EIResult {
         data class Failure(val e2EIRequired: E2EIRequired) : E2EIResult()
         data class Success(val certificate: String) : E2EIResult()
+    }
+}
+
+fun FileSharingStatus.Value.toFeatureFlagState(): FeatureFlagState.FileSharingState {
+    return when (this) {
+        FileSharingStatus.Value.Disabled -> FeatureFlagState.FileSharingState.DisabledByTeam
+        FileSharingStatus.Value.EnabledAll -> FeatureFlagState.FileSharingState.AllowAll
+        is FileSharingStatus.Value.EnabledSome -> FeatureFlagState.FileSharingState.AllowSome(
+            allowedType
+        )
     }
 }

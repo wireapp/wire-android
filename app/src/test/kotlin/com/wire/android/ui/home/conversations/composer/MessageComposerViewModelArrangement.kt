@@ -188,6 +188,15 @@ internal class MessageComposerViewModelArrangement {
         }
     }
 
+    fun withSuccessfulSendTypingEvent() = apply {
+        coEvery {
+            sendTypingEvent(
+                any(),
+                any()
+            )
+        } returns Unit
+    }
+
     fun withObserveSelfDeletingStatus(expectedSelfDeletionTimer: SelfDeletionTimer) = apply {
         coEvery { observeConversationSelfDeletionStatus(conversationId, true) } returns flowOf(expectedSelfDeletionTimer)
     }

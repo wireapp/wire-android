@@ -132,7 +132,7 @@ class DateTimeUtilKtTest {
     }
 
     @Nested
-    @DisplayName("Tests for datetime formatters")
+    @DisplayName("Tests for datetime formatters retro compatibility")
     inner class DateTimeFormatters {
 
         private val baseDate = "2024-01-20T07:00:00.000Z"
@@ -144,20 +144,17 @@ class DateTimeUtilKtTest {
 
         @Test
         fun `given a valid date, when requesting a deviceDate, then the formatted result should be the same with DateTimeFormatter`() {
-            val result = "2022-03-24T18:02:30.360Z"
-            assertEquals(result.deviceDateTimeFormat(), result.deviceDateTimeFormatOld())
+            assertEquals(baseDate.deviceDateTimeFormat(), baseDate.deviceDateTimeFormatOld())
         }
 
         @Test
         fun `given a valid date, when requesting a mediumDateTime, then the formatted result should be the same with DateTimeFormatter`() {
-            val result = "2022-03-24T18:02:30.360Z"
-            assertEquals(result.formatMediumDateTime(), result.formatMediumDateTimeOld())
+            assertEquals(baseDate.formatMediumDateTime(), baseDate.formatMediumDateTimeOld())
         }
 
         @Test
         fun `given a valid date, when requesting a fullDateShortTime, then the formatted result should be the same with DateTimeFormatter`() {
-            val result = "2022-03-24T18:02:30.360Z"
-            assertEquals(result.formatFullDateShortTime(), result.formatFullDateShortTimeOld())
+            assertEquals(baseDate.formatFullDateShortTime(), baseDate.formatFullDateShortTimeOld())
         }
     }
 

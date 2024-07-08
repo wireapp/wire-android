@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
@@ -60,6 +59,7 @@ fun SearchConversationMessagesEmptyScreen() {
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(dimensions().spacing8x))
+            val searchUrl = stringResource(id = R.string.url_learn_about_conversation_search)
             Text(
                 text = stringResource(R.string.label_learn_more),
                 style = MaterialTheme.wireTypography.body02.copy(
@@ -69,16 +69,13 @@ fun SearchConversationMessagesEmptyScreen() {
                 modifier = Modifier.clickable {
                     CustomTabsHelper.launchUrl(
                         context,
-                        LEARN_ABOUT_SEARCH_URL
+                        searchUrl
                     )
                 }
             )
         }
     }
 }
-
-private const val LEARN_ABOUT_SEARCH_URL =
-    "${BuildConfig.URL_SUPPORT}/hc/en-us/articles/115001426529-Search-in-a-conversation"
 
 @PreviewMultipleThemes
 @Composable

@@ -52,9 +52,9 @@ interface IntentDirection : Direction {
     fun intent(context: Context): Intent
 }
 
-object SupportScreenDestination : ExternalUriDirection {
-    override val uri: Uri
-        get() = Uri.parse(BuildConfig.URL_SUPPORT)
+object SupportScreenDestination : ExternalUriStringResDirection {
+    override val uriStringRes: Int
+        get() = R.string.url_support
 }
 
 object PrivacyPolicyScreenDestination : ExternalUriStringResDirection {

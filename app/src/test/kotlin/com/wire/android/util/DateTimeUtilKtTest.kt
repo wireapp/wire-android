@@ -143,9 +143,15 @@ class DateTimeUtilKtTest {
         }
 
         @Test
-        fun `given a valid date, when performing a transformation, then the formatted result should be the same with DateTimeFormatter`() {
+        fun `given a valid date, when requesting a deviceDate, then the formatted result should be the same with DateTimeFormatter`() {
             val result = "2022-03-24T18:02:30.360Z"
             assertEquals(result.deviceDateTimeFormat(), result.deviceDateTimeFormatOld())
+        }
+
+        @Test
+        fun `given a valid date, when requesting a mediumDate, then the formatted result should be the same with DateTimeFormatter`() {
+            val result = "2022-03-24T18:02:30.360Z"
+            assertEquals(result.formatMediumDateTime(), result.formatMediumDateTimeOld())
         }
     }
 

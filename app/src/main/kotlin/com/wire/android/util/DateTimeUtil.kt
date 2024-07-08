@@ -57,7 +57,12 @@ private val fileDateTimeFormat = SimpleDateFormat(
 ).apply { timeZone = TimeZone.getDefault() }
 
 private val fullDateShortTimeFormatter = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT)
-fun String.formatMediumDateTime(): String? =
+
+@Deprecated(
+    message = "This implementation will be removed in the future as it uses discouraged/outdated 'java.text.DateFormat'",
+    replaceWith = ReplaceWith("DateAndTimeParsers.formatMediumDateTimeOld() or String.formatMediumDateTime()"),
+)
+fun String.formatMediumDateTimeOld(): String? =
     try {
         this.serverDate()?.let { mediumDateTimeFormat.format(it) }
     } catch (e: ParseException) {

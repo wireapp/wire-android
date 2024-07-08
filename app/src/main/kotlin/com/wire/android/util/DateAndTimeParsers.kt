@@ -29,6 +29,7 @@ import java.util.Locale
 
 fun String.deviceDateTimeFormat(): String? = DateAndTimeParsers.deviceDateTimeFormat(this)
 fun String.serverDate(): Date? = DateAndTimeParsers.serverDate(this)
+fun String.formatMediumDateTime(): String? = DateAndTimeParsers.formatMediumDateTime(this)
 
 class DateAndTimeParsers private constructor() {
 
@@ -36,23 +37,33 @@ class DateAndTimeParsers private constructor() {
         private val dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneId.of("UTC"))
         private val longDateShortTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT)
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
+        private val mediumDateTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.MEDIUM)
+            .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
 
-        fun serverDate(stringVal: String): Date? {
+
+        fun serverDate(stringDate: String): Date? {
             return try {
-                Date(LocalDateTime.parse(stringVal, dateTimeFormatter).toInstant(ZoneOffset.UTC).toEpochMilli())
+                Date(LocalDateTime.parse(stringDate, dateTimeFormatter).toInstant(ZoneOffset.UTC).toEpochMilli())
             } catch (e: Exception) {
                 appLogger.e("There was an error parsing the server date")
                 null
             }
         }
 
-        fun deviceDateTimeFormat(stringVal: String): String? {
+        fun deviceDateTimeFormat(stringDate: String): String? {
             return try {
-                stringVal.serverDate()?.let { longDateShortTimeFormat.format(it.toInstant()) }
+                stringDate.serverDate()?.let { longDateShortTimeFormat.format(it.toInstant()) }
             } catch (e: ParseException) {
                 null
             }
         }
+
+        fun formatMediumDateTime(stringDate: String): String? =
+            try {
+                stringDate.serverDate()?.let { mediumDateTimeFormat.format(it.toInstant()) }
+            } catch (e: ParseException) {
+                null
+            }
     }
 
 }

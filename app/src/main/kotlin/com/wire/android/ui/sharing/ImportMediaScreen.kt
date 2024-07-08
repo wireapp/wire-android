@@ -129,7 +129,6 @@ fun ImportMediaScreen(
                 isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.FileSharingState.DisabledByTeam,
             )
         }
-
     }
 
     BackHandler { navigator.finish() }

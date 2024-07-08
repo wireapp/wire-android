@@ -42,7 +42,6 @@ import com.wire.android.ui.navArgs
 import com.wire.android.ui.sharing.SendMessagesSnackbarMessages
 import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.ImageUtil
-import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.logic.CoreFailure

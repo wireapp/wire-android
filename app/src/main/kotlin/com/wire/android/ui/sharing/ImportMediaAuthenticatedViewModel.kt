@@ -58,6 +58,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
@@ -307,52 +308,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
     }
 
-    fun checkRestrictionsAndSendImportedMedia(onSent: (ConversationId) -> Unit) =
-        viewModelScope.launch(dispatchers.default()) {
-            val conversation =
-                importMediaState.selectedConversationItem.firstOrNull() ?: return@launch
-            val assetsToSend = importMediaState.importedAssets
-            val textToSend = importMediaState.importedText
-
-            if (assetsToSend.size > MAX_LIMIT_MEDIA_IMPORT) {
-                onSnackbarMessage(ImportMediaSnackbarMessages.MaxAmountOfAssetsReached)
-            } else {
-                val jobs: MutableCollection<Job> = mutableListOf()
-
-                textToSend?.let {
-                    sendTextMessage(
-                        conversationId = conversation.conversationId,
-                        text = it
-                    )
-                } ?: assetsToSend.forEach { importedAsset ->
-                    val isImage = importedAsset is ImportedMediaAsset.Image
-                    val job = viewModelScope.launch {
-                        sendAssetMessage(
-                            conversationId = conversation.conversationId,
-                            assetDataPath = importedAsset.assetBundle.dataPath,
-                            assetName = importedAsset.assetBundle.fileName,
-                            assetDataSize = importedAsset.assetBundle.dataSize,
-                            assetMimeType = importedAsset.assetBundle.mimeType,
-                            assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
-                            assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
-                            audioLengthInMs = getAudioLengthInMs(
-                                dataPath = importedAsset.assetBundle.dataPath,
-                                mimeType = importedAsset.assetBundle.mimeType,
-                            )
-                        ).also {
-                            handleError(it, conversation.conversationId)
-                        }
-                    }
-                    jobs.add(job)
-                }
-
-                jobs.joinAll()
-                withContext(dispatchers.main()) {
-                    onSent(conversation.conversationId)
-                }
-            }
-        }
-
     private fun handleError(result: ScheduleNewAssetMessageResult, conversationId: ConversationId) {
         when (result) {
             is ScheduleNewAssetMessageResult.Success -> appLogger.d(
@@ -428,6 +383,5 @@ data class ImportMediaAuthenticatedState(
     val isImporting: Boolean = false,
     val shareableConversationListState: ShareableConversationListState = ShareableConversationListState(),
     val selectedConversationItem: List<ConversationItem> = emptyList(),
-    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null),
-    val assetSendError: AssetSendError? = null
+    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
 )

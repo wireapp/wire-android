@@ -174,29 +174,6 @@ internal class MessageComposerViewModelArrangement {
         )
     }
 
-    fun withStoredAsset(dataPath: Path, dataContent: ByteArray) = apply {
-        fakeKaliumFileSystem.sink(dataPath).buffer().use {
-            it.write(dataContent)
-        }
-    }
-
-    fun withSuccessfulSendTypingEvent() = apply {
-        coEvery {
-            sendTypingEvent(
-                any(),
-                any()
-            )
-        } returns Unit
-    }
-
-    fun withObserveSelfDeletingStatus(expectedSelfDeletionTimer: SelfDeletionTimer) = apply {
-        coEvery { observeConversationSelfDeletionStatus(conversationId, true) } returns flowOf(expectedSelfDeletionTimer)
-    }
-
-    fun withPersistSelfDeletionStatus() = apply {
-        coEvery { persistSelfDeletionStatus(any(), any()) } returns Unit
-    }
-
     fun withSaveDraftMessage() = apply {
         coEvery { saveMessageDraftUseCase(any()) } returns Unit
     }

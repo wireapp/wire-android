@@ -414,14 +414,7 @@ class SendMessageViewModel @Inject constructor(
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }
-
     private companion object {
         const val MAX_LIMIT_MESSAGE_SEND = 20
-    private fun beforeSendingMessage() {
-        viewState = viewState.copy(messageSent = false, inProgress = true)
-    }
-
-    private fun Either<CoreFailure?, Unit>.handleAfterMessageResult() {
-        viewState = viewState.copy(messageSent = this.isRight(), inProgress = false)
     }
 }

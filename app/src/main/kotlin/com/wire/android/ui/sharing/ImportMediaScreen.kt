@@ -121,17 +121,15 @@ fun ImportMediaScreen(
             )
         }
 
-        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
-        FeatureFlagState.SharingRestrictedState.NONE -> {
+        FeatureFlagState.FileSharingState.DisabledByTeam,
+        FeatureFlagState.FileSharingState.AllowAll,
+        is FeatureFlagState.FileSharingState.AllowSome -> {
             ImportMediaAuthenticatedContent(
                 navigator = navigator,
-                isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
+                isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.FileSharingState.DisabledByTeam,
             )
         }
 
-        null -> {
-            // state is not calculated yet, need to wait to avoid crash while requesting currentUser where it's absent
-        }
     }
 
     BackHandler { navigator.finish() }
@@ -220,7 +218,7 @@ fun ImportMediaRestrictedContent(
             content = { internalPadding ->
                 FileSharingRestrictedContent(
                     internalPadding,
-                    FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
+                    FeatureFlagState.FileSharingState.DisabledByTeam,
                     navigateBack
                 )
             }

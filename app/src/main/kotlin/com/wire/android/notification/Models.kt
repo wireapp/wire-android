@@ -30,7 +30,8 @@ data class NotificationConversation(
     val image: ByteArray?,
     val messages: List<NotificationMessage>,
     val isOneToOneConversation: Boolean,
-    val lastMessageTime: Long
+    val lastMessageTime: Long,
+    val isReplyAllowed: Boolean
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -153,7 +154,8 @@ fun LocalNotification.Conversation.intoNotificationConversation(): NotificationC
         image = null, // TODO
         messages = notificationMessages,
         isOneToOneConversation = isOneToOneConversation,
-        lastMessageTime = lastMessageTime
+        lastMessageTime = lastMessageTime,
+        isReplyAllowed = isReplyAllowed
     )
 }
 

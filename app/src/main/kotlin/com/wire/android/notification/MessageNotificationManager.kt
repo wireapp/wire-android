@@ -202,8 +202,9 @@ class MessageNotificationManager
 
                             is NotificationMessage.Comment -> {
                                 val isAppLocked = lockCodeTimeManager.isAppLocked()
+                                if (conversation.isReplyAllowed)
+                                    addAction(getActionReply(context, conversation.id, userIdString, isAppLocked))
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                                addAction(getActionReply(context, conversation.id, userIdString, isAppLocked))
                             }
 
                             is NotificationMessage.Knock -> {
@@ -213,14 +214,16 @@ class MessageNotificationManager
 
                             is NotificationMessage.Text -> {
                                 val isAppLocked = lockCodeTimeManager.isAppLocked()
+                                if (conversation.isReplyAllowed)
+                                    addAction(getActionReply(context, conversation.id, userIdString, isAppLocked))
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                                addAction(getActionReply(context, conversation.id, userIdString, isAppLocked))
                             }
 
                             is NotificationMessage.ObfuscatedMessage -> {
                                 val isAppLocked = lockCodeTimeManager.isAppLocked()
+                                if (conversation.isReplyAllowed)
+                                    addAction(getActionReply(context, conversation.id, userIdString, isAppLocked))
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                                addAction(getActionReply(context, conversation.id, userIdString, isAppLocked))
                             }
 
                             is NotificationMessage.ObfuscatedKnock -> {
@@ -230,8 +233,9 @@ class MessageNotificationManager
 
                             null -> {
                                 val isAppLocked = lockCodeTimeManager.isAppLocked()
+                                if (conversation.isReplyAllowed)
+                                    addAction(getActionReply(context, conversation.id, userIdString, isAppLocked))
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                                addAction(getActionReply(context, conversation.id, userIdString, isAppLocked))
                             }
                         }
                     }

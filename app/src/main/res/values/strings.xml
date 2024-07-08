@@ -998,7 +998,7 @@
     <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Send read receipts</string>
-    <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages. 
+    <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages.
 In group conversations, the group admin can overwrite this setting.</string>
     <string name="settings_censor_screenshots">Censor screenshots</string>
     <string name="settings_censor_screenshots_description">If this is ON, then the content of the messages will not be visible on the screenshot or screen recording.</string>
@@ -1443,4 +1443,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="no_camera_app">No camera app found to complete this action.</string>
     <string name="no_gallery_app">No gallery app found to complete this action.</string>
     <string name="no_file_manager_app">No file manager app found to complete this action.</string>
+
+    <string name="restricted_asset_error_toast_message">Sending of files is forbidden due to company restrictions</string>
 </resources>

@@ -42,6 +42,7 @@ import com.wire.android.ui.navArgs
 import com.wire.android.ui.sharing.SendMessagesSnackbarMessages
 import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.ImageUtil
+import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.kalium.logic.CoreFailure
@@ -338,18 +339,29 @@ class SendMessageViewModel @Inject constructor(
         }
     }
 
-    private fun Either<CoreFailure, Unit>.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) =
+    private fun Either<CoreFailure, Unit>.handleLegalHoldFailureAfterSendingMessage(
+        conversationId: ConversationId
+    ): Either<CoreFailure, Unit> =
         onFailure { it.handleLegalHoldFailureAfterSendingMessage(conversationId) }
 
-    private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) = let {
-        if (it is ScheduleNewAssetMessageResult.Failure) {
-            it.coreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId)
+    private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage(
+        conversationId: ConversationId
+    ): Either<CoreFailure?, Unit> =
+        let {
+            when (this) {
+                is ScheduleNewAssetMessageResult.Success -> Either.Right(Unit)
+                ScheduleNewAssetMessageResult.Failure.DisabledByTeam,
+                ScheduleNewAssetMessageResult.Failure.RestrictedFileType -> {
+                    onSnackbarMessage(ConversationSnackbarMessages.ErrorAssetRestriction)
+                    Either.Left(null)
+                }
+
+                is ScheduleNewAssetMessageResult.Failure.Generic -> {
+                    this.coreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId)
+                    Either.Left(coreFailure)
+                }
+            }
         }
-        when (this) {
-            is ScheduleNewAssetMessageResult.Failure -> Either.Left(coreFailure)
-            is ScheduleNewAssetMessageResult.Success -> Either.Right(Unit)
-        }
-    }
 
     fun retrySendingMessages(messageIdList: List<String>, conversationId: ConversationId) {
         messageIdList.forEach {
@@ -405,5 +417,11 @@ class SendMessageViewModel @Inject constructor(
 
     private companion object {
         const val MAX_LIMIT_MESSAGE_SEND = 20
+    private fun beforeSendingMessage() {
+        viewState = viewState.copy(messageSent = false, inProgress = true)
+    }
+
+    private fun Either<CoreFailure?, Unit>.handleAfterMessageResult() {
+        viewState = viewState.copy(messageSent = this.isRight(), inProgress = false)
     }
 }

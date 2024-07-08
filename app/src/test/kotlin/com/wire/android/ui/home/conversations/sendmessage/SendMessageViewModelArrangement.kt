@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.sendmessage
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
@@ -78,9 +77,6 @@ internal class SendMessageViewModelArrangement {
         coEvery { setNotifiedAboutConversationUnderLegalHold(any()) } returns Unit
         coEvery { observeConversationUnderLegalHoldNotified(any()) } returns flowOf(true)
     }
-
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     lateinit var sendTextMessage: SendTextMessageUseCase
@@ -173,7 +169,7 @@ internal class SendMessageViewModelArrangement {
         }
     }
 
-    fun withSuccessfulSendAttachmentMessage() = apply {
+    fun withSendAttachmentMessageResult(result: ScheduleNewAssetMessageResult) = apply {
         coEvery {
             sendAssetMessage(
                 any(),
@@ -185,7 +181,7 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any()
             )
-        } returns ScheduleNewAssetMessageResult.Success("some-message-id")
+        } returns result
     }
 
     fun withSuccessfulSendTextMessage() = apply {

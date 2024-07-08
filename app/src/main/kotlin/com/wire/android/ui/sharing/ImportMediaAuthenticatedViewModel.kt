@@ -32,13 +32,13 @@ import androidx.core.app.ShareCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
@@ -388,11 +388,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
             ScheduleNewAssetMessageResult.Failure.RestrictedFileType,
             ScheduleNewAssetMessageResult.Failure.DisabledByTeam -> {
-                Toast.makeText(
-                    context,
-                    R.string.restricted_asset_error_toast_message,
-                    Toast.LENGTH_SHORT
-                ).show()
+                onSnackbarMessage(ConversationSnackbarMessages.ErrorAssetRestriction)
                 appLogger.e(
                     "Failed to import asset message to conversationId=${conversationId.toLogString()}"
                 )
@@ -467,7 +463,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
     }
 
-    fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
+    private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
     }
 

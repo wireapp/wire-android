@@ -28,113 +28,128 @@ import java.util.Date
 
 class DateTimeUtilKtTest {
 
-    @Test
-    fun `given a invalid date, when performing a transformation, then return null`() {
-        val result = "NOT_VALID".deviceDateTimeFormat()
-        assertEquals(null, result)
+    @Nested
+    @DisplayName("DateAndTimeParser Should")
+    inner class DateAndTimeParsers {
+        @Test
+        fun `return null when an invalid date`() {
+            val result = "NOT_VALID".deviceDateTimeFormat()
+            assertEquals(null, result)
+        }
+
+        @Test
+        fun `return a medium format date, when a valid date`() {
+            val result = "2022-03-24T18:02:30.360Z".deviceDateTimeFormat()
+            assertEquals("March 24, 2022, 6:02 PM", result)
+        }
+
+        @Test
+        fun `return a medium format, when formatMediumDateTime is called`() {
+            val result = "2022-03-24T18:02:30.360Z".formatMediumDateTime()
+            assertEquals("Mar 24, 2022, 6:02:30 PM", result)
+        }
+
+        @Test
+        fun `return MessageDateTime_Now when a valid date is calling groupedUIMessageDateTime`() {
+            val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(getDummyCalendar().timeInMillis)
+            assertEquals(MessageDateTimeGroup.Now, result)
+        }
+
+        @Test
+        fun `return MessageDateTime_Within30Minutes when a valid date within 10 minutes is calling groupedUIMessageDateTime`() {
+            val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
+                getDummyCalendar().apply {
+                    add(Calendar.MINUTE, 10)
+                }.timeInMillis
+            )
+            assertEquals(MessageDateTimeGroup.Within30Minutes, result)
+        }
+
+        @Test
+        fun `return MessageDateTime_Today when a valid date over 30 minutes is calling groupedUIMessageDateTime`() {
+            val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
+                getDummyCalendar().apply {
+                    add(Calendar.MINUTE, 31)
+                }.timeInMillis
+            )
+            assertEquals(
+                MessageDateTimeGroup.Daily.Type.Today,
+                (result as MessageDateTimeGroup.Daily).type
+            )
+            assertEquals(
+                "2024-01-20",
+                result.date.toString()
+            )
+        }
+
+        @Test
+        fun `return MessageDateTime_Yesterday when a valid date over 1 day is calling groupedUIMessageDateTime`() {
+            val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
+                getDummyCalendar().apply {
+                    add(Calendar.DATE, 1)
+                }.timeInMillis
+            )
+
+            assertEquals(
+                MessageDateTimeGroup.Daily.Type.Yesterday,
+                (result as MessageDateTimeGroup.Daily).type
+            )
+        }
+
+        @Test
+        fun `return MessageDateTime_WithinWeek when a valid date within 7 days 1 day is calling groupedUIMessageDateTime`() {
+            val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
+                getDummyCalendar().apply {
+                    add(Calendar.DATE, 3)
+                }.timeInMillis
+            )
+
+            assertEquals(
+                MessageDateTimeGroup.Daily.Type.WithinWeek,
+                (result as MessageDateTimeGroup.Daily).type
+            )
+        }
+
+        @Test
+        fun `return MessageDateTime_NotWithinWeekButSameYear when a valid date over 7 days and same year is calling groupedUIMessageDateTime`() {
+            val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
+                getDummyCalendar().apply {
+                    add(Calendar.DATE, 10)
+                }.timeInMillis
+            )
+            assertEquals(
+                MessageDateTimeGroup.Daily.Type.NotWithinWeekButSameYear,
+                (result as MessageDateTimeGroup.Daily).type
+            )
+        }
+
+        @Test
+        fun `return MessageDateTime_Other given valid date, when a valid date and different year is calling groupedUIMessageDateTime`() {
+            val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
+                getDummyCalendar().apply {
+                    set(Calendar.YEAR, 2025)
+                }.timeInMillis
+            )
+            assertEquals(
+                MessageDateTimeGroup.Daily.Type.Other,
+                (result as MessageDateTimeGroup.Daily).type
+            )
+        }
+
+        private fun getDummyCalendar(): Calendar = Calendar.getInstance().apply {
+            set(Calendar.SECOND, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.HOUR, 7)
+            set(Calendar.AM_PM, Calendar.AM)
+            set(Calendar.MONTH, Calendar.JANUARY)
+            set(Calendar.DAY_OF_MONTH, 20)
+            set(Calendar.YEAR, 2024)
+        }
     }
 
-    @Test
-    fun `given a valid date, when performing a transformation for device, then return with medium format`() {
-        val result = "2022-03-24T18:02:30.360Z".deviceDateTimeFormat()
-        assertEquals("March 24, 2022, 6:02 PM", result)
-    }
-
-    @Test
-    fun `given a valid date, when performing a transformation, then return with medium format`() {
-        val result = "2022-03-24T18:02:30.360Z".formatMediumDateTime()
-        assertEquals("Mar 24, 2022, 6:02:30 PM", result)
-    }
-
-    @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Now`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(getDummyCalendar().timeInMillis)
-        assertEquals(MessageDateTimeGroup.Now, result)
-    }
-
-    @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Within30Minutes`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
-            getDummyCalendar().apply {
-                add(Calendar.MINUTE, 10)
-            }.timeInMillis
-        )
-        assertEquals(MessageDateTimeGroup.Within30Minutes, result)
-    }
-
-    @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Today`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
-            getDummyCalendar().apply {
-                add(Calendar.MINUTE, 31)
-            }.timeInMillis
-        )
-        assertEquals(
-            MessageDateTimeGroup.Daily.Type.Today,
-            (result as MessageDateTimeGroup.Daily).type
-        )
-        assertEquals(
-            "2024-01-20",
-            result.date.toString()
-        )
-    }
-
-    @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Yesterday`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
-            getDummyCalendar().apply {
-                add(Calendar.DATE, 1)
-            }.timeInMillis
-        )
-
-        assertEquals(
-            MessageDateTimeGroup.Daily.Type.Yesterday,
-            (result as MessageDateTimeGroup.Daily).type
-        )
-    }
-
-    @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_WithinWeek`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
-            getDummyCalendar().apply {
-                add(Calendar.DATE, 3)
-            }.timeInMillis
-        )
-
-        assertEquals(
-            MessageDateTimeGroup.Daily.Type.WithinWeek,
-            (result as MessageDateTimeGroup.Daily).type
-        )
-    }
-
-    @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_NotWithinWeekButSameYear`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
-            getDummyCalendar().apply {
-                add(Calendar.DATE, 10)
-            }.timeInMillis
-        )
-        assertEquals(
-            MessageDateTimeGroup.Daily.Type.NotWithinWeekButSameYear,
-            (result as MessageDateTimeGroup.Daily).type
-        )
-    }
-
-    @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Other`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
-            getDummyCalendar().apply {
-                set(Calendar.YEAR, 2025)
-            }.timeInMillis
-        )
-        assertEquals(
-            MessageDateTimeGroup.Daily.Type.Other,
-            (result as MessageDateTimeGroup.Daily).type
-        )
-    }
 
     @Nested
-    @DisplayName("Tests for datetime formatters retro compatibility")
+    @DisplayName("DateAndTimeParser for retro compatibility Should")
     inner class DateTimeFormatters {
 
         private val baseDateString = "2024-01-20T07:00:00.000Z"
@@ -142,48 +157,38 @@ class DateTimeUtilKtTest {
         private val baseDate = Date()
 
         @Test
-        fun `given a new serverDate is called, the formatted result should be the same with LocalDateTime format`() {
+        fun `return the same serverDate format result, when calling with new LocalDateTime format`() {
             assertEquals(serverDateOld(baseDateString), baseDateString.serverDate())
         }
 
         @Test
-        fun `given a valid date, when requesting a deviceDate, then the formatted result should be the same with DateTimeFormatter`() {
+        fun `return the same deviceDate format result, when calling with new DateTimeFormatter format`() {
             assertEquals(baseDateString.deviceDateTimeFormat(), baseDateString.deviceDateTimeFormatOld())
         }
 
         @Test
-        fun `given a valid date, when requesting a mediumDateTime, then the formatted result should be the same with DateTimeFormatter`() {
+        fun `return the same mediumDateTime format result, when calling with new DateTimeFormatter format`() {
             assertEquals(baseDateString.formatMediumDateTime(), baseDateString.formatMediumDateTimeOld())
         }
 
         @Test
-        fun `given a valid date, when requesting a fullDateShortTime, then the formatted result should be the same with DateTimeFormatter`() {
+        fun `return the same fullDateShortTime format result, when calling with new DateTimeFormatter format`() {
             assertEquals(baseDateString.formatFullDateShortTime(), baseDateString.formatFullDateShortTimeOld())
         }
 
         @Test
-        fun `given a valid Instant, when requesting a fileDateTime, then the formatted result should be the same with DateTimeFormatter`() {
+        fun `return the same fileDateTime format result, when calling with new DateTimeFormatter format`() {
             assertEquals(baseInstant.fileDateTime(), baseInstant.fileDateTimeOld())
         }
 
         @Test
-        fun `given a valid Instant, when requesting a readReceiptDateTime, then the formatted result should be the same with DateTimeFormatter`() {
+        fun `return the same readReceiptDateTime format result, when calling instant with new DateTimeFormatter format`() {
             assertEquals(baseInstant.uiReadReceiptDateTime(), baseInstant.uiReadReceiptDateTimeOld())
         }
 
         @Test
-        fun `given a valid Instant, when requesting a MediumOnlyDateTim, then the formatted result should be the same with DateTimeFormatter`() {
+        fun `return the same MediumOnlyDateTime format result, when calling date with new DateTimeFormatter format`() {
             assertEquals(baseDate.toMediumOnlyDateTime(), baseDate.toMediumOnlyDateTimeOld())
         }
-    }
-
-    private fun getDummyCalendar(): Calendar = Calendar.getInstance().apply {
-        set(Calendar.SECOND, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.HOUR, 7)
-        set(Calendar.AM_PM, Calendar.AM)
-        set(Calendar.MONTH, Calendar.JANUARY)
-        set(Calendar.DAY_OF_MONTH, 20)
-        set(Calendar.YEAR, 2024)
     }
 }

@@ -252,7 +252,11 @@ fun String.groupedUIMessageDateTime(now: Long): MessageDateTimeGroup? = this
         }
     }
 
-fun Date.toMediumOnlyDateTime(): String = mediumOnlyDateTimeFormat.format(this)
+@Deprecated(
+    message = "This implementation will be removed in the future as it uses discouraged/outdated SimpleDateFormat",
+    replaceWith = ReplaceWith("DateAndTimeParsers.toMediumOnlyDateTime() or Date.toMediumOnlyDateTime()"),
+)
+fun Date.toMediumOnlyDateTimeOld(): String = mediumOnlyDateTimeFormat.format(this)
 
 @Deprecated(
     message = "This implementation will be removed in the future as it uses discouraged/outdated SimpleDateFormat",

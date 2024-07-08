@@ -24,6 +24,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.Calendar
+import java.util.Date
 
 class DateTimeUtilKtTest {
 
@@ -136,27 +137,28 @@ class DateTimeUtilKtTest {
     @DisplayName("Tests for datetime formatters retro compatibility")
     inner class DateTimeFormatters {
 
-        private val baseDate = "2024-01-20T07:00:00.000Z"
+        private val baseDateString = "2024-01-20T07:00:00.000Z"
         private val baseInstant = Clock.System.now()
+        private val baseDate = Date()
 
         @Test
         fun `given a new serverDate is called, the formatted result should be the same with LocalDateTime format`() {
-            assertEquals(serverDateOld(baseDate), baseDate.serverDate())
+            assertEquals(serverDateOld(baseDateString), baseDateString.serverDate())
         }
 
         @Test
         fun `given a valid date, when requesting a deviceDate, then the formatted result should be the same with DateTimeFormatter`() {
-            assertEquals(baseDate.deviceDateTimeFormat(), baseDate.deviceDateTimeFormatOld())
+            assertEquals(baseDateString.deviceDateTimeFormat(), baseDateString.deviceDateTimeFormatOld())
         }
 
         @Test
         fun `given a valid date, when requesting a mediumDateTime, then the formatted result should be the same with DateTimeFormatter`() {
-            assertEquals(baseDate.formatMediumDateTime(), baseDate.formatMediumDateTimeOld())
+            assertEquals(baseDateString.formatMediumDateTime(), baseDateString.formatMediumDateTimeOld())
         }
 
         @Test
         fun `given a valid date, when requesting a fullDateShortTime, then the formatted result should be the same with DateTimeFormatter`() {
-            assertEquals(baseDate.formatFullDateShortTime(), baseDate.formatFullDateShortTimeOld())
+            assertEquals(baseDateString.formatFullDateShortTime(), baseDateString.formatFullDateShortTimeOld())
         }
 
         @Test
@@ -167,6 +169,11 @@ class DateTimeUtilKtTest {
         @Test
         fun `given a valid Instant, when requesting a readReceiptDateTime, then the formatted result should be the same with DateTimeFormatter`() {
             assertEquals(baseInstant.uiReadReceiptDateTime(), baseInstant.uiReadReceiptDateTimeOld())
+        }
+
+        @Test
+        fun `given a valid Instant, when requesting a MediumOnlyDateTim, then the formatted result should be the same with DateTimeFormatter`() {
+            assertEquals(baseDate.toMediumOnlyDateTime(), baseDate.toMediumOnlyDateTimeOld())
         }
     }
 

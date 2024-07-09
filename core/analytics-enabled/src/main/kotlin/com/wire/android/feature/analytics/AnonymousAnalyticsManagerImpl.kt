@@ -34,6 +34,10 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     private var anonymousAnalyticsRecorder: AnonymousAnalyticsRecorder? = null
     private val startedActivities = mutableSetOf<Activity>()
 
+    init {
+        globalAnalyticsManager = this
+    }
+
     override fun init(
         context: Context,
         analyticsSettings: AnalyticsSettings,
@@ -42,7 +46,6 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
         dispatcher: CoroutineDispatcher
     ) {
         this.anonymousAnalyticsRecorder = anonymousAnalyticsRecorder
-        globalAnalyticsManager = this
 
         CoroutineScope(dispatcher).launch {
             isEnabledFlow

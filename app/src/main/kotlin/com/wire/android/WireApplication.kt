@@ -32,6 +32,8 @@ import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
+import com.wire.android.feature.analytics.globalAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
@@ -49,6 +51,7 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -145,12 +148,12 @@ class WireApplication : BaseApp() {
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
             override fun onActivityStarted(activity: Activity) {
-                AnonymousAnalyticsManagerImpl.onStart(activity)
+                globalAnalyticsManager.onStart(activity)
             }
             override fun onActivityResumed(activity: Activity) {}
             override fun onActivityPaused(activity: Activity) {}
             override fun onActivityStopped(activity: Activity) {
-                AnonymousAnalyticsManagerImpl.onStop(activity)
+                globalAnalyticsManager.onStop(activity)
             }
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
             override fun onActivityDestroyed(activity: Activity) {}
@@ -209,6 +212,16 @@ class WireApplication : BaseApp() {
             anonymousAnalyticsRecorder = anonymousAnalyticsRecorder,
             dispatcher = Dispatchers.IO
         )
+
+        // observe the app visibility state and send AppOpen event if the app goes from the background to the foreground
+        globalAppScope.launch {
+            currentScreenManager
+                .isAppVisibleFlow()
+                .filter { isVisible -> isVisible }
+                .collect {
+                    globalAnalyticsManager.sendEvent(AnalyticsEvent.AppOpen())
+                }
+        }
     }
 
     private fun logDeviceInformation() {

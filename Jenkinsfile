@@ -22,7 +22,7 @@ pipeline {
                     def commit_hash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
                     def pr_number = BRANCH_NAME.replaceAll(/\D/, '')
                     echo("Wait for github actions to start for ${BRANCH_NAME}")
-                    timeout(time: 30, unit: 'MINUTES') {
+                    timeout(time: 45, unit: 'MINUTES') {
                        waitUntil {
                            def output = sh label: 'Get runs', returnStdout: true, script: 'curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${CREDENTIALS}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/wireapp/wire-android/actions/workflows/98603098/runs'
                            def json = readJSON text: output
@@ -36,6 +36,7 @@ pipeline {
                                if (run['head_sha'] == commit_hash) {
                                    echo("Found " + commit_hash)
                                    echo("status: " + run['status'])
+                                   env.GITHUB_ACTION_URL = run['url'].replace('api.github.com/repos', 'github.com/')
                                    // status can be queued, in_progress, or completed
                                    if (run['status'] == 'queued' || run['status'] == 'in_progress' || run['status'] == 'completed') {
                                        return true
@@ -64,6 +65,7 @@ pipeline {
                                    } else if (run['conclusion'] == 'failure') {
                                        error("❌ **Build failed for branch '${BRANCH_NAME}'** See Github Actions: " + env.GITHUB_ACTION_URL)
                                    } else if (run['conclusion'] == 'cancelled') {
+                                       currentBuild.result = 'ABORTED'
                                        error("⚠️ **Build aborted for branch '${BRANCH_NAME}'** See Github Actions: " + env.GITHUB_ACTION_URL)
                                    }
                                }
@@ -75,7 +77,7 @@ pipeline {
                 }
             }
             post {
-                unsuccessful {
+                failure {
                     script {
                         wireSend(secret: env.WIRE_BOT_SECRET, message: "❌ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nBuild aborted or failed! See [Github Actions](" + env.GITHUB_ACTION_URL + ")")
                     }

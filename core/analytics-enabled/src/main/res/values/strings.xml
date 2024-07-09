@@ -16,5 +16,5 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="module_name">Enabled Analytics Module</string>
+    <string name="module_name" translatable="false">Enabled Analytics Module</string>
 </resources>

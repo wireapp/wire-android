@@ -37,7 +37,8 @@ private val serverDateTimeFormat =
     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).apply { timeZone = TimeZone.getTimeZone("UTC") }
 private val mediumDateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
 private val longDateShortTimeFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
-private val mediumOnlyDateTimeFormat = DateFormat.getDateInstance(DateFormat.MEDIUM).apply { timeZone = TimeZone.getDefault() }
+private val mediumOnlyDateTimeFormat = DateFormat.getDateInstance(DateFormat.MEDIUM)
+    .apply { timeZone = TimeZone.getDefault() }
 private val messageTimeFormatter = DateFormat.getTimeInstance(DateFormat.SHORT)
     .apply { timeZone = TimeZone.getDefault() }
 private const val ONE_MINUTE_FROM_MILLIS = 60 * 1000

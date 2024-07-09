@@ -17,11 +17,15 @@
  */
 package com.wire.android.util
 
+import android.util.Log
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import kotlinx.datetime.Clock
 import org.junit.Test
+import org.junit.runner.RunWith
 import kotlin.time.measureTime
 
+@RunWith(AndroidJUnit4::class)
 class DateTimeUtilTest {
 
     @Test
@@ -47,8 +51,8 @@ class DateTimeUtilTest {
             }
         }
 
-        println("The duration of using ServerDateOld/SimpleDateFormat was: $duration1")
-        println("The duration of using ServerDate/LocalDateTimeFormat was: $duration2")
+        Log.d("DateTimeParsersTest", "The duration of using ServerDateOld/SimpleDateFormat was: $duration1")
+        Log.d("DateTimeParsersTest", "The duration of using ServerDate/LocalDateTimeFormat was: $duration2")
     }
 
     @Test
@@ -74,8 +78,8 @@ class DateTimeUtilTest {
             }
         }
 
-        println("The duration of using TextApi/DateFormat was: $duration1")
-        println("The duration of using TimeApi/DateTimeFormatter was: $duration2")
+        Log.d("DateTimeParsersTest", "The duration of using TextApi/DateFormat was: $duration1")
+        Log.d("DateTimeParsersTest", "The duration of using TimeApi/DateTimeFormatter was: $duration2")
     }
 
     @Test
@@ -101,11 +105,11 @@ class DateTimeUtilTest {
             }
         }
 
-        println("The duration of using TextApi/DateFormat was: $duration1")
-        println("The duration of using TimeApi/DateTimeFormatter was: $duration2")
+        Log.d("DateTimeParsersTest", "The duration of using TextApi/DateFormat was: $duration1")
+        Log.d("DateTimeParsersTest", "The duration of using TimeApi/DateTimeFormatter was: $duration2")
     }
 
     companion object {
-        const val ITERATIONS = 500_000
+        const val ITERATIONS = 800_000
     }
 }

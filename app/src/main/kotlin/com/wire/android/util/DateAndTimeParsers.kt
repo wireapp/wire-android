@@ -19,6 +19,7 @@
 
 package com.wire.android.util
 
+import androidx.compose.runtime.Stable
 import com.wire.android.appLogger
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
@@ -31,14 +32,29 @@ import java.util.Date
 import java.util.Locale
 
 //region convenience ext functions, for retro compatibility
-fun String.deviceDateTimeFormat(): String? = DateAndTimeParsers.deviceDateTimeFormat(this)
 fun String.serverDate(): Date? = DateAndTimeParsers.serverDate(this)
+
+@Stable
+fun String.deviceDateTimeFormat(): String? = DateAndTimeParsers.deviceDateTimeFormat(this)
+
+@Stable
 fun String.formatMediumDateTime(): String? = DateAndTimeParsers.formatMediumDateTime(this)
+
+@Stable
 fun String.formatFullDateShortTime(): String? = DateAndTimeParsers.formatFullDateShortTime(this)
+
+@Stable
 fun Instant.fileDateTime(): String = DateAndTimeParsers.fileDateTime(this)
+
+@Stable
 fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDateTime(this)
+
+@Stable
 fun Date.toMediumOnlyDateTime(): String = DateAndTimeParsers.toMediumOnlyDateTime(this)
+
+@Stable
 fun String.uiMessageDateTime(): String? = DateAndTimeParsers.uiMessageDateTime(this)
+
 //endregion
 
 /**

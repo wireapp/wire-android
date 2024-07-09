@@ -57,13 +57,14 @@ pipeline {
                            for (run in runs) {
                                if (run['head_sha'] == commit_hash) {
                                    echo("conclusion: " + run['conclusion'])
+                                   env.GITHUB_ACTION_URL = run['url'].replace('api.github.com/repos', 'github.com/')
                                    // conclusion can be: success, failure, neutral, cancelled, skipped, timed_out, or action_required
                                    if (run['conclusion'] == 'success') {
                                        return true
                                    } else if (run['conclusion'] == 'failure') {
-                                       error("❌ **Build failed for branch '${GIT_BRANCH_WEBAPP}'** See [Github Actions](" + run['url'] + ")")
+                                       error("❌ **Build failed for branch '${BRANCH_NAME}'** See Github Actions: " + env.GITHUB_ACTION_URL)
                                    } else if (run['conclusion'] == 'cancelled') {
-                                       error("⚠️ **Build aborted for branch '${GIT_BRANCH_WEBAPP}'** See [Github Actions](" + run['url'] + ")")
+                                       error("⚠️ **Build aborted for branch '${BRANCH_NAME}'** See Github Actions: " + env.GITHUB_ACTION_URL)
                                    }
                                }
                            }
@@ -71,6 +72,13 @@ pipeline {
                            return false;
                        }
                    }
+                }
+            }
+            post {
+                unsuccessful {
+                    script {
+                        wireSend(secret: env.WIRE_BOT_SECRET, message: "❌ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nBuild aborted or failed! See [Github Actions](" + env.GITHUB_ACTION_URL + ")")
+                    }
                 }
             }
         }
@@ -94,6 +102,13 @@ pipeline {
                     }
                 }
             }
+            post {
+                unsuccessful {
+                    script {
+                        wireSend(secret: env.WIRE_BOT_SECRET, message: "❌ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Smoke tests failed (see above report)")
+                    }
+                }
+            }
         }
 
     }
@@ -102,15 +117,7 @@ pipeline {
         success {
             script {
                 if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
-                    wireSend(secret: env.WIRE_BOT_SECRET, message: "✅ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Smoke Tests [Details](${BUILD_URL})")
-                }
-            }
-        }
-
-        unsuccessful {
-            script {
-                if (env.BRANCH_NAME ==~ /PR-[0-9]+/) {
-                    wireSend(secret: env.WIRE_BOT_SECRET, message: "❌ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Smoke Tests failed! [Details](${BUILD_URL})")
+                    wireSend(secret: env.WIRE_BOT_SECRET, message: "✅ **$BRANCH_NAME**\n[$CHANGE_TITLE](${CHANGE_URL})\nQA-Jenkins - Smoke tests successful (see above report)")
                 }
             }
         }

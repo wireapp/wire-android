@@ -35,6 +35,7 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -65,7 +66,7 @@ class SendMessageViewModelTest {
             )
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
-                .withSuccessfulSendAttachmentMessage()
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(mockedAttachment))
                 .arrange()
 
@@ -102,7 +103,7 @@ class SendMessageViewModelTest {
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withStoredAsset(assetPath, assetContent)
-                .withSuccessfulSendAttachmentMessage()
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(mockedAttachment))
                 .arrange()
 
@@ -130,7 +131,7 @@ class SendMessageViewModelTest {
             // Given
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
-                .withSuccessfulSendAttachmentMessage()
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
                 .arrange()
             val mockedAttachment = null
 
@@ -166,7 +167,7 @@ class SendMessageViewModelTest {
             )
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
-                .withSuccessfulSendAttachmentMessage()
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.AssetTooLarge(mockedAttachment, 25))
                 .arrange()
             val mockedMessageBundle = ComposableMessageBundle.UriPickedBundle(
@@ -208,7 +209,7 @@ class SendMessageViewModelTest {
             )
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
-                .withSuccessfulSendAttachmentMessage()
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.AssetTooLarge(mockedAttachment, limit))
                 .arrange()
             val mockedMessageBundle = ComposableMessageBundle.UriPickedBundle(
@@ -241,7 +242,7 @@ class SendMessageViewModelTest {
             // Given
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
-                .withSuccessfulSendAttachmentMessage()
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.Unknown)
                 .arrange()
             val mockedMessageBundle = ComposableMessageBundle.UriPickedBundle(
@@ -303,7 +304,7 @@ class SendMessageViewModelTest {
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withStoredAsset(assetPath, assetContent)
-                .withSuccessfulSendAttachmentMessage()
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(mockedAttachment))
                 .arrange()
 
@@ -562,6 +563,90 @@ class SendMessageViewModelTest {
             // then
             coVerify(exactly = 1) { arrangement.sendLocation.invoke(any(), any(), any(), any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
+        }
+
+    @Test
+    fun `given mimeType is DisabledByTeam, when trying to send, then show message to user`() =
+        runTest {
+            // Given
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Failure.DisabledByTeam)
+                .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.Unknown)
+                .arrange()
+
+            val mockedAttachment = AssetBundle(
+                "key",
+                "application/pdf",
+                "some-data-path".toPath(),
+                1L,
+                "mocked_file.pdf",
+                AttachmentType.GENERIC_FILE
+            )
+
+            // When
+            viewModel.infoMessage.test {
+                viewModel.sendAttachment(mockedAttachment, conversationId)
+
+                // Then
+                coVerify(exactly = 1) {
+                    arrangement.sendAssetMessage.invoke(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any()
+                    )
+                }
+                assertEquals(ConversationSnackbarMessages.ErrorAssetRestriction, awaitItem())
+            }
+        }
+
+    @Test
+    fun `given mimeType is RestrictedFileType, when trying to send, then show message to user`() =
+        runTest {
+            val assetPath = "mocked-asset-data-path".toPath()
+            val assetContent = "some-dummy-audio".toByteArray()
+
+            val mockedAttachment = AssetBundle(
+                "key",
+                "application/pdf",
+                "some-data-path".toPath(),
+                1L,
+                "mocked_file.pdf",
+                AttachmentType.GENERIC_FILE
+            )
+
+            // Given
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withStoredAsset(assetPath, assetContent)
+                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(mockedAttachment))
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Failure.RestrictedFileType)
+                .arrange()
+
+            // When
+            viewModel.infoMessage.test {
+                viewModel.sendAttachment(mockedAttachment, conversationId)
+
+                // Then
+                coVerify(exactly = 1) {
+                    arrangement.sendAssetMessage.invoke(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any()
+                    )
+                }
+                assertEquals(ConversationSnackbarMessages.ErrorAssetRestriction, awaitItem())
+            }
         }
 
     companion object {

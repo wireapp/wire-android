@@ -338,18 +338,29 @@ class SendMessageViewModel @Inject constructor(
         }
     }
 
-    private fun Either<CoreFailure, Unit>.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) =
+    private fun Either<CoreFailure, Unit>.handleLegalHoldFailureAfterSendingMessage(
+        conversationId: ConversationId
+    ): Either<CoreFailure, Unit> =
         onFailure { it.handleLegalHoldFailureAfterSendingMessage(conversationId) }
 
-    private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) = let {
-        if (it is ScheduleNewAssetMessageResult.Failure) {
-            it.coreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId)
+    private fun ScheduleNewAssetMessageResult.handleLegalHoldFailureAfterSendingMessage(
+        conversationId: ConversationId
+    ): Either<CoreFailure?, Unit> =
+        let {
+            when (this) {
+                is ScheduleNewAssetMessageResult.Success -> Either.Right(Unit)
+                ScheduleNewAssetMessageResult.Failure.DisabledByTeam,
+                ScheduleNewAssetMessageResult.Failure.RestrictedFileType -> {
+                    onSnackbarMessage(ConversationSnackbarMessages.ErrorAssetRestriction)
+                    Either.Left(null)
+                }
+
+                is ScheduleNewAssetMessageResult.Failure.Generic -> {
+                    this.coreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId)
+                    Either.Left(coreFailure)
+                }
+            }
         }
-        when (this) {
-            is ScheduleNewAssetMessageResult.Failure -> Either.Left(coreFailure)
-            is ScheduleNewAssetMessageResult.Success -> Either.Right(Unit)
-        }
-    }
 
     fun retrySendingMessages(messageIdList: List<String>, conversationId: ConversationId) {
         messageIdList.forEach {
@@ -402,7 +413,6 @@ class SendMessageViewModel @Inject constructor(
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }
-
     private companion object {
         const val MAX_LIMIT_MESSAGE_SEND = 20
     }

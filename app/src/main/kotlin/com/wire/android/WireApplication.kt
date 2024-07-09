@@ -18,8 +18,10 @@
 
 package com.wire.android
 
+import android.app.Activity
 import android.content.ComponentCallbacks2
 import android.os.Build
+import android.os.Bundle
 import android.os.StrictMode
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
@@ -28,10 +30,10 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.util.CurrentScreenManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
 import com.wire.android.feature.analytics.model.AnalyticsSettings
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.getGitBuildId
@@ -46,8 +48,9 @@ import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -95,6 +98,8 @@ class WireApplication : BaseApp() {
 
         enableStrictMode()
 
+        startActivityLifecycleCallback()
+
         globalAppScope.launch {
             initializeApplicationLoggingFrameworks()
 
@@ -134,6 +139,22 @@ class WireApplication : BaseApp() {
         }
     }
 
+    private fun startActivityLifecycleCallback() {
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+            override fun onActivityStarted(activity: Activity) {
+                AnonymousAnalyticsManagerImpl.onStart(activity)
+            }
+            override fun onActivityResumed(activity: Activity) {}
+            override fun onActivityPaused(activity: Activity) {}
+            override fun onActivityStopped(activity: Activity) {
+                AnonymousAnalyticsManagerImpl.onStop(activity)
+            }
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+            override fun onActivityDestroyed(activity: Activity) {}
+        })
+    }
+
     private suspend fun initializeApplicationLoggingFrameworks() {
         // 1. Datadog should be initialized first
         ExternalLoggerManager.initDatadogLogger(applicationContext, globalDataStore.get())
@@ -159,7 +180,7 @@ class WireApplication : BaseApp() {
         initializeAnonymousAnalytics()
     }
 
-    private suspend fun initializeAnonymousAnalytics() {
+    private fun initializeAnonymousAnalytics() {
         if (!BuildConfig.ANALYTICS_ENABLED) return
 
         val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl()
@@ -169,19 +190,22 @@ class WireApplication : BaseApp() {
             enableDebugLogging = BuildConfig.DEBUG
         )
 
-        coreLogic.get().getGlobalScope().session.currentSessionFlow().collectLatest { sessionResult ->
-            if (sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid()) {
-                val userDataStore = userDataStoreProvider.get().getOrCreate(sessionResult.accountInfo.userId)
-
-                AnonymousAnalyticsManagerImpl.init(
-                    context = this,
-                    analyticsSettings = analyticsSettings,
-                    isEnabledFlowProvider = userDataStore::isAnonymousUsageDataEnabled,
-                    anonymousAnalyticsRecorder = anonymousAnalyticsRecorder,
-                    dispatcher = Dispatchers.IO
-                )
+        val isAnonymousUsageDataEnabledFlow = coreLogic.get().getGlobalScope().session.currentSessionFlow()
+            .flatMapLatest { sessionResult ->
+                if (sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid()) {
+                    userDataStoreProvider.get().getOrCreate(sessionResult.accountInfo.userId).isAnonymousUsageDataEnabled()
+                } else {
+                    flowOf(false)
+                }
             }
-        }
+
+        AnonymousAnalyticsManagerImpl.init(
+            context = this,
+            analyticsSettings = analyticsSettings,
+            isEnabledFlow = isAnonymousUsageDataEnabledFlow,
+            anonymousAnalyticsRecorder = anonymousAnalyticsRecorder,
+            dispatcher = Dispatchers.IO
+        )
     }
 
     private fun logDeviceInformation() {

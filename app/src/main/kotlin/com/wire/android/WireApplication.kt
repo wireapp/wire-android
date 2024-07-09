@@ -162,24 +162,26 @@ class WireApplication : BaseApp() {
     private suspend fun initializeAnonymousAnalytics() {
         if (!BuildConfig.ANALYTICS_ENABLED) return
 
-        val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl()
-        val analyticsSettings = AnalyticsSettings(
-            countlyAppKey = BuildConfig.ANALYTICS_APP_KEY,
-            countlyServerUrl = BuildConfig.ANALYTICS_SERVER_URL,
-            enableDebugLogging = BuildConfig.DEBUG
-        )
+        globalAppScope.launch {
+            val anonymousAnalyticsRecorder = AnonymousAnalyticsRecorderImpl()
+            val analyticsSettings = AnalyticsSettings(
+                countlyAppKey = BuildConfig.ANALYTICS_APP_KEY,
+                countlyServerUrl = BuildConfig.ANALYTICS_SERVER_URL,
+                enableDebugLogging = BuildConfig.DEBUG
+            )
 
-        coreLogic.get().getGlobalScope().session.currentSessionFlow().collectLatest { sessionResult ->
-            if (sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid()) {
-                val userDataStore = userDataStoreProvider.get().getOrCreate(sessionResult.accountInfo.userId)
+            coreLogic.get().getGlobalScope().session.currentSessionFlow().collectLatest { sessionResult ->
+                if (sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid()) {
+                    val userDataStore = userDataStoreProvider.get().getOrCreate(sessionResult.accountInfo.userId)
 
-                AnonymousAnalyticsManagerImpl.init(
-                    context = this,
-                    analyticsSettings = analyticsSettings,
-                    isEnabledFlowProvider = userDataStore::isAnonymousUsageDataEnabled,
-                    anonymousAnalyticsRecorder = anonymousAnalyticsRecorder,
-                    dispatcher = Dispatchers.IO
-                )
+                    AnonymousAnalyticsManagerImpl.init(
+                        context = this@WireApplication,
+                        analyticsSettings = analyticsSettings,
+                        isEnabledFlowProvider = userDataStore::isAnonymousUsageDataEnabled,
+                        anonymousAnalyticsRecorder = anonymousAnalyticsRecorder,
+                        dispatcher = Dispatchers.IO
+                    )
+                }
             }
         }
     }

@@ -59,7 +59,7 @@ class SelfDevicesViewModel @Inject constructor(
     private val observeUserE2eiCertificates = refreshE2eiCertificates.map { getUserE2eiCertificates(currentAccountId) }
 
     init {
-        fetchAndObserveClientList()
+        observeClientList()
         updateSlfClientsListFromRemote()
     }
 
@@ -69,7 +69,7 @@ class SelfDevicesViewModel @Inject constructor(
         }
     }
 
-    private fun fetchAndObserveClientList() {
+    private fun observeClientList() {
         viewModelScope.launch {
             observeClientList(currentAccountId)
                 .combine(observeUserE2eiCertificates, ::Pair)

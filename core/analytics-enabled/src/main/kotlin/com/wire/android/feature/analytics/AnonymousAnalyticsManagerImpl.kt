@@ -53,10 +53,12 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                                 context = context,
                                 analyticsSettings = analyticsSettings,
                             )
+                            // start recording for all Activities started before the feature was enabled
                             startedActivities.forEach { activity ->
                                 anonymousAnalyticsRecorder.onStart(activity = activity)
                             }
                         } else {
+                            // immediately disable event tracking
                             anonymousAnalyticsRecorder.halt()
                         }
                         isAnonymousUsageDataEnabled = enabled

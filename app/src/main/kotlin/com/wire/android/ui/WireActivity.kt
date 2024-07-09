@@ -87,6 +87,7 @@ import com.wire.android.ui.home.E2EICertificateRevokedDialog
 import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EIResultDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
+import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedDialog
@@ -354,7 +355,7 @@ class WireActivity : AppCompatActivity() {
                 }
                 if (showFileSharingDialog) {
                     FileRestrictionDialog(
-                        isFileSharingEnabled = isFileSharingEnabledState,
+                        isFileSharingEnabled = (isFileSharingState !is FeatureFlagState.FileSharingState.DisabledByTeam),
                         hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
                     )
                 }

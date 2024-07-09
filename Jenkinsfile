@@ -65,6 +65,7 @@ pipeline {
                                    } else if (run['conclusion'] == 'failure') {
                                        error("❌ **Build failed for branch '${BRANCH_NAME}'** See Github Actions: " + env.GITHUB_ACTION_URL)
                                    } else if (run['conclusion'] == 'cancelled') {
+                                       // mark step as aborted
                                        currentBuild.result = 'ABORTED'
                                        error("⚠️ **Build aborted for branch '${BRANCH_NAME}'** See Github Actions: " + env.GITHUB_ACTION_URL)
                                    }

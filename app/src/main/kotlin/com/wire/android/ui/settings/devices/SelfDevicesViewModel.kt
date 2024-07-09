@@ -60,11 +60,17 @@ class SelfDevicesViewModel @Inject constructor(
 
     init {
         fetchAndObserveClientList()
+        updateSlfClientsListFromRemote()
+    }
+
+    private fun updateSlfClientsListFromRemote() {
+        viewModelScope.launch {
+            fetchSelfClientsFromRemote()
+        }
     }
 
     private fun fetchAndObserveClientList() {
         viewModelScope.launch {
-            fetchSelfClientsFromRemote() // this will cause the list to be refreshed
             observeClientList(currentAccountId)
                 .combine(observeUserE2eiCertificates, ::Pair)
                 .collect { (result, e2eiCertificates) ->

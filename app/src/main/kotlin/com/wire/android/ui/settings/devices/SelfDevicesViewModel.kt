@@ -60,10 +60,10 @@ class SelfDevicesViewModel @Inject constructor(
 
     init {
         observeClientList()
-        updateSlfClientsListFromRemote()
+        updateSelfClientsListFromRemote()
     }
 
-    private fun updateSlfClientsListFromRemote() {
+    private fun updateSelfClientsListFromRemote() {
         viewModelScope.launch {
             fetchSelfClientsFromRemote()
         }

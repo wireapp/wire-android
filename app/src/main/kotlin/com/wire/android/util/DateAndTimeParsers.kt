@@ -32,6 +32,7 @@ import java.util.Date
 import java.util.Locale
 
 //region convenience ext functions, for retro compatibility
+@Stable
 fun String.serverDate(): Date? = DateAndTimeParsers.serverDate(this)
 
 @Stable

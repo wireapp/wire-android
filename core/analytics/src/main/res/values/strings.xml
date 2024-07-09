@@ -16,5 +16,5 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="module_name">Core Analytics Module</string>
+    <string name="module_name" translatable="false">Core Analytics Module</string>
 </resources>

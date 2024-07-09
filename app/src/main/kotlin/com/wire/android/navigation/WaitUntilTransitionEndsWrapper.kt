@@ -19,7 +19,6 @@ package com.wire.android.navigation
 
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -29,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import com.ramcosta.composedestinations.scope.AnimatedDestinationScope
 import com.ramcosta.composedestinations.scope.DestinationScope
 import com.ramcosta.composedestinations.wrapper.DestinationWrapper
@@ -47,7 +47,7 @@ object WaitUntilTransitionEndsWrapper : DestinationWrapper {
             if (!transitionComplete) {
                 Box(modifier = Modifier
                     .fillMaxSize()
-                    .clickable {
+                    .pointerInput(Unit) {
                         // empty, do nothing to prevent clicks
                     }
                 )

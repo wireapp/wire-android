@@ -48,6 +48,7 @@ import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -198,6 +199,7 @@ class WireApplication : BaseApp() {
                     flowOf(false)
                 }
             }
+            .distinctUntilChanged()
 
         AnonymousAnalyticsManagerImpl.init(
             context = this,

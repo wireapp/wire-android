@@ -18,7 +18,7 @@
 
 package com.wire.android.util
 
-import kotlinx.datetime.Clock
+import kotlinx.datetime.toKotlinInstant
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -155,9 +155,9 @@ class DateTimeUtilKtTest {
     @DisplayName("DateAndTimeParser for retro compatibility Should")
     inner class DateTimeFormatters {
 
-        private val baseDateString = "2024-01-20T07:00:00.000Z"
-        private val baseInstant = Clock.System.now()
-        private val baseDate = Date()
+        private val baseDateString = "2020-01-20T07:00:00.000Z"
+        private val baseDate = Date(Calendar.getInstance().apply { set(2020, 1, 20) }.timeInMillis)
+        private val baseInstant = baseDate.toInstant().toKotlinInstant()
 
         @Test
         fun `return the same serverDate format result, when calling with new LocalDateTime format`() {

@@ -59,7 +59,7 @@ class DateAndTimeParsers private constructor() {
         private val readReceiptDateTimeFormat =
             DateTimeFormatter.ofPattern("MMM dd yyyy,  hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
         private val mediumOnlyDateTimeFormat =
-            DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
+            DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.getDefault()).withZone(ZoneId.systemDefault())
         private val messageTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
 

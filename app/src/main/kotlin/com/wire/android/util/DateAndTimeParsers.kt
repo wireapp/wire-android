@@ -37,6 +37,7 @@ fun String.formatFullDateShortTime(): String? = DateAndTimeParsers.formatFullDat
 fun Instant.fileDateTime(): String = DateAndTimeParsers.fileDateTime(this)
 fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDateTime(this)
 fun Date.toMediumOnlyDateTime(): String = DateAndTimeParsers.toMediumOnlyDateTime(this)
+fun String.uiMessageDateTime(): String? = DateAndTimeParsers.uiMessageDateTime(this)
 
 /**
  * Date and time parsers between different formats and types.
@@ -57,6 +58,8 @@ class DateAndTimeParsers private constructor() {
             DateTimeFormatter.ofPattern("MMM dd yyyy,  hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
         private val mediumOnlyDateTimeFormat =
             DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
+        private val messageTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+            .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
 
         fun serverDate(stringDate: String): Date? {
             return try {
@@ -92,5 +95,10 @@ class DateAndTimeParsers private constructor() {
         fun uiReadReceiptDateTime(instant: Instant): String = readReceiptDateTimeFormat.format(instant.toJavaInstant())
 
         fun toMediumOnlyDateTime(date: Date): String = mediumOnlyDateTimeFormat.format(date.toInstant())
+
+        fun uiMessageDateTime(stringDate: String): String? = stringDate
+            .serverDate()?.let { serverDate ->
+                messageTimeFormatter.format(serverDate.toInstant())
+            }
     }
 }

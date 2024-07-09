@@ -193,6 +193,11 @@ class DateTimeUtilKtTest {
         fun `return the same MediumOnlyDateTime format result, when calling date with new DateTimeFormatter format`() {
             assertEquals(baseDate.toMediumOnlyDateTime(), baseDate.toMediumOnlyDateTimeOld())
         }
+
+        @Test
+        fun `return the same MessageDateTime format result, when calling date with new DateTimeFormatter format`() {
+            assertEquals(baseDateString.uiMessageDateTime(), baseDateString.uiMessageDateTimeOld())
+        }
     }
 
     companion object {

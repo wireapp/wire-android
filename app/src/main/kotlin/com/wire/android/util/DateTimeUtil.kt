@@ -190,7 +190,11 @@ sealed interface MessageDateTimeGroup {
     }
 }
 
-fun String.uiMessageDateTime(): String? = this
+@Deprecated(
+    message = "This implementation will be removed in the future as it uses discouraged/outdated SimpleDateFormat",
+    replaceWith = ReplaceWith("DateAndTimeParsers.uiMessageDateTime() or String.uiMessageDateTime()"),
+)
+fun String.uiMessageDateTimeOld(): String? = this
     .serverDate()?.let { serverDate ->
         messageTimeFormatter.format(serverDate)
     }
@@ -198,7 +202,7 @@ fun String.uiMessageDateTime(): String? = this
 fun String.shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean {
     val currentDate = this@shouldDisplayDatesDifferenceDivider
 
-    val currentLocalDateTime = currentDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
+    val currentLocalDateTime = currentDate.se   rverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
     val previousLocalDateTime = previousDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
 
     val differenceInMinutes = ChronoUnit.MINUTES.between(

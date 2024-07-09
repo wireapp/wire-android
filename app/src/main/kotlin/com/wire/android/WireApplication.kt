@@ -140,6 +140,7 @@ class WireApplication : BaseApp() {
         }
     }
 
+    @Suppress("EmptyFunctionBlock")
     private fun startActivityLifecycleCallback() {
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}

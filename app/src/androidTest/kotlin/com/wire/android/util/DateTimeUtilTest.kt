@@ -19,7 +19,6 @@ package com.wire.android.util
 
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import kotlinx.datetime.Clock
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.time.measureTime
 

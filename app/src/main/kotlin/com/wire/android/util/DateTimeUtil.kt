@@ -202,7 +202,7 @@ fun String.uiMessageDateTimeOld(): String? = this
 fun String.shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean {
     val currentDate = this@shouldDisplayDatesDifferenceDivider
 
-    val currentLocalDateTime = currentDate.se   rverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
+    val currentLocalDateTime = currentDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
     val previousLocalDateTime = previousDate.serverDate()?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
 
     val differenceInMinutes = ChronoUnit.MINUTES.between(

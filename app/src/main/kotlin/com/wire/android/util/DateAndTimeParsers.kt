@@ -31,31 +31,38 @@ import java.time.format.FormatStyle
 import java.util.Date
 import java.util.Locale
 
-//region convenience ext functions, for retro compatibility
+//region convenience ext functions, for retro compatibility, soon to be deprecated
+@Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
 @Stable
 fun String.serverDate(): Date? = DateAndTimeParsers.serverDate(this)
 
+@Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
 @Stable
 fun String.deviceDateTimeFormat(): String? = DateAndTimeParsers.deviceDateTimeFormat(this)
 
+@Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
 @Stable
 fun String.formatMediumDateTime(): String? = DateAndTimeParsers.formatMediumDateTime(this)
 
+@Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
 @Stable
 fun String.formatFullDateShortTime(): String? = DateAndTimeParsers.formatFullDateShortTime(this)
 
+@Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
+@Stable
+fun Date.toMediumOnlyDateTime(): String = DateAndTimeParsers.toMediumOnlyDateTime(this)
+
+@Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
+@Stable
+fun String.uiMessageDateTime(): String? = DateAndTimeParsers.uiMessageDateTime(this)
+//endregion
+
+//region convenience ext functions
 @Stable
 fun Instant.fileDateTime(): String = DateAndTimeParsers.fileDateTime(this)
 
 @Stable
 fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDateTime(this)
-
-@Stable
-fun Date.toMediumOnlyDateTime(): String = DateAndTimeParsers.toMediumOnlyDateTime(this)
-
-@Stable
-fun String.uiMessageDateTime(): String? = DateAndTimeParsers.uiMessageDateTime(this)
-
 //endregion
 
 /**

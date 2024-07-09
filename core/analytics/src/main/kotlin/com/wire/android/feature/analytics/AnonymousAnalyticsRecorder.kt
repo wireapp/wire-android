@@ -33,4 +33,6 @@ interface AnonymousAnalyticsRecorder {
     fun onStop()
 
     fun sendEvent(event: AnalyticsEvent)
+
+    fun halt()
 }

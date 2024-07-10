@@ -40,8 +40,10 @@ object WaitUntilTransitionEndsWrapper : DestinationWrapper {
     override fun <T> DestinationScope<T>.Wrap(screenContent: @Composable () -> Unit) {
         (this as? AnimatedDestinationScope<T>)?.let {
             var transitionComplete by remember { mutableStateOf(false) }
-            LaunchedEffect(transition.isRunning, transition.currentState) {
-                transitionComplete = !transition.isRunning && transition.currentState == EnterExitState.Visible
+            LaunchedEffect(transition.isRunning, transition.currentState, transition.targetState) {
+                with(transition) {
+                    transitionComplete = !isRunning && currentState == targetState && currentState == EnterExitState.Visible
+                }
             }
             screenContent()
             if (!transitionComplete) {

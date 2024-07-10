@@ -37,6 +37,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
+import com.wire.kalium.logic.feature.message.SendCallEmojiUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -57,6 +58,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     private val establishedCalls: ObserveEstablishedCallsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val setVideoSendState: SetVideoSendStateUseCase,
+    private val sendCallEmoji: SendCallEmojiUseCase
 ) : ViewModel() {
 
     var shouldShowDoubleTapToast: Boolean by mutableStateOf(false)
@@ -178,6 +180,12 @@ class OngoingCallViewModel @AssistedInject constructor(
         shouldShowDoubleTapToast = false
         viewModelScope.launch {
             globalDataStore.setShouldShowDoubleTapToastStatus(currentUserId.toString(), false)
+        }
+    }
+
+    fun sendEmoji(emoji: String) {
+        viewModelScope.launch {
+            sendCallEmoji(conversationId, listOf(emoji))
         }
     }
 

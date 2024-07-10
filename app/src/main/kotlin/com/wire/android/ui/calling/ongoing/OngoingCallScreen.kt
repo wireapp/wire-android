@@ -155,7 +155,8 @@ fun OngoingCallScreen(
                         description = R.string.camera_permission_dialog_description
                     )
                 )
-            }
+            },
+            onEmojiClicked = ongoingCallViewModel::sendEmoji
         )
         BackHandler {
             activity.moveTaskToBack(true)
@@ -242,6 +243,7 @@ private fun OngoingCallContent(
     clearVideoPreview: () -> Unit,
     onCollapse: () -> Unit,
     hideDoubleTapToast: () -> Unit,
+    onEmojiClicked: (String) -> Unit,
     onCameraPermissionPermanentlyDenied: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
@@ -291,21 +293,23 @@ private fun OngoingCallContent(
                     ) {
                         EmojiButton(
                             modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-                            emoji = "😆"
+                            emoji = "😆",
+                            onButtonClicked = { onEmojiClicked("😆") }
                         )
                         EmojiButton(
                             modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-
-                            emoji = "😆"
+                            emoji = "😆",
+                            onButtonClicked = { onEmojiClicked("😆") }
                         )
                         EmojiButton(
                             modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-
-                            emoji = "😆"
+                            emoji = "😆",
+                            onButtonClicked = { onEmojiClicked("😆") }
                         )
                         EmojiButton(
                             modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-                            emoji = "😆"
+                            emoji = "😆",
+                            onButtonClicked = { onEmojiClicked("😆") }
                         )
                     }
                 }
@@ -329,7 +333,7 @@ private fun OngoingCallContent(
             modifier = Modifier
                 .padding(
                     top = it.calculateTopPadding(),
-                    bottom = dimensions().defaultSheetPeekHeight
+                    bottom = dimensions().defaultSheetPeekHeight * 2
                 )
         ) {
 
@@ -534,6 +538,7 @@ fun PreviewOngoingCallScreen() = WireTheme {
         hideDoubleTapToast = {},
         onCameraPermissionPermanentlyDenied = {},
         requestVideoStreams = {},
+        onEmojiClicked = {}
     )
 }
 

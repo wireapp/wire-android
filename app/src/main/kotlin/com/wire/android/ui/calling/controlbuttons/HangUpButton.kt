@@ -45,6 +45,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WirePrimaryIconButton
 import com.wire.android.ui.common.button.wirePrimaryButtonColors
+import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -73,15 +74,15 @@ fun HangUpButton(
 @Composable
 fun EmojiButton(
     emoji: String,
+    onButtonClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    onButtonClicked: () -> Unit = { },
     loading: Boolean = false,
     shape: Shape = CircleShape,
     minSize: DpSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
     minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
     iconSize: Dp = dimensions().defaultCallingControlsIconSize,
     state: WireButtonState = WireButtonState.Default,
-    colors: WireButtonColors = wirePrimaryButtonColors(),
+    colors: WireButtonColors = wireSecondaryButtonColors(),
     clickBlockParams: ClickBlockParams = ClickBlockParams()
 ) {
     WirePrimaryButton(

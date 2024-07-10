@@ -39,6 +39,7 @@ import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
+import com.wire.kalium.logic.feature.message.SendCallEmojiUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendLocationUseCase
@@ -216,4 +217,9 @@ class MessageModule {
     @Provides
     fun provideRemoveMessageDraftUseCase(messageScope: MessageScope): RemoveMessageDraftUseCase =
         messageScope.removeMessageDraftUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideSendCallEmojiMessageUseCase(messageScope: MessageScope): SendCallEmojiUseCase =
+        messageScope.sendCallEmoji
 }

@@ -18,7 +18,8 @@
 package com.wire.android.ui.calling.ongoing
 
 data class OngoingCallState(
-    val flowState: FlowState = FlowState.Default
+    val flowState: FlowState = FlowState.Default,
+    val emoji: String = ""
 ) {
     sealed interface FlowState {
         object Default : FlowState

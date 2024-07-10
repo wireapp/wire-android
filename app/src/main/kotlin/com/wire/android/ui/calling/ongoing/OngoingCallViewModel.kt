@@ -30,6 +30,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallClient
+import com.wire.kalium.logic.data.call.CallingEmojis
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -57,6 +58,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val setVideoSendState: SetVideoSendStateUseCase,
 ) : ViewModel() {
+
     var shouldShowDoubleTapToast: Boolean by mutableStateOf(false)
         private set
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null
@@ -65,6 +67,14 @@ class OngoingCallViewModel @AssistedInject constructor(
         private set
 
     init {
+        viewModelScope.launch {
+            CallingEmojis.emojisFlow.collect {
+                appLogger.d("Emojis: view model $it")
+                state = state.copy(
+                    emoji = "${it.first.value} ${it.second.joinToString()}"
+                )
+            }
+        }
         viewModelScope.launch {
             establishedCalls().first { it.isNotEmpty() }.run {
                 initCameraState(this)

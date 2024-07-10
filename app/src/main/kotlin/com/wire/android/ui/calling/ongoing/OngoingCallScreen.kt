@@ -19,6 +19,7 @@
 package com.wire.android.ui.calling.ongoing
 
 import android.view.View
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -105,8 +106,11 @@ fun OngoingCallScreen(
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
-
     val activity = LocalActivity.current
+
+    LaunchedEffect(key1 = ongoingCallViewModel.state.emoji) {
+        Toast.makeText(activity, ongoingCallViewModel.state.emoji, Toast.LENGTH_SHORT).show()
+    }
 
     LaunchedEffect(ongoingCallViewModel.state.flowState) {
         when (ongoingCallViewModel.state.flowState) {

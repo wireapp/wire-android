@@ -18,17 +18,33 @@
 
 package com.wire.android.ui.calling.controlbuttons
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
+import com.wire.android.ui.common.button.IconAlignment
+import com.wire.android.ui.common.button.WireButtonColors
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WirePrimaryIconButton
+import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -54,6 +70,41 @@ fun HangUpButton(
     )
 }
 
+@Composable
+fun EmojiButton(
+    emoji: String,
+    modifier: Modifier = Modifier,
+    onButtonClicked: () -> Unit = { },
+    loading: Boolean = false,
+    shape: Shape = CircleShape,
+    minSize: DpSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
+    minClickableSize: DpSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+    iconSize: Dp = dimensions().defaultCallingControlsIconSize,
+    state: WireButtonState = WireButtonState.Default,
+    colors: WireButtonColors = wirePrimaryButtonColors(),
+    clickBlockParams: ClickBlockParams = ClickBlockParams()
+) {
+    WirePrimaryButton(
+        onClick = onButtonClicked,
+        loading = loading,
+        trailingIcon = {
+            Text(
+                emoji,
+                modifier = Modifier.size(iconSize)
+            )
+        },
+        shape = shape,
+        minSize = minSize,
+        minClickableSize = minClickableSize,
+        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
+        trailingIconAlignment = IconAlignment.Center,
+        state = state,
+        colors = colors,
+        clickBlockParams = clickBlockParams,
+        fillMaxWidth = false,
+        modifier = modifier
+    )
+}
 @PreviewMultipleThemes
 @Composable
 fun PreviewComposableHangUpButton() = WireTheme {

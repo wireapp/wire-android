@@ -64,6 +64,7 @@ import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CameraButton
 import com.wire.android.ui.calling.controlbuttons.CameraFlipButton
+import com.wire.android.ui.calling.controlbuttons.EmojiButton
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.calling.controlbuttons.MicrophoneButton
 import com.wire.android.ui.calling.controlbuttons.SpeakerButton
@@ -273,22 +274,55 @@ private fun OngoingCallContent(
                 proteusVerificationStatus = proteusVerificationStatus
             )
         },
-        sheetPeekHeight = dimensions().defaultSheetPeekHeight,
+        sheetPeekHeight = dimensions().defaultSheetPeekHeight * 2,
         scaffoldState = scaffoldState,
         sheetContent = {
-            CallingControls(
-                conversationId = conversationId,
-                isMuted = isMuted,
-                isCameraOn = isCameraOn,
-                isOnFrontCamera = isOnFrontCamera,
-                isSpeakerOn = isSpeakerOn,
-                toggleSpeaker = toggleSpeaker,
-                toggleMute = toggleMute,
-                onHangUpCall = hangUpCall,
-                onToggleVideo = toggleVideo,
-                flipCamera = flipCamera,
-                onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied
-            )
+            Column {
+                Column(
+                    modifier = Modifier.height(dimensions().defaultSheetPeekHeight)
+                ) {
+                    Spacer(modifier = Modifier.weight(1F))
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(dimensions().spacing56x)
+                    ) {
+                        EmojiButton(
+                            modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
+                            emoji = "😆"
+                        )
+                        EmojiButton(
+                            modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
+
+                            emoji = "😆"
+                        )
+                        EmojiButton(
+                            modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
+
+                            emoji = "😆"
+                        )
+                        EmojiButton(
+                            modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
+                            emoji = "😆"
+                        )
+                    }
+                }
+                CallingControls(
+                    conversationId = conversationId,
+                    isMuted = isMuted,
+                    isCameraOn = isCameraOn,
+                    isOnFrontCamera = isOnFrontCamera,
+                    isSpeakerOn = isSpeakerOn,
+                    toggleSpeaker = toggleSpeaker,
+                    toggleMute = toggleMute,
+                    onHangUpCall = hangUpCall,
+                    onToggleVideo = toggleVideo,
+                    flipCamera = flipCamera,
+                    onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied
+                )
+            }
         },
     ) {
         BoxWithConstraints(

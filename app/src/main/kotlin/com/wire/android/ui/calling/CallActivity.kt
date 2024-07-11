@@ -28,6 +28,7 @@ import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Surface
@@ -105,17 +106,17 @@ class CallActivity : AppCompatActivity() {
     private var mMediaProjectionManager: MediaProjectionManager? = null
     var mSurfaceView: SurfaceView? = null
 
-    private val activityReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            appLogger.d("$TAG -> received on receiver??")
-             setUpMediaProjection()
-             setUpVirtualDisplay()
-        }
-    }
-
     @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val activityReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                appLogger.d("$TAG -> received on receiver??")
+                setUpMediaProjection()
+                setUpVirtualDisplay()
+            }
+        }
 
         //Create an intent filter to listen to the broadcast sent with the action "ACTION_STRING_ACTIVITY"
         val intentFilter = IntentFilter(BROADCAST_ACTION_START_SCREENSHARING)
@@ -143,7 +144,7 @@ class CallActivity : AppCompatActivity() {
         mMediaProjectionManager =
             getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         setUpCallingFlags()
-//        setUpScreenShootPreventionFlag()
+        setUpScreenShootPreventionFlag()
 
         appLogger.i("$TAG Initializing proximity sensor..")
         proximitySensorManager.initialize()
@@ -210,10 +211,7 @@ class CallActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d(
-            "MainActivity",
-            "onActivityResult: requestCode=$requestCode, resultCode=$resultCode, data:$data"
-        )
+        Log.d(TAG, "onActivityResult: requestCode=$requestCode, resultCode=$resultCode, data:$data")
 //        if (requestCode == MainActivity.REQUEST_CODE) {
 //            if (resultCode == RESULT_OK) {
 //                startService(getStartIntent(this, resultCode, data))
@@ -225,18 +223,19 @@ class CallActivity : AppCompatActivity() {
             startService(getStartIntent(this, resultCode, data))
         }
 
-        Log.d(
-            "MainActivity",
-            "onActivityResult: at the end now???"
-        )
+        Log.d(TAG,"onActivityResult: at the end now???")
+        setUpMediaProjection()
+        setUpVirtualDisplay()
     }
 
     private fun setUpMediaProjection() {
-        mMediaProjection =
-            mResultData?.let {
-                Log.d("MainActivity", "setUpMediaProjection: setting the media projection from manager")
-                mMediaProjectionManager!!.getMediaProjection(mResultCode, it)
-            }
+        Handler().postDelayed({
+            mMediaProjection =
+                mResultData?.let {
+                    Log.d(TAG, "setUpMediaProjection: setting the media projection from manager")
+                    mMediaProjectionManager!!.getMediaProjection(mResultCode, it)
+                }
+         }, 1000)
     }
 
 
@@ -250,14 +249,18 @@ class CallActivity : AppCompatActivity() {
     fun startScreenCapture() {
         Log.d(TAG, "startScreenCapture: ")
         if (mSurface == null) {
+            Log.d(TAG, "mSurface is NULL")
             return
         }
         if (mMediaProjection != null) {
+            Log.d(TAG, "mMediaProjection is NOT NULL")
             setUpVirtualDisplay()
         } else if (mResultCode != 0 && mResultData != null) {
+            Log.d(TAG, "mResultCode and mResultData is NOT NULL")
             setUpMediaProjection()
             setUpVirtualDisplay()
         } else {
+            Log.d(TAG, "drop on ELSE")
             Log.i(TAG, "Requesting confirmation")
             // This initiates a prompt dialog for the user to confirm screen projection.
             mMediaProjectionManager?.let {
@@ -273,52 +276,53 @@ class CallActivity : AppCompatActivity() {
     }
 
     private fun setUpVirtualDisplay() {
-        Log.d(TAG, "setUpVirtualDisplay: ")
-        mMediaProjection?.registerCallback(
-            object : MediaProjection.Callback() {
-                override fun onStop() {
+        Handler().postDelayed({
+            Log.d(TAG, "setUpVirtualDisplay: ")
+            mMediaProjection?.registerCallback(
+                object : MediaProjection.Callback() {
+                    override fun onStop() {
+                    }
+
+                    override fun onCapturedContentResize(width: Int, height: Int) {
+                        super.onCapturedContentResize(width, height)
+                    }
+
+                    override fun onCapturedContentVisibilityChanged(isVisible: Boolean) {
+                        super.onCapturedContentVisibilityChanged(isVisible)
+                    }
+                },
+                null,
+            )
+            mMediaProjection?.let { mmp ->
+                val width = mSurfaceView?.width ?: 600
+                val height = mSurfaceView?.height ?: 600
+                Log.d(TAG, "setUpVirtualDisplay: MMP -> width: $width | height: $height")
+
+                val metrics = DisplayMetrics()
+                windowManager.defaultDisplay.getMetrics(metrics)
+
+                mSurfaceView?.let {
+                    Log.d(TAG, "setUpVirtualDisplay: createVirtualDisplay ")
+                    mVirtualDisplay = mmp.createVirtualDisplay(
+                        "ScreenCapture2",
+                        width, height, metrics.densityDpi,
+                        DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                        mSurface,
+                        object : VirtualDisplay.Callback() {
+                        }, null
+                    )
                 }
 
-                override fun onCapturedContentResize(width: Int, height: Int) {
-                    super.onCapturedContentResize(width, height)
-                }
 
-                override fun onCapturedContentVisibilityChanged(isVisible: Boolean) {
-                    super.onCapturedContentVisibilityChanged(isVisible)
-                }
-            },
-            null,
-        )
-        mMediaProjection?.let { mmp ->
-            val width = mSurfaceView?.width ?: 600
-            val height = mSurfaceView?.height ?: 600
-            Log.d(TAG, "setUpVirtualDisplay: MMP -> width: $width | height: $height")
-
-            val metrics = DisplayMetrics()
-            windowManager.defaultDisplay.getMetrics(metrics)
-
-            mSurfaceView?.let {
-                Log.d(TAG, "setUpVirtualDisplay: createVirtualDisplay ")
-                mVirtualDisplay = mmp.createVirtualDisplay(
-                    "ScreenCapture2",
-                    width, height, metrics.densityDpi,
-                    DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                    mSurface,
-                    object : VirtualDisplay.Callback() {
-                    }, null
-                )
+                // val pPlatformView = PlatformView(mSurfaceView)
+                // coreLogic.getSessionScope(userId!!).calls.setVideoPreview(ConversationId("", ""), PlatformView(mVirtualDisplay?.surface!!))
             }
-
-
-            // val pPlatformView = PlatformView(mSurfaceView)
-            // coreLogic.getSessionScope(userId!!).calls.setVideoPreview(ConversationId("", ""), PlatformView(mVirtualDisplay?.surface!!))
-        }
-
+        }, 1000)
     }
 
     override fun onDestroy() {
         stopScreenCapture()
-        unregisterReceiver(activityReceiver)
+        // unregisterReceiver(activityReceiver)
         super.onDestroy()
     }
 

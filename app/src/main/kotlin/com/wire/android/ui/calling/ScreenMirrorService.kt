@@ -121,7 +121,7 @@ class ScreenMirrorService : Service() {
         mImageReaderHandlerThread?.start()
         handler = Handler(mImageReaderHandlerThread!!.looper)
         orientationEventListener.enable()
-        doMirror()
+        // doMirror()
 
         return START_NOT_STICKY
     }
@@ -227,15 +227,15 @@ class ScreenMirrorService : Service() {
             },
             null,
         )
-        mVirtualDisplay =
-            mMediaProjection?.createVirtualDisplay(
-                "ScreenMirroringService", width, height, mScreenDensity,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY or DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
-                if (isPortrait) mImageReaderPortrait!!.surface else mImageReaderLandscape!!.surface,
-                object : VirtualDisplay.Callback() {
-                },
-                null,
-            )
+//        mVirtualDisplay =
+//            mMediaProjection?.createVirtualDisplay(
+//                "ScreenMirroringService", width, height, mScreenDensity,
+//                DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY or DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
+//                if (isPortrait) mImageReaderPortrait!!.surface else mImageReaderLandscape!!.surface,
+//                object : VirtualDisplay.Callback() {
+//                },
+//                null,
+//            )
 
         GlobalScope.launch {
             val result = currentSession()

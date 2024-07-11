@@ -26,6 +26,7 @@ import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Surface
 import android.view.SurfaceView
@@ -55,10 +56,13 @@ import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.log
+
 
 fun startProjection(context: Context) {
     val mProjectionManager =
@@ -202,13 +206,25 @@ class CallActivity : AppCompatActivity() {
 //                startService(getStartIntent(this, resultCode, data))
 //            }
 //        }
+        mResultCode = resultCode
+        mResultData = data
+        if (requestCode == 100 && resultCode == -1) {
+            startService(getStartIntent(this, resultCode, data))
+        }
         setUpMediaProjection()
         setUpVirtualDisplay()
+        Log.d(
+            "MainActivity",
+            "onActivityResult: at the end now???"
+        )
     }
 
     private fun setUpMediaProjection() {
         mMediaProjection =
-            mResultData?.let { mMediaProjectionManager!!.getMediaProjection(mResultCode, it) }
+            mResultData?.let {
+                Log.d("MainActivity", "setUpMediaProjection: setting the media projection from manager")
+                mMediaProjectionManager!!.getMediaProjection(mResultCode, it)
+            }
     }
 
 
@@ -246,15 +262,51 @@ class CallActivity : AppCompatActivity() {
 
     private fun setUpVirtualDisplay() {
         Log.d(TAG, "setUpVirtualDisplay: ")
-        mSurfaceView?.let {
-            Log.d(TAG, "setUpVirtualDisplay: createVirtualDisplay ")
-            mVirtualDisplay = mMediaProjection?.createVirtualDisplay(
-                "ScreenCapture",
-                300, 300, 200,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                mSurface, null, null
-            )
+        mMediaProjection?.registerCallback(
+            object : MediaProjection.Callback() {
+                override fun onStop() {
+                }
+
+                override fun onCapturedContentResize(width: Int, height: Int) {
+                    super.onCapturedContentResize(width, height)
+                }
+
+                override fun onCapturedContentVisibilityChanged(isVisible: Boolean) {
+                    super.onCapturedContentVisibilityChanged(isVisible)
+                }
+            },
+            null,
+        )
+        mMediaProjection?.let { mmp ->
+            val width = mSurfaceView?.width ?: 600
+            val height = mSurfaceView?.height ?: 600
+            Log.d(TAG, "setUpVirtualDisplay: MMP -> width: $width | height: $height")
+
+            val metrics = DisplayMetrics()
+            windowManager.defaultDisplay.getMetrics(metrics)
+
+            mSurfaceView?.let {
+                Log.d(TAG, "setUpVirtualDisplay: createVirtualDisplay ")
+                mVirtualDisplay = mmp.createVirtualDisplay(
+                    "ScreenCapture2",
+                    width, height, metrics.densityDpi,
+                    DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                    mSurface,
+                    object : VirtualDisplay.Callback() {
+                    }, null
+                )
+            }
+
+
+            // val pPlatformView = PlatformView(mSurfaceView)
+            // coreLogic.getSessionScope(userId!!).calls.setVideoPreview(ConversationId("", ""), PlatformView(mVirtualDisplay?.surface!!))
         }
+
+    }
+
+    override fun onDestroy() {
+        stopScreenCapture()
+        super.onDestroy()
     }
 
     private fun stopScreenCapture() {

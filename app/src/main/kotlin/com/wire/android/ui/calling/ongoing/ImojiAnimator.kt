@@ -20,6 +20,7 @@ package com.wire.android.ui.calling.ongoing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -36,7 +37,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -47,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 @Composable
@@ -69,7 +75,7 @@ fun EmojiFlowAnimator(name: String, emoji: String) {
         emojis.forEach { animatedEmoji ->
             EmojiAnimator(
                 emoji = animatedEmoji.emoji,
-                name = name,
+                name = animatedEmoji.name,
                 startX = animatedEmoji.startX,
                 screenHeightPx = maxHeightPx
             )
@@ -90,28 +96,30 @@ fun EmojiAnimator(
     startX: Float,
     screenHeightPx: Float
 ) {
-    val infiniteTransition = rememberInfiniteTransition()
-    val translateY by infiniteTransition.animateFloat(
-        initialValue = screenHeightPx,
-        targetValue = -100f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 5000,
-                easing = LinearEasing
-            ),
-            repeatMode = RepeatMode.Restart
-        )
-    )
+    val translateY = remember { androidx.compose.animation.core.Animatable(screenHeightPx) }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            translateY.animateTo(
+                targetValue = -100f,
+                animationSpec = tween(
+                    durationMillis = 5000,
+                    easing = LinearEasing
+                )
+            )
+        }
+    }
 
     Box(modifier = Modifier
         .graphicsLayer {
-            translationY = translateY
+            translationY = translateY.value
             translationX = startX
         }
         .padding(4.dp)
     ) {
         Column(
-            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = emoji,
@@ -121,7 +129,8 @@ fun EmojiAnimator(
             )
             Text(
                 text = name,
-                style = MaterialTheme.wireTypography.label01,
+                fontSize = 14.sp,
+                fontFamily = FontFamily.Serif,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .background(

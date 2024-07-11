@@ -293,23 +293,23 @@ private fun OngoingCallContent(
                     ) {
                         EmojiButton(
                             modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-                            emoji = "😆",
-                            onButtonClicked = { onEmojiClicked("😆") }
+                            emoji = "👍",
+                            onButtonClicked = { onEmojiClicked("👍") }
                         )
                         EmojiButton(
                             modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-                            emoji = "😆",
-                            onButtonClicked = { onEmojiClicked("😆") }
+                            emoji = "🎉",
+                            onButtonClicked = { onEmojiClicked("🎉") }
                         )
                         EmojiButton(
                             modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-                            emoji = "😆",
-                            onButtonClicked = { onEmojiClicked("😆") }
+                            emoji = "❤️",
+                            onButtonClicked = { onEmojiClicked("❤️") }
                         )
                         EmojiButton(
                             modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-                            emoji = "😆",
-                            onButtonClicked = { onEmojiClicked("😆") }
+                            emoji = "👎",
+                            onButtonClicked = { onEmojiClicked("👎") }
                         )
                     }
                 }

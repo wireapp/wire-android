@@ -73,7 +73,7 @@ class OngoingCallViewModel @AssistedInject constructor(
             CallingEmojis.emojisFlow.collect {
                 appLogger.d("Emojis: view model $it")
                 state = state.copy(
-                    emoji = "${it.first.value} ${it.second.joinToString()}"
+                    emoji = it
                 )
             }
         }

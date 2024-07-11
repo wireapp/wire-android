@@ -19,7 +19,6 @@
 package com.wire.android.ui.calling.ongoing
 
 import android.view.View
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,6 +41,7 @@ import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,11 +53,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.ConversationName
@@ -109,72 +111,92 @@ fun OngoingCallScreen(
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val activity = LocalActivity.current
 
-    LaunchedEffect(key1 = ongoingCallViewModel.state.emoji) {
-        Toast.makeText(activity, ongoingCallViewModel.state.emoji, Toast.LENGTH_SHORT).show()
-    }
-
-    LaunchedEffect(ongoingCallViewModel.state.flowState) {
-        when (ongoingCallViewModel.state.flowState) {
-            OngoingCallState.FlowState.CallClosed -> {
-                activity.finishAndRemoveTask()
-            }
-
-            OngoingCallState.FlowState.Default -> { /* do nothing */
-            }
-        }
-    }
-
-    with(sharedCallingViewModel.callState) {
-        OngoingCallContent(
-            conversationId = conversationId,
-            conversationName = conversationName,
-            participants = participants,
-            isMuted = isMuted ?: true,
-            isCameraOn = isCameraOn,
-            isSpeakerOn = isSpeakerOn,
-            isCbrEnabled = isCbrEnabled,
-            isOnFrontCamera = isOnFrontCamera,
-            protocolInfo = protocolInfo,
-            mlsVerificationStatus = mlsVerificationStatus,
-            proteusVerificationStatus = proteusVerificationStatus,
-            shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
-            toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
-            toggleMute = sharedCallingViewModel::toggleMute,
-            hangUpCall = { sharedCallingViewModel.hangUpCall { activity.finishAndRemoveTask() } },
-            toggleVideo = sharedCallingViewModel::toggleVideo,
-            flipCamera = sharedCallingViewModel::flipCamera,
-            setVideoPreview = sharedCallingViewModel::setVideoPreview,
-            clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
-            onCollapse = { activity.moveTaskToBack(true) },
-            requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
-            hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
-            onCameraPermissionPermanentlyDenied = {
-                permissionPermanentlyDeniedDialogState.show(
-                    PermissionPermanentlyDeniedDialogState.Visible(
-                        title = R.string.app_permission_dialog_title,
-                        description = R.string.camera_permission_dialog_description
-                    )
-                )
-            },
-            onEmojiClicked = ongoingCallViewModel::sendEmoji
+    val emojiWithName = if (ongoingCallViewModel.state.emoji == null) {
+        null
+    } else {
+        appLogger.d(
+            "Emoji received: ${ongoingCallViewModel.state.emoji} " +
+                    "${sharedCallingViewModel.callState.participants}"
         )
-        BackHandler {
-            activity.moveTaskToBack(true)
-        }
+
+        val name = sharedCallingViewModel.callState.participants.find {
+            it.id.value == ongoingCallViewModel.state.emoji!!.first.value
+        }?.name ?: "Unknown"
+
+        name to ongoingCallViewModel.state.emoji!!.second
     }
 
-    PermissionPermanentlyDeniedDialog(
-        dialogState = permissionPermanentlyDeniedDialogState,
-        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
-    )
+if(emojiWithName != null) {
+    Box(modifier = Modifier.zIndex(1f)) {
+        EmojiFlowAnimator(
+            name = emojiWithName!!.first,
+            emoji = emojiWithName!!.second.joinToString(),
+        )
+    }
+}
 
-    HandleSendingVideoFeed(
-        callState = sharedCallingViewModel.callState,
-        pauseSendingVideoFeed = ongoingCallViewModel::pauseSendingVideoFeed,
-        startSendingVideoFeed = ongoingCallViewModel::startSendingVideoFeed,
-        stopSendingVideoFeed = ongoingCallViewModel::stopSendingVideoFeed,
+LaunchedEffect(ongoingCallViewModel.state.flowState) {
+    when (ongoingCallViewModel.state.flowState) {
+        OngoingCallState.FlowState.CallClosed -> {
+            activity.finishAndRemoveTask()
+        }
+
+        OngoingCallState.FlowState.Default -> { /* do nothing */
+        }
+    }
+}
+
+with(sharedCallingViewModel.callState) {
+    OngoingCallContent(
+        conversationId = conversationId,
+        conversationName = conversationName,
+        participants = participants,
+        isMuted = isMuted ?: true,
+        isCameraOn = isCameraOn,
+        isSpeakerOn = isSpeakerOn,
+        isCbrEnabled = isCbrEnabled,
+        isOnFrontCamera = isOnFrontCamera,
+        protocolInfo = protocolInfo,
+        mlsVerificationStatus = mlsVerificationStatus,
+        proteusVerificationStatus = proteusVerificationStatus,
+        shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
+        toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
+        toggleMute = sharedCallingViewModel::toggleMute,
+        hangUpCall = { sharedCallingViewModel.hangUpCall { activity.finishAndRemoveTask() } },
+        toggleVideo = sharedCallingViewModel::toggleVideo,
+        flipCamera = sharedCallingViewModel::flipCamera,
+        setVideoPreview = sharedCallingViewModel::setVideoPreview,
         clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+        onCollapse = { activity.moveTaskToBack(true) },
+        requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
+        hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
+        onCameraPermissionPermanentlyDenied = {
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = R.string.app_permission_dialog_title,
+                    description = R.string.camera_permission_dialog_description
+                )
+            )
+        },
+        onEmojiClicked = ongoingCallViewModel::sendEmoji
     )
+    BackHandler {
+        activity.moveTaskToBack(true)
+    }
+}
+
+PermissionPermanentlyDeniedDialog(
+dialogState = permissionPermanentlyDeniedDialogState,
+hideDialog = permissionPermanentlyDeniedDialogState::dismiss
+)
+
+HandleSendingVideoFeed(
+callState = sharedCallingViewModel.callState,
+pauseSendingVideoFeed = ongoingCallViewModel::pauseSendingVideoFeed,
+startSendingVideoFeed = ongoingCallViewModel::startSendingVideoFeed,
+stopSendingVideoFeed = ongoingCallViewModel::stopSendingVideoFeed,
+clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+)
 }
 
 @Composable

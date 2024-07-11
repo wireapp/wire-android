@@ -17,9 +17,11 @@
  */
 package com.wire.android.ui.calling.ongoing
 
+import com.wire.kalium.logic.data.user.UserId
+
 data class OngoingCallState(
     val flowState: FlowState = FlowState.Default,
-    val emoji: String = ""
+    val emoji: Pair<UserId, List<String>>? = null,
 ) {
     sealed interface FlowState {
         object Default : FlowState

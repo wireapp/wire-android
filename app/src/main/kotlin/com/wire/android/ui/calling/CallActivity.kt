@@ -18,8 +18,10 @@
 package com.wire.android.ui.calling
 
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.projection.MediaProjection
@@ -31,6 +33,7 @@ import android.util.Log
 import android.view.Surface
 import android.view.SurfaceView
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -56,10 +59,7 @@ import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
-import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -105,9 +105,22 @@ class CallActivity : AppCompatActivity() {
     private var mMediaProjectionManager: MediaProjectionManager? = null
     var mSurfaceView: SurfaceView? = null
 
+    private val activityReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            appLogger.d("$TAG -> received on receiver??")
+             setUpMediaProjection()
+             setUpVirtualDisplay()
+        }
+    }
+
     @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //Create an intent filter to listen to the broadcast sent with the action "ACTION_STRING_ACTIVITY"
+        val intentFilter = IntentFilter(BROADCAST_ACTION_START_SCREENSHARING)
+        //Map the intent filter to the receiver
+        registerReceiver(activityReceiver, intentFilter, RECEIVER_NOT_EXPORTED);
 
         if (savedInstanceState != null) {
             mResultCode = savedInstanceState.getInt(STATE_RESULT_CODE);
@@ -211,8 +224,7 @@ class CallActivity : AppCompatActivity() {
         if (requestCode == 100 && resultCode == -1) {
             startService(getStartIntent(this, resultCode, data))
         }
-        setUpMediaProjection()
-        setUpVirtualDisplay()
+
         Log.d(
             "MainActivity",
             "onActivityResult: at the end now???"
@@ -306,6 +318,7 @@ class CallActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         stopScreenCapture()
+        unregisterReceiver(activityReceiver)
         super.onDestroy()
     }
 
@@ -322,6 +335,8 @@ class CallActivity : AppCompatActivity() {
         const val EXTRA_CONVERSATION_ID = "conversation_id"
         const val EXTRA_USER_ID = "user_id"
         const val EXTRA_SCREEN_TYPE = "screen_type"
+
+        const val BROADCAST_ACTION_START_SCREENSHARING = "BROADCAST_ACTION_START_SCREENSHARING"
     }
 }
 

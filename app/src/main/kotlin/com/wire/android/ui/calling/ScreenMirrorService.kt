@@ -2,12 +2,13 @@ package com.wire.android.ui.calling
 
 import android.annotation.SuppressLint
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
-import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
 import android.media.projection.MediaProjection
@@ -17,25 +18,25 @@ import android.os.HandlerThread
 import android.os.IBinder
 import android.util.Log
 import android.view.OrientationEventListener
+import android.widget.Toast
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.scale
 import com.wire.android.BuildConfig
 import com.wire.android.WireApplication
+import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.parcelable
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class ScreenMirrorService : Service() {
@@ -70,6 +71,7 @@ class ScreenMirrorService : Service() {
         super.onCreate()
         instance = this
         NotificationHelper.ensureDefaultChannel()
+
         isPortrait = true
         val metrics = resources.displayMetrics
         if (isPortrait) {
@@ -123,6 +125,7 @@ class ScreenMirrorService : Service() {
         orientationEventListener.enable()
         // doMirror()
 
+        sendBroadcast()
         return START_NOT_STICKY
     }
 
@@ -132,6 +135,14 @@ class ScreenMirrorService : Service() {
         mImageReaderHandlerThread?.quitSafely()
         mBitmap = null
         orientationEventListener.disable()
+    }
+
+    private fun sendBroadcast() {
+        appLogger.d("ScreenMirrorService -> sending broadcast")
+        val newIntent = Intent()
+        newIntent.setAction(CallActivity.BROADCAST_ACTION_START_SCREENSHARING)
+        sendBroadcast(newIntent)
+        appLogger.d("ScreenMirrorService -> broadcast sent")
     }
 
     override fun onBind(intent: Intent?): IBinder? {

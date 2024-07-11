@@ -20,8 +20,15 @@ package com.wire.android.ui.calling
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.hardware.display.DisplayManager
+import android.hardware.display.VirtualDisplay
+import android.media.projection.MediaProjection
+import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.view.Surface
+import android.view.SurfaceView
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -34,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.core.app.ActivityCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.wire.android.appLogger
@@ -50,6 +58,21 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.log
+
+fun startProjection(context: Context) {
+    val mProjectionManager =
+        context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager?
+
+    if (mProjectionManager != null) {
+        ActivityCompat.startActivityForResult(
+            context as Activity,
+            mProjectionManager.createScreenCaptureIntent(),
+            100,
+            null
+        )
+    }
+}
 
 @AndroidEntryPoint
 class CallActivity : AppCompatActivity() {
@@ -64,11 +87,29 @@ class CallActivity : AppCompatActivity() {
 
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
+    private var mResultCode = 0
+    private var mResultData: Intent? = null
+
+
+    private val STATE_RESULT_CODE = "result_code"
+    private val STATE_RESULT_DATA = "result_data"
+    private val REQUEST_MEDIA_PROJECTION = 1
+
+    var mSurface: Surface? = null
+    private var mMediaProjection: MediaProjection? = null
+    private var mVirtualDisplay: VirtualDisplay? = null
+    private var mMediaProjectionManager: MediaProjectionManager? = null
+    var mSurfaceView: SurfaceView? = null
+
     @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setUpScreenShootPreventionFlag()
+        if (savedInstanceState != null) {
+            mResultCode = savedInstanceState.getInt(STATE_RESULT_CODE);
+            mResultData = savedInstanceState.getParcelable(STATE_RESULT_DATA);
+        }
+//        setUpScreenShootPreventionFlag()
         setUpCallingFlags()
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -82,9 +123,10 @@ class CallActivity : AppCompatActivity() {
                 callActivityViewModel.switchAccountIfNeeded(this)
             }
         }
-
+        mMediaProjectionManager =
+            getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         setUpCallingFlags()
-        setUpScreenShootPreventionFlag()
+//        setUpScreenShootPreventionFlag()
 
         appLogger.i("$TAG Initializing proximity sensor..")
         proximitySensorManager.initialize()
@@ -120,7 +162,9 @@ class CallActivity : AppCompatActivity() {
                                     }
 
                                     CallScreenType.Ongoing.name -> OngoingCallScreen(
-                                        qualifiedIdMapper.fromStringToQualifiedID(it)
+                                        conversationId = qualifiedIdMapper.fromStringToQualifiedID(
+                                            it
+                                        ),
                                     )
 
                                     CallScreenType.Incoming.name -> IncomingCallScreen(
@@ -145,6 +189,80 @@ class CallActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         proximitySensorManager.unRegisterListener()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d(
+            "MainActivity",
+            "onActivityResult: requestCode=$requestCode, resultCode=$resultCode, data:$data"
+        )
+//        if (requestCode == MainActivity.REQUEST_CODE) {
+//            if (resultCode == RESULT_OK) {
+//                startService(getStartIntent(this, resultCode, data))
+//            }
+//        }
+        setUpMediaProjection()
+        setUpVirtualDisplay()
+    }
+
+    private fun setUpMediaProjection() {
+        mMediaProjection =
+            mResultData?.let { mMediaProjectionManager!!.getMediaProjection(mResultCode, it) }
+    }
+
+
+    private fun tearDownMediaProjection() {
+        if (mMediaProjection != null) {
+            mMediaProjection!!.stop()
+            mMediaProjection = null
+        }
+    }
+
+    fun startScreenCapture() {
+        Log.d(TAG, "startScreenCapture: ")
+        if (mSurface == null) {
+            return
+        }
+        if (mMediaProjection != null) {
+            setUpVirtualDisplay()
+        } else if (mResultCode != 0 && mResultData != null) {
+            setUpMediaProjection()
+            setUpVirtualDisplay()
+        } else {
+            Log.i(TAG, "Requesting confirmation")
+            // This initiates a prompt dialog for the user to confirm screen projection.
+            mMediaProjectionManager?.let {
+                Log.i(TAG, "Requesting startActivityForResult")
+                ActivityCompat.startActivityForResult(
+                    this,
+                    it.createScreenCaptureIntent(),
+                    100,
+                    null
+                )
+            }
+        }
+    }
+
+    private fun setUpVirtualDisplay() {
+        Log.d(TAG, "setUpVirtualDisplay: ")
+        mSurfaceView?.let {
+            Log.d(TAG, "setUpVirtualDisplay: createVirtualDisplay ")
+            mVirtualDisplay = mMediaProjection?.createVirtualDisplay(
+                "ScreenCapture",
+                300, 300, 200,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                mSurface, null, null
+            )
+        }
+    }
+
+    private fun stopScreenCapture() {
+        if (mVirtualDisplay == null) {
+            return
+        }
+        mVirtualDisplay?.release()
+        mVirtualDisplay = null
     }
 
     companion object {

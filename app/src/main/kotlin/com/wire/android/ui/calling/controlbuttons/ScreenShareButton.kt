@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.calling.controlbuttons
 
 import androidx.compose.runtime.Composable
@@ -27,23 +26,17 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun MicrophoneButton(
-    isMuted: Boolean,
-    onMicrophoneButtonClicked: () -> Unit,
-    size: Dp = dimensions().defaultCallingControlsSize,
-    modifier: Modifier = Modifier
+fun ScreenShareButton(
+    isScreenShareOn: Boolean,
+    onScreenShareButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: Dp = dimensions().defaultCallingControlsSize
 ) {
     WireCallControlButton(
-        isSelected = !isMuted,
-        iconResId = when (isMuted) {
-            true -> R.drawable.ic_microphone_off
-            false -> R.drawable.ic_microphone_on
-        },
-        contentDescription = when (isMuted) {
-            true -> R.string.content_description_calling_unmute_call
-            false -> R.string.content_description_calling_mute_call
-        },
-        onClick = onMicrophoneButtonClicked,
+        isSelected = isScreenShareOn,
+        iconResId = R.drawable.ic_share,
+        contentDescription = R.string.content_description_calling_turn_speaker_on,
+        onClick = onScreenShareButtonClicked,
         size = size,
         modifier = modifier
     )
@@ -51,12 +44,12 @@ fun MicrophoneButton(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewComposableMicrophoneButtonOn() = WireTheme {
-    MicrophoneButton(isMuted = true, onMicrophoneButtonClicked = { })
+fun PreviewScreenShareButtonOn() = WireTheme {
+    ScreenShareButton(isScreenShareOn = true, onScreenShareButtonClicked = { })
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewComposableMicrophoneButtonOff() = WireTheme {
-    MicrophoneButton(isMuted = false, onMicrophoneButtonClicked = { })
+fun PreviewScreenShareButtonOff() = WireTheme {
+    ScreenShareButton(isScreenShareOn = false, onScreenShareButtonClicked = { })
 }

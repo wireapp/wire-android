@@ -44,6 +44,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
 
     <!-- needed to switch between speaker/earpiece -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -329,6 +330,19 @@
                 android:foregroundServiceType="specialUse"
                 android:exported="false">
         </service>
+        <service
+                android:name="com.wire.android.ui.calling.ScreenMirrorService"
+                android:foregroundServiceType="mediaProjection"
+                android:exported="false">
+        </service>
+        <receiver
+            android:name="com.wire.android.ui.calling.ServiceStopBroadcastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="${applicationId}.action.stop_http_server" />
+                <action android:name="${applicationId}.action.stop_screen_mirror" />
+            </intent-filter>
+        </receiver>
 
         <service
                 android:name=".services.OngoingCallService"

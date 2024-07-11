@@ -100,6 +100,8 @@ class WireApplication : BaseApp() {
     override fun onCreate() {
         super.onCreate()
 
+        instance = this
+
         enableStrictMode()
 
         startActivityLifecycleCallback()
@@ -250,7 +252,9 @@ class WireApplication : BaseApp() {
         logFileWriter.get().stop()
     }
 
-    private companion object {
+    companion object {
+        lateinit var instance: WireApplication
+
         enum class MemoryLevel(val level: Int) {
             TRIM_MEMORY_BACKGROUND(ComponentCallbacks2.TRIM_MEMORY_BACKGROUND),
             TRIM_MEMORY_COMPLETE(ComponentCallbacks2.TRIM_MEMORY_COMPLETE),

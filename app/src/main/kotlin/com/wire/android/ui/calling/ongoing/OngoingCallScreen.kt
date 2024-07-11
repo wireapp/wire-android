@@ -18,8 +18,10 @@
 
 package com.wire.android.ui.calling.ongoing
 
+import android.view.SurfaceView
 import android.view.View
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -47,24 +49,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.wire.android.R
 import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
-import com.wire.android.ui.calling.controlbuttons.CameraButton
 import com.wire.android.ui.calling.controlbuttons.CameraFlipButton
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.calling.controlbuttons.MicrophoneButton
+import com.wire.android.ui.calling.controlbuttons.ScreenShareButton
 import com.wire.android.ui.calling.controlbuttons.SpeakerButton
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
@@ -77,13 +82,11 @@ import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -106,7 +109,7 @@ fun OngoingCallScreen(
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
-    val activity = LocalActivity.current
+    val activity = LocalActivity.current as CallActivity
 
     LaunchedEffect(ongoingCallViewModel.state.flowState) {
         when (ongoingCallViewModel.state.flowState) {
@@ -143,6 +146,7 @@ fun OngoingCallScreen(
             onCollapse = { activity.moveTaskToBack(true) },
             requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
             hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
+            startProjection = { activity.startScreenCapture() },
             onCameraPermissionPermanentlyDenied = {
                 permissionPermanentlyDeniedDialogState.show(
                     PermissionPermanentlyDeniedDialogState.Visible(
@@ -237,9 +241,12 @@ private fun OngoingCallContent(
     clearVideoPreview: () -> Unit,
     onCollapse: () -> Unit,
     hideDoubleTapToast: () -> Unit,
+    startProjection: () -> Unit,
     onCameraPermissionPermanentlyDenied: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
+    val context = LocalContext.current
+    val activity = LocalActivity.current as CallActivity
 
     val sheetInitialValue = SheetValue.PartiallyExpanded
     val sheetState = rememberStandardBottomSheetState(
@@ -281,7 +288,7 @@ private fun OngoingCallContent(
                 toggleSpeaker = toggleSpeaker,
                 toggleMute = toggleMute,
                 onHangUpCall = hangUpCall,
-                onToggleVideo = toggleVideo,
+                startProjection = startProjection,
                 flipCamera = flipCamera,
                 onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied
             )
@@ -297,18 +304,18 @@ private fun OngoingCallContent(
 
             if (participants.isEmpty()) {
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(colorsScheme().callingAnswerButtonColor),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    WireCircularProgressIndicator(
-                        progressColor = MaterialTheme.wireColorScheme.onSurface,
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        size = dimensions().spacing32x
-                    )
-                    Text(
-                        text = stringResource(id = R.string.calling_screen_connecting_until_call_established),
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    AndroidView(factory = {
+                        val surfaceView = SurfaceView(context)
+                        activity.mSurfaceView = surfaceView
+                        activity.mSurface = surfaceView.holder.surface
+                        surfaceView
+                    }
                     )
                 }
             } else {
@@ -428,7 +435,7 @@ private fun CallingControls(
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
-    onToggleVideo: () -> Unit,
+    startProjection: () -> Unit,
     flipCamera: () -> Unit,
     onCameraPermissionPermanentlyDenied: () -> Unit
 ) {
@@ -444,10 +451,9 @@ private fun CallingControls(
                 .height(dimensions().spacing56x)
         ) {
             MicrophoneButton(isMuted = isMuted, onMicrophoneButtonClicked = toggleMute)
-            CameraButton(
-                isCameraOn = isCameraOn,
-                onPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
-                onCameraButtonClicked = onToggleVideo
+            ScreenShareButton(
+                isScreenShareOn = false,
+                onScreenShareButtonClicked = startProjection,
             )
 
             SpeakerButton(
@@ -488,6 +494,7 @@ fun PreviewOngoingCallScreen() = WireTheme {
         toggleSpeaker = {},
         toggleMute = {},
         hangUpCall = {},
+        startProjection = {},
         toggleVideo = {},
         flipCamera = {},
         setVideoPreview = {},

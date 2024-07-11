@@ -177,6 +177,9 @@ class WireActivity : AppCompatActivity() {
                 handleDeepLink(intent, savedInstanceState)
             }
         }
+        getOngoingCallIntent(this@WireActivity, "fake_id").run {
+            startActivity(this)
+        }
     }
 
     override fun onNewIntent(intent: Intent) {

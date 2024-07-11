@@ -129,8 +129,8 @@ fun OngoingCallScreen(
 if(emojiWithName != null) {
     Box(modifier = Modifier.zIndex(1f)) {
         EmojiFlowAnimator(
-            name = emojiWithName!!.first,
-            emoji = emojiWithName!!.second.joinToString(),
+            name = emojiWithName.first,
+            emoji = emojiWithName.second.joinToString(),
         )
     }
 }

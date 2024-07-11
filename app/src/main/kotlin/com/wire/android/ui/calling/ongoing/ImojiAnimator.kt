@@ -104,7 +104,7 @@ fun EmojiAnimator(
             translateY.animateTo(
                 targetValue = -100f,
                 animationSpec = tween(
-                    durationMillis = 5000,
+                    durationMillis = 4000,
                     easing = LinearEasing
                 )
             )

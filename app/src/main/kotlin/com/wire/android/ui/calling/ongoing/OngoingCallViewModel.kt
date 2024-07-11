@@ -53,7 +53,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     @Assisted
     val conversationId: ConversationId,
     @CurrentAccount
-    private val currentUserId: UserId,
+    val currentUserId: UserId,
     private val globalDataStore: GlobalDataStore,
     private val establishedCalls: ObserveEstablishedCallsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
@@ -186,6 +186,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     fun sendEmoji(emoji: String) {
         viewModelScope.launch {
             sendCallEmoji(conversationId, listOf(emoji))
+            CallingEmojis.emojisFlow.emit(currentUserId to listOf(emoji))
         }
     }
 

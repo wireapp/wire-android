@@ -129,8 +129,7 @@ fun EmojiAnimator(
             )
             Text(
                 text = name,
-                fontSize = 14.sp,
-                fontFamily = FontFamily.Serif,
+                style = MaterialTheme.wireTypography.label01,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .background(

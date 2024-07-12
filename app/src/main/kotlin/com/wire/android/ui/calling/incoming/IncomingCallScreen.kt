@@ -36,21 +36,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-<<<<<<< HEAD
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
-=======
-import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.wire.android.R
-import com.wire.android.appLogger
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.WakeUpScreenPopUpNavigationAnimation
->>>>>>> ba299a62c (fix: interaction during screen transitions [WPB-6533] (#3178))
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
@@ -72,15 +61,7 @@ import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.id.ConversationId
 
-<<<<<<< HEAD
 @Suppress("ParameterWrapping")
-=======
-@RootNavGraph
-@WireDestination(
-    navArgsDelegate = CallingNavArgs::class,
-    style = WakeUpScreenPopUpNavigationAnimation::class
-)
->>>>>>> ba299a62c (fix: interaction during screen transitions [WPB-6533] (#3178))
 @Composable
 fun IncomingCallScreen(
     conversationId: ConversationId,

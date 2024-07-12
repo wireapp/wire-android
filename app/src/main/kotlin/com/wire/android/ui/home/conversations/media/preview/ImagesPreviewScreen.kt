@@ -42,11 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -71,7 +71,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import kotlinx.coroutines.flow.SharedFlow
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = ImagesPreviewNavArgs::class,
     style = PopUpNavigationAnimation::class
 )

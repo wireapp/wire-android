@@ -84,14 +84,10 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-<<<<<<< HEAD
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.getOngoingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
-=======
 import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.calling.common.MicrophonePermissionDeniedDialog
->>>>>>> ba299a62c (fix: interaction during screen transitions [WPB-6533] (#3178))
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme

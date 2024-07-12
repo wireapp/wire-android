@@ -53,21 +53,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-<<<<<<< HEAD
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.wire.android.R
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallState
-=======
-import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.WakeUpScreenPopUpNavigationAnimation
-import com.wire.android.ui.calling.CallingNavArgs
->>>>>>> ba299a62c (fix: interaction during screen transitions [WPB-6533] (#3178))
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CameraButton
@@ -101,15 +92,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
 
-<<<<<<< HEAD
 @Suppress("ParameterWrapping")
-=======
-@RootNavGraph
-@WireDestination(
-    navArgsDelegate = CallingNavArgs::class,
-    style = WakeUpScreenPopUpNavigationAnimation::class
-)
->>>>>>> ba299a62c (fix: interaction during screen transitions [WPB-6533] (#3178))
 @Composable
 fun OngoingCallScreen(
     conversationId: ConversationId,

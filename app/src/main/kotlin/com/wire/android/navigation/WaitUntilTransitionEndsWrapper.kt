@@ -47,11 +47,12 @@ object WaitUntilTransitionEndsWrapper : DestinationWrapper {
             }
             screenContent()
             if (!transitionComplete) {
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(Unit) {
-                        // empty, do nothing to prevent clicks
-                    }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
+                            // empty, do nothing to prevent clicks
+                        }
                 )
             }
         }

@@ -25,52 +25,71 @@ import com.wire.android.feature.analytics.model.AnalyticsSettings
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     private const val TAG = "AnonymousAnalyticsManagerImpl"
     private var isAnonymousUsageDataEnabled = false
     private var anonymousAnalyticsRecorder: AnonymousAnalyticsRecorder? = null
+    private val startedActivities = mutableSetOf<Activity>()
+
+    init {
+        globalAnalyticsManager = this
+    }
 
     override fun init(
         context: Context,
         analyticsSettings: AnalyticsSettings,
-        isEnabledFlowProvider: suspend () -> Flow<Boolean>,
+        isEnabledFlow: Flow<Boolean>,
         anonymousAnalyticsRecorder: AnonymousAnalyticsRecorder,
         dispatcher: CoroutineDispatcher
     ) {
         this.anonymousAnalyticsRecorder = anonymousAnalyticsRecorder
 
         CoroutineScope(dispatcher).launch {
-            isEnabledFlowProvider().collect { enabled ->
-                isAnonymousUsageDataEnabled = enabled
-                if (enabled) {
-                    anonymousAnalyticsRecorder.configure(
-                        context = context,
-                        analyticsSettings = analyticsSettings,
-                    )
+            isEnabledFlow
+                .collectLatest { enabled ->
+                    synchronized(this@AnonymousAnalyticsManagerImpl) {
+                        if (enabled) {
+                            anonymousAnalyticsRecorder.configure(
+                                context = context,
+                                analyticsSettings = analyticsSettings,
+                            )
+                            // start recording for all Activities started before the feature was enabled
+                            startedActivities.forEach { activity ->
+                                anonymousAnalyticsRecorder.onStart(activity = activity)
+                            }
+                        } else {
+                            // immediately disable event tracking
+                            anonymousAnalyticsRecorder.halt()
+                        }
+                        isAnonymousUsageDataEnabled = enabled
+                    }
                 }
-            }
         }
-        globalAnalyticsManager = this
     }
 
-    override fun onStart(activity: Activity) {
-        if (!isAnonymousUsageDataEnabled) return
+    override fun onStart(activity: Activity) = synchronized(this@AnonymousAnalyticsManagerImpl) {
+        startedActivities.add(activity)
+
+        if (!isAnonymousUsageDataEnabled) return@synchronized
 
         anonymousAnalyticsRecorder?.onStart(activity = activity)
             ?: Log.w(TAG, "Calling onStart with a null recorder.")
     }
 
-    override fun onStop() {
-        if (!isAnonymousUsageDataEnabled) return
+    override fun onStop(activity: Activity) = synchronized(this@AnonymousAnalyticsManagerImpl) {
+        startedActivities.remove(activity)
+
+        if (!isAnonymousUsageDataEnabled) return@synchronized
 
         anonymousAnalyticsRecorder?.onStop()
             ?: Log.w(TAG, "Calling onStop with a null recorder.")
     }
 
-    override fun sendEvent(event: AnalyticsEvent) {
-        if (!isAnonymousUsageDataEnabled) return
+    override fun sendEvent(event: AnalyticsEvent) = synchronized(this@AnonymousAnalyticsManagerImpl) {
+        if (!isAnonymousUsageDataEnabled) return@synchronized
 
         anonymousAnalyticsRecorder?.sendEvent(event = event)
             ?: Log.w(TAG, "Calling sendEvent with key : ${event.key} with a null recorder.")

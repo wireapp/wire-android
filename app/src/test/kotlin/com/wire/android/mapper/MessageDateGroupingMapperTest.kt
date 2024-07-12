@@ -144,5 +144,4 @@ class MessageDateGroupingMapperTest {
             Locale.setDefault(systemDefaultLocale!!)
         }
     }
-
 }

@@ -23,8 +23,6 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
 
-// --------- grouped messages ---------
-
 private const val ONE_MINUTE_FROM_MILLIS = 60 * 1000
 private const val THIRTY_MINUTES = 30
 private const val ONE_WEEK_IN_DAYS = 7
@@ -160,7 +158,6 @@ private fun isYesterday(date: Long, now: Long): Boolean {
             && nowCalendar.get(Calendar.MONTH) == messageCalendar.get(Calendar.MONTH)
             && nowCalendar.get(Calendar.YEAR) == messageCalendar.get(Calendar.YEAR)
 }
-
 
 /**
  * Verifies if received dates (date, (now -7 days)) are within the same week.

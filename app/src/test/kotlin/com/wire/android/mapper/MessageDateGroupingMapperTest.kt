@@ -15,41 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.mapper
 
-package com.wire.android.util
-
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
-class DateTimeUtilKtTest {
-
-    @Test
-    fun `given a invalid date, when performing a transformation, then return null`() {
-        val result = "NOT_VALID".deviceDateTimeFormat()
-        assertEquals(null, result)
-    }
+class MessageDateGroupingMapperTest {
 
     @Test
-    fun `given a valid date, when performing a transformation for device, then return with medium format`() {
-        val result = "2022-03-24T18:02:30.360Z".deviceDateTimeFormat()
-        assertEquals("March 24, 2022, 6:02 PM", result)
-    }
-
-    @Test
-    fun `given a valid date, when performing a transformation, then return with medium format`() {
-        val result = "2022-03-24T18:02:30.360Z".formatMediumDateTime()
-        assertEquals("Mar 24, 2022, 6:02:30 PM", result)
-    }
-
-    @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Now`() {
+    fun `return MessageDateTime_Now when a valid date is calling groupedUIMessageDateTime`() {
         val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(getDummyCalendar().timeInMillis)
         assertEquals(MessageDateTimeGroup.Now, result)
     }
 
     @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Within30Minutes`() {
+    fun `return MessageDateTime_Within30Minutes when a valid date within 10 minutes is calling groupedUIMessageDateTime`() {
         val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.MINUTE, 10)
@@ -59,7 +44,7 @@ class DateTimeUtilKtTest {
     }
 
     @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Today`() {
+    fun `return MessageDateTime_Today when a valid date over 30 minutes is calling groupedUIMessageDateTime`() {
         val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.MINUTE, 31)
@@ -76,7 +61,7 @@ class DateTimeUtilKtTest {
     }
 
     @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Yesterday`() {
+    fun `return MessageDateTime_Yesterday when a valid date over 1 day is calling groupedUIMessageDateTime`() {
         val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.DATE, 1)
@@ -90,7 +75,7 @@ class DateTimeUtilKtTest {
     }
 
     @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_WithinWeek`() {
+    fun `return MessageDateTime_WithinWeek when a valid date within 7 days 1 day is calling groupedUIMessageDateTime`() {
         val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.DATE, 3)
@@ -104,7 +89,7 @@ class DateTimeUtilKtTest {
     }
 
     @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_NotWithinWeekButSameYear`() {
+    fun `return MessageDateTime_NotWithinWeekButSameYear when date over 7 days and same year is calling groupedUIMessageDateTime`() {
         val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.DATE, 10)
@@ -117,7 +102,7 @@ class DateTimeUtilKtTest {
     }
 
     @Test
-    fun `given valid date, when transforming to ui message date time, then return MessageDateTime_Other`() {
+    fun `return MessageDateTime_Other given valid date, when a valid date and different year is calling groupedUIMessageDateTime`() {
         val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 set(Calendar.YEAR, 2025)
@@ -137,5 +122,26 @@ class DateTimeUtilKtTest {
         set(Calendar.MONTH, Calendar.JANUARY)
         set(Calendar.DAY_OF_MONTH, 20)
         set(Calendar.YEAR, 2024)
+    }
+
+    companion object {
+        private var systemDefaultLocale: Locale? = null
+        private var systemDefaultTimeZone: TimeZone? = null
+
+        @JvmStatic
+        @BeforeAll
+        fun setup() {
+            systemDefaultTimeZone = TimeZone.getDefault()
+            systemDefaultLocale = Locale.getDefault()
+            TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+            Locale.setDefault(Locale.US)
+        }
+
+        @JvmStatic
+        @AfterAll
+        fun tearDown() {
+            TimeZone.setDefault(systemDefaultTimeZone!!)
+            Locale.setDefault(systemDefaultLocale!!)
+        }
     }
 }

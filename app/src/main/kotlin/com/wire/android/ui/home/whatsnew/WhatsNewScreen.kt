@@ -29,18 +29,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.ui.UIText
 
 @HomeNavGraph
-@Destination
+@WireDestination
 @Composable
 fun WhatsNewScreen(
     homeStateHolder: HomeStateHolder,

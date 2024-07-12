@@ -38,8 +38,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/calling/outgoing/OutgoingCallScreen.kt
 import com.wire.android.R
 import com.wire.android.ui.LocalActivity
+=======
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.R
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.style.KeepOnScreenPopUpNavigationAnimation
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
+>>>>>>> ba299a62c (fix: interaction during screen transitions [WPB-6533] (#3178)):app/src/main/kotlin/com/wire/android/ui/calling/initiating/InitiatingCallScreen.kt
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
@@ -55,7 +65,15 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
 
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/calling/outgoing/OutgoingCallScreen.kt
 @Suppress("ParameterWrapping")
+=======
+@RootNavGraph
+@WireDestination(
+    navArgsDelegate = CallingNavArgs::class,
+    style = KeepOnScreenPopUpNavigationAnimation::class
+)
+>>>>>>> ba299a62c (fix: interaction during screen transitions [WPB-6533] (#3178)):app/src/main/kotlin/com/wire/android/ui/calling/initiating/InitiatingCallScreen.kt
 @Composable
 fun OutgoingCallScreen(
     conversationId: ConversationId,

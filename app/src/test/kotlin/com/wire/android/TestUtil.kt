@@ -17,6 +17,9 @@
  */
 package com.wire.android
 
+import org.junit.jupiter.api.Assertions
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.random.Random
 
 val charPoolWithNumbers: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
@@ -29,3 +32,11 @@ fun Random.stringWithNumbers(length: Int) = (1..length)
 fun Random.string(length: Int) = (1..length)
     .map { Random.nextInt(0, charPool.size).let { charPool[it] } }
     .joinToString("")
+
+@OptIn(ExperimentalContracts::class)
+inline fun <reified T> assertIs(actualValue: Any): T {
+    contract {
+        returns() implies (actualValue is T)
+    }
+    return Assertions.assertInstanceOf(T::class.java, actualValue)
+}

@@ -80,7 +80,7 @@ import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewMo
 import com.wire.android.ui.home.conversations.media.preview.AssetTilePreview
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
-import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
+import com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuItems
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
@@ -110,9 +110,8 @@ fun ImportMediaScreen(
     navigator: Navigator,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
 ) {
-    when (val fileSharingRestrictedState =
-        featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState) {
-        FeatureFlagState.SharingRestrictedState.NO_USER -> {
+    when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
+        FeatureFlagState.FileSharingState.NoUser -> {
             ImportMediaLoggedOutContent(
                 fileSharingRestrictedState = fileSharingRestrictedState,
                 navigateBack = navigator.finish,
@@ -122,16 +121,13 @@ fun ImportMediaScreen(
             )
         }
 
-        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
-        FeatureFlagState.SharingRestrictedState.NONE -> {
+        FeatureFlagState.FileSharingState.DisabledByTeam,
+        FeatureFlagState.FileSharingState.AllowAll,
+        is FeatureFlagState.FileSharingState.AllowSome -> {
             ImportMediaAuthenticatedContent(
                 navigator = navigator,
-                isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
+                isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.FileSharingState.DisabledByTeam,
             )
-        }
-
-        null -> {
-            // state is not calculated yet, need to wait to avoid crash while requesting currentUser where it's absent
         }
     }
 
@@ -221,7 +217,7 @@ fun ImportMediaRestrictedContent(
             content = { internalPadding ->
                 FileSharingRestrictedContent(
                     internalPadding,
-                    FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
+                    FeatureFlagState.FileSharingState.DisabledByTeam,
                     navigateBack
                 )
             }
@@ -280,7 +276,7 @@ fun ImportMediaRegularContent(
             }
         )
         MenuModalSheetLayout(
-            menuItems = SelfDeletionMenuItems(
+            menuItems = selfDeletionMenuItems(
                 currentlySelected = importMediaAuthenticatedState.selfDeletingTimer.duration.toSelfDeletionDuration(),
                 hideEditMessageMenu = importMediaScreenState::hideBottomSheetMenu,
                 onSelfDeletionDurationChanged = onNewSelfDeletionTimerPicked,
@@ -294,7 +290,7 @@ fun ImportMediaRegularContent(
 
 @Composable
 fun ImportMediaLoggedOutContent(
-    fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
+    fileSharingRestrictedState: FeatureFlagState.FileSharingState,
     navigateBack: () -> Unit,
     openWireAction: () -> Unit,
     modifier: Modifier = Modifier
@@ -322,12 +318,12 @@ fun ImportMediaLoggedOutContent(
 @Composable
 fun FileSharingRestrictedContent(
     internalPadding: PaddingValues,
-    sharingRestrictedState: FeatureFlagState.SharingRestrictedState,
+    sharingRestrictedState: FeatureFlagState.FileSharingState,
     openWireAction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val learnMoreUrl = stringResource(R.string.file_sharing_restricted_learn_more_link)
+    val learnMoreUrl = stringResource(R.string.url_file_sharing_restricted_learn_more)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -338,7 +334,7 @@ fun FileSharingRestrictedContent(
             .padding(horizontal = dimensions().spacing48x)
     ) {
         val textRes =
-            if (sharingRestrictedState == FeatureFlagState.SharingRestrictedState.NO_USER) {
+            if (sharingRestrictedState == FeatureFlagState.FileSharingState.NoUser) {
                 R.string.file_sharing_restricted_description_no_users
             } else {
                 R.string.file_sharing_restricted_description_by_team
@@ -352,7 +348,7 @@ fun FileSharingRestrictedContent(
 
         Spacer(modifier = Modifier.height(dimensions().spacing16x))
 
-        if (sharingRestrictedState == FeatureFlagState.SharingRestrictedState.NO_USER) {
+        if (sharingRestrictedState == FeatureFlagState.FileSharingState.NoUser) {
             WirePrimaryButton(
                 onClick = openWireAction,
                 text = stringResource(R.string.file_sharing_restricted_button_text_no_users),
@@ -515,7 +511,7 @@ private fun ImportMediaContent(
             onEditConversation = {},
             onOpenUserProfile = {},
             onJoinCall = {},
-            onPermissionPermanentlyDenied = {}
+            onAudioPermissionPermanentlyDenied = {}
         )
     }
     BackHandler(enabled = searchBarState.isSearchActive) {
@@ -541,7 +537,7 @@ private fun SnackBarMessage(
 fun PreviewImportMediaScreenLoggedOut() {
     WireTheme {
         ImportMediaLoggedOutContent(
-            fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER,
+            fileSharingRestrictedState = FeatureFlagState.FileSharingState.NoUser,
             navigateBack = {},
             openWireAction = {},
         )

@@ -70,19 +70,22 @@ import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
+import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.drawer.HomeDrawer
 import com.wire.android.ui.home.drawer.HomeDrawerState
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
-import com.wire.android.util.permission.rememberRequestPushNotificationsPermissionFlow
+import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -98,8 +101,21 @@ fun HomeScreen(
 ) {
     homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
     val homeScreenState = rememberHomeScreenState(navigator)
-    val showNotificationsFlow = rememberRequestPushNotificationsPermissionFlow(
-        onPermissionDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ })
+    val notificationsPermissionDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+    val showNotificationsPermissionDeniedDialog = {
+        notificationsPermissionDeniedDialogState.show(
+            PermissionPermanentlyDeniedDialogState.Visible(
+                title = R.string.app_permission_dialog_title,
+                description = R.string.notifications_permission_dialog_description,
+            )
+        )
+    }
+    val showNotificationsFlow =
+        rememberShowNotificationsPermissionFlow(
+            onPermissionGranted = { /* do nothing */ },
+            onPermissionDenied = showNotificationsPermissionDeniedDialog,
+            onPermissionPermanentlyDenied = showNotificationsPermissionDeniedDialog,
+        )
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
@@ -190,6 +206,11 @@ fun HomeScreen(
             }
         }
     }
+
+    PermissionPermanentlyDeniedDialog(
+        dialogState = notificationsPermissionDeniedDialogState,
+        hideDialog = notificationsPermissionDeniedDialogState::dismiss
+    )
 }
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)

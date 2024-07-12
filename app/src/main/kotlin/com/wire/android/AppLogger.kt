@@ -21,7 +21,7 @@ import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.util.serialization.toJsonElement
 
-private var appLoggerConfig = KaliumLogger.Config.disabled()
+private var appLoggerConfig = KaliumLogger.Config.DISABLED
 
 // App wide global logger, carefully initialized when our application is "onCreate"
 internal var appLogger = KaliumLogger.disabled()
@@ -33,7 +33,7 @@ object AppLogger {
     }
 
     fun setLogLevel(level: KaliumLogLevel) {
-        appLoggerConfig.setLogLevel(level)
+        appLoggerConfig.logLevel = level
     }
 }
 

@@ -1,6 +1,5 @@
 import customization.ConfigurationFileImporter
 import customization.NormalizedFlavorSettings
-import scripts.Variants_gradle
 
 /*
  * Wire
@@ -41,13 +40,13 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     wireDetektRulesRepo()
     google()
 }
 
 val nonFreeFlavors = setOf("prod", "internal", "staging", "beta", "dev")
 val fossFlavors = setOf("fdroid")
+val internalFlavors = setOf("internal", "staging", "beta", "dev")
 val allFlavors = nonFreeFlavors + fossFlavors
 
 private fun getFlavorsSettings(): NormalizedFlavorSettings =
@@ -60,6 +59,15 @@ private fun getFlavorsSettings(): NormalizedFlavorSettings =
     }
 
 android {
+    defaultConfig {
+        val datadogApiKeyKey = "DATADOG_CLIENT_TOKEN"
+        val datadogApiKey: String? = System.getenv(datadogApiKeyKey) ?: project.getLocalProperty(datadogApiKeyKey, null)
+        buildConfigField("String", datadogApiKeyKey, datadogApiKey?.let { "\"$it\"" } ?: "null")
+
+        val datadogAppIdKey = "DATADOG_APP_ID"
+        val appId: String? = System.getenv(datadogAppIdKey) ?: project.getLocalProperty(datadogAppIdKey, null)
+        buildConfigField("String", datadogAppIdKey, appId?.let { "\"$it\"" } ?: "null")
+    }
     // Most of the configuration is done in the build-logic
     // through the Wire Application convention plugin
 
@@ -77,6 +85,14 @@ android {
     sourceSets {
         allFlavors.forEach { flavor ->
             getByName(flavor) {
+                if (flavor in internalFlavors) {
+                    java.srcDirs("src/private/kotlin")
+                    println("Adding external datadog logger internal sourceSets to '$flavor' flavor")
+                } else {
+                    java.srcDirs("src/public/kotlin")
+                    println("Adding external datadog logger sourceSets to '$flavor' flavor")
+                }
+
                 if (flavor in fossFlavors) {
                     java.srcDirs("src/foss/kotlin", "src/prod/kotlin")
                     res.srcDirs("src/prod/res")
@@ -86,6 +102,9 @@ android {
                     println("Adding non-free sourceSets to '$flavor' flavor")
                 }
             }
+        }
+        getByName("androidTest") {
+            java.srcDirs("src/androidTest/kotlin")
         }
     }
 }
@@ -98,6 +117,8 @@ aboutLibraries {
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
+    androidTestImplementation("com.wire.kalium:kalium-mocks")
+    androidTestImplementation("com.wire.kalium:kalium-network")
 
     // features
     implementation(project(":features:sketch"))
@@ -204,9 +225,9 @@ dependencies {
     flavors.flavorMap.entries.forEach { (key, configs) ->
         if (configs["analytics_enabled"] as? Boolean == true) {
             println(">> Adding Anonymous Analytics dependency to [$key] flavor")
-            add("${key}Implementation",project(":core:analytics-enabled"))
+            add("${key}Implementation", project(":core:analytics-enabled"))
         } else {
-            add("${key}Implementation",project(":core:analytics-disabled"))
+            add("${key}Implementation", project(":core:analytics-disabled"))
         }
     }
 
@@ -239,6 +260,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.espresso.intents)
     androidTestImplementation(libs.androidx.espresso.accessibility)
+    androidTestImplementation(libs.hamcrest)
+    androidTestImplementation(libs.hilt.test)
+    kspAndroidTest(libs.hilt.compiler)
+
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.test.uiAutomator)
     androidTestImplementation(libs.androidx.test.work)

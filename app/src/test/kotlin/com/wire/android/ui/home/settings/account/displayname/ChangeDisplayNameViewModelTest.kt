@@ -28,9 +28,11 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -118,6 +120,21 @@ class ChangeDisplayNameViewModelTest {
 
         assertEquals(DisplayNameState.NameError.None, viewModel.displayNameState.error)
         assertEquals(true, viewModel.displayNameState.saveEnabled)
+    }
+
+    @Test
+    fun `given valid name, when updating, then should take only text value not the whole state toString`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withUserSaveNameResult(DisplayNameUpdateResult.Success)
+            .arrange()
+
+        val newValue = "valid new name"
+        viewModel.textState.setTextAndPlaceCursorAtEnd(newValue)
+        advanceUntilIdle()
+
+        viewModel.saveDisplayName(onFailure = {}, onSuccess = {})
+
+        coVerify(exactly = 1) { arrangement.updateDisplayNameUseCase(newValue) }
     }
 
     private class Arrangement {

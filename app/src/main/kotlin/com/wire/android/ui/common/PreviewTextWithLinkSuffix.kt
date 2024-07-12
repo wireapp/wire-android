@@ -20,12 +20,15 @@ package com.wire.android.ui.common
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -51,6 +54,8 @@ private fun PreviewTextWithLinkSuffixBuilder(
         modifier = Modifier.width(calculateWidth(lastTextLineWidthDp, linkWidthDp))
     )
 }
+
+// ----- LTR -----
 
 @PreviewMultipleThemes
 @Composable
@@ -86,4 +91,52 @@ fun PreviewTextWithLinkSuffixMultilineNotFittingInLastLine() = WireTheme {
         textLines = listOf("This is a text with a", "This is a text with a"),
         linkText = "link"
     ) { lastTextLineWidthDp, linkWidthDp -> lastTextLineWidthDp + (linkWidthDp / 2) }
+}
+
+// ----- RTL -----
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewTextWithLinkSuffixWithoutALinkRtl() = WireTheme {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        TextWithLinkSuffix(text = AnnotatedString("This is a text without a link"))
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewTextWithLinkSuffixFittingInSameLineRtl() = WireTheme {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        PreviewTextWithLinkSuffixBuilder { lastTextLineWidthDp, linkWidthDp -> lastTextLineWidthDp + linkWidthDp }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewTextWithLinkSuffixNotFittingInSameLineRtl() = WireTheme {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        PreviewTextWithLinkSuffixBuilder { lastTextLineWidthDp, linkWidthDp -> lastTextLineWidthDp + (linkWidthDp / 2) }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewTextWithLinkSuffixMultilineFittingInLastLineRtl() = WireTheme {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        PreviewTextWithLinkSuffixBuilder(
+            textLines = listOf("This is a text with a link", "This is a text with a"),
+            linkText = "link",
+        ) { lastTextLineWidthDp, linkWidthDp -> lastTextLineWidthDp + linkWidthDp }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewTextWithLinkSuffixMultilineNotFittingInLastLineRtl() = WireTheme {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        PreviewTextWithLinkSuffixBuilder(
+            textLines = listOf("This is a text with a", "This is a text with a"),
+            linkText = "link"
+        ) { lastTextLineWidthDp, linkWidthDp -> lastTextLineWidthDp + (linkWidthDp / 2) }
+    }
 }

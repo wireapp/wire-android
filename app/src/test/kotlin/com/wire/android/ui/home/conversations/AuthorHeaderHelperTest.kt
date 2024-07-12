@@ -29,14 +29,16 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.util.DateTimeUtil
+import kotlinx.datetime.Instant
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
 
 class AuthorHeaderHelperTest {
 
     private data class Messages(val currentMessage: UIMessage, val messageAbove: UIMessage?, val messageBelow: UIMessage?)
+
     private fun List<UIMessage>.forIndex(index: Int, action: (Messages) -> Boolean): Boolean =
         action(Messages(this[index], this.getOrNull(index + 1), this.getOrNull(index - 1)))
 
@@ -75,8 +77,8 @@ class AuthorHeaderHelperTest {
     fun givenTwoRegularMessagesFromSameUser_thenShouldNotShowHeaderForRecentMessage() {
         // given
         val messages = listOf( // more recent message is first on list
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:01.000Z")),
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:00.000Z"))
         )
         // when
         val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
@@ -88,8 +90,8 @@ class AuthorHeaderHelperTest {
     fun givenTwoRegularMessagesFromDifferentUser_thenShouldShowHeaderForRecentMessage() {
         // given
         val messages = listOf( // more recent message is first on list
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
-            testRegularMessage(userId = OTHER_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:01.000Z")),
+            testRegularMessage(userId = OTHER_USER_ID, instant = Instant.parse("2021-01-01T00:00:00.000Z"))
         )
         // when
         val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
@@ -101,8 +103,8 @@ class AuthorHeaderHelperTest {
     fun givenSystemAndThenRegularMessageFromSameUser_thenShouldShowHeaderForRecentMessage() {
         // given
         val messages = listOf( // more recent message is first on list
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
-            testSystemMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:01.000Z")),
+            testSystemMessage(userId = SELF_USER_ID, timestamp = Instant.parse("2021-01-01T00:00:00.000Z"))
         )
         // when
         val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
@@ -114,8 +116,8 @@ class AuthorHeaderHelperTest {
     fun givenRegularAndThenSystemMessagFromSameUsere_thenShouldNotShowHeaderForRecentMessage() {
         // given
         val messages = listOf( // more recent message is first on list
-            testSystemMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+            testSystemMessage(userId = SELF_USER_ID, timestamp = Instant.parse("2021-01-01T00:00:01.000Z")),
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:00.000Z"))
         )
         // when
         val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
@@ -127,8 +129,8 @@ class AuthorHeaderHelperTest {
     fun givenPingAndThenRegularMessageFromSameUser_thenShouldShowHeaderForRecentMessage() {
         // given
         val messages = listOf( // more recent message is first on list
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
-            testPingMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:01.000Z")),
+            testPingMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:00.000Z"))
         )
         // when
         val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
@@ -140,8 +142,8 @@ class AuthorHeaderHelperTest {
     fun givenRegularAndThenPingMessageFromSameUser_thenShouldNotShowHeaderForRecentMessage() {
         // given
         val messages = listOf( // more recent message is first on list
-            testPingMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+            testPingMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:01.000Z")),
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:00.000Z"))
         )
         // when
         val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
@@ -152,11 +154,11 @@ class AuthorHeaderHelperTest {
     @Test
     fun givenTwoRegularMessagesFromSameUserAndTimestampsWithinThreshold_thenShouldNotShowHeaderForRecentMessage() {
         // given
-        val timestamp = "2021-01-01T00:00:00.000Z"
-        val timestampMinusLessThanThreshold = DateTimeUtil.minusMilliseconds(timestamp, AuthorHeaderHelper.AGGREGATION_TIME_WINDOW - 1L)
+        val timestamp = Instant.parse("2021-01-01T00:00:00.000Z")
+        val timestampMinusLessThanThreshold = timestamp - (AuthorHeaderHelper.AGGREGATION_TIME_WINDOW - 1).milliseconds
         val messages = listOf(
-            testRegularMessage(userId = SELF_USER_ID, timestamp = timestamp),
-            testRegularMessage(userId = SELF_USER_ID, timestamp = timestampMinusLessThanThreshold)
+            testRegularMessage(userId = SELF_USER_ID, instant = timestamp),
+            testRegularMessage(userId = SELF_USER_ID, instant = timestampMinusLessThanThreshold)
         )
         // when
         val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
@@ -167,11 +169,11 @@ class AuthorHeaderHelperTest {
     @Test
     fun givenTwoRegularMessagesFromSameUserAndTimestampsBeyondThreshold_thenShouldShowHeaderForRecentMessage() {
         // given
-        val timestamp = "2021-01-01T00:00:00.000Z"
-        val timestampMinusMoreThanThreshold = DateTimeUtil.minusMilliseconds(timestamp, AuthorHeaderHelper.AGGREGATION_TIME_WINDOW + 1L)
+        val timestamp = Instant.parse("2021-01-01T00:00:00.000Z")
+        val timestampMinusMoreThanThreshold = timestamp - (AuthorHeaderHelper.AGGREGATION_TIME_WINDOW + 1).milliseconds
         val messages = listOf(
-            testRegularMessage(userId = SELF_USER_ID, timestamp = timestamp),
-            testRegularMessage(userId = SELF_USER_ID, timestamp = timestampMinusMoreThanThreshold)
+            testRegularMessage(userId = SELF_USER_ID, instant = timestamp),
+            testRegularMessage(userId = SELF_USER_ID, instant = timestampMinusMoreThanThreshold)
         )
         // when
         val result = messages.forIndex(0) { shouldShowHeader(it.currentMessage, it.messageAbove) }
@@ -214,8 +216,8 @@ class AuthorHeaderHelperTest {
     fun givenTwoRegularMessagesFromSameUser_thenPreviousShouldHaveSmallBottomPaddingAndRecentShouldNot() {
         // given
         val messages = listOf( // more recent message is first on list
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:01.000Z")),
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:00.000Z"))
         )
         // when
         val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
@@ -229,8 +231,8 @@ class AuthorHeaderHelperTest {
     fun givenTwoRegularMessagesFromDifferentUser_thenBothShouldNotHaveSmallBottomPadding() {
         // given
         val messages = listOf( // more recent message is first on list
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
-            testRegularMessage(userId = OTHER_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:01.000Z")),
+            testRegularMessage(userId = OTHER_USER_ID, instant = Instant.parse("2021-01-01T00:00:00.000Z"))
         )
         // when
         val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
@@ -244,8 +246,8 @@ class AuthorHeaderHelperTest {
     fun givenSystemAndThenRegularMessageFromSameUser_thenBothShouldNotHaveSmallBottomPadding() {
         // given
         val messages = listOf( // more recent message is first on list
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
-            testSystemMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:01.000Z")),
+            testSystemMessage(userId = SELF_USER_ID, timestamp = Instant.parse("2021-01-01T00:00:00.000Z"))
         )
         // when
         val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
@@ -259,8 +261,8 @@ class AuthorHeaderHelperTest {
     fun givenRegularAndThenSystemMessagFromSameUsere_thenBothShouldNotHaveSmallBottomPadding() {
         // given
         val messages = listOf( // more recent message is first on list
-            testSystemMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+            testSystemMessage(userId = SELF_USER_ID, timestamp = Instant.parse("2021-01-01T00:00:01.000Z")),
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:00.000Z"))
         )
         // when
         val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
@@ -274,8 +276,8 @@ class AuthorHeaderHelperTest {
     fun givenPingAndThenRegularMessageFromSameUser_thenBothShouldNotHaveSmallBottomPadding() {
         // given
         val messages = listOf( // more recent message is first on list
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
-            testPingMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:01.000Z")),
+            testPingMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:00.000Z"))
         )
         // when
         val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
@@ -289,8 +291,8 @@ class AuthorHeaderHelperTest {
     fun givenRegularAndThenPingMessageFromSameUser_thenBothShouldNotHaveSmallBottomPadding() {
         // given
         val messages = listOf( // more recent message is first on list
-            testPingMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:01.000Z"),
-            testRegularMessage(userId = SELF_USER_ID, timestamp = "2021-01-01T00:00:00.000Z")
+            testPingMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:01.000Z")),
+            testRegularMessage(userId = SELF_USER_ID, instant = Instant.parse("2021-01-01T00:00:00.000Z"))
         )
         // when
         val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
@@ -303,11 +305,11 @@ class AuthorHeaderHelperTest {
     @Test
     fun givenTwoRegularMessagesFromSameUserAndTimestampsWithinThreshold_thenPreviousShouldHaveSmallBottomPaddingAndRecentShouldNot() {
         // given
-        val timestamp = "2021-01-01T00:00:00.000Z"
-        val timestampMinusLessThanThreshold = DateTimeUtil.minusMilliseconds(timestamp, AuthorHeaderHelper.AGGREGATION_TIME_WINDOW - 1L)
+        val timestamp = Instant.parse("2021-01-01T00:00:00.000Z")
+        val timestampMinusLessThanThreshold = timestamp - (AuthorHeaderHelper.AGGREGATION_TIME_WINDOW - 1L).milliseconds
         val messages = listOf(
-            testRegularMessage(userId = SELF_USER_ID, timestamp = timestamp),
-            testRegularMessage(userId = SELF_USER_ID, timestamp = timestampMinusLessThanThreshold)
+            testRegularMessage(userId = SELF_USER_ID, instant = timestamp),
+            testRegularMessage(userId = SELF_USER_ID, instant = timestampMinusLessThanThreshold)
         )
         // when
         val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
@@ -320,11 +322,11 @@ class AuthorHeaderHelperTest {
     @Test
     fun givenTwoRegularMessagesFromSameUserAndTimestampsBeyondThreshold_thenBothShouldNotHaveSmallBottomPadding() {
         // given
-        val timestamp = "2021-01-01T00:00:00.000Z"
-        val timestampMinusMoreThanThreshold = DateTimeUtil.minusMilliseconds(timestamp, AuthorHeaderHelper.AGGREGATION_TIME_WINDOW + 1L)
+        val timestamp = Instant.parse("2021-01-01T00:00:00.000Z")
+        val timestampMinusMoreThanThreshold = timestamp - (AuthorHeaderHelper.AGGREGATION_TIME_WINDOW + 1L).milliseconds
         val messages = listOf(
-            testRegularMessage(userId = SELF_USER_ID, timestamp = timestamp),
-            testRegularMessage(userId = SELF_USER_ID, timestamp = timestampMinusMoreThanThreshold)
+            testRegularMessage(userId = SELF_USER_ID, instant = timestamp),
+            testRegularMessage(userId = SELF_USER_ID, instant = timestampMinusMoreThanThreshold)
         )
         // when
         val resultPrevious = messages.forIndex(1) { shouldHaveSmallBottomPadding(it.currentMessage, it.messageBelow) }
@@ -341,12 +343,12 @@ class AuthorHeaderHelperTest {
 
         private fun testSystemMessage(
             userId: UserId? = null,
-            timestamp: String = "2021-01-01T00:00:00.000Z"
+            timestamp: Instant = Instant.parse("2021-01-01T00:00:00.000Z")
         ) = UIMessage.System(
             conversationId = CONVERSATION_ID,
             header = TestMessage.UI_MESSAGE_HEADER.copy(
                 messageTime = TestMessage.UI_MESSAGE_HEADER.messageTime.copy(
-                    utcISO = timestamp
+                    instant = timestamp
                 ),
                 messageId = UUID.randomUUID().toString(),
                 userId = userId
@@ -357,12 +359,12 @@ class AuthorHeaderHelperTest {
 
         private fun testPingMessage(
             userId: UserId? = null,
-            timestamp: String = "2021-01-01T00:00:00.000Z"
+            instant: Instant = Instant.parse("2021-01-01T00:00:00.000Z")
         ) = UIMessage.System(
             conversationId = CONVERSATION_ID,
             header = TestMessage.UI_MESSAGE_HEADER.copy(
                 messageTime = TestMessage.UI_MESSAGE_HEADER.messageTime.copy(
-                    utcISO = timestamp
+                    instant = instant
                 ),
                 messageId = UUID.randomUUID().toString(),
                 userId = userId
@@ -373,14 +375,14 @@ class AuthorHeaderHelperTest {
 
         private fun testRegularMessage(
             userId: UserId? = null,
-            timestamp: String = "2021-01-01T00:00:00.000Z"
+            instant: Instant = Instant.parse("2021-01-01T00:00:00.000Z")
         ) = UIMessage.Regular(
             conversationId = CONVERSATION_ID,
             userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),
             source = if (userId == SELF_USER_ID) MessageSource.Self else MessageSource.OtherUser,
             header = TestMessage.UI_MESSAGE_HEADER.copy(
                 messageTime = TestMessage.UI_MESSAGE_HEADER.messageTime.copy(
-                    utcISO = timestamp
+                    instant = instant
                 ),
                 messageId = UUID.randomUUID().toString(),
                 userId = userId

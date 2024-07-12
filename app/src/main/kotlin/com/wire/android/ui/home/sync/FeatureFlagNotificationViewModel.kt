@@ -31,9 +31,9 @@ import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.android.ui.home.toFeatureFlagState
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.message.TeamSelfDeleteTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
@@ -87,14 +87,14 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                         currentUserId = null
                         appLogger.i("$TAG: Failure while getting current session")
                         featureFlagState = FeatureFlagState( // no session, clear feature flag state to default and set NO_USER
-                            fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER
+                            isFileSharingState = FeatureFlagState.FileSharingState.NoUser
                         )
                     }
 
                     currentSessionResult is CurrentSessionResult.Success && !currentSessionResult.accountInfo.isValid() -> {
                         appLogger.i("$TAG: Invalid current session")
                         featureFlagState = FeatureFlagState( // invalid session, clear feature flag state to default and set NO_USER
-                            fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER
+                            isFileSharingState = FeatureFlagState.FileSharingState.NoUser
                         )
                     }
 
@@ -132,22 +132,11 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private suspend fun setFileSharingState(userId: UserId) {
         coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
-            fileSharingStatus.state.let {
-                // TODO: handle restriction when sending assets
-                val (fileSharingRestrictedState, state) = if (it is FileSharingStatus.Value.EnabledAll) {
-                    FeatureFlagState.SharingRestrictedState.NONE to true
-                } else {
-                    FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM to false
-                }
-
-                featureFlagState = featureFlagState.copy(
-                    fileSharingRestrictedState = fileSharingRestrictedState,
-                    isFileSharingEnabledState = state
-                )
-            }
-            fileSharingStatus.isStatusChanged?.let {
-                featureFlagState = featureFlagState.copy(showFileSharingDialog = it)
-            }
+            val state: FeatureFlagState.FileSharingState = fileSharingStatus.state.toFeatureFlagState()
+            featureFlagState = featureFlagState.copy(
+                isFileSharingState = state,
+                showFileSharingDialog = fileSharingStatus.isStatusChanged ?: false
+            )
         }
     }
 

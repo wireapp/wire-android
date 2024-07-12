@@ -30,4 +30,6 @@ open class AnonymousAnalyticsRecorderStub : AnonymousAnalyticsRecorder {
     override fun onStop() = Unit
 
     override fun sendEvent(event: AnalyticsEvent) = Unit
+
+    override fun halt() = Unit
 }

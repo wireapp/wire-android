@@ -51,6 +51,7 @@ import com.wire.android.feature.sketch.DrawingCanvasBottomSheet
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
@@ -59,9 +60,8 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuSta
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.util.CurrentConversationDetailsCache
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.util.isPositiveNotNull
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 
 @OptIn(ExperimentalLayoutApi::class)
 @Suppress("ComplexMethod")
@@ -70,13 +70,13 @@ fun EnabledMessageComposer(
     conversationId: ConversationId,
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
-    onChangeSelfDeletionClicked: () -> Unit,
+    onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onSendButtonClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
     onLocationPicked: (GeoLocatedAddress) -> Unit,
-    onCaptureVideoPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     tempWritableVideoUri: Uri?,
@@ -93,6 +93,12 @@ fun EnabledMessageComposer(
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
+
+        LaunchedEffect(isImeVisible) {
+            if (!isImeVisible) {
+                inputStateHolder.clearFocus()
+            }
+        }
 
         LaunchedEffect(offsetY) {
             with(density) {
@@ -221,16 +227,15 @@ fun EnabledMessageComposer(
                     if (inputStateHolder.optionsVisible) {
                         if (additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
                             AdditionalOptionsMenu(
+                                conversationId = conversationId,
                                 additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
                                 selectedOption = additionalOptionStateHolder.selectedOption,
                                 isEditing = messageCompositionInputStateHolder.inputType is InputType.Editing,
-                                isSelfDeletingSettingEnabled = isSelfDeletingSettingEnabled,
-                                isSelfDeletingActive = messageComposerViewState.value.selfDeletionTimer.duration.isPositiveNotNull(),
                                 isMentionActive = messageComposerViewState.value.mentionSearchResult.isNotEmpty(),
                                 onMentionButtonClicked = messageCompositionHolder::startMention,
                                 onOnSelfDeletingOptionClicked = {
                                     additionalOptionStateHolder.toSelfDeletingOptionsMenu()
-                                    onChangeSelfDeletionClicked()
+                                    onChangeSelfDeletionClicked(it)
                                 },
                                 onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                                 onPingOptionClicked = onPingOptionClicked,
@@ -278,7 +283,7 @@ fun EnabledMessageComposer(
                                     onAttachmentPicked = onAttachmentPicked,
                                     onAudioRecorded = onAudioRecorded,
                                     onLocationPicked = onLocationPicked,
-                                    onCaptureVideoPermissionPermanentlyDenied = onCaptureVideoPermissionPermanentlyDenied,
+                                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                                     tempWritableImageUri = tempWritableImageUri,
                                     tempWritableVideoUri = tempWritableVideoUri,
                                     modifier = Modifier.fillMaxSize()

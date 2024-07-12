@@ -437,4 +437,4 @@ fun getAudioLengthInMs(dataPath: Path, mimeType: String): Long =
 private const val ATTACHMENT_FILENAME = "attachment"
 private const val DATA_COPY_BUFFER_SIZE = 2048
 const val SDK_VERSION = 33
-const val AUDIO_MIME_TYPE = "audio/mp4"
+const val SUPPORTED_AUDIO_MIME_TYPE = "audio/wav"

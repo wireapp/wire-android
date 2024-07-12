@@ -29,7 +29,7 @@ open class AnonymousAnalyticsManagerStub : AnonymousAnalyticsManager {
     override fun init(
         context: Context,
         analyticsSettings: AnalyticsSettings,
-        isEnabledFlowProvider: suspend () -> Flow<Boolean>,
+        isEnabledFlow: Flow<Boolean>,
         anonymousAnalyticsRecorder: AnonymousAnalyticsRecorder,
         dispatcher: CoroutineDispatcher
     ) = Unit
@@ -38,5 +38,5 @@ open class AnonymousAnalyticsManagerStub : AnonymousAnalyticsManager {
 
     override fun onStart(activity: Activity) = Unit
 
-    override fun onStop() = Unit
+    override fun onStop(activity: Activity) = Unit
 }

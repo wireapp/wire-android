@@ -34,7 +34,6 @@ import com.wire.android.ui.home.settings.backup.BackupRestoreProgress
 import com.wire.android.ui.home.settings.backup.PasswordValidation
 import com.wire.android.ui.home.settings.backup.RestoreFileValidation
 import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
-import com.wire.android.util.permission.PermissionDenialType
 
 @Composable
 fun RestoreBackupDialogFlow(
@@ -44,7 +43,7 @@ fun RestoreBackupDialogFlow(
     onRestoreBackup: () -> Unit,
     onOpenConversations: () -> Unit,
     onCancelBackupRestore: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onChooseFilePermissionPermanentlyDenied: () -> Unit,
 ) {
     val restoreDialogStateHolder = rememberRestoreDialogState()
 
@@ -56,7 +55,7 @@ fun RestoreBackupDialogFlow(
                     restoreDialogStateHolder = restoreDialogStateHolder,
                     onChooseBackupFile = onChooseBackupFile,
                     onCancelBackupRestore = onCancelBackupRestore,
-                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+                    onChooseFilePermissionPermanentlyDenied = onChooseFilePermissionPermanentlyDenied,
                 )
             }
 
@@ -100,7 +99,7 @@ private fun ChooseBackupFileStep(
     restoreDialogStateHolder: RestoreDialogStateHolder,
     onChooseBackupFile: (Uri) -> Unit,
     onCancelBackupRestore: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    onChooseFilePermissionPermanentlyDenied: () -> Unit,
 ) {
     LaunchedEffect(backUpAndRestoreState.restoreFileValidation) {
         when (backUpAndRestoreState.restoreFileValidation) {
@@ -129,7 +128,7 @@ private fun ChooseBackupFileStep(
     PickRestoreFileDialog(
         onChooseBackupFile = onChooseBackupFile,
         onCancelBackupRestore = onCancelBackupRestore,
-        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+        onChooseFilePermissionPermanentlyDenied = onChooseFilePermissionPermanentlyDenied,
     )
 }
 

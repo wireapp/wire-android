@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.extension.folderWithElements
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
@@ -39,18 +38,18 @@ import kotlinx.collections.immutable.ImmutableMap
 @Suppress("LongParameterList")
 @Composable
 fun ConversationList(
-    modifier: Modifier = Modifier,
-    lazyListState: LazyListState = rememberLazyListState(),
     conversationListItems: ImmutableMap<ConversationFolder, List<ConversationItem>>,
     searchQuery: String,
-    isSelectableList: Boolean = false,
-    conversationsAddedToGroup: List<ConversationItem> = emptyList(),
-    onConversationSelectedOnRadioGroup: (ConversationId) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onJoinCall: (ConversationId) -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
+    isSelectableList: Boolean = false,
+    conversationsAddedToGroup: List<ConversationItem> = emptyList(),
+    onConversationSelectedOnRadioGroup: (ConversationId) -> Unit = {},
+    onAudioPermissionPermanentlyDenied: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -92,7 +91,7 @@ fun ConversationList(
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
                     joinCall = onJoinCall,
-                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+                    onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
                 )
             }
         }

@@ -69,7 +69,7 @@ class ChangeDisplayNameViewModel @Inject constructor(
     ) {
         displayNameState = displayNameState.copy(loading = true)
         viewModelScope.launch {
-            updateDisplayName(textState.toString().trim())
+            updateDisplayName(textState.text.toString().trim())
                 .also { displayNameState = displayNameState.copy(loading = false) }
                 .let {
                     when (it) {

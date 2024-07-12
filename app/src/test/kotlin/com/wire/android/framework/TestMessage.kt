@@ -34,6 +34,7 @@ import com.wire.kalium.logic.data.message.MessageEncryptionAlgorithm
 import com.wire.kalium.logic.data.message.MessagePreview
 import com.wire.kalium.logic.data.message.MessagePreviewContent
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.datetime.Instant
 
 object TestMessage {
 
@@ -45,7 +46,7 @@ object TestMessage {
             isDecryptionResolved = false
         ),
         conversationId = ConversationId("convo-id", "convo.domain"),
-        date = "some-date",
+        date = Instant.parse("2022-03-30T15:36:00.000Z"),
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
         status = Message.Status.Sent,
@@ -57,7 +58,7 @@ object TestMessage {
         id = "messageID",
         content = MessageContent.Text("Some Text Message"),
         conversationId = ConversationId("convo-id", "convo.domain"),
-        date = "some-date",
+        date = Instant.parse("2022-03-30T15:36:00.000Z"),
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
         status = Message.Status.Sent,
@@ -90,7 +91,7 @@ object TestMessage {
         id = "messageID",
         content = MessageContent.Asset(ASSET_IMAGE_CONTENT),
         conversationId = ConversationId("convo-id", "convo.domain"),
-        date = "some-date",
+        date = Instant.parse("2022-03-30T15:36:00.000Z"),
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
         status = Message.Status.Sent,
@@ -101,7 +102,7 @@ object TestMessage {
         id = "messageID",
         content = MessageContent.Unknown("some-unhandled-message"),
         conversationId = ConversationId("convo-id", "convo.domain"),
-        date = "some-date",
+        date = Instant.parse("2022-03-30T15:36:00.000Z"),
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
         status = Message.Status.Sent,
@@ -113,7 +114,7 @@ object TestMessage {
         id = "messageID",
         content = MessageContent.Asset(assetContent),
         conversationId = ConversationId("convo-id", "convo.domain"),
-        date = "some-date",
+        date = Instant.parse("2022-03-30T15:36:00.000Z"),
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
         status = Message.Status.Sent,
@@ -125,7 +126,7 @@ object TestMessage {
         id = "messageID",
         content = MessageContent.MissedCall,
         conversationId = ConversationId("convo-id", "convo.domain"),
-        date = "some-date",
+        date = Instant.parse("2022-03-30T15:36:00.000Z"),
         senderUserId = UserId("user-id", "domain"),
         status = Message.Status.Sent,
         expirationData = null
@@ -135,7 +136,7 @@ object TestMessage {
         id = "messageID",
         content = MessageContent.MemberChange.Removed(listOf(UserId("user-id", "domain"))),
         conversationId = ConversationId("convo-id", "convo.domain"),
-        date = "some-date",
+        date = Instant.parse("2022-03-30T15:36:00.000Z"),
         senderUserId = UserId("user-id", "domain"),
         status = Message.Status.Sent,
         expirationData = null
@@ -144,7 +145,7 @@ object TestMessage {
         username = UIText.DynamicString("username"),
         membership = Membership.Guest,
         isLegalHold = true,
-        messageTime = MessageTime("12.23pm"),
+        messageTime = MessageTime(Instant.parse("2022-03-30T15:36:00.000Z")),
         messageStatus = MessageStatus(
             flowStatus = MessageFlowStatus.Sent,
             expirationStatus = ExpirationStatus.NotExpirable
@@ -158,7 +159,7 @@ object TestMessage {
         id = "messageID",
         content = MessageContent.MissedCall,
         conversationId = ConversationId("convo-id", "convo.domain"),
-        date = "some-date",
+        date = Instant.parse("2022-03-30T15:36:00.000Z"),
         senderUserId = UserId("user-id", "domain"),
         status = Message.Status.Sent,
         expirationData = null
@@ -168,7 +169,7 @@ object TestMessage {
         id = "messageID",
         content = MessageContent.ConversationCreated,
         conversationId = ConversationId("convo-id", "convo.domain"),
-        date = "some-date",
+        date = Instant.parse("2022-03-30T15:36:00.000Z"),
         senderUserId = UserId("user-id", "domain"),
         status = Message.Status.Sent,
         expirationData = null

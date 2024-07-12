@@ -47,7 +47,7 @@ jobs:
                 run: echo "BASE_BRANCH=develop" >> "$GITHUB_ENV"
 
             -   name: Crowdin action
-                uses: crowdin/github-action@v1
+                uses: crowdin/github-action@v2
                 with:
                     project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
                     token: ${{ secrets.CROWDIN_API_TOKEN }}

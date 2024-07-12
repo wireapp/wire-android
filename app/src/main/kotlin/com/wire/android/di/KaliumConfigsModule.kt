@@ -51,7 +51,7 @@ class KaliumConfigsModule {
             forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS,
             // we use upsert, available from SQL3.24, which is supported from Android API30, so for older APIs we have to use SQLCipher
             shouldEncryptData = !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R,
-            lowerKeyPackageLimits = BuildConfig.PRIVATE_BUILD,
+            lowerKeyPackageLimits = BuildConfig.LOWER_KEYPACKAGE_LIMIT,
             lowerKeyingMaterialsUpdateThreshold = BuildConfig.PRIVATE_BUILD,
             isMLSSupportEnabled = BuildConfig.MLS_SUPPORT_ENABLED,
             developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,

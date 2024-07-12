@@ -16,7 +16,7 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="module_name">Sketch module</string>
+    <string name="module_name" translatable="false">Sketch module</string>
     <string name="content_description_send_button">Send</string>
     <string name="content_description_undo_button">Undo</string>
     <string name="sketch_details_empty_text">Pick your favorite color and start sketching 🎨</string>

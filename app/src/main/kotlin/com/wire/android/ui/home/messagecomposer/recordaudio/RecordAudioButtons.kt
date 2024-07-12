@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
+import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireTertiaryIconButton
@@ -68,7 +69,7 @@ import java.io.File
 @Composable
 fun RecordAudioButtonClose(
     onClick: () -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     WireTertiaryIconButton(
         onButtonClicked = onClick,
@@ -86,7 +87,7 @@ fun RecordAudioButtonEnabled(
     applyAudioFilterState: Boolean,
     applyAudioFilterClick: (Boolean) -> Unit,
     onClick: () -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     RecordAudioButton(
         onClick = onClick,
@@ -105,7 +106,7 @@ fun RecordAudioButtonEnabled(
 fun RecordAudioButtonRecording(
     applyAudioFilterState: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     var seconds by remember {
         mutableStateOf(0)
@@ -150,14 +151,47 @@ fun RecordAudioButtonRecording(
 }
 
 @Composable
+fun RecordAudioButtonEncoding(
+    applyAudioFilterState: Boolean,
+    modifier: Modifier = Modifier
+) {
+    if (!LocalInspectionMode.current) {
+        val activity = LocalContext.current as Activity
+
+        DisposableEffect(Unit) {
+            activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            onDispose {
+                activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
+        }
+    }
+
+    RecordAudioButton(
+        onClick = {},
+        modifier = modifier,
+        topContent = {},
+        iconResId = null,
+        trailingIconAlignment = IconAlignment.Center,
+        contentDescription = -1,
+        buttonColor = colorsScheme().recordAudioStopColor,
+        bottomText = R.string.record_audio_encoding_label,
+        buttonState = WireButtonState.Disabled,
+        isAudioFilterEnabled = false,
+        loading = true,
+        applyAudioFilterState = applyAudioFilterState,
+        applyAudioFilterClick = { }
+    )
+}
+
+@Composable
 fun RecordAudioButtonSend(
     applyAudioFilterState: Boolean,
     audioState: AudioState,
     onClick: () -> Unit,
-    modifier: Modifier,
     outputFile: File?,
     onPlayAudio: () -> Unit,
     onSliderPositionChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
     applyAudioFilterClick: (Boolean) -> Unit
 ) {
     RecordAudioButton(
@@ -188,17 +222,19 @@ fun RecordAudioButtonSend(
 @Composable
 private fun RecordAudioButton(
     onClick: () -> Unit,
-    modifier: Modifier,
     topContent: @Composable () -> Unit,
-    @DrawableRes iconResId: Int,
+    @DrawableRes iconResId: Int?,
     @StringRes contentDescription: Int,
     buttonColor: Color,
     @StringRes bottomText: Int,
-    buttonState: WireButtonState = WireButtonState.Default,
     applyAudioFilterState: Boolean,
     applyAudioFilterClick: (Boolean) -> Unit,
-    isAudioFilterEnabled: Boolean = true
-) {
+    modifier: Modifier = Modifier,
+    buttonState: WireButtonState = WireButtonState.Default,
+    isAudioFilterEnabled: Boolean = true,
+    loading: Boolean = false,
+    trailingIconAlignment: IconAlignment = IconAlignment.Border,
+    ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -210,20 +246,24 @@ private fun RecordAudioButton(
             modifier = Modifier
                 .width(dimensions().spacing80x)
                 .height(dimensions().spacing80x),
+            trailingIconAlignment = trailingIconAlignment,
             onClick = onClick,
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = iconResId),
-                    contentDescription = stringResource(id = contentDescription),
-                    modifier = Modifier.size(dimensions().spacing20x),
-                    tint = colorsScheme().onPrimary
-                )
+            leadingIcon = iconResId?.let {
+                {
+                    Icon(
+                        painter = painterResource(id = it),
+                        contentDescription = stringResource(id = contentDescription),
+                        modifier = Modifier.size(dimensions().spacing20x),
+                        tint = colorsScheme().onPrimary
+                    )
+                }
             },
             shape = CircleShape,
             colors = wireSecondaryButtonColors().copy(
                 enabled = buttonColor
             ),
-            state = buttonState
+            state = buttonState,
+            loading = loading
         )
         Spacer(modifier = Modifier.height(dimensions().spacing16x))
         Text(

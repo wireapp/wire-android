@@ -54,8 +54,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Destination
 @Composable
 fun AboutThisAppScreen(
-    viewModel: AboutThisAppViewModel = hiltViewModel(),
-    navigator: Navigator
+    navigator: Navigator,
+    viewModel: AboutThisAppViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     AboutThisAppContent(

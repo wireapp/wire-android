@@ -41,12 +41,10 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -60,8 +58,6 @@ import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
-import com.wire.android.feature.analytics.globalAnalyticsManager
-import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LocalNavigator
 import com.wire.android.navigation.NavigationCommand
@@ -91,6 +87,7 @@ import com.wire.android.ui.home.E2EICertificateRevokedDialog
 import com.wire.android.ui.home.E2EIRequiredDialog
 import com.wire.android.ui.home.E2EIResultDialog
 import com.wire.android.ui.home.E2EISnoozeDialog
+import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedDialog
@@ -166,7 +163,7 @@ class WireActivity : AppCompatActivity() {
             legalHoldRequestedViewModel.observeLegalHoldRequest()
 
             appLogger.i("$TAG start destination")
-            val startDestination = when (viewModel.initialAppState) {
+            val startDestination = when (viewModel.initialAppState()) {
                 InitialAppState.NOT_MIGRATED -> MigrationScreenDestination
                 InitialAppState.NOT_LOGGED_IN -> WelcomeScreenDestination
                 InitialAppState.ENROLL_E2EI -> E2EIEnrollmentScreenDestination
@@ -182,7 +179,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         if (isNavigationCollecting) {
@@ -297,25 +294,6 @@ class WireActivity : AppCompatActivity() {
                 navController.removeOnDestinationChangedListener(currentScreenManager)
             }
         }
-
-        val lifecycleOwner = LocalLifecycleOwner.current
-        val activity = LocalContext.current as Activity
-        DisposableEffect(lifecycleOwner) {
-            val observer = LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_START) {
-                    globalAnalyticsManager.onStart(activity = activity)
-                    globalAnalyticsManager.sendEvent(AnalyticsEvent.AppOpen())
-                }
-                if (event == Lifecycle.Event.ON_STOP) {
-                    globalAnalyticsManager.onStop()
-                }
-            }
-            lifecycleOwner.lifecycle.addObserver(observer)
-
-            onDispose {
-                lifecycleOwner.lifecycle.removeObserver(observer)
-            }
-        }
     }
 
     @Composable
@@ -377,7 +355,7 @@ class WireActivity : AppCompatActivity() {
                 }
                 if (showFileSharingDialog) {
                     FileRestrictionDialog(
-                        isFileSharingEnabled = isFileSharingEnabledState,
+                        isFileSharingEnabled = (isFileSharingState !is FeatureFlagState.FileSharingState.DisabledByTeam),
                         hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
                     )
                 }

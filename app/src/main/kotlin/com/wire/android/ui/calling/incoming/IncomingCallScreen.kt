@@ -55,8 +55,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.permission.PermissionDenialType
-import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
+import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.id.ConversationId
 
@@ -123,7 +122,6 @@ fun IncomingCallScreen(
         IncomingCallContent(
             callState = callState,
             toggleMute = { sharedCallingViewModel.toggleMute(true) },
-            toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
             declineCall = {
                 incomingCallViewModel.declineCall(
@@ -138,15 +136,13 @@ fun IncomingCallScreen(
             acceptCall = audioPermissionCheck::launch,
             onVideoPreviewCreated = ::setVideoPreview,
             onSelfClearVideoPreview = ::clearVideoPreview,
-            onPermissionPermanentlyDenied = {
-                if (it is PermissionDenialType.CallingCamera) {
-                    permissionPermanentlyDeniedDialogState.show(
-                        PermissionPermanentlyDeniedDialogState.Visible(
-                            title = R.string.app_permission_dialog_title,
-                            description = R.string.camera_permission_dialog_description
-                        )
+            onCameraPermissionPermanentlyDenied = {
+                permissionPermanentlyDeniedDialogState.show(
+                    PermissionPermanentlyDeniedDialogState.Visible(
+                        title = R.string.app_permission_dialog_title,
+                        description = R.string.camera_permission_dialog_description
                     )
-                }
+                )
             },
             onMinimiseScreen = {
                 activity.moveTaskToBack(true)
@@ -165,13 +161,12 @@ fun IncomingCallScreen(
 private fun IncomingCallContent(
     callState: CallState,
     toggleMute: () -> Unit,
-    toggleSpeaker: () -> Unit,
     toggleVideo: () -> Unit,
     declineCall: () -> Unit,
     acceptCall: () -> Unit,
     onVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
-    onPermissionPermanentlyDenied: (type: PermissionDenialType) -> Unit,
+    onCameraPermissionPermanentlyDenied: () -> Unit,
     onMinimiseScreen: () -> Unit
 ) {
     BackHandler {
@@ -189,10 +184,11 @@ private fun IncomingCallContent(
                 isMuted = callState.isMuted ?: true,
                 isCameraOn = callState.isCameraOn,
                 isSpeakerOn = callState.isSpeakerOn,
-                toggleSpeaker = toggleSpeaker,
+                toggleSpeaker = {},
                 toggleMute = toggleMute,
                 toggleVideo = toggleVideo,
-                onPermissionPermanentlyDenied = onPermissionPermanentlyDenied
+                shouldShowSpeakerButton = false,
+                onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied
             )
             Box(
                 modifier = Modifier
@@ -277,13 +273,13 @@ private fun IncomingCallContent(
 fun AudioPermissionCheckFlow(
     onAcceptCall: () -> Unit,
     onPermanentPermissionDecline: () -> Unit,
-) = rememberCallingRecordAudioRequestFlow(
-    onAudioPermissionGranted = {
+) = rememberRecordAudioPermissionFlow(
+    onPermissionGranted = {
         appLogger.d("IncomingCall - Audio permission granted")
         onAcceptCall()
     },
-    onAudioPermissionDenied = { /* Nothing to do */ },
-    onAudioPermissionPermanentlyDenied = onPermanentPermissionDecline
+    onPermissionDenied = { /* Nothing to do */ },
+    onPermissionPermanentlyDenied = onPermanentPermissionDecline
 )
 
 @Preview
@@ -292,13 +288,12 @@ fun PreviewIncomingCallScreen() {
     IncomingCallContent(
         callState = CallState(ConversationId("value", "domain")),
         toggleMute = { },
-        toggleSpeaker = { },
         toggleVideo = { },
         declineCall = { },
         acceptCall = { },
         onVideoPreviewCreated = { },
         onSelfClearVideoPreview = { },
-        onPermissionPermanentlyDenied = { },
+        onCameraPermissionPermanentlyDenied = { },
         onMinimiseScreen = { }
     )
 }

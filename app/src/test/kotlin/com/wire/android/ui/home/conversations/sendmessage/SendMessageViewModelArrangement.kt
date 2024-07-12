@@ -80,7 +80,7 @@ internal class SendMessageViewModelArrangement {
     }
 
     @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
+    lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     lateinit var sendTextMessage: SendTextMessageUseCase
@@ -173,7 +173,7 @@ internal class SendMessageViewModelArrangement {
         }
     }
 
-    fun withSuccessfulSendAttachmentMessage() = apply {
+    fun withSendAttachmentMessageResult(result: ScheduleNewAssetMessageResult) = apply {
         coEvery {
             sendAssetMessage(
                 any(),
@@ -185,7 +185,7 @@ internal class SendMessageViewModelArrangement {
                 any(),
                 any()
             )
-        } returns ScheduleNewAssetMessageResult.Success("some-message-id")
+        } returns result
     }
 
     fun withSuccessfulSendTextMessage() = apply {

@@ -27,7 +27,7 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun SelfDeletionMenuItems(
+fun selfDeletionMenuItems(
     currentlySelected: SelfDeletionDuration,
     hideEditMessageMenu: (OnComplete) -> Unit,
     onSelfDeletionDurationChanged: (SelfDeletionDuration) -> Unit,

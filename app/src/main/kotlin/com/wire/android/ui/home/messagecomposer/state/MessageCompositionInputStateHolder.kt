@@ -21,7 +21,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,14 +37,9 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.util.ui.KeyboardHeight
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
-import com.wire.kalium.logic.util.isPositiveNotNull
 
 @Stable
-class MessageCompositionInputStateHolder(
-    val messageTextState: TextFieldState,
-    selfDeletionTimer: State<SelfDeletionTimer>
-) {
+class MessageCompositionInputStateHolder(val messageTextState: TextFieldState) {
     var inputFocused: Boolean by mutableStateOf(false)
         private set
 
@@ -75,12 +69,9 @@ class MessageCompositionInputStateHolder(
     val inputType: InputType by derivedStateOf {
         when (val state = compositionState) {
             is CompositionState.Composing -> InputType.Composing(
-                isSendButtonEnabled = messageTextState.text.isNotEmpty(),
-                messageType = when {
-                    selfDeletionTimer.value.duration.isPositiveNotNull() -> MessageType.SelfDeleting(selfDeletionTimer.value)
-                    else -> MessageType.Normal
-                }
+                isSendButtonEnabled = messageTextState.text.isNotEmpty()
             )
+
             is CompositionState.Editing -> InputType.Editing(
                 isEditButtonEnabled = messageTextState.text.toString() != state.originalMessageText
             )
@@ -207,7 +198,6 @@ class MessageCompositionInputStateHolder(
 
         fun saver(
             messageTextState: TextFieldState,
-            selfDeletionTimer: State<SelfDeletionTimer>,
             density: Density
         ): Saver<MessageCompositionInputStateHolder, *> = Saver(
             save = {
@@ -227,7 +217,6 @@ class MessageCompositionInputStateHolder(
                 with(density) {
                     MessageCompositionInputStateHolder(
                         messageTextState = messageTextState,
-                        selfDeletionTimer = selfDeletionTimer
                     ).apply {
                         inputFocused = savedState[0] as Boolean
                         keyboardHeight = (savedState[1] as Float).toDp()
@@ -250,11 +239,15 @@ private sealed class CompositionState {
 
 sealed class InputType {
     @Composable
-    open fun inputTextColor(): WireTextFieldColors = wireTextFieldColors(
+    open fun inputTextColor(isSelfDeleting: Boolean): WireTextFieldColors = wireTextFieldColors(
         backgroundColor = Color.Transparent,
         borderColor = Color.Transparent,
         focusColor = Color.Transparent,
-        placeholderColor = colorsScheme().secondaryText
+        placeholderColor = if (isSelfDeleting) {
+            colorsScheme().primary
+        } else {
+            colorsScheme().secondaryText
+        }
     )
 
     @Composable
@@ -263,24 +256,11 @@ sealed class InputType {
     @Composable
     open fun labelText(): String = stringResource(R.string.label_type_a_message)
 
-    data class Composing(val isSendButtonEnabled: Boolean, val messageType: MessageType) : InputType() {
-
-        @Composable
-        override fun labelText(): String = if (messageType is MessageType.SelfDeleting) {
-            stringResource(id = R.string.self_deleting_message_label)
-        } else {
-            super.labelText()
-        }
-    }
+    data class Composing(val isSendButtonEnabled: Boolean) : InputType()
 
     class Editing(val isEditButtonEnabled: Boolean) : InputType() {
 
         @Composable
         override fun backgroundColor(): Color = colorsScheme().messageComposerEditBackgroundColor
     }
-}
-
-sealed class MessageType {
-    data object Normal : MessageType()
-    data class SelfDeleting(val selfDeletionTimer: SelfDeletionTimer) : MessageType()
 }

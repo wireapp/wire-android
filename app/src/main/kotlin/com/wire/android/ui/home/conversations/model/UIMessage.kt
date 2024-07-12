@@ -24,6 +24,9 @@ import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import com.wire.android.R
+import com.wire.android.mapper.MessageDateTimeGroup
+import com.wire.android.mapper.groupedUIMessageDateTime
+import com.wire.android.mapper.shouldDisplayDatesDifferenceDivider
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -31,9 +34,6 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.Copyable
-import com.wire.android.util.MessageDateTimeGroup
-import com.wire.android.util.groupedUIMessageDateTime
-import com.wire.android.util.shouldDisplayDatesDifferenceDivider
 import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
@@ -45,12 +45,14 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.datetime.Instant
 import kotlin.time.Duration
 
 sealed interface UIMessage {
@@ -492,7 +494,7 @@ sealed class UIMessageContent {
         class MLSWrongEpochWarning : SystemMessage(
             iconResId = R.drawable.ic_info,
             stringResId = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled,
-            learnMoreResId = R.string.label_system_message_learn_more_about_mls_link
+            learnMoreResId = R.string.url_system_message_learn_more_about_mls
         )
 
         data class ConversationProtocolChanged(
@@ -507,7 +509,7 @@ sealed class UIMessageContent {
             learnMoreResId = when (protocol) {
                 Conversation.Protocol.PROTEUS -> null
                 Conversation.Protocol.MIXED -> null
-                Conversation.Protocol.MLS -> R.string.label_system_message_learn_more_about_mls_link
+                Conversation.Protocol.MLS -> R.string.url_system_message_learn_more_about_mls
             }
         )
 
@@ -624,7 +626,8 @@ enum class MessageSource {
     Self, OtherUser
 }
 
-data class MessageTime(val utcISO: String) {
+data class MessageTime(val instant: Instant) {
+    val utcISO: String = instant.toIsoDateTimeString()
     val formattedDate: String = utcISO.uiMessageDateTime() ?: ""
     fun getFormattedDateGroup(now: Long): MessageDateTimeGroup? = utcISO.groupedUIMessageDateTime(now = now)
     fun shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean =
@@ -645,7 +648,7 @@ sealed interface DeliveryStatusContent {
         val totalUsersWithFailures by lazy { (failedRecipients.size + noClients.values.distinct().sumOf { it.size }) }
     }
 
-    object CompleteDelivery : DeliveryStatusContent
+    data object CompleteDelivery : DeliveryStatusContent
 }
 
 @Stable

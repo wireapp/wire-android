@@ -22,7 +22,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -32,66 +31,14 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
-import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 @Suppress("LargeClass")
 class MessageComposerViewModelTest {
-
-    @Test
-    fun `given that a user updates the self-deleting message timer, when invoked, then the timer gets successfully updated`() =
-        runTest {
-            // Given
-            val expectedDuration = 1.toDuration(DurationUnit.HOURS)
-            val expectedTimer = SelfDeletionTimer.Enabled(expectedDuration)
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-                .withSuccessfulViewModelInit()
-                .withPersistSelfDeletionStatus()
-                .arrange()
-
-            // When
-            viewModel.updateSelfDeletingMessages(expectedTimer)
-
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.persistSelfDeletionStatus.invoke(
-                    arrangement.conversationId,
-                    expectedTimer
-                )
-            }
-            assertInstanceOf(SelfDeletionTimer.Enabled::class.java, viewModel.messageComposerViewState.value.selfDeletionTimer)
-            assertEquals(expectedDuration, viewModel.messageComposerViewState.value.selfDeletionTimer.duration)
-        }
-
-    @Test
-    fun `given a valid observed enforced self-deleting message timer, when invoked, then the timer gets successfully updated`() =
-        runTest {
-            // Given
-            val expectedDuration = 1.toDuration(DurationUnit.DAYS)
-            val expectedTimer = SelfDeletionTimer.Enabled(expectedDuration)
-            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
-                .withSuccessfulViewModelInit()
-                .withObserveSelfDeletingStatus(expectedTimer)
-                .arrange()
-
-            // When
-
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.observeConversationSelfDeletionStatus.invoke(
-                    arrangement.conversationId,
-                    true
-                )
-            }
-            assertInstanceOf(SelfDeletionTimer.Enabled::class.java, viewModel.messageComposerViewState.value.selfDeletionTimer)
-            assertEquals(expectedDuration, viewModel.messageComposerViewState.value.selfDeletionTimer.duration)
-        }
 
     @Test
     fun `given that user types a text message, when invoked typing invoked, then send typing event is called`() = runTest {

@@ -1,12 +1,11 @@
 name: "Prod build"
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [created]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.release.tag_name }}
   cancel-in-progress: true
 
 jobs:
@@ -20,6 +19,36 @@ jobs:
     needs: [ code-analysis, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     steps:
+      - name: Verify release target commit
+        id: verify_commit
+        run: |
+          release_commit=$(git rev-parse ${{ github.event.release.target_commitish }})
+          prod_commit=$(git rev-parse refs/heads/prod)
+          
+          if [[ "$release_commit" != "$prod_commit" ]]; then
+            echo "Error: The commit associated with the release tag is not the same as the HEAD of the prod branch."
+            exit 1
+          fi
+
+      - name: Get latest release tag
+        id: get_latest_release
+        run: |
+          latest_tag=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')
+          echo "::set-output name=latest_tag::$latest_tag"
+
+      - name: Compare versions
+        id: compare_versions
+        run: |
+          current_tag=${{ github.event.release.tag_name }}
+          latest_tag=${{ steps.get_latest_release.outputs.latest_tag }}
+
+          if [[ "$current_tag" != "$(echo -e "$current_tag\n$latest_tag" | sort -V | head -n1)" ]]; then
+            echo "Current tag ($current_tag) is lower than latest tag ($latest_tag). Failing the workflow."
+            exit 1
+          else
+            echo "Current tag ($current_tag) is equal or higher than latest tag ($latest_tag). Continuing the workflow."
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4
         with:

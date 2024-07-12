@@ -20,29 +20,38 @@ package com.wire.android.ui.home.messagecomposer.recordaudio
 import android.content.Context
 import com.waz.audioeffect.AudioEffect
 import com.wire.android.appLogger
-import javax.inject.Singleton
+import com.wire.android.util.dispatchers.DispatcherProvider
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
-class GenerateAudioFileWithEffectsUseCase @Inject constructor() {
+class GenerateAudioFileWithEffectsUseCase @Inject constructor(
+    private val dispatchers: DispatcherProvider,
+) {
     /**
      * Note: This UseCase can't be tested as we cannot mock `AudioEffect` from AVS.
      * Generates audio file with effects on received path from the original file path.
      *
      * @return Unit, as the content of audio with effects will be saved directly to received file path.
      */
-    operator fun invoke(
+    suspend operator fun invoke(
         context: Context,
         originalFilePath: String,
-        effectsFilePath: String
-    ) {
-        val audioEffectsResult = AudioEffect(context)
-            .applyEffectM4A(
-                originalFilePath,
-                effectsFilePath,
-                AudioEffect.AVS_AUDIO_EFFECT_VOCODER_MED,
-                true
-            )
+        effectsFilePath: String,
+    ) = withContext(dispatchers.io()) {
+        appLogger.i("[$TAG] -> Start generating audio file with effects")
+
+        val audioEffect = AudioEffect(context)
+        val effectType = AudioEffect.AVS_AUDIO_EFFECT_VOCODER_MED
+        val reduceNoise = true
+
+        val audioEffectsResult = audioEffect.applyEffectWav(
+            originalFilePath,
+            effectsFilePath,
+            effectType,
+            reduceNoise
+        )
 
         if (audioEffectsResult > -1) {
             appLogger.i("[$TAG] -> Audio file with effects generated successfully.")

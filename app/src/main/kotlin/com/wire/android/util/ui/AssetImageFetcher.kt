@@ -30,6 +30,9 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.ConcurrentHashMap
 
 internal class AssetImageFetcher(
     private val assetFetcherParameters: AssetFetcherParameters,
@@ -45,7 +48,9 @@ internal class AssetImageFetcher(
         private const val DEFAULT_RETRY_ATTEMPT = 0
     }
 
-    override suspend fun fetch(): FetchResult? {
+    override suspend fun fetch(): FetchResult = MutexMap.withLock(assetFetcherParameters.data.uniqueKey, ::fetchJob)
+
+    private suspend fun fetchJob(): FetchResult {
         with(assetFetcherParameters) {
             return when (data) {
                 is ImageAsset.UserAvatarAsset -> {
@@ -114,4 +119,43 @@ enum class AssetImageRetryPolicy {
     RETRY_WHEN_CONNECTED,
     EXPONENTIAL_RETRY_WHEN_CONNECTED,
     DO_NOT_RETRY
+}
+
+/**
+ * Creates a mutex associated with a key and locks it so that there's only one execution going for a given key at a given time.
+ * When the lock for the given key is executed for the first time, it will create a new entry in the map and lock the mutex.
+ * When another lock is executed for the same key while it's locked, it will increase the count and lock the mutex so that it'll wait
+ * and execute after the first execution unlocks the mutex. The count is there to keep the mutex in the map as long as it's needed.
+ * After the last unlock, the mutex is removed from the map.
+ */
+private object MutexMap {
+    private val assetMutex = ConcurrentHashMap<String, Pair<Int, Mutex>>()
+
+    suspend fun <T> withLock(key: String, action: suspend () -> T): T =
+        increaseCountAndGetMutex(key).let { (_, mutex) ->
+            mutex.withLock {
+                action().also {
+                    decreaseCountAndRemoveMutexIfNeeded(key)
+                }
+            }
+        }
+
+    private fun increaseCountAndGetMutex(key: String): Pair<Int, Mutex> =
+        assetMutex.compute(key) { _, value ->
+        ((value ?: (0 to Mutex()))).let { (count, mutex) ->
+            count + 1 to mutex
+        }
+    }!!
+
+    private fun decreaseCountAndRemoveMutexIfNeeded(key: String) {
+        assetMutex.compute(key) { _, value ->
+            value?.let { (count, mutex) ->
+                if (count <= 1) {
+                    null
+                } else {
+                    count - 1 to mutex
+                }
+            }
+        }
+    }
 }

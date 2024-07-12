@@ -64,7 +64,6 @@ import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogS
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
 import com.wire.android.util.ImageUtil
-import com.wire.android.util.permission.PermissionDenialType
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -77,8 +76,8 @@ import okio.Path
 @Composable
 fun AvatarPickerScreen(
     navigator: Navigator,
-    viewModel: AvatarPickerViewModel = hiltViewModel(),
-    resultNavigator: ResultBackNavigator<String?>
+    resultNavigator: ResultBackNavigator<String?>,
+    viewModel: AvatarPickerViewModel = hiltViewModel()
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -97,29 +96,35 @@ fun AvatarPickerScreen(
             onNewAvatarPicked(targetAvatarUri, targetAvatarPath, scope, context, viewModel)
         },
         targetPictureFileUri = targetAvatarUri,
-        onPermissionPermanentlyDenied = {
-            val (title, description) = when (it) {
-                PermissionDenialType.Gallery -> {
-                    R.string.app_permission_dialog_title to R.string.open_gallery_permission_dialog_description
-                }
-                PermissionDenialType.TakePicture -> {
-                    R.string.app_permission_dialog_title to R.string.take_picture_permission_dialog_description
-                }
-                else -> { 0 to 0 }
-            }
+        onGalleryPermissionPermanentlyDenied = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = title,
-                    description = description
+                    title = R.string.app_permission_dialog_title,
+                    description = R.string.open_gallery_permission_dialog_description
                 )
             )
-        }
+        },
+        onCameraPermissionPermanentlyDenied = {
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = R.string.app_permission_dialog_title,
+                    description = R.string.take_picture_permission_dialog_description
+                )
+            )
+        },
     )
 
+    LaunchedEffect(Unit) {
+        viewModel.infoMessage.collect {
+            state.showSnackbar(it)
+        }
+    }
+
     AvatarPickerContent(
-        viewModel = viewModel,
+        pictureState = viewModel.pictureState,
         state = state,
         onCloseClick = navigator::navigateBack,
+        onCancelClick = viewModel::loadInitialAvatarState,
         onSaveClick = {
             viewModel.uploadNewPickedAvatar { avatarAssetId ->
                 resultNavigator.setResult(avatarAssetId)
@@ -149,17 +154,12 @@ fun onNewAvatarPicked(originalUri: Uri, targetAvatarPath: Path, scope: Coroutine
 
 @Composable
 private fun AvatarPickerContent(
-    viewModel: AvatarPickerViewModel,
+    pictureState: PictureState,
     state: AvatarPickerState,
+    onCancelClick: () -> Unit,
     onCloseClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.infoMessage.collect {
-            state.showSnackbar(it)
-        }
-    }
-
     WireScaffold(
         topBar = { AvatarPickerTopBar(onCloseClick = onCloseClick) }
     ) { internalPadding ->
@@ -175,15 +175,15 @@ private fun AvatarPickerContent(
             ) {
                 Box(Modifier.weight(1f)) {
                     Box(Modifier.align(Alignment.Center)) {
-                        AvatarPreview(viewModel.pictureState)
+                        AvatarPreview(pictureState)
                     }
                 }
                 HorizontalDivider()
                 Spacer(Modifier.height(4.dp))
                 AvatarPickerActionButtons(
-                    pictureState = viewModel.pictureState,
+                    pictureState = pictureState,
                     onSaveClick = onSaveClick,
-                    onCancelClick = viewModel::loadInitialAvatarState,
+                    onCancelClick = onCancelClick,
                     onChangeImage = state::showModalBottomSheet,
                 )
             }

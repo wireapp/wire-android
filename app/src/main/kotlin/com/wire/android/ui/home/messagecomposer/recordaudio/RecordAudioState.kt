@@ -46,7 +46,12 @@ enum class RecordAudioButtonState {
     /**
      * READY_TO_SEND: When User finished recording its audio message.
      */
-    READY_TO_SEND
+    READY_TO_SEND,
+
+    /**
+     * ENCODING: When recorded audio is encoding
+     */
+    ENCODING
 }
 
 sealed class RecordAudioDialogState {

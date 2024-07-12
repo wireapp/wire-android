@@ -104,7 +104,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null, {}, {}, {}, {})
 
-        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
     }
 
     @Test
@@ -115,7 +115,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null, {}, {}, {}, {})
 
-        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
     }
 
     @Test
@@ -144,7 +144,7 @@ class WireActivityViewModelTest {
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {})
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
             assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog!!.serverLinks)
         }
@@ -160,7 +160,7 @@ class WireActivityViewModelTest {
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {})
 
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
             assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog!!.serverLinks)
         }
@@ -191,7 +191,7 @@ class WireActivityViewModelTest {
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {})
 
-            assertEquals(InitialAppState.NOT_MIGRATED, viewModel.initialAppState)
+            assertEquals(InitialAppState.NOT_MIGRATED, viewModel.initialAppState())
             verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
             assertEquals(null, viewModel.globalAppState.customBackendDialog)
         }
@@ -207,7 +207,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {})
 
-        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
         verify(exactly = 1) { arrangement.onDeepLinkResult(ssoLogin) }
     }
 
@@ -236,7 +236,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {})
 
-        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
         verify(exactly = 1) { arrangement.onDeepLinkResult(ssoLogin) }
     }
 
@@ -251,7 +251,7 @@ class WireActivityViewModelTest {
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {})
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
         }
 
@@ -266,7 +266,7 @@ class WireActivityViewModelTest {
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {})
 
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
         }
 
@@ -281,7 +281,7 @@ class WireActivityViewModelTest {
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {})
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
         }
 
@@ -295,7 +295,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {})
 
-        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
         verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
     }
 
@@ -311,7 +311,7 @@ class WireActivityViewModelTest {
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {})
 
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState)
+            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
         }
 
@@ -325,7 +325,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {})
 
-        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState)
+        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
         verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
     }
 
@@ -741,26 +741,26 @@ class WireActivityViewModelTest {
 
         private val viewModel by lazy {
             WireActivityViewModel(
-                coreLogic = coreLogic,
+                coreLogic = { coreLogic },
                 dispatchers = TestDispatcherProvider(),
-                currentSessionFlow = currentSessionFlow,
-                doesValidSessionExist = doesValidSessionExist,
-                getServerConfigUseCase = getServerConfigUseCase,
-                deepLinkProcessor = deepLinkProcessor,
-                authServerConfigProvider = authServerConfigProvider,
-                getSessions = getSessionsUseCase,
-                accountSwitch = switchAccount,
-                migrationManager = migrationManager,
-                servicesManager = servicesManager,
+                currentSessionFlow = { currentSessionFlow },
+                doesValidSessionExist = { doesValidSessionExist },
+                getServerConfigUseCase = { getServerConfigUseCase },
+                deepLinkProcessor = { deepLinkProcessor },
+                authServerConfigProvider = { authServerConfigProvider },
+                getSessions = { getSessionsUseCase },
+                accountSwitch = { switchAccount },
+                migrationManager = { migrationManager },
+                servicesManager = { servicesManager },
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
-                observeIfAppUpdateRequired = observeIfAppUpdateRequired,
-                observeNewClients = observeNewClients,
-                clearNewClientsForUser = clearNewClientsForUser,
-                currentScreenManager = currentScreenManager,
+                observeIfAppUpdateRequired = { observeIfAppUpdateRequired },
+                observeNewClients = { observeNewClients },
+                clearNewClientsForUser = { clearNewClientsForUser },
+                currentScreenManager = { currentScreenManager },
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
-                globalDataStore = globalDataStore,
+                globalDataStore = { globalDataStore },
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
-                workManager = workManager
+                workManager = { workManager }
             )
         }
 

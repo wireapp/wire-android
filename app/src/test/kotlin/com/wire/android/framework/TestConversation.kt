@@ -25,6 +25,7 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.GroupID
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.datetime.Instant
 
 object TestConversation {
     val ID = ConversationId("valueConvo", "domainConvo")
@@ -41,7 +42,7 @@ object TestConversation {
         null,
         null,
         null,
-        lastReadDate = "2022-03-30T15:36:00.000Z",
+        lastReadDate = Instant.parse("2022-03-30T15:36:00.000Z"),
         access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
         accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
         creatorId = null,
@@ -64,7 +65,7 @@ object TestConversation {
         null,
         null,
         null,
-        lastReadDate = "2022-03-30T15:36:00.000Z",
+        lastReadDate = Instant.parse("2022-03-30T15:36:00.000Z"),
         access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
         accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
         creatorId = null,
@@ -88,7 +89,7 @@ object TestConversation {
         null,
         null,
         null,
-        lastReadDate = "2022-03-30T15:36:00.000Z",
+        lastReadDate = Instant.parse("2022-03-30T15:36:00.000Z"),
         access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
         accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
         creatorId = null,
@@ -112,7 +113,7 @@ object TestConversation {
         null,
         null,
         null,
-        lastReadDate = "2022-03-30T15:36:00.000Z",
+        lastReadDate = Instant.parse("2022-03-30T15:36:00.000Z"),
         access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
         accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
         creatorId = null,
@@ -145,7 +146,7 @@ object TestConversation {
         null,
         access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
         accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
-        lastReadDate = "2022-03-30T15:36:00.000Z",
+        lastReadDate = Instant.parse("2022-03-30T15:36:00.000Z"),
         creatorId = null,
         receiptMode = Conversation.ReceiptMode.ENABLED,
         messageTimer = null,

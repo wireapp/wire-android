@@ -31,7 +31,7 @@ interface AnonymousAnalyticsManager {
     fun init(
         context: Context,
         analyticsSettings: AnalyticsSettings,
-        isEnabledFlowProvider: suspend () -> Flow<Boolean>,
+        isEnabledFlow: Flow<Boolean>,
         anonymousAnalyticsRecorder: AnonymousAnalyticsRecorder,
         dispatcher: CoroutineDispatcher
     )
@@ -40,5 +40,5 @@ interface AnonymousAnalyticsManager {
 
     fun onStart(activity: Activity)
 
-    fun onStop()
+    fun onStop(activity: Activity)
 }

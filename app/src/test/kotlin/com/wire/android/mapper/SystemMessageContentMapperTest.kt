@@ -19,18 +19,21 @@
 package com.wire.android.mapper
 
 import android.content.res.Resources
+import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.CONVERSATION_CREATED_MESSAGE
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.home.conversations.name
+import com.wire.android.util.formatFullDateShortTime
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -41,6 +44,7 @@ import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.util.Locale
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -125,11 +129,16 @@ class SystemMessageContentMapperTest {
                     (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
         )
 
-        assertTrue(
-            resultConversationCreated is SystemMessage.ConversationMessageCreated &&
-                    (resultConversationCreated.author as UIText.StringResource).resId == 10584735 &&
-                    resultConversationCreated.date == "SOME-DATE"
-        )
+        val expectedFormattedDate = CONVERSATION_CREATED_MESSAGE.date
+            .toIsoDateTimeString()
+            .formatFullDateShortTime()!!
+            .uppercase(
+                Locale.getDefault()
+            )
+
+        assertIs<SystemMessage.ConversationMessageCreated>(resultConversationCreated)
+        assertEquals(10584735, (resultConversationCreated.author as UIText.StringResource).resId)
+        assertEquals(expectedFormattedDate, resultConversationCreated.date)
     }
 
     @Suppress("LongMethod", "ComplexMethod")

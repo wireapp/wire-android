@@ -67,6 +67,11 @@ object TermsOfUseScreenDestination : ExternalUriStringResDirection {
         get() = R.string.url_terms_of_use_legal
 }
 
+object WireWebsiteScreenDestination : ExternalUriStringResDirection {
+    override val uriStringRes: Int
+        get() = R.string.url_wire_website
+}
+
 object GiveFeedbackDestination : IntentDirection {
     override fun intent(context: Context): Intent {
         val intent = Intent(Intent.ACTION_SEND)

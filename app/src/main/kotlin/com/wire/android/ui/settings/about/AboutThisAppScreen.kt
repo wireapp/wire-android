@@ -97,6 +97,16 @@ private fun AboutThisAppContent(
                 .padding(internalPadding)
         ) {
             SettingsItem(
+                text = stringResource(id = R.string.settings_wire_website_label),
+                trailingIcon = R.drawable.ic_arrow_right,
+                onRowPressed = Clickable(
+                    enabled = true,
+                    onClick = {
+                        onItemClicked(SettingsItem.WireWebsite)
+                    }
+                )
+            )
+            SettingsItem(
                 text = stringResource(id = R.string.settings_terms_of_use_label),
                 trailingIcon = R.drawable.ic_arrow_right,
                 onRowPressed = Clickable(
@@ -123,6 +133,16 @@ private fun AboutThisAppContent(
                     enabled = true,
                     onClick = {
                         onItemClicked(SettingsItem.Licenses)
+                    }
+                )
+            )
+            SettingsItem(
+                text = stringResource(id = R.string.settings_dependencies_label),
+                trailingIcon = R.drawable.ic_arrow_right,
+                onRowPressed = Clickable(
+                    enabled = true,
+                    onClick = {
+                        onItemClicked(SettingsItem.Dependencies)
                     }
                 )
             )

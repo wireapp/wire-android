@@ -15,18 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.debug
+package com.wire.android.ui.home.settings.about.dependencies
 
-data class DebugDataOptionsState(
-    val isEncryptedProteusStorageEnabled: Boolean = false,
-    val isEventProcessingDisabled: Boolean = false,
-    val keyPackagesCount: Int = 0,
-    val mslClientId: String = "null",
-    val mlsErrorMessage: String = "null",
-    val isManualMigrationAllowed: Boolean = false,
-    val debugId: String = "null",
-    val commitish: String = "null",
-    val certificate: String = "null",
-    val showCertificate: Boolean = false,
-    val startGettingE2EICertificate: Boolean = false,
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
+
+data class DependenciesState(
+    val dependencies: ImmutableMap<String, String?> = persistentMapOf()
 )

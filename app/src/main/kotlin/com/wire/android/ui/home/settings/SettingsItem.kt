@@ -37,6 +37,7 @@ import com.wire.android.navigation.PrivacyPolicyScreenDestination
 import com.wire.android.navigation.ReportBugDestination
 import com.wire.android.navigation.SupportScreenDestination
 import com.wire.android.navigation.TermsOfUseScreenDestination
+import com.wire.android.navigation.WireWebsiteScreenDestination
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
@@ -45,6 +46,7 @@ import com.wire.android.ui.destinations.AppSettingsScreenDestination
 import com.wire.android.ui.destinations.AppearanceScreenDestination
 import com.wire.android.ui.destinations.BackupAndRestoreScreenDestination
 import com.wire.android.ui.destinations.DebugScreenDestination
+import com.wire.android.ui.destinations.DependenciesScreenDestination
 import com.wire.android.ui.destinations.LicensesScreenDestination
 import com.wire.android.ui.destinations.MyAccountScreenDestination
 import com.wire.android.ui.destinations.NetworkSettingsScreenDestination
@@ -156,6 +158,12 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
         direction = TermsOfUseScreenDestination
     )
 
+    data object WireWebsite : DirectionItem(
+        id = "terms_of_use",
+        title = UIText.StringResource(R.string.settings_wire_website_label),
+        direction = WireWebsiteScreenDestination
+    )
+
     data object PrivacyPolicy : DirectionItem(
         id = "privacy_policy",
         title = UIText.StringResource(R.string.settings_privacy_policy_label),
@@ -166,6 +174,12 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
         id = "other_licenses",
         title = UIText.StringResource(R.string.settings_licenses_settings_label),
         direction = LicensesScreenDestination
+    )
+
+    data object Dependencies : DirectionItem(
+        id = "other_licenses",
+        title = UIText.StringResource(R.string.settings_dependencies_label),
+        direction = DependenciesScreenDestination
     )
 
     data object BackupAndRestore : DirectionItem(

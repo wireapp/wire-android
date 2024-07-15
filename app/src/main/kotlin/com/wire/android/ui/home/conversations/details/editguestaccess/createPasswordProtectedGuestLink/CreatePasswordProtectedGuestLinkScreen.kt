@@ -45,11 +45,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
-<<<<<<< HEAD
-import com.ramcosta.composedestinations.annotation.Destination
-=======
-import androidx.navigation.NavHostController
->>>>>>> 50f6423ec (fix: interaction during screen transitions [WPB-6533] 🍒 (#3180))
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator

@@ -19,11 +19,6 @@ package com.wire.android.ui.home.newconversation.search
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-<<<<<<< HEAD
-import com.ramcosta.composedestinations.annotation.Destination
-=======
-import androidx.hilt.navigation.compose.hiltViewModel
->>>>>>> 50f6423ec (fix: interaction during screen transitions [WPB-6533] 🍒 (#3180))
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator

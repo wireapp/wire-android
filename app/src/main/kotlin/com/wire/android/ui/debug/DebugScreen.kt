@@ -42,12 +42,9 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-<<<<<<< HEAD
-import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.dimensions
-=======
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.navigation.WireDestination
->>>>>>> 50f6423ec (fix: interaction during screen transitions [WPB-6533] 🍒 (#3180))
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MigrationScreenDestination

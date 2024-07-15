@@ -24,11 +24,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-<<<<<<< HEAD
-=======
 import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.common.collectAsStateLifecycleAware
->>>>>>> 50f6423ec (fix: interaction during screen transitions [WPB-6533] 🍒 (#3180))
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs

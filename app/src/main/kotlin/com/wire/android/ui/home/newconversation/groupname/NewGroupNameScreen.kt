@@ -20,11 +20,6 @@ package com.wire.android.ui.home.newconversation.groupname
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
-<<<<<<< HEAD
-import com.ramcosta.composedestinations.annotation.Destination
-=======
-import androidx.compose.ui.tooling.preview.Preview
->>>>>>> 50f6423ec (fix: interaction during screen transitions [WPB-6533] 🍒 (#3180))
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator

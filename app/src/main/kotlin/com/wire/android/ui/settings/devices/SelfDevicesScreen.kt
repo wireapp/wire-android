@@ -36,11 +36,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.Icon
@@ -53,7 +53,7 @@ import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.lifecycle.rememberLifecycleEvent
 
 @RootNavGraph
-@Destination
+@WireDestination
 @Composable
 fun SelfDevicesScreen(
     navigator: Navigator,

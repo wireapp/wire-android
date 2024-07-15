@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.BuildConfig
@@ -49,7 +48,6 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.functional.Either
-import kotlinx.collections.immutable.ImmutableMap
 
 @Composable
 fun DebugDataOptions(
@@ -450,15 +448,6 @@ private fun DisableEventProcessingSwitch(
         }
     )
 }
-
-@Stable
-private fun prettyPrintMap(map: ImmutableMap<String, String?>, title: String): String = StringBuilder().apply {
-    append("$title\n")
-    map.forEach { (key, value) ->
-        append("$key: $value\n")
-    }
-}.toString()
-
 //endregion
 
 @PreviewMultipleThemes

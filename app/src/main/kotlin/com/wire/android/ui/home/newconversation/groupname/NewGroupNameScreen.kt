@@ -20,10 +20,10 @@ package com.wire.android.ui.home.newconversation.groupname
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameScreen
@@ -39,7 +39,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 
 @NewConversationNavGraph
-@Destination
+@WireDestination
 @Composable
 fun NewGroupNameScreen(
     navigator: Navigator,

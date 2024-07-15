@@ -21,18 +21,18 @@ package com.wire.android.ui.home.conversations.details.metadata
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.groupname.GroupNameScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = EditConversationNameNavArgs::class
 )
 @Composable

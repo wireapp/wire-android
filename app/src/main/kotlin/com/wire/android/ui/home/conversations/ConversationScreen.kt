@@ -71,7 +71,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult.Canceled
 import com.ramcosta.composedestinations.result.NavResult.Value
@@ -90,6 +89,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.getOngoingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -195,7 +195,7 @@ private const val MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT = 5
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Suppress("ComplexMethod")
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = ConversationNavArgs::class
 )
 @Composable

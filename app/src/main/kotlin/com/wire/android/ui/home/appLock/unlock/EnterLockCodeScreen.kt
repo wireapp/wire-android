@@ -48,12 +48,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.utils.destination
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
@@ -72,7 +72,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import java.util.Locale
 
 @RootNavGraph
-@Destination
+@WireDestination
 @Composable
 fun EnterLockCodeScreen(
     navigator: Navigator,

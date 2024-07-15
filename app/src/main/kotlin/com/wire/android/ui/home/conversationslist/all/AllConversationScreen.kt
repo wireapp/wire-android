@@ -34,10 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.HomeNavGraph
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.HomeStateHolder
@@ -58,7 +58,7 @@ import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
 @HomeNavGraph(start = true)
-@Destination
+@WireDestination
 @Composable
 fun AllConversationScreen(homeStateHolder: HomeStateHolder) {
     with(homeStateHolder) {

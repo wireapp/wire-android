@@ -30,9 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavGraph
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.home.conversationslist.ConversationItemType
@@ -53,7 +53,7 @@ import com.wire.android.ui.theme.wireTypography
  * 5. **Optimization**: Speeds up the development cycle by reusing established components.
  */
 @HomeNavGraph
-@Destination
+@WireDestination
 @Composable
 fun ArchiveScreen(homeStateHolder: HomeStateHolder) {
     with(homeStateHolder) {

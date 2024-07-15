@@ -19,12 +19,22 @@ package com.wire.android.ui.home.newconversation.groupsearch
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+<<<<<<< HEAD
 import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+=======
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.R
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
+import com.wire.android.ui.common.collectAsStateLifecycleAware
+>>>>>>> 50f6423ec (fix: interaction during screen transitions [WPB-6533] 🍒 (#3180))
 import com.wire.android.ui.destinations.NewGroupNameScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.home.conversations.search.SearchBarViewModel
 import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
 import com.wire.android.ui.home.conversations.search.SearchUsersAndServicesScreen
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
@@ -32,7 +42,7 @@ import com.wire.android.ui.home.newconversation.common.NewConversationNavGraph
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @NewConversationNavGraph
-@Destination
+@WireDestination
 @Composable
 fun NewGroupConversationSearchPeopleScreen(
     navigator: Navigator,

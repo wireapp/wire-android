@@ -37,12 +37,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -66,7 +66,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.id.ConversationId
 
 @NewConversationNavGraph
-@Destination
+@WireDestination
 @Composable
 fun GroupOptionScreen(
     navigator: Navigator,

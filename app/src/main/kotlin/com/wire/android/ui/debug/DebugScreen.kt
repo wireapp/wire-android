@@ -36,15 +36,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+<<<<<<< HEAD
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.dimensions
+=======
+import com.wire.android.navigation.WireDestination
+>>>>>>> 50f6423ec (fix: interaction during screen transitions [WPB-6533] 🍒 (#3180))
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MigrationScreenDestination
@@ -55,7 +58,7 @@ import com.wire.kalium.logic.data.user.UserId
 import java.io.File
 
 @RootNavGraph
-@Destination
+@WireDestination
 @Composable
 fun DebugScreen(navigator: Navigator, userDebugViewModel: UserDebugViewModel = hiltViewModel()) {
     UserDebugContent(

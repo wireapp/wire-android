@@ -20,10 +20,15 @@ package com.wire.android.ui.home.newconversation.groupname
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+<<<<<<< HEAD
 import com.ramcosta.composedestinations.annotation.Destination
+=======
+import androidx.compose.ui.tooling.preview.Preview
+>>>>>>> 50f6423ec (fix: interaction during screen transitions [WPB-6533] 🍒 (#3180))
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameScreen
@@ -39,7 +44,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 
 @NewConversationNavGraph
-@Destination
+@WireDestination
 @Composable
 fun NewGroupNameScreen(
     navigator: Navigator,

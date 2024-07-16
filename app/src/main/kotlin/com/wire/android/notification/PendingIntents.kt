@@ -152,7 +152,7 @@ private fun openOngoingCallIntent(context: Context, conversationId: String) =
         putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Ongoing.name)
     }
 
-fun callNotificationDismissedPendingIntent(context: Context, userId: String, conversationId: String) : PendingIntent =
+fun callNotificationDismissedPendingIntent(context: Context, userId: String, conversationId: String): PendingIntent =
     PendingIntent.getBroadcast(
         context,
         getRequestCode(conversationId, CALL_NOTIFICATION_DISMISSED_REQUEST_CODE),

@@ -33,9 +33,7 @@ import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.NotificationConstants.CALL_ONGOING_NOTIFICATION_ID
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMapRight
@@ -117,7 +115,8 @@ class OngoingCallService : Service() {
                             { reason ->
                                 appLogger.i("$TAG: stopSelf. Reason: $reason")
                                 stopSelf()
-                            }, { data ->
+                            },
+                            { data ->
                                 generateForegroundNotification(data)
                             }
                         )

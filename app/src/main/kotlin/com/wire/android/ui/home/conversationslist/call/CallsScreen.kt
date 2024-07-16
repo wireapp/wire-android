@@ -25,9 +25,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavGraph
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.home.conversationslist.ConversationItemType
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
@@ -38,7 +38,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
 @HomeNavGraph
-@Destination
+@WireDestination
 @Composable
 fun CallsScreen(homeStateHolder: HomeStateHolder) {
     with(homeStateHolder) {

@@ -51,10 +51,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.WakeUpScreenPopUpNavigationAnimation
 import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.ConversationName
@@ -87,7 +87,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = CallingNavArgs::class,
     style = WakeUpScreenPopUpNavigationAnimation::class
 )

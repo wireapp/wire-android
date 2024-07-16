@@ -20,10 +20,10 @@ package com.wire.android.ui.home.newconversation.search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.destinations.NewGroupNameScreenDestination
@@ -37,7 +37,7 @@ import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.QualifiedID
 
 @NewConversationNavGraph(start = true)
-@Destination(
+@WireDestination(
     style = PopUpNavigationAnimation::class
 )
 @Composable

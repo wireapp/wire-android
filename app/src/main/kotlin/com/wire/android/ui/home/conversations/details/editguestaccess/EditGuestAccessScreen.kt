@@ -41,11 +41,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.dimensions
@@ -66,7 +66,7 @@ import kotlinx.coroutines.launch
 @Suppress("ComplexMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = EditGuestAccessNavArgs::class
 )
 @Composable

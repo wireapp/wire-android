@@ -65,13 +65,14 @@ fun WhatsNewScreen(
 @Composable
 fun WhatsNewScreenContent(
     state: WhatsNewState,
-    lazyListState: LazyListState = rememberLazyListState(),
-    onItemClicked: (WhatsNewItem) -> Unit
+    onItemClicked: (WhatsNewItem) -> Unit,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState()
 ) {
     val context = LocalContext.current
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         folderWithElements(
             items = buildList {
@@ -131,7 +132,7 @@ private fun LazyListScope.folderWithElements(
             title = item.title.asString(),
             boldTitle = item.boldTitle,
             text = item.text?.asString(),
-            onRowPressed = remember { Clickable(enabled = !isLoading) { onItemClicked(item) } },
+            onRowPressed = remember(isLoading) { Clickable(enabled = !isLoading) { onItemClicked(item) } },
             trailingIcon = R.drawable.ic_arrow_right,
             isLoading = isLoading,
         )
@@ -141,11 +142,25 @@ private fun LazyListScope.folderWithElements(
 @Preview(showBackground = false)
 @Composable
 fun PreviewWhatsNewScreen() {
-    WhatsNewScreenContent(WhatsNewState(isLoading = false)) {}
+    WhatsNewScreenContent(
+        state = WhatsNewState(
+            isLoading = false,
+            releaseNotesItems = buildList {
+                for (i in 0..3) {
+                    add(ReleaseNotesItem(i.toString(), "Title $i", "https://www.example.com", "01 Jan 2024"))
+                }
+            }
+        ),
+        onItemClicked = {}
+    )
 }
 
 @Preview(showBackground = false)
 @Composable
 fun PreviewWhatsNewScreenLoading() {
-    WhatsNewScreenContent(WhatsNewState(isLoading = true)) {}
+    WhatsNewScreenContent(
+        state = WhatsNewState(isLoading = true),
+        onItemClicked = {}
+    )
 }
+

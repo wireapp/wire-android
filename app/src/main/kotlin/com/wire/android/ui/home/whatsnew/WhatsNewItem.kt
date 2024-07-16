@@ -47,6 +47,7 @@ import com.wire.android.util.ui.UIText
 
 @Composable
 fun WhatsNewItem(
+    modifier: Modifier = Modifier,
     title: String? = null,
     boldTitle: Boolean = false,
     text: String? = null,
@@ -93,7 +94,7 @@ fun WhatsNewItem(
             } ?: Icons.Filled.ChevronRight
         },
         clickable = onRowPressed,
-        modifier = Modifier.padding(vertical = dimensions().spacing4x)
+        modifier = modifier.padding(vertical = dimensions().spacing4x)
     )
 }
 
@@ -141,7 +142,9 @@ fun PreviewFileRestrictionDialog() {
         WhatsNewItem(
             title = "What's new item",
             text = "This is the text of the item",
-            trailingIcon = R.drawable.ic_arrow_right
+            trailingIcon = R.drawable.ic_arrow_right,
+            isLoading = false,
+            onRowPressed = Clickable(enabled = true) {}
         )
     }
 }
@@ -155,6 +158,7 @@ fun PreviewFileRestrictionDialogLoading() {
             text = "This is the text of the item",
             trailingIcon = R.drawable.ic_arrow_right,
             isLoading = true,
+            onRowPressed = Clickable(enabled = false) {}
         )
     }
 }

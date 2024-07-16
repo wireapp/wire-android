@@ -165,4 +165,3 @@ fun PreviewWhatsNewScreenLoading() {
         onItemClicked = {}
     )
 }
-

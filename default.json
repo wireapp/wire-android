@@ -29,7 +29,6 @@
             "default_backend_url_blacklist": "https://clientblacklist.wire.com/staging",
             "default_backend_url_website": "https://wire.com",
             "default_backend_title": "wire-staging",
-            "is_password_protected_guest_link_enabled": true,
             "encrypt_proteus_storage": true,
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
@@ -134,7 +133,7 @@
             "clientblacklist.wire.com"
         ]
     },
-    "is_password_protected_guest_link_enabled": false,
+    "is_password_protected_guest_link_enabled": true,
     "team_app_lock": false,
     "team_app_lock_timeout": 60,
     "max_remote_search_result_count": 30,

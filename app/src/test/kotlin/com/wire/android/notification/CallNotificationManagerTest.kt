@@ -103,7 +103,7 @@ class CallNotificationManagerTest {
             val notification = mockk<Notification>()
             val callNotificationData = provideCallNotificationData(TEST_USER_ID1, TEST_CALL1)
             val (arrangement, callNotificationManager) = Arrangement()
-                .withOutgoingNotificationForUserAndCall(notification,callNotificationData)
+                .withOutgoingNotificationForUserAndCall(notification, callNotificationData)
                 .arrange()
 
             arrangement.clearRecordedCallsForNotificationManager() // clear first empty list recorded call

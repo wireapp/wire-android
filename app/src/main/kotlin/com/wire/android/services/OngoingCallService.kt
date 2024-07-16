@@ -180,9 +180,3 @@ class OngoingCallService : Service() {
         NOT_STARTED, STARTED, FOREGROUND
     }
 }
-
-data class OngoingCallData(
-    val userId: UserId,
-    val conversationId: ConversationId,
-    val notificationTitle: String
-)

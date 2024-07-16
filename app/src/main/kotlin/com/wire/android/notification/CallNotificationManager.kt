@@ -23,7 +23,6 @@ import android.app.Notification
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.app.Person
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -157,9 +156,9 @@ class CallNotificationManager @Inject constructor(
 
     @SuppressLint("MissingPermission")
     @VisibleForTesting
-    internal fun showIncomingCallNotification(data: CallNotificationData, showActions: Boolean = true) {
+    internal fun showIncomingCallNotification(data: CallNotificationData) {
         appLogger.i("$TAG: showing incoming call notification for user ${data.userId.toLogString()}")
-        val notification = builder.getIncomingCallNotification(data, showActions)
+        val notification = builder.getIncomingCallNotification(data)
         notificationManager.notify(
             NotificationConstants.CALL_INCOMING_NOTIFICATION_ID,
             notification
@@ -218,7 +217,7 @@ class CallNotificationBuilder @Inject constructor(
             .build()
     }
 
-    fun getIncomingCallNotification(data: CallNotificationData, showActions: Boolean): Notification {
+    fun getIncomingCallNotification(data: CallNotificationData): Notification {
         val conversationIdString = data.conversationId.toString()
         val userIdString = data.userId.toString()
         val title = getNotificationTitle(data)

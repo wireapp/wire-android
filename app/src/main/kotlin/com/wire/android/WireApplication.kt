@@ -219,7 +219,7 @@ class WireApplication : BaseApp() {
                 .isAppVisibleFlow()
                 .filter { isVisible -> isVisible }
                 .collect {
-                    globalAnalyticsManager.sendEvent(AnalyticsEvent.AppOpen())
+                    AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.AppOpen())
                 }
         }
     }

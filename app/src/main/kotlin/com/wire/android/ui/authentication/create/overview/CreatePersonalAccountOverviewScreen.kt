@@ -40,10 +40,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
@@ -59,7 +59,7 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @CreatePersonalAccountNavGraph(start = true)
-@Destination
+@WireDestination
 @Composable
 fun CreatePersonalAccountOverviewScreen(
     viewModel: CreateAccountOverviewViewModel = hiltViewModel(),
@@ -86,7 +86,7 @@ fun CreatePersonalAccountOverviewScreen(
 }
 
 @CreateTeamAccountNavGraph(start = true)
-@Destination
+@WireDestination
 @Composable
 fun CreateTeamAccountOverviewScreen(
     viewModel: CreateAccountOverviewViewModel = hiltViewModel(),

@@ -15,24 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.home.settings.about.dependencies
 
-package com.wire.android.ui.home.vault
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.navigation.HomeNavGraph
-import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.common.UnderConstructionScreen
-
-@HomeNavGraph
-@WireDestination
-@Composable
-fun VaultScreen() {
-    UnderConstructionScreen(screenName = "VaultScreen")
-}
-
-@Preview(showBackground = false)
-@Composable
-fun PreviewVaultScreen() {
-    VaultScreen()
-}
+data class DependenciesState(
+    val dependencies: ImmutableMap<String, String?> = persistentMapOf()
+)

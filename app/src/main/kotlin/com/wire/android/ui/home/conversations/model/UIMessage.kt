@@ -24,6 +24,9 @@ import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import com.wire.android.R
+import com.wire.android.mapper.MessageDateTimeGroup
+import com.wire.android.mapper.groupedUIMessageDateTime
+import com.wire.android.mapper.shouldDisplayDatesDifferenceDivider
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -31,9 +34,6 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.Copyable
-import com.wire.android.util.MessageDateTimeGroup
-import com.wire.android.util.groupedUIMessageDateTime
-import com.wire.android.util.shouldDisplayDatesDifferenceDivider
 import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
@@ -648,7 +648,7 @@ sealed interface DeliveryStatusContent {
         val totalUsersWithFailures by lazy { (failedRecipients.size + noClients.values.distinct().sumOf { it.size }) }
     }
 
-    object CompleteDelivery : DeliveryStatusContent
+    data object CompleteDelivery : DeliveryStatusContent
 }
 
 @Stable

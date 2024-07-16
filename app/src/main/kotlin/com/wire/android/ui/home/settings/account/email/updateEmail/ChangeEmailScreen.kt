@@ -38,12 +38,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState.Default
@@ -66,7 +66,7 @@ import com.wire.android.util.Patterns
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
-@Destination
+@WireDestination
 @Composable
 fun ChangeEmailScreen(
     navigator: Navigator,

@@ -230,7 +230,7 @@ class CallNotificationBuilder @Inject constructor(
             .setSmallIcon(R.drawable.notification_icon_small)
             .setContentTitle(title)
             .setContentText(content)
-            .setAutoCancel(true) // after closing full screen incoming call screen, the notification will be reloaded
+            .setAutoCancel(false)
             .setOngoing(true)
             .setVibrate(VIBRATE_PATTERN)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

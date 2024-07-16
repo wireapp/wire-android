@@ -86,6 +86,7 @@ fun WhatsNewScreenContent(
             header = context.getString(R.string.whats_new_release_notes_group_title),
             items = buildList {
                 if (state.isLoading) {
+                    // placeholders with shimmer effect
                     for (i in 0..3) {
                         add(
                             WhatsNewItem.AndroidReleaseNotes(
@@ -97,6 +98,7 @@ fun WhatsNewScreenContent(
                             )
                         )
                     }
+                    add(WhatsNewItem.AllAndroidReleaseNotes(id = "placeholder_all"))
                 } else {
                     state.releaseNotesItems.forEach {
                         add(
@@ -109,8 +111,8 @@ fun WhatsNewScreenContent(
                             )
                         )
                     }
+                    add(WhatsNewItem.AllAndroidReleaseNotes())
                 }
-                add(WhatsNewItem.AllAndroidReleaseNotes)
             },
             onItemClicked = onItemClicked,
             isLoading = state.isLoading,

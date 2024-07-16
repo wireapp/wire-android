@@ -41,32 +41,34 @@ class WhatsNewViewModel @Inject constructor(context: Context) : ViewModel() {
         private set
 
     init {
+        @Suppress("TooGenericExceptionCaught")
         viewModelScope.launch {
             val feedUrl = context.resources.getString(R.string.url_android_release_notes_feed)
-            if (feedUrl.isNotBlank()) {
-                rssParser.getRssChannel(feedUrl).let {
-                    state = state.copy(
-                        isLoading = false,
-                        releaseNotesItems = it.items
-                            .map { item ->
-                                ReleaseNotesItem(
-                                    id = item.guid.orEmpty(),
-                                    title = item.title.orEmpty(),
-                                    link = item.link.orEmpty(),
-                                    publishDate = item.pubDate?.let { publishDateFormat.parse(it)?.toMediumOnlyDateTime() }.orEmpty(),
-                                )
-                            }
-                            .filter {
-                                it.title.isNotBlank() && it.link.isNotBlank() && it.publishDate.isNotBlank()
-                            }
-                    )
+            val items = try {
+                if (feedUrl.isNotBlank()) {
+                    rssParser.getRssChannel(feedUrl).items
+                } else {
+                    emptyList()
                 }
-            } else {
-                state = state.copy(
-                    isLoading = false,
-                    releaseNotesItems = emptyList()
-                )
+            } catch (e: Exception) {
+                emptyList()
             }
+
+            state = state.copy(
+                isLoading = false,
+                releaseNotesItems = items
+                    .map { item ->
+                        ReleaseNotesItem(
+                            id = item.guid.orEmpty(),
+                            title = item.title.orEmpty(),
+                            link = item.link.orEmpty(),
+                            publishDate = item.pubDate?.let { publishDateFormat.parse(it)?.toMediumOnlyDateTime() }.orEmpty(),
+                        )
+                    }
+                    .filter {
+                        it.title.isNotBlank() && it.link.isNotBlank() && it.publishDate.isNotBlank()
+                    }
+            )
         }
     }
 }

@@ -29,7 +29,8 @@ data class NotificationConversation(
     val name: String?,
     val messages: List<NotificationMessage>,
     val isOneToOneConversation: Boolean,
-    val lastMessageTime: Long
+    val lastMessageTime: Long,
+    val isReplyAllowed: Boolean,
 )
 
 sealed class NotificationMessage(open val messageId: String, open val author: NotificationMessageAuthor?, open val time: Long) {
@@ -99,7 +100,8 @@ fun LocalNotification.Conversation.intoNotificationConversation(): NotificationC
         name = conversationName,
         messages = notificationMessages,
         isOneToOneConversation = isOneToOneConversation,
-        lastMessageTime = lastMessageTime
+        lastMessageTime = lastMessageTime,
+        isReplyAllowed = isReplyAllowed,
     )
 }
 

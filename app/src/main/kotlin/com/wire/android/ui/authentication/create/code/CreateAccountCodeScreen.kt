@@ -42,11 +42,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
@@ -73,7 +73,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @CreatePersonalAccountNavGraph
 @CreateTeamAccountNavGraph
-@Destination(navArgsDelegate = CreateAccountNavArgs::class)
+@WireDestination(navArgsDelegate = CreateAccountNavArgs::class)
 @Composable
 fun CreateAccountCodeScreen(
     navigator: Navigator,

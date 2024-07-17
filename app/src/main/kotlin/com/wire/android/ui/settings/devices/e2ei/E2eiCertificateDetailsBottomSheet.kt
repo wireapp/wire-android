@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.settings.devices.e2ei
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
@@ -82,6 +83,7 @@ private fun CreateCertificateSheetItem(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun PreviewE2eiCertificateDetailsBottomSheet() {

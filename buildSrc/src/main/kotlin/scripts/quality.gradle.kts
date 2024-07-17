@@ -32,36 +32,27 @@ dependencies {
     detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-libraries:$detektVersion")
-    detektPlugins("com.wire:detekt-rules:2.0.0-main-SNAPSHOT") {
+    detektPlugins("com.wire:detekt-rules:1.0.0-1.23.6") {
         isChanging = true
     }
 }
 
-detekt {
-    allRules = false
-    autoCorrect = false
-    ignoreFailures = false
-    buildUponDefaultConfig = true
-    // activate all available (even unstable) rules.
-    allRules = false
-    config.setFrom("$rootDir/config/detekt/detekt.yml")
-    source.setFrom(files(rootDir))
-    parallel = true
-
-    // a way of suppressing issues before introducing detekt
-    baseline.set(file("$rootDir/config/detekt/baseline.xml"))
-}
-
 // Detekt Configuration
 val detektAll by tasks.registering(Detekt::class) {
-    dependsOn(tasks.detekt)
     group = "Quality"
     description = "Runs a detekt code analysis ruleset on the Wire Android codebase"
+    parallel = true
+    buildUponDefaultConfig = true
 
     val outputFile = "$buildDir/staticAnalysis/index.html"
 
+    setSource(files(rootDir))
+    config.setFrom("$rootDir/config/detekt/detekt.yml")
+
     include("**/*.kt")
-    setExcludes(listOf("**/*.kts", "**/build/**", "/buildSrc", "/kalium", "/template"))
+    exclude("**/*.kts", "**/build/**", "/buildSrc", "/kalium", "/template")
+
+    baseline.set(file("$rootDir/config/detekt/baseline.xml"))
 
     reports {
         xml.required.set(true)
@@ -97,4 +88,12 @@ tasks.register("testCoverage") {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase."
     dependsOn("koverXmlReport")
+}
+
+configurations.matching { it.name == "detekt" }.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin") {
+            useVersion("1.9.23")
+        }
+    }
 }

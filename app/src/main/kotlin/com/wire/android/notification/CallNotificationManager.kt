@@ -202,7 +202,7 @@ class CallNotificationBuilder @Inject constructor(
         val channelId = NotificationConstants.getIncomingChannelId(data.userId)
 
         return NotificationCompat.Builder(context, channelId)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setSmallIcon(R.drawable.notification_icon_small)
             .setContentTitle(data.conversationName)

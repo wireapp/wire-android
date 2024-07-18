@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.settings.devices.e2ei
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -65,6 +66,7 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 data class E2eiCertificateDetailsState(
     val wireModalSheetState: WireModalSheetState = WireModalSheetState()
 )

@@ -20,6 +20,10 @@ on:
           - "develop"
           - "release/candidate"
 
+permissions:
+  contents: write
+  pull-requests: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -71,11 +75,3 @@ jobs:
           pull_request_base_branch_name: ${{env.BASE_BRANCH}}
 
           config: "crowdin.yml"
-
-      - name: Assign Reviewers
-        if: ${{ steps.crowdin-updater.outputs.pull_request_number != '' }}
-        env:
-          GH_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
-          PR_NUMBER: ${{ steps.crowdin-updater.outputs.pull_request_number }}
-        run: |
-          gh pr edit $PR_NUMBER --add-reviewer wireapp/android

@@ -32,7 +32,6 @@ import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.theme.wireDimensions
 
-// TODO: added onRowClick only for UI-Design purpose
 @Composable
 fun RowItem(
     clickable: Clickable,
@@ -45,10 +44,13 @@ fun RowItem(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
-                .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationItemRowHeight)
-                .fillMaxWidth()
+            modifier = Modifier
                 .clickable(clickable)
+                .then(
+                    modifier
+                        .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationItemRowHeight)
+                        .fillMaxWidth()
+                )
         ) {
             content()
         }

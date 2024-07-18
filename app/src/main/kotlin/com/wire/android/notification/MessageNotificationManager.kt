@@ -185,6 +185,7 @@ class MessageNotificationManager
      * @return [Notification] for the conversation with all the messages in it (including previous messages as well)
      * OR null if there is no new messages in conversation and no need to update the existed notification.
      */
+    @Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth")
     private fun getConversationNotification(
         conversation: NotificationConversation,
         userId: QualifiedID,

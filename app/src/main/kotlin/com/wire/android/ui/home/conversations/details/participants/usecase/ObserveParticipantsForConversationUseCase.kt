@@ -30,7 +30,6 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
-import com.wire.kalium.logic.feature.e2ei.CertificateStatus
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
@@ -55,7 +54,7 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                 }
             }
             .scan(
-                ConversationParticipantsData() to emptyMap<UserId, CertificateStatus?>()
+                ConversationParticipantsData() to emptyMap<UserId, Boolean>()
             ) { (_, previousMlsVerificationMap), sortedMemberList ->
                 val allAdminsWithoutServices = sortedMemberList.getOrDefault(true, listOf())
                 val visibleAdminsWithoutServices = allAdminsWithoutServices.limit(limit)
@@ -74,9 +73,9 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
 
                 ConversationParticipantsData(
                     admins = visibleAdminsWithoutServices
-                        .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id]) },
+                        .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id].let { false }) },
                     participants = visibleParticipants
-                        .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id]) },
+                        .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id].let { false }) },
                     allAdminsCount = allAdminsWithoutServices.size,
                     allParticipantsCount = allParticipants.size,
                     isSelfAnAdmin = allAdminsWithoutServices.any { it.user is SelfUser }

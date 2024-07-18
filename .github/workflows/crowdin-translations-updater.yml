@@ -55,6 +55,7 @@ jobs:
           upload_sources: true
           download_translations: true
           upload_translations: false
+          skip_untranslated_strings: true
 
           create_pull_request: true
           localization_branch_name: chore/sync-and-update-localization-${{env.BASE_BRANCH}}

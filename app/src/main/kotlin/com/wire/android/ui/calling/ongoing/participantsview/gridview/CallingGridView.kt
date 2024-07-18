@@ -127,7 +127,6 @@ private fun getContentType(
 ) = if (isCameraOn || isSharingScreen) "videoRender" else null
 
 private const val NUMBER_OF_GRID_CELLS = 2
-private const val MIN_SCREEN_HEIGHT = 800
 
 @Composable
 private fun PreviewGroupCallGrid(participants: List<UICallParticipant>, modifier: Modifier = Modifier) {

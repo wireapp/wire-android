@@ -24,31 +24,32 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.IBinder
+import androidx.core.app.ServiceCompat
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
+import com.wire.android.notification.CallNotificationData
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.NotificationConstants.CALL_ONGOING_NOTIFICATION_ID
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.functional.flatMapRight
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
-import androidx.core.app.ServiceCompat
 
 @AndroidEntryPoint
 class OngoingCallService : Service() {
@@ -98,26 +99,25 @@ class OngoingCallService : Service() {
                             val userId = it.accountInfo.userId
                             coreLogic.getSessionScope(userId).calls.establishedCall().map {
                                 it.firstOrNull()?.let { call ->
-                                    Either.Right(
-                                        OngoingCallData(
-                                            userId = userId,
-                                            conversationId = call.conversationId,
-                                            notificationTitle = callNotificationManager.builder.getNotificationTitle(call)
-                                        )
-                                    )
+                                    Either.Right(CallNotificationData(userId = userId, call = call))
                                 } ?: Either.Left("no ongoing calls")
                             }
                         } else {
                             flowOf(Either.Left("no valid current session"))
                         }
                     }
+                    .distinctUntilChanged()
+                    .flatMapRight { ongoingCallData ->
+                        callNotificationManager.reloadIfNeeded(ongoingCallData)
+                    }
                     .collectLatest {
                         it.fold(
                             { reason ->
                                 appLogger.i("$TAG: stopSelf. Reason: $reason")
                                 stopSelf()
-                            }, {
-                                generateForegroundNotification(it.notificationTitle, it.conversationId.toString(), it.userId)
+                            },
+                            { data ->
+                                generateForegroundNotification(data)
                             }
                         )
                     }
@@ -133,17 +133,9 @@ class OngoingCallService : Service() {
         scope.cancel()
     }
 
-    private fun generateForegroundNotification(
-        callName: String,
-        conversationId: String,
-        userId: UserId
-    ) {
+    private fun generateForegroundNotification(data: CallNotificationData) {
         appLogger.i("$TAG: generating foregroundNotification...")
-        val notification: Notification = callNotificationManager.builder.getOngoingCallNotification(
-            callName,
-            conversationId,
-            userId
-        )
+        val notification: Notification = callNotificationManager.builder.getOngoingCallNotification(data)
         ServiceCompat.startForeground(
             this,
             CALL_ONGOING_NOTIFICATION_ID,
@@ -187,9 +179,3 @@ class OngoingCallService : Service() {
         NOT_STARTED, STARTED, FOREGROUND
     }
 }
-
-data class OngoingCallData(
-    val userId: UserId,
-    val conversationId: ConversationId,
-    val notificationTitle: String
-)

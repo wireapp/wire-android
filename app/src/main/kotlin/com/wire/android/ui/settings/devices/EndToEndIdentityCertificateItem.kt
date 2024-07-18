@@ -218,21 +218,7 @@ fun PreviewEndToEndIdentityCertificateItem() {
     EndToEndIdentityCertificateItem(
         isE2eiCertificateActivated = true,
         isCurrentDevice = false,
-        mlsClientIdentity = MLSClientIdentity(
-            clientId = QualifiedClientID(ClientId(""), UserId("", "")),
-            e2eiStatus = MLSClientE2EIStatus.VALID,
-            thumbprint = "thumbprint",
-            credentialType = MLSCredentialsType.X509,
-            x509Identity = X509Identity(
-                handle = Handle("", "", ""),
-                displayName = "",
-                domain = "",
-                certificate = "",
-                serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
-                notBefore = Instant.DISTANT_PAST,
-                notAfter = Instant.DISTANT_FUTURE
-            )
-        ),
+        mlsClientIdentity = DUMMY_MLSClientIdentity,
         isLoadingCertificate = false,
         enrollE2eiCertificate = {},
         showCertificate = {}
@@ -245,23 +231,25 @@ fun PreviewEndToEndIdentityCertificateSelfItem() {
     EndToEndIdentityCertificateItem(
         isE2eiCertificateActivated = true,
         isCurrentDevice = true,
-        mlsClientIdentity = MLSClientIdentity(
-            clientId = QualifiedClientID(ClientId(""), UserId("", "")),
-            e2eiStatus = MLSClientE2EIStatus.VALID,
-            thumbprint = "thumbprint",
-            credentialType = MLSCredentialsType.X509,
-            x509Identity = X509Identity(
-                handle = Handle("", "", ""),
-                displayName = "",
-                domain = "",
-                certificate = "",
-                serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
-                notBefore = Instant.DISTANT_PAST,
-                notAfter = Instant.DISTANT_FUTURE
-            )
-        ),
+        mlsClientIdentity = DUMMY_MLSClientIdentity,
         isLoadingCertificate = false,
         enrollE2eiCertificate = {},
         showCertificate = {}
     )
 }
+
+var DUMMY_MLSClientIdentity = MLSClientIdentity(
+    clientId = QualifiedClientID(ClientId(""), UserId("", "")),
+    e2eiStatus = MLSClientE2EIStatus.VALID,
+    thumbprint = "thumbprint",
+    credentialType = MLSCredentialsType.X509,
+    x509Identity = X509Identity(
+        handle = Handle("", "", ""),
+        displayName = "",
+        domain = "",
+        certificate = "",
+        serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
+        notBefore = Instant.DISTANT_PAST,
+        notAfter = Instant.DISTANT_FUTURE
+    )
+)

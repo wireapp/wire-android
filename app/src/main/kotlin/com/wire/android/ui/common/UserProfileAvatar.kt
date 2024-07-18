@@ -153,8 +153,10 @@ fun UserProfileAvatar(
 }
 
 sealed class UserProfileAvatarType {
+
     // this will take the indicators into account when calculating avatar size so the composable itself will be larger by the borders
     data class WithIndicators(val legalHoldIndicatorVisible: Boolean) : UserProfileAvatarType()
+
     // this will not take the indicators into account when calculating avatar size so the avatar itself will be exactly as specified size
     data object WithoutIndicators : UserProfileAvatarType()
 }

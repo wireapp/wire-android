@@ -38,7 +38,7 @@ fun E2eiCertificateDetailsBottomSheet(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val onSaveFileWriteStorageRequest = rememberWriteStorageRequestFlow(
-        onGranted = onDownload ,
+        onGranted = onDownload,
         onDenied = { }
     )
     WireModalSheetLayout(sheetState = sheetState, coroutineScope = coroutineScope) {

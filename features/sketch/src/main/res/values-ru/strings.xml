@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Wire
+  ~ Copyright (C) 2024 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<resources>
+    <string name="content_description_send_button">Отправить</string>
+    <string name="content_description_undo_button">Отменить</string>
+    <string name="sketch_details_empty_text">Выберите свой любимый цвет и начните рисовать 🎨</string>
+    <string name="content_description_close_button">закрыть</string>
+    <string name="title_color_picker">Цвет</string>
+    <string name="confirm_changes_title">Отменить рисунок?</string>
+    <string name="confirm_changes_text">Ваш рисунок будет потерян, если вы его не отправите.</string>
+    <string name="confirm_changes_confirm">Отмена</string>
+    <string name="confirm_changes_dismiss">Отменить</string>
+</resources>

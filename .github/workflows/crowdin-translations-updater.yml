@@ -6,67 +6,69 @@ name: "Crowdin Action"
 # For more info: https://github.com/crowdin/github-action/blob/master/action.yml
 
 on:
-    push:
-        branches: [ develop ]
+  push:
+    branches: [ develop ]
 
-    workflow_dispatch:
-        inputs:
-            baseBranch:
-                description: "Base branch to create the PR and update the localization strings"
-                required: true
-                default: "develop"
-                type: choice
-                options:
-                    - "develop"
-                    - "release/candidate"
+  workflow_dispatch:
+    inputs:
+      baseBranch:
+        description: "Base branch to create the PR and update the localization strings"
+        required: true
+        default: "develop"
+        type: choice
+        options:
+          - "develop"
+          - "release/candidate"
+
+env:
+  GITHUB_USER: "AndroidBob"
+  GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-    synchronize-with-crowdin:
-        runs-on: ubuntu-latest
+  synchronize-with-crowdin:
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: "Set base branch from input"
         env:
-            GITHUB_USER: "AndroidBob"
-            GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
+          INPUT_BASE_BRANCH: ${{github.event.inputs.baseBranch}}
+        if: "${{ github.event.inputs.baseBranch != '' }}"
+        run: echo "BASE_BRANCH=$INPUT_BASE_BRANCH" >> "$GITHUB_ENV"
 
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v4
+      - name: "Set base branch to default branch"
+        if: "${{ github.event.inputs.baseBranch == '' }}"
+        run: echo "BASE_BRANCH=develop" >> "$GITHUB_ENV"
 
-            -   name: "Set base branch from input"
-                env:
-                    INPUT_BASE_BRANCH: ${{github.event.inputs.baseBranch}}
-                if: "${{ github.event.inputs.baseBranch != '' }}"
-                run: echo "BASE_BRANCH=$INPUT_BASE_BRANCH" >> "$GITHUB_ENV"
+      - name: Crowdin action
+        id: crowdin-updater
+        uses: crowdin/github-action@v2
+        with:
+          project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
+          token: ${{ secrets.CROWDIN_API_TOKEN }}
 
-            -   name: "Set base branch to default branch"
-                if: "${{ github.event.inputs.baseBranch == '' }}"
-                run: echo "BASE_BRANCH=develop" >> "$GITHUB_ENV"
+          upload_sources: true
+          download_translations: true
+          upload_translations: false
+          skip_untranslated_strings: true
 
-            -   name: Crowdin action
-                uses: crowdin/github-action@v2
-                with:
-                    project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
-                    token: ${{ secrets.CROWDIN_API_TOKEN }}
+          create_pull_request: true
+          localization_branch_name: chore/sync-and-update-localization-${{env.BASE_BRANCH}}
+          commit_message: "chore: update localization strings via Crowdin"
+          pull_request_title: "chore(l10n): update localization strings via Crowdin (WPB-9776)"
+          pull_request_body: "This PR pulls in the latest localization translations from Crowdin."
+          github_user_name: "AndroidBob"
+          github_user_email: "AndroidBob@users.noreply.github.com"
 
-                    upload_sources: true
-                    download_translations: true
-                    upload_translations: false
+          pull_request_labels: "l10n, crowdin"
+          pull_request_assignees: "AndroidBob"
+          pull_request_team_reviewers: "wireapp/android"
+          pull_request_base_branch_name: ${{env.BASE_BRANCH}}
 
-                    create_pull_request: true
-                    localization_branch_name: chore/sync-and-update-localization-${{env.BASE_BRANCH}}
-                    commit_message: "chore: update localization strings via Crowdin"
-                    pull_request_title: "chore: update localization strings via Crowdin"
-                    pull_request_body: "This PR pulls in the latest localization translations from Crowdin."
-                    github_user_name: "AndroidBob"
-                    github_user_email: "AndroidBob@users.noreply.github.com"
-
-                    pull_request_labels: "l10n, crowdin"
-                    pull_request_assignees: "AndroidBob"
-                    pull_request_team_reviewers: "wireapp/android"
-                    pull_request_base_branch_name: ${{env.BASE_BRANCH}}
-
-                    config: "crowdin.yml"
+          config: "crowdin.yml"

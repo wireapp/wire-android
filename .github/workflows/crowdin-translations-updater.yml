@@ -72,3 +72,15 @@ jobs:
           pull_request_base_branch_name: ${{env.BASE_BRANCH}}
 
           config: "crowdin.yml"
+
+      - name: Assign Reviewers
+        if: ${{ steps.crowdin-updater.outputs.pull_request_number != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
+          PR_NUMBER: ${{ steps.crowdin-updater.outputs.pull_request_number }}
+        run: |
+          gh api \
+          --method POST \
+          -H "Accept: application/vnd.github+json" \
+          /repos/${{ github.repository }}/pulls/$PR_NUMBER/requested_reviewers \
+          -f "reviewers[]=wireapp/android" \    

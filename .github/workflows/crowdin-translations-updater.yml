@@ -74,6 +74,7 @@ jobs:
 
       - name: Assign Reviewers
         env:
+          GH_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
           PR_NUMBER: ${{ steps.crowdin-updater.outputs.pull_request_number }}
         run: |
           gh pr edit $PR_NUMBER --add-reviewer "wireapp/android"

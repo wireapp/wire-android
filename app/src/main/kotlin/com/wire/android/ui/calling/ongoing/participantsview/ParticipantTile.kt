@@ -21,15 +21,13 @@ package com.wire.android.ui.calling.ongoing.participantsview
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.Icon
@@ -45,24 +43,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
+import androidx.constraintlayout.compose.atMost
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -72,9 +72,11 @@ import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.UserProfileAvatarType
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -82,37 +84,41 @@ import com.wire.kalium.logic.data.id.QualifiedID
 
 @Composable
 fun ParticipantTile(
-    modifier: Modifier,
     participantTitleState: UICallParticipant,
-    onGoingCallTileUsernameMaxWidth: Dp = 350.dp,
-    avatarSize: Dp = dimensions().onGoingCallUserAvatarSize,
     isSelfUser: Boolean,
-    shouldFill: Boolean = true,
-    isZoomingEnabled: Boolean = false,
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
+    modifier: Modifier = Modifier,
+    shouldFill: Boolean = true,
+    isZoomingEnabled: Boolean = false,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
-    val defaultUserName = stringResource(id = R.string.calling_participant_tile_default_user_name)
-    val alpha =
-        if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
+    val alpha = if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
     Surface(
-        modifier = modifier,
+        modifier = modifier
+            .thenIf(participantTitleState.isSpeaking, activeSpeakerBorderModifier),
         color = colorsScheme().callingParticipantTileBackgroundColor,
-        shape = RoundedCornerShape(dimensions().corner6x),
+        shape = RoundedCornerShape(if (participantTitleState.isSpeaking) dimensions().corner8x else dimensions().corner3x),
     ) {
-
         ConstraintLayout {
-            val (avatar, userName, muteIcon) = createRefs()
+            val (avatar, bottomRow) = createRefs()
+            val maxAvatarSize = dimensions().onGoingCallUserAvatarSize
+            val activeSpeakerBorderPadding = dimensions().spacing6x
 
             AvatarTile(
                 modifier = Modifier
-                    .fillMaxSize()
                     .alpha(alpha)
-                    .constrainAs(avatar) { },
+                    .padding(top = activeSpeakerBorderPadding)
+                    .constrainAs(avatar) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(bottomRow.top)
+                        width = Dimension.fillToConstraints.atMost(maxAvatarSize)
+                        height = Dimension.fillToConstraints.atMost(maxAvatarSize + activeSpeakerBorderPadding)
+                    },
                 avatar = UserAvatarData(participantTitleState.avatar),
-                avatarSize = avatarSize
             )
 
             if (isSelfUser) {
@@ -132,40 +138,89 @@ fun ParticipantTile(
                 )
             }
 
-            MicrophoneTile(
+            BottomRow(
+                participantTitleState = participantTitleState,
+                isSelfUser = isSelfUser,
+                isSelfUserMuted = isSelfUserMuted,
                 modifier = Modifier
-                    .padding(
-                        start = dimensions().spacing8x,
-                        bottom = dimensions().spacing8x
+                    .padding( // move by the size of the active speaker border
+                        start = dimensions().spacing6x,
+                        end = dimensions().spacing6x,
+                        bottom = dimensions().spacing6x,
                     )
-                    .constrainAs(muteIcon) {
+                    .constrainAs(bottomRow) {
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
-                    },
+                        end.linkTo(parent.end)
+                    }
+            )
+        }
+    }
+}
+
+private fun Modifier.thenIf(condition: Boolean, other: Modifier): Modifier = if (condition) this.then(other) else this
+
+private val activeSpeakerBorderModifier
+    @Composable get() = Modifier
+        .border(
+            width = dimensions().spacing3x,
+            shape = RoundedCornerShape(dimensions().corner8x),
+            color = colorsScheme().primary
+        )
+        .border(
+            width = dimensions().spacing6x,
+            shape = RoundedCornerShape(dimensions().corner9x),
+            color = colorsScheme().background
+        )
+
+@Composable
+private fun BottomRow(
+    participantTitleState: UICallParticipant,
+    isSelfUser: Boolean,
+    isSelfUserMuted: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val defaultUserName = stringResource(id = R.string.calling_participant_tile_default_user_name)
+    Layout(
+        modifier = modifier,
+        content = {
+            MicrophoneTile(
+                modifier = Modifier
+                    .padding(end = dimensions().spacing8x)
+                    .layoutId("muteIcon"),
                 isMuted = if (isSelfUser) isSelfUserMuted else participantTitleState.isMuted,
                 hasEstablishedAudio = participantTitleState.hasEstablishedAudio
             )
-
             UsernameTile(
                 modifier = Modifier
-                    .padding(bottom = dimensions().spacing8x)
-                    .constrainAs(userName) {
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo((parent.end))
-                    }
-                    .widthIn(max = onGoingCallTileUsernameMaxWidth),
+                    .layoutId("username"),
                 name = participantTitleState.name ?: defaultUserName,
                 isSpeaking = participantTitleState.isSpeaking,
                 hasEstablishedAudio = participantTitleState.hasEstablishedAudio
             )
+        },
+        measurePolicy = { measurables, constraints ->
+            val muteIconPlaceable = measurables.firstOrNull { it.layoutId == "muteIcon" }
+                ?.measure(constraints.copy(minWidth = 0, minHeight = 0))
+            val muteIconWidth = muteIconPlaceable?.width ?: 0
+            val maxUsernameWidth = constraints.maxWidth - muteIconWidth
+            val usernamePlaceable = measurables.first { it.layoutId == "username" }
+                .measure(constraints.copy(minWidth = 0, minHeight = 0, maxWidth = maxUsernameWidth))
+
+            layout(constraints.maxWidth, usernamePlaceable.height) {
+                muteIconPlaceable?.placeRelative(0, 0)
+                if (usernamePlaceable.width < constraints.maxWidth - 2 * muteIconWidth) { // can fit in center
+                    usernamePlaceable.placeRelative((constraints.maxWidth - usernamePlaceable.width) / 2, 0)
+                } else { // needs to take all remaining space
+                    usernamePlaceable.placeRelative(muteIconWidth, 0)
+                }
+            }
         }
-        TileBorder(participantTitleState.isSpeaking)
-    }
+    )
 }
 
 @Composable
-private fun cleanUpRendererIfNeeded(videoRenderer: VideoRenderer) {
+private fun CleanUpRendererIfNeeded(videoRenderer: VideoRenderer) {
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(videoRenderer, lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -179,28 +234,6 @@ private fun cleanUpRendererIfNeeded(videoRenderer: VideoRenderer) {
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             videoRenderer.destroyRenderer()
-        }
-    }
-}
-
-@Composable
-private fun TileBorder(isSpeaking: Boolean) {
-    if (isSpeaking) {
-        val color = MaterialTheme.wireColorScheme.primary
-        val strokeWidth = dimensions().corner8x
-        val cornerRadius = dimensions().corner10x
-
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val canvasQuadrantSize = size
-            drawRoundRect(
-                color = color,
-                size = canvasQuadrantSize,
-                style = Stroke(width = strokeWidth.toPx()),
-                cornerRadius = CornerRadius(
-                    x = cornerRadius.toPx(),
-                    y = cornerRadius.toPx()
-                )
-            )
         }
     }
 }
@@ -268,7 +301,7 @@ private fun OthersVideoRenderer(
             }
         }
 
-        cleanUpRendererIfNeeded(videoRenderer)
+        CleanUpRendererIfNeeded(videoRenderer)
 
         AndroidView(
             modifier = Modifier
@@ -306,79 +339,59 @@ private fun OthersVideoRenderer(
 
 @Composable
 private fun AvatarTile(
-    modifier: Modifier,
     avatar: UserAvatarData,
-    avatarSize: Dp
+    modifier: Modifier = Modifier,
 ) {
-    Column(
+    BoxWithConstraints(
         modifier = modifier,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        contentAlignment = Alignment.Center,
     ) {
+        val size = min(maxWidth, maxHeight)
         UserProfileAvatar(
-            size = avatarSize,
-            avatarData = avatar
+            padding = dimensions().spacing0x,
+            size = size,
+            avatarData = avatar,
+            type = UserProfileAvatarType.WithoutIndicators,
         )
     }
 }
 
 @Composable
 private fun UsernameTile(
-    modifier: Modifier,
     name: String,
     isSpeaking: Boolean,
-    hasEstablishedAudio: Boolean
+    hasEstablishedAudio: Boolean,
+    modifier: Modifier = Modifier,
 ) {
-    val color = if (isSpeaking) MaterialTheme.wireColorScheme.primary else Color.Black
-    val nameLabelColor = if (hasEstablishedAudio) Color.White else colorsScheme().secondaryText
+    val color = if (isSpeaking) colorsScheme().primary else colorsScheme().callingParticipantNameBackground
+    val nameLabelColor =
+        when {
+            isSpeaking -> colorsScheme().onPrimary
+            hasEstablishedAudio -> colorsScheme().callingParticipantNameText
+            else -> colorsScheme().callingParticipantNameConnectingText
+        }
 
-    ConstraintLayout(modifier = modifier) {
-        val (nameLabel, connectingLabel) = createRefs()
-
-        Surface(
-            modifier = Modifier.constrainAs(nameLabel) {
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(connectingLabel.start)
-            },
-            shape = RoundedCornerShape(
-                topStart = dimensions().corner4x,
-                bottomStart = dimensions().corner4x,
-                topEnd = if (hasEstablishedAudio) dimensions().corner4x else 0.dp,
-                bottomEnd = if (hasEstablishedAudio) dimensions().corner4x else 0.dp,
-            ),
-            color = color
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(dimensions().corner3x),
+        color = color,
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
+            modifier = Modifier.padding(dimensions().spacing4x)
         ) {
             Text(
                 color = nameLabelColor,
                 style = MaterialTheme.wireTypography.label01,
-                modifier = Modifier.padding(dimensions().spacing4x),
                 text = name,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false)
             )
-        }
-        if (!hasEstablishedAudio) {
-            Surface(
-                modifier = Modifier.constrainAs(connectingLabel) {
-                    start.linkTo(nameLabel.end)
-                    top.linkTo(nameLabel.top)
-                    bottom.linkTo(nameLabel.bottom)
-                },
-                shape = RoundedCornerShape(
-                    topEnd = dimensions().corner4x,
-                    bottomEnd = dimensions().corner4x
-                ),
-                color = color
-            ) {
+            if (!hasEstablishedAudio) {
                 Text(
-                    color = colorsScheme().error,
+                    color = colorsScheme().callingParticipantError,
                     style = MaterialTheme.wireTypography.label01,
-                    modifier = Modifier.padding(
-                        top = dimensions().spacing4x,
-                        bottom = dimensions().spacing4x,
-                        end = dimensions().spacing4x
-                    ),
                     text = stringResource(id = R.string.participant_tile_call_connecting_label),
                     maxLines = 1,
                 )
@@ -389,43 +402,55 @@ private fun UsernameTile(
 
 @Composable
 private fun MicrophoneTile(
-    modifier: Modifier,
     isMuted: Boolean,
-    hasEstablishedAudio: Boolean
+    hasEstablishedAudio: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     if (isMuted && hasEstablishedAudio) {
         Surface(
             modifier = modifier,
             color = Color.Black,
-            shape = RoundedCornerShape(dimensions().corner6x)
+            shape = RoundedCornerShape(dimensions().corner3x)
         ) {
             Icon(
                 modifier = Modifier
-                    .padding(dimensions().spacing4x),
+                    .padding(dimensions().spacing3x)
+                    .size(dimensions().spacing16x),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
-                tint = MaterialTheme.wireColorScheme.muteButtonColor,
+                tint = MaterialTheme.wireColorScheme.callingParticipantError,
                 contentDescription = stringResource(R.string.content_description_calling_participant_muted)
             )
         }
     }
 }
 
-@Preview("Default view")
+private enum class PreviewTileShape(val width: Dp, val height: Dp) {
+    Regular(width = 175.dp, height = 140.dp),
+    Tall(width = 140.dp, height = 175.dp),
+    Wide(width = 175.dp, height = 80.dp),
+}
+
 @Composable
-fun PreviewParticipantTile() {
+private fun PreviewParticipantTile(
+    longName: Boolean = false,
+    isMuted: Boolean = false,
+    isSpeaking: Boolean = false,
+    hasEstablishedAudio: Boolean = true,
+    shape: PreviewTileShape = PreviewTileShape.Wide,
+) {
     ParticipantTile(
-        modifier = Modifier.height(300.dp),
+        modifier = Modifier.size(width = shape.width, height = shape.height),
         participantTitleState = UICallParticipant(
             id = QualifiedID("", ""),
             clientId = "client-id",
-            name = "user name",
-            isMuted = true,
-            isSpeaking = false,
+            name = if (longName) "long user name to be displayed in participant tile during a call" else "user name",
+            isMuted = isMuted,
+            isSpeaking = isSpeaking,
             isCameraOn = false,
             isSharingScreen = false,
             avatar = null,
             membership = Membership.Admin,
-            hasEstablishedAudio = true
+            hasEstablishedAudio = hasEstablishedAudio,
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
@@ -435,54 +460,80 @@ fun PreviewParticipantTile() {
     )
 }
 
+// ------ connecting ------
+
 @PreviewMultipleThemes
 @Composable
-fun PreviewParticipantTalking() {
-    ParticipantTile(
-        modifier = Modifier.height(300.dp),
-        participantTitleState = UICallParticipant(
-            id = QualifiedID("", ""),
-            clientId = "client-id",
-            name = "long user name to be displayed in participant tile during a call",
-            isMuted = false,
-            isSpeaking = true,
-            isCameraOn = false,
-            isSharingScreen = false,
-            avatar = null,
-            membership = Membership.Admin,
-            hasEstablishedAudio = true
-        ),
-        onClearSelfUserVideoPreview = {},
-        onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false,
-        isSelfUserMuted = false,
-        isSelfUserCameraOn = false
-    )
+fun PreviewParticipantConnecting() = WireTheme {
+    PreviewParticipantTile(shape = PreviewTileShape.Regular, hasEstablishedAudio = false)
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewParticipantConnecting() {
-    ParticipantTile(
-        modifier = Modifier
-            .height(350.dp)
-            .width(200.dp),
-        participantTitleState = UICallParticipant(
-            id = QualifiedID("", ""),
-            clientId = "client-id",
-            name = "Oussama2",
-            isMuted = true,
-            isSpeaking = false,
-            isCameraOn = false,
-            isSharingScreen = false,
-            avatar = null,
-            membership = Membership.Admin,
-            hasEstablishedAudio = false
-        ),
-        onClearSelfUserVideoPreview = {},
-        onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false,
-        isSelfUserMuted = false,
-        isSelfUserCameraOn = false
-    )
+fun PreviewParticipantLongNameConnecting() = WireTheme {
+    PreviewParticipantTile(shape = PreviewTileShape.Regular, hasEstablishedAudio = false, longName = true)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantTallLongNameConnecting() = WireTheme {
+    PreviewParticipantTile(shape = PreviewTileShape.Tall, hasEstablishedAudio = false)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantWideLongNameConnecting() = WireTheme {
+    PreviewParticipantTile(shape = PreviewTileShape.Wide, hasEstablishedAudio = false)
+}
+
+// ------ muted ------
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantMuted() = WireTheme {
+    PreviewParticipantTile(shape = PreviewTileShape.Regular, isMuted = true)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantLongNameMuted() = WireTheme {
+    PreviewParticipantTile(shape = PreviewTileShape.Regular, isMuted = true, longName = true)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantTallLongNameMuted() = WireTheme {
+    PreviewParticipantTile(shape = PreviewTileShape.Tall, isMuted = true)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantWideLongNameMuted() = WireTheme {
+    PreviewParticipantTile(shape = PreviewTileShape.Wide, isMuted = true)
+}
+
+// ------ talking ------
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantTalking() = WireTheme {
+    PreviewParticipantTile(shape = PreviewTileShape.Regular, isSpeaking = true)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantLongNameTalking() = WireTheme {
+    PreviewParticipantTile(shape = PreviewTileShape.Regular, isSpeaking = true, longName = true)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantTallLongNameTalking() = WireTheme {
+    PreviewParticipantTile(shape = PreviewTileShape.Tall, isSpeaking = true)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewParticipantWideLongNameTalking() = WireTheme {
+    PreviewParticipantTile(shape = PreviewTileShape.Wide, isSpeaking = true)
 }

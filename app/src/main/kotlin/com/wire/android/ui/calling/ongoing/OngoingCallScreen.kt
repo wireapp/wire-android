@@ -82,6 +82,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -90,6 +91,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import java.util.Locale
 
 @Suppress("ParameterWrapping")
@@ -119,42 +121,30 @@ fun OngoingCallScreen(
         }
     }
 
-    with(sharedCallingViewModel.callState) {
-        OngoingCallContent(
-            conversationId = conversationId,
-            conversationName = conversationName,
-            participants = participants,
-            isMuted = isMuted ?: true,
-            isCameraOn = isCameraOn,
-            isSpeakerOn = isSpeakerOn,
-            isCbrEnabled = isCbrEnabled,
-            isOnFrontCamera = isOnFrontCamera,
-            protocolInfo = protocolInfo,
-            mlsVerificationStatus = mlsVerificationStatus,
-            proteusVerificationStatus = proteusVerificationStatus,
-            shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
-            toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
-            toggleMute = sharedCallingViewModel::toggleMute,
-            hangUpCall = { sharedCallingViewModel.hangUpCall { activity.finishAndRemoveTask() } },
-            toggleVideo = sharedCallingViewModel::toggleVideo,
-            flipCamera = sharedCallingViewModel::flipCamera,
-            setVideoPreview = sharedCallingViewModel::setVideoPreview,
-            clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
-            onCollapse = { activity.moveTaskToBack(true) },
-            requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
-            hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
-            onCameraPermissionPermanentlyDenied = {
-                permissionPermanentlyDeniedDialogState.show(
-                    PermissionPermanentlyDeniedDialogState.Visible(
-                        title = R.string.app_permission_dialog_title,
-                        description = R.string.camera_permission_dialog_description
-                    )
+    OngoingCallContent(
+        callState = sharedCallingViewModel.callState,
+        shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
+        toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
+        toggleMute = sharedCallingViewModel::toggleMute,
+        hangUpCall = { sharedCallingViewModel.hangUpCall { activity.finishAndRemoveTask() } },
+        toggleVideo = sharedCallingViewModel::toggleVideo,
+        flipCamera = sharedCallingViewModel::flipCamera,
+        setVideoPreview = sharedCallingViewModel::setVideoPreview,
+        clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+        onCollapse = { activity.moveTaskToBack(true) },
+        requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
+        hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
+        onCameraPermissionPermanentlyDenied = {
+            permissionPermanentlyDeniedDialogState.show(
+                PermissionPermanentlyDeniedDialogState.Visible(
+                    title = R.string.app_permission_dialog_title,
+                    description = R.string.camera_permission_dialog_description
                 )
-            }
-        )
-        BackHandler {
-            activity.moveTaskToBack(true)
+            )
         }
+    )
+    BackHandler {
+        activity.moveTaskToBack(true)
     }
 
     PermissionPermanentlyDeniedDialog(
@@ -216,18 +206,8 @@ private fun HandleSendingVideoFeed(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OngoingCallContent(
-    conversationId: ConversationId,
-    conversationName: ConversationName?,
-    participants: List<UICallParticipant>,
-    isMuted: Boolean,
-    isCameraOn: Boolean,
-    isOnFrontCamera: Boolean,
-    isSpeakerOn: Boolean,
-    isCbrEnabled: Boolean,
+    callState: CallState,
     shouldShowDoubleTapToast: Boolean,
-    protocolInfo: Conversation.ProtocolInfo?,
-    mlsVerificationStatus: Conversation.VerificationStatus?,
-    proteusVerificationStatus: Conversation.VerificationStatus?,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
@@ -239,7 +219,7 @@ private fun OngoingCallContent(
     hideDoubleTapToast: () -> Unit,
     onCameraPermissionPermanentlyDenied: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
-) {
+) = with(callState) {
 
     val sheetInitialValue = SheetValue.PartiallyExpanded
     val sheetState = rememberStandardBottomSheetState(
@@ -274,7 +254,7 @@ private fun OngoingCallContent(
         sheetContent = {
             CallingControls(
                 conversationId = conversationId,
-                isMuted = isMuted,
+                isMuted = isMuted ?: true,
                 isCameraOn = isCameraOn,
                 isOnFrontCamera = isOnFrontCamera,
                 isSpeakerOn = isSpeakerOn,
@@ -329,6 +309,7 @@ private fun OngoingCallContent(
                     if (shouldOpenFullScreen) {
                         hideDoubleTapToast()
                         FullScreenTile(
+                            callState = callState,
                             selectedParticipant = selectedParticipantForFullScreen,
                             height = this@BoxWithConstraints.maxHeight - dimensions().spacing4x,
                             closeFullScreen = {
@@ -336,13 +317,15 @@ private fun OngoingCallContent(
                             },
                             onBackButtonClicked = {
                                 shouldOpenFullScreen = !shouldOpenFullScreen
-                            }
+                            },
+                            setVideoPreview = setVideoPreview,
+                            clearVideoPreview = clearVideoPreview,
                         )
                     } else {
                         VerticalCallingPager(
                             participants = participants,
                             isSelfUserCameraOn = isCameraOn,
-                            isSelfUserMuted = isMuted,
+                            isSelfUserMuted = isMuted ?: true,
                             contentHeight = this@BoxWithConstraints.maxHeight,
                             onSelfVideoPreviewCreated = setVideoPreview,
                             onSelfClearVideoPreview = clearVideoPreview,
@@ -469,22 +452,23 @@ private fun CallingControls(
     }
 }
 
-@PreviewMultipleThemes
 @Composable
-fun PreviewOngoingCallScreen() = WireTheme {
+fun PreviewOngoingCallContent(participants: List<UICallParticipant>) {
     OngoingCallContent(
-        conversationId = ConversationId("conversationId", "domain"),
-        conversationName = ConversationName.Known("Conversation Name"),
-        participants = emptyList(),
-        isMuted = false,
-        isCameraOn = false,
-        isOnFrontCamera = false,
-        isSpeakerOn = false,
-        isCbrEnabled = false,
+        callState = CallState(
+            conversationId = ConversationId("conversationId", "domain"),
+            conversationName = ConversationName.Known("Conversation Name"),
+            participants = participants,
+            isMuted = false,
+            isCameraOn = false,
+            isOnFrontCamera = false,
+            isSpeakerOn = false,
+            isCbrEnabled = false,
+            protocolInfo = null,
+            mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+        ),
         shouldShowDoubleTapToast = false,
-        protocolInfo = null,
-        mlsVerificationStatus = null,
-        proteusVerificationStatus = null,
         toggleSpeaker = {},
         toggleMute = {},
         hangUpCall = {},
@@ -501,6 +485,43 @@ fun PreviewOngoingCallScreen() = WireTheme {
 
 @PreviewMultipleThemes
 @Composable
+fun PreviewOngoingCallScreenConnecting() = WireTheme {
+    PreviewOngoingCallContent(participants = emptyList())
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewOngoingCallScreen_2Participants() = WireTheme {
+    PreviewOngoingCallContent(participants = buildPreviewParticipantsList(2))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewOngoingCallScreen_8Participants() = WireTheme {
+    PreviewOngoingCallContent(participants = buildPreviewParticipantsList(8))
+}
+
+@PreviewMultipleThemes
+@Composable
 fun PreviewOngoingCallTopBar() = WireTheme {
     OngoingCallTopBar("Default", true, null, null, null) { }
+}
+
+fun buildPreviewParticipantsList(count: Int = 10) = buildList {
+    repeat(count) { index ->
+        add(
+            UICallParticipant(
+                id = QualifiedID("id_$index", ""),
+                clientId = "client_id_$index",
+                name = "Participant $index",
+                isSpeaking = index % 3 == 1,
+                isMuted = index % 3 == 2,
+                hasEstablishedAudio = index % 3 != 2,
+                isCameraOn = false,
+                isSharingScreen = false,
+                avatar = null,
+                membership = Membership.Admin,
+            )
+        )
+    }
 }

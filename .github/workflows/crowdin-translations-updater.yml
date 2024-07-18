@@ -73,8 +73,6 @@ jobs:
           config: "crowdin.yml"
 
       - name: Assign Reviewers
-        with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
         env:
           PR_NUMBER: ${{ steps.crowdin-updater.outputs.pull_request_number }}
         run: |

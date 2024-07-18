@@ -232,7 +232,11 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
         // Default empty values
         coEvery { observeConversationMembersUseCase(any()) } returns flowOf()
         coEvery { membersHavingLegalHoldClientUseCase(any()) } returns Either.Right(emptyList())
-        coEvery { getMembersE2EICertificateStatuses(any(), any()) } answers { secondArg<List<UserId>>().associateWith { null } }
+        coEvery {
+            getMembersE2EICertificateStatuses(any(), any())
+        } answers {
+            secondArg<List<UserId>>().associateWith { false }
+        }
     }
 
     suspend fun withConversationParticipantsUpdate(members: List<MemberDetails>): ObserveParticipantsForConversationUseCaseArrangement {

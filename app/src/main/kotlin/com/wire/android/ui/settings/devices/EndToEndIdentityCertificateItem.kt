@@ -218,7 +218,7 @@ fun PreviewEndToEndIdentityCertificateItem() {
     EndToEndIdentityCertificateItem(
         isE2eiCertificateActivated = true,
         isCurrentDevice = false,
-        mlsClientIdentity = DUMMY_MLSClientIdentity,
+        mlsClientIdentity = previewMLSClientIdentity(),
         isLoadingCertificate = false,
         enrollE2eiCertificate = {},
         showCertificate = {}
@@ -231,14 +231,14 @@ fun PreviewEndToEndIdentityCertificateSelfItem() {
     EndToEndIdentityCertificateItem(
         isE2eiCertificateActivated = true,
         isCurrentDevice = true,
-        mlsClientIdentity = DUMMY_MLSClientIdentity,
+        mlsClientIdentity = previewMLSClientIdentity(),
         isLoadingCertificate = false,
         enrollE2eiCertificate = {},
         showCertificate = {}
     )
 }
 
-var DUMMY_MLSClientIdentity = MLSClientIdentity(
+internal fun previewMLSClientIdentity() = MLSClientIdentity(
     clientId = QualifiedClientID(ClientId(""), UserId("", "")),
     e2eiStatus = MLSClientE2EIStatus.VALID,
     thumbprint = "thumbprint",

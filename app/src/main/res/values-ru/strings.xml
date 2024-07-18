@@ -114,7 +114,7 @@
     <string name="content_description_conversation_send_emoticon">Кнопка отправки смайлика</string>
     <string name="content_description_conversation_send_gif">Кнопка отправки GIF</string>
     <string name="content_description_conversation_mention_someone">Упомянуть кого-нибудь</string>
-    <string name="content_description_new_conversation">Создать новую беседу</string>
+    <string name="content_description_new_conversation">Начать новую беседу</string>
     <string name="content_description_back_button">Кнопка назад</string>
     <string name="content_description_send_button">Отправить</string>
     <string name="content_description_timed_message_button">Самоудаляющиеся сообщения, кнопка</string>
@@ -177,6 +177,7 @@
     <string name="content_description_jump_to_last_message">Прокрутка вниз к последнему сообщению, кнопка</string>
     <string name="content_description_location_icon">Элемент местоположения</string>
     <!-- Non translatable strings-->
+    <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
     <string name="vault_screen_title">Хранилище</string>
     <string name="archive_screen_title">Архив</string>
@@ -190,6 +191,7 @@
     <string name="about_app_screen_title">Об этом приложении</string>
     <string name="settings_privacy_policy_label">Политика конфиденциальности</string>
     <string name="settings_terms_of_use_label">Юридическая информация</string>
+    <string name="settings_wire_website_label">Веб-сайт Wire</string>
     <string name="label_copyright">Авторское право</string>
     <string name="debug_settings_screen_title">Параметры отладки</string>
     <string name="item_dependencies_title">Зависимости:</string>
@@ -462,7 +464,7 @@
     <string name="delete_group_conversation_dialog_description">Группа будет удалена из списка бесед на всех устройствах. Вы больше не сможете получить доступ к группе и ее контенту.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Поделиться с Wire</string>
-    <string name="import_media_searchbar_title">Поиск беседы</string>
+    <string name="import_media_searchbar_title">Поиск по беседе</string>
     <string name="import_media_send_button_title">Отправить</string>
     <string name="export_media_subject_title">Поделиться медиа из Wire</string>
     <!--Read receipts -->
@@ -1003,12 +1005,13 @@
     <string name="settings_myaccount_handle_updated">Ваш псевдоним изменен</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Отправлять отчет о прочтении</string>
-    <string name="settings_send_read_receipts_description">При выключении этого параметра, вы не сможете видеть отчеты о прочтении от ваших собеседников. Он не применяется к групповым беседам.</string>
+    <string name="settings_send_read_receipts_description">Если этот параметр включен, другие пользователи могут видеть, прочитали ли вы их сообщения. 
+В групповых беседах администратор группы может управлять этой настройкой.</string>
     <string name="settings_censor_screenshots">Запретить скриншоты</string>
     <string name="settings_censor_screenshots_description">При включении этого параметра содержимое сообщений не будет видно на скриншоте или при записи экрана.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">Это определяется настройкой самоудаления сообщений для команды и не может быть изменено.\nСодержимое сообщений не будет видно на скриншоте или при записи экрана.</string>
     <string name="settings_show_typing_indicator_title">Индикатор набора текста</string>
-    <string name="settings_show_typing_indicator_description">При выключении этого параметра вы не сможете видеть, когда собеседники набирают текст, а собеседники не смогут видеть, когда вы набираете текст. Эта настройка применяется ко всем беседам на этом устройстве.</string>
+    <string name="settings_show_typing_indicator_description">При включении этого параметра вы можете видеть, когда ваши собеседники пишут сообщение, а собеседники, когда пишете вы. Эта настройка применяется ко всем беседам на этом устройстве.</string>
     <string name="settings_app_lock_title">Блокировка кодом доступа</string>
     <string name="settings_send_anonymous_usage_data_title">Отправка анонимных данных об использовании</string>
     <string name="settings_send_anonymous_usage_data_description">Данные об использовании позволяют Wire определить, как используется приложение и как его можно улучшить. Эти данные анонимны и не включают в себя содержимое вашего общения (такое как, сообщения, файлы, местоположение или звонки).</string>
@@ -1042,6 +1045,7 @@
     <string name="devices_title">Ваши устройства</string>
     <string name="current_device_label">Текущее устройство</string>
     <string name="other_devices_label">Другие устройства</string>
+    <string name="devices_loading_error">При попытке получить данные об устройствах возникла ошибка. Пожалуйста, проверьте подключение к интернету и повторите попытку.</string>
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Разблокировать пользователя?</string>
     <string name="unblock_user_dialog_body">%1$s сможет связаться с вами или добавить вас в групповую беседу. Вы сможете получить доступ к беседе с ним в формате 1:1.</string>
@@ -1328,6 +1332,7 @@
     <string name="notification_obfuscated_message_title">Кто-то</string>
     <string name="notification_obfuscated_message_content">Отправил самоудаляющееся сообщение</string>
     <string name="settings_licenses_settings_label">Информация о лицензии</string>
+    <string name="settings_dependencies_label">Зависимости</string>
     <string name="settings_myaccount_logout">Удалить аккаунт</string>
     <string name="app_not_found_for_action">Не найдено приложений для выполнения действия</string>
     <string name="delete_acount_dialog_title">Удалить аккаунт</string>
@@ -1358,6 +1363,7 @@
     <!-- Record Audio -->
     <string name="record_audio_start_label">Начать запись</string>
     <string name="record_audio_recording_label">Запись аудио…</string>
+    <string name="record_audio_encoding_label">Кодирование аудио…</string>
     <string name="record_audio_send_label">Отправить аудиосообщение</string>
     <string name="record_audio_apply_filter_label">Применить аудиофильтр</string>
     <string name="record_audio_discard_dialog_title">Отменить аудиосообщение?</string>
@@ -1410,7 +1416,6 @@
     <string name="legal_hold_requested_dialog_accept_button">Принять</string>
     <string name="legal_hold_requested_dialog_not_now_button">Не сейчас</string>
     <string name="legal_hold_learn_more_button">Подробнее о юридических ограничениях</string>
-    <string name="url_legal_hold_learn_more">https://support.wire.com/hc/articles/360002018278-What-is-legal-hold-</string>
     <string name="legal_hold_deactivated_dialog_title">Юридические ограничения деактивированы</string>
     <string name="legal_hold_deactivated_dialog_description">Будущие сообщения записываться не будут.</string>
     <string name="legal_hold_subject_dialog_title">%1$s является субъектом юридических ограничений</string>
@@ -1447,6 +1452,7 @@
     <string name="app_permission_dialog_title">Разрешения приложения</string>
     <string name="app_permission_dialog_settings_positive_button">Настройки</string>
     <string name="app_permission_dialog_settings_negative_button">Не сейчас</string>
+    <string name="notifications_permission_dialog_description">Чтобы полноценно использовать приложение, получать сообщения и звонить по телефону, разрешите Wire отображать уведомления.</string>
     <string name="call_permission_dialog_description">Чтобы позвонить, разрешите Wire доступ к микрофону в настройках устройства.</string>
     <string name="record_video_permission_dialog_description">Чтобы записать видео, разрешите Wire доступ к камере в настройках устройства.</string>
     <string name="take_picture_permission_dialog_description">Чтобы сделать снимок, разрешите Wire доступ к камере в настройках устройства.</string>
@@ -1464,4 +1470,9 @@
     <!-- Asset Preview -->
     <string name="remove_asset_description">Удалить медиафайл</string>
     <string name="asset_attention_description">Уведомление</string>
+    <!-- No Activity Errors -->
+    <string name="no_camera_app">Не найдено приложение камеры для выполнения этого действия.</string>
+    <string name="no_gallery_app">Не найдена галерея для выполнения этого действия.</string>
+    <string name="no_file_manager_app">Не найден файловый менеджер для выполнения этого действия.</string>
+    <string name="restricted_asset_error_toast_message">Отправка файлов запрещена из-за ограничений компании</string>
 </resources>

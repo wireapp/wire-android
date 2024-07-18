@@ -29,10 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -41,10 +41,10 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.immutableMapOf
+import kotlinx.collections.immutable.persistentMapOf
 
 @Composable
-@Destination
+@WireDestination
 @RootNavGraph
 fun DependenciesScreen(
     navigator: Navigator,
@@ -105,6 +105,6 @@ private fun DependenciesItem(
 fun DependenciesContentPreview() {
     DependenciesContent(
         internalPadding = PaddingValues(dimensions().spacing8x),
-        dependencies = immutableMapOf("avs" to "4.10.1", "cc" to "0.0.1")
+        dependencies = persistentMapOf("avs" to "4.10.1", "cc" to "0.0.1")
     )
 }

@@ -33,7 +33,7 @@
     <string name="label_proceed">Gå vidare</string>
     <string name="label_leave">Lämna</string>
     <string name="label_add_device">Lägg till enhet</string>
-    <string name="label_learn_more">Lär dig mer</string>
+    <string name="label_learn_more">Läs mer</string>
     <string name="label_removing">Tar bort…</string>
     <string name="label_logging_in">Loggar in…</string>
     <string name="label_membership_guest">Gäst</string>
@@ -66,7 +66,7 @@
     <string name="label_open_asset_externally">Öppna</string>
     <string name="label_show">Visa</string>
     <string name="label_show_all">Visa alla</string>
-    <string name="label_show_less">Visa färre</string>
+    <string name="label_show_less">Visa mindre</string>
     <string name="label_show_details">Show Details</string>
     <string name="label_hide_details">Hide Details</string>
     <string name="label_message_status_edited_with_date">Redigerades %s</string>
@@ -175,6 +175,7 @@
     <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
     <string name="content_description_location_icon">Location item</string>
     <!-- Non translatable strings-->
+    <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
     <string name="vault_screen_title">Valv</string>
     <string name="archive_screen_title">Arkiv</string>
@@ -188,16 +189,17 @@
     <string name="about_app_screen_title">About This App</string>
     <string name="settings_privacy_policy_label">Integritetspolicy</string>
     <string name="settings_terms_of_use_label">Legal</string>
+    <string name="settings_wire_website_label">Wire Website</string>
     <string name="label_copyright">Copyright</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
     <string name="item_dependencies_title">Dependencies:</string>
     <string name="support_screen_title">Support</string>
-    <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
+    <string name="backup_and_restore_screen_title">Säkerhetskopiera &amp; Återställ konversationer</string>
     <string name="search_bar_conversations_hint">Search conversations</string>
     <string name="search_no_results">No matches found</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Nyheter</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s New Android App!</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Välkommen till Wire\'s nya Android-app!</string>
     <string name="whats_new_release_notes_group_title">Release Notes</string>
     <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
     <!-- Settings -->
@@ -212,7 +214,7 @@
     <!-- Welcome -->
     <string name="welcome_footer_text">Vill du chatta med vänner och familj?</string>
     <string name="welcome_footer_link">Create a private account for free</string>
-    <string name="welcome_button_create_personal_account">Create a Personal Account</string>
+    <string name="welcome_button_create_personal_account">Skapa ett personligt konto</string>
     <string name="welcome_screen_carousel_item_message_1">Welcome to Wire, the most secure collaboration platform!</string>
     <string name="welcome_screen_carousel_item_message_2">Absolute confidence your information is\u00A0secure</string>
     <string name="welcome_screen_carousel_item_message_3">Encrypted audio &amp; video conferencing with up\u00A0to 50\u00A0participants</string>
@@ -327,7 +329,7 @@
     <string name="label_quote_original_message_is_a_picture">Picture</string>
     <string name="label_quote_original_message_date">Original message from %s</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Create a Personal Account</string>
+    <string name="create_personal_account_title">Skapa ett personligt konto</string>
     <string name="create_personal_account_summary_title">Personal Account Created</string>
     <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
     <string name="create_personal_account_email_text">Enter your email to start using the most secure collaboration platform.</string>
@@ -392,7 +394,7 @@
     <string name="sent_a_message_with_unknown_content">skickade ett meddelande med okänt innehåll</string>
     <string name="new_group_title">Ny grupp</string>
     <string name="new_group_description">Upp till 500 personer kan ansluta till en grupp-konversation.</string>
-    <string name="group_name_title">Grupp-namn</string>
+    <string name="group_name_title">Gruppnamn</string>
     <string name="group_name_placeholder">Fyll i namn</string>
     <string name="group_name_description">Ge den här gruppen ett meningsfullt namn.</string>
     <string name="protocol">Protokoll</string>
@@ -445,7 +447,7 @@
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
-    <string name="conversation_options_services_label">Services</string>
+    <string name="conversation_options_services_label">Tjänster</string>
     <string name="conversation_options_services_description">Turn this option ON to open this conversation to services.</string>
     <string name="conversation_options_renamed">Conversation renamed</string>
     <string name="disable_guest_dialog_title">Disable guest access?</string>
@@ -484,12 +486,12 @@
     <string name="message_datetime_yesterday">Yesterday, %s</string>
     <string name="message_datetime_other">%s</string>
     <!-- Attachment options -->
-    <string name="attachment_share_file">Bifoga fil</string>
-    <string name="attachment_share_image">Bifoga bild</string>
-    <string name="attachment_take_photo">Ta bild</string>
+    <string name="attachment_share_file">Fil</string>
+    <string name="attachment_share_image">Galleri</string>
+    <string name="attachment_take_photo">Kamera</string>
     <string name="attachment_record_video">Spela in video</string>
     <string name="attachment_voice_message">Ljudmeddelande</string>
-    <string name="attachment_share_location">Location</string>
+    <string name="attachment_share_location">Plats</string>
     <!-- User Profile -->
     <string name="user_profile_title">Användarprofil</string>
     <string name="user_profile_close_description">Stäng ner användarprofil</string>
@@ -499,7 +501,7 @@
     <string name="user_profile_status_available">Tillgänglig</string>
     <string name="user_profile_status_busy">Upptagen</string>
     <string name="user_profile_status_away">Borta</string>
-    <string name="user_profile_status_none">Inget</string>
+    <string name="user_profile_status_none">Ingen</string>
     <string name="user_profile_new_account_text">Nytt team eller konto</string>
     <string name="user_profile_details_tab">Detaljer</string>
     <string name="user_profile_devices_tab">Enheter</string>
@@ -537,7 +539,7 @@
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_unarchive">Unarchive</string>
     <string name="label_clear_content">Clear Content…</string>
-    <string name="label_block">Block</string>
+    <string name="label_block">Blockera</string>
     <string name="label_unblock">Unblock</string>
     <string name="label_leave_group">Lämna grupp</string>
     <string name="label_delete_group">Radera grupp</string>
@@ -806,7 +808,7 @@
     <string name="notification_not_supported_issue">Feature not supported</string>
     <string name="notification_connection_request">Wants to connect</string>
     <string name="notification_conversation_deleted">Deleted the group</string>
-    <string name="notification_action_reply">Reply</string>
+    <string name="notification_action_reply">Svara</string>
     <string name="notification_receiver_name">Du</string>
     <string name="label_type_a_message">Skriv ett meddelande</string>
     <string name="notification_action_open_call">Open Call</string>
@@ -830,7 +832,7 @@
     <string name="calling_hang_up_call">Hang up call</string>
     <string name="calling_accept_call">Accept call</string>
     <string name="calling_decline_call">Decline call</string>
-    <string name="calling_label_ringing_call">Ringing…</string>
+    <string name="calling_label_ringing_call">Ringer…</string>
     <string name="calling_label_incoming_call">Calling…</string>
     <string name="calling_label_incoming_call_someone_calling">%s ringer…</string>
     <string name="calling_label_default_caller_name">Inkommande samtal</string>
@@ -907,7 +909,7 @@
     <string name="wire_dropdown_default_indicator">" (default)"</string>
     <string name="wire_dropdown_placeholder">Select an Item</string>
     <string name="change">Ändra</string>
-    <string name="allow_guests">Allow guests</string>
+    <string name="allow_guests">Tillåt gäster</string>
     <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
     <string name="allow_services">Allow services</string>
     <string name="allow_services_description">Open this conversation to services. You can always change it later.</string>
@@ -932,7 +934,7 @@
     <string name="other_user_devices_description">Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation.</string>
     <!--Settings -->
     <string name="settings_general_label">General</string>
-    <string name="settings_account_settings_label">Account Settings</string>
+    <string name="settings_account_settings_label">Kontoinställningar</string>
     <string name="settings_devices_label">Enheter</string>
     <string name="settings_backups_label">Backups</string>
     <string name="settings_others_label">OTHERS</string>
@@ -945,7 +947,7 @@
     <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
     <string name="settings_service_is_running">service is running</string>
     <!--Settings, Appearance -->
-    <string name="settings_appearance_label">Appearance</string>
+    <string name="settings_appearance_label">Utseende</string>
     <string name="settings_appearance_theme_label">Tema</string>
     <string name="settings_appearance_theme_option_system">Sync with system settings</string>
     <string name="settings_appearance_theme_option_default_hint">(Standard)</string>
@@ -953,7 +955,7 @@
     <string name="settings_appearance_theme_option_dark">Dark mode</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Account Data</string>
-    <string name="settings_myaccount_display_name">PROFILE NAME</string>
+    <string name="settings_myaccount_display_name">PROFILNAMN</string>
     <string name="settings_myaccount_username">ANVÄNDARNAMN</string>
     <string name="settings_myaccount_email">EMAIL</string>
     <string name="settings_myaccount_team">TEAM</string>
@@ -968,7 +970,7 @@
     <string name="settings_myaccount_handle_updated">Your username changed</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Send read receipts</string>
-    <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages. 
+    <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages.
 In group conversations, the group admin can overwrite this setting.</string>
     <string name="settings_censor_screenshots">Censor screenshots</string>
     <string name="settings_censor_screenshots_description">If this is ON, then the content of the messages will not be visible on the screenshot or screen recording.</string>
@@ -1008,6 +1010,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="devices_title">Dina enheter</string>
     <string name="current_device_label">Current Device</string>
     <string name="other_devices_label">Other Devices</string>
+    <string name="devices_loading_error">There was an error when trying to fetch devices. Please check your Internet connection and try again.</string>
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Unblock user?</string>
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
@@ -1151,7 +1154,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_invalid_link_title">Ogiltig länk</string>
     <string name="invalid_link_dialog_body">Link could not be opened</string>
     <!-- guest room link -->
-    <string name="folder_label_guest_link">Guest link</string>
+    <string name="folder_label_guest_link">Gästlänk</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
     <string name="guest_link_button_create_link">Skapa länk</string>
     <string name="guest_link_button_copy_link">Kopiera länk</string>
@@ -1269,6 +1272,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="notification_obfuscated_message_title">Someone</string>
     <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
     <string name="settings_licenses_settings_label">License Information</string>
+    <string name="settings_dependencies_label">Dependencies</string>
     <string name="settings_myaccount_logout">Radera konto</string>
     <string name="app_not_found_for_action">No Application has been found to do Action</string>
     <string name="delete_acount_dialog_title">Radera konto</string>
@@ -1299,6 +1303,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Start Recording</string>
     <string name="record_audio_recording_label">Recording Audio…</string>
+    <string name="record_audio_encoding_label">Encoding Audio…</string>
     <string name="record_audio_send_label">Send Audio Message</string>
     <string name="record_audio_apply_filter_label">Apply audio filter</string>
     <string name="record_audio_discard_dialog_title">Discard Audio Message?</string>
@@ -1351,7 +1356,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="legal_hold_requested_dialog_accept_button">Accept</string>
     <string name="legal_hold_requested_dialog_not_now_button">Not Now</string>
     <string name="legal_hold_learn_more_button">Learn more about legal hold</string>
-    <string name="url_legal_hold_learn_more">https://support.wire.com/hc/articles/360002018278-What-is-legal-hold-</string>
     <string name="legal_hold_deactivated_dialog_title">Legal hold deactivated</string>
     <string name="legal_hold_deactivated_dialog_description">Future messages will not be recorded.</string>
     <string name="legal_hold_subject_dialog_title">%1$s is subject to legal hold</string>
@@ -1388,6 +1392,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="app_permission_dialog_title">App permissions</string>
     <string name="app_permission_dialog_settings_positive_button">Inställningar</string>
     <string name="app_permission_dialog_settings_negative_button">Inte nu</string>
+    <string name="notifications_permission_dialog_description">To make full use of the app, receive messages and answer phone calls, please allow Wire to show notifications.</string>
     <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone in your device settings.</string>
     <string name="record_video_permission_dialog_description">To record a video, allow Wire to access your camera in your device settings.</string>
     <string name="take_picture_permission_dialog_description">To take a picture, allow Wire to access your camera in your device settings.</string>
@@ -1405,4 +1410,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Remove asset</string>
     <string name="asset_attention_description">Asset attention</string>
+    <!-- No Activity Errors -->
+    <string name="no_camera_app">No camera app found to complete this action.</string>
+    <string name="no_gallery_app">No gallery app found to complete this action.</string>
+    <string name="no_file_manager_app">No file manager app found to complete this action.</string>
+    <string name="restricted_asset_error_toast_message">Sending of files is forbidden due to company restrictions</string>
 </resources>

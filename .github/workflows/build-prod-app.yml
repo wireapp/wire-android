@@ -2,7 +2,7 @@ name: "Prod build"
 
 on:
   release:
-    types: [created]
+    types: [ created ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.release.tag_name }}
@@ -117,3 +117,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           build-flavour: prod
           build-variant: compatrelease
+      - name: Attach APK to release
+        uses: softprops/action-gh-release@v2.0.7
+        with:
+          files: app/build/outputs/apk/prodCompatRelease/*.apk

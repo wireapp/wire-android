@@ -85,11 +85,11 @@ fun UsersTypingIndicatorForConversation(
 }
 
 @Composable
-fun UsersTypingIndicator(usersTyping: List<UIParticipant>) {
+fun UsersTypingIndicator(usersTyping: List<UIParticipant>, modifier: Modifier = Modifier) {
     if (usersTyping.isNotEmpty()) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
+            modifier = modifier
                 .padding(bottom = dimensions().spacing4x)
                 .height(dimensions().typingIndicatorHeight)
                 .background(
@@ -145,7 +145,7 @@ private fun UsersTypingAvatarPreviews(
         usersTyping.take(maxPreviewsDisplay).forEach { user ->
             UserProfileAvatar(
                 avatarData = user.avatarData,
-                size = 16.dp,
+                size = dimensions().spacing16x,
                 modifier = Modifier
                     .clip(RoundedCornerShape(roundedCornersSize))
                     .size(avatarWithBorderSize)

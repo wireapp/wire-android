@@ -20,6 +20,7 @@ includeBuild("kalium") {
     dependencySubstitution {
         substitute(module("com.wire.kalium:kalium-logic")).using(project(":logic"))
         substitute(module("com.wire.kalium:kalium-util")).using(project(":util"))
+        substitute(module("com.wire.kalium:kalium-data")).using(project(":data"))
         // test modules
         substitute(module("com.wire.kalium:kalium-mocks")).using(project(":mocks"))
         substitute(module("com.wire.kalium:kalium-network")).using(project(":network"))

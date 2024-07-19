@@ -18,7 +18,6 @@
 
 package com.wire.android.util.extension
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
@@ -28,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 
-@OptIn(ExperimentalFoundationApi::class)
 inline fun <T, K : Any> LazyListScope.folderWithElements(
     header: String? = null,
     items: Map<K, T>,
@@ -45,7 +43,7 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
                     name = header,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .let { if (animateItemPlacement) it.animateItemPlacement() else it }
+                        .let { if (animateItemPlacement) it.animateItem() else it }
                 )
             }
         }
@@ -56,7 +54,7 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
             Box(
                 modifier = Modifier
                     .wrapContentSize()
-                    .let { if (animateItemPlacement) it.animateItemPlacement() else it }
+                    .let { if (animateItemPlacement) it.animateItem() else it }
             ) {
                 factory(item.value)
                 if (index <= list.lastIndex) {

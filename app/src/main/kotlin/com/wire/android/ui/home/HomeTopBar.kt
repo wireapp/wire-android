@@ -26,6 +26,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.UserProfileAvatarType
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
@@ -50,7 +51,7 @@ fun HomeTopBar(
             UserProfileAvatar(
                 avatarData = UserAvatarData(avatarAsset, status),
                 clickable = remember { Clickable(enabled = true) { onNavigateToSelfUserProfile() } },
-                withLegalHoldIndicator = withLegalHoldIndicator,
+                type = UserProfileAvatarType.WithIndicators(legalHoldIndicatorVisible = withLegalHoldIndicator),
             )
         },
         elevation = elevation,

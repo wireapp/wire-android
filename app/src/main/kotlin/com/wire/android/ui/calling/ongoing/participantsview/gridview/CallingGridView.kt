@@ -19,31 +19,29 @@
 package com.wire.android.ui.calling.ongoing.participantsview.gridview
 
 import android.view.View
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -55,15 +53,25 @@ fun GroupCallGrid(
     contentHeight: Dp,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
-    onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit
+    onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: Dp = dimensions().spacing4x,
+    spacedBy: Dp = dimensions().spacing2x,
 ) {
-    val config = LocalConfiguration.current
-
+    // We need the number of tiles rows needed to calculate their height
+    val numberOfTilesRows = remember(participants.size) {
+        tilesRowsCount(participants.size)
+    }
+    val tileHeight = remember(participants.size, contentHeight, contentPadding, spacedBy) {
+        val heightAvailableForItems = contentHeight - 2 * contentPadding - (numberOfTilesRows - 1) * spacedBy
+        heightAvailableForItems / numberOfTilesRows
+    }
     LazyVerticalGrid(
+        modifier = modifier,
         userScrollEnabled = false,
-        contentPadding = PaddingValues(MaterialTheme.wireDimensions.spacing4x),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x),
+        contentPadding = PaddingValues(contentPadding),
+        horizontalArrangement = Arrangement.spacedBy(spacedBy),
+        verticalArrangement = Arrangement.spacedBy(spacedBy),
         columns = GridCells.Fixed(NUMBER_OF_GRID_CELLS)
     ) {
 
@@ -76,22 +84,6 @@ fun GroupCallGrid(
             // we need to check that we are on first page for self user
             val isSelfUser = remember(pageIndex, participants.first()) {
                 pageIndex == 0 && participants.first() == participant
-            }
-            // We need the number of tiles rows needed to calculate their height
-            val numberOfTilesRows = remember(participants.size) {
-                tilesRowsCount(participants.size)
-            }
-
-            // if we have more than 6 participants then we reduce avatar size
-            val userAvatarSize = if (participants.size <= 6 || config.screenHeightDp > MIN_SCREEN_HEIGHT) {
-                dimensions().onGoingCallUserAvatarSize
-            } else {
-                dimensions().onGoingCallUserAvatarMinimizedSize
-            }
-
-            val spacing4x = dimensions().spacing4x
-            val tileHeight = remember(numberOfTilesRows) {
-                (contentHeight - spacing4x) / numberOfTilesRows
             }
 
             ParticipantTile(
@@ -110,10 +102,8 @@ fun GroupCallGrid(
                         )
                     }
                     .height(tileHeight)
-                    .animateItemPlacement(tween(durationMillis = 200)),
+                    .animateItem(),
                 participantTitleState = participant,
-                onGoingCallTileUsernameMaxWidth = dimensions().onGoingCallTileUsernameMaxWidth,
-                avatarSize = userAvatarSize,
                 isSelfUser = isSelfUser,
                 isSelfUserMuted = isSelfUserMuted,
                 isSelfUserCameraOn = isSelfUserCameraOn,
@@ -137,44 +127,37 @@ private fun getContentType(
 ) = if (isCameraOn || isSharingScreen) "videoRender" else null
 
 private const val NUMBER_OF_GRID_CELLS = 2
-private const val MIN_SCREEN_HEIGHT = 800
 
-@Preview
 @Composable
-fun PreviewGroupCallGrid() {
-    GroupCallGrid(
-        participants = listOf(
-            UICallParticipant(
-                id = QualifiedID("", ""),
-                clientId = "clientId",
-                name = "name",
-                isMuted = false,
-                isSpeaking = false,
-                isCameraOn = false,
-                isSharingScreen = false,
-                avatar = null,
-                membership = Membership.Admin,
-                hasEstablishedAudio = true
-            ),
-            UICallParticipant(
-                id = QualifiedID("", ""),
-                clientId = "clientId",
-                name = "name",
-                isMuted = false,
-                isSpeaking = false,
-                isCameraOn = false,
-                isSharingScreen = false,
-                avatar = null,
-                membership = Membership.Admin,
-                hasEstablishedAudio = true
-            )
-        ),
-        contentHeight = 800.dp,
-        pageIndex = 0,
-        isSelfUserMuted = true,
-        isSelfUserCameraOn = false,
-        onSelfVideoPreviewCreated = { },
-        onSelfClearVideoPreview = { },
-        onDoubleTap = { }
-    )
+private fun PreviewGroupCallGrid(participants: List<UICallParticipant>, modifier: Modifier = Modifier) {
+    Box(modifier = modifier.height(800.dp)) {
+        GroupCallGrid(
+            participants = participants,
+            pageIndex = 0,
+            isSelfUserMuted = false,
+            isSelfUserCameraOn = false,
+            contentHeight = 800.dp,
+            onSelfVideoPreviewCreated = {},
+            onSelfClearVideoPreview = {},
+            onDoubleTap = { }
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupCallGrid_4Participants() = WireTheme {
+    PreviewGroupCallGrid(buildPreviewParticipantsList(4))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupCallGrid_6Participants() = WireTheme {
+    PreviewGroupCallGrid(buildPreviewParticipantsList(6))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupCallGrid_8Participants() = WireTheme {
+    PreviewGroupCallGrid(buildPreviewParticipantsList(8))
 }

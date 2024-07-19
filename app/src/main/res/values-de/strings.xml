@@ -150,6 +150,7 @@
     <string name="about_app_screen_title">Über diese App</string>
     <string name="settings_privacy_policy_label">Datenschutzerklärung</string>
     <string name="settings_terms_of_use_label">Datenschutz und AGB</string>
+    <string name="settings_wire_website_label">Wire-Webseite</string>
     <string name="label_copyright">Urheberrecht</string>
     <string name="debug_settings_screen_title">Einstellungen zur Fehlerbehebung</string>
     <string name="item_dependencies_title">Abhängigkeiten:</string>
@@ -1220,6 +1221,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="notification_obfuscated_message_title">Jemand</string>
     <string name="notification_obfuscated_message_content">Hat eine selbstlöschende Nachricht gesendet</string>
     <string name="settings_licenses_settings_label">Lizenzen</string>
+    <string name="settings_dependencies_label">Abhängigkeiten</string>
     <string name="settings_myaccount_logout">Benutzerkonto löschen</string>
     <string name="delete_acount_dialog_title">Benutzerkonto löschen</string>
     <string name="delete_acount_dialog_text">Wenn Sie fortfahren, erhalten Sie eine E-Mail von Wire. Folgen Sie dem Link, um Ihr Konto dauerhaft zu löschen.</string>

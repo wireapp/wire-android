@@ -19,7 +19,6 @@
 package com.wire.android.ui.calling.ongoing.participantsview
 
 import android.view.View
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,18 +41,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.gridview.GroupCallGrid
 import com.wire.android.ui.calling.ongoing.participantsview.horizentalview.CallingHorizontalView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 private const val MAX_TILES_PER_PAGE = 8
 private const val MAX_ITEMS_FOR_HORIZONTAL_VIEW = 3
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VerticalCallingPager(
     participants: List<UICallParticipant>,
@@ -63,10 +63,11 @@ fun VerticalCallingPager(
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
-    onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit
+    onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(contentHeight)
     ) {
@@ -156,11 +157,10 @@ private fun pagesCount(size: Int): Int {
     } else pages
 }
 
-@PreviewMultipleThemes
 @Composable
-fun PreviewVerticalCallingPager() {
+private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
     VerticalCallingPager(
-        participants = listOf(),
+        participants = participants,
         isSelfUserMuted = false,
         isSelfUserCameraOn = false,
         contentHeight = 800.dp,
@@ -169,4 +169,16 @@ fun PreviewVerticalCallingPager() {
         requestVideoStreams = {},
         onDoubleTap = { }
     )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewVerticalCallingPagerHorizontalView() = WireTheme {
+    PreviewVerticalCallingPager(participants = buildPreviewParticipantsList(MAX_ITEMS_FOR_HORIZONTAL_VIEW))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewVerticalCallingPagerGrid() = WireTheme {
+    PreviewVerticalCallingPager(participants = buildPreviewParticipantsList(MAX_TILES_PER_PAGE))
 }

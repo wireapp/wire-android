@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - release/candidate
+  merge_group:
+    branches: [ release/candidate ]
   pull_request:
     branches:
       - release/candidate

@@ -19,13 +19,11 @@ package com.wire.android.ui.home.messagecomposer.attachments
 
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
-import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class IsFileSharingEnabledViewModelTest {
 
@@ -35,7 +33,7 @@ class IsFileSharingEnabledViewModelTest {
             withFileSharingStatus(FileSharingStatus.Value.EnabledAll)
         }
 
-        assertTrue(viewModel.isFileSharingEnabled())
+        Assertions.assertTrue(viewModel.isFileSharingEnabled())
         coVerify(exactly = 1) {
             arrangement.isFileSharingEnabledUseCase()
         }
@@ -47,7 +45,7 @@ class IsFileSharingEnabledViewModelTest {
             withFileSharingStatus(FileSharingStatus.Value.Disabled)
         }
 
-        assertFalse(viewModel.isFileSharingEnabled())
+        Assertions.assertFalse(viewModel.isFileSharingEnabled())
         coVerify(exactly = 1) {
             arrangement.isFileSharingEnabledUseCase()
         }
@@ -59,7 +57,7 @@ class IsFileSharingEnabledViewModelTest {
             withFileSharingStatus(FileSharingStatus.Value.EnabledSome(emptyList()))
         }
 
-        assertTrue(viewModel.isFileSharingEnabled())
+        Assertions.assertTrue(viewModel.isFileSharingEnabled())
         coVerify(exactly = 1) {
             arrangement.isFileSharingEnabledUseCase()
         }

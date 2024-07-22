@@ -4,14 +4,17 @@ on:
     branches:
       - develop
   merge_group:
+    types: [ checks_requested ]
     branches: [ develop ]
   pull_request:
     branches:
       - develop
     types: [ opened, synchronize ]
+z
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.merge_group.head_sha }}
   cancel-in-progress: true
+
 jobs:
   code-analysis:
     uses: ./.github/workflows/code-analysis.yml

@@ -68,7 +68,7 @@ class CallActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setUpScreenShootPreventionFlag()
+        setUpScreenshotPreventionFlag()
         setUpCallingFlags()
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -82,9 +82,6 @@ class CallActivity : AppCompatActivity() {
                 callActivityViewModel.switchAccountIfNeeded(this)
             }
         }
-
-        setUpCallingFlags()
-        setUpScreenShootPreventionFlag()
 
         appLogger.i("$TAG Initializing proximity sensor..")
         proximitySensorManager.initialize()
@@ -147,6 +144,11 @@ class CallActivity : AppCompatActivity() {
         proximitySensorManager.unRegisterListener()
     }
 
+    override fun onDestroy() {
+        cleanUpCallingFlags()
+        super.onDestroy()
+    }
+
     companion object {
         private const val TAG = "CallActivity"
         const val EXTRA_CONVERSATION_ID = "conversation_id"
@@ -155,19 +157,41 @@ class CallActivity : AppCompatActivity() {
     }
 }
 
-fun CallActivity.setUpCallingFlags() {
+private fun Activity.setUpCallingFlags() {
+    window.addFlags(
+        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+    )
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
         setShowWhenLocked(true)
         setTurnScreenOn(true)
     } else {
         window.addFlags(
-            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                    or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON,
+            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
 }
 
-fun CallActivity.setUpScreenShootPreventionFlag() {
+private fun Activity.cleanUpCallingFlags() {
+    window.clearFlags(
+        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+    )
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+        setShowWhenLocked(false)
+        setTurnScreenOn(false)
+    } else {
+        window.clearFlags(
+            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+        )
+    }
+}
+
+fun CallActivity.setUpScreenshotPreventionFlag() {
     lifecycleScope.launch {
         if (callActivityViewModel.isScreenshotCensoringConfigEnabled().await()) {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)

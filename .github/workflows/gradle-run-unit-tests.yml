@@ -75,10 +75,9 @@ jobs:
           merge-multiple: true
 
       - name: Upload code coverage to codecov
-        uses: codecov/codecov-action@v4
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        uses: codecov/codecov-action@v4.5.0
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: "app/build/reports/kover/report.xml"
 
       - name: Cleanup Gradle Cache

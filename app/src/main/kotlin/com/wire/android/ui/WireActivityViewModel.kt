@@ -84,7 +84,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -204,7 +203,7 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             currentSessionFlow.get().invoke()
                 .distinctUntilChanged()
-                .collectLatest {
+                .collect {
                     if (it is CurrentSessionResult.Success) {
                         if (it.accountInfo.isValid().not()) {
                             handleInvalidSession((it.accountInfo as AccountInfo.Invalid).logoutReason)

@@ -48,7 +48,6 @@ class IsFileSharingEnabledViewModelImpl @Inject constructor(
         getIsFileSharingEnabled()
     }
 
-    // TODO: handle restriction when sending assets
     private fun getIsFileSharingEnabled() = viewModelScope.launch {
         state = when (isFileSharingEnabledUseCase().state) {
             FileSharingStatus.Value.EnabledAll,

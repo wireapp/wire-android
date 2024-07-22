@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - release/candidate
+  merge_group:
+    types: [ checks_requested ]
+    branches: [ release/candidate ]
   pull_request:
     branches:
       - release/candidate
     types: [ opened, synchronize ]
-  workflow_call:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.merge_group.head_sha }}

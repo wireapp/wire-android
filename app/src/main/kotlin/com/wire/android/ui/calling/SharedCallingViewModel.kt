@@ -37,7 +37,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
-import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -145,7 +145,7 @@ class SharedCallingViewModel @Inject constructor(
                     is ConversationDetails.Group -> {
                         callState.copy(
                             conversationName = getConversationName(details.conversation.name),
-                            conversationType = ConversationType.Conference,
+                            conversationTypeForCall = ConversationTypeForCall.Conference,
                             protocolInfo = details.conversation.protocol,
                             mlsVerificationStatus = details.conversation.mlsVerificationStatus,
                             proteusVerificationStatus = details.conversation.proteusVerificationStatus
@@ -158,7 +158,7 @@ class SharedCallingViewModel @Inject constructor(
                             avatarAssetId = details.otherUser.completePicture?.let { assetId ->
                                 ImageAsset.UserAvatarAsset(wireSessionImageLoader, assetId)
                             },
-                            conversationType = ConversationType.OneOnOne,
+                            conversationTypeForCall = ConversationTypeForCall.OneOnOne,
                             membership = userTypeMapper.toMembership(details.otherUser.userType),
                             protocolInfo = details.conversation.protocol,
                             mlsVerificationStatus = details.conversation.mlsVerificationStatus,

@@ -77,7 +77,8 @@ jobs:
       - name: Upload code coverage to codecov
         uses: codecov/codecov-action@5ecb98a3c6b747ed38dc09f787459979aebb39be
         with:
-          version: v0.6.0
+          version: v0.7.3
+          verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
           files: "app/build/reports/kover/report.xml"
 

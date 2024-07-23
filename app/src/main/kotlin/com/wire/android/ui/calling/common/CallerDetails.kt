@@ -49,7 +49,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
@@ -61,7 +61,7 @@ fun CallerDetails(
     isCameraOn: Boolean,
     isCbrEnabled: Boolean,
     avatarAssetId: ImageAsset.UserAvatarAsset?,
-    conversationType: ConversationType,
+    conversationTypeForCall: ConversationTypeForCall,
     membership: Membership,
     callingLabel: String,
     protocolInfo: Conversation.ProtocolInfo?,
@@ -130,7 +130,7 @@ fun CallerDetails(
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )
 
-        if (!isCameraOn && conversationType == ConversationType.OneOnOne) {
+        if (!isCameraOn && conversationTypeForCall == ConversationTypeForCall.OneOnOne) {
             UserProfileAvatar(
                 avatarData = UserAvatarData(avatarAssetId),
                 size = dimensions().outgoingCallUserAvatarSize,
@@ -149,7 +149,7 @@ fun PreviewCallerDetails() {
         isCameraOn = false,
         isCbrEnabled = false,
         avatarAssetId = null,
-        conversationType = ConversationType.OneOnOne,
+        conversationTypeForCall = ConversationTypeForCall.OneOnOne,
         membership = Membership.Guest,
         callingLabel = String.EMPTY,
         protocolInfo = null,

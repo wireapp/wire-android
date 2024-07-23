@@ -52,17 +52,28 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import kotlin.math.sqrt
 
+/**
+ * @param avatarData data for the avatar
+ * @param modifier modifier for the avatar composable
+ * @param size size of the inner avatar itself, without any padding or indicators borders, if [UserProfileAvatarType.WithIndicators] then
+ * composable will be larger than this specified size by the indicators borders widths, if padding is specified it will also be added to
+ * the final composable size
+ * @param padding padding around the avatar and indicator borders
+ * @param clickable clickable callback for the avatar
+ * @param showPlaceholderIfNoAsset if true, will show default avatar if asset is null
+ * @param withCrossfadeAnimation if true, will animate the avatar change
+ * @param type type of the avatar, if [UserProfileAvatarType.WithIndicators] then composable will be larger by the indicators borders
+ */
 @Composable
 fun UserProfileAvatar(
-    avatarData: UserAvatarData = UserAvatarData(),
+    avatarData: UserAvatarData,
+    modifier: Modifier = Modifier,
     size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
     padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
-    modifier: Modifier = Modifier,
     clickable: Clickable? = null,
     showPlaceholderIfNoAsset: Boolean = true,
     withCrossfadeAnimation: Boolean = false,
-    showStatusIndicator: Boolean = true,
-    withLegalHoldIndicator: Boolean = false,
+    type: UserProfileAvatarType = UserProfileAvatarType.WithIndicators(legalHoldIndicatorVisible = false),
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -80,40 +91,52 @@ fun UserProfileAvatar(
             painter = painter,
             contentDescription = stringResource(R.string.content_description_user_avatar),
             modifier = Modifier
-                // we need to take borders into account
-                .size(size + (max(dimensions().avatarStatusBorderSize, dimensions().avatarLegalHoldIndicatorBorderSize) * 2))
-                .let {
-                    if (withLegalHoldIndicator) {
-                        it
-                            .border(
-                                width = dimensions().avatarLegalHoldIndicatorBorderSize / 2,
-                                shape = CircleShape,
-                                color = colorsScheme().error.copy(alpha = 0.3f)
-                            )
-                            .padding(dimensions().avatarLegalHoldIndicatorBorderSize / 2)
-                            .border(
-                                width = dimensions().avatarLegalHoldIndicatorBorderSize / 2,
-                                shape = CircleShape,
-                                color = colorsScheme().error.copy(alpha = 1.0f)
-                            )
-                            .padding(dimensions().avatarLegalHoldIndicatorBorderSize / 2)
-                    } else {
-                        it
-                            // this is to make the border of the avatar to be the same size as with the legal hold indicator
-                            .padding(dimensions().avatarLegalHoldIndicatorBorderSize - dimensions().spacing1x)
-                            .border(
-                                width = dimensions().spacing1x,
-                                shape = CircleShape,
-                                color = colorsScheme().outline
-                            )
-                            .padding(dimensions().spacing1x)
+                .size(
+                    when (type) {
+                        is UserProfileAvatarType.WithIndicators -> {
+                            // indicator borders need to be taken into account, the avatar itself will be smaller by the borders widths
+                            size + (max(dimensions().avatarStatusBorderSize, dimensions().avatarLegalHoldIndicatorBorderSize) * 2)
+                        }
+                        UserProfileAvatarType.WithoutIndicators -> {
+                            // indicator borders don't need to be taken into account, the avatar itself will take all available space
+                            size
+                        }
                     }
+                )
+                .let {
+                    if (type is UserProfileAvatarType.WithIndicators) {
+                        if (type.legalHoldIndicatorVisible) {
+                            it
+                                .border(
+                                    width = dimensions().avatarLegalHoldIndicatorBorderSize / 2,
+                                    shape = CircleShape,
+                                    color = colorsScheme().error.copy(alpha = 0.3f)
+                                )
+                                .padding(dimensions().avatarLegalHoldIndicatorBorderSize / 2)
+                                .border(
+                                    width = dimensions().avatarLegalHoldIndicatorBorderSize / 2,
+                                    shape = CircleShape,
+                                    color = colorsScheme().error.copy(alpha = 1.0f)
+                                )
+                                .padding(dimensions().avatarLegalHoldIndicatorBorderSize / 2)
+                        } else {
+                            it
+                                // this is to make the border of the avatar to be the same size as with the legal hold indicator
+                                .padding(dimensions().avatarLegalHoldIndicatorBorderSize - dimensions().spacing1x)
+                                .border(
+                                    width = dimensions().spacing1x,
+                                    shape = CircleShape,
+                                    color = colorsScheme().outline
+                                )
+                                .padding(dimensions().spacing1x)
+                        }
+                    } else it
                 }
                 .clip(CircleShape)
                 .testTag("User avatar"),
             contentScale = ContentScale.Crop
         )
-        if (showStatusIndicator) {
+        if (type is UserProfileAvatarType.WithIndicators) {
             val avatarWithLegalHoldRadius = (size.value / 2f) + dimensions().avatarLegalHoldIndicatorBorderSize.value
             val statusRadius = (dimensions().userAvatarStatusSize - dimensions().avatarStatusBorderSize).value / 2f
             // calculated using the trigonometry so that the status is always in the right place according to the avatar
@@ -127,6 +150,15 @@ fun UserProfileAvatar(
             )
         }
     }
+}
+
+sealed class UserProfileAvatarType {
+
+    // this will take the indicators into account when calculating avatar size so the composable itself will be larger by the borders
+    data class WithIndicators(val legalHoldIndicatorVisible: Boolean) : UserProfileAvatarType()
+
+    // this will not take the indicators into account when calculating avatar size so the avatar itself will be exactly as specified size
+    data object WithoutIndicators : UserProfileAvatarType()
 }
 
 /**
@@ -173,7 +205,9 @@ private fun getDefaultAvatarResourceId(membership: Membership): Int =
 @Composable
 fun PreviewUserProfileAvatar() {
     WireTheme {
-        UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE))
+        UserProfileAvatar(
+            avatarData = UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE),
+        )
     }
 }
 
@@ -181,7 +215,10 @@ fun PreviewUserProfileAvatar() {
 @Composable
 fun PreviewUserProfileAvatarWithLegalHold() {
     WireTheme {
-        UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE), withLegalHoldIndicator = true)
+        UserProfileAvatar(
+            avatarData = UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE),
+            type = UserProfileAvatarType.WithIndicators(legalHoldIndicatorVisible = true)
+        )
     }
 }
 
@@ -189,6 +226,23 @@ fun PreviewUserProfileAvatarWithLegalHold() {
 @Composable
 fun PreviewLargeUserProfileAvatarWithLegalHold() {
     WireTheme {
-        UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE), 48.dp, withLegalHoldIndicator = true)
+        UserProfileAvatar(
+            avatarData = UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE),
+            size = 48.dp,
+            type = UserProfileAvatarType.WithIndicators(legalHoldIndicatorVisible = true)
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewUserProfileAvatarWithoutIndicators() {
+    WireTheme {
+        UserProfileAvatar(
+            avatarData = UserAvatarData(),
+            padding = 0.dp,
+            size = 48.dp,
+            type = UserProfileAvatarType.WithoutIndicators,
+        )
     }
 }

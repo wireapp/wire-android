@@ -24,8 +24,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.BuildConfig
@@ -50,8 +48,6 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.functional.Either
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentMapOf
 
 @Composable
 fun DebugDataOptions(
@@ -76,7 +72,6 @@ fun DebugDataOptions(
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         dismissCertificateDialog = viewModel::dismissCertificateDialog,
         checkCrlRevocationList = viewModel::checkCrlRevocationList,
-        dependenciesMap = viewModel.state().dependencies
     )
 }
 
@@ -96,7 +91,6 @@ fun DebugDataOptionsContent(
     handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
     dismissCertificateDialog: () -> Unit,
     checkCrlRevocationList: () -> Unit,
-    dependenciesMap: ImmutableMap<String, String?>
 ) {
     Column {
 
@@ -131,7 +125,6 @@ fun DebugDataOptionsContent(
                 onClick = { onCopyText(state.commitish) }
             )
         )
-        DependenciesItem(dependenciesMap)
         if (BuildConfig.PRIVATE_BUILD) {
 
             SettingsItem(
@@ -427,29 +420,6 @@ private fun DebugToolsOptions(
     }
 }
 
-/**
- * Compose function that will display the list of dependencies
- * @param dependencies an Immutable map of a dependency name to its version number
- */
-@Composable
-fun DependenciesItem(dependencies: ImmutableMap<String, String?>) {
-    val title = stringResource(id = R.string.item_dependencies_title)
-    val text = remember {
-        prettyPrintMap(dependencies, title)
-    }
-    RowItemTemplate(
-        modifier = Modifier.wrapContentWidth(),
-        title = {
-            Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = text,
-                modifier = Modifier.padding(start = dimensions().spacing8x)
-            )
-        }
-    )
-}
-
 @Composable
 private fun DisableEventProcessingSwitch(
     isEnabled: Boolean = false,
@@ -478,15 +448,6 @@ private fun DisableEventProcessingSwitch(
         }
     )
 }
-
-@Stable
-private fun prettyPrintMap(map: ImmutableMap<String, String?>, title: String): String = StringBuilder().apply {
-    append("$title\n")
-    map.forEach { (key, value) ->
-        append("$key: $value\n")
-    }
-}.toString()
-
 //endregion
 
 @PreviewMultipleThemes
@@ -514,6 +475,5 @@ fun PreviewOtherDebugOptions() {
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
         checkCrlRevocationList = {},
-        dependenciesMap = persistentMapOf()
     )
 }

@@ -58,7 +58,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -67,6 +66,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MLSVerifiedIcon
@@ -126,7 +126,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = GroupConversationDetailsNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )

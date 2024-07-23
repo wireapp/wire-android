@@ -48,12 +48,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
@@ -86,7 +86,7 @@ import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.launch
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = LoginNavArgs::class
 )
 @Composable

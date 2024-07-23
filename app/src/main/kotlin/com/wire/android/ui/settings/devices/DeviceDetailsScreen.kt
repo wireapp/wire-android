@@ -45,12 +45,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.model.lastActiveDescription
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
@@ -97,7 +97,7 @@ import com.wire.kalium.logic.functional.Either
 import kotlinx.datetime.Instant
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = DeviceDetailsNavArgs::class
 )
 @Composable

@@ -180,6 +180,7 @@
     <string name="url_android_release_notes_feed" translatable="false">https://medium.com/feed/wire-news/tagged/android</string>
     <string name="url_maps_location_coordinates_fallback" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
     <!-- Wire Urls - Non translatable -->
+    <string name="url_wire_website" translatable="false">https://www.wire.com</string>
     <string name="url_support" translatable="false">https://support.wire.com</string>
     <string name="url_terms_of_use_legal" translatable="false">https://wire.com/legal</string>
     <string name="url_privacy_policy" translatable="false">https://wire.com/privacy-policy#:~:text=We%20process%20individual%20data%20about,%C2%A7%201%20a)%20GDPR).</string>
@@ -211,6 +212,7 @@
     <string name="about_app_screen_title">About This App</string>
     <string name="settings_privacy_policy_label">Privacy Policy</string>
     <string name="settings_terms_of_use_label">Legal</string>
+    <string name="settings_wire_website_label">Wire Website</string>
     <string name="label_copyright">Copyright</string>
     <string translatable="false" name="label_copyright_value">© Wire Swiss GmbH</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
@@ -1302,6 +1304,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="notification_obfuscated_message_title">Someone</string>
     <string name="notification_obfuscated_message_content">Sent a self-deleting message</string>
     <string name="settings_licenses_settings_label">License Information</string>
+    <string name="settings_dependencies_label">Dependencies</string>
     <string name="settings_myaccount_logout">Delete Account</string>
     <string name="app_not_found_for_action">No Application has been found to do Action</string>
     <string name="delete_acount_dialog_title">Delete Account</string>

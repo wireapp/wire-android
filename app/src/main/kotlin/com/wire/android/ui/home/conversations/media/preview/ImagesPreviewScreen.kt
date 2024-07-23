@@ -48,12 +48,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.ArgsSerializer
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -82,7 +82,7 @@ import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = ImagesPreviewNavArgs::class,
     style = PopUpNavigationAnimation::class
 )

@@ -32,11 +32,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -51,7 +51,7 @@ import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
 import com.wire.android.util.ui.openDownloadFolder
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = MediaGalleryNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )

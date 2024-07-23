@@ -34,10 +34,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = E2eiCertificateDetailsScreenNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )

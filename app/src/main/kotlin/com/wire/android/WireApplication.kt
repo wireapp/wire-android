@@ -26,6 +26,7 @@ import android.os.StrictMode
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
+import com.wire.android.analytics.ObserveCurrentSessionAnalyticsUseCase
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ApplicationScope
@@ -45,16 +46,12 @@ import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -195,21 +192,31 @@ class WireApplication : BaseApp() {
             enableDebugLogging = BuildConfig.DEBUG
         )
 
-        val isAnonymousUsageDataEnabledFlow = coreLogic.get().getGlobalScope().session.currentSessionFlow()
-            .flatMapLatest { sessionResult ->
-                if (sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid()) {
-                    userDataStoreProvider.get().getOrCreate(sessionResult.accountInfo.userId).isAnonymousUsageDataEnabled()
-                } else {
-                    flowOf(false)
-                }
-            }
-            .distinctUntilChanged()
+        val analyticsResultFlow = ObserveCurrentSessionAnalyticsUseCase(
+            currentSessionFlow = coreLogic.get().getGlobalScope().session.currentSessionFlow(),
+            isUserTeamMember = {
+                coreLogic.get().getSessionScope(it).team.isSelfATeamMember()
+            },
+            observeAnalyticsTrackingIdentifierStatusFlow = {
+                coreLogic.get().getSessionScope(it).observeAnalyticsTrackingIdentifierStatus()
+            },
+            analyticsIdentifierManagerProvider = {
+                coreLogic.get().getSessionScope(it).analyticsIdentifierManager
+            },
+            userDataStoreProvider = userDataStoreProvider.get()
+        ).invoke()
 
         AnonymousAnalyticsManagerImpl.init(
             context = this,
             analyticsSettings = analyticsSettings,
-            isEnabledFlow = isAnonymousUsageDataEnabledFlow,
+            analyticsResultFlow = analyticsResultFlow,
             anonymousAnalyticsRecorder = anonymousAnalyticsRecorder,
+            propagationHandler = { manager, identifier ->
+                manager.propagateTrackingIdentifier(identifier)
+            },
+            migrationHandler = { manager ->
+                manager.onMigrationComplete()
+            },
             dispatcher = Dispatchers.IO
         )
 
@@ -219,7 +226,7 @@ class WireApplication : BaseApp() {
                 .isAppVisibleFlow()
                 .filter { isVisible -> isVisible }
                 .collect {
-                    globalAnalyticsManager.sendEvent(AnalyticsEvent.AppOpen())
+                    AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.AppOpen())
                 }
         }
     }

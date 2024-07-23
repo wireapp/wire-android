@@ -52,6 +52,7 @@ import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -166,18 +167,19 @@ class WireActivityViewModelTest {
         }
 
     @Test
-    fun `given Intent with ServerConfig during an ongoing call, when handling deep links, then onCannotLoginDuringACall is called `() = runTest {
-        val result = DeepLinkResult.CustomServerConfig("url")
-        val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
-            .withDeepLinkResult(result)
-            .withOngoingCall()
-            .arrange()
+    fun `given Intent with ServerConfig during an ongoing call, when handling deep links, then onCannotLoginDuringACall is called `() =
+        runTest {
+            val result = DeepLinkResult.CustomServerConfig("url")
+            val (arrangement, viewModel) = Arrangement()
+                .withSomeCurrentSession()
+                .withDeepLinkResult(result)
+                .withOngoingCall()
+                .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, arrangement.onCannotLoginDuringACall)
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, arrangement.onCannotLoginDuringACall)
 
-        verify(exactly = 1) { arrangement.onCannotLoginDuringACall() }
-    }
+            verify(exactly = 1) { arrangement.onCannotLoginDuringACall() }
+        }
 
     @Test
     fun `given Intent with ServerConfig, when currentSession is absent and migration is required, then initialAppState is NOT_MIGRATED`() =
@@ -212,18 +214,19 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with SSOLogin during an ongoing call, when handling deep links, then onCannotLoginDuringACall is called `() = runTest {
-        val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
-        val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
-            .withDeepLinkResult(ssoLogin)
-            .withOngoingCall()
-            .arrange()
+    fun `given Intent with SSOLogin during an ongoing call, when handling deep links, then onCannotLoginDuringACall is called `() =
+        runTest {
+            val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
+            val (arrangement, viewModel) = Arrangement()
+                .withSomeCurrentSession()
+                .withDeepLinkResult(ssoLogin)
+                .withOngoingCall()
+                .arrange()
 
-        viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, arrangement.onCannotLoginDuringACall)
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, {}, arrangement.onCannotLoginDuringACall)
 
-        verify(exactly = 1) { arrangement.onCannotLoginDuringACall() }
-    }
+            verify(exactly = 1) { arrangement.onCannotLoginDuringACall() }
+        }
 
     @Test
     fun `given Intent with SSOLogin, when currentSession is absent, then initialAppState is NOT_LOGGED_IN and result SSOLogin`() = runTest {
@@ -637,6 +640,18 @@ class WireActivityViewModelTest {
             result.await() `should be equal to` true
         }
 
+    @Test
+    fun `given user, when current client was removed, then use should see logged out dialog`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withInvalidCurrentSession(logoutReason = LogoutReason.REMOVED_CLIENT)
+                .arrange()
+
+            advanceUntilIdle()
+
+            viewModel.globalAppState.blockUserUI `should be equal to` CurrentSessionErrorState.RemovedClient
+        }
+
     private class Arrangement {
 
         init {
@@ -770,6 +785,16 @@ class WireActivityViewModelTest {
             coEvery { doesValidSessionExist(any()) } returns DoesValidSessionExistResult.Success(true)
         }
 
+        fun withInvalidCurrentSession(logoutReason: LogoutReason): Arrangement = apply {
+            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(invalidAccountInfo(logoutReason)))
+            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Success(
+                invalidAccountInfo(
+                    logoutReason
+                )
+            )
+            coEvery { doesValidSessionExist(any()) } returns DoesValidSessionExistResult.Success(true)
+        }
+
         fun withNoCurrentSession(): Arrangement {
             coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Failure.SessionNotFound)
             coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Failure.SessionNotFound
@@ -787,6 +812,7 @@ class WireActivityViewModelTest {
             coEvery { observeEstablishedCalls() } returns flowOf(emptyList())
             return this
         }
+
         fun withOngoingCall(): Arrangement {
             coEvery { coreLogic.getSessionScope(any()).calls.establishedCall } returns observeEstablishedCalls
             coEvery { observeEstablishedCalls() } returns flowOf(listOf(ongoingCall))
@@ -860,6 +886,7 @@ class WireActivityViewModelTest {
                 every { it.action } returns null
             }
         }
+
         val ongoingCall = Call(
             CommonTopAppBarViewModelTest.conversationId,
             CallStatus.ESTABLISHED,
@@ -872,5 +899,7 @@ class WireActivityViewModelTest {
             callerName = "otherUsername",
             callerTeamName = "team1"
         )
+
+        fun invalidAccountInfo(logoutReason: LogoutReason): AccountInfo.Invalid = AccountInfo.Invalid(USER_ID, logoutReason)
     }
 }

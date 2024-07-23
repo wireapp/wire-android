@@ -31,6 +31,7 @@ var globalAnalyticsManager: AnonymousAnalyticsManager = AnonymousAnalyticsManage
 
 interface AnonymousAnalyticsManager {
 
+    @Suppress("LongParameterList")
     fun <T> init(
         context: Context,
         analyticsSettings: AnalyticsSettings,

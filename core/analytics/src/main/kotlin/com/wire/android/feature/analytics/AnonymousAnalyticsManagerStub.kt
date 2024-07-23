@@ -24,7 +24,6 @@ import com.wire.android.feature.analytics.handler.AnalyticsPropagationHandler
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsResult
 import com.wire.android.feature.analytics.model.AnalyticsSettings
-import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 

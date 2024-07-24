@@ -22,6 +22,7 @@ import androidx.startup.Initializer
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.wire.android.BuildConfig
+import com.wire.android.util.extension.getMetadataByKey
 import com.wire.android.util.extension.isGoogleServicesAvailable
 
 class FirebaseInitializer : Initializer<Unit> {
@@ -30,11 +31,12 @@ class FirebaseInitializer : Initializer<Unit> {
             val firebaseOptions = FirebaseOptions.Builder()
                 .setApplicationId(BuildConfig.FIREBASE_APP_ID)
                 .setGcmSenderId(BuildConfig.FIREBASE_PUSH_SENDER_ID)
-                .setApiKey(BuildConfig.GOOGLE_API_KEY)
+                .setApiKey(context.getMetadataByKey("gcp.firebase.API_KEY"))
                 .setProjectId(BuildConfig.FCM_PROJECT_ID)
                 .build()
             FirebaseApp.initializeApp(context, firebaseOptions)
         }
     }
+
     override fun dependencies(): List<Class<out Initializer<*>>> = emptyList() // no dependencies on other libraries
 }

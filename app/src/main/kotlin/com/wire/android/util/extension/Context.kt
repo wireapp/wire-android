@@ -34,3 +34,9 @@ fun Context.getActivity(): AppCompatActivity? = when (this) {
     is ContextWrapper -> baseContext.getActivity()
     else -> null
 }
+
+fun Context.getMetadataByKey(key: String): String {
+    val applicationInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+    val keyValue = applicationInfo.metaData?.getString(key)
+    return keyValue.toString()
+}

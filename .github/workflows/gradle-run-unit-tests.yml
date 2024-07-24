@@ -5,6 +5,9 @@ on: [ workflow_call ]
 permissions:
   contents: read
 
+env:
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
 jobs:
   coverage:
     runs-on: buildjet-8vcpu-ubuntu-2204
@@ -75,10 +78,14 @@ jobs:
           merge-multiple: true
 
       - name: Upload code coverage to codecov
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673
         with:
+          verbose: true
+          os: linux
           token: ${{ secrets.CODECOV_TOKEN }}
           files: "app/build/reports/kover/report.xml"
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.

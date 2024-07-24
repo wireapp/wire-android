@@ -72,7 +72,7 @@ class IsFileSharingEnabledViewModelTest {
         )
 
         fun withFileSharingStatus(result: FileSharingStatus.Value) = apply {
-            every { isFileSharingEnabledUseCase() } returns FileSharingStatus (
+            every { isFileSharingEnabledUseCase() } returns FileSharingStatus(
                 result,
                 true
             )
@@ -81,6 +81,5 @@ class IsFileSharingEnabledViewModelTest {
         fun arrange(block: Arrangement.() -> Unit) = apply(block).let {
             this to viewModel
         }
-
     }
 }

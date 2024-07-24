@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class CallNotificationDismissReceiver : BroadcastReceiver() { // requires zero argument constructor
+class DeclineIncomingCallReceiver : BroadcastReceiver() { // requires zero argument constructor
 
     @Inject
     @KaliumCoreLogic
@@ -85,7 +85,7 @@ class CallNotificationDismissReceiver : BroadcastReceiver() { // requires zero a
         private const val EXTRA_RECEIVER_USER_ID = "user_id_extra"
 
         fun newIntent(context: Context, conversationId: String?, userId: String?): Intent =
-            Intent(context, CallNotificationDismissReceiver::class.java).apply {
+            Intent(context, DeclineIncomingCallReceiver::class.java).apply {
                 putExtra(EXTRA_CONVERSATION_ID, conversationId)
                 putExtra(EXTRA_RECEIVER_USER_ID, userId)
             }

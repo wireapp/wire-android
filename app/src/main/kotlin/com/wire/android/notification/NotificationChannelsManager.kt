@@ -45,13 +45,6 @@ class NotificationChannelsManager @Inject constructor(
         )
     }
 
-    private val outgoingCallSoundUri by lazy {
-        Uri.parse(
-            "${ContentResolver.SCHEME_ANDROID_RESOURCE}://" +
-                    "${context.packageName}/raw/ringing_from_me"
-        )
-    }
-
     private val knockSoundUri by lazy {
         Uri.parse(
             "${ContentResolver.SCHEME_ANDROID_RESOURCE}://" +
@@ -131,17 +124,11 @@ class NotificationChannelsManager @Inject constructor(
     }
 
     private fun createOutgoingCallChannel(groupId: String, userId: UserId) {
-        val audioAttributes = AudioAttributes.Builder()
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .setUsage(getAudioAttributeUsageByOsLevel())
-            .build()
-
         val channelId = NotificationConstants.getOutgoingChannelId(userId)
         val notificationChannel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
             .setName(NotificationConstants.OUTGOING_CALL_CHANNEL_NAME)
             .setImportance(NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            .setSound(outgoingCallSoundUri, audioAttributes)
             .setShowBadge(false)
             .setGroup(groupId)
             .build()

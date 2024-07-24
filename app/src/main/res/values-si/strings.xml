@@ -175,8 +175,8 @@
     <string name="content_description_jump_to_last_message">අවසාන පණිවිඩයට යාම, බොත්තම</string>
     <string name="content_description_location_icon">ස්ථානය අථකය</string>
     <!-- Non translatable strings-->
+    <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
-    <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">සංරක්‍ෂණය</string>
     <string name="archive_screen_empty_state_title">සංරක්‍ෂණ නැත 👻</string>
     <string name="archive_screen_empty_state_description">ඔබගේ සංවාද කදිමට තබා ගැනීමට, භාවිතා නොකරන සංවාද මෙයට ගෙන එන්න. ඕනෑම විටෙක ඒවා අසංරක්‍ෂණය කිරීමට හැකිය.</string>
@@ -185,10 +185,10 @@
     <string name="app_settings_screen_title">යෙදුමේ සැකසුම්</string>
     <string name="give_feedback_screen_title">ප්‍රතිපෝෂණ</string>
     <string name="report_bug_screen_title">දෝෂ වාර්තා</string>
-    <string name="about_app_screen_title">About This App</string>
-    <string name="settings_privacy_policy_label">Privacy Policy</string>
-    <string name="settings_terms_of_use_label">Legal</string>
-    <string name="label_copyright">Copyright</string>
+    <string name="about_app_screen_title">මෙම යෙදුම ගැන</string>
+    <string name="settings_privacy_policy_label">රහස්‍යතා ප්‍රතිපත්තිය</string>
+    <string name="settings_terms_of_use_label">නීතිමය</string>
+    <string name="label_copyright">ප්‍රකාශන අයිතිය</string>
     <string name="debug_settings_screen_title">නිදොස්කරණ සැකසුම්</string>
     <string name="item_dependencies_title">පරායත්ත:</string>
     <string name="support_screen_title">සහාය</string>
@@ -223,7 +223,6 @@
     <string name="server_details_dialog_body_with_proxy">සේවාදායකයේ නම:\n%1$s\n\nසේවාදායකයේ ඒ.ස.නි.:\n%2$s\n\nප්‍රතියුක්තයේ ඒ.ස.නි.:\n%3$s\n\nප්‍රතියුක්තය සත්‍යාපනය:\n%4$s</string>
     <string name="server_details_dialog_title">පරිශ්‍රයක සේවාදායකයකි</string>
     <string name="welcome_migration_dialog_title">අපගේ නව ඇන්ඩ්‍රොයිඩ් යෙදුමට පිළිගනිමු 👋</string>
-    <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
     <string name="welcome_migration_dialog_continue">වයර් භාවිතය අරඹන්න</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">යාවත්කාල කළ යුතුය</string>
@@ -233,18 +232,10 @@
     <!-- Migration -->
     <string name="migration_title">වයර් පිහිටුවමින්</string>
     <string name="migration_message">යෙදුම පිහිටුවන තෙක් රැඳී සිටින්න</string>
-    <string name="migration_message_unknown">Please wait while we migrate data for you</string>
-    <string name="migration_accounts_message">Migrating your accounts...</string>
-    <string name="migration_messages_message">Migrating your messages...</string>
     <string name="migration_title_step">පියවර %1$d/%2$d</string>
     <string name="migration_title_almost_done">සියල්ල අහවරයි!</string>
     <string name="migration_title_updated">වයර් පිහිටුවමින්</string>
-    <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
-    <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
     <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
-    <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
-    <string name="migration_cancel_title">Cancel migration</string>
-    <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
     <!-- Login -->
     <string name="login_title">පිවිසෙන්න</string>
     <string name="login_forgot_password">මුරපදය අමතකද?</string>
@@ -391,7 +382,6 @@
     <string name="protocol">කෙටුම්පත</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">කේතාංකන කට්ටලය</string>
-    <string name="last_key_material_update_label">Last Key Material Update</string>
     <string name="group_state_label">සමූහයේ තත්‍වය</string>
     <string name="empty_group_name_error">සමූහයට නමක් යොදන්න</string>
     <string name="group_name_exceeded_limit_error">සමූහයේ නම අකුරු 64 ක් නොඉක්මවිය යුතුය.</string>
@@ -604,9 +594,7 @@
     <string name="label_system_message_conversation_history_lost">ඔබ යම් කාලයක් මෙම උපාංගය භාවිතා කර නැත. ඇතැම් පණිවිඩ මෙහි නොපෙන්වයි.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">ඔබ කාලෙකින් මෙම උපාංගය යාවත්කාල කර නැත. මේ අතරතුර සම්මත පණිවිඩකරණ කෙටුම්පත ප්‍රෝටියස් වෙතින් පණිවිඩකරණ ස්ථර ආරක්‍ෂණය (MLS) වෙත වෙනස් වී ඇත. එබැවින් සමහර පණිවිඩ මෙහි නොපෙන්වයි.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">ඔබ නිසි කලට යෙදුම යාවත්කාල කර නැත. ඇතැම් පණිවිඩ මෙහි නොපෙන්වයි.</string>
-    <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">MLS වෙත සංක්‍රමණය හේතුවෙන් ඔබගේ වත්මන් ඇමතුම ගැටලු සහගත විය හැකිය. එසේ වුවහොත්, විසන්ධි කර නැවත අමතන්න.</string>
-    <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">මෙම සංවාදය දැන් නව පණිවිඩකරණ ස්ථර ආරක්‍ෂණ (MLS) කෙටුම්පත භාවිතා කරයි. බාධාවකින් තොරව සන්නිවේදනය සඳහා සැමවිටම ඔබගේ උපාංග වලට නවතම වයර් අනුවාදය බාගන්න.</string>
     <string name="label_system_message_receipt_mode_on">සක්‍රියයි</string>
     <string name="label_system_message_receipt_mode_off">අක්‍රියයි</string>
@@ -748,7 +736,6 @@
     <string name="error_no_network_message">අන්තර්ජාල සම්බන්ධතාවය පරීක්‍ෂා කර යළි උත්සාහ කරන්න</string>
     <string name="error_downloading_self_user_profile_picture">ඔබගේ පැතිකඩ රූපය බාගැනීමේ දෝෂයකි - අන්තර්ජාල සම්බන්ධතාවය පරීක්‍ෂා කරන්න</string>
     <string name="error_uploading_user_avatar">රූපය උඩුගත කිරීමට නොහැකි විය</string>
-    <string name="error_process_user_avatar">Picture could not be processed</string>
     <string name="error_uploading_image_message">රූපය උඩුගත වීමට අසමත් විය</string>
     <string name="error_downloading_image_message">රූපය බාගැනීමට අසමත් විය</string>
     <string name="error_updating_muting_setting">දැනුම්දීම් යාවත්කාල කිරීමට නොහැකි විය</string>
@@ -954,15 +941,11 @@
     <string name="settings_myaccount_handle_updated">පරිශ්‍රීලක නාමය වෙනස් විය</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">කියවූ බවට ලදුපත යවන්න</string>
-    <string name="settings_send_read_receipts_description">මෙය අක්‍රිය නම්, ඔබට අන් අයගෙන් කියවූ බවට ලදුපත් දැකීමට නොහැකියි. සමූහ සංවාද සඳහා මෙම සැකසුම අදාළ නොවේ.</string>
     <string name="settings_censor_screenshots">තිරසේයා වාරණය</string>
     <string name="settings_censor_screenshots_description">මෙය සක්‍රිය නම්, පණිවිඩවල අන්තර්ගතය තිරසේයා හෝ තිර පටිගතවල නොපෙනෙනු ඇත.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">කණ්ඩායමේ සැකසුම හරහා පණිවිඩ ඉබේ මැකීමට බලාත්මක කර ඇති අතර වෙනස් කිරීමට නොහැකිය.\nතිර සේයා හෝ තිර පටිගත වලට පණිවිඩවල අන්තර්ගතය නොපෙනෙනු ඇත.</string>
     <string name="settings_show_typing_indicator_title">ලිවීමේ දර්ශකය</string>
-    <string name="settings_show_typing_indicator_description">මෙය අක්‍රිය නම්, ඔබට වෙනත් පුද්ගලයින් ලියන විට දැකීමට නොහැකි අතර, ඔබ ලියන විට ද අන් අයට නොපෙනේ. මෙම සැකසුම උපාංගයේ සියළුම සංවාද සඳහා අදාළ වේ.</string>
     <string name="settings_app_lock_title">මුරකේතයකින් අගුළුලන්න</string>
-    <string name="settings_send_anonymous_usage_data_title">Send anonymous usage data</string>
-    <string name="settings_send_anonymous_usage_data_description">Usage data allows Wire to understand how the app is being used and how it can be improved. The data is anonymous and does not include the content of your communications (such as messages, files, locations, or calls).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">යෙදුමට අගුලක් සකසන්න</string>
     <string name="settings_set_lock_screen_description">%1$s නිෂ්ක්‍රියත්‍වයකින් පසුව යෙදුමට අගුළු වැටෙනු ඇත. යෙදුම අගුළු හැරීමට මෙම මුරකේතය හෝ වමිතික සත්‍යාපනය භාවිතයට සිදු වේ.\n\nමෙය ප්‍රතිසාධනයට ක්‍රමයක් නැති බැවින් මතක තබා ගැනීමට වග බලා ගන්න.</string>
@@ -1034,14 +1017,12 @@
     <string name="label_debug_title">නිදොස්කරණ සැකසුම්</string>
     <string name="label_client_option_title">අනුග්‍රාහකයේ හැඳු.</string>
     <string name="label_device_id">උපාංගයේ හැඳු.: %1$s</string>
-    <string name="label_code_commit_id">Commit Hash</string>
     <string name="label_client_id">අනුග්‍රාහකයේ හැඳු.: %1$s</string>
     <string name="label_client_added_time">එක් කළේ</string>
     <string name="label_client_last_active_label">අන්තිමට දුටුවේ</string>
     <string name="label_client_last_active_time_zero_weeks">සතියකට පෙර</string>
     <string name="label_client_last_active_time">%1$s කට පෙර</string>
     <string name="label_client_device_id">ප්‍රෝටියස් හැඳු.</string>
-    <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS අනුග්‍රාහකයේ හැඳු.</string>
     <string name="conversation_empty_list_description">සහයෝගයෙන් වැඩ කිරීමට අන් අය සමඟ සම්බන්ධ වන්න හෝ නව සමූහයක් සාදන්න!</string>
     <string name="conversation_empty_list_title">පිළිගනිමු 👋</string>
@@ -1111,7 +1092,6 @@
     <string name="cancel_login_dialog_title">ඔබට අවලංගු කිරීමට වුවමනාද?</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s මගින් ඔබගේ ඇතැම් පණිවිඩ විසංකේතනයට නොහැකි වූ නමුත් ගැටළුව විසඳා ඇත. මෙය ඔබ එකවර බෙදා ගන්නා සියළුම සංවාද වලට බලපාන ලදි.</string>
-    <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
     <string name="start_manual_migration">අරඹන්න</string>
     <string name="file_sharing_restricted_description_by_team">මෙම ගිණුමට මෙම විශේෂාංගය අබල කර ඇති නිසා ඔබට මෙම ගොනුව බෙදා ගැනීමට නොහැකිය.</string>
     <string name="file_sharing_restricted_description_no_users">ඕනෑම දෙයක් බෙදා ගැනීමට පෙර ඔබ වයර් වෙත ඇතුළු විය යුතුය</string>
@@ -1184,11 +1164,9 @@
     <string name="title_video_could_not_be_sent">දෘශ්‍යකය යැවීමට නොහැකි විය</string>
     <string name="title_image_could_not_be_sent">ඡායාරූපය යැවීමට නොහැකි විය</string>
     <string name="title_file_could_not_be_sent">ගොනුව යැවීමට නොහැකි විය</string>
-    <string name="title_assets_could_not_be_sent">Assets could not be sent</string>
     <string name="label_shared_video_too_large">උපරිම මෙ.බ. %d ක දෘශ්‍යකයක් යැවීමට හැකිය.</string>
     <string name="label_shared_image_too_large">උපරිම මෙ.බ. %d ක රූපයක් යැවීමට හැකිය.</string>
     <string name="label_shared_file_too_large">උපරිම මෙ.බ. %d ක ගොනුවක් යැවීමට හැකිය.</string>
-    <string name="label_shared_multiple_assets_error">Remove all marked assets and try again</string>
     <string name="label_file_saved_to_device">ඔබගේ උපාංගයට ගොනුව සුරැකිණි.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">ඉබේ මැකෙන පණිවිඩය • %1$s</string>
@@ -1284,6 +1262,7 @@
     <!-- Record Audio -->
     <string name="record_audio_start_label">පටිගතය අරඹන්න</string>
     <string name="record_audio_recording_label">හඬ පටිගත වෙමින්…</string>
+    <string name="record_audio_encoding_label">හඬ ආකේතනය වෙමින්…</string>
     <string name="record_audio_send_label">හඬ පණිවිඩය යවන්න</string>
     <string name="record_audio_apply_filter_label">ශ්‍රව්‍ය පෙරහන යොදන්න</string>
     <string name="record_audio_discard_dialog_title">හඬ පණිවිඩය ඉවතලන්නද?</string>
@@ -1336,7 +1315,6 @@
     <string name="legal_hold_requested_dialog_accept_button">පිළිගන්න</string>
     <string name="legal_hold_requested_dialog_not_now_button">දැන් නොවේ</string>
     <string name="legal_hold_learn_more_button">නෛතික රැඳවුම ගැන තව දැනගන්න</string>
-    <string name="url_legal_hold_learn_more">https://support.wire.com/hc/articles/360002018278-What-is-legal-hold-</string>
     <string name="legal_hold_deactivated_dialog_title">නෛතික රැඳවුම අක්‍රිය කෙරිණි</string>
     <string name="legal_hold_deactivated_dialog_description">මින් මතු පණිවිඩ පටිගත නොවේ.</string>
     <string name="legal_hold_subject_dialog_title">%1$s දැන් නෛතික රැඳවුමට යටත් වේ</string>
@@ -1388,6 +1366,5 @@
     <string name="location_loading_label">කරුණාකර රැඳෙන්න...</string>
     <string name="location_could_not_be_shared">ස්ථානය බෙදාගැනීමට නොහැකි විය</string>
     <!-- Asset Preview -->
-    <string name="remove_asset_description">Remove asset</string>
-    <string name="asset_attention_description">Asset attention</string>
+    <!-- No Activity Errors -->
 </resources>

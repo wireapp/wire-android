@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Wire
   ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
@@ -174,6 +175,7 @@
     <string name="content_description_jump_to_last_message">Ugorjon a legutolsó üzenethez gomb</string>
     <string name="content_description_location_icon">Hely elem</string>
     <!-- Non translatable strings-->
+    <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
     <string name="vault_screen_title">Széf</string>
     <string name="archive_screen_title">Archívum</string>
@@ -186,7 +188,6 @@
     <string name="report_bug_screen_title">Hiba jelentése</string>
     <string name="about_app_screen_title">Az alkalmazás névjegye</string>
     <string name="settings_privacy_policy_label">Adatvédelmi irányelvek</string>
-    <string name="settings_terms_of_use_label">Legal</string>
     <string name="label_copyright">Szerzői jogok</string>
     <string name="debug_settings_screen_title">Hibakeresési beállítások</string>
     <string name="item_dependencies_title">Függőségek:</string>
@@ -967,12 +968,10 @@
     <string name="settings_myaccount_handle_updated">Profilneve megváltozott</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Olvasási visszaigazolás küldése</string>
-    <string name="settings_send_read_receipts_description">Ha ez ki van kapcsolva, akkor nem fogja látni a másoktól származó olvasási visszaigazolásokat. Ez a beállítás nem vonatkozik a csoportos beszélgetésekre.</string>
     <string name="settings_censor_screenshots">Képernyőmentések cenzúrázása</string>
     <string name="settings_censor_screenshots_description">Ha ez aktív, az üzenetek tartalma nem lesz látható a képernyőmentésen vagy -rögzítésen.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">Ezt az önmegsemmisítő üzenet csapatbeállítás kényszeríti ki, nem megváltoztatható.\nAz üzenetek tartalma nem lesz látható a képernyőmentésen vagy -rögzítésen.</string>
     <string name="settings_show_typing_indicator_title">Gépelésjelző</string>
-    <string name="settings_show_typing_indicator_description">Ha ki van kapcsolva, nem fogja látni, ha mások gépelnek, és mások sem látják, ha Ön gépel. Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</string>
     <string name="settings_app_lock_title">Lezárás jelkóddal</string>
     <string name="settings_send_anonymous_usage_data_title">Anonimizált használati adatok küldése</string>
     <string name="settings_send_anonymous_usage_data_description">A használati adatok lehetővé teszik a Wire számára, hogy megértse, hogyan használják az appot, és miként lehetne fejleszteni. Az adatok névtelenek, és nem hordozzák magukban a kommunikációja tartalmát (mint pl. üzenetek, fájlok, földrajzi helyzet, hívások).</string>
@@ -1198,11 +1197,9 @@ Kérjük, próbálja meg újra.</string>
     <string name="title_video_could_not_be_sent">A videót nem sikerült elküldeni</string>
     <string name="title_image_could_not_be_sent">A képet nem sikerült elküldeni</string>
     <string name="title_file_could_not_be_sent">A fájlt nem sikerült elküldeni</string>
-    <string name="title_assets_could_not_be_sent">Assets could not be sent</string>
     <string name="label_shared_video_too_large">Legfeljebb %d MB méretű videót oszthat meg.</string>
     <string name="label_shared_image_too_large">Legfeljebb %d MB méretű képet oszthat meg.</string>
     <string name="label_shared_file_too_large">Legfeljebb %d MB méretű fájlt oszthat meg.</string>
-    <string name="label_shared_multiple_assets_error">Remove all marked assets and try again</string>
     <string name="label_file_saved_to_device">A fájl mentve az eszközére.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Önmegsemmisítő üzenet • %1$s</string>
@@ -1304,104 +1301,14 @@ Kérjük, próbálja meg újra.</string>
     <string name="record_audio_discard_dialog_text">A hangüzenet törlésre kerül, és nem lehet elküldeni.</string>
     <string name="record_audio_discard_dialog_discard_button">Eldobás</string>
     <string name="record_audio_permission_denied_dialog_title">Hozzáférés a mikrofonhoz</string>
-    <string name="record_audio_permission_denied_dialog_text">Wire needs permission to use your microphone to record audio messages. Allow access in your device settings.</string>
-    <string name="record_audio_permission_denied_dialog_settings_button">Settings</string>
-    <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
-    <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
-    <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
-    <string name="record_audio_unable_due_to_error">Something went wrong while trying to record audio message. Please try again.</string>
-    <string name="label_not_now">Not Now</string>
-    <string name="last_message_composite_with_missing_text">sent an interactive message</string>
-    <string name="join_conversation_dialog_password_label">Conversation Password</string>
-    <string name="join_conversation_dialog_password_placeholder">Enter password</string>
-    <string name="participant_tile_call_connecting_label">Connecting…</string>
-    <string name="create_guest_link">Create Guest Link</string>
-    <string name="create_guest_link_with_password">Create password secured link</string>
-    <string name="create_guest_link_without_password_title">Create link without password</string>
-    <string name="conversation_options_create_password_protected_guest_link_title">Create Password Secured Link</string>
-    <string name="conversation_options_create_password_protected_guest_link_discrption">People who want to join the conversation via the guest link need to enter this password first.</string>
-    <string name="conversation_options_create_password_protected_guest_link_discrption_2">You can’t change the password later. Make sure to copy and store it.</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_label">SET PASSWORD</string>
-    <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">CONFIRM PASSWORD</string>
-    <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Enter password</string>
     <string name="generate_password_button_text">Jelszógenerálás</string>
-    <string name="password_protected_link_banner_description">People who want to join the conversation via the guest link need to enter this password first.\nForgot password? Revoke the link and create a new one.</string>
-    <string name="password_protected_link_banner_title">Link is password secured</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
-    <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>
     <!--    biometrics-->
-    <string name="biometrics_prompt_dialog_title">Authenticate with biometrics</string>
-    <string name="biometrics_prompt_dialog_subtitle">To unlock Wire</string>
-    <string name="biometrics_use_passcode_button">Use passcode</string>
-    <string name="biometrics_app_unlock_too_many_attempts">Too many attempts on biometrics. Unlock with passcode instead.</string>
     <!--    e2ei-->
-    <string name="e2ei_certificate_details_screen_title">Certificate Details</string>
-    <string name="e2ei_certificate_details_copy_to_clipboard">Copy to Clipboard</string>
-    <string name="e2ei_certificate_details_download">Download</string>
-    <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Certificate copied to clipboard</string>
-    <string name="call_ended_because_of_verification_title">Conversation no longer verified</string>
-    <string name="call_ended_because_of_verification_message">The call was disconnected because at least one participant is no longer a verified contact.</string>
     <!-- legal hold -->
-    <string name="legal_hold_requested_dialog_title">Legal hold requested</string>
-    <string name="legal_hold_requested_dialog_description_device">All future messages will be recorded by the device with fingerprint:</string>
-    <string name="legal_hold_requested_dialog_description_includes">This includes deleted, edited and self-deleting messages in all conversations.</string>
-    <string name="legal_hold_requested_dialog_enter_password">Enter your password to confirm.</string>
-    <string name="legal_hold_requested_dialog_accept_button">Accept</string>
-    <string name="legal_hold_requested_dialog_not_now_button">Not Now</string>
-    <string name="legal_hold_learn_more_button">Learn more about legal hold</string>
-    <string name="url_legal_hold_learn_more">https://support.wire.com/hc/articles/360002018278-What-is-legal-hold-</string>
-    <string name="legal_hold_deactivated_dialog_title">Legal hold deactivated</string>
-    <string name="legal_hold_deactivated_dialog_description">Future messages will not be recorded.</string>
-    <string name="legal_hold_subject_dialog_title">%1$s is subject to legal hold</string>
-    <string name="legal_hold_subject_conversation_dialog_title">Conversation is subject to legal hold</string>
-    <string name="legal_hold_subject_self_dialog_title">You are subject to legal hold</string>
-    <string name="legal_hold_subject_dialog_description">All messages, pictures, and documents will be preserved for future access. It includes deleted, edited, and self-deleting messages.</string>
-    <string name="legal_hold_subject_dialog_description_group">At least one person in this conversation is subject to legal hold.</string>
-    <string name="legal_hold_subject_dialog_message_title">The conversation is now subject to legal hold</string>
-    <string name="legal_hold_subject_dialog_description_message">Do you still want to send your message?</string>
-    <string name="legal_hold_subject_dialog_send_anyway_button">Send Anyway</string>
-    <string name="legal_hold_connection_failed_dialog_title">Connecting not possible</string>
-    <string name="legal_hold_connection_failed_dialog_description">You can not connect to this user due to legal hold.</string>
-    <string name="legal_hold_subject_to">Subject to %1$s.</string>
-    <string name="legal_hold_label">legal hold</string>
-    <string name="legal_hold_is_active_label">Legal hold is active</string>
-    <string name="legal_hold_is_pending_label">Legal hold is pending</string>
-    <string name="legal_hold_accept">Accept</string>
-    <string name="legal_hold_system_message_enabled_self">You are now subject to legal hold.</string>
-    <string name="legal_hold_system_message_enabled_others">Legal hold activated for %1$s.</string>
-    <string name="legal_hold_system_message_disabled_self">You are no longer subject to legal hold.</string>
-    <string name="legal_hold_system_message_disabled_others">Legal hold deactivated for %1$s.</string>
-    <string name="legal_hold_system_message_disabled_conversation">Legal hold is no longer active for this conversation.</string>
-    <string name="legal_hold_system_message_enabled_conversation">Legal hold is now active for this conversation.</string>
-    <string name="legal_hold_system_message_interaction_disabled">You can’t write messages with this user, as they are not part of your team and one of you is subject to legal hold. Once legal hold is deactivated, you can write messages again.</string>
     <!-- Sure want to send message Dialog -->
-    <string name="sure_about_messaging_dialog_title">Conversation no longer verified</string>
-    <string name="sure_about_messaging_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to send the message?</string>
-    <string name="sure_about_messaging_dialog_positiv_button">Send Anyway</string>
     <!-- Sure want to call Dialog -->
-    <string name="sure_about_calling_in_degraded_dialog_title">Conversation no longer verified</string>
-    <string name="sure_about_calling_in_degraded_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to start the call?</string>
-    <string name="sure_about_calling_in_degraded_dialog_positiv_button">Call Anyway</string>
     <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">App permissions</string>
-    <string name="app_permission_dialog_settings_positive_button">Settings</string>
-    <string name="app_permission_dialog_settings_negative_button">Not Now</string>
-    <string name="call_permission_dialog_description">To make a call, allow Wire to access your microphone in your device settings.</string>
-    <string name="record_video_permission_dialog_description">To record a video, allow Wire to access your camera in your device settings.</string>
-    <string name="take_picture_permission_dialog_description">To take a picture, allow Wire to access your camera in your device settings.</string>
-    <string name="open_gallery_permission_dialog_description">To send a picture, allow Wire to access Photos in your device settings.</string>
-    <string name="attach_file_permission_dialog_description">To send a file, allow Wire to access your files in your device settings.</string>
-    <string name="save_permission_dialog_description">To save this file, allow Wire to access your Downloads folder in your device settings.</string>
-    <string name="save_backup_file_permission_dialog_description">To save this backup file, allow Wire to access your Downloads folder in your device settings.</string>
-    <string name="restore_backup_permission_dialog_description">To restore conversations, allow Wire to access your files in your device settings.</string>
-    <string name="camera_permission_dialog_description">To turn the camera on, allow Wire to access your camera in your device settings.</string>
     <!-- Share Location -->
-    <string name="location_attachment_share_title">Share Location</string>
-    <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
-    <string name="location_loading_label">Please wait...</string>
-    <string name="location_could_not_be_shared">Location could not be shared</string>
     <!-- Asset Preview -->
-    <string name="remove_asset_description">Remove asset</string>
-    <string name="asset_attention_description">Asset attention</string>
+    <!-- No Activity Errors -->
 </resources>

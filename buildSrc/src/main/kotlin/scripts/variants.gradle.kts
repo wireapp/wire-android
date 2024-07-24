@@ -198,12 +198,17 @@ android {
         FeatureConfigs.values().forEach { configs ->
             when (configs.configType) {
                 ConfigType.STRING -> {
-                    buildStringConfig(
-                        flavor,
-                        configs.configType.type,
-                        configs.name,
-                        flavorMap[flavor.name]?.get(configs.value)?.toString()
-                    )
+                    if (FeatureConfigs.GOOGLE_API_KEY.value == configs.value) {
+                        val apiKey:String? = flavorMap[flavor.name]?.get(configs.value)?.toString()
+                        flavor.manifestPlaceholders["GCP_API_KEY"] = apiKey ?: ""
+                    } else {
+                        buildStringConfig(
+                            flavor,
+                            configs.configType.type,
+                            configs.name,
+                            flavorMap[flavor.name]?.get(configs.value)?.toString()
+                        )
+                    }
                 }
 
                 ConfigType.INT,

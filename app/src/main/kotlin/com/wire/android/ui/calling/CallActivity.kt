@@ -68,6 +68,8 @@ class CallActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        appLogger.d("CallActivity: Creating new instance for ${hashCode()}")
+
         setUpScreenshotPreventionFlag()
         setUpCallingFlags()
 
@@ -221,7 +223,6 @@ fun getOutgoingCallIntent(
 
 fun getIncomingCallIntent(context: Context, conversationId: String, userId: String?) =
     Intent(context.applicationContext, CallActivity::class.java).apply {
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         putExtra(CallActivity.EXTRA_USER_ID, userId)
         putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
         putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Incoming.name)

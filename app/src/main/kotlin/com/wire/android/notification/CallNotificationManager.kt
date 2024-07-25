@@ -218,6 +218,7 @@ class CallNotificationBuilder @Inject constructor(
     }
 
     fun getIncomingCallNotification(data: CallNotificationData): Notification {
+        appLogger.d("CallActivity: Notification data $data ")
         val conversationIdString = data.conversationId.toString()
         val userIdString = data.userId.toString()
         val title = getNotificationTitle(data)

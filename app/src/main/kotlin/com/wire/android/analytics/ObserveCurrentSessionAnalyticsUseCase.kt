@@ -26,6 +26,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 
@@ -50,6 +51,8 @@ fun ObserveCurrentSessionAnalyticsUseCase(
     userDataStoreProvider: UserDataStoreProvider
 ) = object : ObserveCurrentSessionAnalyticsUseCase {
 
+    private var previousAnalyticsResult: AnalyticsIdentifierResult? = null
+
     override fun invoke(): Flow<AnalyticsResult<AnalyticsIdentifierManager>> =
         currentSessionFlow
         .flatMapLatest {
@@ -59,9 +62,18 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                 val analyticsIdentifierManager = analyticsIdentifierManagerProvider(userId)
 
                 combine(
-                    observeAnalyticsTrackingIdentifierStatusFlow(userId),
+                    observeAnalyticsTrackingIdentifierStatusFlow(userId)
+                        .filter { currentIdentifierResult ->
+                            val currentResult = (currentIdentifierResult as? AnalyticsIdentifierResult.Enabled)
+                            val previousResult = (previousAnalyticsResult as? AnalyticsIdentifierResult.Enabled)
+
+                            currentIdentifierResult != previousAnalyticsResult &&
+                                    currentResult?.identifier != previousResult?.identifier
+                        },
                     userDataStoreProvider.getOrCreate(userId).isAnonymousUsageDataEnabled()
                 ) { identifierResult, enabled ->
+                    previousAnalyticsResult = identifierResult
+
                     if (enabled) {
                         AnalyticsResult(
                             identifierResult = identifierResult,

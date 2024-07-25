@@ -90,7 +90,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -131,13 +130,6 @@ class WireActivityViewModel @Inject constructor(
     private val userIdDeferred: Deferred<UserId?> = viewModelScope.async(dispatchers.io()) {
         currentSessionFlow.get().invoke()
             .distinctUntilChanged()
-            .onEach {
-                if (it is CurrentSessionResult.Success) {
-                    if (it.accountInfo.isValid().not()) {
-                        handleInvalidSession((it.accountInfo as AccountInfo.Invalid).logoutReason)
-                    }
-                }
-            }
             .map { result ->
                 if (result is CurrentSessionResult.Success) {
                     if (result.accountInfo.isValid()) {
@@ -160,6 +152,7 @@ class WireActivityViewModel @Inject constructor(
         observeNewClientState()
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
+        observeLogoutState()
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -203,6 +196,20 @@ class WireActivityViewModel @Inject constructor(
             } catch (e: NullPointerException) {
                 appLogger.e("Error while observing sync state: $e")
             }
+        }
+    }
+
+    private fun observeLogoutState() {
+        viewModelScope.launch(dispatchers.io()) {
+            currentSessionFlow.get().invoke()
+                .distinctUntilChanged()
+                .collect {
+                    if (it is CurrentSessionResult.Success) {
+                        if (it.accountInfo.isValid().not()) {
+                            handleInvalidSession((it.accountInfo as AccountInfo.Invalid).logoutReason)
+                        }
+                    }
+                }
         }
     }
 

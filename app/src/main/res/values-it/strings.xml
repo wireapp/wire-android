@@ -632,10 +632,6 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="one">Hai rimosso 1 partecipante dalla conversazione</item>
         <item quantity="other">Hai rimosso %1$d partecipanti dalla conversazione</item>
     </plurals>
-    <plurals name="last_message_team_member_removed">
-        <item quantity="one">1 persona è stata rimossa dal team</item>
-        <item quantity="other">%1$d persone sono state rimosse dal team</item>
-    </plurals>
     <string name="last_message_other_removed_only_self_user">Sei stato rimosso dalla conversazione</string>
     <plurals name="last_message_other_removed_self_user_and_others">
         <item quantity="one">Tu ed un altro partecipante siete stati rimossi dalla conversazione</item>

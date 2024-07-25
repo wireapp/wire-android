@@ -19,9 +19,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         package="com.wire.android"
-        android:sharedUserId="${sharedUserId}"
         android:installLocation="internalOnly"
-        >
+        android:sharedUserId="${sharedUserId}">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -61,14 +60,13 @@
             android:required="false" />
 
     <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
+            android:name="android.hardware.camera"
+            android:required="false" />
 
     <!--  usesCleartextTraffic is true as we need to check Certificate Revocation List in HTTP.
     The CRL itself is signed by the issuer so there is no security issue.
     For all other calls, we use HTTPS, and this is enforced by OkHttp using ConnectionSpecs. -->
     <application
-            android:usesCleartextTraffic="true"
             android:name=".WireApplication"
             android:allowBackup="false"
             android:fullBackupContent="false"
@@ -79,6 +77,7 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="false"
             android:theme="@style/AppTheme.SplashScreen"
+            android:usesCleartextTraffic="true"
             tools:replace="android:allowBackup,android:supportsRtl">
 
         <activity
@@ -90,13 +89,13 @@
                 android:theme="@style/AppTheme" />
 
         <activity
-            android:name=".ui.calling.CallActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            android:taskAffinity="wire.call"
-            android:theme="@style/AppTheme" />
+                android:name=".ui.calling.CallActivity"
+                android:exported="true"
+                android:hardwareAccelerated="true"
+                android:launchMode="singleTop"
+                android:screenOrientation="portrait"
+                android:taskAffinity="wire.call"
+                android:theme="@style/AppTheme" />
 
         <activity
                 android:name=".ui.WireActivity"
@@ -229,8 +228,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                        android:path="/oauth2redirect"
                         android:host="e2ei"
+                        android:path="/oauth2redirect"
                         android:scheme="wire" />
             </intent-filter>
             <intent-filter>
@@ -240,8 +239,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                        android:path="/logout"
                         android:host="e2ei"
+                        android:path="/logout"
                         android:scheme="wire" />
             </intent-filter>
         </activity>
@@ -250,6 +249,10 @@
         We make a custom Firebase init, because the app selects the Firebase project at a runtime,
         so we need to remove default FirebaseInitProvider and create our custom FirebaseInitializer.
         -->
+        <meta-data
+                android:name="gcp.firebase.API_KEY"
+                android:value="${GCP_API_KEY}" />
+
         <provider
                 android:name="com.google.firebase.provider.FirebaseInitProvider"
                 android:authorities="${applicationId}.firebaseinitprovider"
@@ -329,9 +332,8 @@
 
         <service
                 android:name=".services.PersistentWebSocketService"
-                android:foregroundServiceType="specialUse"
-                android:exported="false">
-        </service>
+                android:exported="false"
+                android:foregroundServiceType="specialUse"></service>
 
         <service
                 android:name=".services.OngoingCallService"

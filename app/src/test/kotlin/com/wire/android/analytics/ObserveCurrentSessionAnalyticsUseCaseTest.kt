@@ -86,7 +86,9 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 .apply {
                     setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
                     setIsTeamMember(TestUser.SELF_USER.id)
-                    setObservingTrackingIdentifierStatus(AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER))
+                    setObservingTrackingIdentifierStatus(
+                        AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER)
+                    )
                 }.arrange()
 
             // when

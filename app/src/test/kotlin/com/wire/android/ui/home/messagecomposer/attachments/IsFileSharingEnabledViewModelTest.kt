@@ -17,14 +17,19 @@
  */
 package com.wire.android.ui.home.messagecomposer.attachments
 
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import io.mockk.MockKAnnotations
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(CoroutineTestExtension::class)
 class IsFileSharingEnabledViewModelTest {
 
     @Test
@@ -33,7 +38,7 @@ class IsFileSharingEnabledViewModelTest {
             withFileSharingStatus(FileSharingStatus.Value.EnabledAll)
         }
 
-        Assertions.assertTrue(viewModel.isFileSharingEnabled())
+        assertTrue(viewModel.isFileSharingEnabled())
         coVerify(exactly = 1) {
             arrangement.isFileSharingEnabledUseCase()
         }
@@ -45,7 +50,7 @@ class IsFileSharingEnabledViewModelTest {
             withFileSharingStatus(FileSharingStatus.Value.Disabled)
         }
 
-        Assertions.assertFalse(viewModel.isFileSharingEnabled())
+        assertFalse(viewModel.isFileSharingEnabled())
         coVerify(exactly = 1) {
             arrangement.isFileSharingEnabledUseCase()
         }
@@ -57,7 +62,7 @@ class IsFileSharingEnabledViewModelTest {
             withFileSharingStatus(FileSharingStatus.Value.EnabledSome(emptyList()))
         }
 
-        Assertions.assertTrue(viewModel.isFileSharingEnabled())
+        assertTrue(viewModel.isFileSharingEnabled())
         coVerify(exactly = 1) {
             arrangement.isFileSharingEnabledUseCase()
         }
@@ -67,9 +72,12 @@ class IsFileSharingEnabledViewModelTest {
 
         @MockK
         lateinit var isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase
-        private val viewModel: IsFileSharingEnabledViewModel = IsFileSharingEnabledViewModelImpl(
-            isFileSharingEnabledUseCase
-        )
+
+        private lateinit var viewModel: IsFileSharingEnabledViewModel
+
+        init {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+        }
 
         fun withFileSharingStatus(result: FileSharingStatus.Value) = apply {
             every { isFileSharingEnabledUseCase() } returns FileSharingStatus(
@@ -79,6 +87,9 @@ class IsFileSharingEnabledViewModelTest {
         }
 
         fun arrange(block: Arrangement.() -> Unit) = apply(block).let {
+            viewModel = IsFileSharingEnabledViewModelImpl(
+                isFileSharingEnabledUseCase
+            )
             this to viewModel
         }
     }

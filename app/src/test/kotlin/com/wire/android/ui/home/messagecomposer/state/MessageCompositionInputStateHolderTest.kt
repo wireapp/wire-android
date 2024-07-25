@@ -301,7 +301,7 @@ class MessageCompositionInputStateHolderTest {
     @Test
     fun `given non-empty text but with only empty markdown, when composing, then send button should be disabled`() = runTest {
         // Given
-        val messageText = "** **" // just an example, more combinations are tested in StringUtilTest
+        val messageText = "# " // just an example, more combinations are tested in StringUtilTest
         val (state, _) = Arrangement()
             .withText(messageText)
             .arrange()
@@ -354,7 +354,7 @@ class MessageCompositionInputStateHolderTest {
     fun `given non-empty text bit with only empty markdown, when editing, then send button should be disabled`() = runTest {
         // Given
         val editMessageText = "edit"
-        val messageText = "** **" // just an example, more combinations are tested in StringUtilTest
+        val messageText = "# " // just an example, more combinations are tested in StringUtilTest
         val (state, _) = Arrangement()
             .withText(messageText)
             .arrange()

@@ -46,6 +46,7 @@ class StringUtilTest {
         assert(expected == actual)
     }
 
+    @Suppress("LongMethod")
     @Test
     fun givenDifferentMarkdownsWithOnlyWhitespaces_whenCheckingIfNotBlank_thenReturnProperValues() {
 

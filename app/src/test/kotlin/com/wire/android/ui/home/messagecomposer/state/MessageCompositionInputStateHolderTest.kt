@@ -385,7 +385,6 @@ class MessageCompositionInputStateHolderTest {
         }
     }
 
-
     @Test
     fun `given different text than edit message text, when editing, then send button should be enabled`() = runTest {
         // Given

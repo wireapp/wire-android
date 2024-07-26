@@ -62,7 +62,7 @@ import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.openAppInfoScreen
 import com.wire.android.util.permission.rememberCallingRecordAudioRequestFlow
-import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.id.ConversationId
 
 @RootNavGraph
@@ -212,7 +212,7 @@ private fun IncomingCallContent(
                 onVideoPreviewCreated = onVideoPreviewCreated,
                 onSelfClearVideoPreview = onSelfClearVideoPreview
             )
-            val isCallingString = if (callState.conversationType == ConversationType.Conference) {
+            val isCallingString = if (callState.conversationTypeForCall == ConversationTypeForCall.Conference) {
                 stringResource(R.string.calling_label_incoming_call_someone_calling, callState.callerName ?: "")
             } else stringResource(R.string.calling_label_incoming_call)
 
@@ -222,7 +222,7 @@ private fun IncomingCallContent(
                 isCameraOn = callState.isCameraOn,
                 isCbrEnabled = callState.isCbrEnabled,
                 avatarAssetId = callState.avatarAssetId,
-                conversationType = callState.conversationType,
+                conversationTypeForCall = callState.conversationTypeForCall,
                 membership = callState.membership,
                 callingLabel = isCallingString,
                 protocolInfo = callState.protocolInfo,

@@ -154,7 +154,7 @@ private fun InitiatingCallContent(
                 isCameraOn = callState.isCameraOn,
                 isCbrEnabled = callState.isCbrEnabled,
                 avatarAssetId = callState.avatarAssetId,
-                conversationType = callState.conversationType,
+                conversationTypeForCall = callState.conversationTypeForCall,
                 membership = callState.membership,
                 callingLabel = stringResource(id = R.string.calling_label_ringing_call),
                 protocolInfo = callState.protocolInfo,

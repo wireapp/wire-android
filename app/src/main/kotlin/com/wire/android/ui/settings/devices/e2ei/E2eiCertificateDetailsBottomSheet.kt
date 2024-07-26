@@ -39,8 +39,8 @@ fun E2eiCertificateDetailsBottomSheet(
     val coroutineScope = rememberCoroutineScope()
     val onSaveFileWriteStorageRequest = rememberWriteStoragePermissionFlow(
         onPermissionGranted = onDownload,
-        onPermissionDenied = { /** Nothing to do **/ },
-        onPermissionPermanentlyDenied = { /** Nothing to do **/ }
+        onPermissionDenied = { },
+        onPermissionPermanentlyDenied = { }
     )
     WireModalSheetLayout(sheetState = sheetState, coroutineScope = coroutineScope) {
         MenuModalSheetContent(

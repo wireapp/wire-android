@@ -32,8 +32,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
-import com.wire.kalium.logic.feature.legalhold.MembersHavingLegalHoldClientUseCase
-import com.wire.kalium.logic.functional.getOrElse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flowOn
@@ -44,7 +42,6 @@ import javax.inject.Inject
 class ObserveParticipantsForConversationUseCase @Inject constructor(
     private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val getMembersE2EICertificateStatuses: GetMembersE2EICertificateStatusesUseCase,
-    private val membersHavingLegalHoldClientUseCase: MembersHavingLegalHoldClientUseCase,
     private val uiParticipantMapper: UIParticipantMapper,
     private val dispatchers: DispatcherProvider
 ) {

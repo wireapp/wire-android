@@ -220,7 +220,6 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
         ObserveParticipantsForConversationUseCase(
             observeConversationMembersUseCase,
             getMembersE2EICertificateStatuses,
-            membersHavingLegalHoldClientUseCase,
             uIParticipantMapper,
             dispatchers = TestDispatcherProvider()
         )

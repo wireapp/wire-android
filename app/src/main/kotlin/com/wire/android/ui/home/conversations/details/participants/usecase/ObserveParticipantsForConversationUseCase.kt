@@ -75,9 +75,6 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                     }
                 )
 
-                fun List<MemberDetails>.toUIParticipants() = this.map {
-                    uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.userId].let { false })
-                }
                 val selfUser = (allParticipants + allAdminsWithoutServices).firstOrNull { it.user is SelfUser }
 
                 ConversationParticipantsData(

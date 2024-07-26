@@ -77,10 +77,9 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                         getMembersE2EICertificateStatuses(conversationId, newlyEmittedVisibleUserIds)
                     }
                 )
-                val legalHoldList = membersHavingLegalHoldClientUseCase(conversationId).getOrElse(emptyList())
 
                 fun List<MemberDetails>.toUIParticipants() = this.map {
-                    uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.userId], legalHoldList.contains(it.userId))
+                    uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.userId].let { false })
                 }
                 val selfUser = (allParticipants + allAdminsWithoutServices).firstOrNull { it.user is SelfUser }
 

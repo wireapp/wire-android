@@ -28,7 +28,7 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
-import com.wire.android.util.permission.rememberWriteStorageRequestFlow
+import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
 
 @Composable
 fun E2eiCertificateDetailsBottomSheet(
@@ -37,9 +37,10 @@ fun E2eiCertificateDetailsBottomSheet(
     onDownload: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val onSaveFileWriteStorageRequest = rememberWriteStorageRequestFlow(
-        onGranted = onDownload,
-        onDenied = { }
+    val onSaveFileWriteStorageRequest = rememberWriteStoragePermissionFlow(
+        onPermissionGranted = onDownload,
+        onPermissionDenied = { /** Nothing to do **/ },
+        onPermissionPermanentlyDenied = { /** Nothing to do **/ }
     )
     WireModalSheetLayout(sheetState = sheetState, coroutineScope = coroutineScope) {
         MenuModalSheetContent(

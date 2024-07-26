@@ -76,6 +76,7 @@ import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.home.E2EIUpdateErrorWithDismissDialog
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -125,7 +126,11 @@ fun DeviceDetailsScreen(
             handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
             onNavigateToE2eiCertificateDetailsScreen = {
                 navigator.navigate(
-                    NavigationCommand(E2eiCertificateDetailsScreenDestination(it))
+                    NavigationCommand(
+                        E2eiCertificateDetailsScreenDestination(
+                            E2EICertificateDetails.AfterLoginCertificateDetails(it)
+                        )
+                    )
                 )
             },
             onEnrollE2EIErrorDismiss = viewModel::hideEnrollE2EICertificateError,

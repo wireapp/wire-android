@@ -89,8 +89,14 @@ class ObserveParticipantsForConversationUseCaseTest {
     @Test
     fun givenGroupMembersUnderLegalHold_whenSolvingTheParticipantsList_thenPassCorrectLegalHoldValues() = runTest {
         // Given
-        val memberUnderLegalHold = MemberDetails(testOtherUser(0).copy(userType = UserType.INTERNAL, isUnderLegalHold = true), Member.Role.Member)
-        val memberNotUnderLegalHold = MemberDetails(testOtherUser(1).copy(userType = UserType.INTERNAL, isUnderLegalHold = false), Member.Role.Member)
+        val memberUnderLegalHold = MemberDetails(
+            user = testOtherUser(0).copy(userType = UserType.INTERNAL, isUnderLegalHold = true),
+            role = Member.Role.Member
+        )
+        val memberNotUnderLegalHold = MemberDetails(
+            user = testOtherUser(1).copy(userType = UserType.INTERNAL, isUnderLegalHold = false),
+            role = Member.Role.Member
+        )
         val (_, useCase) = ObserveParticipantsForConversationUseCaseArrangement()
             .withConversationParticipantsUpdate(listOf(memberUnderLegalHold, memberNotUnderLegalHold))
             .arrange()

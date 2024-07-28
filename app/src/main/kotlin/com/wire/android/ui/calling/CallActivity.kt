@@ -33,7 +33,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.wire.android.appLogger
@@ -42,7 +41,6 @@ import com.wire.android.notification.CallNotificationManager
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
-import com.wire.android.ui.calling.ongoing.OngoingCallScreen
 import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
@@ -53,7 +51,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class CallActivity : AppCompatActivity() {
-
     @Inject
     lateinit var callNotificationManager: CallNotificationManager
 
@@ -95,7 +92,7 @@ class CallActivity : AppCompatActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    var currentCallScreenType by remember { mutableStateOf(screenType) }
+                    val currentCallScreenType by remember { mutableStateOf(NewCallScreenType.byName(screenType)) }
                     currentCallScreenType?.let { currentScreenType ->
                         AnimatedContent(
                             targetState = currentScreenType,
@@ -104,29 +101,29 @@ class CallActivity : AppCompatActivity() {
                                     TransitionAnimationType.POP_UP.exitTransition
                                 )
                             },
-                            label = currentScreenType
+                            label = currentScreenType.name
                         ) { screenType ->
                             conversationId?.let {
                                 when (screenType) {
-                                    CallScreenType.Outgoing.name -> {
+                                    NewCallScreenType.Outgoing -> {
                                         OutgoingCallScreen(
-                                            conversationId = qualifiedIdMapper.fromStringToQualifiedID(
-                                                it
-                                            )
+                                            conversationId =
+                                                qualifiedIdMapper.fromStringToQualifiedID(
+                                                    it
+                                                )
                                         ) {
-                                            currentCallScreenType = CallScreenType.Ongoing.name
+                                            // todo navigate
+//                                            currentCallScreenType = CallScreenType.Ongoing.name
                                         }
                                     }
 
-                                    CallScreenType.Ongoing.name -> OngoingCallScreen(
-                                        qualifiedIdMapper.fromStringToQualifiedID(it)
-                                    )
-
-                                    CallScreenType.Incoming.name -> IncomingCallScreen(
-                                        qualifiedIdMapper.fromStringToQualifiedID(it)
-                                    ) {
-                                        currentCallScreenType = CallScreenType.Ongoing.name
-                                    }
+                                    NewCallScreenType.Incoming ->
+                                        IncomingCallScreen(
+                                            qualifiedIdMapper.fromStringToQualifiedID(it)
+                                        ) {
+                                            // todo navigate
+//                                            currentCallScreenType = CallScreenType.Ongoing.name
+                                        }
                                 }
                             }
                         }
@@ -162,7 +159,7 @@ class CallActivity : AppCompatActivity() {
 private fun Activity.setUpCallingFlags() {
     window.addFlags(
         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+            or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
     )
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -171,7 +168,7 @@ private fun Activity.setUpCallingFlags() {
     } else {
         window.addFlags(
             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
 }
@@ -179,7 +176,7 @@ private fun Activity.setUpCallingFlags() {
 private fun Activity.cleanUpCallingFlags() {
     window.clearFlags(
         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+            or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
     )
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -188,7 +185,7 @@ private fun Activity.cleanUpCallingFlags() {
     } else {
         window.clearFlags(
             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
 }
@@ -203,7 +200,7 @@ fun CallActivity.setUpScreenshotPreventionFlag() {
     }
 }
 
-fun getOngoingCallIntent(
+fun getOngoingCalalIntent(
     activity: Activity,
     conversationId: String
 ) = Intent(activity, CallActivity::class.java).apply {
@@ -218,20 +215,24 @@ fun getOutgoingCallIntent(
 ) = Intent(activity, CallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-    putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Outgoing.name)
+    putExtra(CallActivity.EXTRA_SCREEN_TYPE, NewCallScreenType.Outgoing.name)
 }
 
-fun getIncomingCallIntent(context: Context, conversationId: String, userId: String?) =
-    Intent(context.applicationContext, CallActivity::class.java).apply {
-        putExtra(CallActivity.EXTRA_USER_ID, userId)
-        putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-        putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Incoming.name)
-    }
+fun getIncomingCallIntent(
+    context: Context,
+    conversationId: String,
+    userId: String?
+) = Intent(context.applicationContext, CallActivity::class.java).apply {
+    putExtra(CallActivity.EXTRA_USER_ID, userId)
+    putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
+    putExtra(CallActivity.EXTRA_SCREEN_TYPE, NewCallScreenType.Incoming.name)
+}
 
 fun CallActivity.openAppLockActivity() {
-    Intent(this, AppLockActivity::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-    }.run {
-        startActivity(this)
-    }
+    Intent(this, AppLockActivity::class.java)
+        .apply {
+            flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+        }.run {
+            startActivity(this)
+        }
 }

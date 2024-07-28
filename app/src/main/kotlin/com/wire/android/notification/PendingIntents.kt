@@ -31,6 +31,8 @@ import com.wire.android.notification.broadcastreceivers.NotificationReplyReceive
 import com.wire.android.ui.WireActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallScreenType
+import com.wire.android.ui.calling.NewCallScreenType
+import com.wire.android.ui.calling.OngoingCallActivity
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.util.deeplink.DeepLinkProcessor
 
@@ -143,11 +145,11 @@ fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String
 private fun openOutgoingCallIntent(context: Context, conversationId: String) =
     Intent(context.applicationContext, CallActivity::class.java).apply {
         putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-        putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Outgoing.name)
+        putExtra(CallActivity.EXTRA_SCREEN_TYPE, NewCallScreenType.Outgoing.name)
     }
 
 private fun openOngoingCallIntent(context: Context, conversationId: String) =
-    Intent(context.applicationContext, CallActivity::class.java).apply {
+    Intent(context.applicationContext, OngoingCallActivity::class.java).apply {
         putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
         putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Ongoing.name)
     }

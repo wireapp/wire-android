@@ -193,7 +193,7 @@ private fun ColumnScope.DeviceItemTexts(
         )
         if (shouldShowVerifyLabel) {
             if (shouldShowE2EIInfo) {
-                MLSVerificationIcon(device.e2eiCertificate?.status)
+                MLSVerificationIcon(device.mlsClientIdentity?.e2eiStatus)
             }
             if (device.isVerifiedProteus && !isCurrentClient) {
                 ProteusVerifiedIcon(
@@ -216,7 +216,7 @@ private fun ColumnScope.DeviceItemTexts(
 
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
 
-    device.e2eiCertificate?.let { certificate ->
+    device.mlsClientIdentity?.let { identity ->
         Text(
             style = MaterialTheme.wireTypography.subline01,
             color = MaterialTheme.wireColorScheme.labelText,
@@ -224,7 +224,7 @@ private fun ColumnScope.DeviceItemTexts(
             overflow = TextOverflow.Ellipsis,
             text = stringResource(
                 R.string.remove_device_mls_thumbprint_label,
-                certificate.thumbprint.formatAsFingerPrint()
+                identity.thumbprint.formatAsFingerPrint()
             ),
             modifier = Modifier
                 .fillMaxWidth()

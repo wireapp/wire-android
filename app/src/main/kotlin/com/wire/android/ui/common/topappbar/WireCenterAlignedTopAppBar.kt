@@ -121,6 +121,7 @@ fun WireTopAppBarTitle(
     maxLines: Int = 2
 ) {
     // There's an ongoing issue about multiline text taking all width available instead of wrapping visible text.
+    // https://issuetracker.google.com/issues/206039942
     // It's very noticeable on TopAppBar because due to that issue, the title is not centered, even if there are large enough empty spaces
     // on both sides and all lines of text are actually shorter and could fit at the center.
     // This workaround is based on this: https://stackoverflow.com/a/69947555, but instead of using SubcomposeLayout, we just measure text.

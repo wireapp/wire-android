@@ -76,6 +76,7 @@ import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.home.E2EIUpdateErrorWithDismissDialog
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -90,8 +91,13 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.feature.e2ei.CertificateStatus
-import com.wire.kalium.logic.feature.e2ei.E2eiCertificate
+import com.wire.kalium.logic.data.id.QualifiedClientID
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.e2ei.Handle
+import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
+import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
+import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
+import com.wire.kalium.logic.feature.e2ei.X509Identity
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.functional.Either
 import kotlinx.datetime.Instant
@@ -120,7 +126,11 @@ fun DeviceDetailsScreen(
             handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
             onNavigateToE2eiCertificateDetailsScreen = {
                 navigator.navigate(
-                    NavigationCommand(E2eiCertificateDetailsScreenDestination(it))
+                    NavigationCommand(
+                        E2eiCertificateDetailsScreenDestination(
+                            E2EICertificateDetails.AfterLoginCertificateDetails(it)
+                        )
+                    )
                 )
             },
             onEnrollE2EIErrorDismiss = viewModel::hideEnrollE2EICertificateError,
@@ -138,7 +148,7 @@ fun DeviceDetailsContent(
     modifier: Modifier = Modifier,
     onDeleteDevice: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
-    onNavigateToE2eiCertificateDetailsScreen: (String) -> Unit = {},
+    onNavigateToE2eiCertificateDetailsScreen: (MLSClientIdentity) -> Unit = {},
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
     onErrorDialogDismiss: () -> Unit = {},
@@ -190,10 +200,9 @@ fun DeviceDetailsContent(
                 .padding(internalPadding)
                 .background(MaterialTheme.wireColorScheme.surface)
         ) {
-
-            state.device.e2eiCertificate?.let { certificate ->
+            state.device.mlsClientIdentity?.let { identity ->
                 item {
-                    DeviceMLSSignatureItem(certificate.thumbprint, screenState::copyMessage)
+                    DeviceMLSSignatureItem(identity.thumbprint, screenState::copyMessage)
                     HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
@@ -202,7 +211,7 @@ fun DeviceDetailsContent(
                 item {
                     EndToEndIdentityCertificateItem(
                         isE2eiCertificateActivated = state.isE2eiCertificateActivated,
-                        certificate = state.e2eiCertificate,
+                        mlsClientIdentity = state.mlsClientIdentity,
                         isCurrentDevice = state.isCurrentDevice,
                         isLoadingCertificate = state.isLoadingCertificate,
                         enrollE2eiCertificate = { enrollE2eiCertificate() },
@@ -292,9 +301,9 @@ fun DeviceDetailsContent(
             )
         }
 
-        if (state.isE2EICertificateEnrollSuccess) {
+        if (state.isE2EICertificateEnrollSuccess && state.mlsClientIdentity != null) {
             E2EISuccessDialog(
-                openCertificateDetails = { onNavigateToE2eiCertificateDetailsScreen(state.e2eiCertificate.certificateDetail) },
+                openCertificateDetails = { onNavigateToE2eiCertificateDetailsScreen(state.mlsClientIdentity) },
                 dismissDialog = onEnrollE2EISuccessDismiss
             )
         }
@@ -327,7 +336,7 @@ private fun DeviceDetailsTopBar(
                 )
 
                 if (shouldShowE2EIInfo) {
-                    MLSVerificationIcon(device.e2eiCertificate?.status)
+                    MLSVerificationIcon(device.mlsClientIdentity?.e2eiStatus)
                 }
 
                 if (!isCurrentDevice && device.isVerifiedProteus) {
@@ -584,14 +593,21 @@ fun PreviewDeviceDetailsScreen() = WireTheme {
                 clientId = ClientId(""),
                 name = UIText.DynamicString("My Device"),
                 registrationTime = "2022-03-24T18:02:30.360Z",
-                e2eiCertificate = E2eiCertificate(
-                    "handler",
-                    CertificateStatus.VALID,
-                    "serial",
-                    "Details",
-                    "Thumbprint",
-                    Instant.DISTANT_FUTURE
-                )
+                mlsClientIdentity = MLSClientIdentity(
+                    clientId = QualifiedClientID(ClientId(""), UserId("", "")),
+                    e2eiStatus = MLSClientE2EIStatus.VALID,
+                    thumbprint = "thumbprint",
+                    credentialType = MLSCredentialsType.X509,
+                    x509Identity = X509Identity(
+                        handle = Handle("", "", ""),
+                        displayName = "",
+                        domain = "",
+                        certificate = "",
+                        serialNumber = "e5:d5:e6:75:7e:04:86:07:14:3c:a0:ed:9a:8d:e4:fd",
+                        notBefore = Instant.DISTANT_PAST,
+                        notAfter = Instant.DISTANT_FUTURE
+                    )
+                ),
             ),
             isCurrentDevice = false
         ),

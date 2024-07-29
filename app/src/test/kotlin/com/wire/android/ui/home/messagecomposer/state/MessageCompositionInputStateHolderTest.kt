@@ -18,13 +18,15 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.ui.unit.dp
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
+import com.wire.android.util.EMPTY
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
-import org.junit.jupiter.api.BeforeEach
+import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -32,19 +34,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class MessageCompositionInputStateHolderTest {
 
-    private lateinit var messageTextState: TextFieldState
-
-    private lateinit var state: MessageCompositionInputStateHolder
-
-    @BeforeEach
-    fun before() {
-        messageTextState = TextFieldState()
-        state = MessageCompositionInputStateHolder(messageTextState = messageTextState)
-    }
-
     @Test
     fun `when offset increases and is bigger than previous and options height, options height is updated`() = runTest {
-
+        val (state, _) = Arrangement().arrange()
         // When
         state.handleImeOffsetChange(
             50.dp,
@@ -61,6 +53,7 @@ class MessageCompositionInputStateHolderTest {
     @Test
     fun `when offset decreases and showSubOptions is false, options height is updated`() = runTest {
         // Given
+        val (state, _) = Arrangement().arrange()
         state.updateValuesForTesting(previousOffset = 50.dp)
 
         // When
@@ -78,6 +71,7 @@ class MessageCompositionInputStateHolderTest {
     @Test
     fun `when offset decreases to zero, showOptions and isTextExpanded are set to false`() = runTest {
         // Given
+        val (state, _) = Arrangement().arrange()
         state.updateValuesForTesting(previousOffset = 50.dp)
 
         // When
@@ -96,6 +90,7 @@ class MessageCompositionInputStateHolderTest {
     @Test
     fun `when offset equals keyboard height, showSubOptions is set to false`() = runTest {
         // Given
+        val (state, _) = Arrangement().arrange()
         state.updateValuesForTesting(keyboardHeight = 30.dp)
 
         // When
@@ -113,6 +108,7 @@ class MessageCompositionInputStateHolderTest {
     @Test
     fun `when offset is greater than keyboard height, keyboardHeight is updated`() = runTest {
         // Given
+        val (state, _) = Arrangement().arrange()
         state.updateValuesForTesting(keyboardHeight = 20.dp)
 
         // When
@@ -130,6 +126,7 @@ class MessageCompositionInputStateHolderTest {
     @Test
     fun `when offset increases and is greater than keyboardHeight but is less than previousOffset, keyboardHeight is updated`() = runTest {
         // Given
+        val (state, _) = Arrangement().arrange()
         state.updateValuesForTesting(previousOffset = 50.dp, keyboardHeight = 20.dp)
 
         // When
@@ -149,6 +146,7 @@ class MessageCompositionInputStateHolderTest {
     fun `when offset decreases, showSubOptions is true, and actualOffset is greater than optionsHeight, values remain unchanged`() =
         runTest {
             // Given
+            val (state, _) = Arrangement().arrange()
             state.updateValuesForTesting(
                 previousOffset = 50.dp,
                 keyboardHeight = 20.dp,
@@ -172,6 +170,7 @@ class MessageCompositionInputStateHolderTest {
     fun `when offset decreases, showSubOptions is false, and actualOffset is greater than optionsHeight, optionsHeight is updated`() =
         runTest {
             // Given
+            val (state, _) = Arrangement().arrange()
             state.updateValuesForTesting(
                 previousOffset = 50.dp,
                 keyboardHeight = 20.dp,
@@ -194,6 +193,7 @@ class MessageCompositionInputStateHolderTest {
     @Test
     fun `when offset is the same as previousOffset and greater than current keyboardHeight, keyboardHeight is updated`() = runTest {
         // Given
+        val (state, _) = Arrangement().arrange()
         state.updateValuesForTesting(previousOffset = 40.dp, keyboardHeight = 20.dp)
 
         // When
@@ -212,6 +212,7 @@ class MessageCompositionInputStateHolderTest {
     @Test
     fun `given first keyboard appear when source equals target, then initialKeyboardHeight is set`() = runTest {
         // Given
+        val (state, _) = Arrangement().arrange()
         val imeValue = 50.dp
         state.updateValuesForTesting(initialKeyboardHeight = 0.dp)
 
@@ -226,6 +227,7 @@ class MessageCompositionInputStateHolderTest {
     fun `given extended keyboard height when attachment button is clicked, then keyboardHeight is set to initialKeyboardHeight`() =
         runTest {
             // Given
+            val (state, _) = Arrangement().arrange()
             val initialKeyboardHeight = 10.dp
             state.updateValuesForTesting(previousOffset = 40.dp, keyboardHeight = 20.dp, initialKeyboardHeight = initialKeyboardHeight)
 
@@ -241,6 +243,7 @@ class MessageCompositionInputStateHolderTest {
     @Test
     fun `when offset decreases but is not zero, only optionsHeight is updated`() = runTest {
         // Given
+        val (state, _) = Arrangement().arrange()
         state.updateValuesForTesting(previousOffset = 50.dp)
 
         // When
@@ -261,6 +264,7 @@ class MessageCompositionInputStateHolderTest {
     fun `when keyboard is still in a process of hiding from the previous screen after navigating, options should not be visible`() =
         runTest {
             // Given
+            val (state, _) = Arrangement().arrange()
             state.updateValuesForTesting(previousOffset = 0.dp)
 
             // When
@@ -276,6 +280,140 @@ class MessageCompositionInputStateHolderTest {
             state.optionsVisible shouldBeEqualTo false
             state.isTextExpanded shouldBeEqualTo false
         }
+
+    @Test
+    fun `given empty text, when composing, then send button should be disabled`() = runTest {
+        // Given
+        val messageText = String.EMPTY
+        val (state, _) = Arrangement()
+            .withText(messageText)
+            .arrange()
+
+        // When
+        state.toComposing()
+
+        // Then
+        state.inputType.shouldBeInstanceOf<InputType.Composing>().let {
+            it.isSendButtonEnabled shouldBeEqualTo false
+        }
+    }
+
+    @Test
+    fun `given non-empty text but with only empty markdown, when composing, then send button should be disabled`() = runTest {
+        // Given
+        val messageText = "# " // just an example, more combinations are tested in StringUtilTest
+        val (state, _) = Arrangement()
+            .withText(messageText)
+            .arrange()
+
+        // When
+        state.toComposing()
+
+        // Then
+        state.inputType.shouldBeInstanceOf<InputType.Composing>().let {
+            it.isSendButtonEnabled shouldBeEqualTo false
+        }
+    }
+
+    @Test
+    fun `given non-empty text, when composing, then send button should be enabled`() = runTest {
+        // Given
+        val messageText = "text"
+        val (state, _) = Arrangement()
+            .withText(messageText)
+            .arrange()
+
+        // When
+        state.toComposing()
+
+        // Then
+        state.inputType.shouldBeInstanceOf<InputType.Composing>().let {
+            it.isSendButtonEnabled shouldBeEqualTo true
+        }
+    }
+
+    @Test
+    fun `given empty text, when editing, then send button should be disabled`() = runTest {
+        // Given
+        val editMessageText = "edit"
+        val messageText = String.EMPTY
+        val (state, _) = Arrangement()
+            .withText(messageText)
+            .arrange()
+
+        // When
+        state.toEdit(editMessageText)
+
+        // Then
+        state.inputType.shouldBeInstanceOf<InputType.Editing>().let {
+            it.isEditButtonEnabled shouldBeEqualTo false
+        }
+    }
+
+    @Test
+    fun `given non-empty text bit with only empty markdown, when editing, then send button should be disabled`() = runTest {
+        // Given
+        val editMessageText = "edit"
+        val messageText = "# " // just an example, more combinations are tested in StringUtilTest
+        val (state, _) = Arrangement()
+            .withText(messageText)
+            .arrange()
+
+        // When
+        state.toEdit(editMessageText)
+
+        // Then
+        state.inputType.shouldBeInstanceOf<InputType.Editing>().let {
+            it.isEditButtonEnabled shouldBeEqualTo false
+        }
+    }
+
+    @Test
+    fun `given the same text as edit message text, when editing, then send button should be disabled`() = runTest {
+        // Given
+        val editMessageText = "edit"
+        val (state, _) = Arrangement()
+            .withText(editMessageText)
+            .arrange()
+
+        // When
+        state.toEdit(editMessageText)
+
+        // Then
+        state.inputType.shouldBeInstanceOf<InputType.Editing>().let {
+            it.isEditButtonEnabled shouldBeEqualTo false
+        }
+    }
+
+    @Test
+    fun `given different text than edit message text, when editing, then send button should be enabled`() = runTest {
+        // Given
+        val editMessageText = "edit"
+        val messageText = "$editMessageText new"
+        val (state, _) = Arrangement()
+            .withText(messageText)
+            .arrange()
+
+        // When
+        state.toEdit(editMessageText)
+
+        // Then
+        state.inputType.shouldBeInstanceOf<InputType.Editing>().let {
+            it.isEditButtonEnabled shouldBeEqualTo true
+        }
+    }
+
+    class Arrangement {
+
+        private val textFieldState = TextFieldState()
+        private val state = MessageCompositionInputStateHolder(textFieldState)
+
+        fun withText(text: String) = apply {
+            textFieldState.setTextAndPlaceCursorAtEnd(text)
+        }
+
+        fun arrange() = state to this
+    }
 
     companion object {
         // I set it 0 to make tests more straight forward

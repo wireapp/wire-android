@@ -49,6 +49,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Activity that handles "new" call screens.
+ * New call screens are: Incoming, Outgoing, in other words, one shot disposable screens.
+ */
 @AndroidEntryPoint
 class CallActivity : AppCompatActivity() {
     @Inject
@@ -108,12 +112,14 @@ class CallActivity : AppCompatActivity() {
                                     NewCallScreenType.Outgoing -> {
                                         OutgoingCallScreen(
                                             conversationId =
-                                                qualifiedIdMapper.fromStringToQualifiedID(
-                                                    it
-                                                )
+                                            qualifiedIdMapper.fromStringToQualifiedID(
+                                                it
+                                            )
                                         ) {
-                                            // todo navigate
-//                                            currentCallScreenType = CallScreenType.Ongoing.name
+                                            getOngoingCallIntent(this@CallActivity, it).run {
+                                                this@CallActivity.startActivity(this)
+                                            }
+                                            this@CallActivity.finishAndRemoveTask()
                                         }
                                     }
 
@@ -121,8 +127,10 @@ class CallActivity : AppCompatActivity() {
                                         IncomingCallScreen(
                                             qualifiedIdMapper.fromStringToQualifiedID(it)
                                         ) {
-                                            // todo navigate
-//                                            currentCallScreenType = CallScreenType.Ongoing.name
+                                            this@CallActivity.startActivity(
+                                                getOngoingCallIntent(this@CallActivity, it)
+                                            )
+                                            this@CallActivity.finishAndRemoveTask()
                                         }
                                 }
                             }
@@ -159,7 +167,7 @@ class CallActivity : AppCompatActivity() {
 private fun Activity.setUpCallingFlags() {
     window.addFlags(
         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-            or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
     )
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -168,7 +176,7 @@ private fun Activity.setUpCallingFlags() {
     } else {
         window.addFlags(
             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
 }
@@ -176,7 +184,7 @@ private fun Activity.setUpCallingFlags() {
 private fun Activity.cleanUpCallingFlags() {
     window.clearFlags(
         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-            or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
     )
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -185,7 +193,7 @@ private fun Activity.cleanUpCallingFlags() {
     } else {
         window.clearFlags(
             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
 }

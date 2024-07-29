@@ -21,7 +21,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.PersistableBundle
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -51,10 +51,9 @@ class OngoingCallActivity : AppCompatActivity() {
     private val newCallActivityViewModel: OngoingActivityViewModel by viewModels()
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
-    override fun onCreate(
-        savedInstanceState: Bundle?,
-        persistentState: PersistableBundle?
-    ) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d("OngoingCallActivity", "onCreate")
 //        setUpScreenshotPreventionFlag()
         setUpCallingFlags()
 
@@ -107,7 +106,7 @@ class OngoingCallActivity : AppCompatActivity() {
 private fun Activity.cleanUpCallingFlags() {
     window.clearFlags(
         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-            or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
     )
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -116,7 +115,7 @@ private fun Activity.cleanUpCallingFlags() {
     } else {
         window.clearFlags(
             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
 }
@@ -124,7 +123,7 @@ private fun Activity.cleanUpCallingFlags() {
 private fun Activity.setUpCallingFlags() {
     window.addFlags(
         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-            or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
     )
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -133,7 +132,7 @@ private fun Activity.setUpCallingFlags() {
     } else {
         window.addFlags(
             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
 }
@@ -143,8 +142,8 @@ fun getOngoingCallIntent(
     conversationId: String
 ) = Intent(activity, OngoingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-    putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Ongoing.name)
+    putExtra(EXTRA_CONVERSATION_ID, conversationId)
+    putExtra(EXTRA_SCREEN_TYPE, CallScreenType.Ongoing.name)
 }
 
 // fun NewCallActivity.setUpScreenshotPreventionFlag() {

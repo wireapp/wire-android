@@ -49,10 +49,12 @@ class IsFileSharingEnabledViewModelImpl @Inject constructor(
     }
 
     private fun getIsFileSharingEnabled() = viewModelScope.launch {
-        state = when (isFileSharingEnabledUseCase().state) {
-            FileSharingStatus.Value.Disabled -> false
-            FileSharingStatus.Value.EnabledAll,
-            is FileSharingStatus.Value.EnabledSome -> true
+        isFileSharingEnabledUseCase().state.let {
+            state = when (it) {
+                FileSharingStatus.Value.EnabledAll,
+                is FileSharingStatus.Value.EnabledSome -> true
+                FileSharingStatus.Value.Disabled -> false
+            }
         }
     }
 }

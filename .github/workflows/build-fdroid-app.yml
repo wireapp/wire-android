@@ -1,4 +1,4 @@
-name: "Prod build"
+name: "Fdroid build"
 
 on:
   push:

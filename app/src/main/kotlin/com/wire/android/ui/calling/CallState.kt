@@ -22,7 +22,7 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.call.CallStatus
-import com.wire.kalium.logic.data.call.ConversationTypeForCall
+import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 
@@ -38,7 +38,7 @@ data class CallState(
     val isOnFrontCamera: Boolean = true,
     val isSpeakerOn: Boolean = false,
     val isCbrEnabled: Boolean = false,
-    val conversationTypeForCall: ConversationTypeForCall = ConversationTypeForCall.OneOnOne,
+    val conversationType: ConversationType = ConversationType.OneOnOne,
     val membership: Membership = Membership.None,
     val protocolInfo: Conversation.ProtocolInfo? = null,
     val mlsVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,

@@ -56,7 +56,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
-import com.wire.kalium.logic.data.call.ConversationTypeForCall
+import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Suppress("ParameterWrapping")
@@ -247,7 +247,7 @@ private fun IncomingCallContent(
                 onVideoPreviewCreated = onVideoPreviewCreated,
                 onSelfClearVideoPreview = onSelfClearVideoPreview
             )
-            val isCallingString = if (callState.conversationTypeForCall == ConversationTypeForCall.Conference) {
+            val isCallingString = if (callState.conversationType == ConversationType.Conference) {
                 stringResource(R.string.calling_label_incoming_call_someone_calling, callState.callerName ?: "")
             } else stringResource(R.string.calling_label_incoming_call)
 
@@ -257,7 +257,7 @@ private fun IncomingCallContent(
                 isCameraOn = callState.isCameraOn,
                 isCbrEnabled = callState.isCbrEnabled,
                 avatarAssetId = callState.avatarAssetId,
-                conversationTypeForCall = callState.conversationTypeForCall,
+                conversationType = callState.conversationType,
                 membership = callState.membership,
                 callingLabel = isCallingString,
                 protocolInfo = callState.protocolInfo,

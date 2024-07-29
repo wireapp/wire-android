@@ -161,7 +161,8 @@ fun testOtherUser(i: Int): OtherUser = OtherUser(
     deleted = false,
     defederated = false,
     isProteusVerified = false,
-    supportedProtocols = setOf(SupportedProtocol.PROTEUS)
+    supportedProtocols = setOf(SupportedProtocol.PROTEUS),
+    isUnderLegalHold = false
 )
 
 fun testUIParticipant(i: Int): UIParticipant = UIParticipant(

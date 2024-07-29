@@ -31,8 +31,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
-import com.wire.kalium.logic.feature.legalhold.MembersHavingLegalHoldClientUseCase
-import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -91,12 +89,18 @@ class ObserveParticipantsForConversationUseCaseTest {
     @Test
     fun givenGroupMembersUnderLegalHold_whenSolvingTheParticipantsList_thenPassCorrectLegalHoldValues() = runTest {
         // Given
-        val memberUnderLegalHold = MemberDetails(testOtherUser(0).copy(userType = UserType.INTERNAL), Member.Role.Member)
-        val memberNotUnderLegalHold = MemberDetails(testOtherUser(1).copy(userType = UserType.INTERNAL), Member.Role.Member)
+        val memberUnderLegalHold = MemberDetails(
+            user = testOtherUser(0).copy(userType = UserType.INTERNAL, isUnderLegalHold = true),
+            role = Member.Role.Member
+        )
+        val memberNotUnderLegalHold = MemberDetails(
+            user = testOtherUser(1).copy(userType = UserType.INTERNAL, isUnderLegalHold = false),
+            role = Member.Role.Member
+        )
         val (_, useCase) = ObserveParticipantsForConversationUseCaseArrangement()
             .withConversationParticipantsUpdate(listOf(memberUnderLegalHold, memberNotUnderLegalHold))
-            .withMembersHavingLegalHoldClient(listOf(memberUnderLegalHold.user.id))
             .arrange()
+
         // When - Then
         useCase(ConversationId("", "")).test {
             val data = awaitItem()
@@ -210,9 +214,6 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
     lateinit var getMembersE2EICertificateStatuses: GetMembersE2EICertificateStatusesUseCase
 
     @MockK
-    lateinit var membersHavingLegalHoldClientUseCase: MembersHavingLegalHoldClientUseCase
-
-    @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
     private val uIParticipantMapper by lazy { UIParticipantMapper(UserTypeMapper(), wireSessionImageLoader) }
     private val conversationMembersChannel = Channel<List<MemberDetails>>(capacity = Channel.UNLIMITED)
@@ -220,7 +221,6 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
         ObserveParticipantsForConversationUseCase(
             observeConversationMembersUseCase,
             getMembersE2EICertificateStatuses,
-            membersHavingLegalHoldClientUseCase,
             uIParticipantMapper,
             dispatchers = TestDispatcherProvider()
         )
@@ -231,18 +231,17 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         // Default empty values
         coEvery { observeConversationMembersUseCase(any()) } returns flowOf()
-        coEvery { membersHavingLegalHoldClientUseCase(any()) } returns Either.Right(emptyList())
-        coEvery { getMembersE2EICertificateStatuses(any(), any()) } answers { secondArg<List<UserId>>().associateWith { null } }
+        coEvery {
+            getMembersE2EICertificateStatuses(any(), any())
+        } answers {
+            secondArg<List<UserId>>().associateWith { false }
+        }
     }
 
     suspend fun withConversationParticipantsUpdate(members: List<MemberDetails>): ObserveParticipantsForConversationUseCaseArrangement {
         coEvery { observeConversationMembersUseCase(any()) } returns conversationMembersChannel.consumeAsFlow()
         conversationMembersChannel.send(members)
         return this
-    }
-
-    suspend fun withMembersHavingLegalHoldClient(members: List<UserId>) = apply {
-        coEvery { membersHavingLegalHoldClientUseCase(any()) } returns Either.Right(members)
     }
 
     fun arrange() = this to useCase

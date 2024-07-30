@@ -21,8 +21,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.SnackbarHostState
@@ -33,20 +31,19 @@ import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
 import com.wire.android.ui.calling.ongoing.OngoingCallScreen
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class OngoingCallActivity : AppCompatActivity() {
-    private val callActivityViewModel: CallActivityViewModel by viewModels()
-    private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+class OngoingCallActivity : CallActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setUpScreenshotPreventionFlag(callActivityViewModel.isScreenshotCensoringConfigEnabled())
+        setUpScreenshotPreventionFlag()
         setUpCallingFlags()
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -54,12 +51,7 @@ class OngoingCallActivity : AppCompatActivity() {
         val conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
         val screenType = intent.extras?.getString(EXTRA_SCREEN_TYPE)
         val userId = intent.extras?.getString(EXTRA_USER_ID)
-
-        userId?.let {
-            qualifiedIdMapper.fromStringToQualifiedID(it).run {
-                callActivityViewModel.switchAccountIfNeeded(this)
-            }
-        }
+        switchAccountIfNeeded(userId)
 
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }

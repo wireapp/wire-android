@@ -20,7 +20,6 @@ package com.wire.android.ui.calling.incoming
 
 import android.view.View
 import androidx.activity.compose.BackHandler
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
@@ -46,7 +46,6 @@ import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
-import com.wire.android.ui.calling.openAppLockActivity
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -79,7 +78,7 @@ fun IncomingCallScreen(
     val audioPermissionCheck = AudioPermissionCheckFlow(
         onAcceptCall = {
             incomingCallViewModel.acceptCall {
-                (activity as AppCompatActivity).openAppLockActivity()
+                (activity as CallActivity).openAppLockActivity()
             }
         },
         onPermanentPermissionDecline = {
@@ -98,7 +97,7 @@ fun IncomingCallScreen(
                 onDismiss = ::dismissJoinCallAnywayDialog,
                 onConfirm = {
                     acceptCallAnyway {
-                        (activity as AppCompatActivity).openAppLockActivity()
+                        (activity as CallActivity).openAppLockActivity()
                     }
                 }
             )
@@ -126,7 +125,7 @@ fun IncomingCallScreen(
             declineCall = {
                 incomingCallViewModel.declineCall(
                     onAppLocked = {
-                        (activity as AppCompatActivity).openAppLockActivity()
+                        (activity as CallActivity).openAppLockActivity()
                     },
                     onCallRejected = {
                         activity.finishAndRemoveTask()

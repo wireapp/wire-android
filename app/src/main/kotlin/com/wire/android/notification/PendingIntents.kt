@@ -29,9 +29,9 @@ import com.wire.android.notification.broadcastreceivers.DeclineIncomingCallRecei
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
 import com.wire.android.ui.WireActivity
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
 import com.wire.android.ui.calling.CallScreenType
-import com.wire.android.ui.calling.EXTRA_CONVERSATION_ID
-import com.wire.android.ui.calling.EXTRA_SCREEN_TYPE
 import com.wire.android.ui.calling.NewCallScreenType
 import com.wire.android.ui.calling.OngoingCallActivity
 import com.wire.android.ui.calling.StartingCallActivity

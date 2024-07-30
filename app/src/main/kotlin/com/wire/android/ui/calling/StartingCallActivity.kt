@@ -56,8 +56,6 @@ class StartingCallActivity : CallActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        appLogger.d("CallActivity: Creating new instance for ${hashCode()}")
-
         setUpScreenshotPreventionFlag()
         setUpCallingFlags()
 

@@ -146,12 +146,12 @@ class CallNotificationManager @Inject constructor(
         // cancelling vibration as probably when we were cancelling, the vibration object was still being created and started and thus
         // never stopped.
         TimeUnit.MILLISECONDS.sleep(CANCEL_CALL_NOTIFICATION_DELAY)
-        notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
+        notificationManager.cancel(NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal)
     }
 
     private fun hideOutgoingCallNotification() {
         appLogger.i("$TAG: hiding outgoing call")
-        notificationManager.cancel(NotificationConstants.CALL_OUTGOING_NOTIFICATION_ID)
+        notificationManager.cancel(NotificationIds.CALL_OUTGOING_NOTIFICATION_ID.ordinal)
     }
 
     @SuppressLint("MissingPermission")
@@ -160,7 +160,7 @@ class CallNotificationManager @Inject constructor(
         appLogger.i("$TAG: showing incoming call notification for user ${data.userId.toLogString()}")
         val notification = builder.getIncomingCallNotification(data)
         notificationManager.notify(
-            NotificationConstants.CALL_INCOMING_NOTIFICATION_ID,
+            NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal,
             notification
         )
     }
@@ -171,7 +171,7 @@ class CallNotificationManager @Inject constructor(
         appLogger.i("$TAG: showing outgoing call notification for user ${data.userId.toLogString()}")
         val notification = builder.getOutgoingCallNotification(data)
         notificationManager.notify(
-            NotificationConstants.CALL_OUTGOING_NOTIFICATION_ID,
+            NotificationIds.CALL_OUTGOING_NOTIFICATION_ID.ordinal,
             notification
         )
     }
@@ -186,7 +186,7 @@ class CallNotificationManager @Inject constructor(
         internal const val DEBOUNCE_TIME = 200L
 
         fun hideIncomingCallNotification(context: Context) {
-            NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
+            NotificationManagerCompat.from(context).cancel(NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal)
         }
     }
 }

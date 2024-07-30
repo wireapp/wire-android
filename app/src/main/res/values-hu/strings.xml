@@ -845,7 +845,6 @@
     <string name="calling_confirm_start_call_title_dialog">Hívás indítása</string>
     <string name="calling_confirm_start_call_description_dialog">Biztosan hívni akarja ő(ke)t: %1$s?</string>
     <string name="calling_confirm_start_call_action_dialog">Hívás</string>
-    <string name="calling_participant_tile_default_user_name">Alapértelmezett</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Visszatérés a híváshoz</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s hívja…</string>
@@ -1262,7 +1261,6 @@ Kérjük, próbálja meg újra.</string>
     <string name="notification_obfuscated_message_content">Önmegsemmisítő üzenetet küldött</string>
     <string name="settings_licenses_settings_label">Licenc információ</string>
     <string name="settings_myaccount_logout">Fiók törlése</string>
-    <string name="app_not_found_for_action">Nem található alkalmazás a művelet végrehajtásához</string>
     <string name="delete_acount_dialog_title">Fiók törlése</string>
     <string name="delete_acount_dialog_text">Ha továbblép, küldünk egy e-mailt. Fiókja végleges törléséhez nyissa meg a kapott linket.</string>
     <string name="end_to_end_identity_required_dialog_title">Végpontok közötti azonosító tanúsítvány</string>

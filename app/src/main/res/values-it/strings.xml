@@ -817,7 +817,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="calling_confirm_start_call_title_dialog">Avvia una chiamata</string>
     <string name="calling_confirm_start_call_description_dialog">Sei sicuro di voler chiamare %1$s persone?</string>
     <string name="calling_confirm_start_call_action_dialog">Chiama</string>
-    <string name="calling_participant_tile_default_user_name">Predefinito</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Ritorna alla chiamata</string>
     <string name="connectivity_status_bar_connecting">Decrittografando i messaggi</string>
@@ -1222,7 +1221,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="notification_obfuscated_message_content">Ha inviato un messaggio a eliminazione automatica</string>
     <string name="settings_licenses_settings_label">Informazioni sulla licenza</string>
     <string name="settings_myaccount_logout">Elimina il profilo</string>
-    <string name="app_not_found_for_action">Nessun\'applicazione trovata per compiere quest\'azione</string>
     <string name="delete_acount_dialog_title">Elimina il profilo</string>
     <string name="delete_acount_dialog_text">Se continui, invieremo un messaggio via email. Segui il link per eliminare permanentemente il tuo profilo.</string>
     <string name="end_to_end_identity_required_dialog_title">Certificato d\'identità end-to-end</string>

@@ -414,7 +414,6 @@
     <string name="calling_label_incoming_call_someone_calling">%s ringer…</string>
     <string name="calling_label_default_caller_name">Inkommande samtal</string>
     <string name="calling_ongoing_call_start_anyway">Ring ändå</string>
-    <string name="calling_participant_tile_default_user_name">Standard</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s ringer…</string>
     <string name="connectivity_status_bar_return_to_outgoing_call">Ringer %1$s…</string>

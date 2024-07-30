@@ -1232,7 +1232,6 @@
     <string name="notification_obfuscated_message_content">ඉබේ මැකෙන පණිවිඩයක් එවා ඇත</string>
     <string name="settings_licenses_settings_label">බලපත්‍රයෙහි තොරතුරු</string>
     <string name="settings_myaccount_logout">ගිණුම මකන්න</string>
-    <string name="app_not_found_for_action">ක්‍රියාමාර්ගය සඳහා සුදුසු යෙදුමක් හමු නොවිණි</string>
     <string name="delete_acount_dialog_title">ගිණුම මකන්න</string>
     <string name="delete_acount_dialog_text">ඉදිරියට ගියහොත්, අපි වි-තැපෑලෙන් පණිවිඩයක් එවන්නෙමු. ඔබගේ ගිණුම සදහටම මකා දැමීමට සබැඳිය අනුගමනය කරන්න.</string>
     <string name="end_to_end_identity_required_dialog_title">අන්ත අනන්‍යතා සහතිකය</string>

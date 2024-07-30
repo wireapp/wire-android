@@ -1225,7 +1225,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="notification_obfuscated_message_content">Ha inviato un messaggio a eliminazione automatica</string>
     <string name="settings_licenses_settings_label">Informazioni sulla licenza</string>
     <string name="settings_myaccount_logout">Elimina il profilo</string>
-    <string name="app_not_found_for_action">Nessun\'applicazione trovata per compiere quest\'azione</string>
     <string name="delete_acount_dialog_title">Elimina il profilo</string>
     <string name="delete_acount_dialog_text">Se continui, invieremo un messaggio via email. Segui il link per eliminare permanentemente il tuo profilo.</string>
     <string name="end_to_end_identity_required_dialog_title">Certificato d\'identità end-to-end</string>

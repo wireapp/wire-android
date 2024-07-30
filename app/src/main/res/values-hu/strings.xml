@@ -1265,7 +1265,6 @@ Kérjük, próbálja meg újra.</string>
     <string name="notification_obfuscated_message_content">Önmegsemmisítő üzenetet küldött</string>
     <string name="settings_licenses_settings_label">Licenc információ</string>
     <string name="settings_myaccount_logout">Fiók törlése</string>
-    <string name="app_not_found_for_action">Nem található alkalmazás a művelet végrehajtásához</string>
     <string name="delete_acount_dialog_title">Fiók törlése</string>
     <string name="delete_acount_dialog_text">Ha továbblép, küldünk egy e-mailt. Fiókja végleges törléséhez nyissa meg a kapott linket.</string>
     <string name="end_to_end_identity_required_dialog_title">Végpontok közötti azonosító tanúsítvány</string>

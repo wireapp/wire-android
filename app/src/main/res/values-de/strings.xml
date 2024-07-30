@@ -160,7 +160,6 @@
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Neue Funktionen</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Willkommen bei Wires neuer Android App!</string>
     <string name="whats_new_release_notes_group_title">Versionshinweise</string>
     <string name="whats_new_android_release_notes_label">Alle Android-Versionshinweise</string>
     <!-- Settings -->
@@ -186,7 +185,6 @@
     <string name="server_details_dialog_body_with_proxy">Backend-Name:\n%1$s\n\nBackend-URL:\n%2$s\n\nProxy-URL:\n%3$s\n\nProxy-Authentifizierung:\n%4$s</string>
     <string name="server_details_dialog_title">Lokales Backend</string>
     <string name="welcome_migration_dialog_title">Willkommen in unserer neuen App 👋</string>
-    <string name="welcome_migration_dialog_content">Wir haben die App überarbeitet, um sie für alle benutzerfreundlicher zu machen.\n\nErfahren Sie mehr über die neu gestaltete App – zusätzliche Optionen und verbesserte Barrierefreiheit bei gleichbleibend hoher Sicherheit.</string>
     <string name="welcome_migration_dialog_continue">Loslegen</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Aktualisierung erforderlich</string>
@@ -367,8 +365,6 @@
     <string name="group_name_exceeded_limit_error">Gruppenname darf 64 Zeichen nicht überschreiten
     
     </string>
-    <string name="group_can_not_be_created_title">Gruppe kann nicht erstellt werden</string>
-    <string name="group_can_not_be_created_federation_conflict_description">Personen der Backends %1$s und %2$s können nicht derselben Gruppenunterhaltung beitreten.\n\nUm die Gruppe zu erstellen, entfernen Sie die betroffenen Teilnehmer.</string>
     <string name="group_can_not_be_created_edit_participiant_list">Teilnehmerliste bearbeiten</string>
     <string name="group_can_not_be_created_discard_group_creation">Gruppenerstellung verwerfen</string>
     <string name="asset_message_tap_to_download_text">Zum Herunterladen tippen</string>
@@ -575,7 +571,6 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s hat selbstlöschende Nachrichten für alle **ausgeschaltet**</string>
     <string name="label_system_message_deactivated">deaktiviert</string>
     <string name="label_system_message_conversation_history_lost">Sie haben das Gerät eine Weile nicht benutzt. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
-    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Sie haben dieses Gerät schon seit einiger Zeit nicht mehr aktualisiert. In der Zwischenzeit wurde das Standard-Nachrichtenprotokoll von Proteus auf Messaging-Layer-Security (MLS) umgestellt. Aufgrund dieser Änderung werden einige Nachrichten hier möglicherweise nicht angezeigt.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Sie haben Ihre App nicht rechtzeitig aktualisiert. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Aufgrund der Umstellung auf MLS haben Sie möglicherweise Probleme mit Ihrem aktuellen Anruf. Wenn das der Fall ist, legen Sie auf und rufen Sie erneut an.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Diese Unterhaltung verwendet jetzt das neue Protokoll namens Messaging-Layer-Security (MLS). Um eine reibungslose Kommunikation zu gewährleisten, verwenden Sie immer die neueste Wire-Version auf Ihren Geräten.</string>
@@ -836,7 +831,6 @@
     <string name="connection_label_received_unverified_warning">Bitte überprüfen Sie die Identität der Person, bevor Sie die Kontaktanfrage annehmen.</string>
     <!-- Missing keyPackages dialog -->
     <string name="missing_keypackage_dialog_title">Unterhaltung kann nicht beginnen</string>
-    <string name="missing_keypackage_dialog_body">Sie können die Unterhaltung mit %1$s im Moment nicht beginnen. %1$s muss Wire zuerst öffnen oder sich neu anmelden. Bitte versuchen Sie es später noch einmal.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Mediengalerie</string>
     <string name="media_gallery_on_image_downloaded">Im Download-Ordner gespeichert</string>
@@ -883,7 +877,6 @@
     <string name="disable_guests_dialog_button">Keine Gäste zulassen</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Benutzer blockieren?</string>
-    <string name="block_user_dialog_body">%1$s wird Sie nicht kontaktieren oder zu Gruppenunterhaltungen hinzufügen können und wird darüber nicht informiert.</string>
     <string name="block_user_dialog_confirm_button">Blockieren</string>
     <string name="other_user_devices_description">Wire gibt jedem Gerät einen einzigartigen Fingerabdruck. Vergleichen Sie diese mit %1$s und überprüfen Sie Ihre Unterhaltung.</string>
     <!--Settings -->
@@ -1106,7 +1099,6 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="invalid_link_dialog_body">Link konnte nicht geöffnet werden</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Gäste-Link</string>
-    <string name="guest_link_description">Laden Sie andere mit einem Link zu dieser Unterhaltung ein. Jeder kann mit dem Link an der Unterhaltung teilnehmen – auch ohne Wire.</string>
     <string name="guest_link_button_create_link">Link erstellen</string>
     <string name="guest_link_button_copy_link">Link kopieren</string>
     <string name="guest_link_button_share_link">Link teilen</string>
@@ -1135,8 +1127,6 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="label_client_verified">Überprüft</string>
     <string name="label_client_unverified">Nicht überprüft</string>
     <string name="label_self_client_verification_description">Um Ihr eigenes Gerät zu verifizieren, vergleichen Sie diesen Schlüssel-Fingerabdruck mit dem gleichen Schlüssel-Fingerabdruck auf einem anderen Gerät.</string>
-    <string name="label_client_verification_description">Überprüfen Sie, ob dieser Geräte-Fingerabdruck mit dem auf %ss Gerät übereinstimmt.</string>
-    <string name="label_fingerprint_description">Falls die Fingerabdrücke nicht übereinstimmen, setzen Sie die Session zurück, um neue Schlüssel auf beiden Seiten zu erstellen.</string>
     <string name="label_self_fingerprint_description">Teilen Sie diesen Schlüssel-Fingerabdruck mit anderen Teilnehmern einer Unterhaltung, damit diese ihn überprüfen und sicherstellen können, dass die Unterhaltung sicher ist.</string>
     <string name="unknown_user_name">unbekannt</string>
     <string name="device_name_unknown">Unbekanntes Gerät</string>
@@ -1226,14 +1216,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="delete_acount_dialog_title">Benutzerkonto löschen</string>
     <string name="delete_acount_dialog_text">Wenn Sie fortfahren, erhalten Sie eine E-Mail von Wire. Folgen Sie dem Link, um Ihr Konto dauerhaft zu löschen.</string>
     <string name="end_to_end_identity_required_dialog_title">Ende-zu-Ende-Identitätszertifikat</string>
-    <string name="end_to_end_identity_required_dialog_text">Ihr Team verwendet von heute an Ende-zu-Ende-Identität, um die Nutzung von Wire sicherer und praktikabler zu machen.\n\nGeben Sie im nächsten Schritt die Anmeldedaten Ihres Identity-Providers ein, um automatisch ein Zertifikat für dieses Gerät zu erhalten.</string>
-    <string name="end_to_end_identity_required_dialog_text_no_snooze">Ihr Team verwendet jetzt Ende-zu-Ende-Identität, um die Nutzung von Wire sicherer zu machen.\n\nGeben Sie im nächsten Schritt die Anmeldedaten Ihres Identity-Providers ein, um automatisch ein Zertifikat für dieses Gerät zu erhalten.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Zertifikat erhalten</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Später erinnern</string>
     <string name="end_to_end_identity_snooze_dialog_text">Sie können das Zertifikat in Ihren Wire Einstellungen in der/den nächsten %1$s erhalten.\nÖffnen Sie Geräte und wählen Sie Zertifikat erhalten für Ihr aktuelles Gerät. </string>
     <string name="end_to_end_identity_renew_dialog_title">Zertifikat aktualisieren</string>
-    <string name="end_to_end_identity_renew_dialog_text">Das Ende-zu-Ende-Identitätszertifikat für dieses Gerät läuft bald ab. Um Ihre Kommunikation auf dem höchsten Sicherheitsniveau zu halten, aktualisieren Sie Ihr Zertifikat jetzt.\n\nGeben Sie im nächsten Schritt die Anmeldedaten Ihres Identity-Providers ein, um das Zertifikat automatisch zu aktualisieren.</string>
-    <string name="end_to_end_identity_renew_dialog_text_no_snooze">Das Ende-zu-Ende-Identitätszertifikat für dieses Gerät ist abgelaufen.\n\nGeben Sie im nächsten Schritt die Anmeldedaten Ihres Identity-Providers ein, um das Zertifikat automatisch zu aktualisieren.</string>
     <string name="end_to_end_identity_renew_dialog_positive_button">Zertifikat aktualisieren</string>
     <string name="end_to_end_identity_renew_error_dialog_title">Zertifikat konnte nicht aktualisiert werden.</string>
     <string name="end_to_end_identity_renew_error_dialog_text">Sie können jetzt erneut versuchen, das Zertifikat zu aktualisieren, oder Sie erhalten später eine Erinnerung.</string>
@@ -1241,7 +1227,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="end_to_end_identity_renew_success_dialog_title">Zertifikat aktualisiert</string>
     <string name="end_to_end_identity_renew_success_dialog_text">Zertifikat wurde aktualisiert und Ihr Gerät wurde überprüft.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Zertifikatsdetails</string>
-    <string name="end_to_end_identity_enrollment_error_dialog_title">Zertifikat konnte nicht ausgestellt werden</string>
     <string name="end_to_end_identity_enrollment_error_dialog_text">Bitte versuchen Sie es erneut oder wenden Sie sich an Ihren Team-Admin.</string>
     <string name="end_to_end_identity_ceritifcate">Zertifikatsdetails</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">Ende-zu-Ende-Identitätszertifikat widerrufen</string>
@@ -1261,7 +1246,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="record_audio_permission_denied_dialog_settings_button">Einstellungen</string>
     <string name="record_audio_max_file_size_reached_title">Aufnahme wurde beendet</string>
     <string name="record_audio_max_file_size_reached_text">Die Dateigröße für Audionachrichten ist auf %1$d MB begrenzt.</string>
-    <string name="record_audio_unable_due_to_ongoing_call">Sie können während eines Anrufs keine Audionachricht aufnehmen.</string>
     <string name="record_audio_unable_due_to_error">Beim Versuch, eine Audionachricht aufzuzeichnen, ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
     <string name="label_not_now">Nicht jetzt</string>
     <string name="last_message_composite_with_missing_text">hat eine interaktive Nachricht gesendet</string>
@@ -1273,7 +1257,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="create_guest_link_without_password_title">Link ohne Passwort erstellen</string>
     <string name="conversation_options_create_password_protected_guest_link_title">Passwortgesicherten Link erstellen</string>
     <string name="conversation_options_create_password_protected_guest_link_discrption">Personen, die über den Gäste-Link an der Unterhaltung teilnehmen möchten, müssen zuerst dieses Passwort eingeben.</string>
-    <string name="conversation_options_create_password_protected_guest_link_discrption_2">Sie können das Passwort später nicht ändern. Denken Sie daran, es zu kopieren und zu speichern.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_label">PASSWORT FESTLEGEN</string>
     <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">PASSWORT BESTÄTIGEN</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Passwort eingeben</string>
@@ -1326,7 +1309,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="legal_hold_system_message_disabled_others">Gesetzliche Aufbewahrung deaktiviert für %1$s.</string>
     <string name="legal_hold_system_message_disabled_conversation">Gesetzlichen Aufbewahrung ist für diese Unterhaltung nicht mehr aktiv.</string>
     <string name="legal_hold_system_message_enabled_conversation">Gesetzlichen Aufbewahrung ist für diese Unterhaltung aktiv.</string>
-    <string name="legal_hold_system_message_interaction_disabled">Sie können mit dieser Person keine Nachrichten austauschen, da sie nicht zu Ihrem Team gehört und einer von Ihnen der gesetzlichen Aufbewahrung unterliegt. Sobald die gesetzliche Aufbewahrung aufgehoben ist, können Sie wieder Nachrichten schreiben.</string>
     <!-- Sure want to send message Dialog -->
     <string name="sure_about_messaging_dialog_title">Unterhaltung nicht mehr überprüft</string>
     <string name="sure_about_messaging_dialog_body">Mindestens ein Teilnehmer hat begonnen, ein neues Gerät zu verwenden oder hat ein ungültiges Zertifikat.\n\nMöchten Sie die Nachricht trotzdem senden?</string>

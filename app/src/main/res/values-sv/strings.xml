@@ -131,7 +131,6 @@
     <string name="backup_and_restore_screen_title">Säkerhetskopiera &amp; Återställ konversationer</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Nyheter</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Välkommen till Wire\'s nya Android-app!</string>
     <!-- Settings -->
     <string name="settings_backup_create">Skapa en säkerhetskopia</string>
     <string name="settings_backup_restore">Återställ från säkerhetskopia</string>
@@ -547,7 +546,6 @@
     <string name="create_guest_link_with_password">Skapa lösenordsskyddad länk</string>
     <string name="create_guest_link_without_password_title">Skapa länk utan lösenord</string>
     <string name="conversation_options_create_password_protected_guest_link_title">Skapa lösenordsskyddad länk</string>
-    <string name="conversation_options_create_password_protected_guest_link_discrption_2">Du kan inte ändra lösenordet senare. Se till att kopiera och spara det.</string>
     <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">BEKRÄFTA LÖSENORD</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Ange lösenord</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Lösenord kopierades till urklipp</string>

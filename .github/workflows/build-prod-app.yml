@@ -118,6 +118,6 @@ jobs:
           build-flavour: prod
           build-variant: compatrelease
       - name: Attach APK to release
-        uses: softprops/action-gh-release@v2.0.7
+        uses: softprops/action-gh-release@v2.0.8
         with:
           files: app/build/outputs/apk/prodCompatRelease/*.apk

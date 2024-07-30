@@ -26,6 +26,10 @@ import com.wire.android.ui.AppLockActivity
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 
+const val EXTRA_CONVERSATION_ID = "conversation_id"
+const val EXTRA_USER_ID = "user_id"
+const val EXTRA_SCREEN_TYPE = "screen_type"
+
 fun AppCompatActivity.openAppLockActivity() {
     Intent(this, AppLockActivity::class.java)
         .apply {

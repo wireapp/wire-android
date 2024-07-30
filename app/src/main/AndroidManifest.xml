@@ -98,7 +98,7 @@
                 android:theme="@style/AppTheme" />
 
         <activity
-                android:name=".ui.calling.CallActivity"
+                android:name=".ui.calling.StartingCallActivity"
                 android:exported="true"
                 android:hardwareAccelerated="true"
                 android:launchMode="singleInstance"

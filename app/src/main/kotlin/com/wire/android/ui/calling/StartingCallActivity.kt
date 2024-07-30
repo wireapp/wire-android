@@ -34,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import com.wire.android.appLogger
 import com.wire.android.navigation.style.TransitionAnimationType
-import com.wire.android.notification.CallNotificationManager
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
@@ -49,15 +48,11 @@ import javax.inject.Inject
  * New call screens are: Incoming, Outgoing, in other words, one shot disposable screens.
  */
 @AndroidEntryPoint
-class CallActivity : AppCompatActivity() {
-    @Inject
-    lateinit var callNotificationManager: CallNotificationManager
-
+class StartingCallActivity : AppCompatActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
 
-    val callActivityViewModel: CallActivityViewModel by viewModels()
-
+    private val callActivityViewModel: CallActivityViewModel by viewModels()
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
     @Suppress("LongMethod")
@@ -111,10 +106,10 @@ class CallActivity : AppCompatActivity() {
                                                 it
                                             )
                                         ) {
-                                            getOngoingCallIntent(this@CallActivity, it).run {
-                                                this@CallActivity.startActivity(this)
+                                            getOngoingCallIntent(this@StartingCallActivity, it).run {
+                                                this@StartingCallActivity.startActivity(this)
                                             }
-                                            this@CallActivity.finishAndRemoveTask()
+                                            this@StartingCallActivity.finishAndRemoveTask()
                                         }
                                     }
 
@@ -122,10 +117,10 @@ class CallActivity : AppCompatActivity() {
                                         IncomingCallScreen(
                                             qualifiedIdMapper.fromStringToQualifiedID(it)
                                         ) {
-                                            this@CallActivity.startActivity(
-                                                getOngoingCallIntent(this@CallActivity, it)
+                                            this@StartingCallActivity.startActivity(
+                                                getOngoingCallIntent(this@StartingCallActivity, it)
                                             )
-                                            this@CallActivity.finishAndRemoveTask()
+                                            this@StartingCallActivity.finishAndRemoveTask()
                                         }
                                 }
                             }
@@ -152,28 +147,25 @@ class CallActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "CallActivity"
-        const val EXTRA_CONVERSATION_ID = "conversation_id"
-        const val EXTRA_USER_ID = "user_id"
-        const val EXTRA_SCREEN_TYPE = "screen_type"
+        private const val TAG = "StartingCallActivity"
     }
 }
 
 fun getOutgoingCallIntent(
     activity: Activity,
     conversationId: String
-) = Intent(activity, CallActivity::class.java).apply {
+) = Intent(activity, StartingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-    putExtra(CallActivity.EXTRA_SCREEN_TYPE, NewCallScreenType.Outgoing.name)
+    putExtra(EXTRA_CONVERSATION_ID, conversationId)
+    putExtra(EXTRA_SCREEN_TYPE, NewCallScreenType.Outgoing.name)
 }
 
 fun getIncomingCallIntent(
     context: Context,
     conversationId: String,
     userId: String?
-) = Intent(context.applicationContext, CallActivity::class.java).apply {
-    putExtra(CallActivity.EXTRA_USER_ID, userId)
-    putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-    putExtra(CallActivity.EXTRA_SCREEN_TYPE, NewCallScreenType.Incoming.name)
+) = Intent(context.applicationContext, StartingCallActivity::class.java).apply {
+    putExtra(EXTRA_USER_ID, userId)
+    putExtra(EXTRA_CONVERSATION_ID, conversationId)
+    putExtra(EXTRA_SCREEN_TYPE, NewCallScreenType.Incoming.name)
 }

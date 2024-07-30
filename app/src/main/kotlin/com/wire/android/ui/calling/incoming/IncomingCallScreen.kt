@@ -20,6 +20,7 @@ package com.wire.android.ui.calling.incoming
 
 import android.view.View
 import androidx.activity.compose.BackHandler
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,7 +39,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
@@ -79,7 +79,7 @@ fun IncomingCallScreen(
     val audioPermissionCheck = AudioPermissionCheckFlow(
         onAcceptCall = {
             incomingCallViewModel.acceptCall {
-                (activity as CallActivity).openAppLockActivity()
+                (activity as AppCompatActivity).openAppLockActivity()
             }
         },
         onPermanentPermissionDecline = {
@@ -98,7 +98,7 @@ fun IncomingCallScreen(
                 onDismiss = ::dismissJoinCallAnywayDialog,
                 onConfirm = {
                     acceptCallAnyway {
-                        (activity as CallActivity).openAppLockActivity()
+                        (activity as AppCompatActivity).openAppLockActivity()
                     }
                 }
             )
@@ -126,7 +126,7 @@ fun IncomingCallScreen(
             declineCall = {
                 incomingCallViewModel.declineCall(
                     onAppLocked = {
-                        (activity as CallActivity).openAppLockActivity()
+                        (activity as AppCompatActivity).openAppLockActivity()
                     },
                     onCallRejected = {
                         activity.finishAndRemoveTask()

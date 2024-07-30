@@ -30,13 +30,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
-import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
-import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
 import com.wire.android.ui.calling.ongoing.OngoingCallScreen
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
@@ -45,12 +41,12 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class OngoingCallActivity : AppCompatActivity() {
-    private val newCallActivityViewModel: OngoingActivityViewModel by viewModels()
+    private val callActivityViewModel: CallActivityViewModel by viewModels()
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setUpScreenshotPreventionFlag(newCallActivityViewModel.isScreenshotCensoringConfigEnabled())
+        setUpScreenshotPreventionFlag(callActivityViewModel.isScreenshotCensoringConfigEnabled())
         setUpCallingFlags()
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -61,7 +57,7 @@ class OngoingCallActivity : AppCompatActivity() {
 
         userId?.let {
             qualifiedIdMapper.fromStringToQualifiedID(it).run {
-                newCallActivityViewModel.switchAccountIfNeeded(this)
+                callActivityViewModel.switchAccountIfNeeded(this)
             }
         }
 
@@ -72,7 +68,7 @@ class OngoingCallActivity : AppCompatActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    var currentCallScreenType by remember { mutableStateOf(CallScreenType.byName(screenType)) }
+                    val currentCallScreenType by remember { mutableStateOf(CallScreenType.byName(screenType)) }
                     currentCallScreenType?.let { currentScreenType ->
                         AnimatedContent(
                             targetState = currentScreenType,

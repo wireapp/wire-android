@@ -39,7 +39,8 @@ fun rememberCheckPermissionsRequestFlow(
     permissions: Array<String>,
     onAllPermissionsGranted: () -> Unit,
     onAnyPermissionDenied: () -> Unit,
-    onAnyPermissionPermanentlyDenied: () -> Unit
+    onAnyPermissionPermanentlyDenied: () -> Unit,
+    key: Any? = null
 ): RequestLauncher {
     val context = LocalContext.current
 
@@ -62,7 +63,7 @@ fun rememberCheckPermissionsRequestFlow(
             }
         }
 
-    return remember {
+    return remember(key) {
         RequestLauncher {
             when {
                 permissions.isEmpty() -> onAllPermissionsGranted()

@@ -15,14 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-includeBuild("kalium") {
-    // This dependency substitution should not be done on release mode once the Kalium library has been published to Maven repo
-    dependencySubstitution {
-        substitute(module("com.wire.kalium:kalium-logic")).using(project(":logic"))
-        substitute(module("com.wire.kalium:kalium-util")).using(project(":util"))
-        substitute(module("com.wire.kalium:kalium-data")).using(project(":data"))
-        // test modules
-        substitute(module("com.wire.kalium:kalium-mocks")).using(project(":mocks"))
-        substitute(module("com.wire.kalium:kalium-network")).using(project(":network"))
-    }
+package com.wire.android.feature.analytics.handler
+
+fun interface AnalyticsMigrationHandler<T> {
+    suspend fun migrate(manager: T)
 }

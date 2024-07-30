@@ -18,6 +18,8 @@
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -92,6 +95,11 @@ fun RecordAudioComponent(
             .fillMaxWidth()
             .fillMaxHeight()
             .background(colorsScheme().background)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = { /* Don't allow to click on elements under record area */ }
+            )
     ) {
         WireDivider(color = MaterialTheme.wireColorScheme.outline)
         RecordAudioButtonClose(

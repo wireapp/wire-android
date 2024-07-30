@@ -34,8 +34,8 @@ abstract class CallActivity : AppCompatActivity() {
         const val EXTRA_SCREEN_TYPE = "screen_type"
     }
 
+    private val callActivityViewModel: CallActivityViewModel by viewModels()
     protected val qualifiedIdMapper = QualifiedIdMapperImpl(null)
-    protected val callActivityViewModel: CallActivityViewModel by viewModels()
 
     fun switchAccountIfNeeded(userId: String?) {
         userId?.let {

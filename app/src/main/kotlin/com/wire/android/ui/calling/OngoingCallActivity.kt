@@ -38,6 +38,10 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Activity that handles ongoing call screen, Ongoing.
+ * These type of call is not disposable and we need to maintain its state.
+ */
 @AndroidEntryPoint
 class OngoingCallActivity : CallActivity() {
 

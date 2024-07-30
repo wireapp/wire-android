@@ -44,8 +44,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 /**
- * Activity that handles "new" call screens.
- * New call screens are: Incoming, Outgoing, in other words, one shot disposable screens.
+ * Activity that handles starting call screens, Incoming and Outgoing
+ * These type of call steps are one shot disposable screens.
  */
 @AndroidEntryPoint
 class StartingCallActivity : CallActivity() {

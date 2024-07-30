@@ -821,7 +821,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="calling_confirm_start_call_title_dialog">Avvia una chiamata</string>
     <string name="calling_confirm_start_call_description_dialog">Sei sicuro di voler chiamare %1$s persone?</string>
     <string name="calling_confirm_start_call_action_dialog">Chiama</string>
-    <string name="calling_participant_tile_default_user_name">Predefinito</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Ritorna alla chiamata</string>
     <string name="connectivity_status_bar_connecting">Decrittografando i messaggi</string>

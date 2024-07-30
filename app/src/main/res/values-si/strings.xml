@@ -824,7 +824,6 @@
     <string name="calling_confirm_start_call_title_dialog">ඇමතුමක් අරඹන්න</string>
     <string name="calling_confirm_start_call_description_dialog">ඔබට %1$s දෙනෙකුට ඇමතීමට වුවමනාද?</string>
     <string name="calling_confirm_start_call_action_dialog">අමතන්න</string>
-    <string name="calling_participant_tile_default_user_name">පෙරනිමි</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">ඇමතුමට ආපසු</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s අමතමින්…</string>

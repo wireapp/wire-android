@@ -849,7 +849,6 @@
     <string name="calling_confirm_start_call_title_dialog">Hívás indítása</string>
     <string name="calling_confirm_start_call_description_dialog">Biztosan hívni akarja ő(ke)t: %1$s?</string>
     <string name="calling_confirm_start_call_action_dialog">Hívás</string>
-    <string name="calling_participant_tile_default_user_name">Alapértelmezett</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Visszatérés a híváshoz</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s hívja…</string>

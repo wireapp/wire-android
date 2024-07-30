@@ -19,10 +19,7 @@ package com.wire.android.ui.calling
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -53,8 +50,7 @@ class OngoingCallActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("OngoingCallActivity", "onCreate")
-//        setUpScreenshotPreventionFlag()
+        setUpScreenshotPreventionFlag(newCallActivityViewModel.isScreenshotCensoringConfigEnabled())
         setUpCallingFlags()
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -103,40 +99,6 @@ class OngoingCallActivity : AppCompatActivity() {
     }
 }
 
-private fun Activity.cleanUpCallingFlags() {
-    window.clearFlags(
-        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
-    )
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-        setShowWhenLocked(false)
-        setTurnScreenOn(false)
-    } else {
-        window.clearFlags(
-            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-        )
-    }
-}
-
-private fun Activity.setUpCallingFlags() {
-    window.addFlags(
-        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
-    )
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-        setShowWhenLocked(true)
-        setTurnScreenOn(true)
-    } else {
-        window.addFlags(
-            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-        )
-    }
-}
-
 fun getOngoingCallIntent(
     activity: Activity,
     conversationId: String
@@ -145,43 +107,3 @@ fun getOngoingCallIntent(
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
     putExtra(EXTRA_SCREEN_TYPE, CallScreenType.Ongoing.name)
 }
-
-// fun NewCallActivity.setUpScreenshotPreventionFlag() {
-//    lifecycleScope.launch {
-//        if (callActivityViewModel.isScreenshotCensoringConfigEnabled().await()) {
-//            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-//        } else {
-//            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-//        }
-//    }
-// }
-
-// fun getOutgoingCallIntent(
-//    activity: Activity,
-//    conversationId: String
-// ) = Intent(activity, CallActivity::class.java).apply {
-//    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//    // todo change
-//    putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-//    putExtra(CallActivity.EXTRA_SCREEN_TYPE, NewCallScreenType.Outgoing.name)
-// }
-//
-// fun getIncomingCallIntent(
-//    context: Context,
-//    conversationId: String,
-//    userId: String?
-// ) = Intent(context.applicationContext, CallActivity::class.java).apply {
-//    // todo change
-//    putExtra(CallActivity.EXTRA_USER_ID, userId)
-//    putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-//    putExtra(CallActivity.EXTRA_SCREEN_TYPE, NewCallScreenType.Incoming.name)
-// }
-//
-// fun CallActivity.openAppLockActivity() {
-//    Intent(this, AppLockActivity::class.java)
-//        .apply {
-//            flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-//        }.run {
-//            startActivity(this)
-//        }
-// }

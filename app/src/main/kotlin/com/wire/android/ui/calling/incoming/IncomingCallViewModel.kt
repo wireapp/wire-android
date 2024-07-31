@@ -69,12 +69,18 @@ class IncomingCallViewModel @AssistedInject constructor(
             launch {
                 observeEstablishedCall()
             }
-            lockCodeTimeManager.observeAppLock().distinctUntilChanged().collectLatest {
-                if (incomingCallState.waitingUnlockToJoin && !it) {
-                    acceptCall { incomingCallState = incomingCallState.copy(waitingUnlockToJoin = false) }
-                } else if (incomingCallState.waitingUnlockToJoinAnyway && !it) {
-                    acceptCallAnyway { incomingCallState = incomingCallState.copy(waitingUnlockToJoinAnyway = false) }
-                }
+            launch {
+                observeAppLockStatus()
+            }
+        }
+    }
+
+    private suspend fun observeAppLockStatus() {
+        lockCodeTimeManager.observeAppLock().distinctUntilChanged().collectLatest { isLocked ->
+            if (incomingCallState.waitingUnlockToJoin && !isLocked) {
+                acceptCall { incomingCallState = incomingCallState.copy(waitingUnlockToJoin = false) }
+            } else if (incomingCallState.waitingUnlockToJoinAnyway && !isLocked) {
+                acceptCallAnyway { incomingCallState = incomingCallState.copy(waitingUnlockToJoinAnyway = false) }
             }
         }
     }

@@ -195,6 +195,7 @@ class WireApplication : BaseApp() {
         val analyticsResultFlow = ObserveCurrentSessionAnalyticsUseCase(
             currentSessionFlow = coreLogic.get().getGlobalScope().session.currentSessionFlow(),
             isUserTeamMember = {
+                coreLogic.get().getSessionScope(it).syncManager.waitUntilLive()
                 coreLogic.get().getSessionScope(it).team.isSelfATeamMember()
             },
             observeAnalyticsTrackingIdentifierStatusFlow = {

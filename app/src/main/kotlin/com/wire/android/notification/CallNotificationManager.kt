@@ -94,7 +94,7 @@ class CallNotificationManager @Inject constructor(
                         showOutgoingCallNotification(
                             outgoingCallData.copy(
                                 conversationName = outgoingCallData.conversationName
-                                    ?: context.getString(R.string.calling_participant_tile_default_user_name)
+                                    ?: context.getString(R.string.username_unavailable_label)
                             )
                         )
                     }

@@ -22,7 +22,9 @@ import com.wire.kalium.logic.data.id.ConversationId
 data class IncomingCallState(
     val hasEstablishedCall: Boolean = false,
     val shouldShowJoinCallAnywayDialog: Boolean = false,
-    val flowState: FlowState = FlowState.Default
+    val flowState: FlowState = FlowState.Default,
+    val waitingUnlockToJoin: Boolean = false,
+    val waitingUnlockToJoinAnyway: Boolean = false
 ) {
     sealed interface FlowState {
         data object Default : FlowState

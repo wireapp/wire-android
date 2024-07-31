@@ -37,6 +37,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -67,6 +68,13 @@ class IncomingCallViewModel @AssistedInject constructor(
             }
             launch {
                 observeEstablishedCall()
+            }
+            lockCodeTimeManager.observeAppLock().distinctUntilChanged().collectLatest {
+                if (incomingCallState.waitingUnlockToJoin && !it) {
+                    acceptCall { incomingCallState = incomingCallState.copy(waitingUnlockToJoin = false) }
+                } else if (incomingCallState.waitingUnlockToJoinAnyway && !it) {
+                    acceptCallAnyway { incomingCallState = incomingCallState.copy(waitingUnlockToJoinAnyway = false) }
+                }
             }
         }
     }
@@ -127,6 +135,7 @@ class IncomingCallViewModel @AssistedInject constructor(
         viewModelScope.launch {
             lockCodeTimeManager.observeAppLock().first().let {
                 if (it) {
+                    incomingCallState = incomingCallState.copy(waitingUnlockToJoinAnyway = true)
                     onAppLocked()
                 } else {
                     establishedCallConversationId?.let {
@@ -145,6 +154,7 @@ class IncomingCallViewModel @AssistedInject constructor(
         viewModelScope.launch {
             lockCodeTimeManager.observeAppLock().first().let {
                 if (it) {
+                    incomingCallState = incomingCallState.copy(waitingUnlockToJoin = true)
                     onAppLocked()
                 } else {
                     if (incomingCallState.hasEstablishedCall) {

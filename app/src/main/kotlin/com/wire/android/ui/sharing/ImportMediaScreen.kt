@@ -87,6 +87,7 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.getActivity
@@ -111,6 +112,11 @@ fun ImportMediaScreen(
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
 ) {
     when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
+        FeatureFlagState.FileSharingState.Loading -> {
+            ImportMediaLoadingContent(
+                navigateBack = navigator.finish
+            )
+        }
         FeatureFlagState.FileSharingState.NoUser -> {
             ImportMediaLoggedOutContent(
                 fileSharingRestrictedState = fileSharingRestrictedState,
@@ -132,6 +138,37 @@ fun ImportMediaScreen(
     }
 
     BackHandler { navigator.finish() }
+}
+
+@Composable
+private fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
+    WireScaffold(
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = dimensions().spacing0x,
+                onNavigationPressed = navigateBack,
+                navigationIconType = NavigationIconType.Close,
+                title = stringResource(id = R.string.import_media_content_title),
+            )
+        },
+        modifier = Modifier.background(colorsScheme().background),
+        content = { internalPadding ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(internalPadding)
+                    .padding(horizontal = dimensions().spacing48x)
+            ) {
+                WireCircularProgressIndicator(
+                    progressColor = MaterialTheme.wireColorScheme.onSurface,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    size = dimensions().spacing32x
+                )
+            }
+        }
+    )
 }
 
 @Composable

@@ -33,7 +33,7 @@ import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
 import com.wire.android.ui.calling.CallScreenType
 import com.wire.android.ui.calling.NewCallScreenType
-import com.wire.android.ui.calling.OngoingCallActivity
+import com.wire.android.ui.calling.ongoing.OngoingCallActivity
 import com.wire.android.ui.calling.StartingCallActivity
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.util.deeplink.DeepLinkProcessor

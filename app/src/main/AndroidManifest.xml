@@ -89,7 +89,7 @@
                 android:theme="@style/AppTheme" />
 
         <activity
-                android:name=".ui.calling.OngoingCallActivity"
+                android:name=".ui.calling.ongoing.OngoingCallActivity"
                 android:exported="true"
                 android:hardwareAccelerated="true"
                 android:launchMode="singleTop"

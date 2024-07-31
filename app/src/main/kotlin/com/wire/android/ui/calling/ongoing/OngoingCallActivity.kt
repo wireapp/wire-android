@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling
+package com.wire.android.ui.calling.ongoing
 
 import android.app.Activity
 import android.content.Intent
@@ -29,14 +29,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
+import com.wire.android.appLogger
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
-import com.wire.android.ui.calling.ongoing.OngoingCallScreen
+import com.wire.android.ui.calling.CallScreenType
+import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Activity that handles ongoing call screen, Ongoing.
@@ -44,6 +48,8 @@ import dagger.hilt.android.AndroidEntryPoint
  */
 @AndroidEntryPoint
 class OngoingCallActivity : CallActivity() {
+    @Inject
+    lateinit var proximitySensorManager: ProximitySensorManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +62,9 @@ class OngoingCallActivity : CallActivity() {
         val screenType = intent.extras?.getString(EXTRA_SCREEN_TYPE)
         val userId = intent.extras?.getString(EXTRA_USER_ID)
         switchAccountIfNeeded(userId)
+
+        appLogger.i("$TAG Initializing proximity sensor..")
+        proximitySensorManager.initialize()
 
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
@@ -88,6 +97,25 @@ class OngoingCallActivity : CallActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        proximitySensorManager.registerListener()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        proximitySensorManager.unRegisterListener()
+    }
+
+    override fun onDestroy() {
+        cleanUpCallingFlags()
+        super.onDestroy()
+    }
+
+    companion object {
+        private const val TAG = "OngoingCallActivity"
     }
 }
 

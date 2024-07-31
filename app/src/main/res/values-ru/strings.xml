@@ -886,7 +886,6 @@
     <string name="calling_confirm_start_call_title_dialog">Начать звонок</string>
     <string name="calling_confirm_start_call_description_dialog">Вы действительно хотите позвонить %1$s пользователям?</string>
     <string name="calling_confirm_start_call_action_dialog">Позвонить</string>
-    <string name="calling_participant_tile_default_user_name">По умолчанию</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s вызывает…</string>
@@ -1334,7 +1333,6 @@
     <string name="settings_licenses_settings_label">Информация о лицензии</string>
     <string name="settings_dependencies_label">Зависимости</string>
     <string name="settings_myaccount_logout">Удалить аккаунт</string>
-    <string name="app_not_found_for_action">Не найдено приложений для выполнения действия</string>
     <string name="delete_acount_dialog_title">Удалить аккаунт</string>
     <string name="delete_acount_dialog_text">Если вы продолжите, мы отправим сообщение по электронной почте. Перейдите по ссылке, чтобы окончательно удалить свою учетную запись.</string>
     <string name="end_to_end_identity_required_dialog_title">Сертификат сквозной идентификации</string>

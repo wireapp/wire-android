@@ -824,7 +824,6 @@
     <string name="calling_confirm_start_call_title_dialog">ඇමතුමක් අරඹන්න</string>
     <string name="calling_confirm_start_call_description_dialog">ඔබට %1$s දෙනෙකුට ඇමතීමට වුවමනාද?</string>
     <string name="calling_confirm_start_call_action_dialog">අමතන්න</string>
-    <string name="calling_participant_tile_default_user_name">පෙරනිමි</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">ඇමතුමට ආපසු</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s අමතමින්…</string>
@@ -1233,7 +1232,6 @@
     <string name="notification_obfuscated_message_content">ඉබේ මැකෙන පණිවිඩයක් එවා ඇත</string>
     <string name="settings_licenses_settings_label">බලපත්‍රයෙහි තොරතුරු</string>
     <string name="settings_myaccount_logout">ගිණුම මකන්න</string>
-    <string name="app_not_found_for_action">ක්‍රියාමාර්ගය සඳහා සුදුසු යෙදුමක් හමු නොවිණි</string>
     <string name="delete_acount_dialog_title">ගිණුම මකන්න</string>
     <string name="delete_acount_dialog_text">ඉදිරියට ගියහොත්, අපි වි-තැපෑලෙන් පණිවිඩයක් එවන්නෙමු. ඔබගේ ගිණුම සදහටම මකා දැමීමට සබැඳිය අනුගමනය කරන්න.</string>
     <string name="end_to_end_identity_required_dialog_title">අන්ත අනන්‍යතා සහතිකය</string>

@@ -52,6 +52,7 @@ fun <P, T> rememberCheckPermissionsAndLaunchIntentRequestFlow(
         }
 
     return rememberCheckPermissionsRequestFlow(
+        key = input,
         permissions = requiredPermissions,
         onAllPermissionsGranted = {
             try {

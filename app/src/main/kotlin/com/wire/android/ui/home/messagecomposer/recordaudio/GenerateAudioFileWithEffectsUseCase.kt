@@ -38,7 +38,7 @@ class GenerateAudioFileWithEffectsUseCase @Inject constructor(
     suspend operator fun invoke(
         context: Context,
         originalFilePath: String,
-        effectsFilePath: String,
+        effectsFilePath: String
     ) = withContext(dispatchers.io()) {
         appLogger.i("[$TAG] -> Start generating audio file with effects")
 

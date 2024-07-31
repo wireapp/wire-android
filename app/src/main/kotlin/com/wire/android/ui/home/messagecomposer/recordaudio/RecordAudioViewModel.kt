@@ -46,7 +46,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import java.io.File
-import java.io.IOException
 import javax.inject.Inject
 import kotlin.io.path.deleteIfExists
 
@@ -267,26 +266,13 @@ class RecordAudioViewModel @Inject constructor(
         viewModelScope.launch {
             recordAudioMessagePlayer.stop()
             recordAudioMessagePlayer.close()
+            state = state.copy(buttonState = RecordAudioButtonState.ENCODING, audioState = AudioState.DEFAULT)
 
-            val resultFile = if (state.shouldApplyEffects) {
-                try {
-                    state.originalOutputFile?.toPath()?.deleteIfExists()
-                } catch (exception: IOException) {
-                    appLogger.e("[$tag] -> Couldn't delete original audio file before sending audio file with effects.")
-                }
-                state.effectsOutputFile!!.toUri()
-            } else {
-                try {
-                    state.effectsOutputFile?.toPath()?.deleteIfExists()
-                } catch (exception: IOException) {
-                    appLogger.e("[$tag] -> Couldn't delete audio file with effects before sending original audio file.")
-                }
-                state.originalOutputFile!!.toUri()
-            }
+            audioMediaRecorder.convertWavToMp4(state.shouldApplyEffects)
 
             onAudioRecorded(
                 UriAsset(
-                    uri = resultFile,
+                    uri = audioMediaRecorder.mp4OutputPath!!.toFile().toUri(),
                     saveToDeviceIfInvalid = false
                 )
             )

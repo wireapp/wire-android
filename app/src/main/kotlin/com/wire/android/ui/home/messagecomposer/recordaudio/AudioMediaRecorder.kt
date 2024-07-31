@@ -20,6 +20,11 @@ package com.wire.android.ui.home.messagecomposer.recordaudio
 import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.AudioRecord
+import android.media.MediaCodec
+import android.media.MediaCodecInfo
+import android.media.MediaExtractor
+import android.media.MediaFormat
+import android.media.MediaMuxer
 import android.media.MediaRecorder
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -29,13 +34,17 @@ import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companio
 import com.wire.kalium.util.DateTimeUtil
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okio.Path
 import okio.buffer
+import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -58,6 +67,7 @@ class AudioMediaRecorder @Inject constructor(
 
     var originalOutputPath: Path? = null
     var effectsOutputPath: Path? = null
+    var mp4OutputPath: Path? = null
 
     private val _maxFileSizeReached = MutableSharedFlow<RecordAudioDialogState>()
     fun getMaxFileSizeReached(): Flow<RecordAudioDialogState> =
@@ -86,6 +96,9 @@ class AudioMediaRecorder @Inject constructor(
 
             effectsOutputPath = kaliumFileSystem
                 .tempFilePath(getRecordingAudioEffectsFileName())
+
+            mp4OutputPath = kaliumFileSystem
+                .tempFilePath(getRecordingMP4AudioFileName())
         }
     }
 
@@ -209,13 +222,100 @@ class AudioMediaRecorder @Inject constructor(
         }
     }
 
+    suspend fun convertWavToMp4(shouldApplyEffects: Boolean) = withContext(Dispatchers.IO) {
+        val inputFilePath = if (shouldApplyEffects) {
+            effectsOutputPath!!.toString()
+        } else {
+            originalOutputPath!!.toString()
+        }
+
+        val inputFile = File(inputFilePath)
+
+        val mediaExtractor = MediaExtractor()
+        mediaExtractor.setDataSource(inputFilePath)
+
+        val format = MediaFormat.createAudioFormat(
+            MediaFormat.MIMETYPE_AUDIO_AAC,
+            SAMPLING_RATE,
+            AUDIO_CHANNELS
+        )
+        format.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE)
+        format.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC)
+
+        val codec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC)
+        codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+        codec.start()
+
+        val bufferInfo = MediaCodec.BufferInfo()
+        val muxer = MediaMuxer(mp4OutputPath.toString(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        var trackIndex = -1
+        var sawInputEOS = false
+        var sawOutputEOS = false
+
+        val fileInputStream = FileInputStream(inputFile)
+
+        while (!sawOutputEOS) {
+            if (!sawInputEOS) {
+                val inputBufferIndex = codec.dequeueInputBuffer(TIMEOUT_US)
+                if (inputBufferIndex >= 0) {
+                    val inputBuffer = codec.getInputBuffer(inputBufferIndex)
+                    inputBuffer?.clear()
+
+                    val sampleSize = fileInputStream.channel.read(inputBuffer!!)
+                    if (sampleSize < 0) {
+                        codec.queueInputBuffer(inputBufferIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
+                        sawInputEOS = true
+                    } else {
+                        codec.queueInputBuffer(inputBufferIndex, 0, sampleSize, System.nanoTime() / 1000, 0)
+                    }
+                }
+            }
+
+            val outputBufferIndex = codec.dequeueOutputBuffer(bufferInfo, TIMEOUT_US)
+            if (outputBufferIndex >= 0) {
+                val outputBuffer = codec.getOutputBuffer(outputBufferIndex)
+
+                if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
+                    codec.releaseOutputBuffer(outputBufferIndex, false)
+                    continue
+                }
+
+                if (bufferInfo.size != 0) {
+                    outputBuffer?.position(bufferInfo.offset)
+                    outputBuffer?.limit(bufferInfo.offset + bufferInfo.size)
+
+                    if (trackIndex == -1) {
+                        val newFormat = codec.outputFormat
+                        trackIndex = muxer.addTrack(newFormat)
+                        muxer.start()
+                    }
+
+                    muxer.writeSampleData(trackIndex, outputBuffer!!, bufferInfo)
+                }
+
+                codec.releaseOutputBuffer(outputBufferIndex, false)
+
+                if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
+                    sawOutputEOS = true
+                }
+            }
+        }
+
+        fileInputStream.close()
+        muxer.stop()
+        muxer.release()
+        codec.stop()
+        codec.release()
+    }
+
     companion object {
         fun getRecordingAudioFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}.wav"
+        fun getRecordingMP4AudioFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}.mp4"
         fun getRecordingAudioEffectsFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}-filter.wav"
 
         const val SIZE_OF_1MB = 1024 * 1024
         const val AUDIO_CHANNELS = 1 // Mono
-        const val SAMPLING_RATE = 44100
+        const val SAMPLING_RATE = 16000
         const val BUFFER_SIZE = 1024
         const val AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT
         const val BITS_PER_SAMPLE = 16
@@ -233,5 +333,8 @@ class AudioMediaRecorder @Inject constructor(
         const val FORMAT_WAVE = "WAVE"
         const val SUBCHUNK1_ID_FMT = "fmt "
         const val SUBCHUNK2_ID_DATA = "data"
+
+        private const val BIT_RATE = 64000
+        private const val TIMEOUT_US: Long = 10000
     }
 }

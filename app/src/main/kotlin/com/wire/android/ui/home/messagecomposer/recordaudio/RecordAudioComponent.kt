@@ -28,6 +28,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
@@ -92,6 +93,7 @@ fun RecordAudioComponent(
             .fillMaxWidth()
             .fillMaxHeight()
             .background(colorsScheme().background)
+            .pointerInput(Unit) { /* Don't allow to click on elements under record area */ }
     ) {
         WireDivider(color = MaterialTheme.wireColorScheme.outline)
         RecordAudioButtonClose(

@@ -181,7 +181,7 @@ private fun BottomRow(
     isSelfUserMuted: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val defaultUserName = stringResource(id = R.string.calling_participant_tile_default_user_name)
+    val defaultUserName = stringResource(id = R.string.username_unavailable_label)
     Layout(
         modifier = modifier,
         content = {

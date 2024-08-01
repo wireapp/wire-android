@@ -21,10 +21,10 @@ pipeline {
                 script {
                     def commit_hash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
                     def pr_number = BRANCH_NAME.replaceAll(/\D/, '')
-                    def changeBranch = env.CHANGE_BRANCH
+                    def changeTargetBranch = env.CHANGE_TARGET
 
                     def targetWorkflowUrl
-                    switch(changeBranch) {
+                    switch(changeTargetBranch) {
                       case ['release/candidate']:
                         targetWorkflowUrl = 'https://api.github.com/repos/wireapp/wire-android/actions/workflows/99460303/runs'
                         break
@@ -33,7 +33,7 @@ pipeline {
                         break
                     }
 
-                    echo("Wait for github actions to start for ${BRANCH_NAME} against ${changeBranch}")
+                    echo("Wait for github actions to start for ${BRANCH_NAME} against ${changeTargetBranch}")
                     timeout(time: 45, unit: 'MINUTES') {
                        waitUntil {
                            def output = sh label: 'Get runs', returnStdout: true, script: "curl -s -L -H 'Accept: application/vnd.github+json' -H 'Authorization: Bearer ${CREDENTIALS}' -H 'X-GitHub-Api-Version: 2022-11-28' ${targetWorkflowUrl}"

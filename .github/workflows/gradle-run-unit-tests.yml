@@ -26,6 +26,13 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
 
+      - name: checkssssssssss
+        shell: bash
+        run: |
+          [ "$CODECOV_TOKEN" ] && echo "CODECOV_TOKEN is not empty"
+          [ "$CODECOV_TOKEN" ] || echo "CODECOV_TOKEN is indeed empty"
+          echo -e "$CODECOV_TOKEN"
+
       - name: Test Build Logic
         run: |
           ./gradlew -p buildSrc test

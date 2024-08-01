@@ -135,6 +135,7 @@
     <string name="content_description_record_audio_button_start">Audio aufnehmen</string>
     <string name="content_description_record_audio_button_stop">Aufnahme stoppen</string>
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
+    <string name="content_description_jump_to_last_message">Zum Ende der Unterhaltung scrollen</string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->

@@ -178,7 +178,6 @@
     <string name="search_no_results">Sem resultados</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Novidades</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Bem-vindo ao novo aplicativo da Wire para Android!</string>
     <string name="whats_new_release_notes_group_title">Notas da versão</string>
     <string name="whats_new_android_release_notes_label">Todas as notas de lançamento do Android</string>
     <!-- Settings -->
@@ -210,9 +209,6 @@ URL do Backend:
     <string name="server_details_dialog_body_with_proxy">Nome do Backend,\n%1$s\n\nURL do Backend:\n%2$s\n\nURL do proxy:\n%3$s\n\nAutenticação do proxy:\n%4$s</string>
     <string name="server_details_dialog_title">Backend local</string>
     <string name="welcome_migration_dialog_title">Boas-vindas ao nosso novo aplicativo para Android 👋</string>
-    <string name="welcome_migration_dialog_content">Recriamos o aplicativo para torná-lo mais útil para todos.
-
-Descubra mais sobre o aplicativo da Wire - novas opções e melhor acessibilidade, com a mesma segurança.</string>
     <string name="welcome_migration_dialog_continue">Começar a usar o Wire</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Atualização necessária</string>
@@ -380,7 +376,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="group_state_label">Estado do Grupo</string>
     <string name="empty_group_name_error">Por favor, insira um nome para o grupo</string>
     <string name="group_name_exceeded_limit_error">O nome do grupo não deve exceder 64 caracteres</string>
-    <string name="group_can_not_be_created_title">O grupo não pode ser criado</string>
     <string name="group_can_not_be_created_edit_participiant_list">Editar lista de participantes</string>
     <string name="group_can_not_be_created_discard_group_creation">Descartar criação de grupo</string>
     <string name="asset_message_tap_to_download_text">Toque para baixar</string>
@@ -813,7 +808,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="disable_guests_dialog_button">Desabilitar Convidados</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Bloquear usuário?</string>
-    <string name="block_user_dialog_body">%1$s não será capaz de contactar-te ou adicinar-te à conversas em grupo. Ele(a) não será informado(a) a respeito.</string>
     <string name="block_user_dialog_confirm_button">Bloquear</string>
     <string name="other_user_devices_description">Wire cria uma identificação única para cada dispositivo. Compare-as com %1$s para verificar conversa.</string>
     <!--Settings -->
@@ -982,7 +976,6 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="invalid_link_dialog_body">O link não pôde ser aberto</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Link de convidado</string>
-    <string name="guest_link_description">Convide outras pessoas com um link para esta conversa. Qualquer pessoa com o link pode entrar na conversa, mesmo que não tenha o Wire.</string>
     <string name="guest_link_button_create_link">Criar Link</string>
     <string name="guest_link_button_copy_link">Copiar Link</string>
     <string name="guest_link_button_share_link">Compartilhar Link</string>
@@ -1008,8 +1001,6 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="label_client_verified">Verificado</string>
     <string name="label_client_unverified">Não Verificado</string>
     <string name="label_self_client_verification_description">Para verificar o seu próprio dispositivo, compare esta impressão digital com a mesma impressão digital em outro dispositivo.</string>
-    <string name="label_client_verification_description">Verificar se esta impressão digital do dispositivo corresponde à impressão digital mostrada no dispositivo de %s.</string>
-    <string name="label_fingerprint_description">Se as impressões digitais não coincidirem, reinicie a sessão para gerar novas chaves de criptografia em ambos os lados.</string>
     <string name="unknown_user_name">usuário desconhecido</string>
     <string name="device_name_unknown">Dispositivo desconhecido</string>
     <string name="create_account_email_title">Seu E-mail</string>
@@ -1050,7 +1041,6 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="record_audio_permission_denied_dialog_settings_button">Configurações</string>
     <string name="record_audio_max_file_size_reached_title">Gravação Parada</string>
     <string name="record_audio_max_file_size_reached_text">O tamanho do arquivo para mensagens de áudio é limitado a %1$d MB.</string>
-    <string name="record_audio_unable_due_to_ongoing_call">Você não pode gravar uma mensagem de áudio durante uma chamada.</string>
     <string name="label_not_now">Agora Não</string>
     <string name="last_message_composite_with_missing_text">enviou uma mensagem interativa</string>
     <string name="join_conversation_dialog_password_label">Senha da conversa</string>

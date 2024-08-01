@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.calling.ongoing
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -25,8 +26,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import com.wire.android.appLogger
@@ -34,8 +33,6 @@ import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
-import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
-import com.wire.android.ui.calling.CallScreenType
 import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
@@ -51,6 +48,7 @@ class OngoingCallActivity : CallActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
 
+    @SuppressLint("UnusedContentLambdaTargetStateParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setUpScreenshotPreventionFlag()
@@ -59,7 +57,6 @@ class OngoingCallActivity : CallActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
-        val screenType = intent.extras?.getString(EXTRA_SCREEN_TYPE)
         val userId = intent.extras?.getString(EXTRA_USER_ID)
         switchAccountIfNeeded(userId)
 
@@ -73,25 +70,17 @@ class OngoingCallActivity : CallActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    val currentCallScreenType by remember { mutableStateOf(CallScreenType.byName(screenType)) }
-                    currentCallScreenType?.let { currentScreenType ->
+                    conversationId?.let { conversationId ->
                         AnimatedContent(
-                            targetState = currentScreenType,
+                            targetState = TAG,
                             transitionSpec = {
                                 TransitionAnimationType.POP_UP.enterTransition.togetherWith(
                                     TransitionAnimationType.POP_UP.exitTransition
                                 )
                             },
-                            label = currentScreenType.name
-                        ) { screenType ->
-                            conversationId?.let {
-                                when (screenType) {
-                                    CallScreenType.Ongoing ->
-                                        OngoingCallScreen(
-                                            qualifiedIdMapper.fromStringToQualifiedID(it)
-                                        )
-                                }
-                            }
+                            label = TAG
+                        ) { _ ->
+                            OngoingCallScreen(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
                         }
                     } ?: run { finish() }
                 }
@@ -125,5 +114,4 @@ fun getOngoingCallIntent(
 ) = Intent(activity, OngoingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
-    putExtra(EXTRA_SCREEN_TYPE, CallScreenType.Ongoing.name)
 }

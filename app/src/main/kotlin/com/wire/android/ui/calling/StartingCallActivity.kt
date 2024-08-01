@@ -77,7 +77,7 @@ class StartingCallActivity : CallActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    val currentCallScreenType by remember { mutableStateOf(NewCallScreenType.byName(screenType)) }
+                    val currentCallScreenType by remember { mutableStateOf(StartingCallScreenType.byName(screenType)) }
                     currentCallScreenType?.let { currentScreenType ->
                         AnimatedContent(
                             targetState = currentScreenType,
@@ -90,7 +90,7 @@ class StartingCallActivity : CallActivity() {
                         ) { screenType ->
                             conversationId?.let {
                                 when (screenType) {
-                                    NewCallScreenType.Outgoing -> {
+                                    StartingCallScreenType.Outgoing -> {
                                         OutgoingCallScreen(
                                             conversationId =
                                             qualifiedIdMapper.fromStringToQualifiedID(
@@ -104,7 +104,7 @@ class StartingCallActivity : CallActivity() {
                                         }
                                     }
 
-                                    NewCallScreenType.Incoming ->
+                                    StartingCallScreenType.Incoming ->
                                         IncomingCallScreen(
                                             qualifiedIdMapper.fromStringToQualifiedID(it)
                                         ) {
@@ -148,7 +148,7 @@ fun getOutgoingCallIntent(
 ) = Intent(activity, StartingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
-    putExtra(EXTRA_SCREEN_TYPE, NewCallScreenType.Outgoing.name)
+    putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Outgoing.name)
 }
 
 fun getIncomingCallIntent(
@@ -158,5 +158,5 @@ fun getIncomingCallIntent(
 ) = Intent(context.applicationContext, StartingCallActivity::class.java).apply {
     putExtra(EXTRA_USER_ID, userId)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
-    putExtra(EXTRA_SCREEN_TYPE, NewCallScreenType.Incoming.name)
+    putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Incoming.name)
 }

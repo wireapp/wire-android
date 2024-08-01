@@ -56,10 +56,10 @@ class CallNotificationManagerTest {
             advanceUntilIdle()
             // then
             verify(exactly = 0) {
-                arrangement.notificationManager.notify(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID, any())
+                arrangement.notificationManager.notify(NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal, any())
             }
             verify(exactly = 1) {
-                arrangement.notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
+                arrangement.notificationManager.cancel(NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal)
             }
         }
 
@@ -73,10 +73,10 @@ class CallNotificationManagerTest {
             advanceUntilIdle()
             // then
             verify(exactly = 0) {
-                arrangement.notificationManager.notify(NotificationConstants.CALL_OUTGOING_NOTIFICATION_ID, any())
+                arrangement.notificationManager.notify(NotificationIds.CALL_OUTGOING_NOTIFICATION_ID.ordinal, any())
             }
             verify(exactly = 1) {
-                arrangement.notificationManager.cancel(NotificationConstants.CALL_OUTGOING_NOTIFICATION_ID)
+                arrangement.notificationManager.cancel(NotificationIds.CALL_OUTGOING_NOTIFICATION_ID.ordinal)
             }
         }
 

@@ -87,7 +87,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.getOngoingCallIntent
+import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader

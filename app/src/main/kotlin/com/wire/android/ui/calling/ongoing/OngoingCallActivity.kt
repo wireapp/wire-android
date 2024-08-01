@@ -42,6 +42,10 @@ import javax.inject.Inject
 /**
  * Activity that handles ongoing call screen, Ongoing.
  * These type of call is not disposable and we need to maintain its state.
+ *
+ * This screen is used when the self user is in a call.
+ *
+ * @see OngoingCallScreen
  */
 @AndroidEntryPoint
 class OngoingCallActivity : CallActivity() {

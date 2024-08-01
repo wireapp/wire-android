@@ -47,6 +47,11 @@ import javax.inject.Inject
 /**
  * Activity that handles starting call screens, Incoming and Outgoing
  * These type of call steps are one shot disposable screens.
+ *
+ * This screen is used when the self user starts a call or when the self user receives a call.
+ *
+ * @see IncomingCallScreen
+ * @see OutgoingCallScreen
  */
 @AndroidEntryPoint
 class StartingCallActivity : CallActivity() {

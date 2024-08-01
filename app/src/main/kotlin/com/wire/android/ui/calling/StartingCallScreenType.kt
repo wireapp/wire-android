@@ -20,10 +20,16 @@ package com.wire.android.ui.calling
 
 /**
  * Type of starting call screen.
- * It can be either Incoming or Outgoing.
  */
 enum class StartingCallScreenType {
+    /**
+     * Incoming call screen, started by others.
+     */
     Incoming,
+
+    /**
+     * Outgoing call screen, started by self user.
+     */
     Outgoing;
 
     companion object {

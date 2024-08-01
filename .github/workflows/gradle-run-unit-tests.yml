@@ -8,6 +8,8 @@ permissions:
 jobs:
   coverage:
     runs-on: buildjet-8vcpu-ubuntu-2204
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -77,7 +79,7 @@ jobs:
       - name: Upload code coverage to codecov
         uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ CODECOV_TOKEN }}
           files: "app/build/reports/kover/report.xml"
 
       - name: Cleanup Gradle Cache

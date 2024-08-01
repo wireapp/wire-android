@@ -29,7 +29,7 @@ pipeline {
                         targetWorkflowUrl = 'https://api.github.com/repos/wireapp/wire-android/actions/workflows/99460303/runs'
                         break
                       default:
-                        targetWorkflowUrl = "https://api.github.com/repos/wireapp/wire-android/actions/workflows/98603098/runs"
+                        targetWorkflowUrl = 'https://api.github.com/repos/wireapp/wire-android/actions/workflows/98603098/runs'
                         break
                     }
 

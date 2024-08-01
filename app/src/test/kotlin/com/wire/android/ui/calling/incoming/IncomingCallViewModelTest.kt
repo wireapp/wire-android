@@ -90,8 +90,13 @@ class IncomingCallViewModelTest {
         fun withAppNotLocked() = apply {
             every { lockCodeTimeManager.observeAppLock() } returns flowOf(false)
         }
+
         fun withAppLocked() = apply {
             every { lockCodeTimeManager.observeAppLock() } returns flowOf(true)
+        }
+
+        fun withLockStateLockedAndThenUnlocked() = apply {
+            every { lockCodeTimeManager.observeAppLock() } returns flowOf(true) andThen flowOf(false)
         }
 
         fun withEstablishedCalls(flow: Flow<List<Call>>) = apply {
@@ -208,6 +213,39 @@ class IncomingCallViewModelTest {
         viewModel.dismissJoinCallAnywayDialog()
 
         assertEquals(false, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
+    }
+
+    @Test
+    fun `given app locked, when user tries to accept an incoming call, then do not accept the call until is unlocked`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLockStateLockedAndThenUnlocked()
+            .arrange()
+
+        viewModel.acceptCall({})
+
+        coVerify { arrangement.acceptCall(conversationId = any()) }
+    }
+
+    @Test
+    fun `given app locked, when user tries to accept an second incoming call, then do not accept the call until is unlocked`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLockStateLockedAndThenUnlocked()
+            .arrange()
+
+        viewModel.acceptCallAnyway({})
+
+        coVerify { arrangement.acceptCall(conversationId = any()) }
+    }
+
+    @Test
+    fun `given app Locked, when the user decline the call, then do not reject the call until is unlocked`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLockStateLockedAndThenUnlocked()
+            .arrange()
+
+        viewModel.declineCall({}, {})
+
+        coVerify { arrangement.rejectCall(conversationId = any()) }
     }
 
     companion object {

@@ -22,11 +22,19 @@ import com.wire.kalium.logic.data.id.ConversationId
 data class IncomingCallState(
     val hasEstablishedCall: Boolean = false,
     val shouldShowJoinCallAnywayDialog: Boolean = false,
-    val flowState: FlowState = FlowState.Default
+    val flowState: FlowState = FlowState.Default,
+    val waitingUnlockState: WaitingUnlockState = WaitingUnlockState.DEFAULT
 ) {
     sealed interface FlowState {
         data object Default : FlowState
         data object CallClosed : FlowState
         data class CallAccepted(val conversationId: ConversationId) : FlowState
+    }
+
+    enum class WaitingUnlockState {
+        DEFAULT,
+        JOIN_CALL,
+        JOIN_CALL_ANYWAY,
+        DECLINE_CALL,
     }
 }

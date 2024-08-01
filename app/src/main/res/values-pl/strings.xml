@@ -170,9 +170,6 @@ URL &#347;rodowiska:
 %2$s</string>
     <string name="server_details_dialog_title">Lokalne &#347;rodowisko</string>
     <string name="welcome_migration_dialog_title">Witaj w naszej nowej aplikacji Android &#128075;</string>
-    <string name="welcome_migration_dialog_content">Przebudowali&#347;my aplikacj&#281;, aby by&#322;a bardziej u&#380;yteczna dla ka&#380;dego.
-
-Dowiedz si&#281; wi&#281;cej o przebudowanej aplikacji Wire - nowe opcje i usprawniona dost&#281;pno&#347;&#263;, przy zachowaniu silnego zabezpieczenia.</string>
     <string name="welcome_migration_dialog_continue">U&#380;ywaj Wire</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Wymagana aktualizacja</string>
@@ -735,7 +732,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="disable_guests_dialog_button">Nie zezwalaj na go&#347;ci</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Zablokowa&#263; u&#380;ytkownika?</string>
-    <string name="block_user_dialog_body">%1$s nie b&#281;dzie m&#243;g&#322; si&#281; z tob&#261; skontaktowa&#263; ani doda&#263; ci&#281; do rozm&#243;w grupowych. Nie zostanie o tym poinformowany.</string>
     <string name="block_user_dialog_confirm_button">Zablokuj</string>
     <string name="other_user_devices_description">\Wire nadaje ka&#380;demu urz&#261;dzeniu unikalny odcisk palca. Por&#243;wnaj je z %1$s i zweryfikuj swoj&#261; konwersacj&#281;. \</string>
     <!--Settings -->
@@ -870,7 +866,6 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <!-- invalid link -->
     <!-- guest room link -->
     <string name="folder_label_guest_link">Link dla go&#347;ci</string>
-    <string name="guest_link_description">Zapro&#347; innych linkiem do tej rozmowy. Ka&#380;dy z linkiem mo&#380;e do&#322;&#261;czy&#263; do rozmowy, nawet je&#347;li nie ma Wire.</string>
     <string name="guest_link_button_create_link">Utw&#243;rz link</string>
     <string name="guest_link_button_copy_link">Kopiuj link</string>
     <string name="guest_link_button_share_link">Udost&#281;pnij link</string>
@@ -893,8 +888,6 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="label_client_verified">Zweryfikowane</string>
     <string name="label_client_unverified">Niezweryfikowane</string>
     <string name="label_self_client_verification_description">Aby zweryfikowa&#263; swoje urz&#261;dzenie, por&#243;wnaj ten odcisk klucza z tym samym odciskiem klucza na innym urz&#261;dzeniu.</string>
-    <string name="label_client_verification_description">Zweryfikuj, czy odcisk klucza na tym urz&#261;dzeniu odpowiada odciskowi klucza wy&#347;wietlanemu na urz&#261;dzeniu %s.</string>
-    <string name="label_fingerprint_description">Je&#347;li odciski klucza si&#281; nie zgadzaj&#261;, zresetuj sesj&#281;, aby wygenerowa&#263; nowe klucze szyfrowania po obu stronach.</string>
     <string name="unknown_user_name">nieznany</string>
     <!-- Asset limits error messages -->
     <!-- Expiring messages -->

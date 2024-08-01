@@ -170,7 +170,6 @@
     <string name="content_description_record_audio_button_send">Invia messaggio audio</string>
     <string name="content_description_mls_certificate_valid">Tutti i dispositivi di tutti i partecipanti hanno un certificato MLS valido</string>
     <string name="content_description_proteus_certificate_valid">Tutti i partecipanti sono verificati (Proteus)</string>
-    <string name="content_description_jump_to_last_message">Scorri in basso all\'ultimo messaggiio, pulsante</string>
     <string name="content_description_location_icon">Elemento di posizione</string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
@@ -191,7 +190,6 @@
     <string name="search_no_results">Nessun risultato trovato</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Novità</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Benvenuto sulla nuova app Android di Wire!</string>
     <string name="whats_new_release_notes_group_title">Note di rilascio</string>
     <string name="whats_new_android_release_notes_label">Tutte le note di rilascio di Android</string>
     <!-- Settings -->
@@ -217,9 +215,6 @@ URL backend:
 %2$s</string>
     <string name="server_details_dialog_title">Backend In Situ</string>
     <string name="welcome_migration_dialog_title">Benvenuto nella nuova app per Android &#128075;</string>
-    <string name="welcome_migration_dialog_content">Abbiamo ricostruito l\'app per renderla pi&#249; adatta a tutti. 
-
-Scopri di pi&#249; sulla nuova app Wire: nuove opzioni e miglior accessibilit&#224;, con la stessa forte sicurezza.</string>
     <string name="welcome_migration_dialog_continue">Inizia ad usare Wire</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Aggiorna l\'app</string>
@@ -390,8 +385,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="group_state_label">Stato del gruppo</string>
     <string name="empty_group_name_error">Per favore, inserisci un nome per il gruppo</string>
     <string name="group_name_exceeded_limit_error">Il nome del gruppo non deve superare i 64 caratteri</string>
-    <string name="group_can_not_be_created_title">Impossibile creare il gruppo</string>
-    <string name="group_can_not_be_created_federation_conflict_description">Le persone dai backend %1$s e %2$s non possono aderire alla stessa conversazione di gruppo.\n\nPer creare il gruppo, rimuovi i partecipanti interessati.</string>
     <string name="group_can_not_be_created_edit_participiant_list">Modifica l\'elenco dei partecipanti</string>
     <string name="group_can_not_be_created_discard_group_creation">Scarta la creazione del gruppo</string>
     <string name="asset_message_tap_to_download_text">Tocca per scaricare</string>
@@ -593,7 +586,6 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s ha **disattivato** il timer per l\'autodistruzione dei messaggi per tutti</string>
     <string name="label_system_message_deactivated">disattivato</string>
     <string name="label_system_message_conversation_history_lost">Non hai usato questo dispositivo per un po\'. Alcuni messaggi potrebbero non essere visualizzati qui.</string>
-    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Non hai aggiornato questo dispositivo per un po\'. Nel mentre, il protocollo standard di messaggistica è cambiato da Proteus a Messaging Layer Security (MLS). A causa di questo cambiamento, alcuni messaggi potrebbero non apparire qui.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Non hai aggiornato la tua app in tempo. Alcuni messaggi potrebbero non apparire qui.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migrazione del protocollo crittografico annullata.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">A causa della migrazione a MLS, potresti riscontrare dei problemi con la tua chiamata corrente. In tal caso, riaggancia e richiama.</string>
@@ -886,7 +878,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="disable_guests_dialog_button">Non consentire ospiti</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Bloccare l\'utente?</string>
-    <string name="block_user_dialog_body">%1$s non potrà contattarti o aggiungerti a conversazioni di gruppo. Non verranno informati di questo.</string>
     <string name="block_user_dialog_confirm_button">Blocca</string>
     <string name="other_user_devices_description">Wire assegna a ogni dispositivo una impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.</string>
     <!--Settings -->
@@ -1104,7 +1095,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="invalid_link_dialog_body">Impossibile aprire il link</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Link ospite</string>
-    <string name="guest_link_description">Invita altri con un link a questa conversazione. Chiunque abbia il link pu&#242; unirsi alla conversazione, anche se non ha Wire.</string>
     <string name="guest_link_button_create_link">Crea link</string>
     <string name="guest_link_button_copy_link">Copia link</string>
     <string name="guest_link_button_share_link">Condividi link</string>
@@ -1133,8 +1123,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="label_client_verified">Verificato</string>
     <string name="label_client_unverified">Non verificato</string>
     <string name="label_self_client_verification_description">Per verificare il tuo dispositivo, confronta questa impronta digitale con la stessa impronta digitale su un altro dispositivo.</string>
-    <string name="label_client_verification_description">Verifica che l\'impronta digitale di questo dispositivo corrisponda all\'impronta digitale mostrata sul dispositivo di %s.</string>
-    <string name="label_fingerprint_description">Se le impronte digitali non corrispondono, reimposta la sessione per generare nuove chiavi di crittografia su entrambi i lati.</string>
     <string name="label_self_fingerprint_description">Condividi l\'impronta digitale di questa chiave con altri partecipanti a una conversazione, così che possano verificarla e assicurarsi che la conversazione sia sicura.</string>
     <string name="unknown_user_name">sconosciuto</string>
     <string name="device_name_unknown">Dispositivo sconosciuto</string>
@@ -1224,14 +1212,10 @@ registrato. Sei pregato di riprovare.</string>
     <string name="delete_acount_dialog_title">Elimina il profilo</string>
     <string name="delete_acount_dialog_text">Se continui, invieremo un messaggio via email. Segui il link per eliminare permanentemente il tuo profilo.</string>
     <string name="end_to_end_identity_required_dialog_title">Certificato d\'identità end-to-end</string>
-    <string name="end_to_end_identity_required_dialog_text">Ad oggi, il tuo team utilizza l\'identità end-to-end per rendere l\'utilizzo di Wire più sicuro e praticabile.\n\nInserisci le credenziali del tuo fornitore di identità nel prossimo passaggio per ottenere automaticamente un certificato di verifica per questo dispositivo.</string>
-    <string name="end_to_end_identity_required_dialog_text_no_snooze">Ora, il tuo team utilizza l\'identità end-to-end per rendere l\'utilizzo di Wire più sicuro.\n\nInserisci le credenziali del tuo fornitore di identità nel prossimo passaggio, per ottenere automaticamente un certificato di verifica per questo dispositivo.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Ottieni il certificato</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Ricordamelo più tardi</string>
     <string name="end_to_end_identity_snooze_dialog_text">Puoi ottenere il certificato nelle tue Impostazioni di Wire durante il prossimo %1$s.\nApri Dispositivi e seleziona Ottieni Certificato per il tuo dispositivo corrente. </string>
     <string name="end_to_end_identity_renew_dialog_title">Aggiorna il certificato</string>
-    <string name="end_to_end_identity_renew_dialog_text">Il certificato di identità end-to-end per questo dispositivo scadrà presto. Per mantenere sicura la tua comunicazione, aggiornalo ora.\n\nInserisci le credenziali del tuo forntore di identità nel prossimo passaggio per aggiornare il certificato automaticamente.</string>
-    <string name="end_to_end_identity_renew_dialog_text_no_snooze">Il certificato di identità end-to-end per questo dispositivo è scaduto.\n\nInserisci le credenziali del fornitore della tua identità nel prossimo passaggio per aggiornare automaticamente il certificato.</string>
     <string name="end_to_end_identity_renew_dialog_positive_button">Aggiorna il certificato</string>
     <string name="end_to_end_identity_renew_error_dialog_title">Impossibile aggiornare il certificato.</string>
     <string name="end_to_end_identity_renew_error_dialog_text">Puoi riprovare ad aggiornare il certificato adesso, od otterrai un promemoria in seguito.</string>
@@ -1256,7 +1240,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="record_audio_permission_denied_dialog_settings_button">Impostazioni</string>
     <string name="record_audio_max_file_size_reached_title">Registrazione arrestata</string>
     <string name="record_audio_max_file_size_reached_text">Le dimensioni dei file per i messaggi vocali sono limitate a %1$d MB.</string>
-    <string name="record_audio_unable_due_to_ongoing_call">Non puoi registrare un messaggio vocale durante una chiamata.</string>
     <string name="record_audio_unable_due_to_error">Qualcosa è andato storto provando a registrare il messaggio audio. Ti preghiamo di riprovare.</string>
     <string name="label_not_now">Non adesso</string>
     <string name="last_message_composite_with_missing_text">invia un messaggio interattivo</string>
@@ -1268,7 +1251,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="create_guest_link_without_password_title">Crea link senza password</string>
     <string name="conversation_options_create_password_protected_guest_link_title">Crea link protetto da password</string>
     <string name="conversation_options_create_password_protected_guest_link_discrption">Coloro che desiderano unirsi alla conversazione tramite il link ospite, devono prima inserire questa password.</string>
-    <string name="conversation_options_create_password_protected_guest_link_discrption_2">Non puoi modificare la password in seguito. Assicurati di copiarla e memorizzarla.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_label">IMPOSTA LA PASSWORD</string>
     <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">CONFERMA LA PASSWORD</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Inserisci la password</string>
@@ -1321,7 +1303,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="legal_hold_system_message_disabled_others">Sospensione legale disattivata per %1$s.</string>
     <string name="legal_hold_system_message_disabled_conversation">La sospensione legale non è più attiva per questa conversazione.</string>
     <string name="legal_hold_system_message_enabled_conversation">La sospensione legale è ora attiva per questa conversazione.</string>
-    <string name="legal_hold_system_message_interaction_disabled">Non puoi scrivere messaggi a questo utente, poiché non fa parte del tuo team, e uno di voi è soggetto a sospensione legale. Una volta questa è disattivata, potrai scrivere nuovamente i messaggi.</string>
     <!-- Sure want to send message Dialog -->
     <string name="sure_about_messaging_dialog_title">Conversazione non più verificata</string>
     <string name="sure_about_messaging_dialog_body">Almeno un partecipante ha iniziato a utilizzare un nuovo dispositivo o ha un certificato non valido.\n\nDesideri comunque inviare il messaggio?</string>

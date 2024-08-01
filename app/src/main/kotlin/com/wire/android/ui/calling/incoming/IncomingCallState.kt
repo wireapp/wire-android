@@ -23,12 +23,18 @@ data class IncomingCallState(
     val hasEstablishedCall: Boolean = false,
     val shouldShowJoinCallAnywayDialog: Boolean = false,
     val flowState: FlowState = FlowState.Default,
-    val waitingUnlockToJoin: Boolean = false,
-    val waitingUnlockToJoinAnyway: Boolean = false
+    val waitingUnlockState: WaitingUnlockState = WaitingUnlockState.DEFAULT
 ) {
     sealed interface FlowState {
         data object Default : FlowState
         data object CallClosed : FlowState
         data class CallAccepted(val conversationId: ConversationId) : FlowState
+    }
+
+    enum class WaitingUnlockState {
+        DEFAULT,
+        JOIN_CALL,
+        JOIN_CALL_ANYWAY,
+        DECLINE_CALL,
     }
 }

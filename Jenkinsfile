@@ -36,7 +36,7 @@ pipeline {
                     echo("Wait for github actions to start for ${BRANCH_NAME} against ${changeTargetBranch}")
                     timeout(time: 45, unit: 'MINUTES') {
                        waitUntil {
-                           def output = sh label: 'Get runs', returnStdout: true, script: "curl -s -L -H 'Accept: application/vnd.github+json' -H 'Authorization: Bearer ${CREDENTIALS}' -H 'X-GitHub-Api-Version: 2022-11-28' ${targetWorkflowUrl}"
+                           def output = sh label: 'Get runs', returnStdout: true, script: 'curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${CREDENTIALS}" -H "X-GitHub-Api-Version: 2022-11-28" ${targetWorkflowUrl}'
                            def json = readJSON text: output
                            if (json['message']) {
                                echo("Output: " + output)
@@ -63,7 +63,7 @@ pipeline {
                     echo("Wait for apk to be build for ${BRANCH_NAME}")
                     timeout(time: 70, unit: 'MINUTES') {
                        waitUntil {
-                           def output = sh label: 'Get runs', returnStdout: true, script: "curl -s -L -H 'Accept: application/vnd.github+json' -H 'Authorization: Bearer ${CREDENTIALS}' -H 'X-GitHub-Api-Version: 2022-11-28' ${targetWorkflowUrl}"
+                           def output = sh label: 'Get runs', returnStdout: true, script: 'curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${CREDENTIALS}" -H "X-GitHub-Api-Version: 2022-11-28" ${targetWorkflowUrl}'
                            def json = readJSON text: output
                            def runs = json['workflow_runs']
                            echo("Looking for hash " + commit_hash)

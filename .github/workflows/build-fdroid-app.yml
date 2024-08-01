@@ -59,5 +59,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          build-flavour: fdroid
+          build-flavour: Fdroid
           build-variant: compatrelease
+      - name: Attach APK to release
+        uses: softprops/action-gh-release@v2.0.8
+        with:
+          files: app/build/outputs/apk/fdroidCompatRelease/*.apk

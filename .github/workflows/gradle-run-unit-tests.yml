@@ -27,12 +27,6 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
 
-      - name: Upload code coverage to codecov
-        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: "local.properties"
-
       - name: Test Build Logic
         run: |
           ./gradlew -p buildSrc test

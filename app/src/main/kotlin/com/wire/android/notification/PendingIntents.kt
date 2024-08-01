@@ -29,9 +29,12 @@ import com.wire.android.notification.broadcastreceivers.DeclineIncomingCallRecei
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
 import com.wire.android.ui.WireActivity
-import com.wire.android.ui.calling.CallActivity
-import com.wire.android.ui.calling.CallScreenType
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
+import com.wire.android.ui.calling.StartingCallActivity
+import com.wire.android.ui.calling.StartingCallScreenType
 import com.wire.android.ui.calling.getIncomingCallIntent
+import com.wire.android.ui.calling.ongoing.OngoingCallActivity
 import com.wire.android.util.deeplink.DeepLinkProcessor
 
 fun messagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent {
@@ -134,22 +137,21 @@ fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String
 
     return PendingIntent.getActivity(
         context,
-        FULL_SCREEN_REQUEST_CODE,
+        getRequestCode(conversationId, FULL_SCREEN_REQUEST_CODE),
         intent,
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 }
 
 private fun openOutgoingCallIntent(context: Context, conversationId: String) =
-    Intent(context.applicationContext, CallActivity::class.java).apply {
-        putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-        putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Outgoing.name)
+    Intent(context.applicationContext, StartingCallActivity::class.java).apply {
+        putExtra(EXTRA_CONVERSATION_ID, conversationId)
+        putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Outgoing.name)
     }
 
 private fun openOngoingCallIntent(context: Context, conversationId: String) =
-    Intent(context.applicationContext, CallActivity::class.java).apply {
-        putExtra(CallActivity.EXTRA_CONVERSATION_ID, conversationId)
-        putExtra(CallActivity.EXTRA_SCREEN_TYPE, CallScreenType.Ongoing.name)
+    Intent(context.applicationContext, OngoingCallActivity::class.java).apply {
+        putExtra(EXTRA_CONVERSATION_ID, conversationId)
     }
 
 fun callNotificationDismissedPendingIntent(context: Context, userId: String, conversationId: String): PendingIntent =
@@ -193,7 +195,7 @@ fun openAppPendingIntent(context: Context): PendingIntent {
 
 private const val MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE = 0
 private const val DECLINE_CALL_REQUEST_CODE = "decline_call_"
-private const val FULL_SCREEN_REQUEST_CODE = 3
+private const val FULL_SCREEN_REQUEST_CODE = "incoming_call_"
 private const val OPEN_ONGOING_CALL_REQUEST_CODE = 4
 private const val OPEN_MIGRATION_LOGIN_REQUEST_CODE = 5
 private const val OUTGOING_CALL_REQUEST_CODE = 6

@@ -67,6 +67,7 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
     }
 
     override fun halt() {
+        isConfigured = false
         Countly.sharedInstance().halt()
     }
 

@@ -165,7 +165,6 @@
     <string name="content_description_record_audio_button_send">Pošalji glasovnu poruku</string>
     <string name="content_description_mls_certificate_valid">Svi uređaji svih sudionika posjeduju valjani MLS certifikat</string>
     <string name="content_description_proteus_certificate_valid">Svi sudionici su verificirani (Proteus)</string>
-    <string name="content_description_jump_to_last_message">Skočite do posljednje poruke, gumb</string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -185,7 +184,6 @@
     <string name="search_no_results">Nije pronađen nijedan rezultat</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Što je novo</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Dobro došli u novu Android aplikaciju Wire!</string>
     <string name="whats_new_release_notes_group_title">Napomene o izdanoj verziji</string>
     <string name="whats_new_android_release_notes_label">Sve napomene o Android verziji</string>
     <!-- Settings -->
@@ -207,7 +205,6 @@
     <string name="server_details_dialog_body">Backend ime:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_title">Lokalni Backend</string>
     <string name="welcome_migration_dialog_title">Dobro došli u našu novu Android aplikaciju 👋</string>
-    <string name="welcome_migration_dialog_content">Obnovili smo aplikaciju kako bismo je učinili upotrebljivijom za sve.\n\nSaznajte više o redizajnu Wire-a—nove opcije s poboljšanom pristupačnosti, uz jednako jaku sigurnost.</string>
     <string name="welcome_migration_dialog_continue">Počnite koristiti Wire</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Potrebno ažuriranje</string>
@@ -375,8 +372,6 @@
     <string name="empty_group_name_error">Unesite naziv grupe</string>
     <string name="group_name_exceeded_limit_error">Naziv grupe ne smije biti dulji od 64 znaka
     </string>
-    <string name="group_can_not_be_created_title">Grupa ne može biti kreirana</string>
-    <string name="group_can_not_be_created_federation_conflict_description">Osobe iz backenda %1$s i %2$s ne mogu se pridružiti istom grupnom razgovoru.\n\nDa biste stvorili grupu, uklonite određene sudionike.</string>
     <string name="group_can_not_be_created_edit_participiant_list">Uredite Popis Sudionika</string>
     <string name="group_can_not_be_created_discard_group_creation">Odbaci Stvaranje Grupe</string>
     <string name="asset_message_tap_to_download_text">Dodirni za preuzimanje</string>

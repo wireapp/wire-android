@@ -27,9 +27,9 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
@@ -212,12 +212,12 @@ class UserModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetE2EICertificateUseCase(userScope: UserScope): GetE2eiCertificateUseCase =
+    fun provideGetE2EICertificateUseCase(userScope: UserScope): GetMLSClientIdentityUseCase =
         userScope.getE2EICertificate
 
     @ViewModelScoped
     @Provides
-    fun provideGetUserE2eiCertificateStatusUseCase(userScope: UserScope): GetUserE2eiCertificateStatusUseCase =
+    fun provideGetUserE2eiCertificateStatusUseCase(userScope: UserScope): IsOtherUserE2EIVerifiedUseCase =
         userScope.getUserE2eiCertificateStatus
 
     @ViewModelScoped

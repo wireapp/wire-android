@@ -31,9 +31,9 @@ import com.wire.android.appLogger
 import com.wire.android.di.CurrentSessionFlowService
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationChannelsManager
-import com.wire.android.notification.NotificationConstants.PERSISTENT_NOTIFICATION_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NAME
+import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -129,7 +129,12 @@ class PersistentWebSocketService : Service() {
             .setOngoing(true)
             .build()
 
-        ServiceCompat.startForeground(this, PERSISTENT_NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        ServiceCompat.startForeground(
+            this,
+            NotificationIds.PERSISTENT_NOTIFICATION_ID.ordinal,
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+        )
     }
 
     override fun onDestroy() {

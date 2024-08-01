@@ -43,6 +43,7 @@ import com.wire.android.migration.getMigrationProgress
 import com.wire.android.migration.toData
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
+import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.openAppPendingIntent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -92,7 +93,7 @@ class MigrationWorker
             .setContentIntent(openAppPendingIntent(applicationContext))
             .build()
 
-        return ForegroundInfo(NotificationConstants.MIGRATION_NOTIFICATION_ID, notification)
+        return ForegroundInfo(NotificationIds.MIGRATION_NOTIFICATION_ID.ordinal, notification)
     }
 
     companion object {

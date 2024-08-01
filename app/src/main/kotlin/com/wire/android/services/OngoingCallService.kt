@@ -30,7 +30,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.notification.CallNotificationData
 import com.wire.android.notification.CallNotificationManager
-import com.wire.android.notification.NotificationConstants.CALL_ONGOING_NOTIFICATION_ID
+import com.wire.android.notification.NotificationIds
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -138,7 +138,7 @@ class OngoingCallService : Service() {
         val notification: Notification = callNotificationManager.builder.getOngoingCallNotification(data)
         ServiceCompat.startForeground(
             this,
-            CALL_ONGOING_NOTIFICATION_ID,
+            NotificationIds.CALL_ONGOING_NOTIFICATION_ID.ordinal,
             notification,
             ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
         )
@@ -152,7 +152,7 @@ class OngoingCallService : Service() {
             callNotificationManager.builder.getOngoingCallPlaceholderNotification()
         ServiceCompat.startForeground(
             this,
-            CALL_ONGOING_NOTIFICATION_ID,
+            NotificationIds.CALL_ONGOING_NOTIFICATION_ID.ordinal,
             notification,
             ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
         )

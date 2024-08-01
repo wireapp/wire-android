@@ -37,6 +37,7 @@ import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
+import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
@@ -46,6 +47,11 @@ import javax.inject.Inject
 /**
  * Activity that handles starting call screens, Incoming and Outgoing
  * These type of call steps are one shot disposable screens.
+ *
+ * This screen is used when the self user starts a call or when the self user receives a call.
+ *
+ * @see IncomingCallScreen
+ * @see OutgoingCallScreen
  */
 @AndroidEntryPoint
 class StartingCallActivity : CallActivity() {
@@ -76,7 +82,7 @@ class StartingCallActivity : CallActivity() {
                 LocalActivity provides this
             ) {
                 WireTheme {
-                    val currentCallScreenType by remember { mutableStateOf(NewCallScreenType.byName(screenType)) }
+                    val currentCallScreenType by remember { mutableStateOf(StartingCallScreenType.byName(screenType)) }
                     currentCallScreenType?.let { currentScreenType ->
                         AnimatedContent(
                             targetState = currentScreenType,
@@ -89,7 +95,7 @@ class StartingCallActivity : CallActivity() {
                         ) { screenType ->
                             conversationId?.let {
                                 when (screenType) {
-                                    NewCallScreenType.Outgoing -> {
+                                    StartingCallScreenType.Outgoing -> {
                                         OutgoingCallScreen(
                                             conversationId =
                                             qualifiedIdMapper.fromStringToQualifiedID(
@@ -103,7 +109,7 @@ class StartingCallActivity : CallActivity() {
                                         }
                                     }
 
-                                    NewCallScreenType.Incoming ->
+                                    StartingCallScreenType.Incoming ->
                                         IncomingCallScreen(
                                             qualifiedIdMapper.fromStringToQualifiedID(it)
                                         ) {
@@ -147,7 +153,7 @@ fun getOutgoingCallIntent(
 ) = Intent(activity, StartingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
-    putExtra(EXTRA_SCREEN_TYPE, NewCallScreenType.Outgoing.name)
+    putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Outgoing.name)
 }
 
 fun getIncomingCallIntent(
@@ -157,5 +163,5 @@ fun getIncomingCallIntent(
 ) = Intent(context.applicationContext, StartingCallActivity::class.java).apply {
     putExtra(EXTRA_USER_ID, userId)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
-    putExtra(EXTRA_SCREEN_TYPE, NewCallScreenType.Incoming.name)
+    putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Incoming.name)
 }

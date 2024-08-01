@@ -18,16 +18,18 @@
 
 package com.wire.android.ui.calling
 
-enum class CallScreenType {
-    Ongoing;
-
-    companion object {
-        fun byName(value: String?) = entries.firstOrNull { it.name == value }
-    }
-}
-
-enum class NewCallScreenType {
+/**
+ * Type of starting call screen.
+ */
+enum class StartingCallScreenType {
+    /**
+     * Incoming call screen, started by others.
+     */
     Incoming,
+
+    /**
+     * Outgoing call screen, started by self user.
+     */
     Outgoing;
 
     companion object {

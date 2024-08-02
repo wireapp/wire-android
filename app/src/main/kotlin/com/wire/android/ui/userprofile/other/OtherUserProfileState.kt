@@ -74,7 +74,7 @@ data class OtherUserProfileState(
     }
 
     fun isMetadataEmpty(): Boolean {
-        return fullName.isEmpty() || userName.isEmpty()
+        return fullName.isEmpty() && userName.isEmpty()
     }
 
     fun shouldShowSearchButton(): Boolean = (groupState == null

@@ -37,7 +37,7 @@ import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.navArgs
-import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
+import com.wire.android.ui.userprofile.common.UsernameMapper.fromOtherUser
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationSuccess
@@ -384,7 +384,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             isAvatarLoading = false,
             userAvatarAsset = userAvatarAsset,
             fullName = otherUser.name.orEmpty(),
-            userName = mapUserLabel(otherUser),
+            userName = fromOtherUser(otherUser),
             teamName = userResult.team?.name.orEmpty(),
             email = otherUser.email.orEmpty(),
             phone = otherUser.phone.orEmpty(),

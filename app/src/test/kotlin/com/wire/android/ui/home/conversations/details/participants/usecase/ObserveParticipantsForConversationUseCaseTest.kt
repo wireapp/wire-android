@@ -75,14 +75,21 @@ class ObserveParticipantsForConversationUseCaseTest {
                 add(MemberDetails(testOtherUser(i).copy(userType = UserType.INTERNAL), Member.Role.Member))
             }
         }
+        val userId1 = UserId(value = "value1", domain = "domain1")
+        val userId2 = UserId(value = "value2", domain = "domain2")
+        val userId3 = UserId(value = "value3", domain = "domain3")
         val (_, useCase) = ObserveParticipantsForConversationUseCaseArrangement()
             .withConversationParticipantsUpdate(members)
+            .withE2EICertificateStatuses(mapOf(userId1 to true, userId2 to false))
             .arrange()
         // When - Then
         useCase(ConversationId("", "")).test {
             val data = awaitItem()
             assert(data.participants.size == members.size)
             assert(data.allParticipantsCount == members.size)
+            assertEquals(true, data.participants.firstOrNull { it.id == userId1 }?.isMLSVerified)
+            assertEquals(false, data.participants.firstOrNull { it.id == userId2 }?.isMLSVerified)
+            assertEquals(false, data.participants.firstOrNull { it.id == userId3 }?.isMLSVerified) // false if null
         }
     }
 
@@ -213,6 +220,10 @@ internal class ObserveParticipantsForConversationUseCaseArrangement {
         coEvery { observeConversationMembersUseCase(any()) } returns conversationMembersChannel.consumeAsFlow()
         conversationMembersChannel.send(members)
         return this
+    }
+
+    suspend fun withE2EICertificateStatuses(result: Map<UserId, Boolean>) = apply {
+        coEvery { getMembersE2EICertificateStatuses(any(), any()) } answers { result }
     }
 
     fun arrange() = this to useCase

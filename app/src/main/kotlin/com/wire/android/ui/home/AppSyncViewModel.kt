@@ -71,6 +71,7 @@ class AppSyncViewModel @Inject constructor(
         } ?: false
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun runSyncTasks() {
         try {
             listOf(

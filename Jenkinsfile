@@ -21,10 +21,22 @@ pipeline {
                 script {
                     def commit_hash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
                     def pr_number = BRANCH_NAME.replaceAll(/\D/, '')
-                    echo("Wait for github actions to start for ${BRANCH_NAME}")
+                    def changeTargetBranch = env.CHANGE_TARGET
+
+                    def targetWorkflowUrl
+                    switch(changeTargetBranch) {
+                      case ['release/candidate']:
+                        targetWorkflowUrl = 'https://api.github.com/repos/wireapp/wire-android/actions/workflows/99460303/runs'
+                        break
+                      default:
+                        targetWorkflowUrl = 'https://api.github.com/repos/wireapp/wire-android/actions/workflows/98603098/runs'
+                        break
+                    }
+
+                    echo("Wait for github actions to start for ${BRANCH_NAME} against ${changeTargetBranch}")
                     timeout(time: 45, unit: 'MINUTES') {
                        waitUntil {
-                           def output = sh label: 'Get runs', returnStdout: true, script: 'curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${CREDENTIALS}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/wireapp/wire-android/actions/workflows/98603098/runs'
+                           def output = sh label: 'Get runs', returnStdout: true, script: "curl -s -L -H 'Accept: application/vnd.github+json' -H 'Authorization: Bearer ${CREDENTIALS}' -H 'X-GitHub-Api-Version: 2022-11-28' ${targetWorkflowUrl}"
                            def json = readJSON text: output
                            if (json['message']) {
                                echo("Output: " + output)
@@ -51,7 +63,7 @@ pipeline {
                     echo("Wait for apk to be build for ${BRANCH_NAME}")
                     timeout(time: 70, unit: 'MINUTES') {
                        waitUntil {
-                           def output = sh label: 'Get runs', returnStdout: true, script: 'curl -s -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${CREDENTIALS}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/wireapp/wire-android/actions/workflows/98603098/runs'
+                           def output = sh label: 'Get runs', returnStdout: true, script: "curl -s -L -H 'Accept: application/vnd.github+json' -H 'Authorization: Bearer ${CREDENTIALS}' -H 'X-GitHub-Api-Version: 2022-11-28' ${targetWorkflowUrl}"
                            def json = readJSON text: output
                            def runs = json['workflow_runs']
                            echo("Looking for hash " + commit_hash)

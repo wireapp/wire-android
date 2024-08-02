@@ -24,7 +24,7 @@ import kotlin.time.Duration
 
 data class FeatureFlagState(
     val showFileSharingDialog: Boolean = false,
-    val isFileSharingState: FileSharingState = FileSharingState.NoUser,
+    val isFileSharingState: FileSharingState = FileSharingState.Loading,
     val shouldShowGuestRoomLinkDialog: Boolean = false,
     val shouldShowE2eiCertificateRevokedDialog: Boolean = false,
     val shouldShowTeamAppLockDialog: Boolean = false,
@@ -42,6 +42,7 @@ data class FeatureFlagState(
 ) {
 
     sealed interface FileSharingState {
+        data object Loading : FileSharingState
         data object NoUser : FileSharingState
         data object AllowAll : FileSharingState
         data class AllowSome(val allowedList: List<String>) : FileSharingState

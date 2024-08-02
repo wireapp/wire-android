@@ -15,26 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling.incoming
+package com.wire.android.feature.analytics.handler
 
-import com.wire.kalium.logic.data.id.ConversationId
-
-data class IncomingCallState(
-    val hasEstablishedCall: Boolean = false,
-    val shouldShowJoinCallAnywayDialog: Boolean = false,
-    val flowState: FlowState = FlowState.Default,
-    val waitingUnlockState: WaitingUnlockState = WaitingUnlockState.DEFAULT
-) {
-    sealed interface FlowState {
-        data object Default : FlowState
-        data object CallClosed : FlowState
-        data class CallAccepted(val conversationId: ConversationId) : FlowState
-    }
-
-    enum class WaitingUnlockState {
-        DEFAULT,
-        JOIN_CALL,
-        JOIN_CALL_ANYWAY,
-        DECLINE_CALL,
-    }
+fun interface AnalyticsMigrationHandler<T> {
+    suspend fun migrate(manager: T)
 }

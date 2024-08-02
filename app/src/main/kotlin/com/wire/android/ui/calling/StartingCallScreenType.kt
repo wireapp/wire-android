@@ -15,26 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling.incoming
 
-import com.wire.kalium.logic.data.id.ConversationId
+package com.wire.android.ui.calling
 
-data class IncomingCallState(
-    val hasEstablishedCall: Boolean = false,
-    val shouldShowJoinCallAnywayDialog: Boolean = false,
-    val flowState: FlowState = FlowState.Default,
-    val waitingUnlockState: WaitingUnlockState = WaitingUnlockState.DEFAULT
-) {
-    sealed interface FlowState {
-        data object Default : FlowState
-        data object CallClosed : FlowState
-        data class CallAccepted(val conversationId: ConversationId) : FlowState
-    }
+/**
+ * Type of starting call screen.
+ */
+enum class StartingCallScreenType {
+    /**
+     * Incoming call screen, started by others.
+     */
+    Incoming,
 
-    enum class WaitingUnlockState {
-        DEFAULT,
-        JOIN_CALL,
-        JOIN_CALL_ANYWAY,
-        DECLINE_CALL,
+    /**
+     * Outgoing call screen, started by self user.
+     */
+    Outgoing;
+
+    companion object {
+        fun byName(value: String?) = entries.firstOrNull { it.name == value }
     }
 }

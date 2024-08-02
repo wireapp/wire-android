@@ -89,7 +89,7 @@ class ObserveParticipantsForConversationUseCaseTest {
             assert(data.allParticipantsCount == members.size)
             assertEquals(true, data.participants.firstOrNull { it.id == userId1 }?.isMLSVerified)
             assertEquals(false, data.participants.firstOrNull { it.id == userId2 }?.isMLSVerified)
-            assertEquals(false, data.participants.firstOrNull { it.id == userId3 }?.isMLSVerified)  // false if null
+            assertEquals(false, data.participants.firstOrNull { it.id == userId3 }?.isMLSVerified) // false if null
         }
     }
 

@@ -25,8 +25,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationFo
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -44,10 +43,6 @@ class AppSyncViewModel @Inject constructor(
 
     private var lastPullInstant: Instant? = null
     private var syncDataJob: Job? = null
-
-    init {
-        viewModelScope.launch { observeCertificateRevocationForSelfClient.invoke() }
-    }
 
     fun startSyncingAppConfig() {
         if (isSyncing()) return
@@ -75,9 +70,10 @@ class AppSyncViewModel @Inject constructor(
     private suspend fun runSyncTasks() {
         try {
             listOf(
-                viewModelScope.async { syncCertificateRevocationListUseCase() },
-                viewModelScope.async { featureFlagsSyncWorker.execute() }
-            ).awaitAll()
+                viewModelScope.launch { syncCertificateRevocationListUseCase() },
+                viewModelScope.launch { featureFlagsSyncWorker.execute() },
+                viewModelScope.launch { observeCertificateRevocationForSelfClient.invoke() }
+            ).joinAll()
         } catch (e: Exception) {
             appLogger.e("Error while syncing app config", e)
         }

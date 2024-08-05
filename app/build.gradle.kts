@@ -104,12 +104,8 @@ android {
             }
         }
 
-        val sharedTestDir = file("src/sharedTest/kotlin")
         getByName("androidTest") {
-            java.srcDirs("src/androidTest/kotlin", sharedTestDir)
-        }
-        getByName("test") {
-            java.srcDirs("src/test/kotlin", sharedTestDir)
+            java.srcDirs("src/androidTest/kotlin")
         }
     }
 }
@@ -248,6 +244,7 @@ dependencies {
     testImplementation(libs.androidx.test.archCore)
     testImplementation(libs.junit4) // Maybe migrate completely to Junit 5?
     testImplementation(libs.junit5.core)
+    testImplementation(libs.junit5.params)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.mockk.core)

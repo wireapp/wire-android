@@ -20,17 +20,40 @@ package com.wire.android.util
 import com.wire.android.string
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
 import java.net.URI
 import kotlin.random.Random
 
 class UriUtilTest {
+    @Test
+    fun givenLink_whenTheLinkStartsWithHttps_thenReturnsTheSameLink() {
+        val input = "https://google.com"
+        val expected = "https://google.com"
+        val actual = normalizeLink(input)
+        assertEquals(expected, actual)
+    }
 
-    @ParameterizedTest
-    @EnumSource(TestParams::class)
-    fun `should map other urls to normalized accordingly`(params: TestParams) {
-        assertEquals(params.expected, normalizeLink(params.input), "Failed for input: <${params.input}>")
+    @Test
+    fun givenLink_whenTheLinkStartsWithHttp_thenReturnsTheSameLink() {
+        val input = "http://google.com"
+        val expected = "http://google.com"
+        val actual = normalizeLink(input)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun givenLink_whenTheLinkStartsWithMailTo_thenReturnsTheSameLink() {
+        val input = "mailto:alice@wire.com"
+        val expected = "mailto:alice@wire.com"
+        val actual = normalizeLink(input)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun givenLink_whenTheLinkIsWireDeepLink_thenReturnsTheSameLink() {
+        val input = "wire://access/?config=https://nginz-https.elna.wire.link/deeplink.json"
+        val expected = "wire://access/?config=https://nginz-https.elna.wire.link/deeplink.json"
+        val actual = normalizeLink(input)
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -51,31 +74,39 @@ class UriUtilTest {
     }
 
     @Test
+    fun givenLink_whenTheLinkIsValidWithoutSchema_thenReturnsTheLinkWithHttps() {
+        val input = "google.com"
+        val expected = "https://$input"
+        val actual = normalizeLink(input)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun givenEncodedLink_whenTheLinkIsValidWithSchema_thenReturnsTheSameLink() {
+        val input = "https://google.com/this+is+a+link+with+space"
+        val actual = normalizeLink(input)
+        assertEquals(input, actual)
+    }
+
+    @Test
+    fun givenLinkWithQueryParams_whenCallingFindParameterValue_thenReturnsParamValue() {
+        val parameterName = "wire_client"
+        val parameterValue = "value1"
+        val url = "https://example.com?play=value&$parameterName=$parameterValue"
+        val actual = URI(url).findParameterValue(parameterName)
+        assertEquals(parameterValue, actual)
+    }
+
+    @Test
     fun givenLinkWithoutRequestedParam_whenCallingFindParameterValue_thenReturnsParamValue() {
         val url = "https://example.com?play=value1"
         val actual = URI(url).findParameterValue("wire_client")
         assertEquals(null, actual)
     }
-
     @Test
     fun givenLinkWithoutParams_whenCallingFindParameterValue_thenReturnsParamValue() {
         val url = "https://example.com"
         val actual = URI(url).findParameterValue("wire_client")
         assertEquals(null, actual)
-    }
-
-    companion object {
-
-        enum class TestParams(val input: String, val expected: String) {
-            HTTPS_LINK("https://google.com", "https://google.com"),
-            HTTP_LINK("http://google.com", "http://google.com"),
-            MAIL_TO_LINK("mailto:alice@wire.com", "mailto:alice@wire.com"),
-            DEEP_LINK(
-                "wire://access/?config=https://nginz-https.elna.wire.link/deeplink.json",
-                "wire://access/?config=https://nginz-https.elna.wire.link/deeplink.json"
-            ),
-            VALID_WITHOUT_SCHEMA("google.com", "https://google.com"),
-            VALID_ENCODED_LINK("https://google.com/this+is+a+link+with+space", "https://google.com/this+is+a+link+with+space"),
-        }
     }
 }

@@ -103,8 +103,13 @@ android {
                 }
             }
         }
+
+        val sharedTestDir = file("src/sharedTest/kotlin")
         getByName("androidTest") {
-            java.srcDirs("src/androidTest/kotlin")
+            java.srcDirs("src/androidTest/kotlin", sharedTestDir)
+        }
+        getByName("test") {
+            java.srcDirs("src/test/kotlin", sharedTestDir)
         }
     }
 }

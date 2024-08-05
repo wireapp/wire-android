@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
@@ -98,6 +99,7 @@ fun ConnectionActionButton(
             loading = viewModel.actionableState().isPerformingAction,
             onClick = viewModel::onCancelConnectionRequest,
             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+            modifier = Modifier.testTag("connection_buttons"),
         )
 
         ConnectionState.ACCEPTED -> WirePrimaryButton(
@@ -108,6 +110,7 @@ fun ConnectionActionButton(
                     unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
                 }
             },
+            modifier = Modifier.testTag("connection_buttons"),
         )
 
         ConnectionState.IGNORED -> WirePrimaryButton(
@@ -121,7 +124,8 @@ fun ConnectionActionButton(
                     contentDescription = stringResource(R.string.content_description_right_arrow),
                     modifier = Modifier.padding(dimensions().spacing8x)
                 )
-            }
+            },
+            modifier = Modifier.testTag("connection_buttons"),
         )
 
         ConnectionState.PENDING -> Column {
@@ -136,7 +140,8 @@ fun ConnectionActionButton(
                         contentDescription = stringResource(R.string.content_description_right_arrow),
                         modifier = Modifier.padding(dimensions().spacing8x)
                     )
-                }
+                },
+                modifier = Modifier.testTag("connection_buttons"),
             )
             Spacer(modifier = Modifier.height(dimensions().spacing8x))
             WirePrimaryButton(
@@ -155,7 +160,8 @@ fun ConnectionActionButton(
                         contentDescription = stringResource(R.string.content_description_right_arrow),
                         modifier = Modifier.padding(dimensions().spacing8x)
                     )
-                }
+                },
+                modifier = Modifier.testTag("connection_buttons"),
             )
         }
 
@@ -172,6 +178,7 @@ fun ConnectionActionButton(
                     )
                 },
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                modifier = Modifier.testTag("connection_buttons"),
             )
         }
 
@@ -188,7 +195,8 @@ fun ConnectionActionButton(
                     contentDescription = stringResource(R.string.content_description_right_arrow),
                     modifier = Modifier.padding(dimensions().spacing8x)
                 )
-            }
+            },
+            modifier = Modifier.testTag("connection_buttons"),
         )
     }
 }

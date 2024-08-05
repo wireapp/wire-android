@@ -109,6 +109,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
+import io.github.esentsov.PackagePrivate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
@@ -539,8 +540,10 @@ private fun Content(
     }
 }
 
+@SuppressLint("ComposeModifierMissing")
+@PackagePrivate
 @Composable
-private fun ContentFooter(
+fun ContentFooter(
     state: OtherUserProfileState,
     maxBarElevation: Dp,
     onIgnoreConnectionRequest: (String) -> Unit = {},

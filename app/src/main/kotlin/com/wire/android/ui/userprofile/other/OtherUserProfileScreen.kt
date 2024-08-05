@@ -112,6 +112,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 
 @RootNavGraph
 @WireDestination(
@@ -646,6 +647,31 @@ fun PreviewOtherProfileScreenContentNotConnected() {
             eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
             bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
             onSearchConversationMessagesClick = {}
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@PreviewMultipleThemes
+fun PreviewOtherProfileScreenTempUser() {
+    WireTheme {
+        OtherProfileScreenContent(
+            scope = rememberCoroutineScope(),
+            state = OtherUserProfileState.PREVIEW.copy(
+                userName = "",
+                connectionState = ConnectionState.CANCELLED,
+                isUnderLegalHold = true,
+                expiresAt = Instant.DISTANT_FUTURE
+            ),
+            navigationIconType = NavigationIconType.Back,
+            requestInProgress = false,
+            sheetState = rememberWireModalSheetState(),
+            openBottomSheet = {},
+            closeBottomSheet = {},
+            eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
+            bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
+            onSearchConversationMessagesClick = {},
         )
     }
 }

@@ -36,7 +36,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class AppSyncViewModelTest {
     @Test
     fun `when startSyncingAppConfig is called then it should call the use case`() = runTest {
-        val (arrangement, viewModel) = Arrangement().arange {
+        val (arrangement, viewModel) = Arrangement().arrange {
             withObserveCertificateRevocationForSelfClient()
             withFeatureFlagsSyncWorker()
             withSyncCertificateRevocationListUseCase()
@@ -52,7 +52,7 @@ class AppSyncViewModelTest {
 
     @Test
     fun `when startSyncingAppConfig is called multiple times then it should call the use case with delay`() = runTest {
-        val (arrangement, viewModel) = Arrangement().arange {
+        val (arrangement, viewModel) = Arrangement().arrange {
             withObserveCertificateRevocationForSelfClient(1000)
             withFeatureFlagsSyncWorker(1000)
             withSyncCertificateRevocationListUseCase(1000)
@@ -108,7 +108,7 @@ class AppSyncViewModelTest {
             }
         }
 
-        fun arange(block: Arrangement.() -> Unit) = apply(block).let {
+        fun arrange(block: Arrangement.() -> Unit) = apply(block).let {
             this to viewModel
         }
     }

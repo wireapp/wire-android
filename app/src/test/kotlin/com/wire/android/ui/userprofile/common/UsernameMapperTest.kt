@@ -18,15 +18,9 @@ class UsernameMapperTest {
     companion object {
 
         enum class TestParams(val input: OtherUser, val expected: String) {
-            FEDERATED_USER(
-                OTHER_USER.copy(userType = UserType.FEDERATED, handle = "handle"), "handle@domain"
-            ),
-            REGULAR_USER(
-                OTHER_USER.copy(userType = UserType.GUEST, handle = "handle"), "handle"
-            ),
-            NO_HANDLE_USER(
-                OTHER_USER.copy(userType = UserType.INTERNAL, handle = null), "",
-            )
+            FEDERATED_USER(OTHER_USER.copy(userType = UserType.FEDERATED, handle = "handle"), "handle@domain"),
+            REGULAR_USER(OTHER_USER.copy(userType = UserType.GUEST, handle = "handle"), "handle"),
+            NO_HANDLE_USER(OTHER_USER.copy(userType = UserType.INTERNAL, handle = null), "")
         }
     }
 }

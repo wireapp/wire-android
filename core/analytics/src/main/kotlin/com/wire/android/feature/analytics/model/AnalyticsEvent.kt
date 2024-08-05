@@ -55,5 +55,6 @@ object AnalyticsEventConstants {
     const val APP_NAME = "app_name"
     const val APP_NAME_ANDROID = "android"
     const val APP_VERSION = "app_version"
+    const val TEAM_IS_TEAM = "team_is_team"
     const val APP_OPEN = "app.open"
 }

@@ -40,6 +40,7 @@ import com.wire.android.migration.feature.MigrateServerConfigUseCase
 import com.wire.android.migration.feature.MigrateUsersUseCase
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.android.notification.NotificationConstants
+import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.notification.openMigrationLoginPendingIntent
 import com.wire.android.util.EMPTY
@@ -95,6 +96,7 @@ class MigrationManager @Inject constructor(
             .getDatabasePath(ScalaDBNameProvider.globalDB())
             .let { it.isFile && it.exists() }
     }
+
     suspend fun shouldMigrate(): Boolean = when {
         // already migrated
         globalDataStore.isMigrationCompleted() -> false
@@ -316,7 +318,7 @@ class MigrationManager @Inject constructor(
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setContentIntent(pendingIntent)
             .build()
-        notificationManager.notify(NotificationConstants.MIGRATION_ERROR_NOTIFICATION_ID, notification)
+        notificationManager.notify(NotificationIds.MIGRATION_ERROR_NOTIFICATION_ID.ordinal, notification)
     }
 
     private fun showAccountAnyNotification() {
@@ -338,7 +340,7 @@ class MigrationManager @Inject constructor(
     }
 
     fun dismissMigrationFailureNotification() {
-        notificationManager.cancel(NotificationConstants.MIGRATION_ERROR_NOTIFICATION_ID)
+        notificationManager.cancel(NotificationIds.MIGRATION_ERROR_NOTIFICATION_ID.ordinal)
     }
 
     companion object {

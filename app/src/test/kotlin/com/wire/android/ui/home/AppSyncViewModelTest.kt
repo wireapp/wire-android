@@ -112,5 +112,4 @@ class AppSyncViewModelTest {
             this to viewModel
         }
     }
-
 }

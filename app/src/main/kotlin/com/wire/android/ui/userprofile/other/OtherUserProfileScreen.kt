@@ -109,9 +109,11 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
+import io.github.esentsov.PackagePrivate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 
 @RootNavGraph
 @WireDestination(
@@ -201,7 +203,6 @@ fun OtherUserProfileScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
 @Composable
 fun OtherProfileScreenContent(
@@ -441,7 +442,6 @@ private fun TopBarCollapsing(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TopBarFooter(
     state: OtherUserProfileState,
@@ -540,8 +540,10 @@ private fun Content(
     }
 }
 
+@SuppressLint("ComposeModifierMissing")
+@PackagePrivate
 @Composable
-private fun ContentFooter(
+fun ContentFooter(
     state: OtherUserProfileState,
     maxBarElevation: Dp,
     onIgnoreConnectionRequest: (String) -> Unit = {},
@@ -558,7 +560,7 @@ private fun ContentFooter(
         ) {
             Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
                 // TODO show open conversation button for service bots after AR-2135
-                if (!state.isMetadataEmpty() && state.membership != Membership.Service) {
+                if (!state.isMetadataEmpty() && state.membership != Membership.Service && !state.isTemporaryUser()) {
                     ConnectionActionButton(
                         state.userId,
                         state.userName,
@@ -578,6 +580,7 @@ enum class OtherUserProfileTabItem(@StringRes val titleResId: Int) : TabItem {
     GROUP(R.string.user_profile_group_tab),
     DETAILS(R.string.user_profile_details_tab),
     DEVICES(R.string.user_profile_devices_tab);
+
     override val title: UIText = UIText.StringResource(titleResId)
 }
 
@@ -647,6 +650,31 @@ fun PreviewOtherProfileScreenContentNotConnected() {
             eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
             bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
             onSearchConversationMessagesClick = {}
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@PreviewMultipleThemes
+fun PreviewOtherProfileScreenTempUser() {
+    WireTheme {
+        OtherProfileScreenContent(
+            scope = rememberCoroutineScope(),
+            state = OtherUserProfileState.PREVIEW.copy(
+                userName = "",
+                connectionState = ConnectionState.CANCELLED,
+                isUnderLegalHold = true,
+                expiresAt = Instant.DISTANT_FUTURE
+            ),
+            navigationIconType = NavigationIconType.Back,
+            requestInProgress = false,
+            sheetState = rememberWireModalSheetState(),
+            openBottomSheet = {},
+            closeBottomSheet = {},
+            eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
+            bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
+            onSearchConversationMessagesClick = {},
         )
     }
 }

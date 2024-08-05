@@ -57,6 +57,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
+const val CONNECTION_ACTION_BUTTONS_TEST_TAG = "connection_buttons"
+
 @Composable
 fun ConnectionActionButton(
     userId: UserId,
@@ -99,7 +101,7 @@ fun ConnectionActionButton(
             loading = viewModel.actionableState().isPerformingAction,
             onClick = viewModel::onCancelConnectionRequest,
             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-            modifier = Modifier.testTag("connection_buttons"),
+            modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
         )
 
         ConnectionState.ACCEPTED -> WirePrimaryButton(
@@ -110,7 +112,7 @@ fun ConnectionActionButton(
                     unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
                 }
             },
-            modifier = Modifier.testTag("connection_buttons"),
+            modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
         )
 
         ConnectionState.IGNORED -> WirePrimaryButton(
@@ -125,7 +127,7 @@ fun ConnectionActionButton(
                     modifier = Modifier.padding(dimensions().spacing8x)
                 )
             },
-            modifier = Modifier.testTag("connection_buttons"),
+            modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
         )
 
         ConnectionState.PENDING -> Column {
@@ -141,7 +143,7 @@ fun ConnectionActionButton(
                         modifier = Modifier.padding(dimensions().spacing8x)
                     )
                 },
-                modifier = Modifier.testTag("connection_buttons"),
+                modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
             )
             Spacer(modifier = Modifier.height(dimensions().spacing8x))
             WirePrimaryButton(
@@ -161,7 +163,7 @@ fun ConnectionActionButton(
                         modifier = Modifier.padding(dimensions().spacing8x)
                     )
                 },
-                modifier = Modifier.testTag("connection_buttons"),
+                modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
             )
         }
 
@@ -178,7 +180,7 @@ fun ConnectionActionButton(
                     )
                 },
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-                modifier = Modifier.testTag("connection_buttons"),
+                modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
             )
         }
 
@@ -196,7 +198,7 @@ fun ConnectionActionButton(
                     modifier = Modifier.padding(dimensions().spacing8x)
                 )
             },
-            modifier = Modifier.testTag("connection_buttons"),
+            modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
         )
     }
 }

@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import com.wire.android.ui.WireTestTheme
+import com.wire.android.ui.connection.CONNECTION_ACTION_BUTTONS_TEST_TAG
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.other.OtherUserStubs.provideState
@@ -44,7 +45,7 @@ class OtherUserProfileScreenTest {
             }
         }
 
-        composeTestRule.onNodeWithTag("connection_buttons").assertDoesNotExist()
+        composeTestRule.onNodeWithTag(CONNECTION_ACTION_BUTTONS_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
@@ -58,7 +59,7 @@ class OtherUserProfileScreenTest {
             }
         }
 
-        composeTestRule.onNodeWithTag("connection_buttons").assertDoesNotExist()
+        composeTestRule.onNodeWithTag(CONNECTION_ACTION_BUTTONS_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
@@ -72,6 +73,6 @@ class OtherUserProfileScreenTest {
             }
         }
 
-        composeTestRule.onNodeWithTag("connection_buttons").assertDoesNotExist()
+        composeTestRule.onNodeWithTag(CONNECTION_ACTION_BUTTONS_TEST_TAG).assertDoesNotExist()
     }
 }

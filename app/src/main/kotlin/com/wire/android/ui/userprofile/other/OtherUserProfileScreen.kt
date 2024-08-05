@@ -201,7 +201,6 @@ fun OtherUserProfileScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
 @Composable
 fun OtherProfileScreenContent(
@@ -441,7 +440,6 @@ private fun TopBarCollapsing(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TopBarFooter(
     state: OtherUserProfileState,
@@ -558,7 +556,7 @@ private fun ContentFooter(
         ) {
             Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
                 // TODO show open conversation button for service bots after AR-2135
-                if (!state.isMetadataEmpty() && state.membership != Membership.Service) {
+                if (!state.isMetadataEmpty() && state.membership != Membership.Service && !state.isTemporaryUser()) {
                     ConnectionActionButton(
                         state.userId,
                         state.userName,
@@ -578,6 +576,7 @@ enum class OtherUserProfileTabItem(@StringRes val titleResId: Int) : TabItem {
     GROUP(R.string.user_profile_group_tab),
     DETAILS(R.string.user_profile_details_tab),
     DEVICES(R.string.user_profile_devices_tab);
+
     override val title: UIText = UIText.StringResource(titleResId)
 }
 

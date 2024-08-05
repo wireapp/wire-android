@@ -103,7 +103,6 @@ android {
                 }
             }
         }
-
         getByName("androidTest") {
             java.srcDirs("src/androidTest/kotlin")
         }

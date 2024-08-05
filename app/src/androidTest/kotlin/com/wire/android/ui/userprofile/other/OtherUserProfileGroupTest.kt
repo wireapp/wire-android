@@ -90,5 +90,4 @@ class OtherUserProfileGroupTest {
 
         composeTestRule.onNodeWithContentDescription("Edit").assertDoesNotExist()
     }
-
 }

@@ -31,7 +31,10 @@ object OtherUserStubs {
         teamName = "team",
         email = "email",
         groupState = OtherUserProfileGroupState(
-            "group name", Member.Role.Member, true, ConversationId("some_user", "domain.com")
+            groupName = "group name",
+            role = Member.Role.Member,
+            isSelfAdmin = true,
+            conversationId = ConversationId("some_user", "domain.com")
         )
     )
 

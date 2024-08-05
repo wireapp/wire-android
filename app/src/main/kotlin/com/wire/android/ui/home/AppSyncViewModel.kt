@@ -38,8 +38,9 @@ class AppSyncViewModel @Inject constructor(
     private val syncCertificateRevocationListUseCase: SyncCertificateRevocationListUseCase,
     private val observeCertificateRevocationForSelfClient: ObserveCertificateRevocationForSelfClientUseCase,
     private val featureFlagsSyncWorker: FeatureFlagsSyncWorker,
-    private val minIntervalBetweenPulls: Duration = MIN_INTERVAL_BETWEEN_PULLS
 ) : ViewModel() {
+
+    private val minIntervalBetweenPulls: Duration = MIN_INTERVAL_BETWEEN_PULLS
 
     private var lastPullInstant: Instant? = null
     private var syncDataJob: Job? = null
@@ -79,7 +80,7 @@ class AppSyncViewModel @Inject constructor(
         }
     }
 
-    private companion object {
+    companion object {
         val MIN_INTERVAL_BETWEEN_PULLS = 60.minutes
     }
 }

@@ -88,7 +88,7 @@ fun ConversationList(
      * automatically to that item and the newly added section on top is hidden above this previously top item, so for such situation
      * when the list is scrolled to the top and we want the new section to appear at the top we request to scroll to item at the top.
      * Implemented according to the templates from compose lazy list test cases - LazyListRequestScrollTest.kt.
-     * @see https://android.googlesource.com/platform/frameworks/support/+/refs/changes/93/2987293/35/compose/foundation/foundation/integration-tests/lazy-tests/src/androidTest/kotlin/androidx/compose/foundation/lazy/list/LazyListRequestScrollTest.kt
+     * https://android.googlesource.com/platform/frameworks/support/+/refs/changes/93/2987293/35/compose/foundation/foundation/integration-tests/lazy-tests/src/androidTest/kotlin/androidx/compose/foundation/lazy/list/LazyListRequestScrollTest.kt
      */
     SideEffect {
         if (lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset == 0) {

@@ -40,7 +40,6 @@ import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.sharing.SendMessagesSnackbarMessages
-import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
@@ -208,8 +207,7 @@ class SendMessageViewModel @Inject constructor(
             is ComposableMessageBundle.AudioMessageBundle -> {
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
-                    conversationId = messageBundle.conversationId,
-                    specifiedMimeType = SUPPORTED_AUDIO_MIME_TYPE,
+                    conversationId = messageBundle.conversationId
                 )
             }
 
@@ -244,13 +242,12 @@ class SendMessageViewModel @Inject constructor(
 
     private suspend fun handleAssetMessageBundle(
         conversationId: ConversationId,
-        attachmentUri: UriAsset,
-        specifiedMimeType: String? = null, // specify a particular mimetype, otherwise it will be taken from the uri / file extension
+        attachmentUri: UriAsset
     ) {
         when (val result = handleUriAsset.invoke(
             uri = attachmentUri.uri,
             saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
-            specifiedMimeType = specifiedMimeType
+            specifiedMimeType = attachmentUri.mimeType
         )) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
                 assetTooLargeDialogState = AssetTooLargeDialogState.Visible(

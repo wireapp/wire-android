@@ -58,6 +58,7 @@ class UIParticipantMapper @Inject constructor(
             isMLSVerified = isMLSVerified,
             supportedProtocolList = supportedProtocols.orEmpty().toList(),
             isUnderLegalHold = isUnderLegalHold,
+            expiresAt = user.expiresAt
         )
     }
 

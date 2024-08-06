@@ -18,20 +18,6 @@ env:
 jobs:
   publish-pr:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request'
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
-
-      - name: Comment ADRs in PR
-        run: |
-          echo "# ADR Docs in this PR 📚:" > /tmp/new-adr
-          gh pr diff ${{ github.event.pull_request.number }} --name-only | grep docs/adr | xargs cat >> /tmp/new-adr
-          gh pr comment ${{ github.event.pull_request.number }} -F /tmp/new-adr --edit-last || gh pr comment ${{ github.event.pull_request.number }} -F /tmp/new-adr
-
-  publish-develop:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref_name == 'develop'
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -47,9 +33,17 @@ jobs:
           adr-viewer --adr-path docs/adr --output docs/index.html
 
       - name: Deploy docs 🚀
+        if: github.event_name == 'push' && github.ref_name == 'develop'
         uses: JamesIves/github-pages-deploy-action@v4.6.3
         with:
           branch: gh-pages
           clean: false
           folder: docs
           target-folder: docs
+
+      - name: Comment new ADR(s) in PR
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request'
+        run: |
+          echo "# New ADR(s) in this PR 📚:" > /tmp/new-adr
+          gh pr diff ${{ github.event.pull_request.number }} --name-only | grep docs/adr | xargs cat >> /tmp/new-adr
+          gh pr comment ${{ github.event.pull_request.number }} -F /tmp/new-adr --edit-last || gh pr comment ${{ github.event.pull_request.number }} -F /tmp/new-adr

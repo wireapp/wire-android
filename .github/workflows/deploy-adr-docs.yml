@@ -16,7 +16,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
 
 jobs:
-  publish-pr:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project

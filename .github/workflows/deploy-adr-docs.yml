@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   publish-pr:
@@ -24,8 +25,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "# ADR Docs in this PR 📚:" > /tmp/new-adr
-          gh pr diff "${{ github.event.pull_request.number }}" --name-only | grep docs/adr | xargs cat >> /tmp/new-adr
-          gh pr comment "${{ github.event.pull_request.number }}" -F /tmp/new-adr --edit-last || gh pr comment "${{ github.event.pull_request.number }}" -F /tmp/new-adr
+          gh pr diff ${{ github.event.pull_request.number }} --name-only | grep docs/adr | xargs cat >> /tmp/new-adr
+          gh pr comment ${{ github.event.pull_request.number }} -F /tmp/new-adr --edit-last || gh pr comment ${{ github.event.pull_request.number }} -F /tmp/new-adr
 
   publish-develop:
     runs-on: ubuntu-latest

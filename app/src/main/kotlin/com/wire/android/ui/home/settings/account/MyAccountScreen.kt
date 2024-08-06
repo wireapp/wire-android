@@ -97,7 +97,7 @@ fun MyAccountScreen(
                 navigateToChangeEmail = { navigator.navigate(NavigationCommand(ChangeEmailScreenDestination)) }
             ),
             forgotPasswordUrl = this.changePasswordUrl,
-            canDeleteAccount = viewModel.myAccountState.teamName.isNullOrBlank(),
+            canDeleteAccount = viewModel.myAccountState.canDeleteAccount,
             onDeleteAccountClicked = deleteAccountViewModel::onDeleteAccountClicked,
             onDeleteAccountConfirmed = deleteAccountViewModel::onDeleteAccountDialogConfirmed,
             onDeleteAccountDismissed = deleteAccountViewModel::onDeleteAccountDialogDismissed,

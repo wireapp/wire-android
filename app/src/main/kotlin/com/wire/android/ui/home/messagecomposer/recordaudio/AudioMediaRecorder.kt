@@ -222,90 +222,101 @@ class AudioMediaRecorder @Inject constructor(
         }
     }
 
-    suspend fun convertWavToMp4(shouldApplyEffects: Boolean) = withContext(Dispatchers.IO) {
-        val inputFilePath = if (shouldApplyEffects) {
-            effectsOutputPath!!.toString()
-        } else {
-            originalOutputPath!!.toString()
-        }
-
-        val inputFile = File(inputFilePath)
-
-        val mediaExtractor = MediaExtractor()
-        mediaExtractor.setDataSource(inputFilePath)
-
-        val format = MediaFormat.createAudioFormat(
-            MediaFormat.MIMETYPE_AUDIO_AAC,
-            SAMPLING_RATE,
-            AUDIO_CHANNELS
-        )
-        format.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE)
-        format.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC)
-
-        val codec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC)
-        codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
-        codec.start()
-
-        val bufferInfo = MediaCodec.BufferInfo()
-        val muxer = MediaMuxer(mp4OutputPath.toString(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
-        var trackIndex = -1
-        var sawInputEOS = false
-        var sawOutputEOS = false
-
-        val fileInputStream = FileInputStream(inputFile)
-
-        while (!sawOutputEOS) {
-            if (!sawInputEOS) {
-                val inputBufferIndex = codec.dequeueInputBuffer(TIMEOUT_US)
-                if (inputBufferIndex >= 0) {
-                    val inputBuffer = codec.getInputBuffer(inputBufferIndex)
-                    inputBuffer?.clear()
-
-                    val sampleSize = fileInputStream.channel.read(inputBuffer!!)
-                    if (sampleSize < 0) {
-                        codec.queueInputBuffer(inputBufferIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
-                        sawInputEOS = true
-                    } else {
-                        codec.queueInputBuffer(inputBufferIndex, 0, sampleSize, System.nanoTime() / 1000, 0)
-                    }
-                }
+    @Suppress("LongMethod")
+    suspend fun convertWavToMp4(shouldApplyEffects: Boolean): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val inputFilePath = if (shouldApplyEffects) {
+                effectsOutputPath!!.toString()
+            } else {
+                originalOutputPath!!.toString()
             }
 
-            val outputBufferIndex = codec.dequeueOutputBuffer(bufferInfo, TIMEOUT_US)
-            if (outputBufferIndex >= 0) {
-                val outputBuffer = codec.getOutputBuffer(outputBufferIndex)
+            val inputFile = File(inputFilePath)
 
-                if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
+            val mediaExtractor = MediaExtractor()
+            mediaExtractor.setDataSource(inputFilePath)
+
+            val format = MediaFormat.createAudioFormat(
+                MediaFormat.MIMETYPE_AUDIO_AAC,
+                SAMPLING_RATE,
+                AUDIO_CHANNELS
+            )
+            format.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE)
+            format.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC)
+
+            val codec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC)
+            codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+            codec.start()
+
+            val bufferInfo = MediaCodec.BufferInfo()
+            val muxer = MediaMuxer(mp4OutputPath.toString(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+            var trackIndex = -1
+            var sawInputEOS = false
+            var sawOutputEOS = false
+
+            val fileInputStream = FileInputStream(inputFile)
+
+            while (!sawOutputEOS) {
+                if (!sawInputEOS) {
+                    val inputBufferIndex = codec.dequeueInputBuffer(TIMEOUT_US)
+                    if (inputBufferIndex >= 0) {
+                        val inputBuffer = codec.getInputBuffer(inputBufferIndex)
+                        inputBuffer?.clear()
+
+                        val sampleSize = fileInputStream.channel.read(inputBuffer!!)
+                        if (sampleSize < 0) {
+                            codec.queueInputBuffer(inputBufferIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
+                            sawInputEOS = true
+                        } else {
+                            val presentationTimeUs = System.nanoTime() / NANOSECONDS_IN_MICROSECOND
+                            codec.queueInputBuffer(inputBufferIndex, 0, sampleSize, presentationTimeUs, 0)
+                        }
+                    }
+                }
+
+                val outputBufferIndex = codec.dequeueOutputBuffer(bufferInfo, TIMEOUT_US)
+                if (outputBufferIndex >= 0) {
+                    val outputBuffer = codec.getOutputBuffer(outputBufferIndex)
+
+                    if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
+                        codec.releaseOutputBuffer(outputBufferIndex, false)
+                        continue
+                    }
+
+                    if (bufferInfo.size != 0) {
+                        outputBuffer?.position(bufferInfo.offset)
+                        outputBuffer?.limit(bufferInfo.offset + bufferInfo.size)
+
+                        if (trackIndex == -1) {
+                            val newFormat = codec.outputFormat
+                            trackIndex = muxer.addTrack(newFormat)
+                            muxer.start()
+                        }
+
+                        muxer.writeSampleData(trackIndex, outputBuffer!!, bufferInfo)
+                    }
+
                     codec.releaseOutputBuffer(outputBufferIndex, false)
-                    continue
-                }
 
-                if (bufferInfo.size != 0) {
-                    outputBuffer?.position(bufferInfo.offset)
-                    outputBuffer?.limit(bufferInfo.offset + bufferInfo.size)
-
-                    if (trackIndex == -1) {
-                        val newFormat = codec.outputFormat
-                        trackIndex = muxer.addTrack(newFormat)
-                        muxer.start()
+                    if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
+                        sawOutputEOS = true
                     }
-
-                    muxer.writeSampleData(trackIndex, outputBuffer!!, bufferInfo)
-                }
-
-                codec.releaseOutputBuffer(outputBufferIndex, false)
-
-                if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
-                    sawOutputEOS = true
                 }
             }
-        }
 
-        fileInputStream.close()
-        muxer.stop()
-        muxer.release()
-        codec.stop()
-        codec.release()
+            fileInputStream.close()
+            muxer.stop()
+            muxer.release()
+            codec.stop()
+            codec.release()
+            true
+        } catch (e: IllegalStateException) {
+            appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
+            false
+        } catch (e: IOException) {
+            appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
+            false
+        }
     }
 
     companion object {
@@ -336,5 +347,6 @@ class AudioMediaRecorder @Inject constructor(
 
         private const val BIT_RATE = 64000
         private const val TIMEOUT_US: Long = 10000
+        const val NANOSECONDS_IN_MICROSECOND = 1000
     }
 }

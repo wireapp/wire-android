@@ -19,16 +19,15 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
 
-      - name: Leave a comment
+      - name: Comment ADRs in PR
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_HEAD_REF: ${{github.head_ref}}
         run: |
-          gh pr comment "$GH_HEAD_REF" --body "
-          ## ADR Docs 📚:
-          
-          "
+          echo "# ADR Docs in this PR 📚:" > /tmp/new-adr
+          gh pr diff "$GH_HEAD_REF" --name-only | grep docs/adr | xargs cat >> /tmp/new-adr
+          gh pr comment 3288 -F /tmp/new-adr --edit-last
 
   publish-develop:
     runs-on: ubuntu-latest

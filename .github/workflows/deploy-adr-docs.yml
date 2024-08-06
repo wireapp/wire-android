@@ -27,7 +27,7 @@ jobs:
         run: |
           echo "# ADR Docs in this PR 📚:" > /tmp/new-adr
           gh pr diff "$GH_HEAD_REF" --name-only | grep docs/adr | xargs cat >> /tmp/new-adr
-          gh pr comment "$GH_HEAD_REF" -F /tmp/new-adr --edit-last
+          gh pr comment "$GH_HEAD_REF" -F /tmp/new-adr --edit-last || gh pr comment "$GH_HEAD_REF" -F /tmp/new-adr
 
   publish-develop:
     runs-on: ubuntu-latest

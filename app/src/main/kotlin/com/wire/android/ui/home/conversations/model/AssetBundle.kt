@@ -69,7 +69,8 @@ data class AssetBundle(
  */
 data class UriAsset(
     val uri: Uri,
-    val saveToDeviceIfInvalid: Boolean = false
+    val saveToDeviceIfInvalid: Boolean = false,
+    val mimeType: String? = null
 )
 
 private object PathAsStringSerializer : KSerializer<Path> {

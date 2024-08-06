@@ -78,9 +78,9 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
 
                 ConversationParticipantsData(
                     admins = visibleAdminsWithoutServices
-                        .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id].let { false }) },
+                        .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id] ?: false) },
                     participants = visibleParticipants
-                        .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id].let { false }) },
+                        .map { uiParticipantMapper.toUIParticipant(it.user, mlsVerificationMap[it.user.id] ?: false) },
                     allAdminsCount = allAdminsWithoutServices.size,
                     allParticipantsCount = allParticipants.size,
                     isSelfAnAdmin = allAdminsWithoutServices.any { it.user is SelfUser },

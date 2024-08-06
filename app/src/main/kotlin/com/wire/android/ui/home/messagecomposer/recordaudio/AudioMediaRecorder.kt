@@ -224,6 +224,10 @@ class AudioMediaRecorder @Inject constructor(
 
     @Suppress("LongMethod")
     suspend fun convertWavToMp4(shouldApplyEffects: Boolean): Boolean = withContext(Dispatchers.IO) {
+        var codec: MediaCodec? = null
+        var muxer: MediaMuxer? = null
+        var fileInputStream: FileInputStream? = null
+
         try {
             val inputFilePath = if (shouldApplyEffects) {
                 effectsOutputPath!!.toString()
@@ -232,6 +236,7 @@ class AudioMediaRecorder @Inject constructor(
             }
 
             val inputFile = File(inputFilePath)
+            fileInputStream = FileInputStream(inputFile)
 
             val mediaExtractor = MediaExtractor()
             mediaExtractor.setDataSource(inputFilePath)
@@ -244,17 +249,15 @@ class AudioMediaRecorder @Inject constructor(
             format.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE)
             format.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC)
 
-            val codec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC)
+            codec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC)
             codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
             codec.start()
 
             val bufferInfo = MediaCodec.BufferInfo()
-            val muxer = MediaMuxer(mp4OutputPath.toString(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+            muxer = MediaMuxer(mp4OutputPath.toString(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
             var trackIndex = -1
             var sawInputEOS = false
             var sawOutputEOS = false
-
-            val fileInputStream = FileInputStream(inputFile)
 
             while (!sawOutputEOS) {
                 if (!sawInputEOS) {
@@ -303,12 +306,6 @@ class AudioMediaRecorder @Inject constructor(
                     }
                 }
             }
-
-            fileInputStream.close()
-            muxer.stop()
-            muxer.release()
-            codec.stop()
-            codec.release()
             true
         } catch (e: IllegalStateException) {
             appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
@@ -316,6 +313,26 @@ class AudioMediaRecorder @Inject constructor(
         } catch (e: IOException) {
             appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
             false
+        } finally {
+            try {
+                fileInputStream?.close()
+            } catch (e: IOException) {
+                appLogger.e("Could not close FileInputStream: ${e.message}", throwable = e)
+            }
+
+            try {
+                muxer?.stop()
+                muxer?.release()
+            } catch (e: IllegalStateException) {
+                appLogger.e("Could not stop or release MediaMuxer: ${e.message}", throwable = e)
+            }
+
+            try {
+                codec?.stop()
+                codec?.release()
+            } catch (e: IllegalStateException) {
+                appLogger.e("Could not stop or release MediaCodec: ${e.message}", throwable = e)
+            }
         }
     }
 

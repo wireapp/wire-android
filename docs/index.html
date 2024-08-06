@@ -1,0 +1,209 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
+        <title>ADR Viewer - wire-android</title>
+
+        <style type="text/css">
+            body {
+                display: grid;
+                width: auto;
+                height: auto;
+                align-items: center;
+                justify-items: center;
+                grid-template-rows: 2fr minmax(80%, auto) 2fr;
+            }
+
+            @media only screen and (min-width: 1025px) {
+                body {
+                    grid-template-columns: 1fr 3fr 1fr;
+                }
+
+                header, .panel-group, footer {
+                    grid-column: 2;
+                }
+            }
+
+            .panel-group {
+                width: 100%
+            }
+
+            .panel-heading.adr-accepted {
+                background-color: lightgreen;
+            }
+
+            .panel-heading.adr-superseded {
+                background-color: lightgrey;
+            }
+
+            .panel-heading.adr-amended {
+                background-color: yellow;
+            }
+
+            .panel-heading.adr-unknown {
+                background-color: white;
+            }
+
+            .panel-heading.adr-pending {
+                background-color: lightblue;
+            }
+
+            .adr-superseded > .panel-title > a {
+                text-decoration: line-through;
+            }
+
+            .adr-icon {
+                float: right;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>ADR Viewer - wire-android</h1>
+        </header>
+        <div class="panel-group">
+            
+            <div class="panel panel-default">
+                <div class="panel-heading adr-unknown">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse0">Decision record template by Michael Nygard</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-question"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse0" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>Decision record template by Michael Nygard</h1>
+<p>This is the template in <a href="http://thinkrelevance.com/blog/2011/11/15/documenting-architecture-decisions">Documenting architecture decisions - Michael Nygard</a>.
+You can use <a href="https://github.com/npryce/adr-tools">adr-tools</a> for managing the ADR files.</p>
+<p>In each ADR file, write these sections:</p>
+<h1>Title</h1>
+<h2>Status</h2>
+<p>What is the status, such as proposed, accepted, rejected, deprecated, superseded, etc.?</p>
+<h2>Context</h2>
+<p>What is the issue that we're seeing that is motivating this decision or change?</p>
+<h2>Decision</h2>
+<p>What is the change that we're proposing and/or doing?</p>
+<h2>Consequences</h2>
+<p>What becomes easier or more difficult to do because of this change?</p>
+</div>
+                </div>
+            </div>
+            
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse1">1. Record architecture decisions</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse1" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>1. Record architecture decisions</h1>
+<p>Date: 2024-08-05</p>
+<h2>Status</h2>
+<p>Accepted</p>
+<h2>Context</h2>
+<p>We agreed in the past to use ADR's, but we lost track of it as we were using confluence to keep
+them. This concern was raised in the last collective, and we need to decide how to proceed.</p>
+<h2>Decision</h2>
+<p>We will use Architecture Decision Records in the code and as part of the review process.
+We will use the <a href="0000-template-lightway-adr.md">Lightway ADR template</a> to keep the ADRs simple and
+easy to maintain.</p>
+<h2>Consequences</h2>
+<ul>
+<li>We need to add a new folder to the repository, <code>doc/adr</code>, to keep the architecture decision
+records.</li>
+<li>Whenever a new refactoring or library is introduced, a new ADR should be created.</li>
+<li>You can always request in the Pull request review process to add a new ADR, if you think it's
+necessary.</li>
+</ul>
+</div>
+                </div>
+            </div>
+            
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse2">2. Calling activity refactor</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse2" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>2. Calling activity refactor</h1>
+<p>Date: 2024-08-01</p>
+<h2>Status</h2>
+<p>Accepted</p>
+<h2>Context</h2>
+<p>To support a second incoming call we need to refactor the code so we can handle the ongoing content
+context, without losing the current context.</p>
+<p>This is a retroactive decision record implemented
+on https://github.com/wireapp/wire-android/pull/3264</p>
+<h2>Decision</h2>
+<p>Create 2 separate activities, one for the Incoming/Outgoing calls and another for the ongoing call.
+In this way, we can keep the context of the ongoing call and handle the incoming/outgoing calls.</p>
+<p>The design and interaction will look like this:</p>
+<p>&lt;img src=&quot;https://github.com/user-attachments/assets/66f19cce-c2bc-4777-a0eb-b5cda035df8a&quot;/&gt;</p>
+<h2>Consequences</h2>
+<ul>
+<li>StartingActivity will handle Incoming and Outgoing calls content, these contents are disposable
+and can be recreated when receiving a new call.</li>
+<li>OngoingCallActivity will handle the ongoing call content, this content is not disposable and
+should be kept during the call.</li>
+</ul>
+</div>
+                </div>
+            </div>
+            
+            <div class="panel panel-default">
+                <div class="panel-heading adr-pending">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse3">3. Use parameterizable tests in JUnit5</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-hourglass-half"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse3" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>3. Use parameterizable tests in JUnit5</h1>
+<p>Date: 2024-08-05</p>
+<h2>Status</h2>
+<p>Proposed</p>
+<h2>Context</h2>
+<p>Sometimes we need to write multiple tests for the same scenario, changing only the input values.</p>
+<h2>Decision</h2>
+<p>We will use parameterizable tests in JUnit5 to avoid writing multiple tests for the same scenario.</p>
+<h2>Consequences</h2>
+<ul>
+<li>Introduction of <code>@ParameterizedTest</code> annotation in the test class
+and <a href="https://junit.org/junit5/docs/current/user-guide/#writing-tests-parameterized-tests">library</a>.</li>
+<li>The test method will receive the parameters as arguments.</li>
+</ul>
+</div>
+                </div>
+            </div>
+            
+        </div>
+        <footer>
+            Generated with &lt;3 using ADR Viewer
+        </footer>
+        
+    </body>
+</html>

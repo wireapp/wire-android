@@ -705,7 +705,8 @@ fun PreviewImportMediaTextScreenRegular() {
         ImportMediaRegularContent(
             importMediaAuthenticatedState = ImportMediaAuthenticatedState(
                 importedAssets = persistentListOf(),
-                importedText = "This is a shared text message \nThis is a second line with a veeeeeeeeeeeeeeeeeeeeeeeeeeery long shared text message"
+                importedText = "This is a shared text message \n" +
+                        "This is a second line with a veeeeeeeeeeeeeeeeeeeeeeeeeeery long shared text message"
             ),
             searchQueryTextState = rememberTextFieldState(),
             onConversationClicked = {},

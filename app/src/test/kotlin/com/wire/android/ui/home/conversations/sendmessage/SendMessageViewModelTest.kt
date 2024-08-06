@@ -671,7 +671,8 @@ class SendMessageViewModelTest {
                 1L,
                 "mocked_file1.pdf",
                 AttachmentType.GENERIC_FILE
-            ), AssetBundle(
+            ),
+            AssetBundle(
                 "key2",
                 "application/pdf",
                 "some-data-path2".toPath(),

@@ -649,6 +649,60 @@ class SendMessageViewModelTest {
             }
         }
 
+    @Test
+    fun `given text is being shared, when initializing the viewmodel, then message is sent to use the case`() = runTest {
+        val textToShare = "my nice text to share"
+        val (arrangement, _) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withPendingTextBundle(textToShare)
+            .withSuccessfulSendTextMessage()
+            .arrange()
+
+        coVerify { arrangement.sendTextMessage(any(), eq(textToShare), any(), any()) }
+    }
+
+    @Test
+    fun `given an asset is being shared, when initializing the viewmodel, then message is sent to use the case`() = runTest {
+        val assetBundles = arrayOf(
+            AssetBundle(
+                "key1",
+                "application/pdf",
+                "some-data-path1".toPath(),
+                1L,
+                "mocked_file1.pdf",
+                AttachmentType.GENERIC_FILE
+            ), AssetBundle(
+                "key2",
+                "application/pdf",
+                "some-data-path2".toPath(),
+                1L,
+                "mocked_file2.pdf",
+                AttachmentType.GENERIC_FILE
+            )
+        )
+        val (arrangement, _) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withPendingAssetBundle(*assetBundles)
+            .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id1"))
+            .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id2"))
+            .arrange()
+
+        assetBundles.forEach { bundle ->
+            coVerify {
+                arrangement.sendAssetMessage(
+                    any(),
+                    eq(bundle.dataPath),
+                    eq(bundle.dataSize),
+                    eq(bundle.fileName),
+                    eq(bundle.mimeType),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+        }
+    }
+
     companion object {
         val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
     }

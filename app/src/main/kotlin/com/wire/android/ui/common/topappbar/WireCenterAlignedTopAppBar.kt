@@ -127,6 +127,7 @@ fun WireTopAppBarTitle(
     // This workaround is based on this: https://stackoverflow.com/a/69947555, but instead of using SubcomposeLayout, we just measure text.
     BoxWithConstraints(
         modifier = modifier
+            .padding(horizontal = dimensions().spacing6x)
     ) {
         val textMeasurer = rememberTextMeasurer()
         val textLayoutResult: TextLayoutResult = textMeasurer.measure(
@@ -148,7 +149,6 @@ fun WireTopAppBarTitle(
         }
         Text(
             modifier = Modifier
-                .padding(horizontal = dimensions().spacing6x)
                 .width(width),
             text = title,
             style = style,
@@ -174,7 +174,7 @@ fun PreviewWireCenterAlignedTopAppBarWithDefaultTitle() = WireTheme {
 fun PreviewWireCenterAlignedTopAppBarWithDefaultTwoLinesTitle() = WireTheme {
     Box(modifier = Modifier.width(400.dp)) {
         WireCenterAlignedTopAppBar(
-            title = "This is title is very long this_is_a_very_long_word",
+            title = "This title is a quite long title another_line",
             titleStyle = MaterialTheme.wireTypography.title01
         )
     }
@@ -185,7 +185,7 @@ fun PreviewWireCenterAlignedTopAppBarWithDefaultTwoLinesTitle() = WireTheme {
 fun PreviewWireCenterAlignedTopAppBarWithDefaultTwoLinesTooLongTitle() = WireTheme {
     Box(modifier = Modifier.width(400.dp)) {
         WireCenterAlignedTopAppBar(
-            title = "This is title is even longer than previous one this_is_a_very_long_word",
+            title = "This title is even longer than one before another_line",
             titleStyle = MaterialTheme.wireTypography.title01
         )
     }

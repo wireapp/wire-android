@@ -33,10 +33,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -120,6 +123,7 @@ fun ImportMediaScreen(
                 navigateBack = navigator.finish
             )
         }
+
         FeatureFlagState.FileSharingState.NoUser -> {
             ImportMediaLoggedOutContent(
                 fileSharingRestrictedState = fileSharingRestrictedState,
@@ -192,23 +196,26 @@ private fun ImportMediaAuthenticatedContent(
             searchQueryTextState = importMediaViewModel.searchQueryTextState,
             onConversationClicked = importMediaViewModel::onConversationClicked,
             checkRestrictionsAndSendImportedMedia = {
-                importMediaViewModel.importMediaState.selectedConversationItem.firstOrNull()?.let { conversationItem ->
-                    checkAssetRestrictionsViewModel.checkRestrictions(
-                        importedMediaList = importMediaViewModel.importMediaState.importedAssets,
-                        onSuccess = {
-                            navigator.navigate(
-                                NavigationCommand(
-                                    ConversationScreenDestination(
-                                        ConversationNavArgs(
-                                            conversationId = conversationItem.conversationId,
-                                            pendingBundles = ArrayList(it)
-                                        )
+                with(importMediaViewModel.importMediaState) {
+                    selectedConversationItem.firstOrNull()?.let { conversationItem ->
+                        checkAssetRestrictionsViewModel.checkRestrictions(
+                            importedMediaList = importedAssets,
+                            onSuccess = {
+                                navigator.navigate(
+                                    NavigationCommand(
+                                        ConversationScreenDestination(
+                                            ConversationNavArgs(
+                                                conversationId = conversationItem.conversationId,
+                                                pendingBundles = ArrayList(it),
+                                                pendingTextBundle = importedText
+                                            )
+                                        ),
+                                        BackStackMode.REMOVE_CURRENT_AND_REPLACE
                                     ),
-                                    BackStackMode.REMOVE_CURRENT_AND_REPLACE
-                                ),
-                            )
-                        }
-                    )
+                                )
+                            }
+                        )
+                    }
                 }
             },
             onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
@@ -222,10 +229,12 @@ private fun ImportMediaAuthenticatedContent(
         )
 
         val context = LocalContext.current
-        LaunchedEffect(importMediaViewModel.importMediaState.importedAssets) {
-            if (importMediaViewModel.importMediaState.importedAssets.isEmpty()) {
-                context.getActivity()
-                    ?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
+        with(importMediaViewModel.importMediaState) {
+            LaunchedEffect(importedAssets, importedText) {
+                if (importedAssets.isEmpty() || importedText.isNullOrEmpty()) {
+                    context.getActivity()
+                        ?.let { activity -> importMediaViewModel.handleReceivedDataFromSharingIntent(activity) }
+                }
             }
         }
     }
@@ -479,46 +488,9 @@ private fun ImportMediaContent(
                 )
             }
         } else {
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dimensions().spacing120x),
-                contentPadding = PaddingValues(start = dimensions().spacing8x, end = dimensions().spacing8x)
-            ) {
-                items(
-                    count = importedItemsList.size,
-                ) { index ->
-                    Box(
-                        modifier = Modifier
-                            .width(dimensions().spacing120x)
-                            .fillMaxHeight()
-                    ) {
-                        val assetSize = dimensions().spacing120x - dimensions().spacing16x
-                        AssetTilePreview(
-                            modifier = Modifier
-                                .width(assetSize)
-                                .height(assetSize)
-                                .align(Alignment.Center),
-                            assetBundle = importedItemsList[index].assetBundle,
-                            showOnlyExtension = false,
-                            onClick = {}
-                        )
-
-                        if (importedItemsList.size > 1) {
-                            RemoveIcon(
-                                modifier = Modifier.align(Alignment.TopEnd),
-                                onClick = { onRemoveAsset(index) },
-                                contentDescription = stringResource(id = R.string.remove_asset_description)
-                            )
-                        }
-                        if (importedItemsList[index].assetSizeExceeded != null) {
-                            ErrorIcon(
-                                stringResource(id = R.string.asset_attention_description),
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                    }
-                }
+            when (state.importedText.isNullOrBlank()) {
+                true -> ImportAssetsCarrousel(importedItemsList, onRemoveAsset)
+                false -> ImportText(state.importedText)
             }
         }
         HorizontalDivider(
@@ -556,6 +528,73 @@ private fun ImportMediaContent(
     }
     BackHandler(enabled = searchBarState.isSearchActive) {
         searchBarState.closeSearch()
+    }
+}
+
+@Composable
+private fun ImportText(importedText: String) {
+    val scrollState = rememberScrollState()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .wrapContentSize()
+            .height(dimensions().spacing120x)
+            .verticalScroll(scrollState)
+            .padding(vertical = dimensions().spacing8x, horizontal = dimensions().spacing16x),
+    ) {
+        Text(
+            text = importedText,
+            textAlign = TextAlign.Start,
+            style = MaterialTheme.wireTypography.body01,
+        )
+    }
+}
+
+@Composable
+private fun ImportAssetsCarrousel(
+    importedItemsList: PersistentList<ImportedMediaAsset>,
+    onRemoveAsset: (index: Int) -> Unit
+) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dimensions().spacing120x),
+        contentPadding = PaddingValues(start = dimensions().spacing8x, end = dimensions().spacing8x)
+    ) {
+        items(
+            count = importedItemsList.size,
+        ) { index ->
+            Box(
+                modifier = Modifier
+                    .width(dimensions().spacing120x)
+                    .fillMaxHeight()
+            ) {
+                val assetSize = dimensions().spacing120x - dimensions().spacing16x
+                AssetTilePreview(
+                    modifier = Modifier
+                        .width(assetSize)
+                        .height(assetSize)
+                        .align(Alignment.Center),
+                    assetBundle = importedItemsList[index].assetBundle,
+                    showOnlyExtension = false,
+                    onClick = {}
+                )
+
+                if (importedItemsList.size > 1) {
+                    RemoveIcon(
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        onClick = { onRemoveAsset(index) },
+                        contentDescription = stringResource(id = R.string.remove_asset_description)
+                    )
+                }
+                if (importedItemsList[index].assetSizeExceeded != null) {
+                    ErrorIcon(
+                        stringResource(id = R.string.asset_attention_description),
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -647,6 +686,26 @@ fun PreviewImportMediaScreenRegular() {
                         assetSizeExceeded = null
                     )
                 ),
+            ),
+            searchQueryTextState = rememberTextFieldState(),
+            onConversationClicked = {},
+            checkRestrictionsAndSendImportedMedia = {},
+            onNewSelfDeletionTimerPicked = {},
+            infoMessage = MutableSharedFlow(),
+            onRemoveAsset = { _ -> },
+            navigateBack = {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewImportMediaTextScreenRegular() {
+    WireTheme {
+        ImportMediaRegularContent(
+            importMediaAuthenticatedState = ImportMediaAuthenticatedState(
+                importedAssets = persistentListOf(),
+                importedText = "This is a shared text message \nThis is a second line with a veeeeeeeeeeeeeeeeeeeeeeeeeeery long shared text message"
             ),
             searchQueryTextState = rememberTextFieldState(),
             onConversationClicked = {},

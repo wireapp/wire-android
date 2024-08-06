@@ -114,6 +114,9 @@ class SendMessageViewModel @Inject constructor(
     )
 
     init {
+        conversationNavArgs.pendingTextBundle?.let { text ->
+            trySendPendingMessageBundle(text)
+        }
         conversationNavArgs.pendingBundles?.let { assetBundles ->
             trySendMessages(
                 assetBundles.map { assetBundle ->
@@ -135,6 +138,12 @@ class SendMessageViewModel @Inject constructor(
 
     private suspend fun shouldInformAboutUnderLegalHoldBeforeSendingMessage(conversationId: ConversationId) =
         observeConversationUnderLegalHoldNotified(conversationId).first().let { !it }
+
+    private fun trySendPendingMessageBundle(pendingMessage: String) {
+        viewModelScope.launch {
+            sendMessage(ComposableMessageBundle.SendTextMessageBundle(conversationId, pendingMessage, emptyList()))
+        }
+    }
 
     fun trySendMessage(messageBundle: MessageBundle) {
         trySendMessages(listOf(messageBundle))

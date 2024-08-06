@@ -18,15 +18,20 @@
 
 package com.wire.android.ui.userprofile.common
 
+import com.wire.android.util.ifNotEmpty
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.type.UserType
 
 object UsernameMapper {
 
-    fun mapUserLabel(otherUser: OtherUser): String = with(otherUser) {
+    /**
+     * Returns the username for the given [OtherUser].
+     * The username is the handle if it exists, otherwise it is the handle@domain for federated users.
+     */
+    fun fromOtherUser(otherUser: OtherUser): String = with(otherUser) {
         val userId = otherUser.id
         return when (otherUser.userType) {
-            UserType.FEDERATED -> if (handle != null) "$handle@${userId.domain}" else ""
+            UserType.FEDERATED -> handle?.ifNotEmpty { "$handle@${userId.domain}" }.orEmpty()
             else -> handle.orEmpty()
         }
     }

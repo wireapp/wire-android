@@ -22,11 +22,10 @@ jobs:
       - name: Comment ADRs in PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_HEAD_REF: ${{github.head_ref}}
         run: |
           echo "# ADR Docs in this PR 📚:" > /tmp/new-adr
-          gh pr diff "$GH_HEAD_REF" --name-only | grep docs/adr | xargs cat >> /tmp/new-adr
-          gh pr comment "$GH_HEAD_REF" -F /tmp/new-adr --edit-last || gh pr comment "$GH_HEAD_REF" -F /tmp/new-adr
+          gh pr diff "${{ github.event.pull_request.number }}" --name-only | grep docs/adr | xargs cat >> /tmp/new-adr
+          gh pr comment "${{ github.event.pull_request.number }}" -F /tmp/new-adr --edit-last || gh pr comment "${{ github.event.pull_request.number }}" -F /tmp/new-adr
 
   publish-develop:
     runs-on: ubuntu-latest

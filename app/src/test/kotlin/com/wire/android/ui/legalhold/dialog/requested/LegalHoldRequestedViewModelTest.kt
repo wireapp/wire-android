@@ -305,7 +305,12 @@ class LegalHoldRequestedViewModelTest {
 
         val userId = UserId("userId", "domain")
 
-        val viewModel by lazy { LegalHoldRequestedViewModel(validatePassword, coreLogic) }
+        val viewModel by lazy {
+            LegalHoldRequestedViewModel(
+                validatePassword = validatePassword,
+                coreLogic = { coreLogic }
+            )
+        }
 
         init {
             MockKAnnotations.init(this)

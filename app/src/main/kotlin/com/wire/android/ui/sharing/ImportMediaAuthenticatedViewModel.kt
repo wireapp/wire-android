@@ -36,8 +36,8 @@ import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
@@ -379,4 +379,9 @@ data class ImportMediaAuthenticatedState(
     val shareableConversationListState: ShareableConversationListState = ShareableConversationListState(),
     val selectedConversationItem: List<ConversationItem> = emptyList(),
     val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
-)
+) {
+    @Stable
+    fun isImportingData() {
+        importedText?.isNotEmpty() == true || importedAssets.isNotEmpty()
+    }
+}

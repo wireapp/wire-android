@@ -3,14 +3,36 @@ name: Deploy ADR Docs
 on:
   push:
     branches: [ 'develop', 'chore/adr-and-tests' ]
-  workflow_dispatch:
+  pull_request:
+    branches: [ develop ]
+    types: [ opened, synchronize ]
+    paths: [ 'docs/adr/**' ]
 
 permissions:
   contents: write
 
 jobs:
-  publish:
+  publish-pr:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request'
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Leave a comment
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_HEAD_REF: ${{github.head_ref}}
+        run: |
+          gh pr comment "$GH_HEAD_REF" --body "
+          ## ADR Docs 📚:
+          
+          "
+
+  publish-develop:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref_name == 'develop'
     steps:
       - name: Checkout project
         uses: actions/checkout@v4

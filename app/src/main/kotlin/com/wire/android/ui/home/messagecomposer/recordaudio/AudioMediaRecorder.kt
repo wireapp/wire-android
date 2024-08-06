@@ -222,7 +222,7 @@ class AudioMediaRecorder @Inject constructor(
         }
     }
 
-    @Suppress("LongMethod")
+    @Suppress("LongMethod", "CyclomaticComplexMethod")
     suspend fun convertWavToMp4(shouldApplyEffects: Boolean): Boolean = withContext(Dispatchers.IO) {
         var codec: MediaCodec? = null
         var muxer: MediaMuxer? = null

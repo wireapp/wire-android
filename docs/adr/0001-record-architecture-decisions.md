@@ -19,7 +19,7 @@ easy to maintain.
 
 ## Consequences
 
-- We need to add a new folder to the repository, `doc/adr`, to keep the architecture decision
+- We need to add a new folder to the repository, `docs/adr`, to keep the architecture decision
   records.
 - Whenever a new refactoring or library is introduced, a new ADR should be created.
 - You can always request in the Pull request review process to add a new ADR, if you think it's

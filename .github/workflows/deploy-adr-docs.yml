@@ -23,12 +23,12 @@ jobs:
 
       - name: Generate ADR docs
         run: |
-          adr-viewer --output doc/index.html
+          adr-viewer --adr-path docs/adr --output docs/index.html
 
       - name: Deploy docs 🚀
         uses: JamesIves/github-pages-deploy-action@v4.6.3
         with:
           branch: gh-pages
           clean: false
-          folder: doc
-          target-folder: doc
+          folder: docs
+          target-folder: docs

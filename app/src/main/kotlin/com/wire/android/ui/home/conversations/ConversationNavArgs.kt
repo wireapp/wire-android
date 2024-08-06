@@ -25,5 +25,6 @@ import kotlinx.serialization.Serializable
 data class ConversationNavArgs(
     val conversationId: ConversationId,
     val searchedMessageId: String? = null,
-    val pendingBundles: ArrayList<AssetBundle>? = null
+    val pendingBundles: ArrayList<AssetBundle>? = null,
+    val pendingTextBundle: String? = null
 )

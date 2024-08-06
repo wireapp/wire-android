@@ -18,6 +18,8 @@
 
 package com.wire.android.util
 
+import com.wire.android.ui.markdown.isNotBlank
+import com.wire.android.ui.markdown.toMarkdownDocument
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -31,7 +33,7 @@ val String.Companion.NEW_LINE_SYMBOL get() = "\n"
 
 fun String?.orDefault(default: String) = this ?: default
 
-public inline fun String.ifNotEmpty(transform: () -> String): String = if (!isEmpty()) transform() else this
+inline fun String.ifNotEmpty(transform: () -> String): String = if (!isEmpty()) transform() else this
 
 @Suppress("MagicNumber")
 fun String.sha256(): String {
@@ -47,3 +49,5 @@ fun String.toTitleCase(delimiter: String = " ", separator: String = " "): String
 fun String.capitalizeFirstLetter(): String = lowercase().replaceFirstChar(Char::titlecaseChar)
 
 fun String.normalizeFileName(): String = this.replace("/", "")
+
+fun CharSequence.isNotMarkdownBlank(): Boolean = this.isNotBlank() && this.toString().toMarkdownDocument().isNotBlank()

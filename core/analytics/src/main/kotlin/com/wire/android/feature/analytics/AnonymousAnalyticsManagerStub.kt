@@ -19,18 +19,23 @@ package com.wire.android.feature.analytics
 
 import android.app.Activity
 import android.content.Context
+import com.wire.android.feature.analytics.handler.AnalyticsMigrationHandler
+import com.wire.android.feature.analytics.handler.AnalyticsPropagationHandler
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.feature.analytics.model.AnalyticsResult
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 
 open class AnonymousAnalyticsManagerStub : AnonymousAnalyticsManager {
 
-    override fun init(
+    override fun <T> init(
         context: Context,
         analyticsSettings: AnalyticsSettings,
-        isEnabledFlow: Flow<Boolean>,
+        analyticsResultFlow: Flow<AnalyticsResult<T>>,
         anonymousAnalyticsRecorder: AnonymousAnalyticsRecorder,
+        migrationHandler: AnalyticsMigrationHandler<T>,
+        propagationHandler: AnalyticsPropagationHandler<T>,
         dispatcher: CoroutineDispatcher
     ) = Unit
 

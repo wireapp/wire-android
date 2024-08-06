@@ -27,6 +27,7 @@ import androidx.work.WorkerParameters
 import com.wire.android.R
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
+import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.WireNotificationManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -69,6 +70,6 @@ class NotificationFetchWorker
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .build()
 
-        return ForegroundInfo(NotificationConstants.MESSAGE_SYNC_NOTIFICATION_ID, notification)
+        return ForegroundInfo(NotificationIds.MESSAGE_SYNC_NOTIFICATION_ID.ordinal, notification)
     }
 }

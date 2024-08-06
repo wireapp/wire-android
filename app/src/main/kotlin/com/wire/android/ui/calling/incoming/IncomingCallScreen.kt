@@ -46,7 +46,6 @@ import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
-import com.wire.android.ui.calling.openAppLockActivity
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -56,7 +55,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
-import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Suppress("ParameterWrapping")
@@ -247,7 +246,7 @@ private fun IncomingCallContent(
                 onVideoPreviewCreated = onVideoPreviewCreated,
                 onSelfClearVideoPreview = onSelfClearVideoPreview
             )
-            val isCallingString = if (callState.conversationType == ConversationType.Conference) {
+            val isCallingString = if (callState.conversationTypeForCall == ConversationTypeForCall.Conference) {
                 stringResource(R.string.calling_label_incoming_call_someone_calling, callState.callerName ?: "")
             } else stringResource(R.string.calling_label_incoming_call)
 
@@ -257,7 +256,7 @@ private fun IncomingCallContent(
                 isCameraOn = callState.isCameraOn,
                 isCbrEnabled = callState.isCbrEnabled,
                 avatarAssetId = callState.avatarAssetId,
-                conversationType = callState.conversationType,
+                conversationTypeForCall = callState.conversationTypeForCall,
                 membership = callState.membership,
                 callingLabel = isCallingString,
                 protocolInfo = callState.protocolInfo,

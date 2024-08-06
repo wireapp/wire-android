@@ -295,7 +295,7 @@
     <string name="attachment_share_file">Fil</string>
     <string name="attachment_share_image">Galleri</string>
     <string name="attachment_take_photo">Kamera</string>
-    <string name="attachment_record_video">Spela in video</string>
+    <string name="attachment_record_video">Video</string>
     <string name="attachment_voice_message">Ljudmeddelande</string>
     <string name="attachment_share_location">Plats</string>
     <!-- User Profile -->
@@ -414,7 +414,6 @@
     <string name="calling_label_incoming_call_someone_calling">%s ringer…</string>
     <string name="calling_label_default_caller_name">Inkommande samtal</string>
     <string name="calling_ongoing_call_start_anyway">Ring ändå</string>
-    <string name="calling_participant_tile_default_user_name">Standard</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s ringer…</string>
     <string name="connectivity_status_bar_return_to_outgoing_call">Ringer %1$s…</string>
@@ -423,6 +422,7 @@
     <string name="connection_label_connect">Anslut</string>
     <string name="connection_label_ignore">Ignorera</string>
     <!-- Missing keyPackages dialog -->
+    <string name="missing_keypackage_dialog_body">Du kan inte starta konversationen med %1$s just nu. %1$s måste öppna Wire eller logga in igen först. Försök igen senare.</string>
     <!-- Gallery -->
     <!--sso dialog-->
     <string name="label_show_more">Visa mer</string>
@@ -431,6 +431,7 @@
     <string name="change">Ändra</string>
     <string name="allow_guests">Tillåt gäster</string>
     <!--block user dialog -->
+    <string name="block_user_dialog_body">%1$s kommer inte att kunna kontakta dig eller lägga till dig i gruppkonversationer. De kommer inte att meddelas om detta.</string>
     <!--Settings -->
     <string name="settings_account_settings_label">Kontoinställningar</string>
     <string name="settings_devices_label">Enheter</string>
@@ -543,6 +544,7 @@
     <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Logga ut</string>
     <!-- Record Audio -->
     <string name="record_audio_permission_denied_dialog_settings_button">Inställningar</string>
+    <string name="record_audio_unable_due_to_ongoing_call">Du kan inte spela in ett ljudmeddelande under ett samtal.</string>
     <string name="join_conversation_dialog_password_placeholder">Ange lösenord</string>
     <string name="create_guest_link">Skapa gästlänk</string>
     <string name="create_guest_link_with_password">Skapa lösenordsskyddad länk</string>

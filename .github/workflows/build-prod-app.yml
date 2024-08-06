@@ -2,7 +2,7 @@ name: "Prod build"
 
 on:
   release:
-    types: [created]
+    types: [ created ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.release.tag_name }}
@@ -15,6 +15,7 @@ jobs:
     uses: ./.github/workflows/gradle-run-ui-tests.yml
   unit-tests:
     uses: ./.github/workflows/gradle-run-unit-tests.yml
+    secrets: inherit
   build-app:
     needs: [ code-analysis, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
@@ -117,3 +118,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           build-flavour: prod
           build-variant: compatrelease
+      - name: Attach APK to release
+        uses: softprops/action-gh-release@v2.0.8
+        with:
+          files: app/build/outputs/apk/prodCompatRelease/*.apk

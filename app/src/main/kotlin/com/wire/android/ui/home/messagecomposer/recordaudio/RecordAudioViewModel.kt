@@ -267,26 +267,49 @@ class RecordAudioViewModel @Inject constructor(
         viewModelScope.launch {
             recordAudioMessagePlayer.stop()
             recordAudioMessagePlayer.close()
+            state = state.copy(
+                buttonState = RecordAudioButtonState.ENCODING, audioState = AudioState.DEFAULT,
+                originalOutputFile = null,
+                effectsOutputFile = null
+            )
 
-            val resultFile = if (state.shouldApplyEffects) {
-                try {
-                    state.originalOutputFile?.toPath()?.deleteIfExists()
-                } catch (exception: IOException) {
-                    appLogger.e("[$tag] -> Couldn't delete original audio file before sending audio file with effects.")
+            val didSucceed = audioMediaRecorder.convertWavToMp4(state.shouldApplyEffects)
+
+            try {
+                when {
+                    didSucceed -> {
+                        state.originalOutputFile?.toPath()?.deleteIfExists()
+                        state.effectsOutputFile?.toPath()?.deleteIfExists()
+                    }
+
+                    state.shouldApplyEffects -> {
+                        state.originalOutputFile?.toPath()?.deleteIfExists()
+                    }
+
+                    !state.shouldApplyEffects -> {
+                        state.effectsOutputFile?.toPath()?.deleteIfExists()
+                    }
                 }
-                state.effectsOutputFile!!.toUri()
-            } else {
-                try {
-                    state.effectsOutputFile?.toPath()?.deleteIfExists()
-                } catch (exception: IOException) {
-                    appLogger.e("[$tag] -> Couldn't delete audio file with effects before sending original audio file.")
-                }
-                state.originalOutputFile!!.toUri()
+            } catch (exception: IOException) {
+                appLogger.e("[$tag] -> Couldn't delete audio files")
             }
 
             onAudioRecorded(
                 UriAsset(
-                    uri = resultFile,
+                    uri = if (didSucceed) {
+                        audioMediaRecorder.mp4OutputPath!!.toFile().toUri()
+                    } else {
+                        if (state.shouldApplyEffects) {
+                            audioMediaRecorder.effectsOutputPath!!.toFile().toUri()
+                        } else {
+                            audioMediaRecorder.originalOutputPath!!.toFile().toUri()
+                        }
+                    },
+                    mimeType = if (didSucceed) {
+                        "audio/mp4"
+                    } else {
+                        "audio/wav"
+                    },
                     saveToDeviceIfInvalid = false
                 )
             )

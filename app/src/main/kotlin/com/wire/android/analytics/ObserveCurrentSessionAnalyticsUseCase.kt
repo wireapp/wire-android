@@ -19,10 +19,12 @@ package com.wire.android.analytics
 
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.feature.analytics.model.AnalyticsResult
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.AnalyticsIdentifierManager
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -48,7 +50,8 @@ fun ObserveCurrentSessionAnalyticsUseCase(
     isUserTeamMember: suspend (UserId) -> Boolean,
     observeAnalyticsTrackingIdentifierStatusFlow: suspend (UserId) -> Flow<AnalyticsIdentifierResult>,
     analyticsIdentifierManagerProvider: (UserId) -> AnalyticsIdentifierManager,
-    userDataStoreProvider: UserDataStoreProvider
+    userDataStoreProvider: UserDataStoreProvider,
+    currentBackend: suspend (UserId) -> SelfServerConfigUseCase.Result
 ) = object : ObserveCurrentSessionAnalyticsUseCase {
 
     private var previousAnalyticsResult: AnalyticsIdentifierResult? = null
@@ -74,7 +77,12 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                 ) { identifierResult, enabled ->
                     previousAnalyticsResult = identifierResult
 
-                    if (enabled) {
+                    val isProdBackend = when(val serverConfig = currentBackend(userId)) {
+                        is SelfServerConfigUseCase.Result.Success -> serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
+                        is SelfServerConfigUseCase.Result.Failure -> false
+                    }
+
+                    if (enabled && isProdBackend) {
                         AnalyticsResult(
                             identifierResult = identifierResult,
                             isTeamMember = isTeamMember,

@@ -44,7 +44,7 @@ interface ObserveCurrentSessionAnalyticsUseCase {
     operator fun invoke(): Flow<AnalyticsResult<AnalyticsIdentifierManager>>
 }
 
-@Suppress("FunctionNaming")
+@Suppress("FunctionNaming", "LongParameterList")
 fun ObserveCurrentSessionAnalyticsUseCase(
     currentSessionFlow: Flow<CurrentSessionResult>,
     isUserTeamMember: suspend (UserId) -> Boolean,
@@ -77,7 +77,7 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                 ) { identifierResult, enabled ->
                     previousAnalyticsResult = identifierResult
 
-                    val isProdBackend = when(val serverConfig = currentBackend(userId)) {
+                    val isProdBackend = when (val serverConfig = currentBackend(userId)) {
                         is SelfServerConfigUseCase.Result.Success -> serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
                         is SelfServerConfigUseCase.Result.Failure -> false
                     }

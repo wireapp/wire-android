@@ -203,7 +203,10 @@ class WireApplication : BaseApp() {
             analyticsIdentifierManagerProvider = {
                 coreLogic.get().getSessionScope(it).analyticsIdentifierManager
             },
-            userDataStoreProvider = userDataStoreProvider.get()
+            userDataStoreProvider = userDataStoreProvider.get(),
+            currentBackend = {
+                coreLogic.get().getSessionScope(it).users.serverLinks()
+            }
         ).invoke()
 
         AnonymousAnalyticsManagerImpl.init(

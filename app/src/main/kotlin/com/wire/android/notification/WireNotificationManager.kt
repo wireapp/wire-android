@@ -18,7 +18,6 @@
 
 package com.wire.android.notification
 
-import android.os.Build
 import androidx.annotation.VisibleForTesting
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -480,12 +479,6 @@ class WireNotificationManager @Inject constructor(
             }
         }
     }
-
-    data class MessagesNotificationsData(
-        val newNotifications: List<LocalNotification>,
-        val userId: QualifiedID,
-        val userName: String
-    )
 
     private data class UserObservingJobs(
         val currentScreenJob: Job,

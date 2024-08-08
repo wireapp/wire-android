@@ -270,7 +270,7 @@ class WireNotificationManager @Inject constructor(
         // start observing ongoing calls for all users, but only if not yet started
         if (observingJobs.ongoingCallJob.get().let { it == null || !it.isActive }) {
             val job = scope.launch(dispatcherProvider.default()) {
-                observeOngoingCalls(currentScreenState)
+                observeOngoingCalls()
             }
             observingJobs.ongoingCallJob.set(job)
         }
@@ -405,34 +405,23 @@ class WireNotificationManager @Inject constructor(
     /**
      * Infinitely listen for the established calls of a current user and run OngoingCall foreground Service
      * to show corresponding notification and do not lose a call.
-     * @param currentScreenState StateFlow that informs which screen is currently visible,
-     * so we can listen established calls only when the app is in background.
      */
-    private suspend fun observeOngoingCalls(currentScreenState: StateFlow<CurrentScreen>) {
-        currentScreenState
-            .flatMapLatest { currentScreen ->
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE && currentScreen !is CurrentScreen.InBackground) {
-                    flowOf(null)
+    private suspend fun observeOngoingCalls() {
+        coreLogic.getGlobalScope().session.currentSessionFlow()
+            .flatMapLatest {
+                if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
+                    coreLogic.getSessionScope(it.accountInfo.userId).calls.establishedCall()
+                        .map { it.isNotEmpty() }
                 } else {
-                    coreLogic.getGlobalScope().session.currentSessionFlow()
-                        .flatMapLatest {
-                            if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
-                                coreLogic.getSessionScope(it.accountInfo.userId).calls.establishedCall()
-                                    .map {
-                                        it.firstOrNull()
-                                    }
-                            } else {
-                                flowOf(null)
-                            }
-                        }
+                    flowOf(false)
                 }
             }
             .distinctUntilChanged()
             .onCompletion {
                 servicesManager.stopOngoingCallService()
             }
-            .collect { call ->
-                if (call != null) servicesManager.startOngoingCallService()
+            .collect { isOngoingCall ->
+                if (isOngoingCall) servicesManager.startOngoingCallService()
                 else servicesManager.stopOngoingCallService()
             }
     }

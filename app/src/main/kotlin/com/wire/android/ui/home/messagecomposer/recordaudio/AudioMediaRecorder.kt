@@ -66,7 +66,6 @@ class AudioMediaRecorder @Inject constructor(
     private var assetLimitInMB: Long = ASSET_SIZE_DEFAULT_LIMIT_BYTES
 
     var originalOutputPath: Path? = null
-    var effectsOutputPath: Path? = null
     var mp4OutputPath: Path? = null
 
     private val _maxFileSizeReached = MutableSharedFlow<RecordAudioDialogState>()
@@ -93,9 +92,6 @@ class AudioMediaRecorder @Inject constructor(
 
             originalOutputPath = kaliumFileSystem
                 .tempFilePath(getRecordingAudioFileName())
-
-            effectsOutputPath = kaliumFileSystem
-                .tempFilePath(getRecordingAudioEffectsFileName())
 
             mp4OutputPath = kaliumFileSystem
                 .tempFilePath(getRecordingMP4AudioFileName())
@@ -223,18 +219,12 @@ class AudioMediaRecorder @Inject constructor(
     }
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
-    suspend fun convertWavToMp4(shouldApplyEffects: Boolean): Boolean = withContext(Dispatchers.IO) {
+    suspend fun convertWavToMp4(inputFilePath: String): Boolean = withContext(Dispatchers.IO) {
         var codec: MediaCodec? = null
         var muxer: MediaMuxer? = null
         var fileInputStream: FileInputStream? = null
 
         try {
-            val inputFilePath = if (shouldApplyEffects) {
-                effectsOutputPath!!.toString()
-            } else {
-                originalOutputPath!!.toString()
-            }
-
             val inputFile = File(inputFilePath)
             fileInputStream = FileInputStream(inputFile)
 
@@ -339,7 +329,6 @@ class AudioMediaRecorder @Inject constructor(
     companion object {
         fun getRecordingAudioFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}.wav"
         fun getRecordingMP4AudioFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}.mp4"
-        fun getRecordingAudioEffectsFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}-filter.wav"
 
         const val SIZE_OF_1MB = 1024 * 1024
         const val AUDIO_CHANNELS = 1 // Mono

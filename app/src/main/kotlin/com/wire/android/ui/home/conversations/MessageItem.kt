@@ -237,87 +237,124 @@ fun MessageItem(
                     } else {
                         MessageStatusLabel(messageStatus = message.header.messageStatus)
                     }
-                    if (!isDeleted) {
-                        if (!decryptionFailed) {
-                            val currentOnAssetClicked = remember(message) {
-                                Clickable(enabled = isAvailable, onClick = {
-                                    onAssetMessageClicked(header.messageId)
-                                }, onLongClick = {
-                                    onLongClicked(message)
-                                })
-                            }
 
-                            val currentOnImageClick = remember(message) {
-                                Clickable(enabled = isAvailable && !isContentClickable, onClick = {
-                                    onImageMessageClicked(
-                                        message,
-                                        source == MessageSource.Self
-                                    )
-                                }, onLongClick = {
-                                    onLongClicked(message)
-                                })
-                            }
-                            val onLongClick: (() -> Unit)? = if (isContentClickable) null else remember(message) {
-                                if (isAvailable) {
-                                    { onLongClicked(message) }
-                                } else {
-                                    null
-                                }
-                            }
-                            Row {
-                                Box(modifier = Modifier.weight(1F)) {
-                                    MessageContent(
-                                        message = message,
-                                        messageContent = messageContent,
-                                        searchQuery = searchQuery,
-                                        audioMessagesState = audioMessagesState,
-                                        onAudioClick = onAudioClick,
-                                        onChangeAudioPosition = onChangeAudioPosition,
-                                        onAssetClick = currentOnAssetClicked,
-                                        onImageClick = currentOnImageClick,
-                                        onLongClick = onLongClick,
-                                        onOpenProfile = onOpenProfile,
-                                        onLinkClick = onLinkClick,
-                                        clickable = !isContentClickable
-                                    )
-                                }
-                                if (isMyMessage && shouldDisplayMessageStatus) {
-                                    MessageStatusIndicator(
-                                        status = message.header.messageStatus.flowStatus,
-                                        isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
-                                        modifier = Modifier.padding(
-                                            top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
-                                            start = dimensions().spacing8x
-                                        )
-                                    )
-                                } else {
-                                    HorizontalSpace.x24()
-                                }
-                            }
-                            if (shouldDisplayFooter) {
-                                VerticalSpace.x4()
-                                MessageFooter(
-                                    messageFooter = messageFooter,
-                                    onReactionClicked = onReactionClicked
-                                )
-                            }
-                        } else {
-                            MessageDecryptionFailure(
-                                messageHeader = header,
-                                decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
-                                onResetSessionClicked = onResetSessionClicked
+                    if (isDeleted) return@Column
+
+                    if (!decryptionFailed) {
+                        MessageContentAndStatus(
+                            message = message,
+                            onAssetMessageClicked = onAssetMessageClicked,
+                            onLongClicked = onLongClicked,
+                            isContentClickable = isContentClickable,
+                            onImageMessageClicked = onImageMessageClicked,
+                            searchQuery = searchQuery,
+                            audioMessagesState = audioMessagesState,
+                            onAudioClick = onAudioClick,
+                            onChangeAudioPosition = onChangeAudioPosition,
+                            onOpenProfile = onOpenProfile,
+                            onLinkClick = onLinkClick,
+                            shouldDisplayMessageStatus = shouldDisplayMessageStatus,
+                            conversationDetailsData = conversationDetailsData
+                        )
+
+                        if (shouldDisplayFooter) {
+                            VerticalSpace.x4()
+                            MessageFooter(
+                                messageFooter = messageFooter,
+                                onReactionClicked = onReactionClicked
                             )
                         }
-                        if (message.sendingFailed) {
-                            MessageSendFailureWarning(
-                                messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
-                                onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId) } },
-                                onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
-                            )
-                        }
+                    } else {
+                        MessageDecryptionFailure(
+                            messageHeader = header,
+                            decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
+                            onResetSessionClicked = onResetSessionClicked,
+                            conversationProtocol = conversationDetailsData.conversationProtocol
+                        )
+                    }
+
+                    if (message.sendingFailed) {
+                        MessageSendFailureWarning(
+                            messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                            onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId) } },
+                            onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
+                        )
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun UIMessage.Regular.MessageContentAndStatus(
+    message: UIMessage.Regular,
+    onAssetMessageClicked: (String) -> Unit,
+    onLongClicked: (UIMessage.Regular) -> Unit,
+    isContentClickable: Boolean,
+    onImageMessageClicked: (UIMessage.Regular, Boolean) -> Unit,
+    searchQuery: String,
+    audioMessagesState: PersistentMap<String, AudioState>,
+    onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (String, Int) -> Unit,
+    onOpenProfile: (String) -> Unit,
+    onLinkClick: (String) -> Unit,
+    shouldDisplayMessageStatus: Boolean,
+    conversationDetailsData: ConversationDetailsData
+) {
+    val currentOnAssetClicked = remember(message) {
+        Clickable(enabled = isAvailable, onClick = {
+            onAssetMessageClicked(header.messageId)
+        }, onLongClick = {
+            onLongClicked(message)
+        })
+    }
+
+    val currentOnImageClick = remember(message) {
+        Clickable(enabled = isAvailable && !isContentClickable, onClick = {
+            onImageMessageClicked(
+                message,
+                source == MessageSource.Self
+            )
+        }, onLongClick = {
+            onLongClicked(message)
+        })
+    }
+    val onLongClick: (() -> Unit)? = if (isContentClickable) null else remember(message) {
+        if (isAvailable) {
+            { onLongClicked(message) }
+        } else {
+            null
+        }
+    }
+    Row {
+        Box(modifier = Modifier.weight(1F)) {
+            MessageContent(
+                message = message,
+                messageContent = messageContent,
+                searchQuery = searchQuery,
+                audioMessagesState = audioMessagesState,
+                onAudioClick = onAudioClick,
+                onChangeAudioPosition = onChangeAudioPosition,
+                onAssetClick = currentOnAssetClicked,
+                onImageClick = currentOnImageClick,
+                onLongClick = onLongClick,
+                onOpenProfile = onOpenProfile,
+                onLinkClick = onLinkClick,
+                clickable = !isContentClickable
+            )
+        }
+        if (isMyMessage && shouldDisplayMessageStatus) {
+            MessageStatusIndicator(
+                status = message.header.messageStatus.flowStatus,
+                isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
+                modifier = Modifier.padding(
+                    top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
+                    start = dimensions().spacing8x
+                )
+            )
+        } else {
+            HorizontalSpace.x24()
         }
     }
 }

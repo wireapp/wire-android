@@ -29,7 +29,7 @@ import com.wire.kalium.logic.data.user.UserId
 data class ConversationInfoViewState(
     val conversationId: QualifiedID,
     val conversationName: UIText = UIText.DynamicString(""),
-    val conversationDetailsData: ConversationDetailsData = ConversationDetailsData.None,
+    val conversationDetailsData: ConversationDetailsData = ConversationDetailsData.None(null),
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
     val hasUserPermissionToEdit: Boolean = false,
     val conversationType: Conversation.Type = Conversation.Type.ONE_ON_ONE,
@@ -39,17 +39,21 @@ data class ConversationInfoViewState(
     val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.UNKNOWN,
 )
 
-sealed class ConversationDetailsData {
-    data object None : ConversationDetailsData()
+sealed class ConversationDetailsData(open val conversationProtocol: Conversation.ProtocolInfo?) {
+    data class None(override val conversationProtocol: Conversation.ProtocolInfo?) : ConversationDetailsData(conversationProtocol)
     data class OneOne(
+        override val conversationProtocol: Conversation.ProtocolInfo?,
         val otherUserId: UserId,
         val otherUserName: String?,
         val connectionState: ConnectionState,
         val isBlocked: Boolean,
         val isDeleted: Boolean
-    ) : ConversationDetailsData()
+    ) : ConversationDetailsData(conversationProtocol)
 
-    data class Group(val conversationId: QualifiedID) : ConversationDetailsData()
+    data class Group(
+        override val conversationProtocol: Conversation.ProtocolInfo?,
+        val conversationId: QualifiedID
+    ) : ConversationDetailsData(conversationProtocol)
 }
 
 sealed class ConversationAvatar {

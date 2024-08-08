@@ -114,7 +114,7 @@ private fun AssetMessagesListContent(
                         is UIMessage.Regular -> {
                             MessageItem(
                                 message = message,
-                                conversationDetailsData = ConversationDetailsData.None,
+                                conversationDetailsData = ConversationDetailsData.None(null),
                                 audioMessagesState = audioMessagesState,
                                 onLongClicked = { },
                                 onAssetMessageClicked = onAssetItemClicked,

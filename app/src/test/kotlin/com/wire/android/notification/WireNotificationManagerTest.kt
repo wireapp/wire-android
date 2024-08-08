@@ -90,6 +90,7 @@ import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.minutes
 
+@Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
 class WireNotificationManagerTest {
 

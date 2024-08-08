@@ -108,7 +108,7 @@ jobs:
           serviceAccountJson: service_account.json
           packageName: com.wire
           releaseFiles: app/build/outputs/bundle/prodCompatRelease/*.aab
-          track: alpha
+          track: Alpha
       - name: Deploy ProdCompatRelease to S3
         uses: ./.github/actions/deploy-to-s3
         with:

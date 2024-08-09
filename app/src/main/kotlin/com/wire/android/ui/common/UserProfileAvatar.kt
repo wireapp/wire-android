@@ -48,6 +48,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -287,13 +288,10 @@ fun ImageWithProgressBorder(
         // Draw a circular progress indicator border
         CircularProgressIndicator(
             progress = progress,
+            color = colorsScheme().wireAccentColors.getOrDefault(Accent.Blue, Color.Transparent),
+            strokeWidth = dimensions().spacing2x,
             modifier = Modifier
                 .size(size) // Adjust the size to match the image size
-                .border(
-                    width = dimensions().spacing1x,
-                    color = colorsScheme().outline,
-                    shape = CircleShape
-                )
                 .padding(padding) // Padding to adjust the border thickness
                 .clip(CircleShape)
         )

@@ -150,7 +150,7 @@ class LogFileWriter(private val logsDirectory: File) {
 
     private fun compressedFileName(): String {
         val currentDate = logFileTimeFormat.format(Date())
-        return "${LOG_FILE_PREFIX}_${currentDate}.$LOG_COMPRESSED_FILE_EXTENSION"
+        return "${LOG_FILE_PREFIX}_$currentDate.$LOG_COMPRESSED_FILE_EXTENSION"
     }
 
     private fun deleteOldCompressedFiles() = getCompressedFilesList()

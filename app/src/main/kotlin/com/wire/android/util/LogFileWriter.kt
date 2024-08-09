@@ -71,6 +71,7 @@ class LogFileWriter(private val logsDirectory: File) {
                 ensureActive()
                 compress()
                 clearActiveLoggingFileContent()
+                deleteOldCompressedFiles()
             }
         }
     }
@@ -141,18 +142,27 @@ class LogFileWriter(private val logsDirectory: File) {
     fun deleteAllLogFiles() {
         clearActiveLoggingFileContent()
         logsDirectory.listFiles()?.filter {
-            it.extension.lowercase(Locale.ROOT) == "gz"
+            it.extension.lowercase(Locale.ROOT) == LOG_COMPRESSED_FILE_EXTENSION
         }?.forEach { it.delete() }
     }
 
-    private fun compressedFileName(currentDate: String, logFilesCount: Int): String =
-        "${LOG_FILE_PREFIX}_${currentDate}_$logFilesCount.gz"
+    private fun getCompressedFilesList() = (logsDirectory.listFiles() ?: emptyArray()).filter { it != activeLoggingFile }
+
+    private fun compressedFileName(): String {
+        val currentDate = logFileTimeFormat.format(Date())
+        return "${LOG_FILE_PREFIX}_${currentDate}.$LOG_COMPRESSED_FILE_EXTENSION"
+    }
+
+    private fun deleteOldCompressedFiles() = getCompressedFilesList()
+        .sortedBy { it.name } // name contains date-time so it's safe to sort it by name
+        .dropLast(LOG_COMPRESSED_FILES_MAX_COUNT)
+        .forEach {
+            it.delete()
+        }
 
     private fun compress(): Boolean {
         try {
-            val logFilesCount = logsDirectory.listFiles()?.size
-            val currentDate = logFileTimeFormat.format(Date())
-            val compressed = File(logsDirectory, compressedFileName(currentDate, logFilesCount ?: 0))
+            val compressed = File(logsDirectory, compressedFileName())
             val zippedOutputStream = GZIPOutputStream(compressed.outputStream())
             val inputStream = activeLoggingFile.inputStream()
             inputStream.copyTo(zippedOutputStream, BYTE_ARRAY_SIZE)
@@ -172,6 +182,8 @@ class LogFileWriter(private val logsDirectory: File) {
         private const val ACTIVE_LOGGING_FILE_NAME = "${LOG_FILE_PREFIX}_logs.txt"
         private const val LOG_FILE_MAX_SIZE_THRESHOLD = 25 * 1024 * 1024
         private const val BYTE_ARRAY_SIZE = 1024
+        private const val LOG_COMPRESSED_FILES_MAX_COUNT = 10
+        private const val LOG_COMPRESSED_FILE_EXTENSION = "gz"
 
         fun logsDirectory(context: Context) = File(context.cacheDir, "logs")
     }

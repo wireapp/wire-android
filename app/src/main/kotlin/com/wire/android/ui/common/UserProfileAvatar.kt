@@ -18,13 +18,16 @@
 
 package com.wire.android.ui.common
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -97,6 +100,7 @@ fun UserProfileAvatar(
                             // indicator borders need to be taken into account, the avatar itself will be smaller by the borders widths
                             size + (max(dimensions().avatarStatusBorderSize, dimensions().avatarLegalHoldIndicatorBorderSize) * 2)
                         }
+
                         UserProfileAvatarType.WithoutIndicators -> {
                             // indicator borders don't need to be taken into account, the avatar itself will take all available space
                             size
@@ -243,6 +247,55 @@ fun PreviewUserProfileAvatarWithoutIndicators() {
             padding = 0.dp,
             size = 48.dp,
             type = UserProfileAvatarType.WithoutIndicators,
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewUserCustomIndicators() {
+    WireTheme {
+        ImageWithProgressBorder(
+            painter = getDefaultAvatar(Membership.Guest),
+            size = 48.dp,
+            padding = 0.dp,
+            progress = 0.85f
+        )
+    }
+}
+
+@SuppressLint("ComposeModifierMissing")
+@Composable
+fun ImageWithProgressBorder(
+    painter: Painter,
+    progress: Float,
+    size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
+    padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(size)
+    ) {
+        Image(
+            painter = painter,
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(CircleShape)
+        )
+
+        // Draw a circular progress indicator border
+        CircularProgressIndicator(
+            progress = progress,
+            modifier = Modifier
+                .size(size) // Adjust the size to match the image size
+                .border(
+                    width = dimensions().spacing1x,
+                    color = colorsScheme().outline,
+                    shape = CircleShape
+                )
+                .padding(padding) // Padding to adjust the border thickness
+                .clip(CircleShape)
         )
     }
 }

@@ -17,8 +17,6 @@
  */
 package com.wire.android.ui.analytics
 
-import android.preference.PreferenceManager
-import com.wire.android.BuildConfig
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.util.newServerConfig
@@ -28,7 +26,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -37,7 +34,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
-import org.robolectric.util.ReflectionHelpers
 
 @ExtendWith(CoroutineTestExtension::class)
 class AnalyticsUsageViewModelTest {

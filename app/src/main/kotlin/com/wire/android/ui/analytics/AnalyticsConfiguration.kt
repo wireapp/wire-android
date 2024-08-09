@@ -17,10 +17,7 @@
  */
 package com.wire.android.ui.analytics
 
-import com.wire.android.BuildConfig
-import dagger.Provides
-
 sealed interface AnalyticsConfiguration {
-    data object Enabled: AnalyticsConfiguration
-    data object Disabled: AnalyticsConfiguration
+    data object Enabled : AnalyticsConfiguration
+    data object Disabled : AnalyticsConfiguration
 }

@@ -60,7 +60,6 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.HomeDestination
@@ -149,7 +148,7 @@ fun HomeScreen(
         )
     }
 
-    if(analyticsUsageViewModel.state.shouldDisplayDialog) {
+    if (analyticsUsageViewModel.state.shouldDisplayDialog) {
         AnalyticsUsageDialog(
             agreeOption = analyticsUsageViewModel::agreeAnalyticsUsage,
             declineOption = analyticsUsageViewModel::declineAnalyticsUsage

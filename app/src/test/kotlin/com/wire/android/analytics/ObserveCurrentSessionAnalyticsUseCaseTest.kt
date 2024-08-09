@@ -22,11 +22,15 @@ import com.wire.android.assertIs
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.framework.TestUser
+import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.configuration.server.CommonApiVersionType
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.AnalyticsIdentifierManager
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -66,6 +70,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
                 setIsTeamMember(TestUser.SELF_USER.id)
                 setObservingTrackingIdentifierStatus(AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER))
+                setSelfServerConfig(Arrangement.SEVER_CONFIG_PRODUCTION)
             }.arrange()
 
         // when
@@ -89,6 +94,61 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                     setObservingTrackingIdentifierStatus(
                         AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER)
                     )
+                    setSelfServerConfig(Arrangement.SEVER_CONFIG_PRODUCTION)
+                }.arrange()
+
+            // when
+            useCase.invoke().test {
+                // then
+                val item = awaitItem()
+                assertIs<AnalyticsIdentifierResult.Disabled>(item.identifierResult)
+                assertEquals(true, item.isTeamMember)
+                assertEquals(true, item.manager != null)
+            }
+        }
+
+    @Test
+    fun givenThereIsAValidSessionButCustomBackend_whenObservingCurrentSessionAnalytics_thenDisabledAnalyticsResultIsReturned() =
+        runTest {
+            // given
+            val (_, useCase) = Arrangement()
+                .withIsAnonymousUsageDataEnabled(true)
+                .apply {
+                    setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+                    setIsTeamMember(TestUser.SELF_USER.id)
+                    setObservingTrackingIdentifierStatus(
+                        AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER)
+                    )
+                    setSelfServerConfig(
+                        Arrangement.SEVER_CONFIG_PRODUCTION.copy(
+                            serverLinks = Arrangement.SEVER_CONFIG_PRODUCTION.serverLinks.copy(links = ServerConfig.STAGING)
+                        )
+                    )
+                }.arrange()
+
+            // when
+            useCase.invoke().test {
+                // then
+                val item = awaitItem()
+                assertIs<AnalyticsIdentifierResult.Disabled>(item.identifierResult)
+                assertEquals(true, item.isTeamMember)
+                assertEquals(true, item.manager != null)
+            }
+        }
+
+    @Test
+    fun givenThereIsAValidSessionButFailureOnCustomBackend_whenObservingCurrentSessionAnalytics_thenDisabledAnalyticsResultIsReturned() =
+        runTest {
+            // given
+            val (_, useCase) = Arrangement()
+                .withIsAnonymousUsageDataEnabled(true)
+                .apply {
+                    setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+                    setIsTeamMember(TestUser.SELF_USER.id)
+                    setObservingTrackingIdentifierStatus(
+                        AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER)
+                    )
+                    setSelfServerConfig(SelfServerConfigUseCase.Result.Failure(CoreFailure.Unknown(null)))
                 }.arrange()
 
             // when
@@ -110,6 +170,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
                 setIsTeamMember(TestUser.SELF_USER.id)
                 setObservingTrackingIdentifierStatus(AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER))
+                setSelfServerConfig(Arrangement.SEVER_CONFIG_PRODUCTION)
             }.arrange()
 
         // when
@@ -124,6 +185,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             arrangement.setObservingTrackingIdentifierStatus(
                 AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.OTHER_TRACKING_IDENTIFIER)
             )
+            arrangement.setSelfServerConfig(Arrangement.SEVER_CONFIG_PRODUCTION)
             arrangement.withIsAnonymousUsageDataEnabled(true)
 
             // then
@@ -148,6 +210,8 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
 
         private val analyticsTrackingIdentifierStatusChannel = Channel<AnalyticsIdentifierResult>(Channel.UNLIMITED)
 
+        private val selfServerConfigChannel = Channel<SelfServerConfigUseCase.Result>(Channel.UNLIMITED)
+
         private val teamMembers = mutableSetOf<UserId>()
 
         private val isTeamMember: (UserId) -> Boolean = { teamMembers.contains(it) }
@@ -169,6 +233,10 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             analyticsTrackingIdentifierStatusChannel.send(result)
         }
 
+        suspend fun setSelfServerConfig(result: SelfServerConfigUseCase.Result) {
+            selfServerConfigChannel.send(result)
+        }
+
         fun withIsAnonymousUsageDataEnabled(result: Boolean): Arrangement = apply {
             every { userDataStoreProvider.getOrCreate(any()) } returns userDataStore
             coEvery { userDataStore.isAnonymousUsageDataEnabled() } returns flowOf(result)
@@ -183,7 +251,10 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             analyticsIdentifierManagerProvider = {
                 analyticsIdentifierManager
             },
-            userDataStoreProvider = userDataStoreProvider
+            userDataStoreProvider = userDataStoreProvider,
+            currentBackend = {
+                selfServerConfigChannel.receive()
+            }
         )
 
         fun arrange() = this to useCase
@@ -191,6 +262,18 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
         companion object {
             const val CURRENT_TRACKING_IDENTIFIER = "abcd-1234"
             const val OTHER_TRACKING_IDENTIFIER = "aaaa-bbbb-1234"
+
+            val SEVER_CONFIG_PRODUCTION = SelfServerConfigUseCase.Result.Success(
+                serverLinks = ServerConfig(
+                    id = "server_id",
+                    links = ServerConfig.PRODUCTION,
+                    metaData = ServerConfig.MetaData(
+                        federation = false,
+                        commonApiVersion = CommonApiVersionType.New,
+                        domain = null
+                    )
+                )
+            )
         }
     }
 }

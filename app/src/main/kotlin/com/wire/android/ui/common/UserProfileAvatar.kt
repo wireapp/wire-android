@@ -161,12 +161,12 @@ fun UserProfileAvatar(
         }
         if (type is UserProfileAvatarType.WithTemporaryUserIndicator) {
             CircularProgressIndicator(
-                progress = type.expiresAt.minus(Clock.System.now()).inWholeHours.toFloat() / 24.000f,
+                progress = type.expiresAt.minus(Clock.System.now()).inWholeHours.toFloat() / 24f,
                 color = colorsScheme().wireAccentColors.getOrDefault(Accent.Blue, Color.Transparent),
                 strokeWidth = dimensions().spacing2x,
                 modifier = Modifier
-                    .size(size) // Adjust the size to match the image size
-                    .padding(padding) // Padding to adjust the border thickness
+                    .size(size)
+                    .padding(padding)
                     .clip(CircleShape)
             )
         }

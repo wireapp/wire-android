@@ -250,7 +250,10 @@ fun PreviewConversationScreenTopAppBarLongTitle() {
             conversationName = UIText.DynamicString(
                 "This is some very very very very very very very very very very long conversation title"
             ),
-            conversationDetailsData = ConversationDetailsData.Group(QualifiedID("", "")),
+            conversationDetailsData = ConversationDetailsData.Group(
+                conversationProtocol = null,
+                conversationId = QualifiedID("", "")
+            ),
             conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE),
         ),
         onBackButtonClick = {},
@@ -275,7 +278,10 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearch() {
             conversationName = UIText.DynamicString(
                 "This is some very very very very very very very very very very long conversation title"
             ),
-            conversationDetailsData = ConversationDetailsData.Group(QualifiedID("", "")),
+            conversationDetailsData = ConversationDetailsData.Group(
+                conversationProtocol = null,
+                conversationId = QualifiedID("", "")
+            ),
             conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE),
         ),
         onBackButtonClick = {},
@@ -300,7 +306,10 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearchAndOngoingCall() {
             conversationName = UIText.DynamicString(
                 "This is some very very very very very very very very very very long conversation title"
             ),
-            conversationDetailsData = ConversationDetailsData.Group(QualifiedID("", "")),
+            conversationDetailsData = ConversationDetailsData.Group(
+                conversationProtocol = null,
+                conversationId = QualifiedID("", "")
+            ),
             conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE),
         ),
         onBackButtonClick = {},
@@ -324,7 +333,7 @@ fun PreviewConversationScreenTopAppBarShortTitle() {
         ConversationInfoViewState(
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
-            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
             conversationAvatar = ConversationAvatar.Group(conversationId)
         ),
         onBackButtonClick = {},
@@ -348,7 +357,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
         ConversationInfoViewState(
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
-            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
             conversationAvatar = ConversationAvatar.Group(conversationId)
         ),
         onBackButtonClick = {},
@@ -372,7 +381,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithVerified() {
         ConversationInfoViewState(
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
-            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
             conversationAvatar = ConversationAvatar.Group(conversationId),
             protocolInfo = Conversation.ProtocolInfo.Proteus,
             proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
@@ -399,7 +408,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithLegalHold() {
         ConversationInfoViewState(
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
-            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
             conversationAvatar = ConversationAvatar.Group(conversationId),
             protocolInfo = Conversation.ProtocolInfo.Proteus,
             legalHoldStatus = Conversation.LegalHoldStatus.ENABLED,

@@ -53,7 +53,7 @@ fun SearchConversationMessagesResultsScreen(
                 is UIMessage.Regular -> {
                     MessageItem(
                         message = message,
-                        conversationDetailsData = ConversationDetailsData.None,
+                        conversationDetailsData = ConversationDetailsData.None(null),
                         searchQuery = searchQuery,
                         audioMessagesState = persistentMapOf(),
                         onLongClicked = { },
@@ -72,7 +72,8 @@ fun SearchConversationMessagesResultsScreen(
                         shouldDisplayFooter = false
                     )
                 }
-                is UIMessage.System -> { }
+
+                is UIMessage.System -> {}
             }
         }
     }

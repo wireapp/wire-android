@@ -138,7 +138,7 @@ class CallNotificationManager @Inject constructor(
         hideIncomingCallNotification()
     }
 
-    fun hideIncomingCallNotification() {
+    private fun hideIncomingCallNotification() {
         appLogger.i("$TAG: hiding incoming call")
 
         // This delay is just so when the user receives two calling signals one straight after the other [INCOMING -> CANCEL]

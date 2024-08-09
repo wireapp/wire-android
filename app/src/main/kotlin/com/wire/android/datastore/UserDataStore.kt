@@ -78,10 +78,16 @@ class UserDataStore(private val context: Context, userId: UserId) {
 
     suspend fun setInitialSyncCompleted() { context.dataStore.edit { it[INITIAL_SYNC_COMPLETED] = true } }
 
-    fun isAnonymousUsageDataEnabled(): Flow<Boolean> = context.dataStore.data.map { it[ANONYMOUS_ANALYTICS] ?: true }
+    fun isAnonymousUsageDataEnabled(): Flow<Boolean> = context.dataStore.data.map { it[ANONYMOUS_ANALYTICS] ?: false }
 
     suspend fun setIsAnonymousAnalyticsEnabled(enabled: Boolean) {
         context.dataStore.edit { it[ANONYMOUS_ANALYTICS] = enabled }
+    }
+
+    fun isAnalyticsDialogSeen(): Flow<Boolean> = context.dataStore.data.map { it[ANALYTICS_DIALOG_SEEN] ?: false }
+
+    suspend fun setIsAnalyticsDialogSeen() {
+        context.dataStore.edit { it[ANALYTICS_DIALOG_SEEN] = true }
     }
 
     companion object {
@@ -96,6 +102,7 @@ class UserDataStore(private val context: Context, userId: UserId) {
         private val INITIAL_SYNC_COMPLETED = booleanPreferencesKey("initial_sync_completed")
         private val LAST_BACKUP_DATE_INSTANT = longPreferencesKey("last_backup_date_instant")
         private val ANONYMOUS_ANALYTICS = booleanPreferencesKey("anonymous_analytics")
+        private val ANALYTICS_DIALOG_SEEN = booleanPreferencesKey("analytics_dialog_seen")
     }
 
 }

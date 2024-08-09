@@ -18,11 +18,9 @@
 
 package com.wire.android.ui.common
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -55,13 +53,9 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
-import kotlinx.datetime.minus
-import kotlinx.datetime.until
 import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.hours
-import kotlin.time.DurationUnit
 
 /**
  * @param avatarData data for the avatar
@@ -167,7 +161,7 @@ fun UserProfileAvatar(
         }
         if (type is UserProfileAvatarType.WithTemporaryUserIndicator) {
             CircularProgressIndicator(
-                progress = 0.3f, // todo calculate percentage of time left
+                progress = type.expiresAt.minus(Clock.System.now()).inWholeHours.toFloat() / 24.000f,
                 color = colorsScheme().wireAccentColors.getOrDefault(Accent.Blue, Color.Transparent),
                 strokeWidth = dimensions().spacing2x,
                 modifier = Modifier
@@ -285,40 +279,7 @@ fun PreviewUserCustomIndicators() {
             avatarData = UserAvatarData(),
             padding = 0.dp,
             size = 48.dp,
-            type = UserProfileAvatarType.WithTemporaryUserIndicator(expiresAt = Clock.System.now().plus(23.hours)),
-        )
-    }
-}
-
-@SuppressLint("ComposeModifierMissing")
-@Composable
-fun ImageWithProgressBorder(
-    painter: Painter,
-    progress: Float,
-    size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
-    padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
-) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.size(size)
-    ) {
-        Image(
-            painter = painter,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(CircleShape)
-        )
-
-        // Draw a circular progress indicator border
-        CircularProgressIndicator(
-            progress = progress,
-            color = colorsScheme().wireAccentColors.getOrDefault(Accent.Blue, Color.Transparent),
-            strokeWidth = dimensions().spacing2x,
-            modifier = Modifier
-                .size(size) // Adjust the size to match the image size
-                .padding(padding) // Padding to adjust the border thickness
-                .clip(CircleShape)
+            type = UserProfileAvatarType.WithTemporaryUserIndicator(expiresAt = Clock.System.now().plus(22.hours)),
         )
     }
 }

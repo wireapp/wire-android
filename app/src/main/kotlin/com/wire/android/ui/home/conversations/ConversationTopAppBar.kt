@@ -250,7 +250,10 @@ fun PreviewConversationScreenTopAppBarLongTitle() {
             conversationName = UIText.DynamicString(
                 "This is some very very very very very very very very very very long conversation title"
             ),
-            conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("", "")),
+            conversationDetailsData = ConversationDetailsData.Group(
+                conversationProtocol = null,
+                conversationId = QualifiedID("", "")
+            ),
             conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE),
         ),
         onBackButtonClick = {},
@@ -275,7 +278,10 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearch() {
             conversationName = UIText.DynamicString(
                 "This is some very very very very very very very very very very long conversation title"
             ),
-            conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("", "")),
+            conversationDetailsData = ConversationDetailsData.Group(
+                conversationProtocol = null,
+                conversationId = QualifiedID("", "")
+            ),
             conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE),
         ),
         onBackButtonClick = {},
@@ -300,7 +306,10 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearchAndOngoingCall() {
             conversationName = UIText.DynamicString(
                 "This is some very very very very very very very very very very long conversation title"
             ),
-            conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("", "")),
+            conversationDetailsData = ConversationDetailsData.Group(
+                conversationProtocol = null,
+                conversationId = QualifiedID("", "")
+            ),
             conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE),
         ),
         onBackButtonClick = {},

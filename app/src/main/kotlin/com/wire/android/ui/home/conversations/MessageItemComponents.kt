@@ -316,7 +316,7 @@ fun PreviewMessageDecryptionFailure() {
             mockHeader,
             MessageFlowStatus.Failure.Decryption(false),
             { _, _ -> },
-            null
+            Conversation.ProtocolInfo.Proteus
         )
     }
 }

@@ -21,6 +21,8 @@ package com.wire.android.ui.userprofile.common
 import com.wire.android.util.ifNotEmpty
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.type.UserType
+import kotlinx.datetime.Clock
+import kotlin.time.DurationUnit
 
 object UsernameMapper {
 
@@ -29,9 +31,13 @@ object UsernameMapper {
      * The username is the handle if it exists, otherwise it is the handle@domain for federated users.
      */
     fun fromOtherUser(otherUser: OtherUser): String = with(otherUser) {
-        val userId = otherUser.id
-        return when (otherUser.userType) {
-            UserType.FEDERATED -> handle?.ifNotEmpty { "$handle@${userId.domain}" }.orEmpty()
+        return when {
+            userType == UserType.FEDERATED -> handle?.ifNotEmpty { "$handle@${id.domain}" }.orEmpty()
+            expiresAt != null -> {
+                val expiresAtString = expiresAt!!.minus(Clock.System.now()).toString(DurationUnit.HOURS)
+                expiresAtString
+            }
+
             else -> handle.orEmpty()
         }
     }

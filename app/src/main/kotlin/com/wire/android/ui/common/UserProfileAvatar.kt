@@ -54,7 +54,14 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
+import kotlinx.datetime.minus
+import kotlinx.datetime.until
 import kotlin.math.sqrt
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.DurationUnit
 
 /**
  * @param avatarData data for the avatar
@@ -102,8 +109,12 @@ fun UserProfileAvatar(
                             size + (max(dimensions().avatarStatusBorderSize, dimensions().avatarLegalHoldIndicatorBorderSize) * 2)
                         }
 
-                        UserProfileAvatarType.WithoutIndicators -> {
+                        is UserProfileAvatarType.WithoutIndicators -> {
                             // indicator borders don't need to be taken into account, the avatar itself will take all available space
+                            size
+                        }
+
+                        is UserProfileAvatarType.WithTemporaryUserIndicator -> {
                             size
                         }
                     }
@@ -154,6 +165,17 @@ fun UserProfileAvatar(
                     .align(Alignment.BottomEnd)
             )
         }
+        if (type is UserProfileAvatarType.WithTemporaryUserIndicator) {
+            CircularProgressIndicator(
+                progress = 0.3f, // todo calculate percentage of time left
+                color = colorsScheme().wireAccentColors.getOrDefault(Accent.Blue, Color.Transparent),
+                strokeWidth = dimensions().spacing2x,
+                modifier = Modifier
+                    .size(size) // Adjust the size to match the image size
+                    .padding(padding) // Padding to adjust the border thickness
+                    .clip(CircleShape)
+            )
+        }
     }
 }
 
@@ -164,6 +186,9 @@ sealed class UserProfileAvatarType {
 
     // this will not take the indicators into account when calculating avatar size so the avatar itself will be exactly as specified size
     data object WithoutIndicators : UserProfileAvatarType()
+
+    // for temporary users, the avatar will have a temporary border around it with the countdown.
+    data class WithTemporaryUserIndicator(val expiresAt: Instant) : UserProfileAvatarType()
 }
 
 /**
@@ -256,11 +281,11 @@ fun PreviewUserProfileAvatarWithoutIndicators() {
 @Composable
 fun PreviewUserCustomIndicators() {
     WireTheme {
-        ImageWithProgressBorder(
-            painter = getDefaultAvatar(Membership.Guest),
-            size = 48.dp,
+        UserProfileAvatar(
+            avatarData = UserAvatarData(),
             padding = 0.dp,
-            progress = 0.85f
+            size = 48.dp,
+            type = UserProfileAvatarType.WithTemporaryUserIndicator(expiresAt = Clock.System.now().plus(23.hours)),
         )
     }
 }

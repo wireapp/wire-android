@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.userprofile.common
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
@@ -46,7 +47,6 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
@@ -58,6 +58,8 @@ import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.UserProfileAvatarType
+import com.wire.android.ui.common.UserProfileAvatarType.*
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForUser
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -66,11 +68,15 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -89,6 +95,7 @@ fun UserProfileInfo(
     delayToShowPlaceholderIfNoAsset: Duration = 200.milliseconds,
     isProteusVerified: Boolean = false,
     isMLSVerified: Boolean = false,
+    expiresAt: Instant? = null
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -127,6 +134,7 @@ fun UserProfileInfo(
                     },
                     showPlaceholderIfNoAsset = showPlaceholderIfNoAsset,
                     withCrossfadeAnimation = true,
+                    type = if (expiresAt != null) WithTemporaryUserIndicator(expiresAt) else WithoutIndicators
                 )
             }
             this@Column.AnimatedVisibility(visible = isLoading) {
@@ -182,7 +190,7 @@ fun UserProfileInfo(
                     if (isProteusVerified) ProteusVerifiedIcon()
                 }
                 Text(
-                    text = if (membership == Membership.Service) userName else userName.ifNotEmpty { "@$userName" },
+                    text = Username(userName, membership, expiresAt),
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.wireTypography.body02,
                     maxLines = 1,
@@ -231,6 +239,16 @@ fun UserProfileInfo(
     }
 }
 
+@SuppressLint("ComposeNamingLowercase")
+@Composable
+private fun Username(userName: String, membership: Membership, expiresAt: Instant?): String {
+    return when {
+        expiresAt != null -> UIText.StringResource(R.string.temporary_user_label, userName).asString()
+        membership == Membership.Service -> userName
+        else -> userName.ifNotEmpty { "@$userName" }
+    }
+}
+
 @Composable
 private fun ManageMemberButton(modifier: Modifier, onEditClick: () -> Unit) {
     IconButton(
@@ -257,7 +275,7 @@ sealed class EditableState {
     class IsEditable(val onEditClick: () -> Unit) : EditableState()
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewUserProfileInfo() {
     UserProfileInfo(
@@ -272,5 +290,25 @@ fun PreviewUserProfileInfo() {
         connection = ConnectionState.ACCEPTED,
         isProteusVerified = true,
         isMLSVerified = true
+    )
+}
+
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewUserProfileInfoTempUser() {
+    UserProfileInfo(
+        userId = UserId("value", "domain"),
+        isLoading = true,
+        editableState = EditableState.IsEditable {},
+        userName = "23h",
+        avatarAsset = null,
+        fullName = "fullName",
+        onUserProfileClick = {},
+        teamName = "Wire",
+        connection = ConnectionState.ACCEPTED,
+        isProteusVerified = true,
+        isMLSVerified = true,
+        expiresAt = Clock.System.now().plus(23.hours)
     )
 }

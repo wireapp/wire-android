@@ -54,6 +54,10 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.uiReadReceiptDateTime
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.plus
+import kotlin.time.DurationUnit
 
 @Composable
 fun ConversationParticipantItem(
@@ -116,13 +120,9 @@ fun ConversationParticipantItem(
         },
         subtitle = {
             HighlightSubtitle(
-                subTitle = if (uiParticipant.unavailable) {
-                    uiParticipant.id.domain
-                } else uiParticipant.readReceiptDate?.let {
-                    it.uiReadReceiptDateTime()
-                } ?: uiParticipant.handle,
+                subTitle = Username(uiParticipant),
                 searchQuery = searchQuery,
-                suffix = uiParticipant.readReceiptDate?.let { "" } ?: "@"
+                prefix = UsernamePrefix(uiParticipant)
             )
         },
         actions = {
@@ -138,6 +138,24 @@ fun ConversationParticipantItem(
         },
         clickable = clickable
     )
+}
+
+@Composable
+private fun UsernamePrefix(uiParticipant: UIParticipant) = when {
+    uiParticipant.readReceiptDate != null || uiParticipant.expiresAt != null -> ""
+    else -> "@"
+}
+
+@Composable
+private fun Username(uiParticipant: UIParticipant) = when {
+    uiParticipant.unavailable -> uiParticipant.id.domain
+    uiParticipant.readReceiptDate != null -> uiParticipant.readReceiptDate.uiReadReceiptDateTime()
+    uiParticipant.expiresAt != null -> {
+        val expiresAtString = uiParticipant.expiresAt.minus(Clock.System.now()).toString(DurationUnit.HOURS)
+        stringResource(R.string.temporary_user_label, expiresAtString)
+    }
+
+    else -> uiParticipant.handle
 }
 
 @PreviewMultipleThemes
@@ -157,6 +175,54 @@ fun PreviewGroupConversationParticipantItem() {
                 isProteusVerified = true,
                 isUnderLegalHold = true,
                 supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS)
+            ),
+            clickable = Clickable(enabled = true) {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupConversationTemporaryParticipantItem() {
+    WireTheme {
+        ConversationParticipantItem(
+            UIParticipant(
+                UserId("0", ""),
+                "name",
+                "handle",
+                false,
+                false,
+                UserAvatarData(),
+                Membership.Guest,
+                isMLSVerified = true,
+                isProteusVerified = true,
+                isUnderLegalHold = true,
+                supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS),
+                expiresAt = Clock.System.now().plus(23, DateTimeUnit.HOUR)
+            ),
+            clickable = Clickable(enabled = true) {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupConversationReadReceiptItem() {
+    WireTheme {
+        ConversationParticipantItem(
+            UIParticipant(
+                UserId("0", ""),
+                "name",
+                "handle",
+                false,
+                false,
+                UserAvatarData(),
+                Membership.Guest,
+                isMLSVerified = true,
+                isProteusVerified = true,
+                isUnderLegalHold = true,
+                supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS),
+                readReceiptDate = Clock.System.now()
             ),
             clickable = Clickable(enabled = true) {}
         )

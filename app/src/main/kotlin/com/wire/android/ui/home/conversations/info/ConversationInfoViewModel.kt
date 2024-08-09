@@ -133,8 +133,13 @@ class ConversationInfoViewModel @Inject constructor(
 
     private fun getConversationDetailsData(conversationDetails: ConversationDetails) =
         when (conversationDetails) {
-            is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
+            is ConversationDetails.Group -> ConversationDetailsData.Group(
+                conversationDetails.conversation.protocol,
+                conversationDetails.conversation.id
+            )
+
             is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(
+                conversationProtocol = conversationDetails.conversation.protocol,
                 otherUserId = conversationDetails.otherUser.id,
                 otherUserName = conversationDetails.otherUser.name,
                 connectionState = conversationDetails.otherUser.connectionStatus,
@@ -142,7 +147,7 @@ class ConversationInfoViewModel @Inject constructor(
                 isDeleted = conversationDetails.otherUser.deleted
             )
 
-            else -> ConversationDetailsData.None
+            else -> ConversationDetailsData.None(conversationDetails.conversation.protocol)
         }
 
     private fun getConversationAvatar(conversationDetails: ConversationDetails) =

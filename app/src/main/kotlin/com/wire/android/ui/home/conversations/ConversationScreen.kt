@@ -453,7 +453,7 @@ fun ConversationScreen(
                     is ConversationDetailsData.Group ->
                         navigator.navigate(NavigationCommand(GroupConversationDetailsScreenDestination(conversationId)))
 
-                    ConversationDetailsData.None -> { /* do nothing */
+                    is ConversationDetailsData.None -> { /* do nothing */
                     }
                 }
             }

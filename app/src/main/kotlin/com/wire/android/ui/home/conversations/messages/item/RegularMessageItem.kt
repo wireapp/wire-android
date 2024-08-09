@@ -176,16 +176,8 @@ fun RegularMessageItem(
                     } else {
                         MessageStatusLabel(messageStatus = message.header.messageStatus)
                     }
-                    if (!isDeleted) {
-                        if (!decryptionFailed) {
-                            val currentOnAssetClicked = remember(message) {
-                                Clickable(enabled = isAvailable, onClick = {
-                                    onAssetMessageClicked(header.messageId)
-                                }, onLongClick = {
-                                    onLongClicked(message)
-                                })
-                            }
 
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/RegularMessageItem.kt
                             val currentOnImageClick = remember(message) {
                                 Clickable(enabled = isAvailable && !isContentClickable, onClick = {
                                     onImageMessageClicked(
@@ -259,8 +251,49 @@ fun RegularMessageItem(
                                 isInteractionAvailable = isInteractionAvailable,
                                 onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId, message.conversationId) } },
                                 onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
+=======
+                    if (isDeleted) return@Column
+
+                    if (!decryptionFailed) {
+                        MessageContentAndStatus(
+                            message = message,
+                            onAssetMessageClicked = onAssetMessageClicked,
+                            onLongClicked = onLongClicked,
+                            isContentClickable = isContentClickable,
+                            onImageMessageClicked = onImageMessageClicked,
+                            searchQuery = searchQuery,
+                            audioMessagesState = audioMessagesState,
+                            onAudioClick = onAudioClick,
+                            onChangeAudioPosition = onChangeAudioPosition,
+                            onOpenProfile = onOpenProfile,
+                            onLinkClick = onLinkClick,
+                            shouldDisplayMessageStatus = shouldDisplayMessageStatus,
+                            conversationDetailsData = conversationDetailsData
+                        )
+
+                        if (shouldDisplayFooter) {
+                            VerticalSpace.x4()
+                            MessageFooter(
+                                messageFooter = messageFooter,
+                                onReactionClicked = onReactionClicked
+>>>>>>> 6be04083a (fix: Remove Reset Session for MLS conversations (#3298)):app/src/main/kotlin/com/wire/android/ui/home/conversations/MessageItem.kt
                             )
                         }
+                    } else {
+                        MessageDecryptionFailure(
+                            messageHeader = header,
+                            decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
+                            onResetSessionClicked = onResetSessionClicked,
+                            conversationProtocol = conversationDetailsData.conversationProtocol
+                        )
+                    }
+
+                    if (message.sendingFailed) {
+                        MessageSendFailureWarning(
+                            messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                            onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId) } },
+                            onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
+                        )
                     }
                 }
             }
@@ -384,6 +417,7 @@ private fun SwipableToReplyBox(
 }
 
 @Composable
+<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/RegularMessageItem.kt
 private fun ReplySwipeIcon(dragWidth: Float, density: Density, progress: Float) {
     val midPointBetweenStartAndGestureEnd = dragWidth / 2
     val iconSize = dimensions().fabIconSize
@@ -400,6 +434,78 @@ private fun ReplySwipeIcon(dragWidth: Float, density: Density, progress: Float) 
             .offset { IntOffset(xOffset.toInt(), 0) },
         tint = colorsScheme().onPrimary
     )
+=======
+private fun UIMessage.Regular.MessageContentAndStatus(
+    message: UIMessage.Regular,
+    onAssetMessageClicked: (String) -> Unit,
+    onLongClicked: (UIMessage.Regular) -> Unit,
+    isContentClickable: Boolean,
+    onImageMessageClicked: (UIMessage.Regular, Boolean) -> Unit,
+    searchQuery: String,
+    audioMessagesState: PersistentMap<String, AudioState>,
+    onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (String, Int) -> Unit,
+    onOpenProfile: (String) -> Unit,
+    onLinkClick: (String) -> Unit,
+    shouldDisplayMessageStatus: Boolean,
+    conversationDetailsData: ConversationDetailsData
+) {
+    val currentOnAssetClicked = remember(message) {
+        Clickable(enabled = isAvailable, onClick = {
+            onAssetMessageClicked(header.messageId)
+        }, onLongClick = {
+            onLongClicked(message)
+        })
+    }
+
+    val currentOnImageClick = remember(message) {
+        Clickable(enabled = isAvailable && !isContentClickable, onClick = {
+            onImageMessageClicked(
+                message,
+                source == MessageSource.Self
+            )
+        }, onLongClick = {
+            onLongClicked(message)
+        })
+    }
+    val onLongClick: (() -> Unit)? = if (isContentClickable) null else remember(message) {
+        if (isAvailable) {
+            { onLongClicked(message) }
+        } else {
+            null
+        }
+    }
+    Row {
+        Box(modifier = Modifier.weight(1F)) {
+            MessageContent(
+                message = message,
+                messageContent = messageContent,
+                searchQuery = searchQuery,
+                audioMessagesState = audioMessagesState,
+                onAudioClick = onAudioClick,
+                onChangeAudioPosition = onChangeAudioPosition,
+                onAssetClick = currentOnAssetClicked,
+                onImageClick = currentOnImageClick,
+                onLongClick = onLongClick,
+                onOpenProfile = onOpenProfile,
+                onLinkClick = onLinkClick,
+                clickable = !isContentClickable
+            )
+        }
+        if (isMyMessage && shouldDisplayMessageStatus) {
+            MessageStatusIndicator(
+                status = message.header.messageStatus.flowStatus,
+                isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
+                modifier = Modifier.padding(
+                    top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
+                    start = dimensions().spacing8x
+                )
+            )
+        } else {
+            HorizontalSpace.x24()
+        }
+    }
+>>>>>>> 6be04083a (fix: Remove Reset Session for MLS conversations (#3298)):app/src/main/kotlin/com/wire/android/ui/home/conversations/MessageItem.kt
 }
 
 @Composable

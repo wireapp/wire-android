@@ -15,18 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.analytics
 
-package com.wire.android.ui.home.settings.account
-
-data class MyAccountState(
-    val fullName: String = "",
-    val userName: String = "",
-    val email: String = "",
-    val canDeleteAccount: Boolean = false,
-    val teamName: String? = null,
-    val domain: String = "",
-    val changePasswordUrl: String? = null,
-    val isEditNameAllowed: Boolean = false,
-    val isEditEmailAllowed: Boolean = false,
-    val isEditHandleAllowed: Boolean = false
+data class AnalyticsUsageState(
+    val shouldDisplayDialog: Boolean = false
 )

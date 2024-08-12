@@ -134,7 +134,7 @@ fun UserProfileInfo(
                     },
                     showPlaceholderIfNoAsset = showPlaceholderIfNoAsset,
                     withCrossfadeAnimation = true,
-                    type = if (expiresAt != null) WithTemporaryUserIndicator(expiresAt) else WithoutIndicators
+                    type = if (expiresAt != null) WithIndicators.TemporaryUser(expiresAt) else WithoutIndicators
                 )
             }
             this@Column.AnimatedVisibility(visible = isLoading) {

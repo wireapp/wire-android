@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
@@ -78,7 +79,7 @@ fun UserProfileAvatar(
     clickable: Clickable? = null,
     showPlaceholderIfNoAsset: Boolean = true,
     withCrossfadeAnimation: Boolean = false,
-    type: UserProfileAvatarType = UserProfileAvatarType.WithIndicators(legalHoldIndicatorVisible = false),
+    type: UserProfileAvatarType = UserProfileAvatarType.WithIndicators.LegalHold(legalHoldIndicatorVisible = false),
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -98,23 +99,20 @@ fun UserProfileAvatar(
             modifier = Modifier
                 .size(
                     when (type) {
-                        is UserProfileAvatarType.WithIndicators -> {
+                        is UserProfileAvatarType.WithIndicators.LegalHold -> {
                             // indicator borders need to be taken into account, the avatar itself will be smaller by the borders widths
                             size + (max(dimensions().avatarStatusBorderSize, dimensions().avatarLegalHoldIndicatorBorderSize) * 2)
                         }
 
+                        is UserProfileAvatarType.WithIndicators.TemporaryUser,
                         is UserProfileAvatarType.WithoutIndicators -> {
                             // indicator borders don't need to be taken into account, the avatar itself will take all available space
-                            size
-                        }
-
-                        is UserProfileAvatarType.WithTemporaryUserIndicator -> {
                             size
                         }
                     }
                 )
                 .let {
-                    if (type is UserProfileAvatarType.WithIndicators) {
+                    if (type is UserProfileAvatarType.WithIndicators.LegalHold) {
                         if (type.legalHoldIndicatorVisible) {
                             it
                                 .border(
@@ -146,7 +144,7 @@ fun UserProfileAvatar(
                 .testTag("User avatar"),
             contentScale = ContentScale.Crop
         )
-        if (type is UserProfileAvatarType.WithIndicators) {
+        if (type is UserProfileAvatarType.WithIndicators.LegalHold) {
             val avatarWithLegalHoldRadius = (size.value / 2f) + dimensions().avatarLegalHoldIndicatorBorderSize.value
             val statusRadius = (dimensions().userAvatarStatusSize - dimensions().avatarStatusBorderSize).value / 2f
             // calculated using the trigonometry so that the status is always in the right place according to the avatar
@@ -159,15 +157,15 @@ fun UserProfileAvatar(
                     .align(Alignment.BottomEnd)
             )
         }
-        if (type is UserProfileAvatarType.WithTemporaryUserIndicator) {
+        if (type is UserProfileAvatarType.WithIndicators.TemporaryUser) {
             CircularProgressIndicator(
-                progress = type.expiresAt.minus(Clock.System.now()).inWholeHours.toFloat() / 24f,
+                progress = (type.expiresAt.minus(Clock.System.now()).inWholeHours.toFloat() / 24f),
                 color = colorsScheme().wireAccentColors.getOrDefault(Accent.Blue, Color.Transparent),
-                strokeWidth = dimensions().spacing2x,
+                strokeWidth = dimensions().spacing4x,
                 modifier = Modifier
                     .size(size)
-                    .padding(padding)
                     .clip(CircleShape)
+                    .scale(scaleX = -1f, scaleY = 1f)
             )
         }
     }
@@ -175,14 +173,14 @@ fun UserProfileAvatar(
 
 sealed class UserProfileAvatarType {
 
-    // this will take the indicators into account when calculating avatar size so the composable itself will be larger by the borders
-    data class WithIndicators(val legalHoldIndicatorVisible: Boolean) : UserProfileAvatarType()
+    sealed class WithIndicators : UserProfileAvatarType() {
+        // this will take the indicators into account when calculating avatar size so the composable itself will be larger by the borders
+        data class LegalHold(val legalHoldIndicatorVisible: Boolean) : WithIndicators()
+        data class TemporaryUser(val expiresAt: Instant) : WithIndicators()
+    }
 
     // this will not take the indicators into account when calculating avatar size so the avatar itself will be exactly as specified size
     data object WithoutIndicators : UserProfileAvatarType()
-
-    // for temporary users, the avatar will have a temporary border around it with the countdown.
-    data class WithTemporaryUserIndicator(val expiresAt: Instant) : UserProfileAvatarType()
 }
 
 /**
@@ -241,7 +239,7 @@ fun PreviewUserProfileAvatarWithLegalHold() {
     WireTheme {
         UserProfileAvatar(
             avatarData = UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE),
-            type = UserProfileAvatarType.WithIndicators(legalHoldIndicatorVisible = true)
+            type = UserProfileAvatarType.WithIndicators.LegalHold(legalHoldIndicatorVisible = true)
         )
     }
 }
@@ -253,7 +251,7 @@ fun PreviewLargeUserProfileAvatarWithLegalHold() {
         UserProfileAvatar(
             avatarData = UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE),
             size = 48.dp,
-            type = UserProfileAvatarType.WithIndicators(legalHoldIndicatorVisible = true)
+            type = UserProfileAvatarType.WithIndicators.LegalHold(legalHoldIndicatorVisible = true)
         )
     }
 }
@@ -273,13 +271,13 @@ fun PreviewUserProfileAvatarWithoutIndicators() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewUserCustomIndicators() {
+fun PreviewTempUserCustomIndicators() {
     WireTheme {
         UserProfileAvatar(
             avatarData = UserAvatarData(),
-            padding = 0.dp,
-            size = 48.dp,
-            type = UserProfileAvatarType.WithTemporaryUserIndicator(expiresAt = Clock.System.now().plus(22.hours)),
+            padding = 4.dp,
+            size = dimensions().avatarDefaultBigSize,
+            type = UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt = Clock.System.now().plus(22.hours)),
         )
     }
 }

@@ -66,6 +66,7 @@ import kotlin.time.Duration.Companion.hours
  * composable will be larger than this specified size by the indicators borders widths, if padding is specified it will also be added to
  * the final composable size
  * @param padding padding around the avatar and indicator borders
+ * @param avatarBorderSize border of the avatar to override as base
  * @param clickable clickable callback for the avatar
  * @param showPlaceholderIfNoAsset if true, will show default avatar if asset is null
  * @param withCrossfadeAnimation if true, will animate the avatar change
@@ -77,6 +78,7 @@ fun UserProfileAvatar(
     modifier: Modifier = Modifier,
     size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
     padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
+    avatarBorderSize: Dp = MaterialTheme.wireDimensions.avatarLegalHoldIndicatorBorderSize,
     clickable: Clickable? = null,
     showPlaceholderIfNoAsset: Boolean = true,
     withCrossfadeAnimation: Boolean = false,
@@ -102,7 +104,7 @@ fun UserProfileAvatar(
                     when (type) {
                         is UserProfileAvatarType.WithIndicators.LegalHold -> {
                             // indicator borders need to be taken into account, the avatar itself will be smaller by the borders widths
-                            size + (max(dimensions().avatarStatusBorderSize, dimensions().avatarLegalHoldIndicatorBorderSize) * 2)
+                            size + (max(avatarBorderSize, dimensions().avatarStatusBorderSize) * 2)
                         }
 
                         is UserProfileAvatarType.WithIndicators.TemporaryUser,
@@ -117,21 +119,21 @@ fun UserProfileAvatar(
                         if (type.legalHoldIndicatorVisible) {
                             it
                                 .border(
-                                    width = dimensions().avatarLegalHoldIndicatorBorderSize / 2,
+                                    width = avatarBorderSize / 2,
                                     shape = CircleShape,
                                     color = colorsScheme().error.copy(alpha = 0.3f)
                                 )
-                                .padding(dimensions().avatarLegalHoldIndicatorBorderSize / 2)
+                                .padding(avatarBorderSize / 2)
                                 .border(
-                                    width = dimensions().avatarLegalHoldIndicatorBorderSize / 2,
+                                    width = avatarBorderSize / 2,
                                     shape = CircleShape,
                                     color = colorsScheme().error.copy(alpha = 1.0f)
                                 )
-                                .padding(dimensions().avatarLegalHoldIndicatorBorderSize / 2)
+                                .padding(avatarBorderSize / 2)
                         } else {
                             it
                                 // this is to make the border of the avatar to be the same size as with the legal hold indicator
-                                .padding(dimensions().avatarLegalHoldIndicatorBorderSize - dimensions().spacing1x)
+                                .padding(avatarBorderSize - dimensions().spacing1x)
                                 .border(
                                     width = dimensions().spacing1x,
                                     shape = CircleShape,
@@ -146,7 +148,7 @@ fun UserProfileAvatar(
             contentScale = ContentScale.Crop
         )
         if (type is UserProfileAvatarType.WithIndicators.LegalHold) {
-            val avatarWithLegalHoldRadius = (size.value / 2f) + dimensions().avatarLegalHoldIndicatorBorderSize.value
+            val avatarWithLegalHoldRadius = (size.value / 2f) + avatarBorderSize.value
             val statusRadius = (dimensions().userAvatarStatusSize - dimensions().avatarStatusBorderSize).value / 2f
             // calculated using the trigonometry so that the status is always in the right place according to the avatar
             val paddingToAlignWithAvatar = ((sqrt(2f) - 1f) * avatarWithLegalHoldRadius + (1f - sqrt(2f)) * statusRadius) / sqrt(2f)
@@ -162,7 +164,7 @@ fun UserProfileAvatar(
             CircularProgressIndicator(
                 progress = (type.expiresAt.minus(Clock.System.now()).inWholeHours.toFloat() / 24f).absoluteValue,
                 color = colorsScheme().wireAccentColors.getOrDefault(Accent.Blue, Color.Transparent),
-                strokeWidth = dimensions().spacing4x,
+                strokeWidth = avatarBorderSize,
                 modifier = Modifier
                     .size(size)
                     .clip(CircleShape)
@@ -282,3 +284,19 @@ fun PreviewTempUserCustomIndicators() {
         )
     }
 }
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewTempUserSmallAvatarCustomIndicators() {
+    WireTheme {
+        UserProfileAvatar(
+            avatarData = UserAvatarData(),
+            modifier = Modifier.padding(
+                start = dimensions().spacing8x
+            ),
+            avatarBorderSize = 2.dp,
+            type = UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt = Clock.System.now().plus(10.hours)),
+        )
+    }
+}
+

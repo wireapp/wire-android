@@ -40,6 +40,8 @@ import com.wire.android.ui.common.ProtocolLabel
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.UserProfileAvatarType.WithIndicators
+import com.wire.android.ui.common.UserProfileAvatarType.WithoutIndicators
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.search.HighlightName
@@ -69,10 +71,12 @@ fun ConversationParticipantItem(
     RowItemTemplate(
         leadingIcon = {
             UserProfileAvatar(
-                uiParticipant.avatarData,
+                avatarData = uiParticipant.avatarData,
                 modifier = Modifier.padding(
                     start = dimensions().spacing8x
-                )
+                ),
+                avatarBorderSize = dimensions().spacing2x,
+                type = uiParticipant.expiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithoutIndicators
             )
         },
         titleStartPadding = dimensions().spacing0x,

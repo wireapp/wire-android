@@ -154,7 +154,7 @@ class LogFileWriter(private val logsDirectory: File) {
     }
 
     private fun deleteOldCompressedFiles() = getCompressedFilesList()
-        .sortedBy { it.name } // name contains date-time so it's safe to sort it by name
+        .sortedBy { it.lastModified() }
         .dropLast(LOG_COMPRESSED_FILES_MAX_COUNT)
         .forEach {
             it.delete()

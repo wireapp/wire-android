@@ -55,6 +55,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlin.math.absoluteValue
 import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.hours
 
@@ -159,7 +160,7 @@ fun UserProfileAvatar(
         }
         if (type is UserProfileAvatarType.WithIndicators.TemporaryUser) {
             CircularProgressIndicator(
-                progress = (type.expiresAt.minus(Clock.System.now()).inWholeHours.toFloat() / 24f),
+                progress = (type.expiresAt.minus(Clock.System.now()).inWholeHours.toFloat() / 24f).absoluteValue,
                 color = colorsScheme().wireAccentColors.getOrDefault(Accent.Blue, Color.Transparent),
                 strokeWidth = dimensions().spacing4x,
                 modifier = Modifier

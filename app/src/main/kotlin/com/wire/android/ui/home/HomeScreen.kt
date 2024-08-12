@@ -68,6 +68,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
+import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -97,7 +98,8 @@ fun HomeScreen(
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
     homeViewModel: HomeViewModel = hiltViewModel(),
     appSyncViewModel: AppSyncViewModel = hiltViewModel(),
-    homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel()
+    homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
+    analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel()
 ) {
     homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
     val homeScreenState = rememberHomeScreenState(navigator)
@@ -143,6 +145,13 @@ fun HomeScreen(
     if (homeViewModel.homeState.shouldDisplayWelcomeMessage) {
         WelcomeNewUserDialog(
             dismissDialog = homeViewModel::dismissWelcomeMessage
+        )
+    }
+
+    if (analyticsUsageViewModel.state.shouldDisplayDialog) {
+        AnalyticsUsageDialog(
+            agreeOption = analyticsUsageViewModel::agreeAnalyticsUsage,
+            declineOption = analyticsUsageViewModel::declineAnalyticsUsage
         )
     }
 

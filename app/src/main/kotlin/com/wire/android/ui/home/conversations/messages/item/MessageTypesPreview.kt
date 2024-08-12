@@ -308,15 +308,9 @@ fun PreviewFailedDownloadAssetMessage() {
 @Composable
 fun PreviewImageMessageUploaded() {
     WireTheme {
-<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageTypesPreview.kt
         RegularMessageItem(
             message = mockedImageUIMessage(messageId = "assetMessageId"),
-            conversationDetailsData = ConversationDetailsData.None,
-=======
-        MessageItem(
-            message = mockedImageUIMessage(Message.UploadStatus.UPLOADED),
             conversationDetailsData = ConversationDetailsData.None(null),
->>>>>>> 6be04083a (fix: Remove Reset Session for MLS conversations (#3298)):app/src/main/kotlin/com/wire/android/ui/home/conversations/model/MessageTypesPreview.kt
             audioMessagesState = persistentMapOf(),
             assetStatus = AssetTransferStatus.UPLOADED,
             onLongClicked = {},
@@ -336,15 +330,9 @@ fun PreviewImageMessageUploaded() {
 @Composable
 fun PreviewImageMessageUploading() {
     WireTheme {
-<<<<<<< HEAD:app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageTypesPreview.kt
         RegularMessageItem(
             message = mockedImageUIMessage("assetMessageId"),
-            conversationDetailsData = ConversationDetailsData.None,
-=======
-        MessageItem(
-            message = mockedImageUIMessage(Message.UploadStatus.UPLOAD_IN_PROGRESS),
             conversationDetailsData = ConversationDetailsData.None(null),
->>>>>>> 6be04083a (fix: Remove Reset Session for MLS conversations (#3298)):app/src/main/kotlin/com/wire/android/ui/home/conversations/model/MessageTypesPreview.kt
             audioMessagesState = persistentMapOf(),
             assetStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS,
             onLongClicked = {},
@@ -592,7 +580,7 @@ fun PreviewMessageWithMarkdownQuery() {
             RegularMessageItem(
                 message = mockMessageWithTextLoremIpsum,
                 searchQuery = "ed",
-                conversationDetailsData = ConversationDetailsData.None,
+                conversationDetailsData = ConversationDetailsData.None(null),
                 audioMessagesState = persistentMapOf(),
                 onLongClicked = {},
                 onAssetMessageClicked = {},
@@ -607,7 +595,7 @@ fun PreviewMessageWithMarkdownQuery() {
             RegularMessageItem(
                 message = mockMessageWithMarkdownTextAndLinks,
                 searchQuery = "code",
-                conversationDetailsData = ConversationDetailsData.None,
+                conversationDetailsData = ConversationDetailsData.None(null),
                 audioMessagesState = persistentMapOf(),
                 onLongClicked = {},
                 onAssetMessageClicked = {},
@@ -622,7 +610,7 @@ fun PreviewMessageWithMarkdownQuery() {
             RegularMessageItem(
                 message = mockMessageWithMarkdownTextAndLinks,
                 searchQuery = ".com",
-                conversationDetailsData = ConversationDetailsData.None,
+                conversationDetailsData = ConversationDetailsData.None(null),
                 audioMessagesState = persistentMapOf(),
                 onLongClicked = {},
                 onAssetMessageClicked = {},
@@ -637,7 +625,7 @@ fun PreviewMessageWithMarkdownQuery() {
             RegularMessageItem(
                 message = mockMessageWithMarkdownListAndImages,
                 searchQuery = "can",
-                conversationDetailsData = ConversationDetailsData.None,
+                conversationDetailsData = ConversationDetailsData.None(null),
                 audioMessagesState = persistentMapOf(),
                 onLongClicked = {},
                 onAssetMessageClicked = {},
@@ -652,7 +640,7 @@ fun PreviewMessageWithMarkdownQuery() {
             RegularMessageItem(
                 message = mockMessageWithMarkdownTablesAndBlocks,
                 searchQuery = "Joh",
-                conversationDetailsData = ConversationDetailsData.None,
+                conversationDetailsData = ConversationDetailsData.None(null),
                 audioMessagesState = persistentMapOf(),
                 onLongClicked = {},
                 onAssetMessageClicked = {},
@@ -678,7 +666,7 @@ fun PreviewMessageWithAccents() = WireTheme {
                     header = mockHeader.copy(username = UIText.DynamicString(it.name), accent = it),
                     messageContent = UIMessageContent.TextMessage(MessageBody(UIText.DynamicString("Text")))
                 ),
-                conversationDetailsData = ConversationDetailsData.None,
+                conversationDetailsData = ConversationDetailsData.None(null),
                 audioMessagesState = persistentMapOf(),
                 onLongClicked = {},
                 onAssetMessageClicked = {},

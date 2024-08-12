@@ -207,7 +207,7 @@
     <!-- Settings -->
     <string name="settings_backups_group_title">Резервные копии</string>
     <string name="settings_other_group_title">Другое</string>
-    <string name="settings_backup_info">Создайте резервную копию, чтобы сохранить историю бесед. Она пригодится для восстановления истории в случае потери или замены устройства.\n\nВыберите надежный пароль для защиты резервной копии.</string>
+    <string name="settings_backup_info">Создайте резервную копию, чтобы сохранить историю бесед. Она пригодится для восстановления истории в случае потери или замены устройства.\n\nЗадайте надежный пароль для защиты резервной копии.</string>
     <string name="settings_backup_last_backup_title">Последнее резервное копирование</string>
     <string name="settings_backup_last_backup_date">Последняя резервная копия для этого устройства была создана на %1$s в %2$s.</string>
     <string name="settings_backup_last_backup_date_no_time">Вы еще не создавали резервную копию с этого устройства.</string>
@@ -1093,7 +1093,7 @@
     <string name="label_code_commit_id">Хэш коммита</string>
     <string name="label_client_id">ID клиента: %1$s</string>
     <string name="label_client_added_time">ДОБАВЛЕН</string>
-    <string name="label_client_last_active_label">ПОСЛЕДНЕЕ</string>
+    <string name="label_client_last_active_label">ПОСЛЕДНЯЯ АКТИВНОСТЬ</string>
     <string name="label_client_last_active_time_zero_weeks">Менее недели назад</string>
     <string name="label_client_last_active_time">%1$s назад</string>
     <string name="label_client_device_id">Proteus ID</string>

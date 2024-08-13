@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.UserProfileAvatarType
 import com.wire.android.ui.common.UserProfileAvatarType.WithIndicators
 import com.wire.android.ui.common.UserProfileAvatarType.WithoutIndicators
 import com.wire.android.ui.common.dimensions

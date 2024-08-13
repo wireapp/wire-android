@@ -301,4 +301,3 @@ fun PreviewTempUserSmallAvatarCustomIndicators() {
         )
     }
 }
-

@@ -59,7 +59,6 @@ import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserProfileAvatarType
-import com.wire.android.ui.common.UserProfileAvatarType.*
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForUser
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -134,7 +133,8 @@ fun UserProfileInfo(
                     },
                     showPlaceholderIfNoAsset = showPlaceholderIfNoAsset,
                     withCrossfadeAnimation = true,
-                    type = if (expiresAt != null) WithIndicators.TemporaryUser(expiresAt) else WithoutIndicators
+                    type = expiresAt?.let { UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt) }
+                        ?: UserProfileAvatarType.WithoutIndicators
                 )
             }
             this@Column.AnimatedVisibility(visible = isLoading) {
@@ -292,7 +292,6 @@ fun PreviewUserProfileInfo() {
         isMLSVerified = true
     )
 }
-
 
 @PreviewMultipleThemes
 @Composable

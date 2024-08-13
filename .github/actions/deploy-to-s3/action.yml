@@ -49,7 +49,7 @@ runs:
       with:
         aws-access-key-id: ${{ inputs.aws-access-key-id }}
         aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-        aws-region: 'us-west-1'
+        aws-region: 'eu-central-1'
         aws-bucket: ${{ inputs.aws-bucket }}
         destination-dir: "megazord/android/reloaded/${{ inputs.build-flavour }}/${{ inputs.build-variant }}/"
         file-path: ${{ steps.path.outputs.apk_full_path }}

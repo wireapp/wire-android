@@ -588,12 +588,12 @@ fun ContentFooter(
         enter = fadeIn(),
         exit = fadeOut(),
     ) {
-        Surface(
-            shadowElevation = maxBarElevation,
-            color = MaterialTheme.wireColorScheme.background
-        ) {
-            // TODO show open conversation button for service bots after AR-2135
-            if (!state.isMetadataEmpty() && state.membership != Membership.Service && !state.isTemporaryUser()) {
+        // TODO show open conversation button for service bots after AR-2135
+        if (!state.isMetadataEmpty() && state.membership != Membership.Service && !state.isTemporaryUser()) {
+            Surface(
+                shadowElevation = maxBarElevation,
+                color = MaterialTheme.wireColorScheme.background
+            ) {
                 Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
                     ConnectionActionButton(
                         state.userId,

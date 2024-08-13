@@ -489,7 +489,7 @@ private fun Content(
 
     Crossfade(targetState = tabItems to state, label = "OtherUserProfile") { (tabItems, state) ->
         Column {
-            if (!state.isDataLoading) {
+            if (!state.isDataLoading && !state.isTemporaryUser()) {
                 OtherUserConnectionStatusInfo(state.connectionState, state.membership)
                 OtherUserConnectionUnverifiedWarning(state.fullName, state.connectionState)
             }

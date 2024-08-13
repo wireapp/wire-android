@@ -89,7 +89,6 @@ class ContactMapper
 
     /**
      * Adds the fully qualified handle to the contact label in case of federated users.
-     * todo: is this the right place for this logic?, or can be moved to usernamemapper / check for guests if needed.
      */
     private fun mapUserHandle(user: UserSearchDetails): String {
         return when (user.type) {

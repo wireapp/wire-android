@@ -149,7 +149,7 @@ internal class SendMessageViewModelArrangement {
             handleUriAsset = handleUriAssetUseCase,
             imageUtil = imageUtil,
             pingRinger = pingRinger,
-            sendKnockUseCase = sendKnockUseCase,
+            sendKnock = sendKnockUseCase,
             retryFailedMessage = retryFailedMessageUseCase,
             sendTypingEvent = sendTypingEvent,
             setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,

@@ -328,7 +328,7 @@ class FeatureFlagNotificationViewModelTest {
 
         val viewModel: FeatureFlagNotificationViewModel by lazy {
             FeatureFlagNotificationViewModel(
-                coreLogic = { coreLogic },
+                coreLogic = coreLogic,
                 currentSessionFlow = currentSessionFlow,
                 globalDataStore = globalDataStore,
                 disableAppLockUseCase = disableAppLockUseCase

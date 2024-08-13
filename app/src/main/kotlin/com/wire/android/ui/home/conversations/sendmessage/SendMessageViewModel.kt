@@ -86,7 +86,7 @@ class SendMessageViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem,
     private val handleUriAsset: HandleUriAssetUseCase,
-    private val sendKnockUseCase: SendKnockUseCase,
+    private val sendKnock: SendKnockUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
@@ -243,7 +243,7 @@ class SendMessageViewModel @Inject constructor(
 
             is Ping -> {
                 pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
-                sendKnockUseCase(conversationId = messageBundle.conversationId, hotKnock = false)
+                sendKnock(conversationId = messageBundle.conversationId, hotKnock = false)
                     .handleLegalHoldFailureAfterSendingMessage(messageBundle.conversationId)
             }
         }

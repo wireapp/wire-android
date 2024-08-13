@@ -1452,4 +1452,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="no_file_manager_app">No file manager app found to complete this action.</string>
 
     <string name="restricted_asset_error_toast_message">Sending of files is forbidden due to company restrictions</string>
+    <!--    Ping dialog-->
+    <string name="ping_confirm_sending_title_dialog">Send a ping</string>
+    <string name="ping_confirm_sending_description_dialog">Are you sure you want to ping %1$s people?</string>
+    <string name="ping_confirm_sending_action_dialog">Ping</string>
 </resources>

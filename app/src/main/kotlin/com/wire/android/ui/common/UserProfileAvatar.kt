@@ -59,6 +59,10 @@ import kotlin.math.absoluteValue
 import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.hours
 
+const val MINUTES_IN_DAY = 60 * 24
+const val LEGAL_HOLD_INDICATOR_TEST_TAG = "legal_hold_indicator"
+const val TEMP_USER_INDICATOR_TEST_TAG = "temp_user_indicator"
+
 /**
  * @param avatarData data for the avatar
  * @param modifier modifier for the avatar composable
@@ -158,6 +162,7 @@ fun UserProfileAvatar(
                     // on designs the status border extends beyond the avatar's perimeter so we need to subtract it's size from the padding
                     .padding(paddingToAlignWithAvatar.dp - dimensions().avatarStatusBorderSize)
                     .align(Alignment.BottomEnd)
+                    .testTag(LEGAL_HOLD_INDICATOR_TEST_TAG)
             )
         }
         if (type is UserProfileAvatarType.WithIndicators.TemporaryUser) {
@@ -169,6 +174,7 @@ fun UserProfileAvatar(
                     .size(size)
                     .clip(CircleShape)
                     .scale(scaleX = -1f, scaleY = 1f)
+                    .testTag(TEMP_USER_INDICATOR_TEST_TAG)
             )
         }
     }
@@ -225,8 +231,6 @@ private fun getDefaultAvatarResourceId(membership: Membership): Int =
     } else {
         R.drawable.ic_default_user_avatar
     }
-
-const val MINUTES_IN_DAY = 60 * 24
 
 @PreviewMultipleThemes
 @Composable

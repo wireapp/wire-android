@@ -20,7 +20,12 @@ class UsernameMapperTest {
     @Test
     fun `given a guest temporary user, should map the handle as hours left`() {
         val expected = "22h"
-        val result = fromOtherUser(TestUser.OTHER_USER.copy(userType = UserType.GUEST, expiresAt = Clock.System.now().plus(22.hours)))
+        val result = fromOtherUser(
+            TestUser.OTHER_USER.copy(
+                userType = UserType.GUEST,
+                expiresAt = Clock.System.now().plus(22.hours)
+            )
+        )
         assertEquals(expected, result)
     }
 
@@ -30,5 +35,4 @@ class UsernameMapperTest {
         val result = fromOtherUser(TestUser.OTHER_USER.copy(userType = UserType.INTERNAL))
         assertEquals(expected, result)
     }
-
 }

@@ -162,7 +162,7 @@ fun UserProfileAvatar(
         }
         if (type is UserProfileAvatarType.WithIndicators.TemporaryUser) {
             CircularProgressIndicator(
-                progress = (type.expiresAt.minus(Clock.System.now()).inWholeHours.toFloat() / 24f).absoluteValue,
+                progress = (type.expiresAt.minus(Clock.System.now()).inWholeMinutes.toFloat() / MINUTES_IN_DAY.toFloat()).absoluteValue,
                 color = colorsScheme().wireAccentColors.getOrDefault(Accent.Blue, Color.Transparent),
                 strokeWidth = avatarBorderSize,
                 modifier = Modifier
@@ -226,6 +226,8 @@ private fun getDefaultAvatarResourceId(membership: Membership): Int =
         R.drawable.ic_default_user_avatar
     }
 
+const val MINUTES_IN_DAY = 60 * 24
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewUserProfileAvatar() {
@@ -280,7 +282,7 @@ fun PreviewTempUserCustomIndicators() {
             avatarData = UserAvatarData(),
             padding = 4.dp,
             size = dimensions().avatarDefaultBigSize,
-            type = UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt = Clock.System.now().plus(22.hours)),
+            type = UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt = Clock.System.now().plus(1.hours)),
         )
     }
 }

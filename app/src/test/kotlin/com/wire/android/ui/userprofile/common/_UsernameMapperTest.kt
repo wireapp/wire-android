@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.hours
 
-class UsernameMapperTest {
+class _UsernameMapperTest {
 
     @Test
     fun `given a federated user, should map its handle with domain`() {

@@ -63,6 +63,7 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
@@ -228,7 +229,8 @@ private fun SingleUserDeliveryFailure(
 internal fun MessageDecryptionFailure(
     messageHeader: MessageHeader,
     decryptionStatus: MessageFlowStatus.Failure.Decryption,
-    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
+    conversationProtocol: Conversation.ProtocolInfo?
 ) {
     val context = LocalContext.current
     val learnMoreUrl = stringResource(R.string.url_decryption_failure_learn_more)
@@ -251,6 +253,9 @@ internal fun MessageDecryptionFailure(
                 text = stringResource(R.string.label_learn_more)
             )
             VerticalSpace.x4()
+
+            if (conversationProtocol !is Conversation.ProtocolInfo.Proteus) return@Column
+
             Text(
                 text = stringResource(R.string.label_message_decryption_failure_informative_message),
                 style = LocalTextStyle.current,
@@ -362,7 +367,12 @@ fun PreviewMessageSendFailureWarningWithInteractionDisabled() {
 @Composable
 fun PreviewMessageDecryptionFailure() {
     WireTheme {
-        MessageDecryptionFailure(mockHeader, MessageFlowStatus.Failure.Decryption(false)) { _, _ -> }
+        MessageDecryptionFailure(
+            mockHeader,
+            MessageFlowStatus.Failure.Decryption(false),
+            { _, _ -> },
+            Conversation.ProtocolInfo.Proteus
+        )
     }
 }
 

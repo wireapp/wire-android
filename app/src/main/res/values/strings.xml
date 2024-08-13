@@ -1158,6 +1158,12 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="cancel_login_button_label">Cancel</string>
     <string name="cancel_login_dialog_description">If you cancel now, you will be logged out.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
+    <!-- Analytics Usage dialog -->
+    <string name="analytics_usage_dialog_title">Consent to share user data</string>
+    <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID.\n\nThe data is neither linked to your personal information nor shared with third parties besides Zeta Project Germany GmbH. It includes, for example, when you use a feature, your app version, device type, or your operating system. The ID will be deleted at the latest from your device after [28] days after the last activity.\n\nFind further details in our Privacy Policy (link). You can revoke your consent at any time.</string>
+    <string name="analytics_usage_dialog_button_agree">Agree</string>
+    <string name="analytics_usage_dialog_button_decline">Decline</string>
+    <string name="analytics_usage_dialog_button_privacy_policy">Privacy Policy</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
     <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
@@ -1446,4 +1452,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="no_file_manager_app">No file manager app found to complete this action.</string>
 
     <string name="restricted_asset_error_toast_message">Sending of files is forbidden due to company restrictions</string>
+    <!--    Ping dialog-->
+    <string name="ping_confirm_sending_title_dialog">Send a ping</string>
+    <string name="ping_confirm_sending_description_dialog">Are you sure you want to ping %1$s people?</string>
+    <string name="ping_confirm_sending_action_dialog">Ping</string>
 </resources>

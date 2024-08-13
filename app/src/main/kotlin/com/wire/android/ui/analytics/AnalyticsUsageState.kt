@@ -15,15 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.analytics
 
-package com.wire.android.ui.home.conversations
-
-enum class ConversationScreenDialogType {
-    VERIFICATION_DEGRADED,
-    ONGOING_ACTIVE_CALL,
-    NO_CONNECTIVITY,
-    CALL_CONFIRMATION,
-    PING_CONFIRMATION,
-    CALLING_FEATURE_UNAVAILABLE,
-    NONE
-}
+data class AnalyticsUsageState(
+    val shouldDisplayDialog: Boolean = false
+)

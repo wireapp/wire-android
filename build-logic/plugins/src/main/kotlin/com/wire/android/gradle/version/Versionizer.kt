@@ -29,7 +29,21 @@ import java.time.LocalDateTime
  */
 class Versionizer(private val localDateTime: LocalDateTime = LocalDateTime.now()) {
 
-    val versionCode = generateVersionCode()
+    // get version from app/version.txt otherwise use the current date
+    val versionCode = readFromInternalFile() ?: generateVersionCode()
+
+    // get version from app/version.txt otherwise use the current date the file have the following format
+    // VersionCode: $$VERCODE$$\n
+    // the file is added by CI tp sync build version between store and fdroid
+    private fun readFromInternalFile(): Int? {
+        val file = java.io.File("app/version.txt")
+        if (file.exists()) {
+            val lines = file.readLines()
+            val versionCode = lines.find { it.startsWith("VersionCode:") }?.substringAfter(":")?.trim()
+            return versionCode?.toIntOrNull()
+        }
+        return null
+    }
 
     private fun generateVersionCode(): Int {
         return if (localDateTime <= V2_DATE_OFFSET) {

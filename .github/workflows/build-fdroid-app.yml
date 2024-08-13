@@ -42,7 +42,7 @@ jobs:
         run: chmod +x ./gradlew
       - name: build prod flavour APK
         run:
-          ./gradlew app:assembleFdroidCompatRelease
+          ./gradlew app:assembleFdroidCompatrelease
         env:
           KEYSTORE_FILE_PATH_DEBUG: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}

@@ -1,13 +1,29 @@
 package com.wire.android.ui.userprofile.common
 
 import com.wire.android.framework.TestUser.OTHER_USER
+import com.wire.android.ui.userprofile.common.UsernameMapper.fromOtherUser
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.type.UserType
+import kotlinx.datetime.Clock
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import kotlin.time.Duration.Companion.hours
 
 class UsernameMapperTest {
+
+    @Test
+    fun `given a guest temporary user, should map the handle as hours left`() {
+        val expected = "22h"
+        val result = fromOtherUser(
+            OTHER_USER.copy(
+                userType = UserType.GUEST,
+                expiresAt = Clock.System.now().plus(22.hours)
+            )
+        )
+        assertEquals(expected, result)
+    }
 
     @ParameterizedTest
     @EnumSource(TestParams::class)

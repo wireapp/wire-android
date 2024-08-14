@@ -590,10 +590,6 @@ class WireActivity : AppCompatActivity() {
                 // do nothing, already handled in ViewModel
             }
 
-            is DeepLinkResult.OpenUserProfile -> {
-                navigate(NavigationCommand(OtherUserProfileScreenDestination(result.userId), BackStackMode.UPDATE_EXISTED))
-            }
-
             is DeepLinkResult.Unknown -> {
                 appLogger.e("unknown deeplink result $result")
             }

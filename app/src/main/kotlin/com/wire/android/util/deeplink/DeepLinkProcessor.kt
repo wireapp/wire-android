@@ -59,8 +59,6 @@ sealed class DeepLinkResult {
         DeepLinkResult()
 
     data class MigrationLogin(val userHandle: String) : DeepLinkResult()
-
-    data class OpenUserProfile(val userId: QualifiedID) : DeepLinkResult()
 }
 
 @Singleton
@@ -84,14 +82,14 @@ class DeepLinkProcessor @Inject constructor(
 
             MIGRATION_LOGIN_HOST -> getOpenMigrationLoginDeepLinkResult(uri)
             JOIN_CONVERSATION_DEEPLINK_HOST -> getJoinConversationDeepLinkResult(uri)
-            OPEN_USER_PROFILE_DEEPLINK_HOST -> getConnectingUserProfile(uri)
+            OPEN_USER_PROFILE_DEEPLINK_HOST -> getConnectingUserProfile(uri, switchedAccount)
             else -> DeepLinkResult.Unknown
         }
     }
 
-    private suspend fun getConnectingUserProfile(uri: Uri): DeepLinkResult {
+    private suspend fun getConnectingUserProfile(uri: Uri, switchedAccount: Boolean): DeepLinkResult {
         return uri.lastPathSegment?.toDefaultQualifiedId()?.let {
-            DeepLinkResult.OpenUserProfile(it)
+            DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
         } ?: DeepLinkResult.Unknown
     }
 

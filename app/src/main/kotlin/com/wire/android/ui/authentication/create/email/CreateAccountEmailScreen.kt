@@ -34,8 +34,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -85,15 +83,14 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import kotlinx.coroutines.job
 
 @CreatePersonalAccountNavGraph
 @CreateTeamAccountNavGraph
 @WireDestination(navArgsDelegate = CreateAccountNavArgs::class)
 @Composable
 fun CreateAccountEmailScreen(
-    createAccountEmailViewModel: CreateAccountEmailViewModel = hiltViewModel(),
-    navigator: Navigator
+    navigator: Navigator,
+    createAccountEmailViewModel: CreateAccountEmailViewModel = hiltViewModel()
 ) {
     with(createAccountEmailViewModel) {
         fun navigateToDetailsScreen() = navigator.navigate(

@@ -240,7 +240,6 @@ fun UserProfileInfo(
     }
 }
 
-@SuppressLint("ComposeNamingLowercase")
 @Composable
 private fun Username(userName: String, membership: Membership, expiresAt: Instant?): String {
     return when {

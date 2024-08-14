@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +49,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import com.wire.android.R
 import com.wire.android.ui.common.TextWithLearnMore
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
@@ -240,7 +238,6 @@ private fun DisabledInteractionMessageComposer(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BaseComposerPreview(
     interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
@@ -271,7 +268,6 @@ private fun BaseComposerPreview(
                 onTypingEvent = {}
             ),
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
-            modalBottomSheetState = WireModalSheetState()
         ),
         messageListContent = { },
         onChangeSelfDeletionClicked = { },

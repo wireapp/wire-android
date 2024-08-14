@@ -38,10 +38,6 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val observerSelfUser: GetSelfUserUseCase,
 ) : ViewModel() {
-
-    var state: E2eiCertificateDetailsState by mutableStateOf(E2eiCertificateDetailsState())
-        private set
-
     private val navArgs: E2eiCertificateDetailsScreenNavArgs =
         savedStateHandle.navArgs()
 
@@ -80,7 +76,3 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
         return "wire-certificate-${userHandle()}-$date.txt"
     }
 }
-
-data class E2eiCertificateDetailsState(
-    val wireModalSheetState: WireModalSheetState = WireModalSheetState()
-)

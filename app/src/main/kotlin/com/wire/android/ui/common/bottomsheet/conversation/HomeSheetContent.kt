@@ -35,7 +35,7 @@ import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
@@ -66,7 +66,7 @@ internal fun ConversationMainSheetContent(
     deleteGroup: (GroupDialogState) -> Unit,
     navigateToNotification: () -> Unit
 ) {
-    MenuModalSheetContent(
+    WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(
             title = conversationSheetContent.title,
             leadingIcon = {

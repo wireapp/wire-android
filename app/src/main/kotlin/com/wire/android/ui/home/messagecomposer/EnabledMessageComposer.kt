@@ -111,15 +111,6 @@ fun EnabledMessageComposer(
             }
         }
 
-        LaunchedEffect(modalBottomSheetState.isVisible) {
-            if (modalBottomSheetState.isVisible) {
-                messageCompositionInputStateHolder.clearFocus()
-            } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
-                messageCompositionInputStateHolder.requestFocus()
-                additionalOptionStateHolder.unselectAdditionalOptionsMenu()
-            }
-        }
-
         Surface(
             modifier = modifier,
             color = colorsScheme().messageComposerBackgroundColor

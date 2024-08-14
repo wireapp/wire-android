@@ -850,6 +850,7 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="cancel_login_button_label">Anuluj</string>
     <string name="cancel_login_dialog_description">Je&#347;li anulujesz teraz, zostaniesz wylogowany.</string>
     <string name="cancel_login_dialog_title">Czy na pewno chcesz anulowa&#263;?</string>
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s nie m&#243;g&#322; zdekodowa&#263; niekt&#243;rych Twoich wiadomo&#347;ci, ale rozwi&#261;za&#322; problem. To dotyczy wszystkich Twoich wsp&#243;lnych konwersacji.</string>
     <string name="label_manual_migration_title">Migruj z wersji 3.82.38</string>
@@ -901,4 +902,5 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <!-- Share Location -->
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

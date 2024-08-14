@@ -278,9 +278,10 @@ internal fun ConversationMainSheetContent(
 
 @Composable
 fun NotificationsOptionsItemAction(
-    mutedStatus: MutedConversationStatus
+    mutedStatus: MutedConversationStatus,
+    modifier: Modifier = Modifier,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = mutedStatus.getMutedStatusTextResource(),
             style = MaterialTheme.wireTypography.body01,

@@ -17,13 +17,9 @@
  */
 package com.wire.android.ui.settings.devices.e2ei
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase

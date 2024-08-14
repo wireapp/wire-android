@@ -50,7 +50,7 @@ fun PrivacySettingsConfigScreen(
 ) {
     with(viewModel) {
         PrivacySettingsScreenContent(
-            isAnonymousUsageDataEnabled = state.isAnonymousUsageDataEnabled,
+            isAnonymousUsageDataEnabled = state.isAnalyticsUsageEnabled,
             areReadReceiptsEnabled = state.areReadReceiptsEnabled,
             setReadReceiptsState = ::setReadReceiptsState,
             isTypingIndicatorEnabled = state.isTypingIndicatorEnabled,
@@ -91,6 +91,7 @@ fun PrivacySettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
+            //
             if (BuildConfig.ANALYTICS_ENABLED) {
                 GroupConversationOptionsItem(
                     title = stringResource(id = R.string.settings_send_anonymous_usage_data_title),

@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireDialog
@@ -43,6 +44,7 @@ import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.user.UserId
@@ -136,6 +138,24 @@ fun DebugDataOptionsContent(
                     onClick = { onCopyText(state.debugId) }
                 )
             )
+
+            if (BuildConfig.ANALYTICS_ENABLED) {
+                SettingsItem(
+                    title = "Analytics Initialized",
+                    text = AnonymousAnalyticsManagerImpl.isAnalyticsInitialized().toString()
+                )
+
+                SettingsItem(
+                    title = "Analytics Tracking ID",
+                    text = state.analyticsTrackingId,
+                    trailingIcon = R.drawable.ic_copy,
+                    onIconPressed = Clickable(
+                        enabled = true,
+                        onClick = { onCopyText(state.analyticsTrackingId) }
+                    )
+                )
+            }
+
             if (BuildConfig.DEBUG) {
                 GetE2EICertificateSwitch(
                     enrollE2EI = enrollE2EICertificate

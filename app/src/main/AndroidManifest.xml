@@ -151,6 +151,10 @@
                         android:scheme="wire" />
 
                 <data
+                        android:host="user"
+                        android:scheme="wire" />
+
+                <data
                         android:host="other-user-profile"
                         android:scheme="wire" />
 

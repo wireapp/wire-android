@@ -187,11 +187,11 @@ private fun CodeContent(
             }
             Spacer(modifier = Modifier.weight(1f))
         }
-    }
-    LaunchedEffect(Unit) {
-        coroutineContext.job.invokeOnCompletion {
-            focusRequester.requestFocus()
-            keyboardController?.show()
+        LaunchedEffect(Unit) {
+            coroutineContext.job.invokeOnCompletion {
+                focusRequester.requestFocus()
+                keyboardController?.show()
+            }
         }
     }
 }

@@ -51,6 +51,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.common.UsernameMapper.fromExpirationToHandle
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.uiReadReceiptDateTime
@@ -59,7 +60,6 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
-import kotlin.time.DurationUnit
 
 @Composable
 fun ConversationParticipantItem(
@@ -124,9 +124,9 @@ fun ConversationParticipantItem(
         },
         subtitle = {
             HighlightSubtitle(
-                subTitle = Username(uiParticipant),
+                subTitle = processUsername(uiParticipant),
                 searchQuery = searchQuery,
-                prefix = UsernamePrefix(uiParticipant)
+                prefix = processUsernamePrefix(uiParticipant)
             )
         },
         actions = {
@@ -145,17 +145,17 @@ fun ConversationParticipantItem(
 }
 
 @Composable
-private fun UsernamePrefix(uiParticipant: UIParticipant) = when {
+private fun processUsernamePrefix(uiParticipant: UIParticipant) = when {
     uiParticipant.readReceiptDate != null || uiParticipant.expiresAt != null -> ""
     else -> "@"
 }
 
 @Composable
-private fun Username(uiParticipant: UIParticipant) = when {
+private fun processUsername(uiParticipant: UIParticipant) = when {
     uiParticipant.unavailable -> uiParticipant.id.domain
     uiParticipant.readReceiptDate != null -> uiParticipant.readReceiptDate.uiReadReceiptDateTime()
     uiParticipant.expiresAt != null -> {
-        val expiresAtString = uiParticipant.expiresAt.minus(Clock.System.now()).toString(DurationUnit.HOURS)
+        val expiresAtString = fromExpirationToHandle(uiParticipant.expiresAt)
         stringResource(R.string.temporary_user_label, expiresAtString)
     }
 

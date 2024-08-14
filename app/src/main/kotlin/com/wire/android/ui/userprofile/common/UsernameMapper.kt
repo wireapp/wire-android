@@ -22,6 +22,7 @@ import com.wire.android.util.ifNotEmpty
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.type.UserType
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
@@ -36,20 +37,18 @@ object UsernameMapper {
     fun fromOtherUser(otherUser: OtherUser): String = with(otherUser) {
         return when {
             userType == UserType.FEDERATED -> handle?.ifNotEmpty { "$handle@${id.domain}" }.orEmpty()
-            expiresAt != null -> {
-                val diff = expiresAt!!.minus(Clock.System.now())
-                val diffInMinutes = diff.inWholeMinutes
-                when {
-                    diffInMinutes <= 0 -> 0.minutes.toString(DurationUnit.MINUTES)
-                    diffInMinutes in 1..59 -> diff.toString(DurationUnit.MINUTES)
-                    else -> {
-                        val expiresAtString = diff.toString(DurationUnit.HOURS)
-                        expiresAtString
-                    }
-                }
-            }
-
+            expiresAt != null -> fromExpirationToHandle(expiresAt!!)
             else -> handle.orEmpty()
+        }
+    }
+
+    fun fromExpirationToHandle(expiresAt: Instant): String {
+        val diff = expiresAt.minus(Clock.System.now())
+        val diffInMinutes = diff.inWholeMinutes
+        return when {
+            diffInMinutes <= 0 -> 0.minutes.toString(DurationUnit.MINUTES)
+            diffInMinutes in 1..59 -> diff.toString(DurationUnit.MINUTES)
+            else -> diff.toString(DurationUnit.HOURS)
         }
     }
 }

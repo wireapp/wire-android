@@ -22,8 +22,10 @@ import com.wire.android.util.ifNotEmpty
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.type.UserType
 import kotlinx.datetime.Clock
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
+@Suppress("MagicNumber")
 object UsernameMapper {
 
     /**
@@ -34,8 +36,16 @@ object UsernameMapper {
         return when {
             userType == UserType.FEDERATED -> handle?.ifNotEmpty { "$handle@${id.domain}" }.orEmpty()
             expiresAt != null -> {
-                val expiresAtString = expiresAt!!.minus(Clock.System.now()).toString(DurationUnit.HOURS)
-                expiresAtString
+                val diff = expiresAt!!.minus(Clock.System.now())
+                val diffInMinutes = diff.inWholeMinutes
+                when {
+                    diffInMinutes <= 0 -> 0.minutes.toString(DurationUnit.MINUTES)
+                    diffInMinutes in 1..59 -> diff.toString(DurationUnit.MINUTES)
+                    else -> {
+                        val expiresAtString = diff.toString(DurationUnit.HOURS)
+                        expiresAtString
+                    }
+                }
             }
 
             else -> handle.orEmpty()

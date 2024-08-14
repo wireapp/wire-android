@@ -70,13 +70,17 @@ import com.wire.android.util.ifNotEmpty
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 
 @SuppressLint("ComposeParameterOrder")
 @Composable
@@ -298,9 +302,28 @@ fun PreviewUserProfileInfo() {
 fun PreviewUserProfileInfoTempUser() {
     UserProfileInfo(
         userId = UserId("value", "domain"),
-        isLoading = true,
+        isLoading = false,
         editableState = EditableState.IsEditable {},
-        userName = "23h",
+        userName = UsernameMapper.fromOtherUser(
+            OtherUser(
+                id = UserId("value", "domain"),
+                name = "fullName",
+                handle = "",
+                accentId = 1,
+                connectionStatus = ConnectionState.ACCEPTED,
+                userType = UserType.GUEST,
+                availabilityStatus = UserAvailabilityStatus.AVAILABLE,
+                completePicture = null,
+                previewPicture = null,
+                expiresAt = Clock.System.now().plus(2.minutes),
+                botService = null,
+                isProteusVerified = true,
+                teamId = null,
+                deleted = false,
+                defederated = false,
+                supportedProtocols = null
+            )
+        ),
         avatarAsset = null,
         fullName = "fullName",
         onUserProfileClick = {},
@@ -308,6 +331,6 @@ fun PreviewUserProfileInfoTempUser() {
         connection = ConnectionState.ACCEPTED,
         isProteusVerified = true,
         isMLSVerified = true,
-        expiresAt = Clock.System.now().plus(23.hours)
+        expiresAt = Clock.System.now().plus(1.hours)
     )
 }

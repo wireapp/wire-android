@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 class UsernameMapperTest {
 
@@ -25,10 +26,22 @@ class UsernameMapperTest {
         assertEquals(expected, result)
     }
 
+    @Test
+    fun `given a guest temporary user, and time left is less than 1 hour, should map the handle as minutes left`() {
+        val expected = "10m"
+        val result = fromOtherUser(
+            OTHER_USER.copy(
+                userType = UserType.GUEST,
+                expiresAt = Clock.System.now().plus(10.minutes)
+            )
+        )
+        assertEquals(expected, result)
+    }
+
     @ParameterizedTest
     @EnumSource(TestParams::class)
     fun `should map other user to its username - handle accordingly`(params: TestParams) {
-        assertEquals(params.expected, UsernameMapper.fromOtherUser(params.input), "Failed for input: <${params.input}>")
+        assertEquals(params.expected, fromOtherUser(params.input), "Failed for input: <${params.input}>")
     }
 
     companion object {

@@ -66,10 +66,10 @@ fun messageOptionsMenuItems(
             }
         }
     }
-    val onReactionItemClick = remember(message.header.messageId) {
-        { emoji: String ->
+    val onReactionItemClick: (emoji: String) -> Unit = remember(message.header.messageId) {
+        {
             hideEditMessageMenu {
-                onReactionClick(message.header.messageId, emoji)
+                onReactionClick(message.header.messageId, it)
             }
         }
     }

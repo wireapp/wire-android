@@ -76,27 +76,25 @@ fun EditGuestAccessScreen(
     val scrollState = rememberScrollState()
     val snackbarHostState = LocalSnackbarHostState.current
     val sheetState = rememberWireModalSheetState<Unit>()
-    val onSheetItemClick: (Boolean) -> Unit = remember {
-        { isPasswordProtected ->
-            sheetState.hide()
-            if (isPasswordProtected) {
-                navigator.navigate(
-                    NavigationCommand(
-                        CreatePasswordProtectedGuestLinkScreenDestination(
-                            CreatePasswordGuestLinkNavArgs(
-                                conversationId = editGuestAccessViewModel.conversationId
-                            )
+    val onSheetItemClick: (Boolean) -> Unit = { isPasswordProtected ->
+        sheetState.hide()
+        if (isPasswordProtected) {
+            navigator.navigate(
+                NavigationCommand(
+                    CreatePasswordProtectedGuestLinkScreenDestination(
+                        CreatePasswordGuestLinkNavArgs(
+                            conversationId = editGuestAccessViewModel.conversationId
                         )
                     )
                 )
-            } else {
-                editGuestAccessViewModel.onRequestGuestRoomLink()
-            }
+            )
+        } else {
+            editGuestAccessViewModel.onRequestGuestRoomLink()
         }
     }
     CreateGuestLinkBottomSheet(
         sheetState = sheetState,
-        onSheetItemClick,
+        onItemClick = remember { onSheetItemClick },
         isPasswordInviteLinksAllowed = editGuestAccessViewModel.editGuestAccessState.isPasswordProtectedLinksAllowed
     )
 

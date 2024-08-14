@@ -31,6 +31,7 @@ object UsernameMapper {
     /**
      * Returns the username for the given [OtherUser].
      * The username is the handle if it exists, otherwise it is the handle@domain for federated users.
+     * For temporary users, the username is the time left until the user expires.
      */
     fun fromOtherUser(otherUser: OtherUser): String = with(otherUser) {
         return when {

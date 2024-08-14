@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.colorsScheme
@@ -90,12 +91,14 @@ fun PrivacySettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            GroupConversationOptionsItem(
-                title = stringResource(id = R.string.settings_send_anonymous_usage_data_title),
-                switchState = SwitchState.Enabled(value = isAnonymousUsageDataEnabled, onCheckedChange = setAnonymousUsageDataEnabled),
-                arrowType = ArrowType.NONE,
-                subtitle = stringResource(id = R.string.settings_send_anonymous_usage_data_description)
-            )
+            if (BuildConfig.ANALYTICS_ENABLED) {
+                GroupConversationOptionsItem(
+                    title = stringResource(id = R.string.settings_send_anonymous_usage_data_title),
+                    switchState = SwitchState.Enabled(value = isAnonymousUsageDataEnabled, onCheckedChange = setAnonymousUsageDataEnabled),
+                    arrowType = ArrowType.NONE,
+                    subtitle = stringResource(id = R.string.settings_send_anonymous_usage_data_description)
+                )
+            }
             WireDivider(color = colorsScheme().outlineVariant)
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_send_read_receipts),

@@ -108,7 +108,8 @@ fun EditGuestAccessScreen(
                 onNavigationPressed = navigator::navigateBack,
                 title = stringResource(id = R.string.conversation_options_guests_label)
             )
-        }) { internalPadding ->
+        }
+    ) { internalPadding ->
         Column {
             LazyColumn(
                 modifier = Modifier

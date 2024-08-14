@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T: Any> WireModalSheetLayout(
+fun <T : Any> WireModalSheetLayout(
     sheetState: WireModalSheetState<T>,
     modifier: Modifier = Modifier,
     sheetShape: Shape = WireBottomSheetDefaults.WireBottomSheetShape,

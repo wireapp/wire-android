@@ -176,8 +176,24 @@ fun OtherUserProfileScreen(
             resultNavigator.setResult(it)
             resultNavigator.navigateBack()
         },
-        onOpenConversation = { navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
-        onOpenDeviceDetails = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(navArgs.userId, it.clientId))) },
+        onOpenConversation = {
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationScreenDestination(it),
+                    BackStackMode.UPDATE_EXISTED
+                )
+            )
+        },
+        onOpenDeviceDetails = {
+            navigator.navigate(
+                NavigationCommand(
+                    DeviceDetailsScreenDestination(
+                        navArgs.userId,
+                        it.clientId
+                    )
+                )
+            )
+        },
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
         navigateBack = navigator::navigateBack,
         navigationIconType = NavigationIconType.Close,
@@ -197,7 +213,10 @@ fun OtherUserProfileScreen(
     }
 
     VisibilityState(legalHoldSubjectDialogState) {
-        LegalHoldSubjectProfileDialog(viewModel.state.userName, legalHoldSubjectDialogState::dismiss)
+        LegalHoldSubjectProfileDialog(
+            viewModel.state.userName,
+            legalHoldSubjectDialogState::dismiss
+        )
     }
 }
 
@@ -272,7 +291,9 @@ fun OtherProfileScreenContent(
     }
     val maxBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val tabBarElevationState by remember(tabItems, lazyListStates, currentTabState) {
-        derivedStateOf { lazyListStates[tabItems[currentTabState]]?.topBarElevation(maxBarElevation) ?: 0.dp }
+        derivedStateOf {
+            lazyListStates[tabItems[currentTabState]]?.topBarElevation(maxBarElevation) ?: 0.dp
+        }
     }
 
     if (!requestInProgress) {
@@ -301,7 +322,16 @@ fun OtherProfileScreenContent(
                 onLegalHoldLearnMoreClick = onLegalHoldLearnMoreClick,
             )
         },
-        topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
+        topBarFooter = {
+            TopBarFooter(
+                state = state,
+                pagerState = pagerState,
+                tabBarElevation = tabBarElevationState,
+                tabItems = tabItems,
+                currentTab = currentTabState,
+                scope = scope
+            )
+        },
         content = {
             Content(
                 state = state,
@@ -323,7 +353,7 @@ fun OtherProfileScreenContent(
                 onOpenConversation
             )
         },
-        isSwipeable = state.connectionState == ConnectionState.ACCEPTED
+        isSwipeable = state.connectionState != ConnectionState.BLOCKED
     )
 
     WireModalSheetLayout(
@@ -499,7 +529,11 @@ private fun Content(
                         ) { pageIndex ->
                             when (val tabItem = tabItems[pageIndex]) {
                                 OtherUserProfileTabItem.DETAILS ->
-                                    OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
+                                    OtherUserProfileDetails(
+                                        state,
+                                        otherUserProfileScreenState,
+                                        lazyListStates[tabItem]!!
+                                    )
 
                                 OtherUserProfileTabItem.GROUP ->
                                     OtherUserProfileGroup(
@@ -551,13 +585,13 @@ fun ContentFooter(
         enter = fadeIn(),
         exit = fadeOut(),
     ) {
-        Surface(
-            shadowElevation = maxBarElevation,
-            color = MaterialTheme.wireColorScheme.background
-        ) {
-            Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
-                // TODO show open conversation button for service bots after AR-2135
-                if (!state.isMetadataEmpty() && state.membership != Membership.Service && !state.isTemporaryUser()) {
+        // TODO show open conversation button for service bots after AR-2135
+        if (!state.isMetadataEmpty() && state.membership != Membership.Service && !state.isTemporaryUser()) {
+            Surface(
+                shadowElevation = maxBarElevation,
+                color = MaterialTheme.wireColorScheme.background
+            ) {
+                Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
                     ConnectionActionButton(
                         state.userId,
                         state.userName,

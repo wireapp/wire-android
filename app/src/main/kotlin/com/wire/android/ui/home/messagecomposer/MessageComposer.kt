@@ -56,7 +56,6 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
-import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
@@ -77,6 +76,7 @@ fun MessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
+    onPingOptionClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
@@ -132,7 +132,7 @@ fun MessageComposer(
                         onClearMentionSearchResult()
                         clearMessage()
                     },
-                    onPingOptionClicked = { onSendMessageBundle(Ping(conversationId)) },
+                    onPingOptionClicked = onPingOptionClicked,
                     onImagesPicked = onImagesPicked,
                     onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.UriPickedBundle(conversationId, it)) },
                     onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
@@ -269,6 +269,7 @@ private fun BaseComposerPreview(
             ),
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
         ),
+        onPingOptionClicked = { },
         messageListContent = { },
         onChangeSelfDeletionClicked = { },
         onClearMentionSearchResult = { },

@@ -94,6 +94,7 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.ConfirmSendingPingDialog
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog
@@ -148,6 +149,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
+import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
@@ -193,6 +195,11 @@ private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
  * The maximum number of participants to start a call without showing a confirmation dialog.
  */
 private const val MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT = 5
+
+/**
+ * The maximum number of participants to send a ping without showing a confirmation dialog.
+ */
+private const val MAX_GROUP_SIZE_FOR_PING = 3
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Suppress("ComplexMethod")
@@ -317,7 +324,7 @@ fun ConversationScreen(
 
         ConversationScreenDialogType.CALL_CONFIRMATION -> {
             ConfirmStartCallDialog(
-                participantsCount = conversationListCallViewModel.conversationCallViewState.participantsCount - 1,
+                participantsCount = conversationListCallViewModel.conversationCallViewState.participantsCount,
                 onConfirm = {
                     startCallIfPossible(
                         conversationListCallViewModel,
@@ -334,6 +341,19 @@ fun ConversationScreen(
                             activity.startActivity(this)
                         }
                     }
+                },
+                onDialogDismiss = {
+                    showDialog.value = ConversationScreenDialogType.NONE
+                }
+            )
+        }
+
+        ConversationScreenDialogType.PING_CONFIRMATION -> {
+            ConfirmSendingPingDialog(
+                participantsCount = conversationListCallViewModel.conversationCallViewState.participantsCount,
+                onConfirm = {
+                    showDialog.value = ConversationScreenDialogType.NONE
+                    sendMessageViewModel.trySendMessage(Ping(conversationMessagesViewModel.conversationId))
                 },
                 onDialogDismiss = {
                     showDialog.value = ConversationScreenDialogType.NONE
@@ -396,6 +416,14 @@ fun ConversationScreen(
             )
         },
         onSendMessage = sendMessageViewModel::trySendMessage,
+        onPingOptionClicked = {
+            if (conversationListCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_PING) {
+                showDialog.value = ConversationScreenDialogType.PING_CONFIRMATION
+            } else {
+                showDialog.value = ConversationScreenDialogType.NONE
+                sendMessageViewModel.trySendMessage(Ping(conversationMessagesViewModel.conversationId))
+            }
+        },
         onImagesPicked = {
             navigator.navigate(
                 NavigationCommand(
@@ -465,7 +493,7 @@ fun ConversationScreen(
                     is ConversationDetailsData.Group ->
                         navigator.navigate(NavigationCommand(GroupConversationDetailsScreenDestination(conversationId)))
 
-                    ConversationDetailsData.None -> { /* do nothing */
+                    is ConversationDetailsData.None -> { /* do nothing */
                     }
                 }
             }
@@ -706,6 +734,7 @@ private fun ConversationScreen(
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
+    onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -785,6 +814,7 @@ private fun ConversationScreen(
                     messageComposerStateHolder = messageComposerStateHolder,
                     messages = conversationMessagesViewState.messages,
                     onSendMessage = onSendMessage,
+                    onPingOptionClicked = onPingOptionClicked,
                     onImagesPicked = onImagesPicked,
                     onAssetItemClicked = onAssetItemClicked,
                     onAudioItemClicked = onAudioClick,
@@ -864,6 +894,7 @@ private fun ConversationScreenContent(
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
+    onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
@@ -928,6 +959,7 @@ private fun ConversationScreenContent(
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
+        onPingOptionClicked = onPingOptionClicked,
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         tempWritableVideoUri = tempWritableVideoUri,
         tempWritableImageUri = tempWritableImageUri,
@@ -1310,6 +1342,7 @@ fun PreviewConversationScreen() = WireTheme {
         onOpenProfile = { },
         onMessageDetailsClick = { _, _ -> },
         onSendMessage = { },
+        onPingOptionClicked = { },
         onDeleteMessage = { _, _ -> },
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _ -> },

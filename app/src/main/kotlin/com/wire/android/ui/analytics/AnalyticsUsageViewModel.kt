@@ -45,7 +45,9 @@ class AnalyticsUsageViewModel @Inject constructor(
             val isAnalyticsUsageEnabled = dataStore.isAnonymousUsageDataEnabled().first()
             val isAnalyticsConfigurationEnabled = analyticsEnabled is AnalyticsConfiguration.Enabled
             val isProdBackend = when (val serverConfig = selfServerConfig()) {
-                is SelfServerConfigUseCase.Result.Success -> serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
+                is SelfServerConfigUseCase.Result.Success ->
+                    serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
+                            || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
                 is SelfServerConfigUseCase.Result.Failure -> false
             }
 

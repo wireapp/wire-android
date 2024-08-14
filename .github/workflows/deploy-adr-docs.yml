@@ -2,7 +2,7 @@ name: Deploy ADR Docs
 
 on:
   push:
-    branches: [ 'develop', 'chore/adr-and-tests' ]
+    branches: [ 'develop' ]
   pull_request:
     types: [ opened, synchronize ]
     paths: [ 'docs/adr/**' ]

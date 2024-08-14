@@ -162,6 +162,7 @@ class MessageMapper @Inject constructor(
         },
         clientId = (message as? Message.Sendable)?.senderClientId,
         accent = sender?.accentId?.let { Accent.fromAccentId(it) } ?: Accent.Unknown,
+        guestExpiresAt = sender?.expiresAt
     )
 
     private fun getMessageStatus(message: Message.Standalone): MessageStatus {

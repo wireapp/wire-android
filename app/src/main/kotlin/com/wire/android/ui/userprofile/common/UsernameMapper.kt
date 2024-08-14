@@ -21,18 +21,34 @@ package com.wire.android.ui.userprofile.common
 import com.wire.android.util.ifNotEmpty
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.type.UserType
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.DurationUnit
 
+@Suppress("MagicNumber")
 object UsernameMapper {
 
     /**
      * Returns the username for the given [OtherUser].
      * The username is the handle if it exists, otherwise it is the handle@domain for federated users.
+     * For temporary users, the username is the time left until the user expires.
      */
     fun fromOtherUser(otherUser: OtherUser): String = with(otherUser) {
-        val userId = otherUser.id
-        return when (otherUser.userType) {
-            UserType.FEDERATED -> handle?.ifNotEmpty { "$handle@${userId.domain}" }.orEmpty()
+        return when {
+            userType == UserType.FEDERATED -> handle?.ifNotEmpty { "$handle@${id.domain}" }.orEmpty()
+            expiresAt != null -> fromExpirationToHandle(expiresAt!!)
             else -> handle.orEmpty()
+        }
+    }
+
+    fun fromExpirationToHandle(expiresAt: Instant): String {
+        val diff = expiresAt.minus(Clock.System.now())
+        val diffInMinutes = diff.inWholeMinutes
+        return when {
+            diffInMinutes <= 0 -> 0.minutes.toString(DurationUnit.MINUTES)
+            diffInMinutes in 1..59 -> diff.toString(DurationUnit.MINUTES)
+            else -> diff.toString(DurationUnit.HOURS)
         }
     }
 }

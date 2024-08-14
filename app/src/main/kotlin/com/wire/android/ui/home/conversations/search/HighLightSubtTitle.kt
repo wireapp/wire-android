@@ -34,7 +34,7 @@ import com.wire.android.util.QueryMatchExtractor
 fun HighlightSubtitle(
     subTitle: String,
     searchQuery: String = String.EMPTY,
-    suffix: String = "@"
+    prefix: String = "@"
 ) {
     if (subTitle.isBlank()) {
         return
@@ -59,7 +59,7 @@ fun HighlightSubtitle(
                         fontStyle = MaterialTheme.wireTypography.subline01.fontStyle
                     )
                 ) {
-                    append("$suffix$subTitle")
+                    append("$prefix$subTitle")
                 }
 
                 highlightIndexes
@@ -70,8 +70,8 @@ fun HighlightSubtitle(
                                     background = MaterialTheme.wireColorScheme.highlight,
                                     color = MaterialTheme.wireColorScheme.onHighlight,
                                 ),
-                                start = highLightIndex.startIndex + suffix.length,
-                                end = highLightIndex.endIndex + suffix.length
+                                start = highLightIndex.startIndex + prefix.length,
+                                end = highLightIndex.endIndex + prefix.length
                             )
                         }
                     }
@@ -81,7 +81,7 @@ fun HighlightSubtitle(
         )
     } else {
         Text(
-            text = "$suffix$subTitle",
+            text = "$prefix$subTitle",
             style = MaterialTheme.wireTypography.subline01,
             color = MaterialTheme.wireColorScheme.secondaryText,
             maxLines = 1,

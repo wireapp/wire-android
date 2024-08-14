@@ -454,6 +454,7 @@ private fun TopBarCollapsing(
                 connection = targetState.connectionState,
                 isProteusVerified = targetState.isProteusVerified,
                 isMLSVerified = targetState.isMLSVerified,
+                expiresAt = targetState.expiresAt
             )
             if (state.isUnderLegalHold) {
                 LegalHoldSubjectBanner(
@@ -518,7 +519,7 @@ private fun Content(
 
     Crossfade(targetState = tabItems to state, label = "OtherUserProfile") { (tabItems, state) ->
         Column {
-            if (!state.isDataLoading) {
+            if (!state.isDataLoading && !state.isTemporaryUser()) {
                 OtherUserConnectionStatusInfo(state.connectionState, state.membership)
                 OtherUserConnectionUnverifiedWarning(state.fullName, state.connectionState)
             }

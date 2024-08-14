@@ -139,22 +139,20 @@ fun DebugDataOptionsContent(
                 )
             )
 
-            if (BuildConfig.ANALYTICS_ENABLED) {
-                SettingsItem(
-                    title = "Analytics Initialized",
-                    text = AnonymousAnalyticsManagerImpl.isAnalyticsInitialized().toString()
-                )
+            SettingsItem(
+                title = "Analytics Initialized",
+                text = AnonymousAnalyticsManagerImpl.isAnalyticsInitialized().toString()
+            )
 
-                SettingsItem(
-                    title = "Analytics Tracking ID",
-                    text = state.analyticsTrackingId,
-                    trailingIcon = R.drawable.ic_copy,
-                    onIconPressed = Clickable(
-                        enabled = true,
-                        onClick = { onCopyText(state.analyticsTrackingId) }
-                    )
+            SettingsItem(
+                title = "Analytics Tracking ID",
+                text = state.analyticsTrackingId,
+                trailingIcon = R.drawable.ic_copy,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = { onCopyText(state.analyticsTrackingId) }
                 )
-            }
+            )
 
             if (BuildConfig.DEBUG) {
                 GetE2EICertificateSwitch(

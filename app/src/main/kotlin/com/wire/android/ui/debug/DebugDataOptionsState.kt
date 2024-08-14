@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.debug
 
+import com.wire.android.util.EMPTY
+
 data class DebugDataOptionsState(
     val isEncryptedProteusStorageEnabled: Boolean = false,
     val isEventProcessingDisabled: Boolean = false,
@@ -29,4 +31,5 @@ data class DebugDataOptionsState(
     val certificate: String = "null",
     val showCertificate: Boolean = false,
     val startGettingE2EICertificate: Boolean = false,
+    val analyticsTrackingId: String = "null"
 )

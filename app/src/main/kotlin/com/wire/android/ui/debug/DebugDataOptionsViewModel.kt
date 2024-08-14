@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
@@ -33,6 +34,7 @@ import com.wire.android.util.getGitBuildId
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
@@ -73,7 +75,8 @@ class DebugDataOptionsViewModelImpl
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCount: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
-    private val checkCrlRevocationList: CheckCrlRevocationListUseCase
+    private val checkCrlRevocationList: CheckCrlRevocationListUseCase,
+    private val getCurrentAnalyticsTrackingIdentifier: GetCurrentAnalyticsTrackingIdentifierUseCase
 ) : ViewModel(), DebugDataOptionsViewModel {
 
     var state by mutableStateOf(
@@ -85,6 +88,17 @@ class DebugDataOptionsViewModelImpl
         observeMlsMetadata()
         checkIfCanTriggerManualMigration()
         setGitHashAndDeviceId()
+        setAnalyticsTrackingId()
+    }
+
+    private fun setAnalyticsTrackingId() {
+        viewModelScope.launch {
+            getCurrentAnalyticsTrackingIdentifier()?.let { trackingId ->
+                state = state.copy(
+                    analyticsTrackingId = trackingId
+                )
+            }
+        }
     }
 
     private fun setGitHashAndDeviceId() {

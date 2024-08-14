@@ -212,8 +212,8 @@ private fun MediaGalleryOptionsBottomSheetLayout(
         sheetState = sheetState,
         sheetContent = {
             WireMenuModalSheetContent(
-                menuItems = when (messageBottomSheetOptionsEnabled) {
-                    true -> assetMessageOptionsMenuItems(
+                menuItems = if (messageBottomSheetOptionsEnabled) {
+                    assetMessageOptionsMenuItems(
                         isUploading = false,
                         isEphemeral = isEphemeral,
                         onReplyClick = onReplyClick,
@@ -223,7 +223,8 @@ private fun MediaGalleryOptionsBottomSheetLayout(
                         onShareAsset = onShareAssetClick,
                         onDownloadAsset = downloadAsset,
                     )
-                    false -> assetOptionsMenuItems(
+                } else {
+                    assetOptionsMenuItems(
                         isUploading = false,
                         isEphemeral = isEphemeral,
                         onDeleteClick = onDeleteClick,

@@ -325,13 +325,18 @@ fun mockAssetMessage() = UIMessage.Regular(
 
 @Suppress("MagicNumber")
 fun mockedImg() = UIMessageContent.ImageMessage(
-    UserAssetId("a", "domain"),
-    mockedPrivateAsset(),
-    800,
-    600
+    assetId = UserAssetId("a", "domain"),
+    asset = mockedPrivateAsset(),
+    width = 800,
+    height = 600
 )
 
-fun mockedPrivateAsset() = ImageAsset.PrivateAsset(mockImageLoader, ConversationId("id", "domain"), "messageId", true)
+fun mockedPrivateAsset() = ImageAsset.PrivateAsset(
+    imageLoader = mockImageLoader,
+    conversationId = ConversationId("id", "domain"),
+    messageId = "messageId",
+    isSelfAsset = true
+)
 
 @Suppress("MagicNumber")
 fun mockedImageUIMessage(

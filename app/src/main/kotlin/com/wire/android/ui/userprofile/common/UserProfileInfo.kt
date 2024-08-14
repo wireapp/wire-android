@@ -191,7 +191,7 @@ fun UserProfileInfo(
                     if (isProteusVerified) ProteusVerifiedIcon()
                 }
                 Text(
-                    text = Username(userName, membership, expiresAt),
+                    text = processUsername(userName, membership, expiresAt),
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.wireTypography.body02,
                     maxLines = 1,
@@ -241,7 +241,7 @@ fun UserProfileInfo(
 }
 
 @Composable
-private fun Username(userName: String, membership: Membership, expiresAt: Instant?): String {
+private fun processUsername(userName: String, membership: Membership, expiresAt: Instant?): String {
     return when {
         expiresAt != null -> UIText.StringResource(R.string.temporary_user_label, userName).asString()
         membership == Membership.Service -> userName

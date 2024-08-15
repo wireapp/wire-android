@@ -1078,6 +1078,7 @@
     <string name="cancel_login_button_label">අවලංගු</string>
     <string name="cancel_login_dialog_description">දැන් අවලංගු කළහොත්, ඔබට නික්මවනු ඇත.</string>
     <string name="cancel_login_dialog_title">ඔබට අවලංගු කිරීමට වුවමනාද?</string>
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s මගින් ඔබගේ ඇතැම් පණිවිඩ විසංකේතනයට නොහැකි වූ නමුත් ගැටළුව විසඳා ඇත. මෙය ඔබ එකවර බෙදා ගන්නා සියළුම සංවාද වලට බලපාන ලදි.</string>
     <string name="start_manual_migration">අරඹන්න</string>
@@ -1343,4 +1344,5 @@
     <string name="location_could_not_be_shared">ස්ථානය බෙදාගැනීමට නොහැකි විය</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

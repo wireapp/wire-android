@@ -44,6 +44,10 @@
     <string name="label_message_receive_failure">Hämtningsfel</string>
     <string name="label_message_decryption_failure_message">Meddelandet kunde inte avkrypteras.</string>
     <string name="label_message_decryption_failure_informative_message">Försök att återställa sessionen för att generera nya krypteringsnycklar.</string>
+    <plurals name="label_message_partial_delivery_x_participants_from_backend">
+        <item quantity="one">1 deltagare från %2$s</item>
+        <item quantity="other">%1$d deltagare från %2$s</item>
+    </plurals>
     <string name="label_reset_session">Återställ session</string>
     <string name="label_reset_session_success">Återställningen av sessionen lyckades</string>
     <string name="label_federated_membership">Federerade</string>
@@ -179,6 +183,7 @@
     <string name="login_password_label">LÖSENORD</string>
     <string name="login_tab_email">E-POSTADRESS</string>
     <string name="login_tab_sso">SSO-INLOGGNING</string>
+    <string name="login_sso_code_label">SSO-KOD ELLER E-POSTADRESS</string>
     <string name="login_error_invalid_sso_code">Vänligen fyll i en giltig SSO-kod.</string>
     <string name="login_error_invalid_sso_code_format">Fyll i en giltig SSO-kod</string>
     <string name="deleted_user_error_title">Kontot togs bort</string>
@@ -284,7 +289,9 @@
     <!-- Messages -->
     <string name="message_details_title">Meddelandedetaljer</string>
     <string name="message_details_reactions_tab">REAKTIONER (%s)</string>
+    <string name="message_details_read_receipts_tab">LÄSKVITTON (%s)</string>
     <string name="message_details_reactions_empty_learn_more">Läs mer om reaktioner</string>
+    <string name="message_details_read_receipts_empty_learn_more">Läs mer om läskvitton</string>
     <!-- Messages Date and Time -->
     <string name="message_datetime_now">Just nu</string>
     <plurals name="message_datetime_minutes_ago">
@@ -330,12 +337,15 @@
     <string name="user_profile_change_status_dialog_busy_title">Ställ in dig själv till Upptagen</string>
     <string name="user_profile_change_status_dialog_away_title">Ställ in dig själv till Borta</string>
     <!-- Conversations BottomSheet -->
+    <string name="label_clear_content">Rensa innehåll…</string>
     <string name="label_block">Blockera</string>
     <string name="label_leave_group">Lämna grupp</string>
     <string name="label_delete_group">Radera grupp</string>
     <!-- Muting options BottomSheet -->
     <!--Profile image-->
     <string name="profile_image_top_bar_label">Profilbild</string>
+    <string name="profile_image_modal_sheet_header_title">Ändra bild</string>
+    <string name="profile_image_choose_from_gallery_menu_item">Välj från galleri</string>
     <!--Conversation-->
     <string name="label_copy">Kopiera</string>
     <string name="label_share">Dela</string>
@@ -347,6 +357,7 @@
     <string name="label_system_message_other_called">%1$s ringde</string>
     <string name="label_system_message_you_called">%1$s ringde</string>
     <string name="label_system_message_and">%1$s och %2$s</string>
+    <string name="label_system_message_new_conversation_receipt_mode">Läskvitton är %1$s</string>
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
     <string name="label_system_message_conversation_started_by_self">**Du** startade konversationen</string>
     <string name="label_system_message_conversation_started_with_members">Med %1$s</string>
@@ -356,6 +367,7 @@
     <string name="last_message_self_user_shared_image">delade en bild.</string>
     <string name="last_message_other_user_shared_image">delade en bild.</string>
     <string name="last_message_self_user_shared_video">delade en video.</string>
+    <string name="last_message_self_user_shared_audio">delade ett ljudmeddelande.</string>
     <string name="last_message_mentioned">nämnde dig</string>
     <string name="last_message_replied">svarade dig</string>
     <string name="last_message_calling">%1$s ringer...</string>
@@ -400,6 +412,7 @@
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
     <string name="notification_shared_file">Delade en fil</string>
+    <string name="notification_missed_call">Missat samtal</string>
     <string name="notification_reply">Svar: %1$s</string>
     <string name="notification_action_reply">Svara</string>
     <string name="notification_receiver_name">Du</string>
@@ -430,8 +443,10 @@
     <!--wire dropdown-->
     <string name="change">Ändra</string>
     <string name="allow_guests">Tillåt gäster</string>
+    <string name="read_receipts">Läskvitton</string>
     <!--block user dialog -->
     <string name="block_user_dialog_body">%1$s kommer inte att kunna kontakta dig eller lägga till dig i gruppkonversationer. De kommer inte att meddelas om detta.</string>
+    <string name="block_user_dialog_confirm_button">Blockera</string>
     <!--Settings -->
     <string name="settings_account_settings_label">Kontoinställningar</string>
     <string name="settings_devices_label">Enheter</string>
@@ -441,13 +456,21 @@
     <string name="settings_appearance_label">Utseende</string>
     <string name="settings_appearance_theme_label">Tema</string>
     <string name="settings_appearance_theme_option_default_hint">(Standard)</string>
+    <string name="settings_appearance_theme_option_light">Ljust läge</string>
+    <string name="settings_appearance_theme_option_dark">Mörkt läge</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_display_name">PROFILNAMN</string>
     <string name="settings_myaccount_username">ANVÄNDARNAMN</string>
+    <string name="settings_myaccount_email">E-POSTADRESS</string>
+    <string name="settings_myaccount_domain">DOMÄN</string>
     <string name="settings_myaccount_reset_password">Återställ lösenord</string>
     <!--Settings, My Account > Display name -->
+    <string name="settings_myaccount_display_name_title">Ditt profilnamn</string>
+    <string name="settings_myaccount_display_name_error">Ange ditt profilnamn</string>
     <string name="settings_myaccount_display_name_updated">Ditt profilnamn har ändrats</string>
+    <string name="settings_myaccount_handle_updated">Ditt användarnamn har ändrats</string>
     <!--Privacy Settings -->
+    <string name="settings_send_read_receipts">Skicka läskvitton</string>
     <string name="settings_send_anonymous_usage_data_title">Skicka anonym användningsdata</string>
     <!--Privacy Settings, App lock -->
     <string name="password_validation_length">Minst 8 tecken</string>
@@ -476,9 +499,12 @@
     <string name="backup_dialog_create_backup_share">Dela fil</string>
     <string name="group_label">grupp</string>
     <string name="conversation_label">konversation</string>
+    <string name="dialog_clear_content_option">Rensa innehåll</string>
     <!-- Update App dialog -->
     <string name="update_app_dialog_button">Uppdatera</string>
     <string name="cancel_login_button_label">Avbryt</string>
+    <!-- Analytics Usage dialog -->
+    <string name="analytics_usage_dialog_button_privacy_policy">Integritetspolicy</string>
     <!-- session reset -->
     <string name="file_sharing_restricted_button_text_no_users">Öppna Wire</string>
     <!-- join conversation dialog -->
@@ -493,8 +519,10 @@
     <string name="guest_link_button_share_link">Dela länk</string>
     <string name="guest_link_button_revoke_link">Återkalla länk</string>
     <!-- New Device dialog -->
+    <string name="new_device_dialog_message_defice_info">%1$s\nFrån: %2$s \n</string>
     <string name="new_device_dialog_current_user_btn">Hantera enheter</string>
     <string name="device_name_unknown">Okänd enhet</string>
+    <string name="create_account_email_title">Din e-postadress</string>
     <string name="create_account_handle_title">Ditt användarnamn</string>
     <!-- Asset limits error messages -->
     <!-- Expiring messages -->
@@ -572,4 +600,5 @@
     <!-- Share Location -->
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

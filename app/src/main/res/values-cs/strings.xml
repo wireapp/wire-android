@@ -113,6 +113,7 @@
     <!--max account reached dialog-->
     <!--create and restore backup-->
     <!-- Update App dialog -->
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <!-- join conversation dialog -->
     <!-- edit self-deleting messages -->
@@ -132,4 +133,5 @@
     <!-- Share Location -->
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

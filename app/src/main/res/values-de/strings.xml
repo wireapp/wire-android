@@ -1079,6 +1079,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="cancel_login_button_label">Abbrechen</string>
     <string name="cancel_login_dialog_description">Wenn Sie jetzt abbrechen, werden Sie abgemeldet.</string>
     <string name="cancel_login_dialog_title">Sind Sie sicher, dass Sie den Vorgang abbrechen möchten?</string>
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s konnte einige Ihrer Nachrichten nicht entschlüsseln, hat das Problem aber gelöst. Dies betraf alle Unterhaltungen, die Sie gemeinsam nutzen.</string>
     <string name="label_manual_migration_title">Migration von Version 3.82.38</string>
@@ -1356,4 +1357,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

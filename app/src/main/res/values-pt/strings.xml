@@ -947,6 +947,7 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="cancel_login_button_label">Cancelar</string>
     <string name="cancel_login_dialog_description">Se você cancelar agora, será desconectado.</string>
     <string name="cancel_login_dialog_title">Tem certeza de que deseja cancelar?</string>
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s não conseguiu decifrar algumas de suas mensagens, mas resolveu o problema. Isso afetou todas as conversas que você compartilha juntos.</string>
     <string name="label_manual_migration_title">Migrar da versão 3.82.38</string>
@@ -1093,4 +1094,5 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="location_could_not_be_shared">Não foi possível compartilhar a localização</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

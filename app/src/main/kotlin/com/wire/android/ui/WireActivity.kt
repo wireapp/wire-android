@@ -21,6 +21,7 @@ package com.wire.android.ui
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Toast
@@ -65,8 +66,8 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.getIncomingCallIntent
-import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
+import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
@@ -183,6 +184,7 @@ class WireActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        appLogger.withTextTag("DeepLinkProcessor").d(">> Processing deep link on onNewIntent: ${intent.data}")
         if (isNavigationCollecting) {
             /*
              * - When true then navigationCommands is subscribed and can handle navigation commands right away.
@@ -514,7 +516,15 @@ class WireActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(HANDLED_DEEPLINK_FLAG, true)
+        outState.putParcelable(ORIGINAL_SAVED_INTENT_FLAG, intent)
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        savedInstanceState.getOriginalIntent()?.let {
+            this.intent = it
+        }
     }
 
     @Suppress("ComplexCondition")
@@ -522,9 +532,10 @@ class WireActivity : AppCompatActivity() {
         intent: Intent?,
         savedInstanceState: Bundle? = null
     ) {
+        val originalIntent = savedInstanceState.getOriginalIntent()
         if (intent == null
             || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
-            || savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true
+            || originalIntent == intent // This is the case when the activity is recreated and already handled
             || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
             return
@@ -559,6 +570,14 @@ class WireActivity : AppCompatActivity() {
             )
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
         }
+    }
+
+    private fun Bundle?.getOriginalIntent(): Intent? {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            @Suppress("DEPRECATION")// API 33
+            this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG)
+        } else
+            this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG, Intent::class.java)
     }
 
     private fun handleDeepLinkResult(result: DeepLinkResult) {
@@ -598,6 +617,7 @@ class WireActivity : AppCompatActivity() {
 
     companion object {
         private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
+        private const val ORIGINAL_SAVED_INTENT_FLAG = "original_saved_intent"
         private const val TAG = "WireActivity"
     }
 }

@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class PrivacySettingsViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,

@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview

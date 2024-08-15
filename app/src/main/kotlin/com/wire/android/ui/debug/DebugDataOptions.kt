@@ -140,12 +140,12 @@ fun DebugDataOptionsContent(
             )
 
             SettingsItem(
-                title = "Analytics Initialized",
+                title = stringResource(id = R.string.debug_analytics_enabled_title),
                 text = AnonymousAnalyticsManagerImpl.isAnalyticsInitialized().toString()
             )
 
             SettingsItem(
-                title = "Analytics Tracking ID",
+                title = stringResource(id = R.string.debug_analytics_tracking_identifier_title),
                 text = state.analyticsTrackingId,
                 trailingIcon = R.drawable.ic_copy,
                 onIconPressed = Clickable(

@@ -29,4 +29,5 @@ data class DebugDataOptionsState(
     val certificate: String = "null",
     val showCertificate: Boolean = false,
     val startGettingE2EICertificate: Boolean = false,
+    val analyticsTrackingId: String = "null"
 )

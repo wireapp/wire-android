@@ -20,6 +20,10 @@
     <string name="app_version">App version</string>
     <string name="build_variant_name">Build variant</string>
     <string name="debug_id" translatable="false">Debug Identifier</string>
+    <string name="debug_analytics_enabled_title" translatable="false">Analytics Initialized</string>
+    <string name="debug_analytics_tracking_identifier_title" translatable="false">
+        Analytics Tracking Identifier
+    </string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>

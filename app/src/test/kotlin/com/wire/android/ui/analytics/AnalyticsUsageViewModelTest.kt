@@ -43,7 +43,7 @@ class AnalyticsUsageViewModelTest {
     fun `should hide or show Analytics Usage dialog - handle accordingly`(params: TestParams) = runTest {
         // given
         val (_, viewModel) = Arrangement()
-            .withProdBackend(params.isProdBackend)
+            .withServerConfig(params.serverConfig)
             .withAnalyticsUsageEnabled(params.isAnalyticsUsageEnabled)
             .withIsDialogSeen(params.isDialogSeen)
             .arrange(analyticsConfiguration = params.analyticsConfiguration)
@@ -59,7 +59,7 @@ class AnalyticsUsageViewModelTest {
     fun `given dialog is shown, when user agrees to analytics usage, then setting analytics to enabled and dialog to seen`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
-            .withProdBackend(true)
+            .withServerConfig(STAGING_SERVER_CONFIG)
             .withAnalyticsUsageEnabled(false)
             .withIsDialogSeen(false)
             .arrange(analyticsConfiguration = AnalyticsConfiguration.Enabled)
@@ -81,7 +81,7 @@ class AnalyticsUsageViewModelTest {
     fun `given dialog is shown, when user declines analytics usage, then setting analytics to disabled and dialog to seen`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
-            .withProdBackend(true)
+            .withServerConfig(PRODUCTION_SERVER_CONFIG)
             .withAnalyticsUsageEnabled(false)
             .withIsDialogSeen(false)
             .arrange(analyticsConfiguration = AnalyticsConfiguration.Enabled)
@@ -110,9 +110,9 @@ class AnalyticsUsageViewModelTest {
             coEvery { dataStore.setIsAnalyticsDialogSeen() } returns Unit
         }
 
-        fun withProdBackend(isProd: Boolean) = apply {
+        fun withServerConfig(serverConfig: ServerConfig) = apply {
             coEvery { selfServerConfig() } returns SelfServerConfigUseCase.Result.Success(
-                serverLinks = if (isProd) PRODUCTION_SERVER_CONFIG else CUSTOM_SERVER_CONFIG
+                serverLinks = serverConfig
             )
         }
         fun withAnalyticsUsageEnabled(enabled: Boolean) = apply {
@@ -127,52 +127,50 @@ class AnalyticsUsageViewModelTest {
             dataStore = dataStore,
             selfServerConfig = selfServerConfig
         )
-
-        private companion object {
-            val PRODUCTION_SERVER_CONFIG = newServerConfig(1).copy(links = ServerConfig.PRODUCTION)
-            val CUSTOM_SERVER_CONFIG = newServerConfig(1).copy(links = ServerConfig.STAGING)
-        }
     }
 
     companion object {
+        val PRODUCTION_SERVER_CONFIG = newServerConfig(1).copy(links = ServerConfig.PRODUCTION)
+        val STAGING_SERVER_CONFIG = newServerConfig(1).copy(links = ServerConfig.STAGING)
+        val CUSTOM_SERVER_CONFIG = newServerConfig(1).copy(links = ServerConfig.DUMMY)
 
         enum class TestParams(
-            val isProdBackend: Boolean,
+            val serverConfig: ServerConfig,
             val isAnalyticsUsageEnabled: Boolean,
             val isDialogSeen: Boolean,
             val analyticsConfiguration: AnalyticsConfiguration,
             val expected: Boolean
         ) {
             SHOULD_SHOW_DIALOG(
-                true,
+                PRODUCTION_SERVER_CONFIG,
                 false,
                 false,
                 AnalyticsConfiguration.Enabled,
                 true
             ),
             SHOULD_HIDE_DIALOG(
-                true,
+                STAGING_SERVER_CONFIG,
                 false,
                 true,
                 AnalyticsConfiguration.Enabled,
                 false
             ),
             ANALYTICS_ALREADY_ENABLED(
-                true,
+                STAGING_SERVER_CONFIG,
                 true,
                 true,
                 AnalyticsConfiguration.Enabled,
                 false
             ),
             CUSTOM_BACKEND(
-                false,
+                CUSTOM_SERVER_CONFIG,
                 false,
                 false,
                 AnalyticsConfiguration.Enabled,
                 false
             ),
             ANALYTICS_CONFIGURATION_DISABLED(
-                true,
+                PRODUCTION_SERVER_CONFIG,
                 false,
                 false,
                 AnalyticsConfiguration.Disabled,

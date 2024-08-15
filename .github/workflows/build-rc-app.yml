@@ -102,7 +102,7 @@ jobs:
           build-variant: compat
 
   ## build release candidate for nightly runs.
-  build-rc:
+  build-app-release-type:
     needs: [ code-analysis, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref_name == 'release/candidate'

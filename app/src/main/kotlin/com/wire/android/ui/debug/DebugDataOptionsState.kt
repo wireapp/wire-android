@@ -17,8 +17,6 @@
  */
 package com.wire.android.ui.debug
 
-import com.wire.android.util.EMPTY
-
 data class DebugDataOptionsState(
     val isEncryptedProteusStorageEnabled: Boolean = false,
     val isEventProcessingDisabled: Boolean = false,

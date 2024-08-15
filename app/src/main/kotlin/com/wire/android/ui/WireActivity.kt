@@ -184,7 +184,6 @@ class WireActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        appLogger.withTextTag("DeepLinkProcessor").d(">> Processing deep link on onNewIntent: ${intent.data}")
         if (isNavigationCollecting) {
             /*
              * - When true then navigationCommands is subscribed and can handle navigation commands right away.

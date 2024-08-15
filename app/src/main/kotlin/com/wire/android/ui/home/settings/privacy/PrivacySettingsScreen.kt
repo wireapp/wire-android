@@ -91,7 +91,6 @@ fun PrivacySettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            //
             if (BuildConfig.ANALYTICS_ENABLED) {
                 GroupConversationOptionsItem(
                     title = stringResource(id = R.string.settings_send_anonymous_usage_data_title),

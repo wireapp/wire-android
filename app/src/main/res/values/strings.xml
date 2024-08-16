@@ -454,6 +454,7 @@
     <string name="member_name_you_label_lowercase">you</string>
     <string name="label_add_participants">Add Participants</string>
     <string name="username_unavailable_label">Name not available</string>
+    <string name="temporary_user_label">%s left</string>
     <string name="group_unavailable_label">Group name not available</string>
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>

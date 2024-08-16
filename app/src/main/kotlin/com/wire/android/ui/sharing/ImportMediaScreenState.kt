@@ -17,24 +17,21 @@
  */
 package com.wire.android.ui.sharing
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberImportMediaScreenState(
     searchBarState: SearchBarState = rememberSearchbarState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    bottomSheetState: WireModalSheetState = rememberWireModalSheetState()
+    bottomSheetState: WireModalSheetState<Unit> = rememberWireModalSheetState()
 ): ImportMediaScreenState {
     val snackbarHostState = LocalSnackbarHostState.current
 
@@ -50,19 +47,5 @@ class ImportMediaScreenState(
     val snackbarHostState: SnackbarHostState,
     val searchBarState: SearchBarState,
     val coroutineScope: CoroutineScope,
-    val bottomSheetState: WireModalSheetState
-) {
-
-    fun showBottomSheetMenu() {
-        coroutineScope.launch {
-            bottomSheetState.show()
-        }
-    }
-
-    fun hideBottomSheetMenu(onComplete: () -> Unit = {}) {
-        coroutineScope.launch {
-            bottomSheetState.hide()
-            onComplete()
-        }
-    }
-}
+    val bottomSheetState: WireModalSheetState<Unit>
+)

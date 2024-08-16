@@ -15,12 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.messagecomposer.location
+package com.wire.android.ui.edit
 
-data class LocationPickerState(
-    val geoLocatedAddress: GeoLocatedAddress? = null,
-    val isLocationLoading: Boolean = false,
-    val isPermissionDiscarded: Boolean = false,
-    val showPermissionDeniedDialog: Boolean = false,
-    val showLocationSharingError: Boolean = false,
-)
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
+import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
+import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+
+@Composable
+fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
+    MenuBottomSheetItem(
+        icon = {
+            MenuItemIcon(
+                id = R.drawable.ic_copy,
+                contentDescription = stringResource(R.string.content_description_copy_the_message),
+            )
+        },
+        title = stringResource(R.string.label_copy),
+        onItemClick = onCopyItemClick
+    )
+}

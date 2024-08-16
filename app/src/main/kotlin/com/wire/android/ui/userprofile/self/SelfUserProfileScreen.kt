@@ -426,7 +426,7 @@ private fun OtherAccountItem(
         },
         subtitle = {
             if (account.teamName != null) {
-                HighlightSubtitle(subTitle = account.teamName, suffix = "")
+                HighlightSubtitle(subTitle = account.teamName, prefix = "")
             }
         },
         actions = {

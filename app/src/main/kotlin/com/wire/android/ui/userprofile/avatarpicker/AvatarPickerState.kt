@@ -20,7 +20,6 @@ package com.wire.android.ui.userprofile.avatarpicker
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -35,7 +34,6 @@ import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberAvatarPickerState(
     onImageSelected: (Uri) -> Unit,
@@ -44,7 +42,7 @@ fun rememberAvatarPickerState(
     onPictureTaken: () -> Unit,
     targetPictureFileUri: Uri,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    modalBottomSheetState: WireModalSheetState = rememberWireModalSheetState()
+    modalBottomSheetState: WireModalSheetState<Unit> = rememberWireModalSheetState()
 ): AvatarPickerState {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -72,12 +70,12 @@ class AvatarPickerState(
     private val context: Context,
     private val coroutineScope: CoroutineScope,
     val snackbarHostState: SnackbarHostState,
-    val modalBottomSheetState: WireModalSheetState,
+    val modalBottomSheetState: WireModalSheetState<Unit>,
     private val avatarPickerFlow: AvatarPickerFlow,
 ) {
 
     fun showModalBottomSheet() {
-        coroutineScope.launch { modalBottomSheetState.show() }
+        modalBottomSheetState.show(Unit)
     }
 
     fun showSnackbar(uiText: UIText) {
@@ -87,8 +85,9 @@ class AvatarPickerState(
     }
 
     private fun openImageSource(imageSource: ImageSource) {
-        avatarPickerFlow.launch(imageSource)
-        coroutineScope.launch { modalBottomSheetState.hide() }
+        modalBottomSheetState.hide {
+            avatarPickerFlow.launch(imageSource)
+        }
     }
 
     fun openCamera() {

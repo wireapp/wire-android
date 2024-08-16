@@ -18,31 +18,34 @@
 package com.wire.android.ui.home.conversations.edit
 
 import androidx.compose.runtime.Composable
+import com.wire.android.ui.edit.CopyItemMenuOption
 import com.wire.android.ui.edit.DeleteItemMenuOption
+import com.wire.android.ui.edit.EditMessageMenuOption
 import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
 
 @Composable
-fun TextMessageEditMenuItems(
+fun textMessageEditMenuItems(
     isEphemeral: Boolean,
     isUploading: Boolean,
     isComposite: Boolean,
-    isLocation: Boolean,
+    isEditable: Boolean,
+    isCopyable: Boolean,
     onDeleteClick: () -> Unit,
     onDetailsClick: () -> Unit,
     onReplyClick: () -> Unit,
-    onCopyClick: (() -> Unit)?,
-    onReactionClick: (String) -> Unit,
-    onEditClick: (() -> Unit)? = null
+    onCopyClick: () -> Unit,
+    onReactionClick: (emoji: String) -> Unit,
+    onEditClick: (() -> Unit),
 ): List<@Composable () -> Unit> {
     return buildList {
         if (!isUploading) {
             if (!isEphemeral && !isComposite) add { ReactionOption(onReactionClick) }
             add { MessageDetailsMenuOption(onDetailsClick) }
-            onCopyClick?.also { add { CopyItemMenuOption(it) } }
+            if (isCopyable) { add { CopyItemMenuOption(onCopyClick) } }
             if (!isEphemeral && !isComposite) add { ReplyMessageOption(onReplyClick) }
-            if (!isEphemeral && !isLocation && onEditClick != null) add { EditMessageMenuOption(onEditClick) }
+            if (isEditable) add { EditMessageMenuOption(onEditClick) }
         }
         add { DeleteItemMenuOption(onDeleteClick) }
     }

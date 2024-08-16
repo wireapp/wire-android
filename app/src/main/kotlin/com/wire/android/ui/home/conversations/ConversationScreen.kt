@@ -86,12 +86,13 @@ import com.wire.android.navigation.ArgsSerializer
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
-import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.navigation.WireDestination
+import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.getOutgoingCallIntent
+import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.ConfirmSendingPingDialog
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
@@ -126,7 +127,7 @@ import com.wire.android.ui.home.conversations.call.ConversationListCallViewModel
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
-import com.wire.android.ui.home.conversations.edit.editMessageMenuItems
+import com.wire.android.ui.home.conversations.edit.messageOptionsMenuItems
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
@@ -149,6 +150,7 @@ import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.model.Ping
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
@@ -229,7 +231,6 @@ fun ConversationScreen(
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
-        modalBottomSheetState = conversationScreenState.modalBottomSheetState,
         draftMessageComposition = messageDraftViewModel.state.value,
         onSaveDraft = messageComposerViewModel::saveDraft,
         onSearchMentionQueryChanged = messageComposerViewModel::searchMembersToMention,
@@ -244,6 +245,17 @@ fun ConversationScreen(
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
 
     val activity = LocalActivity.current
+
+    LaunchedEffect(conversationScreenState.isAnySheetVisible) {
+        with(messageComposerStateHolder) {
+            if (conversationScreenState.isAnySheetVisible) {
+                messageCompositionInputStateHolder.clearFocus()
+            } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
+                messageCompositionInputStateHolder.requestFocus()
+                additionalOptionStateHolder.unselectAdditionalOptionsMenu()
+            }
+        }
+    }
 
     LaunchedEffect(alreadyDeletedByUser) {
         if (!alreadyDeletedByUser) {
@@ -756,48 +768,6 @@ private fun ConversationScreen(
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
-
-    val menuModalHeader = if (conversationScreenState.bottomSheetMenuType is ConversationScreenState.BottomSheetMenuType.SelfDeletion) {
-        MenuModalSheetHeader.Visible(
-            title = stringResource(R.string.automatically_delete_message_after)
-        )
-    } else MenuModalSheetHeader.Gone
-
-    val menuItems = when (val menuType = conversationScreenState.bottomSheetMenuType) {
-        is ConversationScreenState.BottomSheetMenuType.Edit -> {
-            editMessageMenuItems(
-                message = menuType.selectedMessage,
-                messageOptionsEnabled = true,
-                hideEditMessageMenu = conversationScreenState::hideContextMenu,
-                onCopyClick = conversationScreenState::copyMessage,
-                onDeleteClick = onDeleteMessage,
-                onReactionClick = onReactionClick,
-                onDetailsClick = onMessageDetailsClick,
-                onReplyClick = messageComposerStateHolder::toReply,
-                onEditClick = { messageId, messageText, mentions -> messageComposerStateHolder.toEdit(messageId, messageText, mentions) },
-                onShareAssetClick = {
-                    menuType.selectedMessage.header.messageId.let {
-                        shareAsset(context, it)
-                        conversationScreenState.hideContextMenu()
-                    }
-                },
-                onDownloadAssetClick = onDownloadAssetClick,
-                onOpenAssetClick = onOpenAssetClick
-            )
-        }
-
-        is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
-            selfDeletionMenuItems(
-                hideEditMessageMenu = conversationScreenState::hideContextMenu,
-                currentlySelected = menuType.currentlySelected.duration.toSelfDeletionDuration(),
-                onSelfDeletionDurationChanged = { newTimer ->
-                    onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(newTimer.value))
-                }
-            )
-        }
-
-        ConversationScreenState.BottomSheetMenuType.None -> emptyList()
-    }
     // only here we will use normal Scaffold because of specific behaviour of message composer
     Scaffold(
         topBar = {
@@ -871,12 +841,44 @@ private fun ConversationScreen(
             }
         }
     )
-    MenuModalSheetLayout(
-        header = menuModalHeader,
-        sheetState = conversationScreenState.modalBottomSheetState,
-        coroutineScope = conversationScreenState.coroutineScope,
-        menuItems = menuItems
+    WireModalSheetLayout(
+        sheetState = conversationScreenState.selfDeletingSheetState,
+        sheetContent = { currentlySelected ->
+            WireMenuModalSheetContent(
+                header = MenuModalSheetHeader.Visible(title = stringResource(R.string.automatically_delete_message_after)),
+                menuItems = selfDeletionMenuItems(
+                    currentlySelected = currentlySelected.duration.toSelfDeletionDuration(),
+                    onSelfDeletionDurationChanged = { newTimer ->
+                        conversationScreenState.selfDeletingSheetState.hide {
+                            onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(newTimer.value))
+                        }
+                    }
+                )
+            )
+        }
     )
+    WireModalSheetLayout(
+        sheetState = conversationScreenState.editSheetState,
+        sheetContent = { selectedMessage ->
+            WireMenuModalSheetContent(
+                header = MenuModalSheetHeader.Gone,
+                menuItems = messageOptionsMenuItems(
+                    message = selectedMessage,
+                    hideEditMessageMenu = remember { { conversationScreenState.editSheetState.hide() } },
+                    onCopyClick = conversationScreenState::copyMessage,
+                    onDeleteClick = onDeleteMessage,
+                    onReactionClick = onReactionClick,
+                    onDetailsClick = onMessageDetailsClick,
+                    onReplyClick = messageComposerStateHolder::toReply,
+                    onEditClick = messageComposerStateHolder::toEdit,
+                    onShareAssetClick = { shareAsset(context, it) },
+                    onDownloadAssetClick = onDownloadAssetClick,
+                    onOpenAssetClick = onOpenAssetClick,
+                )
+            )
+        }
+    )
+
     SnackBarMessage(composerMessages, conversationMessages)
 }
 
@@ -1322,7 +1324,6 @@ fun PreviewConversationScreen() = WireTheme {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
-        modalBottomSheetState = conversationScreenState.modalBottomSheetState,
         draftMessageComposition = messageCompositionState.value,
         onSaveDraft = {},
         onTypingEvent = {},

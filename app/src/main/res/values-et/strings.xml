@@ -377,6 +377,7 @@
     <!-- Update App dialog -->
     <string name="update_app_dialog_button">Uuenda</string>
     <string name="cancel_login_button_label">Tühista</string>
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <string name="file_sharing_restricted_button_text_no_users">Ava Wire</string>
     <!-- join conversation dialog -->
@@ -454,4 +455,5 @@
     <!-- Share Location -->
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

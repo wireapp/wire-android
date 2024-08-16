@@ -20,14 +20,11 @@ package com.wire.android.ui.home.conversationslist
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
@@ -35,10 +32,11 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
-import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout2
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -80,18 +78,11 @@ fun ConversationRouterHomeBridge(
     conversationListViewModel: ConversationListViewModel = hiltViewModel(),
     conversationCallListViewModel: ConversationCallListViewModel = hiltViewModel(),
 ) {
-    var currentSheetConversationItem by remember {
-        mutableStateOf<ConversationItem?>(null)
-    }
     var currentConversationOptionNavigation by remember {
         mutableStateOf<ConversationOptionNavigation>(ConversationOptionNavigation.Home)
     }
 
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-        confirmValueChange = { true },
-    )
-    val coroutineScope = rememberCoroutineScope()
+    val sheetState = rememberWireModalSheetState<ConversationItem>()
 
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -102,29 +93,15 @@ fun ConversationRouterHomeBridge(
         conversationListViewModel.updateConversationsSource(conversationsSource)
     }
 
-    LaunchedEffect(key1 = currentSheetConversationItem) {
-        if (currentSheetConversationItem != null) {
-            sheetState.show()
-        } else {
-            sheetState.hide()
-        }
-    }
-
-    LaunchedEffect(sheetState.currentValue) {
-        if (sheetState.currentValue == SheetValue.Hidden) {
-            currentSheetConversationItem = null
-        }
-    }
-
     LaunchedEffect(Unit) {
         conversationListViewModel.infoMessage.collect {
-            currentSheetConversationItem = null
+            sheetState.hide()
         }
     }
 
     LaunchedEffect(Unit) {
         conversationListViewModel.closeBottomSheet.collect {
-            currentSheetConversationItem = null
+            sheetState.hide()
         }
     }
 
@@ -161,7 +138,7 @@ fun ConversationRouterHomeBridge(
     with(conversationRouterHomeState) {
         val onEditConversationItem: (ConversationItem) -> Unit = remember {
             {
-                currentSheetConversationItem = it
+                sheetState.show(it)
                 currentConversationOptionNavigation = ConversationOptionNavigation.Home
             }
         }
@@ -262,42 +239,33 @@ fun ConversationRouterHomeBridge(
             onArchiveButtonClicked = conversationListViewModel::moveConversationToArchive
         )
 
-        currentSheetConversationItem?.let {
-            WireModalSheetLayout2(
-                sheetState = sheetState,
-                coroutineScope = coroutineScope,
-                sheetContent = {
-                    val conversationState = rememberConversationSheetState(
-                        conversationItem = it,
-                        conversationOptionNavigation = currentConversationOptionNavigation
-                    )
+        WireModalSheetLayout(
+            sheetState = sheetState,
+            sheetContent = {
+                val conversationState = rememberConversationSheetState(
+                    conversationItem = it,
+                    conversationOptionNavigation = currentConversationOptionNavigation
+                )
 
-                    ConversationSheetContent(
-                        conversationSheetState = conversationState,
-                        onMutingConversationStatusChange = {
-                            conversationListViewModel.muteConversation(
-                                conversationId = conversationState.conversationId,
-                                mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
-                            )
-                        },
-                        addConversationToFavourites = conversationListViewModel::addConversationToFavourites,
-                        moveConversationToFolder = conversationListViewModel::moveConversationToFolder,
-                        updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
-                        clearConversationContent = clearContentDialogState::show,
-                        blockUser = blockUserDialogState::show,
-                        unblockUser = unblockUserDialogState::show,
-                        leaveGroup = leaveGroupDialogState::show,
-                        deleteGroup = deleteGroupDialogState::show,
-                        closeBottomSheet = {
-                            currentSheetConversationItem = null
-                        }
-                    )
-                },
-                onCloseBottomSheet = {
-                    currentSheetConversationItem = null
-                }
-            )
-        }
+                ConversationSheetContent(
+                    conversationSheetState = conversationState,
+                    onMutingConversationStatusChange = {
+                        conversationListViewModel.muteConversation(
+                            conversationId = conversationState.conversationId,
+                            mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
+                        )
+                    },
+                    addConversationToFavourites = conversationListViewModel::addConversationToFavourites,
+                    moveConversationToFolder = conversationListViewModel::moveConversationToFolder,
+                    updateConversationArchiveStatus = showConfirmationDialogOrUnarchive(),
+                    clearConversationContent = clearContentDialogState::show,
+                    blockUser = blockUserDialogState::show,
+                    unblockUser = unblockUserDialogState::show,
+                    leaveGroup = leaveGroupDialogState::show,
+                    deleteGroup = deleteGroupDialogState::show,
+                )
+            },
+        )
 
         BackHandler(conversationItemType == ConversationItemType.SEARCH) {
             closeSearch()

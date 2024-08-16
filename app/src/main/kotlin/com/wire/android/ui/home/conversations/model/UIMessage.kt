@@ -137,6 +137,7 @@ data class MessageHeader(
     val isSenderUnavailable: Boolean,
     val clientId: ClientId? = null,
     val accent: Accent = Accent.Unknown,
+    val guestExpiresAt: Instant? = null
 )
 
 @Stable

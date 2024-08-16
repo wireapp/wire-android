@@ -45,7 +45,6 @@ fun ConversationSheetContent(
     unblockUser: (UnblockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
-    closeBottomSheet: () -> Unit = {},
     isBottomSheetVisible: () -> Boolean = { true }
 ) {
     // it may be null as initial state
@@ -73,8 +72,6 @@ fun ConversationSheetContent(
             val goBack: () -> Unit = {
                 if (conversationSheetState.startOptionNavigation == ConversationOptionNavigation.Home)
                     conversationSheetState.toHome()
-                else
-                    closeBottomSheet()
             }
             MutingOptionsSheetContent(
                 mutingConversationState = conversationSheetState.conversationSheetContent!!.mutingConversationState,

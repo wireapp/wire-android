@@ -78,6 +78,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
 import com.wire.android.ui.destinations.AvatarPickerScreenDestination
+import com.wire.android.ui.destinations.SelfQRCodeScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
@@ -131,7 +132,8 @@ fun SelfUserProfileScreen(
         onLegalHoldAcceptClick = legalHoldRequestedViewModel::show,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
         onOtherAccountClick = { viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate)) },
-        isUserInCall = viewModelSelf::isUserInCall
+        onQrCodeClick = { navigator.navigate(NavigationCommand(SelfQRCodeScreenDestination(viewModelSelf.userProfileState.userName))) },
+        isUserInCall = viewModelSelf::isUserInCall,
     )
 
     avatarPickerResultRecipient.onNavResult { result ->
@@ -180,6 +182,7 @@ private fun SelfUserProfileContent(
     onLegalHoldAcceptClick: () -> Unit = {},
     onLegalHoldLearnMoreClick: () -> Unit = {},
     onOtherAccountClick: (UserId) -> Unit = {},
+    onQrCodeClick: () -> Unit = {},
     isUserInCall: () -> Boolean
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
@@ -229,7 +232,8 @@ private fun SelfUserProfileContent(
                             userName = userName,
                             teamName = teamName,
                             onUserProfileClick = onChangeUserProfilePicture,
-                            editableState = EditableState.IsEditable(onEditClick)
+                            editableState = EditableState.IsEditable(onEditClick),
+                            onQrCodeClick = onQrCodeClick
                         )
                     }
                     if (state.legalHoldStatus != LegalHoldUIState.None) {

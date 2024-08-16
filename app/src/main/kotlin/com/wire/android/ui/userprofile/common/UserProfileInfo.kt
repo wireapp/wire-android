@@ -19,10 +19,12 @@
 package com.wire.android.ui.userprofile.common
 
 import android.annotation.SuppressLint
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +36,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -46,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
@@ -60,6 +64,8 @@ import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserProfileAvatarType
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForUser
+import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -99,7 +105,8 @@ fun UserProfileInfo(
     delayToShowPlaceholderIfNoAsset: Duration = 200.milliseconds,
     isProteusVerified: Boolean = false,
     isMLSVerified: Boolean = false,
-    expiresAt: Instant? = null
+    expiresAt: Instant? = null,
+    onQrCodeClick: (() -> Unit)? = null,
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -201,6 +208,9 @@ fun UserProfileInfo(
                     maxLines = 1,
                     color = MaterialTheme.wireColorScheme.labelText
                 )
+                if (onQrCodeClick != null) {
+                    QRCodeIcon(onQrCodeClick)
+                }
                 UserBadge(membership, connection, topPadding = dimensions().spacing8x)
             }
             val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
@@ -242,6 +252,20 @@ fun UserProfileInfo(
             )
         }
     }
+}
+
+@Composable
+fun QRCodeIcon(
+    onQrCodeClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    @StringRes contentDescriptionId: Int = R.string.user_profile_qr_code_share_link
+) {
+    androidx.compose.material3.Icon(
+        imageVector = Icons.Filled.QrCode,
+        contentDescription = stringResource(contentDescriptionId),
+        modifier = modifier.clickable { onQrCodeClick() }.padding(vertical = dimensions().spacing8x),
+        tint = colorsScheme().onBackground
+    )
 }
 
 @Composable
@@ -331,6 +355,7 @@ fun PreviewUserProfileInfoTempUser() {
         connection = ConnectionState.ACCEPTED,
         isProteusVerified = true,
         isMLSVerified = true,
-        expiresAt = Clock.System.now().plus(1.hours)
+        expiresAt = Clock.System.now().plus(1.hours),
+        onQrCodeClick = {}
     )
 }

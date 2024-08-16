@@ -48,4 +48,6 @@ interface AnonymousAnalyticsRecorder {
         isTeamMember: Boolean,
         propagateIdentifier: suspend () -> Unit
     )
+
+    fun isAnalyticsInitialized(): Boolean
 }

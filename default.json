@@ -53,7 +53,7 @@
             "default_backend_url_website": "https://wire.com",
             "default_backend_title": "wire-staging",
             "encrypt_proteus_storage": true,
-            "analytics_enabled": false,
+            "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://countly.wire.com/"
         },

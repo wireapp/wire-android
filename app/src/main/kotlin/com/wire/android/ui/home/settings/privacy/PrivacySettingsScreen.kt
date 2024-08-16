@@ -50,7 +50,7 @@ fun PrivacySettingsConfigScreen(
 ) {
     with(viewModel) {
         PrivacySettingsScreenContent(
-            isAnonymousUsageDataEnabled = state.isAnonymousUsageDataEnabled,
+            isAnonymousUsageDataEnabled = state.isAnalyticsUsageEnabled,
             areReadReceiptsEnabled = state.areReadReceiptsEnabled,
             setReadReceiptsState = ::setReadReceiptsState,
             isTypingIndicatorEnabled = state.isTypingIndicatorEnabled,

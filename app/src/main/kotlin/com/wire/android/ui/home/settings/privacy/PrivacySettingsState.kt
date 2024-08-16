@@ -19,7 +19,8 @@
 package com.wire.android.ui.home.settings.privacy
 
 data class PrivacySettingsState(
-    val isAnonymousUsageDataEnabled: Boolean = true,
+    val isAnalyticsUsageEnabled: Boolean = true,
+    val shouldShowAnalyticsUsage: Boolean = false,
     val areReadReceiptsEnabled: Boolean = true,
     val isTypingIndicatorEnabled: Boolean = true,
     val screenshotCensoringConfig: ScreenshotCensoringConfig = ScreenshotCensoringConfig.ENABLED_BY_USER,

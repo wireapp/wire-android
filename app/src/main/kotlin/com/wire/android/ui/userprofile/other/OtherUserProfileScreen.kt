@@ -72,6 +72,7 @@ import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
@@ -120,22 +121,19 @@ import kotlinx.datetime.Instant
     navArgsDelegate = OtherUserProfileNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtherUserProfileScreen(
     navigator: Navigator,
     navArgs: OtherUserProfileNavArgs,
-    viewModel: OtherUserProfileScreenViewModel = hiltViewModel(),
-    resultNavigator: ResultBackNavigator<String>
+    resultNavigator: ResultBackNavigator<String>,
+    viewModel: OtherUserProfileScreenViewModel = hiltViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current
 
     val scope = rememberCoroutineScope()
 
-    val sheetState = rememberWireModalSheetState()
-    val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
-    val closeBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
+    val sheetState = rememberWireModalSheetState<Unit>()
 
     val conversationId = viewModel.state.conversationId
         ?: viewModel.state.conversationSheetContent?.conversationId
@@ -170,10 +168,10 @@ fun OtherUserProfileScreen(
         state = viewModel.state,
         requestInProgress = viewModel.requestInProgress,
         sheetState = sheetState,
-        openBottomSheet = openBottomSheet,
-        closeBottomSheet = closeBottomSheet,
-        eventsHandler = viewModel,
-        bottomSheetEventsHandler = viewModel,
+        openBottomSheet = sheetState::show,
+        closeBottomSheet = sheetState::hide,
+        eventsHandler = viewModel as OtherUserProfileEventsHandler,
+        bottomSheetEventsHandler = viewModel as OtherUserProfileBottomSheetEventsHandler,
         onIgnoreConnectionRequest = {
             resultNavigator.setResult(it)
             resultNavigator.navigateBack()
@@ -229,18 +227,18 @@ fun OtherProfileScreenContent(
     state: OtherUserProfileState,
     navigationIconType: NavigationIconType,
     requestInProgress: Boolean,
-    sheetState: WireModalSheetState,
+    sheetState: WireModalSheetState<Unit>,
     openBottomSheet: () -> Unit,
     closeBottomSheet: () -> Unit,
     eventsHandler: OtherUserProfileEventsHandler,
     bottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler,
+    onSearchConversationMessagesClick: () -> Unit,
     onIgnoreConnectionRequest: (String) -> Unit = { },
     onOpenConversation: (ConversationId) -> Unit = {},
     onOpenDeviceDetails: (Device) -> Unit = {},
-    onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit = {},
     navigateBack: () -> Unit = {},
-    onLegalHoldLearnMoreClick: () -> Unit = {},
+    onLegalHoldLearnMoreClick: () -> Unit = {}
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
@@ -360,7 +358,6 @@ fun OtherProfileScreenContent(
 
     WireModalSheetLayout(
         sheetState = sheetState,
-        coroutineScope = scope,
         sheetContent = {
             OtherUserProfileBottomSheetContent(
                 getBottomSheetVisibility = getBottomSheetVisibility,

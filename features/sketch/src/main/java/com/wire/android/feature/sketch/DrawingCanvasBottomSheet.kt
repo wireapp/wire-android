@@ -53,6 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.model.DrawingState
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
@@ -73,8 +74,9 @@ fun DrawingCanvasBottomSheet(
     onDismissSketch: () -> Unit,
     onSendSketch: (Uri) -> Unit,
     tempWritableImageUri: Uri?,
+    modifier: Modifier = Modifier,
     conversationTitle: String = "",
-    viewModel: DrawingCanvasViewModel = viewModel(),
+    viewModel: DrawingCanvasViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -96,6 +98,7 @@ fun DrawingCanvasBottomSheet(
     }
 
     ModalBottomSheet(
+        modifier = modifier,
         shape = CutCornerShape(dimensions().spacing0x),
         containerColor = colorsScheme().background,
         dragHandle = {
@@ -179,17 +182,13 @@ internal fun DrawingTopBar(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DrawingToolbar(
     state: DrawingState,
     onColorChanged: (Color) -> Unit,
     onSendSketch: () -> Unit = {},
 ) {
-    val scope = rememberCoroutineScope()
-    val sheetState = rememberWireModalSheetState()
-    val openColorPickerSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
-    val closeColorPickerSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
+    val sheetState = rememberWireModalSheetState<Unit>()
     Row(
         Modifier
             .height(dimensions().spacing80x)
@@ -199,7 +198,7 @@ internal fun DrawingToolbar(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         WireSecondaryButton(
-            onClick = openColorPickerSheet,
+            onClick = sheetState::show,
             leadingIcon = {
                 Icon(
                     Icons.Default.Circle,
@@ -238,7 +237,7 @@ internal fun DrawingToolbar(
         currentColor = state.currentPath.color,
         onColorSelected = {
             onColorChanged(it)
-            closeColorPickerSheet()
+            sheetState.hide()
         }
     )
 }

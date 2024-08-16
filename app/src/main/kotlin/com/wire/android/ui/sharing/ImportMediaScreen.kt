@@ -65,7 +65,9 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -324,14 +326,22 @@ fun ImportMediaRegularContent(
                 )
             }
         )
-        MenuModalSheetLayout(
-            menuItems = selfDeletionMenuItems(
-                currentlySelected = importMediaAuthenticatedState.selfDeletingTimer.duration.toSelfDeletionDuration(),
-                hideEditMessageMenu = importMediaScreenState::hideBottomSheetMenu,
-                onSelfDeletionDurationChanged = onNewSelfDeletionTimerPicked,
-            ),
+        WireModalSheetLayout(
             sheetState = importMediaScreenState.bottomSheetState,
-            coroutineScope = importMediaScreenState.coroutineScope
+            sheetContent = {
+                WireMenuModalSheetContent(
+                    menuItems = selfDeletionMenuItems(
+                        currentlySelected = importMediaAuthenticatedState.selfDeletingTimer.duration.toSelfDeletionDuration(),
+                        onSelfDeletionDurationChanged = remember {
+                            {
+                                importMediaScreenState.bottomSheetState.hide {
+                                    onNewSelfDeletionTimerPicked(it)
+                                }
+                            }
+                        },
+                    )
+                )
+            },
         )
     }
     SnackBarMessage(infoMessage, importMediaScreenState.snackbarHostState)
@@ -437,7 +447,7 @@ private fun ImportMediaBottomBar(
         count = buttonCount,
         onMainButtonClick = checkRestrictionsAndSendImportedMedia,
         selfDeletionTimer = selfDeletionTimer,
-        onSelfDeletionTimerClicked = importMediaScreenState::showBottomSheetMenu,
+        onSelfDeletionTimerClicked = importMediaScreenState.bottomSheetState::show,
     )
 }
 

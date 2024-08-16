@@ -21,10 +21,6 @@ package com.wire.android.ui.home.conversations.edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import com.wire.android.R
-import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -33,32 +29,34 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
 @Composable
-fun editMessageMenuItems(
+fun messageOptionsMenuItems(
     message: UIMessage.Regular,
-    messageOptionsEnabled: Boolean,
     hideEditMessageMenu: (OnComplete) -> Unit,
-    onCopyClick: (String) -> Unit,
-    onDeleteClick: (messageId: String, Boolean) -> Unit,
+    onCopyClick: (text: String) -> Unit,
+    onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onReplyClick: (UIMessage.Regular) -> Unit,
-    onEditClick: (String, String, List<MessageMention>) -> Unit,
-    onShareAssetClick: () -> Unit,
-    onDownloadAssetClick: (String) -> Unit,
-    onOpenAssetClick: (String) -> Unit
+    onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>) -> Unit,
+    onShareAssetClick: (messageId: String) -> Unit,
+    onDownloadAssetClick: (messageId: String) -> Unit,
+    onOpenAssetClick: (messageId: String) -> Unit
 ): List<@Composable () -> Unit> {
     val localContext = LocalContext.current
+    val isUploading = message.isPending
+    val isDeleted = message.isDeleted
+    val isMyMessage = message.isMyMessage
+    val isComposite = message.messageContent is UIMessageContent.Composite
+    val isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable
+    val isEditable = !isUploading && !isDeleted && message.messageContent is UIMessageContent.TextMessage && isMyMessage
+    val isCopyable = !isUploading && !isDeleted && message.messageContent is Copyable
 
-    val isComposite = remember(message.header.messageId) {
-        message.messageContent is UIMessageContent.Composite
-    }
-
-    val onCopyItemClick: (() -> Unit)? = remember(message.header.messageId) {
+    val onCopyItemClick = remember(message.messageContent) {
         (message.messageContent as? Copyable)?.textToCopy(localContext.resources)?.let {
             {
                 hideEditMessageMenu { onCopyClick(it) }
             }
-        }
+        } ?: {}
     }
 
     val onDeleteItemClick = remember(message.header.messageId) {
@@ -68,10 +66,10 @@ fun editMessageMenuItems(
             }
         }
     }
-    val onReactionItemClick = remember(message.header.messageId) {
-        { emoji: String ->
+    val onReactionItemClick: (emoji: String) -> Unit = remember(message.header.messageId) {
+        {
             hideEditMessageMenu {
-                onReactionClick(message.header.messageId, emoji)
+                onReactionClick(message.header.messageId, it)
             }
         }
     }
@@ -116,76 +114,42 @@ fun editMessageMenuItems(
             }
         }
     }
+    val onShareAssetItemClick = remember(message) {
+        {
+            hideEditMessageMenu {
+                onShareAssetClick(message.header.messageId)
+            }
+        }
+    }
 
     return if (message.isAssetMessage) {
-        assetEditMenuItems(
-            messageOptionsEnabled = messageOptionsEnabled,
-            isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
-            isUploading = message.isPending,
+        assetMessageOptionsMenuItems(
+            isEphemeral = isEphemeral,
+            isUploading = isUploading,
+            isOpenable = true,
             onDeleteClick = onDeleteItemClick,
             onDetailsClick = onDetailsItemClick,
-            onShareAsset = onShareAssetClick,
+            onShareAsset = onShareAssetItemClick,
             onDownloadAsset = onDownloadAssetItemClick,
             onReplyClick = onReplyItemClick,
             onReactionClick = onReactionItemClick,
-            onOpenAsset = onOpenAssetItemClick
+            onOpenAsset = onOpenAssetItemClick,
         )
     } else {
-        TextMessageEditMenuItems(
-            isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
-            isUploading = message.isPending,
+        textMessageEditMenuItems(
+            isEphemeral = isEphemeral,
+            isUploading = isUploading,
             isComposite = isComposite,
-            isLocation = message.isLocation,
+            isEditable = isEditable,
+            isCopyable = isCopyable,
             onDeleteClick = onDeleteItemClick,
             onDetailsClick = onDetailsItemClick,
             onReactionClick = onReactionItemClick,
-            onEditClick = if (message.isMyMessage && !message.isDeleted) onEditItemClick else null,
+            onEditClick = onEditItemClick,
             onCopyClick = onCopyItemClick,
             onReplyClick = onReplyItemClick
         )
     }
-}
-
-@Composable
-fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
-    MenuBottomSheetItem(
-        icon = {
-            MenuItemIcon(
-                id = R.drawable.ic_copy,
-                contentDescription = stringResource(R.string.content_description_copy_the_message),
-            )
-        },
-        title = stringResource(R.string.label_copy),
-        onItemClick = onCopyItemClick
-    )
-}
-
-@Composable
-fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
-    MenuBottomSheetItem(
-        icon = {
-            MenuItemIcon(
-                id = R.drawable.ic_share_file,
-                contentDescription = stringResource(R.string.content_description_share_the_file),
-            )
-        },
-        title = stringResource(R.string.label_share),
-        onItemClick = onShareAsset
-    )
-}
-
-@Composable
-fun EditMessageMenuOption(onEditItemClick: () -> Unit) {
-    MenuBottomSheetItem(
-        icon = {
-            MenuItemIcon(
-                id = R.drawable.ic_edit,
-                contentDescription = stringResource(R.string.content_description_edit_the_message)
-            )
-        },
-        title = stringResource(R.string.label_edit),
-        onItemClick = onEditItemClick
-    )
 }
 
 typealias OnComplete = () -> Unit

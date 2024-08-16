@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.gallery
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -27,25 +26,16 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 data class MediaGalleryScreenState(
     val snackbarHostState: SnackbarHostState,
-    val modalBottomSheetState: WireModalSheetState,
+    val modalBottomSheetState: WireModalSheetState<Unit>,
     val coroutineScope: CoroutineScope
-) {
-    fun showContextualMenu(show: Boolean) {
-        coroutineScope.launch {
-            if (show) modalBottomSheetState.show()
-            else modalBottomSheetState.hide()
-        }
-    }
-}
+)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberMediaGalleryScreenState(
-    bottomSheetState: WireModalSheetState = rememberWireModalSheetState(),
+    bottomSheetState: WireModalSheetState<Unit> = rememberWireModalSheetState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): MediaGalleryScreenState {
     val snackbarHostState = LocalSnackbarHostState.current

@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireDialog
@@ -136,6 +137,22 @@ fun DebugDataOptionsContent(
                     onClick = { onCopyText(state.debugId) }
                 )
             )
+
+            SettingsItem(
+                title = stringResource(id = R.string.debug_analytics_enabled_title),
+                text = AnonymousAnalyticsManagerImpl.isAnalyticsInitialized().toString()
+            )
+
+            SettingsItem(
+                title = stringResource(id = R.string.debug_analytics_tracking_identifier_title),
+                text = state.analyticsTrackingId,
+                trailingIcon = R.drawable.ic_copy,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = { onCopyText(state.analyticsTrackingId) }
+                )
+            )
+
             if (BuildConfig.DEBUG) {
                 GetE2EICertificateSwitch(
                     enrollE2EI = enrollE2EICertificate

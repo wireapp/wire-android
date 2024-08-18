@@ -356,7 +356,6 @@ fun mockAssetAudioMessage(assetId: String = "asset1", messageId: String = "msg1"
     source = MessageSource.Self
 )
 
-
 fun mockUIAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = UIAssetMessage(
     assetId = assetId,
     time = Instant.DISTANT_PAST,

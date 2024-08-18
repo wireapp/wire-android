@@ -117,7 +117,11 @@ fun ConversationMediaScreen(
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         audioMessagesState = conversationMessagesViewModel.conversationViewState.audioMessagesState,
         onAudioItemClicked = conversationMessagesViewModel::audioClick,
-        onOpenAssetOptions = remember { { messageId, isMyMessage -> sheetState.show(AssetOptionsData(messageId, isMyMessage)) } },
+        onOpenAssetOptions = remember {
+            { messageId, isMyMessage ->
+                sheetState.show(AssetOptionsData(messageId, isMyMessage))
+            }
+        },
     )
 
     AssetOptionsModalSheetLayout(
@@ -263,8 +267,10 @@ private fun AssetOptionsModalSheetLayout(
 enum class ConversationMediaScreenTabItem(@StringRes val titleResId: Int) : TabItem {
     PICTURES(R.string.label_conversation_pictures),
     FILES(R.string.label_conversation_files);
+
     override val title: UIText = UIText.StringResource(titleResId)
 }
+
 data class AssetOptionsData(val messageId: String, val isMyMessage: Boolean)
 
 @PreviewMultipleThemes

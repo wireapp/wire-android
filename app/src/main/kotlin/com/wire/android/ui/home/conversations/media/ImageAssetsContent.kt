@@ -182,7 +182,6 @@ private fun ImageAssetGrid(
 
 private const val COLUMN_COUNT = 3
 
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewImageAssetsEmptyContent() = WireTheme {

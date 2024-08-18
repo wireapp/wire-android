@@ -182,6 +182,7 @@ fun PreviewFileAssetsContent() = WireTheme {
     FileAssetsContent(groupedAssetMessageList = flowOfAssets, assetStatuses = assetStatuses, audioMessagesState = audioStatuses)
 }
 
+@Suppress("MagicNumber")
 fun mockAssets(): Triple<Flow<PagingData<UIPagingItem>>, PersistentMap<String, MessageAssetStatus>, PersistentMap<String, AudioState>> {
     val msg1 = mockAssetMessage(assetId = "assset1", messageId = "msg1")
     val msg2 = mockAssetMessage(assetId = "assset2", messageId = "msg2")

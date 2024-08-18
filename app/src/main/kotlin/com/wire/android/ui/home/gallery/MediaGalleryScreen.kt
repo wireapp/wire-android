@@ -272,4 +272,5 @@ fun PreviewMediaGalleryOptionsBottomSheetLayout() = WireTheme {
         reply = {},
         react = {},
         downloadAsset = {}
-    )}
+    )
+}

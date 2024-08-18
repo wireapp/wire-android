@@ -68,20 +68,40 @@ fun MessageOptionsModalSheetLayout(
                     isOpenable = true,
                     onCopyClick = remember(message.messageContent) {
                         (message.messageContent as? Copyable)?.textToCopy(context.resources)?.let {
-                            { sheetState.hide { onCopyClick(it) } }
+                            {
+                                sheetState.hide {
+                                    onCopyClick(it)
+                                }
+                            }
                         } ?: {}
                     },
                     onDeleteClick = remember(message.header.messageId) {
-                        { sheetState.hide { onDeleteClick(message.header.messageId, message.isMyMessage) } }
+                        {
+                            sheetState.hide {
+                                onDeleteClick(message.header.messageId, message.isMyMessage)
+                            }
+                        }
                     },
                     onReactionClick = remember(message.header.messageId) {
-                        { sheetState.hide { onReactionClick(message.header.messageId, it) } }
+                        {
+                            sheetState.hide {
+                                onReactionClick(message.header.messageId, it)
+                            }
+                        }
                     },
                     onDetailsClick = remember(message.header.messageId) {
-                        { sheetState.hide { onDetailsClick(message.header.messageId, message.isMyMessage) } }
+                        {
+                            sheetState.hide {
+                                onDetailsClick(message.header.messageId, message.isMyMessage)
+                            }
+                        }
                     },
                     onReplyClick = remember(message.header.messageId) {
-                        { sheetState.hide { onReplyClick(message) } }
+                        {
+                            sheetState.hide {
+                                onReplyClick(message)
+                            }
+                        }
                     },
                     onEditClick = remember(message.header.messageId, message.messageContent) {
                         {
@@ -95,13 +115,25 @@ fun MessageOptionsModalSheetLayout(
                         }
                     },
                     onShareAssetClick = remember(message.header.messageId) {
-                        { sheetState.hide { onShareAssetClick(message.header.messageId) } }
+                        {
+                            sheetState.hide {
+                                onShareAssetClick(message.header.messageId)
+                            }
+                        }
                     },
                     onDownloadAssetClick = remember(message.header.messageId) {
-                        { sheetState.hide { onDownloadAssetClick(message.header.messageId) } }
+                        {
+                            sheetState.hide {
+                                onDownloadAssetClick(message.header.messageId)
+                            }
+                        }
                     },
                     onOpenAssetClick = remember(message.header.messageId) {
-                        { sheetState.hide { onOpenAssetClick(message.header.messageId) } }
+                        {
+                            sheetState.hide {
+                                onOpenAssetClick(message.header.messageId)
+                            }
+                        }
                     },
                 )
             )

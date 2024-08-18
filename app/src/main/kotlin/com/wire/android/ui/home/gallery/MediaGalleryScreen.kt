@@ -18,15 +18,12 @@
 
 package com.wire.android.ui.home.gallery
 
-import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -42,11 +39,12 @@ import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
@@ -59,8 +57,8 @@ import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.openDownloadFolder
-import kotlinx.coroutines.flow.SharedFlow
 
 @RootNavGraph
 @WireDestination(
@@ -78,11 +76,11 @@ fun MediaGalleryScreen(
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val viewModelState = mediaGalleryViewModel.mediaGalleryViewState
-    val mediaGalleryScreenState = rememberMediaGalleryScreenState()
+    val bottomSheetState: WireModalSheetState<Unit> = rememberWireModalSheetState()
     val context = LocalContext.current
     val onSaveImageWriteStorageRequest = rememberWriteStoragePermissionFlow(
         onPermissionGranted = {
-            mediaGalleryScreenState.modalBottomSheetState.hide()
+            bottomSheetState.hide()
             mediaGalleryViewModel.saveImageToExternalStorage()
         },
         onPermissionDenied = { /** Nothing to do **/ },
@@ -111,12 +109,12 @@ fun MediaGalleryScreen(
         state = viewModelState,
         imageAsset = mediaGalleryViewModel.imageAsset,
         onCloseClick = navigator::navigateBack,
-        onOptionsClick = mediaGalleryScreenState.modalBottomSheetState::show,
+        onOptionsClick = bottomSheetState::show,
         modifier = modifier,
     )
 
     MediaGalleryOptionsBottomSheetLayout(
-        sheetState = mediaGalleryScreenState.modalBottomSheetState,
+        sheetState = bottomSheetState,
         isEphemeral = mediaGalleryViewModel.mediaGalleryViewState.isEphemeral,
         messageBottomSheetOptionsEnabled = viewModelState.messageBottomSheetOptionsEnabled,
         deleteAsset = mediaGalleryViewModel::deleteCurrentImage,
@@ -153,7 +151,13 @@ fun MediaGalleryScreen(
         downloadAsset = onSaveImageWriteStorageRequest::launch
     )
 
-    SnackbarMessageHandler(mediaGalleryViewModel.snackbarMessage)
+    SnackBarMessageHandler(mediaGalleryViewModel.snackbarMessage) { messageCode ->
+        when (messageCode) {
+            is MediaGallerySnackbarMessages.OnImageDownloaded -> {
+                openDownloadFolder(context) // Show downloads folder when clicking on Snackbar cta button
+            }
+        }
+    }
 }
 
 @Composable
@@ -237,37 +241,6 @@ private fun MediaGalleryOptionsBottomSheetLayout(
     )
 }
 
-@Composable
-private fun SnackbarMessageHandler(snackbarMessage: SharedFlow<MediaGallerySnackbarMessages>) {
-    val context = LocalContext.current
-    val snackbarHostState = LocalSnackbarHostState.current
-    LaunchedEffect(Unit) {
-        snackbarMessage.collect { messageCode ->
-            val (message, actionLabel) = getSnackbarMessage(messageCode, context.resources)
-            val snackbarResult = snackbarHostState.showSnackbar(message = message, actionLabel = actionLabel)
-            when {
-                // Show downloads folder when clicking on Snackbar cta button
-                messageCode is MediaGallerySnackbarMessages.OnImageDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
-                    openDownloadFolder(context)
-                }
-            }
-        }
-    }
-}
-
-private fun getSnackbarMessage(messageCode: MediaGallerySnackbarMessages, resources: Resources): Pair<String, String?> {
-    val msg = when (messageCode) {
-        is MediaGallerySnackbarMessages.OnImageDownloaded -> resources.getString(R.string.media_gallery_on_image_downloaded)
-        is MediaGallerySnackbarMessages.OnImageDownloadError -> resources.getString(R.string.media_gallery_on_image_download_error)
-        is MediaGallerySnackbarMessages.DeletingMessageError -> resources.getString(R.string.error_conversation_deleting_message)
-    }
-    val actionLabel = when (messageCode) {
-        is MediaGallerySnackbarMessages.OnImageDownloaded -> resources.getString(R.string.label_show)
-        else -> null
-    }
-    return msg to actionLabel
-}
-
 @PreviewMultipleThemes
 @Composable
 fun PreviewMediaGalleryScreen() = WireTheme {
@@ -285,3 +258,18 @@ fun PreviewMediaGalleryScreen() = WireTheme {
         onOptionsClick = {}
     )
 }
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMediaGalleryOptionsBottomSheetLayout() = WireTheme {
+     MediaGalleryOptionsBottomSheetLayout(
+        sheetState = rememberWireModalSheetState(initialValue = WireSheetValue.Expanded(Unit)),
+        isEphemeral = false,
+        messageBottomSheetOptionsEnabled = true,
+        deleteAsset = {},
+        showDetails = {},
+        shareAsset = {},
+        reply = {},
+        react = {},
+        downloadAsset = {}
+    )}

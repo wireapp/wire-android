@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.paging.LoadState
@@ -34,6 +35,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.R
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -41,22 +43,32 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
+import com.wire.android.ui.home.conversations.mock.mockAssetAudioMessage
+import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.UIPagingItem
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.datetime.Instant
 
 @Composable
 fun FileAssetsContent(
     groupedAssetMessageList: Flow<PagingData<UIPagingItem>>,
-    audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
-    onAudioItemClicked: (String) -> Unit,
-    onAssetItemClicked: (String) -> Unit
+    audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
+    onAudioItemClicked: (messageId: String) -> Unit = {},
+    onAssetItemClicked: (messageId: String) -> Unit = {},
+    onItemLongClicked: (messageId: String, isMyMessage: Boolean) -> Unit = { _, _ -> },
 ) {
     val lazyPagingMessages = groupedAssetMessageList.collectAsLazyPagingItems()
 
@@ -66,7 +78,8 @@ fun FileAssetsContent(
             audioMessagesState = audioMessagesState,
             assetStatuses = assetStatuses,
             onAudioItemClicked = onAudioItemClicked,
-            onAssetItemClicked = onAssetItemClicked
+            onAssetItemClicked = onAssetItemClicked,
+            onItemLongClicked = onItemLongClicked,
         )
     } else {
         EmptyMediaContentScreen(
@@ -80,8 +93,9 @@ private fun AssetMessagesListContent(
     groupedAssetMessageList: LazyPagingItems<UIPagingItem>,
     audioMessagesState: PersistentMap<String, AudioState>,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
-    onAudioItemClicked: (String) -> Unit,
-    onAssetItemClicked: (String) -> Unit,
+    onAudioItemClicked: (messageId: String) -> Unit,
+    onAssetItemClicked: (messageId: String) -> Unit,
+    onItemLongClicked: (messageId: String, isMyMessage: Boolean) -> Unit,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(
@@ -120,9 +134,9 @@ private fun AssetMessagesListContent(
                             MessageContainerItem(
                                 message = message,
                                 conversationDetailsData = ConversationDetailsData.None(null),
-                                audioMessagesState = audioMessagesState,
+                                audioState = audioMessagesState[message.header.messageId],
                                 assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
-                                onLongClicked = { },
+                                onLongClicked = remember { { onItemLongClicked(it.header.messageId, it.isMyMessage) } },
                                 onAssetMessageClicked = onAssetItemClicked,
                                 onAudioClick = onAudioItemClicked,
                                 onChangeAudioPosition = { _, _ -> },
@@ -153,4 +167,48 @@ private fun AssetMessagesListContent(
             }
         }
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewFileAssetsEmptyContent() = WireTheme {
+    FileAssetsContent(groupedAssetMessageList = emptyFlow(), assetStatuses = persistentMapOf(), audioMessagesState = persistentMapOf())
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewFileAssetsContent() = WireTheme {
+    val (flowOfAssets, assetStatuses, audioStatuses) = mockAssets()
+    FileAssetsContent(groupedAssetMessageList = flowOfAssets, assetStatuses = assetStatuses, audioMessagesState = audioStatuses)
+}
+
+fun mockAssets(): Triple<Flow<PagingData<UIPagingItem>>, PersistentMap<String, MessageAssetStatus>, PersistentMap<String, AudioState>> {
+    val msg1 = mockAssetMessage(assetId = "assset1", messageId = "msg1")
+    val msg2 = mockAssetMessage(assetId = "assset2", messageId = "msg2")
+    val msg3 = mockAssetMessage(assetId = "assset3", messageId = "msg3")
+    val msg4 = mockAssetAudioMessage(assetId = "assset4", messageId = "msg4")
+    val msg5 = mockAssetAudioMessage(assetId = "assset5", messageId = "msg5")
+    val conversationId = ConversationId("value", "domain")
+    val flowOfAssets = flowOf(
+        PagingData.from(
+            listOf(
+                UIPagingItem.Label("October"),
+                UIPagingItem.Message(msg1, Instant.DISTANT_PAST),
+                UIPagingItem.Message(msg2, Instant.DISTANT_PAST),
+                UIPagingItem.Message(msg3, Instant.DISTANT_PAST),
+                UIPagingItem.Message(msg4, Instant.DISTANT_PAST),
+                UIPagingItem.Message(msg5, Instant.DISTANT_PAST),
+            )
+        )
+    )
+    val assetsStatuses = persistentMapOf(
+        msg1.header.messageId to MessageAssetStatus(msg1.header.messageId, conversationId, AssetTransferStatus.SAVED_EXTERNALLY),
+        msg2.header.messageId to MessageAssetStatus(msg2.header.messageId, conversationId, AssetTransferStatus.NOT_DOWNLOADED),
+        msg3.header.messageId to MessageAssetStatus(msg3.header.messageId, conversationId, AssetTransferStatus.DOWNLOAD_IN_PROGRESS)
+    )
+    val audioStatuses = persistentMapOf(
+        msg4.header.messageId to AudioState(AudioMediaPlayingState.Fetching, 0, AudioState.TotalTimeInMs.NotKnown),
+        msg5.header.messageId to AudioState(AudioMediaPlayingState.Playing, 20_000, AudioState.TotalTimeInMs.Known(60_000)),
+    )
+    return Triple(flowOfAssets, assetsStatuses, audioStatuses)
 }

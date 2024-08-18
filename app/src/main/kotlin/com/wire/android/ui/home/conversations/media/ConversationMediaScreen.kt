@@ -39,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -50,6 +51,11 @@ import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -59,14 +65,18 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialog
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.openDownloadFolder
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
@@ -83,10 +93,10 @@ fun ConversationMediaScreen(
     conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = hiltViewModel(),
     conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel()
 ) {
-    val permissionPermanentlyDeniedDialogState =
-        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
-
+    val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+    val context = LocalContext.current
     val state: ConversationAssetMessagesViewState = conversationAssetMessagesViewModel.viewState
+    val sheetState: WireModalSheetState<AssetOptionsData> = rememberWireModalSheetState()
 
     Content(
         state = state,
@@ -107,6 +117,19 @@ fun ConversationMediaScreen(
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         audioMessagesState = conversationMessagesViewModel.conversationViewState.audioMessagesState,
         onAudioItemClicked = conversationMessagesViewModel::audioClick,
+        onOpenAssetOptions = remember { { messageId, isMyMessage -> sheetState.show(AssetOptionsData(messageId, isMyMessage)) } },
+    )
+
+    AssetOptionsModalSheetLayout(
+        sheetState = sheetState,
+        deleteAsset = conversationMessagesViewModel::showDeleteMessageDialog,
+        shareAsset = remember { { conversationMessagesViewModel.shareAsset(context, it) } },
+        downloadAsset = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+    )
+
+    DeleteMessageDialog(
+        state = conversationMessagesViewModel.deleteMessageDialogsState,
+        actions = conversationMessagesViewModel.deleteMessageHelper,
     )
 
     DownloadedAssetDialog(
@@ -129,22 +152,30 @@ fun ConversationMediaScreen(
         hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 
-    SnackBarMessageHandler(conversationMessagesViewModel.infoMessage)
+    SnackBarMessageHandler(conversationMessagesViewModel.infoMessage) { messageCode ->
+        when (messageCode) {
+            is ConversationSnackbarMessages.OnFileDownloaded -> {
+                openDownloadFolder(context) // Show downloads folder when clicking on Snackbar cta button
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Content(
     state: ConversationAssetMessagesViewState,
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
-    onAudioItemClicked: (String) -> Unit,
-    onNavigationPressed: () -> Unit = {},
     audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
-    onAssetItemClicked: (String) -> Unit
+    initialPage: ConversationMediaScreenTabItem = ConversationMediaScreenTabItem.PICTURES,
+    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit = { _, _, _ -> },
+    onAudioItemClicked: (String) -> Unit = {},
+    onAssetItemClicked: (String) -> Unit = {},
+    onOpenAssetOptions: (messageId: String, isMyMessage: Boolean) -> Unit = { _, _ -> },
+    onNavigationPressed: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = ConversationMediaScreenTabItem.entries.map { rememberLazyListState() }
-    val initialPageIndex = ConversationMediaScreenTabItem.PICTURES.ordinal
+    val initialPageIndex = initialPage.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { ConversationMediaScreenTabItem.entries.size })
     val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
@@ -182,7 +213,8 @@ private fun Content(
                     ConversationMediaScreenTabItem.PICTURES -> ImageAssetsContent(
                         imageMessageList = state.imageMessages,
                         assetStatuses = state.assetStatuses,
-                        onImageFullScreenMode = onImageFullScreenMode
+                        onImageClicked = onImageFullScreenMode,
+                        onImageLongClicked = onOpenAssetOptions
                     )
 
                     ConversationMediaScreenTabItem.FILES -> FileAssetsContent(
@@ -190,7 +222,8 @@ private fun Content(
                         audioMessagesState = audioMessagesState,
                         assetStatuses = state.assetStatuses,
                         onAudioItemClicked = onAudioItemClicked,
-                        onAssetItemClicked = onAssetItemClicked
+                        onAssetItemClicked = onAssetItemClicked,
+                        onItemLongClicked = onOpenAssetOptions
                     )
                 }
             }
@@ -204,21 +237,90 @@ private fun Content(
     }
 }
 
+@Composable
+private fun AssetOptionsModalSheetLayout(
+    sheetState: WireModalSheetState<AssetOptionsData>,
+    deleteAsset: (messageId: String, isMyMessage: Boolean) -> Unit,
+    shareAsset: (messageId: String) -> Unit,
+    downloadAsset: (messageId: String) -> Unit,
+) {
+    WireModalSheetLayout(
+        sheetState = sheetState,
+        sheetContent = { (messageId: String, isMyMessage: Boolean) ->
+            WireMenuModalSheetContent(
+                menuItems = assetOptionsMenuItems(
+                    isUploading = false, // only uploaded assets
+                    isEphemeral = false, // only non-self-deleting assets
+                    onDeleteClick = remember { { sheetState.hide { deleteAsset(messageId, isMyMessage) } } },
+                    onShareAsset = remember { { sheetState.hide { shareAsset(messageId) } } },
+                    onDownloadAsset = remember { { sheetState.hide { downloadAsset(messageId) } } },
+                )
+            )
+        }
+    )
+}
+
 enum class ConversationMediaScreenTabItem(@StringRes val titleResId: Int) : TabItem {
     PICTURES(R.string.label_conversation_pictures),
     FILES(R.string.label_conversation_files);
     override val title: UIText = UIText.StringResource(titleResId)
 }
+data class AssetOptionsData(val messageId: String, val isMyMessage: Boolean)
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewConversationMediaScreenEmptyContent() {
-    WireTheme {
-        Content(
-            state = ConversationAssetMessagesViewState(),
-            onImageFullScreenMode = { _, _, _ -> },
-            onAudioItemClicked = { },
-            onAssetItemClicked = { }
-        )
-    }
+fun PreviewConversationMediaScreenEmptyContent() = WireTheme {
+    Content(
+        state = ConversationAssetMessagesViewState(),
+        onImageFullScreenMode = { _, _, _ -> },
+        onAudioItemClicked = { },
+        onAssetItemClicked = { },
+        onOpenAssetOptions = { _, _ -> },
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewConversationMediaScreenImagesContent() = WireTheme {
+    val (flowOfAssets, assetStatuses) = mockImages()
+    Content(
+        state = ConversationAssetMessagesViewState(
+            imageMessages = flowOfAssets,
+            assetStatuses = assetStatuses,
+        ),
+        initialPage = ConversationMediaScreenTabItem.PICTURES,
+        onImageFullScreenMode = { _, _, _ -> },
+        onAudioItemClicked = { },
+        onAssetItemClicked = { },
+        onOpenAssetOptions = { _, _ -> },
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewConversationMediaScreenFilesContent() = WireTheme {
+    val (flowOfAssets, assetStatuses, audioStatuses) = mockAssets()
+    Content(
+        state = ConversationAssetMessagesViewState(
+            assetMessages = flowOfAssets,
+            assetStatuses = assetStatuses,
+        ),
+        audioMessagesState = audioStatuses,
+        initialPage = ConversationMediaScreenTabItem.FILES,
+        onImageFullScreenMode = { _, _, _ -> },
+        onAudioItemClicked = { },
+        onAssetItemClicked = { },
+        onOpenAssetOptions = { _, _ -> },
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewAssetOptionsModalSheetLayout() = WireTheme {
+    AssetOptionsModalSheetLayout(
+        sheetState = rememberWireModalSheetState(initialValue = WireSheetValue.Expanded(AssetOptionsData("id", true))),
+        deleteAsset = { _, _ -> },
+        shareAsset = { },
+        downloadAsset = { }
+    )
 }

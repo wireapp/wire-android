@@ -128,11 +128,11 @@ internal fun MessageBody(
 fun MessageButtonsContent(
     messageId: String,
     buttonList: List<MessageButton>,
+    modifier: Modifier = Modifier,
     viewModel: CompositeMessageViewModel =
         hiltViewModelScoped<CompositeMessageViewModelImpl, CompositeMessageViewModel, CompositeMessageArgs>(
             CompositeMessageArgs(messageId)
-        ),
-    modifier: Modifier = Modifier,
+        )
 ) {
     Column(
         modifier = modifier

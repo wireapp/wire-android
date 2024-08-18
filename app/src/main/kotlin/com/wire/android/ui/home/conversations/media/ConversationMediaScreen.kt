@@ -97,6 +97,9 @@ fun ConversationMediaScreen(
     val context = LocalContext.current
     val state: ConversationAssetMessagesViewState = conversationAssetMessagesViewModel.viewState
     val sheetState: WireModalSheetState<AssetOptionsData> = rememberWireModalSheetState()
+    val onOpenAssetOptions: (messageId: String, isMyMessage: Boolean) -> Unit = { messageId, isMyMessage ->
+        sheetState.show(AssetOptionsData(messageId, isMyMessage))
+    }
 
     Content(
         state = state,
@@ -117,11 +120,7 @@ fun ConversationMediaScreen(
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         audioMessagesState = conversationMessagesViewModel.conversationViewState.audioMessagesState,
         onAudioItemClicked = conversationMessagesViewModel::audioClick,
-        onOpenAssetOptions = remember {
-            { messageId, isMyMessage ->
-                sheetState.show(AssetOptionsData(messageId, isMyMessage))
-            }
-        },
+        onOpenAssetOptions = remember { onOpenAssetOptions },
     )
 
     AssetOptionsModalSheetLayout(

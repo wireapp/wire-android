@@ -45,9 +45,9 @@ fun SelfDeletionOptionsModalSheetLayout(
                 menuItems = selfDeletionMenuItems(
                     currentlySelected = currentlySelected.duration.toSelfDeletionDuration(),
                     onSelfDeletionDurationChanged = remember {
-                        { newTimer ->
+                        {
                             sheetState.hide {
-                                onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(newTimer.value))
+                                onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(it.value))
                             }
                         }
                     }

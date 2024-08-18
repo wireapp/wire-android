@@ -79,11 +79,11 @@ internal fun MessageBody(
     messageId: String,
     messageBody: MessageBody?,
     isAvailable: Boolean,
-    searchQuery: String = "",
-    onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
     buttonList: PersistentList<MessageButton>?,
     onLinkClick: (String) -> Unit,
+    searchQuery: String = "",
+    onLongClick: (() -> Unit)? = null,
     clickable: Boolean = true
 ) {
     val (displayMentions, text) = messageBody?.message?.let {
@@ -131,10 +131,11 @@ fun MessageButtonsContent(
     viewModel: CompositeMessageViewModel =
         hiltViewModelScoped<CompositeMessageViewModelImpl, CompositeMessageViewModel, CompositeMessageArgs>(
             CompositeMessageArgs(messageId)
-        )
+        ),
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .wrapContentSize()
     ) {
         for (index in buttonList.indices) {
@@ -172,10 +173,11 @@ fun MessageImage(
     asset: ImageAsset.Remote?,
     imgParams: ImageMessageParams,
     transferStatus: AssetTransferStatus,
-    onImageClick: Clickable
+    onImageClick: Clickable,
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        Modifier
+        modifier
             .padding(top = MaterialTheme.wireDimensions.spacing4x)
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
             .background(

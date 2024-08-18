@@ -51,7 +51,6 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.collections.immutable.persistentMapOf
 
 private val previewUserId = UserId("value", "domain")
 

@@ -44,7 +44,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.collections.immutable.PersistentMap
 
 @OptIn(ExperimentalFoundationApi::class)
 @Suppress("ComplexMethod")

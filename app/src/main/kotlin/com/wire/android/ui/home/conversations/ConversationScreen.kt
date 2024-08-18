@@ -90,9 +90,6 @@ import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
-import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
-import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.ConfirmSendingPingDialog
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog

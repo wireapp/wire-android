@@ -108,7 +108,6 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isSaved
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.collections.immutable.PersistentMap
 import kotlin.math.absoluteValue
 import kotlin.math.min
 
@@ -447,7 +446,11 @@ private fun UIMessage.Regular.MessageContentAndStatus(
 }
 
 @Composable
-fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData: ConversationDetailsData) {
+fun EphemeralMessageExpiredLabel(
+    isSelfMessage: Boolean,
+    conversationDetailsData: ConversationDetailsData,
+    modifier: Modifier = Modifier,
+) {
 
     val stringResource = if (!isSelfMessage) {
         stringResource(id = R.string.label_information_waiting_for_deleation_when_self_not_sender)
@@ -463,6 +466,7 @@ fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData
     }
 
     Text(
+        modifier = modifier,
         text = stringResource,
         style = typography().body05
     )

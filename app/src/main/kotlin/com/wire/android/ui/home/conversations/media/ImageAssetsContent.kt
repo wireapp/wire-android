@@ -41,30 +41,29 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.mock.mockUIAssetMessage
 import com.wire.android.ui.home.conversations.model.MediaAssetImage
-import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.home.conversations.usecase.UIImageAssetPagingItem
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.datetime.Instant
 
 @Composable
 fun ImageAssetsContent(
     imageMessageList: Flow<PagingData<UIImageAssetPagingItem>>,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit
+    onImageClicked: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit = { _, _, _ -> },
+    onImageLongClicked: (messageId: String, isMyMessage: Boolean) -> Unit = { _, _ -> }
 ) {
 
     val lazyPagingMessages = imageMessageList.collectAsLazyPagingItems()
@@ -73,7 +72,8 @@ fun ImageAssetsContent(
         ImageAssetGrid(
             uiAssetMessageList = lazyPagingMessages,
             assetStatuses = assetStatuses,
-            onImageFullScreenMode = onImageFullScreenMode
+            onImageClicked = onImageClicked,
+            onImageLongClicked = onImageLongClicked,
         )
     } else {
         EmptyMediaContentScreen(
@@ -86,8 +86,9 @@ fun ImageAssetsContent(
 private fun ImageAssetGrid(
     uiAssetMessageList: LazyPagingItems<UIImageAssetPagingItem>,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
+    onImageClicked: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit,
+    onImageLongClicked: (messagId: String, isMyMessage: Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit
 ) {
     BoxWithConstraints(
         modifier
@@ -127,11 +128,15 @@ private fun ImageAssetGrid(
                     is UIImageAssetPagingItem.Asset -> {
                         val uiAsset = uiImageAssetPagingItem.uiAssetMessage
                         val currentOnImageClick = remember(uiAsset) {
-                            Clickable(enabled = true, onClick = {
-                                onImageFullScreenMode(
-                                    uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset
-                                )
-                            })
+                            Clickable(
+                                enabled = true,
+                                onClick = {
+                                    onImageClicked(uiAsset.conversationId, uiAsset.messageId, uiAsset.isSelfAsset)
+                                },
+                                onLongClick = {
+                                    onImageLongClicked(uiAsset.messageId, uiAsset.isSelfAsset)
+                                }
+                            )
                         }
                         Box(
                             modifier = Modifier
@@ -179,58 +184,36 @@ private const val COLUMN_COUNT = 3
 
 @PreviewMultipleThemes
 @Composable
-fun previewAssetGrid() {
-    val message1 = UIAssetMessage(
-        assetId = "1",
-        time = Instant.DISTANT_PAST,
-        username = UIText.DynamicString("Username 1"),
-        messageId = "msg1",
-        conversationId = QualifiedID("value", "domain"),
-        assetPath = null,
-        isSelfAsset = false
-    )
-    val message2 = message1.copy(
-        messageId = "msg2",
-        username = UIText.DynamicString("Username 2"),
-        isSelfAsset = true
-    )
-    val message3 = message2.copy(
-        messageId = "msg3",
-    )
+fun PreviewImageAssetsEmptyContent() = WireTheme {
+    ImageAssetsContent(imageMessageList = emptyFlow(), assetStatuses = persistentMapOf())
+}
 
-    val messageAssetStatus = MessageAssetStatus(
-        "id",
-        ConversationId("value", "domain"),
-        transferStatus = AssetTransferStatus.SAVED_INTERNALLY
-    )
+@PreviewMultipleThemes
+@Composable
+fun PreviewImageAssetsContent() = WireTheme {
+    val (flowOfAssets, assetStatuses) = mockImages()
+    ImageAssetsContent(imageMessageList = flowOfAssets, assetStatuses = assetStatuses,)
+}
 
-    WireTheme {
-        ImageAssetGrid(
-            uiAssetMessageList = flowOf(
-                PagingData.from(
-                    listOf(
-                        UIImageAssetPagingItem.Label("October"),
-                        UIImageAssetPagingItem.Asset(message1),
-                        UIImageAssetPagingItem.Asset(message2),
-                        UIImageAssetPagingItem.Asset(message3),
-                    )
-                )
-            ).collectAsLazyPagingItems(),
-            onImageFullScreenMode = { _, _, _ -> },
-            assetStatuses = persistentMapOf(
-                message1.messageId to messageAssetStatus.copy(
-                    id = message1.messageId,
-                    transferStatus = AssetTransferStatus.SAVED_EXTERNALLY
-                ),
-                message2.messageId to messageAssetStatus.copy(
-                    id = message2.messageId,
-                    transferStatus = AssetTransferStatus.NOT_DOWNLOADED
-                ),
-                message3.messageId to messageAssetStatus.copy(
-                    id = message3.messageId,
-                    transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS
-                ),
+fun mockImages(): Pair<Flow<PagingData<UIImageAssetPagingItem>>, PersistentMap<String, MessageAssetStatus>> {
+    val msg1 = mockUIAssetMessage().copy(assetId = "asset1", messageId = "msg1")
+    val msg2 = mockUIAssetMessage().copy(assetId = "asset2", messageId = "msg2")
+    val msg3 = mockUIAssetMessage().copy(assetId = "asset3", messageId = "msg3")
+    val conversationId = ConversationId("value", "domain")
+    val flowOfAssets = flowOf(
+        PagingData.from(
+            listOf(
+                UIImageAssetPagingItem.Label("October"),
+                UIImageAssetPagingItem.Asset(msg1),
+                UIImageAssetPagingItem.Asset(msg2),
+                UIImageAssetPagingItem.Asset(msg3),
             )
         )
-    }
+    )
+    val assetsStatuses = persistentMapOf(
+        msg1.messageId to MessageAssetStatus(msg1.messageId, conversationId, AssetTransferStatus.SAVED_EXTERNALLY),
+        msg2.messageId to MessageAssetStatus(msg2.messageId, conversationId, AssetTransferStatus.NOT_DOWNLOADED),
+        msg3.messageId to MessageAssetStatus(msg3.messageId, conversationId, AssetTransferStatus.DOWNLOAD_IN_PROGRESS)
+    )
+    return flowOfAssets to assetsStatuses
 }

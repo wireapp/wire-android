@@ -20,6 +20,10 @@
     <string name="app_version">App version</string>
     <string name="build_variant_name">Build variant</string>
     <string name="debug_id" translatable="false">Debug Identifier</string>
+    <string name="debug_analytics_enabled_title" translatable="false">Analytics Initialized</string>
+    <string name="debug_analytics_tracking_identifier_title" translatable="false">
+        Analytics Tracking Identifier
+    </string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
@@ -1009,7 +1013,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="settings_show_typing_indicator_description">When this is on, you see when other people are writing a message, and others notice when you are typing. This setting applies to all conversations on this device.</string>
     <string name="settings_app_lock_title">Lock with passcode</string>
     <string name="settings_send_anonymous_usage_data_title">Send anonymous usage data</string>
-    <string name="settings_send_anonymous_usage_data_description">Usage data allows Wire to understand how the app is being used and how it can be improved. The data is anonymous and does not include the content of your communications (such as messages, files, locations, or calls).</string>
+    <string name="settings_send_anonymous_usage_data_description">Help to improve the app by sharing usage data with Wire. The data is anonymous and doesn\'t include any content of your communication (such as messages, files, location, or calls).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Set app lock passcode</string>
     <string name="settings_set_lock_screen_description">The app will lock itself after %1$s of inactivity. To unlock the app you need to enter this passcode or use biometric authentication.\n\nMake sure to remember this passcode as there is no way to recover it.</string>
@@ -1161,7 +1165,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
     <!-- Analytics Usage dialog -->
     <string name="analytics_usage_dialog_title">Consent to share user data</string>
-    <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID.\n\nThe data is neither linked to your personal information nor shared with third parties besides Zeta Project Germany GmbH. It includes, for example, when you use a feature, your app version, device type, or your operating system. The ID will be deleted at the latest from your device after [28] days after the last activity.\n\nFind further details in our Privacy Policy (link). You can revoke your consent at any time.</string>
+    <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID. The data is neither linked to your personal information nor shared with third parties besides Zeta Project Germany GmbH. It includes, for example, when you use a feature, your app version, device type, or your operating system. The ID will be deleted at the latest from your device after 365 days after the last activity.Find further details in our\n\nPrivacy Policy (link). You can revoke your consent at any time.</string>
     <string name="analytics_usage_dialog_button_agree">Agree</string>
     <string name="analytics_usage_dialog_button_decline">Decline</string>
     <string name="analytics_usage_dialog_button_privacy_policy">Privacy Policy</string>

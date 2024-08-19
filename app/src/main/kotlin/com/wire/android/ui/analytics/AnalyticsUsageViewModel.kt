@@ -44,12 +44,14 @@ class AnalyticsUsageViewModel @Inject constructor(
             val isDialogSeen = dataStore.isAnalyticsDialogSeen().first()
             val isAnalyticsUsageEnabled = dataStore.isAnonymousUsageDataEnabled().first()
             val isAnalyticsConfigurationEnabled = analyticsEnabled is AnalyticsConfiguration.Enabled
-            val isProdBackend = when (val serverConfig = selfServerConfig()) {
-                is SelfServerConfigUseCase.Result.Success -> serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
+            val isValidBackend = when (val serverConfig = selfServerConfig()) {
+                is SelfServerConfigUseCase.Result.Success ->
+                    serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
+                            || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
                 is SelfServerConfigUseCase.Result.Failure -> false
             }
 
-            val shouldShowDialog = isProdBackend && !isAnalyticsUsageEnabled && isAnalyticsConfigurationEnabled && !isDialogSeen
+            val shouldShowDialog = isValidBackend && !isAnalyticsUsageEnabled && isAnalyticsConfigurationEnabled && !isDialogSeen
 
             state = state.copy(
                 shouldDisplayDialog = shouldShowDialog

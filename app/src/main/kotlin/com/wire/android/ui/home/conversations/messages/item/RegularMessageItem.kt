@@ -108,7 +108,6 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isSaved
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.collections.immutable.PersistentMap
 import kotlin.math.absoluteValue
 import kotlin.math.min
 
@@ -118,7 +117,7 @@ import kotlin.math.min
 fun RegularMessageItem(
     message: UIMessage.Regular,
     conversationDetailsData: ConversationDetailsData,
-    audioMessagesState: PersistentMap<String, AudioState>,
+    audioState: AudioState?,
     onLongClicked: (UIMessage.Regular) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -127,6 +126,7 @@ fun RegularMessageItem(
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
+    modifier: Modifier = Modifier,
     searchQuery: String = "",
     showAuthor: Boolean = true,
     assetStatus: AssetTransferStatus? = null,
@@ -145,7 +145,8 @@ fun RegularMessageItem(
     @Composable
     fun messageContent() {
         MessageItemTemplate(
-            showAuthor,
+            modifier = modifier,
+            showAuthor = showAuthor,
             useSmallBottomPadding = useSmallBottomPadding,
             fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize,
             leading = {
@@ -188,7 +189,7 @@ fun RegularMessageItem(
                             isContentClickable = isContentClickable,
                             onImageMessageClicked = onImageMessageClicked,
                             searchQuery = searchQuery,
-                            audioMessagesState = audioMessagesState,
+                            audioState = audioState,
                             onAudioClick = onAudioClick,
                             onChangeAudioPosition = onChangeAudioPosition,
                             onOpenProfile = onOpenProfile,
@@ -372,7 +373,7 @@ private fun UIMessage.Regular.MessageContentAndStatus(
     isContentClickable: Boolean,
     onImageMessageClicked: (UIMessage.Regular, Boolean) -> Unit,
     searchQuery: String,
-    audioMessagesState: PersistentMap<String, AudioState>,
+    audioState: AudioState?,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onOpenProfile: (String) -> Unit,
@@ -416,7 +417,7 @@ private fun UIMessage.Regular.MessageContentAndStatus(
                 message = message,
                 messageContent = messageContent,
                 searchQuery = searchQuery,
-                audioMessagesState = audioMessagesState,
+                audioState = audioState,
                 assetStatus = assetStatus,
                 onAudioClick = onAudioClick,
                 onChangeAudioPosition = onChangeAudioPosition,
@@ -445,7 +446,11 @@ private fun UIMessage.Regular.MessageContentAndStatus(
 }
 
 @Composable
-fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData: ConversationDetailsData) {
+fun EphemeralMessageExpiredLabel(
+    isSelfMessage: Boolean,
+    conversationDetailsData: ConversationDetailsData,
+    modifier: Modifier = Modifier,
+) {
 
     val stringResource = if (!isSelfMessage) {
         stringResource(id = R.string.label_information_waiting_for_deleation_when_self_not_sender)
@@ -461,6 +466,7 @@ fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData
     }
 
     Text(
+        modifier = modifier,
         text = stringResource,
         style = typography().body05
     )
@@ -624,7 +630,7 @@ private fun MessageContent(
     message: UIMessage.Regular,
     messageContent: UIMessageContent.Regular?,
     searchQuery: String,
-    audioMessagesState: PersistentMap<String, AudioState>,
+    audioState: AudioState?,
     assetStatus: AssetTransferStatus?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
@@ -748,8 +754,7 @@ private fun MessageContent(
 
         is UIMessageContent.AudioAssetMessage -> {
             Column {
-                val audioMessageState: AudioState = audioMessagesState[message.header.messageId]
-                    ?: AudioState.DEFAULT
+                val audioMessageState: AudioState = audioState ?: AudioState.DEFAULT
 
                 val totalTimeInMs = remember(audioMessageState.totalTimeInMs) {
                     audioMessageState.sanitizeTotalTime(messageContent.audioMessageDurationInMs.toInt())

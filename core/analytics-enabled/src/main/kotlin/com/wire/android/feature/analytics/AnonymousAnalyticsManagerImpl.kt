@@ -167,4 +167,10 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
             is AnalyticsIdentifierResult.Disabled -> {}
         }
     }
+
+    override fun isAnalyticsInitialized(): Boolean =
+        anonymousAnalyticsRecorder?.isAnalyticsInitialized() ?: run {
+            Log.w(TAG, "Calling isAnalyticsInitialized with a null recorder.")
+            false
+        }
 }

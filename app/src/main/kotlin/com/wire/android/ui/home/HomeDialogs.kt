@@ -86,7 +86,7 @@ fun AnalyticsUsageDialog(
             type = WireDialogButtonType.Secondary
         ),
         buttonsHorizontalAlignment = false,
-        onDismiss = declineOption
+        onDismiss = {}
     )
 }
 

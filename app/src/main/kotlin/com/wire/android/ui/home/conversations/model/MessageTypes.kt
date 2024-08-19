@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.model.Clickable
@@ -46,6 +47,7 @@ import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.CompositeMessageViewModel
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
+import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.AsyncImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
@@ -77,11 +79,11 @@ internal fun MessageBody(
     messageId: String,
     messageBody: MessageBody?,
     isAvailable: Boolean,
-    searchQuery: String = "",
-    onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
     buttonList: PersistentList<MessageButton>?,
     onLinkClick: (String) -> Unit,
+    searchQuery: String = "",
+    onLongClick: (() -> Unit)? = null,
     clickable: Boolean = true
 ) {
     val (displayMentions, text) = messageBody?.message?.let {
@@ -126,13 +128,14 @@ internal fun MessageBody(
 fun MessageButtonsContent(
     messageId: String,
     buttonList: List<MessageButton>,
+    modifier: Modifier = Modifier,
     viewModel: CompositeMessageViewModel =
         hiltViewModelScoped<CompositeMessageViewModelImpl, CompositeMessageViewModel, CompositeMessageArgs>(
             CompositeMessageArgs(messageId)
         )
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .wrapContentSize()
     ) {
         for (index in buttonList.indices) {
@@ -170,10 +173,11 @@ fun MessageImage(
     asset: ImageAsset.Remote?,
     imgParams: ImageMessageParams,
     transferStatus: AssetTransferStatus,
-    onImageClick: Clickable
+    onImageClick: Clickable,
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        Modifier
+        modifier
             .padding(top = MaterialTheme.wireDimensions.spacing4x)
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
             .background(
@@ -227,11 +231,12 @@ fun MediaAssetImage(
     width: Dp,
     height: Dp,
     transferStatus: AssetTransferStatus?,
-    assetPath: Path? = null,
-    onImageClick: Clickable
+    onImageClick: Clickable,
+    modifier: Modifier = Modifier,
+    assetPath: Path? = null
 ) {
     Box(
-        Modifier
+        modifier
             .padding(top = MaterialTheme.wireDimensions.spacing2x)
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
             .background(
@@ -254,6 +259,10 @@ fun MediaAssetImage(
                     isDownloading = true,
                     showText = false
                 )
+            }
+
+            LocalInspectionMode.current -> { // preview
+                DisplayableImageMessage(mockedPrivateAsset(), width, height)
             }
 
             assetPath != null -> {

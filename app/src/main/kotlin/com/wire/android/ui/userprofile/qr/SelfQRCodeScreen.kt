@@ -49,6 +49,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -113,25 +115,26 @@ private fun SelfQRCodeContent(
     ) { internalPadding ->
         Column(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(colorsScheme().background)
-                    .padding(internalPadding),
+            Modifier
+                .fillMaxSize()
+                .background(colorsScheme().background)
+                .padding(internalPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             VerticalSpace.x24()
             Column(
                 modifier =
-                    Modifier
-                        .padding(horizontal = dimensions().spacing16x)
-                        .clip(RoundedCornerShape(dimensions().spacing8x))
-                        .fillMaxWidth()
-                        .drawWithContent {
-                            graphicsLayer.record {
-                                this@drawWithContent.drawContent()
-                            }
-                            drawLayer(graphicsLayer)
-                        }.background(Color.White),
+                Modifier
+                    .padding(horizontal = dimensions().spacing16x)
+                    .clip(RoundedCornerShape(dimensions().spacing8x))
+                    .fillMaxWidth()
+                    .drawWithContent {
+                        graphicsLayer.record {
+                            this@drawWithContent.drawContent()
+                        }
+                        drawLayer(graphicsLayer)
+                    }
+                    .background(Color.White),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 VerticalSpace.x16()
@@ -144,13 +147,14 @@ private fun SelfQRCodeContent(
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier =
-                            Modifier
-                                .clip(CircleShape)
-                                .border(
-                                    width = dimensions().spacing2x,
-                                    shape = CircleShape,
-                                    color = Color.White
-                                ).background(colorsScheme().primary)
+                        Modifier
+                            .clip(CircleShape)
+                            .border(
+                                width = dimensions().spacing2x,
+                                shape = CircleShape,
+                                color = Color.White
+                            )
+                            .background(colorsScheme().primary)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_launcher_foreground),
@@ -205,11 +209,11 @@ private fun SelfQRCodeContent(
 fun ShareQRCodeButton(shareQRAssetClick: () -> Unit) {
     WirePrimaryButton(
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = dimensions().spacing16x)
-                .testTag("Share QR link"),
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = dimensions().spacing16x)
+            .testTag("Share QR link"),
         text = stringResource(R.string.user_profile_qr_code_share_image_link),
         onClick = shareQRAssetClick
     )
@@ -220,17 +224,19 @@ private fun ShareLinkButton(selfProfileUrl: String) {
     val context = LocalContext.current
     WirePrimaryButton(
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = dimensions().spacing16x)
-                .testTag("Share link"),
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = dimensions().spacing16x)
+            .testTag("Share link"),
         text = stringResource(R.string.user_profile_qr_code_share_link),
         onClick = { context.shareLinkToProfile(selfProfileUrl) }
     )
 }
 
 @PreviewMultipleThemes
+@Preview(showBackground = true, device = Devices.NEXUS_7_2013)
+@Preview(showBackground = true, device = Devices.PIXEL_7A)
 @Composable
 fun PreviewSelfQRCodeContent() {
     WireTheme {

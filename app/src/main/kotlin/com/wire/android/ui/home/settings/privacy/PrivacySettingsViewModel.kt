@@ -25,7 +25,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ReadReceiptStatusConfigResult
@@ -42,6 +45,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class PrivacySettingsViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
@@ -51,6 +55,8 @@ class PrivacySettingsViewModel @Inject constructor(
     private val observeScreenshotCensoringConfig: ObserveScreenshotCensoringConfigUseCase,
     private val persistTypingIndicatorStatusConfig: PersistTypingIndicatorStatusConfigUseCase,
     private val observeTypingIndicatorEnabled: ObserveTypingIndicatorEnabledUseCase,
+    private val analyticsEnabled: AnalyticsConfiguration,
+    private val selfServerConfig: SelfServerConfigUseCase,
     private val dataStore: UserDataStore
 ) : ViewModel() {
 
@@ -66,7 +72,7 @@ class PrivacySettingsViewModel @Inject constructor(
                 dataStore.isAnonymousUsageDataEnabled()
             ) { readReceiptsEnabled, typingIndicatorEnabled, screenshotCensoringConfig, anonymousUsageDataEnabled ->
                 PrivacySettingsState(
-                    isAnonymousUsageDataEnabled = anonymousUsageDataEnabled,
+                    isAnalyticsUsageEnabled = anonymousUsageDataEnabled,
                     areReadReceiptsEnabled = readReceiptsEnabled,
                     isTypingIndicatorEnabled = typingIndicatorEnabled,
                     screenshotCensoringConfig = when (screenshotCensoringConfig) {
@@ -81,6 +87,20 @@ class PrivacySettingsViewModel @Inject constructor(
                     },
                 )
             }.collect { state = it }
+        }
+
+        viewModelScope.launch {
+            val isAnalyticsConfigurationEnabled = analyticsEnabled is AnalyticsConfiguration.Enabled
+            val isValidBackend = when (val serverConfig = selfServerConfig()) {
+                is SelfServerConfigUseCase.Result.Success ->
+                    serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
+                            || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
+                is SelfServerConfigUseCase.Result.Failure -> false
+            }
+
+            state = state.copy(
+                shouldShowAnalyticsUsage = isAnalyticsConfigurationEnabled && isValidBackend
+            )
         }
     }
 
@@ -137,7 +157,7 @@ class PrivacySettingsViewModel @Inject constructor(
             dataStore.setIsAnonymousAnalyticsEnabled(enabled)
         }
         state = state.copy(
-            isAnonymousUsageDataEnabled = enabled
+            isAnalyticsUsageEnabled = enabled
         )
     }
 }

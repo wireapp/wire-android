@@ -105,4 +105,6 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
         )
         Countly.sharedInstance().userProfile().save()
     }
+
+    override fun isAnalyticsInitialized(): Boolean = Countly.sharedInstance().isInitialized
 }

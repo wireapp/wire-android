@@ -86,7 +86,7 @@ class SendMessageViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem,
     private val handleUriAsset: HandleUriAssetUseCase,
-    private val sendKnockUseCase: SendKnockUseCase,
+    private val sendKnock: SendKnockUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
@@ -113,6 +113,9 @@ class SendMessageViewModel @Inject constructor(
     )
 
     init {
+        conversationNavArgs.pendingTextBundle?.let { text ->
+            trySendPendingMessageBundle(text)
+        }
         conversationNavArgs.pendingBundles?.let { assetBundles ->
             trySendMessages(
                 assetBundles.map { assetBundle ->
@@ -134,6 +137,12 @@ class SendMessageViewModel @Inject constructor(
 
     private suspend fun shouldInformAboutUnderLegalHoldBeforeSendingMessage(conversationId: ConversationId) =
         observeConversationUnderLegalHoldNotified(conversationId).first().let { !it }
+
+    private fun trySendPendingMessageBundle(pendingMessage: String) {
+        viewModelScope.launch {
+            sendMessage(ComposableMessageBundle.SendTextMessageBundle(conversationId, pendingMessage, emptyList()))
+        }
+    }
 
     fun trySendMessage(messageBundle: MessageBundle) {
         trySendMessages(listOf(messageBundle))
@@ -234,7 +243,7 @@ class SendMessageViewModel @Inject constructor(
 
             is Ping -> {
                 pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
-                sendKnockUseCase(conversationId = messageBundle.conversationId, hotKnock = false)
+                sendKnock(conversationId = messageBundle.conversationId, hotKnock = false)
                     .handleLegalHoldFailureAfterSendingMessage(messageBundle.conversationId)
             }
         }

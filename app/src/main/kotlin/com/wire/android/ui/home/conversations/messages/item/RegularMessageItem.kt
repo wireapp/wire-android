@@ -108,7 +108,6 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isSaved
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.collections.immutable.PersistentMap
 import kotlin.math.absoluteValue
 import kotlin.math.min
 
@@ -118,12 +117,8 @@ import kotlin.math.min
 fun RegularMessageItem(
     message: UIMessage.Regular,
     conversationDetailsData: ConversationDetailsData,
-    searchQuery: String = "",
-    showAuthor: Boolean = true,
-    audioMessagesState: PersistentMap<String, AudioState>,
-    assetStatus: AssetTransferStatus? = null,
+    audioState: AudioState?,
     onLongClicked: (UIMessage.Regular) -> Unit,
-    swipableMessageConfiguration: SwipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
@@ -131,6 +126,11 @@ fun RegularMessageItem(
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
+    modifier: Modifier = Modifier,
+    searchQuery: String = "",
+    showAuthor: Boolean = true,
+    assetStatus: AssetTransferStatus? = null,
+    swipableMessageConfiguration: SwipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onLinkClick: (String) -> Unit = {},
@@ -145,7 +145,8 @@ fun RegularMessageItem(
     @Composable
     fun messageContent() {
         MessageItemTemplate(
-            showAuthor,
+            modifier = modifier,
+            showAuthor = showAuthor,
             useSmallBottomPadding = useSmallBottomPadding,
             fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize,
             leading = {
@@ -176,91 +177,50 @@ fun RegularMessageItem(
                     } else {
                         MessageStatusLabel(messageStatus = message.header.messageStatus)
                     }
-                    if (!isDeleted) {
-                        if (!decryptionFailed) {
-                            val currentOnAssetClicked = remember(message) {
-                                Clickable(enabled = isAvailable, onClick = {
-                                    onAssetMessageClicked(header.messageId)
-                                }, onLongClick = {
-                                    onLongClicked(message)
-                                })
-                            }
 
-                            val currentOnImageClick = remember(message) {
-                                Clickable(enabled = isAvailable && !isContentClickable, onClick = {
-                                    onImageMessageClicked(
-                                        message,
-                                        source == MessageSource.Self
-                                    )
-                                }, onLongClick = {
-                                    onLongClicked(message)
-                                })
-                            }
-                            val onLongClick: (() -> Unit)? = if (isContentClickable) {
-                                null
-                            } else {
-                                remember(message) {
-                                    if (isAvailable) {
-                                        { onLongClicked(message) }
-                                    } else {
-                                        null
-                                    }
-                                }
-                            }
-                            Row {
-                                Box(modifier = Modifier.weight(1F)) {
-                                    MessageContent(
-                                        message = message,
-                                        messageContent = messageContent,
-                                        searchQuery = searchQuery,
-                                        audioMessagesState = audioMessagesState,
-                                        assetStatus = assetStatus,
-                                        onAudioClick = onAudioClick,
-                                        onChangeAudioPosition = onChangeAudioPosition,
-                                        onAssetClick = currentOnAssetClicked,
-                                        onImageClick = currentOnImageClick,
-                                        onLongClick = onLongClick,
-                                        onOpenProfile = onOpenProfile,
-                                        onLinkClick = onLinkClick,
-                                        clickable = !isContentClickable,
-                                        onReplyClickable = onReplyClickable
-                                    )
-                                }
-                                if (isMyMessage && shouldDisplayMessageStatus) {
-                                    MessageStatusIndicator(
-                                        status = message.header.messageStatus.flowStatus,
-                                        isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
-                                        modifier = Modifier.padding(
-                                            top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
-                                            start = dimensions().spacing8x
-                                        )
-                                    )
-                                } else {
-                                    HorizontalSpace.x24()
-                                }
-                            }
-                            if (shouldDisplayFooter) {
-                                VerticalSpace.x4()
-                                MessageFooter(
-                                    messageFooter = messageFooter,
-                                    onReactionClicked = onReactionClicked
-                                )
-                            }
-                        } else {
-                            MessageDecryptionFailure(
-                                messageHeader = header,
-                                decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
-                                onResetSessionClicked = onResetSessionClicked
+                    if (isDeleted) return@Column
+
+                    if (!decryptionFailed) {
+                        MessageContentAndStatus(
+                            message = message,
+                            assetStatus = assetStatus,
+                            onAssetMessageClicked = onAssetMessageClicked,
+                            onLongClicked = onLongClicked,
+                            isContentClickable = isContentClickable,
+                            onImageMessageClicked = onImageMessageClicked,
+                            searchQuery = searchQuery,
+                            audioState = audioState,
+                            onAudioClick = onAudioClick,
+                            onChangeAudioPosition = onChangeAudioPosition,
+                            onOpenProfile = onOpenProfile,
+                            onLinkClick = onLinkClick,
+                            shouldDisplayMessageStatus = shouldDisplayMessageStatus,
+                            conversationDetailsData = conversationDetailsData,
+                            onReplyClickable = onReplyClickable
+
+                        )
+                        if (shouldDisplayFooter) {
+                            VerticalSpace.x4()
+                            MessageFooter(
+                                messageFooter = messageFooter,
+                                onReactionClicked = onReactionClicked
                             )
                         }
-                        if (message.sendingFailed) {
-                            MessageSendFailureWarning(
-                                messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
-                                isInteractionAvailable = isInteractionAvailable,
-                                onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId, message.conversationId) } },
-                                onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
-                            )
-                        }
+                    } else {
+                        MessageDecryptionFailure(
+                            messageHeader = header,
+                            decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
+                            onResetSessionClicked = onResetSessionClicked,
+                            conversationProtocol = conversationDetailsData.conversationProtocol
+                        )
+                    }
+                    if (message.sendingFailed) {
+                        MessageSendFailureWarning(
+                            messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                            isInteractionAvailable = isInteractionAvailable,
+                            onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId, message.conversationId) } },
+                            onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } }
+                        )
                     }
                 }
             }
@@ -375,7 +335,9 @@ private fun SwipableToReplyBox(
                     .fillMaxSize()
                     .anchoredDraggable(dragState, Orientation.Horizontal, startDragImmediately = false)
                     .offset {
-                        val x = dragState.requireOffset().toInt()
+                        val x = dragState
+                            .requireOffset()
+                            .toInt()
                         IntOffset(x, 0)
                     },
             ) { content() }
@@ -403,7 +365,92 @@ private fun ReplySwipeIcon(dragWidth: Float, density: Density, progress: Float) 
 }
 
 @Composable
-fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData: ConversationDetailsData) {
+private fun UIMessage.Regular.MessageContentAndStatus(
+    message: UIMessage.Regular,
+    assetStatus: AssetTransferStatus?,
+    onAssetMessageClicked: (String) -> Unit,
+    onLongClicked: (UIMessage.Regular) -> Unit,
+    isContentClickable: Boolean,
+    onImageMessageClicked: (UIMessage.Regular, Boolean) -> Unit,
+    searchQuery: String,
+    audioState: AudioState?,
+    onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (String, Int) -> Unit,
+    onOpenProfile: (String) -> Unit,
+    onLinkClick: (String) -> Unit,
+    shouldDisplayMessageStatus: Boolean,
+    conversationDetailsData: ConversationDetailsData,
+    onReplyClickable: Clickable?
+) {
+    val currentOnAssetClicked = remember(message) {
+        Clickable(enabled = isAvailable, onClick = {
+            onAssetMessageClicked(header.messageId)
+        }, onLongClick = {
+            onLongClicked(message)
+        })
+    }
+
+    val currentOnImageClick = remember(message) {
+        Clickable(enabled = isAvailable && !isContentClickable, onClick = {
+            onImageMessageClicked(
+                message,
+                source == MessageSource.Self
+            )
+        }, onLongClick = {
+            onLongClicked(message)
+        })
+    }
+    val onLongClick: (() -> Unit)? = if (isContentClickable) {
+        null
+    } else {
+        remember(message) {
+            if (isAvailable) {
+                { onLongClicked(message) }
+            } else {
+                null
+            }
+        }
+    }
+    Row {
+        Box(modifier = Modifier.weight(1F)) {
+            MessageContent(
+                message = message,
+                messageContent = messageContent,
+                searchQuery = searchQuery,
+                audioState = audioState,
+                assetStatus = assetStatus,
+                onAudioClick = onAudioClick,
+                onChangeAudioPosition = onChangeAudioPosition,
+                onAssetClick = currentOnAssetClicked,
+                onImageClick = currentOnImageClick,
+                onLongClick = onLongClick,
+                onOpenProfile = onOpenProfile,
+                onLinkClick = onLinkClick,
+                clickable = !isContentClickable,
+                onReplyClickable = onReplyClickable
+            )
+        }
+        if (isMyMessage && shouldDisplayMessageStatus) {
+            MessageStatusIndicator(
+                status = message.header.messageStatus.flowStatus,
+                isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
+                modifier = Modifier.padding(
+                    top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
+                    start = dimensions().spacing8x
+                )
+            )
+        } else {
+            HorizontalSpace.x24()
+        }
+    }
+}
+
+@Composable
+fun EphemeralMessageExpiredLabel(
+    isSelfMessage: Boolean,
+    conversationDetailsData: ConversationDetailsData,
+    modifier: Modifier = Modifier,
+) {
 
     val stringResource = if (!isSelfMessage) {
         stringResource(id = R.string.label_information_waiting_for_deleation_when_self_not_sender)
@@ -419,6 +466,7 @@ fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData
     }
 
     Text(
+        modifier = modifier,
         text = stringResource,
         style = typography().body05
     )
@@ -582,16 +630,16 @@ private fun MessageContent(
     message: UIMessage.Regular,
     messageContent: UIMessageContent.Regular?,
     searchQuery: String,
-    audioMessagesState: PersistentMap<String, AudioState>,
+    audioState: AudioState?,
     assetStatus: AssetTransferStatus?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
-    onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     clickable: Boolean,
+    onLongClick: (() -> Unit)? = null,
     onReplyClickable: Clickable? = null
 ) {
     when (messageContent) {
@@ -706,8 +754,7 @@ private fun MessageContent(
 
         is UIMessageContent.AudioAssetMessage -> {
             Column {
-                val audioMessageState: AudioState = audioMessagesState[message.header.messageId]
-                    ?: AudioState.DEFAULT
+                val audioMessageState: AudioState = audioState ?: AudioState.DEFAULT
 
                 val totalTimeInMs = remember(audioMessageState.totalTimeInMs) {
                     audioMessageState.sanitizeTotalTime(messageContent.audioMessageDurationInMs.toInt())

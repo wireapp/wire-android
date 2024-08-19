@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +49,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import com.wire.android.R
 import com.wire.android.ui.common.TextWithLearnMore
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
@@ -58,7 +56,6 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
-import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
@@ -79,6 +76,7 @@ fun MessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
+    onPingOptionClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
@@ -134,7 +132,7 @@ fun MessageComposer(
                         onClearMentionSearchResult()
                         clearMessage()
                     },
-                    onPingOptionClicked = { onSendMessageBundle(Ping(conversationId)) },
+                    onPingOptionClicked = onPingOptionClicked,
                     onImagesPicked = onImagesPicked,
                     onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.UriPickedBundle(conversationId, it)) },
                     onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
@@ -240,7 +238,6 @@ private fun DisabledInteractionMessageComposer(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BaseComposerPreview(
     interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
@@ -271,8 +268,8 @@ private fun BaseComposerPreview(
                 onTypingEvent = {}
             ),
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
-            modalBottomSheetState = WireModalSheetState()
         ),
+        onPingOptionClicked = { },
         messageListContent = { },
         onChangeSelfDeletionClicked = { },
         onClearMentionSearchResult = { },

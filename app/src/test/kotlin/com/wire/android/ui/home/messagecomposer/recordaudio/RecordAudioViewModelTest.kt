@@ -57,6 +57,7 @@ class RecordAudioViewModelTest {
             // given
             val (_, viewModel) = Arrangement()
                 .withEstablishedCall()
+                .withFilterEnabled(false)
                 .arrange()
 
             viewModel.getInfoMessage().test {
@@ -77,6 +78,7 @@ class RecordAudioViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(false)
                 .arrange()
 
             // when
@@ -94,10 +96,38 @@ class RecordAudioViewModelTest {
         }
 
     @Test
-    fun `given user is recording audio, when stopping the recording, then send audio button is shown`() =
+    fun `given user is recording audio without filter, when stopping the recording, then send audio button is shown`() =
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(false)
+                .arrange()
+
+            viewModel.startRecording()
+
+            // when
+            viewModel.stopRecording()
+
+            // then
+            coVerify(exactly = 0) {
+                arrangement.generateAudioFileWithEffects(
+                    context = any(),
+                    originalFilePath = any(),
+                    effectsFilePath = any()
+                )
+            }
+            assertEquals(
+                RecordAudioButtonState.READY_TO_SEND,
+                viewModel.state.buttonState
+            )
+        }
+
+    @Test
+    fun `given user is recording audio with filter, when stopping the recording, then send audio button is shown`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(true)
                 .arrange()
 
             viewModel.startRecording()
@@ -109,10 +139,47 @@ class RecordAudioViewModelTest {
             coVerify(exactly = 1) {
                 arrangement.generateAudioFileWithEffects(
                     context = any(),
-                    originalFilePath = viewModel.state.originalOutputFile!!.path,
-                    effectsFilePath = viewModel.state.effectsOutputFile!!.path
+                    originalFilePath = any(),
+                    effectsFilePath = any(),
                 )
             }
+            assertEquals(
+                RecordAudioButtonState.READY_TO_SEND,
+                viewModel.state.buttonState
+            )
+        }
+
+    @Test
+    fun `given user is recording audio without filter, when applying filter after recording, then effects file is generated`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(false)
+                .arrange()
+
+            viewModel.startRecording()
+            viewModel.stopRecording()
+            assertEquals(null, viewModel.state.effectsOutputFile)
+            coVerify(exactly = 0) {
+                arrangement.generateAudioFileWithEffects(
+                    context = any(),
+                    originalFilePath = any(),
+                    effectsFilePath = any()
+                )
+            }
+
+            // when
+            viewModel.setShouldApplyEffects(true)
+
+            // then
+            coVerify(exactly = 1) {
+                arrangement.generateAudioFileWithEffects(
+                    context = any(),
+                    originalFilePath = any(),
+                    effectsFilePath = any()
+                )
+            }
+            assert(viewModel.state.effectsOutputFile != null)
             assertEquals(
                 RecordAudioButtonState.READY_TO_SEND,
                 viewModel.state.buttonState
@@ -124,6 +191,7 @@ class RecordAudioViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
+                .withFilterEnabled(false)
                 .arrange()
 
             // when
@@ -141,6 +209,7 @@ class RecordAudioViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
+                .withFilterEnabled(false)
                 .arrange()
 
             viewModel.startRecording()
@@ -160,6 +229,7 @@ class RecordAudioViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
+                .withFilterEnabled(false)
                 .arrange()
 
             // when
@@ -177,6 +247,7 @@ class RecordAudioViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
+                .withFilterEnabled(false)
                 .arrange()
 
             // when
@@ -194,6 +265,7 @@ class RecordAudioViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
+                .withFilterEnabled(false)
                 .arrange()
 
             // when
@@ -211,6 +283,7 @@ class RecordAudioViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
+                .withFilterEnabled(false)
                 .arrange()
 
             viewModel.startRecording()
@@ -240,6 +313,7 @@ class RecordAudioViewModelTest {
             // given
             val (_, viewModel) = Arrangement()
                 .withStartRecordingSuccessful()
+                .withFilterEnabled(false)
                 .arrange()
 
             viewModel.getInfoMessage().test {
@@ -257,6 +331,7 @@ class RecordAudioViewModelTest {
             // given
             val (_, viewModel) = Arrangement()
                 .withStartRecordingFailed()
+                .withFilterEnabled(false)
                 .arrange()
 
             viewModel.getInfoMessage().test {
@@ -279,6 +354,7 @@ class RecordAudioViewModelTest {
         val generateAudioFileWithEffects = mockk<GenerateAudioFileWithEffectsUseCase>()
         val context = mockk<Context>()
         val dispatchers = TestDispatcherProvider()
+        val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
         val viewModel by lazy {
             RecordAudioViewModel(
@@ -290,25 +366,22 @@ class RecordAudioViewModelTest {
                 getAssetSizeLimit = getAssetSizeLimit,
                 generateAudioFileWithEffects = generateAudioFileWithEffects,
                 globalDataStore = globalDataStore,
-                dispatchers = dispatchers
+                dispatchers = dispatchers,
+                kaliumFileSystem = fakeKaliumFileSystem
             )
         }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
-            val fakeKaliumFileSystem = FakeKaliumFileSystem()
-
             coEvery { getAssetSizeLimit.invoke(false) } returns ASSET_SIZE_LIMIT
             every { audioMediaRecorder.setUp(ASSET_SIZE_LIMIT) } returns Unit
             every { audioMediaRecorder.startRecording() } returns true
             every { audioMediaRecorder.stop() } returns Unit
             every { audioMediaRecorder.release() } returns Unit
-            every { globalDataStore.isRecordAudioEffectsCheckboxEnabled() } returns flowOf(false)
+            coEvery { globalDataStore.setRecordAudioEffectsCheckboxEnabled(any()) } returns Unit
             every { audioMediaRecorder.originalOutputPath } returns fakeKaliumFileSystem
                 .tempFilePath("temp_recording.wav")
-            every { audioMediaRecorder.effectsOutputPath } returns fakeKaliumFileSystem
-                .tempFilePath("temp_recording_effects.wav")
             coEvery { audioMediaRecorder.getMaxFileSizeReached() } returns flowOf(
                 RecordAudioDialogState.MaxFileSizeReached(
                     maxSize = GetAssetSizeLimitUseCaseImpl.ASSET_SIZE_DEFAULT_LIMIT_BYTES
@@ -341,6 +414,10 @@ class RecordAudioViewModelTest {
 
         fun withStartRecordingSuccessful() = apply { every { audioMediaRecorder.startRecording() } returns true }
         fun withStartRecordingFailed() = apply { every { audioMediaRecorder.startRecording() } returns false }
+
+        fun withFilterEnabled(isEnabled: Boolean) = apply {
+            every { globalDataStore.isRecordAudioEffectsCheckboxEnabled() } returns flowOf(isEnabled)
+        }
 
         fun arrange() = this to viewModel
 

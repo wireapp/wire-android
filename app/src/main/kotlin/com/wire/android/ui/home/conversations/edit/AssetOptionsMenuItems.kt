@@ -24,19 +24,21 @@ import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.OpenAssetExternallyOption
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
+import com.wire.android.ui.edit.ShareAssetMenuOption
 
+// menu items with both asset options enabled (like share, download, etc.) and message options enabled (like reply, reaction, etc.)
 @Composable
-fun assetEditMenuItems(
+fun assetMessageOptionsMenuItems(
     isEphemeral: Boolean,
-    messageOptionsEnabled: Boolean,
     onDeleteClick: () -> Unit,
     onDetailsClick: () -> Unit,
     onShareAsset: () -> Unit,
     onDownloadAsset: () -> Unit,
     onReplyClick: () -> Unit,
-    onReactionClick: (String) -> Unit,
+    onReactionClick: (emoji: String) -> Unit,
+    isOpenable: Boolean = false,
+    onOpenAsset: () -> Unit = {},
     isUploading: Boolean = false,
-    onOpenAsset: (() -> Unit)? = null
 ): List<@Composable () -> Unit> {
     return buildList {
         when {
@@ -45,16 +47,9 @@ fun assetEditMenuItems(
             }
 
             isEphemeral -> {
-                if (messageOptionsEnabled) {
-                    add { MessageDetailsMenuOption(onDetailsClick) }
-                }
+                add { MessageDetailsMenuOption(onDetailsClick) }
                 add { DownloadAssetExternallyOption(onDownloadAsset) }
-                add { DeleteItemMenuOption(onDeleteClick) }
-            }
-
-            !messageOptionsEnabled -> {
-                add { DownloadAssetExternallyOption(onDownloadAsset) }
-                add { ShareAssetMenuOption(onShareAsset) }
+                if (isOpenable) add { OpenAssetExternallyOption(onOpenAsset) }
                 add { DeleteItemMenuOption(onDeleteClick) }
             }
 
@@ -64,9 +59,28 @@ fun assetEditMenuItems(
                 add { ReplyMessageOption(onReplyClick) }
                 add { DownloadAssetExternallyOption(onDownloadAsset) }
                 add { ShareAssetMenuOption(onShareAsset) }
-                if (onOpenAsset != null) add { OpenAssetExternallyOption(onOpenAsset) }
+                if (isOpenable) add { OpenAssetExternallyOption(onOpenAsset) }
                 add { DeleteItemMenuOption(onDeleteClick) }
             }
         }
     }
+}
+
+// menu items with only asset options enabled (like share, download, etc.)
+@Composable
+fun assetOptionsMenuItems(
+    isEphemeral: Boolean,
+    onDeleteClick: () -> Unit,
+    onShareAsset: () -> Unit,
+    onDownloadAsset: () -> Unit,
+    isOpenable: Boolean = false,
+    onOpenAsset: () -> Unit = {},
+    isUploading: Boolean = false,
+): List<@Composable () -> Unit> = buildList {
+    if (!isUploading) {
+        add { DownloadAssetExternallyOption(onDownloadAsset) }
+        if (!isEphemeral) add { ShareAssetMenuOption(onShareAsset) }
+        if (isOpenable) add { OpenAssetExternallyOption(onOpenAsset) }
+    }
+    add { DeleteItemMenuOption(onDeleteClick) }
 }

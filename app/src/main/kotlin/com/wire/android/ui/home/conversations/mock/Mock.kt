@@ -40,11 +40,13 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -53,6 +55,8 @@ import com.wire.kalium.network.NetworkStateObserver
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import okio.Path.Companion.toPath
 
 val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
 val mockEmptyFooter = MessageFooter("", emptyMap(), emptySet())
@@ -293,7 +297,7 @@ val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
     }
 )
 
-fun mockAssetMessage() = UIMessage.Regular(
+fun mockAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = UIMessage.Regular(
     conversationId = ConversationId("value", "domain"),
     userAvatarData = UserAvatarData(
         UserAvatarAsset(mockImageLoader, UserAssetId("a", "domain")),
@@ -308,7 +312,7 @@ fun mockAssetMessage() = UIMessage.Regular(
             flowStatus = MessageFlowStatus.Sent,
             expirationStatus = ExpirationStatus.NotExpirable
         ),
-        messageId = "",
+        messageId = messageId,
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
         isSenderUnavailable = false
@@ -316,18 +320,65 @@ fun mockAssetMessage() = UIMessage.Regular(
     messageContent = UIMessageContent.AssetMessage(
         assetName = "This is some test asset message that has a not so long title",
         assetExtension = "ZIP",
-        assetId = UserAssetId("asset", "domain"),
+        assetId = UserAssetId(assetId, "domain"),
         assetSizeInBytes = 21957335
     ),
     messageFooter = mockEmptyFooter,
     source = MessageSource.Self
 )
+fun mockAssetAudioMessage(assetId: String = "asset1", messageId: String = "msg1") = UIMessage.Regular(
+    conversationId = ConversationId("value", "domain"),
+    userAvatarData = UserAvatarData(
+        UserAvatarAsset(mockImageLoader, UserAssetId("a", "domain")),
+        UserAvailabilityStatus.AVAILABLE
+    ),
+    header = MessageHeader(
+        username = UIText.DynamicString("John Doe"),
+        membership = Membership.Guest,
+        isLegalHold = true,
+        messageTime = MessageTime(Clock.System.now()),
+        messageStatus = MessageStatus(
+            flowStatus = MessageFlowStatus.Sent,
+            expirationStatus = ExpirationStatus.NotExpirable
+        ),
+        messageId = messageId,
+        connectionState = ConnectionState.ACCEPTED,
+        isSenderDeleted = false,
+        isSenderUnavailable = false
+    ),
+    messageContent = UIMessageContent.AudioAssetMessage(
+        assetName = "Audio message",
+        assetExtension = "WAV",
+        assetId = UserAssetId(assetId, "domain"),
+        audioMessageDurationInMs = 60_000,
+    ),
+    messageFooter = mockEmptyFooter,
+    source = MessageSource.Self
+)
+
+fun mockUIAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = UIAssetMessage(
+    assetId = assetId,
+    time = Instant.DISTANT_PAST,
+    username = UIText.DynamicString("Username 1"),
+    messageId = messageId,
+    conversationId = QualifiedID("value", "domain"),
+    assetPath = "path".toPath(),
+    isSelfAsset = false
+)
 
 @Suppress("MagicNumber")
 fun mockedImg() = UIMessageContent.ImageMessage(
-    UserAssetId("a", "domain"),
-    ImageAsset.PrivateAsset(mockImageLoader, ConversationId("id", "domain"), "messageId", true),
-    800, 600
+    assetId = UserAssetId("a", "domain"),
+    asset = mockedPrivateAsset(),
+    width = 800,
+    height = 600
+)
+
+fun mockedPrivateAsset() = ImageAsset.PrivateAsset(
+    imageLoader = mockImageLoader,
+    conversationId = ConversationId("id", "domain"),
+    messageId = "messageId",
+    isSelfAsset = true
 )
 
 @Suppress("MagicNumber")

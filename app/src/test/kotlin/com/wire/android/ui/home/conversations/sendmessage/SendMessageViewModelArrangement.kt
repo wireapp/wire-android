@@ -24,6 +24,7 @@ import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.PingRinger
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.ImageUtil
@@ -148,7 +149,7 @@ internal class SendMessageViewModelArrangement {
             handleUriAsset = handleUriAssetUseCase,
             imageUtil = imageUtil,
             pingRinger = pingRinger,
-            sendKnockUseCase = sendKnockUseCase,
+            sendKnock = sendKnockUseCase,
             retryFailedMessage = retryFailedMessageUseCase,
             sendTypingEvent = sendTypingEvent,
             setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
@@ -248,6 +249,20 @@ internal class SendMessageViewModelArrangement {
 
     fun withSuccessfulRetryFailedMessage() = apply {
         coEvery { retryFailedMessageUseCase(any(), any()) } returns Either.Right(Unit)
+    }
+
+    fun withPendingTextBundle(textToShare: String = "some text") = apply {
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(
+            conversationId = conversationId,
+            pendingTextBundle = textToShare
+        )
+    }
+
+    fun withPendingAssetBundle(vararg assetBundle: AssetBundle) = apply {
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(
+            conversationId = conversationId,
+            pendingBundles = arrayListOf(*assetBundle)
+        )
     }
 
     fun arrange() = this to viewModel

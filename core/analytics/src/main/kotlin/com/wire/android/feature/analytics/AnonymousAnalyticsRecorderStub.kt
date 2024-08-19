@@ -45,4 +45,6 @@ open class AnonymousAnalyticsRecorderStub : AnonymousAnalyticsRecorder {
         isTeamMember: Boolean,
         propagateIdentifier: suspend () -> Unit
     ) = Unit
+
+    override fun isAnalyticsInitialized(): Boolean = false
 }

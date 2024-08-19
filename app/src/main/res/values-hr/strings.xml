@@ -577,6 +577,7 @@
     <string name="cancel_login_button_label">Odustani</string>
     <string name="cancel_login_dialog_description">Ako sada odustanete, bit ćete odjavljeni.</string>
     <string name="cancel_login_dialog_title">Jeste li sigurni da želite odustati?</string>
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <!-- join conversation dialog -->
     <!-- edit self-deleting messages -->
@@ -601,4 +602,5 @@
     <!-- Share Location -->
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

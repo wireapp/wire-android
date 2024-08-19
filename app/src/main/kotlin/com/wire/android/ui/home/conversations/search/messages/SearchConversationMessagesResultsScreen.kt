@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.search.messages
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -32,16 +33,16 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun SearchConversationMessagesResultsScreen(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
-    searchQuery: String = "",
-    onMessageClick: (messageId: String) -> Unit
+    onMessageClick: (messageId: String) -> Unit,
+    modifier: Modifier = Modifier,
+    searchQuery: String = ""
 ) {
-    LazyColumn {
+    LazyColumn(modifier = modifier) {
         items(
             count = lazyPagingMessages.itemCount,
             key = lazyPagingMessages.itemKey { it.header.messageId },
@@ -54,9 +55,8 @@ fun SearchConversationMessagesResultsScreen(
                 is UIMessage.Regular -> {
                     MessageContainerItem(
                         message = message,
-                        conversationDetailsData = ConversationDetailsData.None,
+                        conversationDetailsData = ConversationDetailsData.None(null),
                         searchQuery = searchQuery,
-                        audioMessagesState = persistentMapOf(),
                         onLongClicked = { },
                         onAssetMessageClicked = { },
                         onAudioClick = { },
@@ -84,7 +84,7 @@ fun SearchConversationMessagesResultsScreen(
 
 @PreviewMultipleThemes
 @Composable
-fun previewSearchConversationMessagesResultsScreen() {
+fun PreviewSearchConversationMessagesResultsScreen() {
     WireTheme {
         SearchConversationMessagesResultsScreen(
             lazyPagingMessages = flowOf(

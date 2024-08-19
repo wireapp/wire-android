@@ -80,6 +80,7 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetCont
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
@@ -295,12 +296,10 @@ private fun GroupConversationDetailsContent(
 
     val conversationSheetState = rememberConversationSheetState(conversationSheetContent)
 
-    val sheetState = rememberWireModalSheetState()
-    val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
+    val sheetState = rememberWireModalSheetState<Unit>()
     val closeBottomSheetAndShowSnackbarMessage: (UIText) -> Unit = remember {
         {
-            scope.launch {
-                sheetState.hide()
+            sheetState.hide {
                 snackbarHostState.showSnackbar(it.asString(resources))
             }
         }
@@ -343,7 +342,7 @@ private fun GroupConversationDetailsContent(
                 },
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackPressed,
-                actions = { MoreOptionIcon(onButtonClicked = openBottomSheet) }
+                actions = { MoreOptionIcon(onButtonClicked = sheetState::show) }
             )
         },
         topBarCollapsing = {
@@ -442,7 +441,6 @@ private fun GroupConversationDetailsContent(
 
     WireModalSheetLayout(
         sheetState = sheetState,
-        coroutineScope = rememberCoroutineScope(),
         sheetContent = {
             ConversationSheetContent(
                 isBottomSheetVisible = getBottomSheetVisibility,

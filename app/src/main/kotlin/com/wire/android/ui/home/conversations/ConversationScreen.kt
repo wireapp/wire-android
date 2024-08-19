@@ -86,13 +86,12 @@ import com.wire.android.navigation.ArgsSerializer
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
-import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.calling.getOutgoingCallIntent
+import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.ConfirmSendingPingDialog
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog
@@ -125,7 +124,7 @@ import com.wire.android.ui.home.conversations.call.ConversationListCallViewModel
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
-import com.wire.android.ui.home.conversations.edit.editMessageMenuItems
+import com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
@@ -138,8 +137,7 @@ import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfi
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
-import com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuItems
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
@@ -147,6 +145,8 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
+import com.wire.android.ui.home.messagecomposer.model.Ping
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
@@ -192,6 +192,11 @@ private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
  */
 private const val MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT = 5
 
+/**
+ * The maximum number of participants to send a ping without showing a confirmation dialog.
+ */
+private const val MAX_GROUP_SIZE_FOR_PING = 3
+
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Suppress("ComplexMethod")
 @RootNavGraph
@@ -222,7 +227,6 @@ fun ConversationScreen(
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
-        modalBottomSheetState = conversationScreenState.modalBottomSheetState,
         draftMessageComposition = messageDraftViewModel.state.value,
         onSaveDraft = messageComposerViewModel::saveDraft,
         onSearchMentionQueryChanged = messageComposerViewModel::searchMembersToMention,
@@ -237,6 +241,17 @@ fun ConversationScreen(
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
 
     val activity = LocalActivity.current
+
+    LaunchedEffect(conversationScreenState.isAnySheetVisible) {
+        with(messageComposerStateHolder) {
+            if (conversationScreenState.isAnySheetVisible) {
+                messageCompositionInputStateHolder.clearFocus()
+            } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
+                messageCompositionInputStateHolder.requestFocus()
+                additionalOptionStateHolder.unselectAdditionalOptionsMenu()
+            }
+        }
+    }
 
     LaunchedEffect(alreadyDeletedByUser) {
         if (!alreadyDeletedByUser) {
@@ -305,7 +320,7 @@ fun ConversationScreen(
 
         ConversationScreenDialogType.CALL_CONFIRMATION -> {
             ConfirmStartCallDialog(
-                participantsCount = conversationListCallViewModel.conversationCallViewState.participantsCount - 1,
+                participantsCount = conversationListCallViewModel.conversationCallViewState.participantsCount,
                 onConfirm = {
                     startCallIfPossible(
                         conversationListCallViewModel,
@@ -322,6 +337,19 @@ fun ConversationScreen(
                             activity.startActivity(this)
                         }
                     }
+                },
+                onDialogDismiss = {
+                    showDialog.value = ConversationScreenDialogType.NONE
+                }
+            )
+        }
+
+        ConversationScreenDialogType.PING_CONFIRMATION -> {
+            ConfirmSendingPingDialog(
+                participantsCount = conversationListCallViewModel.conversationCallViewState.participantsCount,
+                onConfirm = {
+                    showDialog.value = ConversationScreenDialogType.NONE
+                    sendMessageViewModel.trySendMessage(Ping(conversationMessagesViewModel.conversationId))
                 },
                 onDialogDismiss = {
                     showDialog.value = ConversationScreenDialogType.NONE
@@ -384,6 +412,14 @@ fun ConversationScreen(
             )
         },
         onSendMessage = sendMessageViewModel::trySendMessage,
+        onPingOptionClicked = {
+            if (conversationListCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_PING) {
+                showDialog.value = ConversationScreenDialogType.PING_CONFIRMATION
+            } else {
+                showDialog.value = ConversationScreenDialogType.NONE
+                sendMessageViewModel.trySendMessage(Ping(conversationMessagesViewModel.conversationId))
+            }
+        },
         onImagesPicked = {
             navigator.navigate(
                 NavigationCommand(
@@ -453,7 +489,7 @@ fun ConversationScreen(
                     is ConversationDetailsData.Group ->
                         navigator.navigate(NavigationCommand(GroupConversationDetailsScreenDestination(conversationId)))
 
-                    ConversationDetailsData.None -> { /* do nothing */
+                    is ConversationDetailsData.None -> { /* do nothing */
                     }
                 }
             }
@@ -694,6 +730,7 @@ private fun ConversationScreen(
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
+    onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -727,48 +764,6 @@ private fun ConversationScreen(
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
-
-    val menuModalHeader = if (conversationScreenState.bottomSheetMenuType is ConversationScreenState.BottomSheetMenuType.SelfDeletion) {
-        MenuModalSheetHeader.Visible(
-            title = stringResource(R.string.automatically_delete_message_after)
-        )
-    } else MenuModalSheetHeader.Gone
-
-    val menuItems = when (val menuType = conversationScreenState.bottomSheetMenuType) {
-        is ConversationScreenState.BottomSheetMenuType.Edit -> {
-            editMessageMenuItems(
-                message = menuType.selectedMessage,
-                messageOptionsEnabled = true,
-                hideEditMessageMenu = conversationScreenState::hideContextMenu,
-                onCopyClick = conversationScreenState::copyMessage,
-                onDeleteClick = onDeleteMessage,
-                onReactionClick = onReactionClick,
-                onDetailsClick = onMessageDetailsClick,
-                onReplyClick = messageComposerStateHolder::toReply,
-                onEditClick = { messageId, messageText, mentions -> messageComposerStateHolder.toEdit(messageId, messageText, mentions) },
-                onShareAssetClick = {
-                    menuType.selectedMessage.header.messageId.let {
-                        shareAsset(context, it)
-                        conversationScreenState.hideContextMenu()
-                    }
-                },
-                onDownloadAssetClick = onDownloadAssetClick,
-                onOpenAssetClick = onOpenAssetClick
-            )
-        }
-
-        is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
-            selfDeletionMenuItems(
-                hideEditMessageMenu = conversationScreenState::hideContextMenu,
-                currentlySelected = menuType.currentlySelected.duration.toSelfDeletionDuration(),
-                onSelfDeletionDurationChanged = { newTimer ->
-                    onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(newTimer.value))
-                }
-            )
-        }
-
-        ConversationScreenState.BottomSheetMenuType.None -> emptyList()
-    }
     // only here we will use normal Scaffold because of specific behaviour of message composer
     Scaffold(
         topBar = {
@@ -815,6 +810,7 @@ private fun ConversationScreen(
                     messageComposerStateHolder = messageComposerStateHolder,
                     messages = conversationMessagesViewState.messages,
                     onSendMessage = onSendMessage,
+                    onPingOptionClicked = onPingOptionClicked,
                     onImagesPicked = onImagesPicked,
                     onAssetItemClicked = onAssetItemClicked,
                     onAudioItemClicked = onAudioClick,
@@ -841,12 +837,23 @@ private fun ConversationScreen(
             }
         }
     )
-    MenuModalSheetLayout(
-        header = menuModalHeader,
-        sheetState = conversationScreenState.modalBottomSheetState,
-        coroutineScope = conversationScreenState.coroutineScope,
-        menuItems = menuItems
+    SelfDeletionOptionsModalSheetLayout(
+        sheetState = conversationScreenState.selfDeletingSheetState,
+        onNewSelfDeletingMessagesStatus = onNewSelfDeletingMessagesStatus
     )
+    MessageOptionsModalSheetLayout(
+        sheetState = conversationScreenState.editSheetState,
+        onCopyClick = conversationScreenState::copyMessage,
+        onDeleteClick = onDeleteMessage,
+        onReactionClick = onReactionClick,
+        onDetailsClick = onMessageDetailsClick,
+        onReplyClick = messageComposerStateHolder::toReply,
+        onEditClick = messageComposerStateHolder::toEdit,
+        onShareAssetClick = { shareAsset(context, it) },
+        onDownloadAssetClick = onDownloadAssetClick,
+        onOpenAssetClick = onOpenAssetClick,
+    )
+
     SnackBarMessage(composerMessages, conversationMessages)
 }
 
@@ -862,6 +869,7 @@ private fun ConversationScreenContent(
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (MessageBundle) -> Unit,
+    onPingOptionClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
@@ -926,6 +934,7 @@ private fun ConversationScreenContent(
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
+        onPingOptionClicked = onPingOptionClicked,
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         tempWritableVideoUri = tempWritableVideoUri,
         tempWritableImageUri = tempWritableImageUri,
@@ -1098,7 +1107,7 @@ fun MessageList(
                         conversationDetailsData = conversationDetailsData,
                         showAuthor = showAuthor,
                         useSmallBottomPadding = useSmallBottomPadding,
-                        audioMessagesState = audioMessagesState,
+                        audioState = audioMessagesState[message.header.messageId],
                         assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
                         onAudioClick = onAudioItemClicked,
                         onChangeAudioPosition = onChangeAudioPosition,
@@ -1290,7 +1299,6 @@ fun PreviewConversationScreen() = WireTheme {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
-        modalBottomSheetState = conversationScreenState.modalBottomSheetState,
         draftMessageComposition = messageCompositionState.value,
         onSaveDraft = {},
         onTypingEvent = {},
@@ -1309,6 +1317,7 @@ fun PreviewConversationScreen() = WireTheme {
         onOpenProfile = { },
         onMessageDetailsClick = { _, _ -> },
         onSendMessage = { },
+        onPingOptionClicked = { },
         onDeleteMessage = { _, _ -> },
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _ -> },

@@ -17,13 +17,9 @@
  */
 package com.wire.android.ui.settings.devices.e2ei
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -38,10 +34,6 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val observerSelfUser: GetSelfUserUseCase,
 ) : ViewModel() {
-
-    var state: E2eiCertificateDetailsState by mutableStateOf(E2eiCertificateDetailsState())
-        private set
-
     private val navArgs: E2eiCertificateDetailsScreenNavArgs =
         savedStateHandle.navArgs()
 
@@ -80,7 +72,3 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
         return "wire-certificate-${userHandle()}-$date.txt"
     }
 }
-
-data class E2eiCertificateDetailsState(
-    val wireModalSheetState: WireModalSheetState = WireModalSheetState()
-)

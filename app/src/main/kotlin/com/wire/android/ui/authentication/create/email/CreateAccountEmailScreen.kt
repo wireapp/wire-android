@@ -89,8 +89,8 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @WireDestination(navArgsDelegate = CreateAccountNavArgs::class)
 @Composable
 fun CreateAccountEmailScreen(
-    createAccountEmailViewModel: CreateAccountEmailViewModel = hiltViewModel(),
-    navigator: Navigator
+    navigator: Navigator,
+    createAccountEmailViewModel: CreateAccountEmailViewModel = hiltViewModel()
 ) {
     with(createAccountEmailViewModel) {
         fun navigateToDetailsScreen() = navigator.navigate(
@@ -185,6 +185,9 @@ private fun EmailContent(
             }
             Spacer(modifier = Modifier.weight(1f))
             EmailFooter(state = state, onLoginPressed = onLoginPressed, onContinuePressed = onContinuePressed)
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
         }
     }
     if (state.termsDialogVisible) {
@@ -197,9 +200,6 @@ private fun EmailContent(
     }
     if (state.error is CreateAccountEmailViewState.EmailError.DialogError.GenericError) {
         CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
-    }
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
     }
 }
 

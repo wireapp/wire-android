@@ -42,7 +42,7 @@ jobs:
         run: chmod +x ./gradlew
       - name: build prod flavour APK
         run:
-          ./gradlew app:assembleFdroidCompatRelease
+          ./gradlew app:assembleFdroidCompatrelease
         env:
           KEYSTORE_FILE_PATH_DEBUG: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
@@ -59,9 +59,5 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-bucket: ${{ secrets.AWS_S3_BUCKET }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          build-flavour: Fdroid
+          build-flavour: fdroid
           build-variant: compatrelease
-      - name: Attach APK to release
-        uses: softprops/action-gh-release@v2.0.8
-        with:
-          files: app/build/outputs/apk/fdroidCompatRelease/*.apk

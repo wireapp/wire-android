@@ -1108,6 +1108,7 @@
     <string name="cancel_login_button_label">Mégsem</string>
     <string name="cancel_login_dialog_description">Ha mégsem lép be, kijelentkezve marad.</string>
     <string name="cancel_login_dialog_title">Biztos benne, hogy mégsem lép be?</string>
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s nem tudta visszafejteni néhány üzenetét, de megoldotta a problémát. Ez érintette az összes közös beszélgetésüket.</string>
     <string name="label_manual_migration_title">Átlépés a 3.82.38-as verzióról</string>
@@ -1289,4 +1290,5 @@ Kérjük, próbálja meg újra.</string>
     <!-- Share Location -->
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

@@ -34,8 +34,8 @@ import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -72,13 +72,14 @@ class ConversationScreenState(
 
     var bottomSheetMenuType: BottomSheetMenuType by mutableStateOf(BottomSheetMenuType.None)
 
-    fun showEditContextMenu(message: UIMessage.Regular) {
-        bottomSheetMenuType = BottomSheetMenuType.Edit(message)
+    fun showBottomSheet(type: BottomSheetMenuType) {
+        bottomSheetMenuType = type
         coroutineScope.launch { modalBottomSheetState.show() }
     }
 
     fun hideContextMenu(onComplete: () -> Unit = {}) {
         coroutineScope.launch {
+            bottomSheetMenuType = BottomSheetMenuType.None
             modalBottomSheetState.hide()
             onComplete()
         }
@@ -92,15 +93,14 @@ class ConversationScreenState(
         }
     }
 
-    fun showSelfDeletionContextMenu(currentlySelected: SelfDeletionTimer) {
-        bottomSheetMenuType = BottomSheetMenuType.SelfDeletion(currentlySelected)
-        coroutineScope.launch { modalBottomSheetState.show() }
-    }
-
     sealed class BottomSheetMenuType {
         class Edit(val selectedMessage: UIMessage.Regular) : BottomSheetMenuType()
 
         class SelfDeletion(val currentlySelected: SelfDeletionTimer) : BottomSheetMenuType()
+
+        data object Location : BottomSheetMenuType()
+
+        data object Sketch: BottomSheetMenuType()
 
         data object None : BottomSheetMenuType()
     }

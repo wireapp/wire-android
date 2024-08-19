@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.search.messages
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -38,10 +39,11 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 fun SearchConversationMessagesResultsScreen(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
+    modifier: Modifier = Modifier,
     searchQuery: String = "",
     onMessageClick: (messageId: String) -> Unit
 ) {
-    LazyColumn {
+    LazyColumn(modifier = modifier) {
         items(
             count = lazyPagingMessages.itemCount,
             key = lazyPagingMessages.itemKey { it.header.messageId },
@@ -57,7 +59,7 @@ fun SearchConversationMessagesResultsScreen(
                         conversationDetailsData = ConversationDetailsData.None,
                         searchQuery = searchQuery,
                         audioMessagesState = persistentMapOf(),
-                        onLongClicked = { },
+                        onShowBottomSheet = { },
                         onAssetMessageClicked = { },
                         onAudioClick = { },
                         onChangeAudioPosition = { _, _ -> },
@@ -84,7 +86,7 @@ fun SearchConversationMessagesResultsScreen(
 
 @PreviewMultipleThemes
 @Composable
-fun previewSearchConversationMessagesResultsScreen() {
+fun PreviewSearchConversationMessagesResultsScreen() {
     WireTheme {
         SearchConversationMessagesResultsScreen(
             lazyPagingMessages = flowOf(

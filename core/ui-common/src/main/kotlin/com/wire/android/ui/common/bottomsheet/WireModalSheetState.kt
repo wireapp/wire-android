@@ -26,16 +26,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 
 @OptIn(ExperimentalMaterial3Api::class)
 class WireModalSheetState(
     initialValue: SheetValue = SheetValue.Hidden,
+    density: Density,
     private val onDismissAction: () -> Unit = {}
 ) {
     val sheetState: SheetState = SheetState(
         skipPartiallyExpanded = true,
         initialValue = initialValue,
         confirmValueChange = { true },
+        density = density,
         skipHiddenState = false
     )
 
@@ -64,9 +68,9 @@ class WireModalSheetState(
         get() = currentValue != SheetValue.Hidden
 
     companion object {
-        fun saver() = Saver<WireModalSheetState, SheetValue>(
+        fun saver(density: Density) = Saver<WireModalSheetState, SheetValue>(
             save = { it.currentValue },
-            restore = { savedValue -> WireModalSheetState(savedValue) }
+            restore = { savedValue -> WireModalSheetState(savedValue, density) }
         )
     }
 }
@@ -76,10 +80,12 @@ class WireModalSheetState(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun rememberWireModalSheetState(initialValue: SheetValue = SheetValue.Hidden): WireModalSheetState =
-    rememberSaveable(saver = WireModalSheetState.saver()) {
-        WireModalSheetState(initialValue)
+fun rememberWireModalSheetState(initialValue: SheetValue = SheetValue.Hidden): WireModalSheetState {
+    val density = LocalDensity.current
+    return rememberSaveable(saver = WireModalSheetState.saver(density)) {
+        WireModalSheetState(initialValue, density = density)
     }
+}
 
 /**
  * Creates a [WireModalSheetState] that can be used to show and hide a [WireModalSheetLayout],
@@ -93,7 +99,9 @@ fun rememberWireModalSheetState(initialValue: SheetValue = SheetValue.Hidden): W
 fun rememberDismissibleWireModalSheetState(
     initialValue: SheetValue = SheetValue.Hidden,
     onDismissAction: () -> Unit
-): WireModalSheetState =
-    rememberSaveable(saver = WireModalSheetState.saver()) {
-        WireModalSheetState(initialValue, onDismissAction)
+): WireModalSheetState {
+    val density = LocalDensity.current
+    return rememberSaveable(saver = WireModalSheetState.saver(density)) {
+        WireModalSheetState(initialValue, density, onDismissAction)
     }
+}

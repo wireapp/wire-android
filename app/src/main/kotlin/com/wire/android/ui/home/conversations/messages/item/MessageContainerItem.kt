@@ -35,6 +35,7 @@ import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.ConversationScreenState
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -52,12 +53,8 @@ import kotlinx.collections.immutable.PersistentMap
 fun MessageContainerItem(
     message: UIMessage,
     conversationDetailsData: ConversationDetailsData,
-    searchQuery: String = "",
-    showAuthor: Boolean = true,
-    useSmallBottomPadding: Boolean = false,
     audioMessagesState: PersistentMap<String, AudioState>,
-    assetStatus: AssetTransferStatus? = null,
-    onLongClicked: (UIMessage.Regular) -> Unit,
+    onShowBottomSheet: (ConversationScreenState.BottomSheetMenuType) -> Unit,
     swipableMessageConfiguration: SwipableMessageConfiguration,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -67,6 +64,11 @@ fun MessageContainerItem(
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
+    modifier: Modifier = Modifier,
+    searchQuery: String = "",
+    showAuthor: Boolean = true,
+    useSmallBottomPadding: Boolean = false,
+    assetStatus: AssetTransferStatus? = null,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onLinkClick: (String) -> Unit = {},
@@ -77,7 +79,7 @@ fun MessageContainerItem(
     shouldDisplayFooter: Boolean = true,
     onReplyClickable: Clickable? = null,
     isSelectedMessage: Boolean = false,
-    isInteractionAvailable: Boolean = true,
+    isInteractionAvailable: Boolean = true
 ) {
     val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
     if (
@@ -92,7 +94,7 @@ fun MessageContainerItem(
         )
     }
     Row(
-        Modifier
+        modifier
             .customizeMessageBackground(
                 defaultBackgroundColor,
                 message.sendingFailed,
@@ -113,7 +115,7 @@ fun MessageContainerItem(
                         onLongClick = remember(message) {
                             {
                                 if (!isContentClickable && !message.header.messageStatus.isDeleted) {
-                                    onLongClicked(message)
+                                    onShowBottomSheet(ConversationScreenState.BottomSheetMenuType.Edit(message))
                                 }
                             }
                         }
@@ -139,7 +141,9 @@ fun MessageContainerItem(
                 assetStatus = assetStatus,
                 onAudioClick = onAudioClick,
                 onChangeAudioPosition = onChangeAudioPosition,
-                onLongClicked = onLongClicked,
+                onLongClicked = {
+                    onShowBottomSheet(ConversationScreenState.BottomSheetMenuType.Edit(message))
+                },
                 swipableMessageConfiguration = swipableMessageConfiguration,
                 onAssetMessageClicked = onAssetMessageClicked,
                 onImageMessageClicked = onImageMessageClicked,

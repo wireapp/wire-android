@@ -39,7 +39,7 @@ class MessageCompositionInputStateHolderTest {
     @BeforeEach
     fun before() {
         messageTextState = TextFieldState()
-        state = MessageCompositionInputStateHolder(messageTextState = messageTextState)
+        state = MessageCompositionInputStateHolder(messageTextState = messageTextState, keyboardController = null)
     }
 
     @Test

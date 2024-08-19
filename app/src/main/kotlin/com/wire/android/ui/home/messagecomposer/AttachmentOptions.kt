@@ -21,6 +21,13 @@ package com.wire.android.ui.home.messagecomposer
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -32,21 +39,27 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.permission.FileType
@@ -55,10 +68,10 @@ import com.wire.android.util.permission.rememberCaptureVideoFlow
 import com.wire.android.util.permission.rememberChooseMultipleFilesFlow
 import com.wire.android.util.permission.rememberChooseSingleFileFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
-import com.wire.android.util.ui.KeyboardHeight
 
 @Composable
 fun AttachmentOptionsComponent(
+    optionsVisible: Boolean,
     onImagesPicked: (List<Uri>) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
@@ -115,6 +128,7 @@ fun AttachmentOptionsComponent(
             }
         }
         val (columns, contentPadding) = params
+        val numberOfColumns = (fullWidth / minColumnWidth).toInt()
 
         LazyVerticalGrid(
             columns = columns,
@@ -123,9 +137,41 @@ fun AttachmentOptionsComponent(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalArrangement = Arrangement.Center
         ) {
-            visibleAttachmentOptions.forEach { option ->
+            visibleAttachmentOptions.forEachIndexed { index, option ->
                 if (option.shouldShow) {
-                    item { AttachmentButton(stringResource(option.text), option.icon, labelStyle) { option.onClick() } }
+                    item {
+                        val column = index % numberOfColumns
+                        val reverseIndex = visibleAttachmentOptions.size - 1 - index
+
+                        var startAnimation by remember { mutableStateOf(false) }
+
+                        val animatedScale by animateFloatAsState(
+                            targetValue = if (startAnimation) 1.0f else 0.0f,
+                            animationSpec = keyframes {
+                                durationMillis = 150
+                                if (startAnimation) {
+                                    1.2f at 50 using FastOutSlowInEasing
+                                    1.0f at 100 using FastOutSlowInEasing
+                                } else {
+                                    1.0f at 0 using FastOutSlowInEasing
+                                    0.0f at 50 using FastOutSlowInEasing
+                                }
+                            }, label = "attachmentsAnimation"
+                        )
+
+                        LaunchedEffect(optionsVisible) {
+                            val delayMillis = if (optionsVisible) column * 50L else reverseIndex * 25L
+                            kotlinx.coroutines.delay(delayMillis)
+                            startAnimation = optionsVisible
+                        }
+
+                        AttachmentButton(
+                            icon = option.icon,
+                            labelStyle = labelStyle,
+                            modifier = Modifier.scale(animatedScale),
+                            text = stringResource(option.text)
+                        ) { option.onClick() }
+                    }
                 }
             }
         }
@@ -331,27 +377,30 @@ private data class AttachmentOptionItem(
 @Preview(showBackground = true, locale = "de")
 @Composable
 fun PreviewAttachmentComponents() {
-    AttachmentOptionsComponent(
-        onImagesPicked = {},
-        onAttachmentPicked = {},
-        isFileSharingEnabled = true,
-        tempWritableImageUri = null,
-        tempWritableVideoUri = null,
-        onRecordAudioMessageClicked = {},
-        onLocationPickerClicked = {},
-        onPermissionPermanentlyDenied = {},
-    )
+    WireTheme {
+        AttachmentOptionsComponent(
+            optionsVisible = true,
+            onImagesPicked = {},
+            onAttachmentPicked = {},
+            isFileSharingEnabled = true,
+            tempWritableImageUri = null,
+            tempWritableVideoUri = null,
+            onRecordAudioMessageClicked = {},
+            onLocationPickerClicked = {},
+            onPermissionPermanentlyDenied = {},
+        )
+    }
 }
 
 @Preview(name = "Small Screen", widthDp = 320, heightDp = 480, showBackground = true)
 @Composable
 fun PreviewAttachmentOptionsComponentSmallScreen() {
-    Surface {
+    WireTheme {
         Box(
-            modifier = Modifier.height(KeyboardHeight.default),
             contentAlignment = Alignment.BottomCenter
         ) {
             AttachmentOptionsComponent(
+                optionsVisible = true,
                 onAttachmentPicked = {},
                 onImagesPicked = {},
                 isFileSharingEnabled = true,
@@ -368,12 +417,12 @@ fun PreviewAttachmentOptionsComponentSmallScreen() {
 @Preview(name = "Normal Screen", widthDp = 360, heightDp = 640)
 @Composable
 fun PreviewAttachmentOptionsComponentNormalScreen() {
-    Surface {
+    WireTheme {
         Box(
-            modifier = Modifier.height(KeyboardHeight.default),
             contentAlignment = Alignment.BottomCenter
         ) {
             AttachmentOptionsComponent(
+                optionsVisible = true,
                 onAttachmentPicked = {},
                 onImagesPicked = {},
                 isFileSharingEnabled = true,
@@ -390,12 +439,12 @@ fun PreviewAttachmentOptionsComponentNormalScreen() {
 @Preview(name = "Tablet Screen", widthDp = 600, heightDp = 960)
 @Composable
 fun PreviewAttachmentOptionsComponentTabledScreen() {
-    Surface {
+    WireTheme {
         Box(
-            modifier = Modifier.height(KeyboardHeight.default),
             contentAlignment = Alignment.BottomCenter
         ) {
             AttachmentOptionsComponent(
+                optionsVisible = true,
                 onAttachmentPicked = {},
                 onImagesPicked = {},
                 isFileSharingEnabled = true,

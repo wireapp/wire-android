@@ -118,12 +118,8 @@ import kotlin.math.min
 fun RegularMessageItem(
     message: UIMessage.Regular,
     conversationDetailsData: ConversationDetailsData,
-    searchQuery: String = "",
-    showAuthor: Boolean = true,
     audioMessagesState: PersistentMap<String, AudioState>,
-    assetStatus: AssetTransferStatus? = null,
     onLongClicked: (UIMessage.Regular) -> Unit,
-    swipableMessageConfiguration: SwipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
@@ -131,6 +127,11 @@ fun RegularMessageItem(
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
+    modifier: Modifier = Modifier,
+    searchQuery: String = "",
+    showAuthor: Boolean = true,
+    assetStatus: AssetTransferStatus? = null,
+    swipableMessageConfiguration: SwipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onLinkClick: (String) -> Unit = {},
@@ -145,7 +146,8 @@ fun RegularMessageItem(
     @Composable
     fun messageContent() {
         MessageItemTemplate(
-            showAuthor,
+            modifier = modifier,
+            showAuthor = showAuthor,
             useSmallBottomPadding = useSmallBottomPadding,
             fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize,
             leading = {
@@ -375,7 +377,9 @@ private fun SwipableToReplyBox(
                     .fillMaxSize()
                     .anchoredDraggable(dragState, Orientation.Horizontal, startDragImmediately = false)
                     .offset {
-                        val x = dragState.requireOffset().toInt()
+                        val x = dragState
+                            .requireOffset()
+                            .toInt()
                         IntOffset(x, 0)
                     },
             ) { content() }
@@ -403,8 +407,7 @@ private fun ReplySwipeIcon(dragWidth: Float, density: Density, progress: Float) 
 }
 
 @Composable
-fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData: ConversationDetailsData) {
-
+fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData: ConversationDetailsData, modifier: Modifier = Modifier) {
     val stringResource = if (!isSelfMessage) {
         stringResource(id = R.string.label_information_waiting_for_deleation_when_self_not_sender)
     } else if (conversationDetailsData is ConversationDetailsData.OneOne) {
@@ -420,7 +423,8 @@ fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData
 
     Text(
         text = stringResource,
-        style = typography().body05
+        style = typography().body05,
+        modifier = modifier
     )
 }
 
@@ -588,10 +592,10 @@ private fun MessageContent(
     onImageClick: Clickable,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
-    onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
     onLinkClick: (String) -> Unit,
     clickable: Boolean,
+    onLongClick: (() -> Unit)? = null,
     onReplyClickable: Clickable? = null
 ) {
     when (messageContent) {

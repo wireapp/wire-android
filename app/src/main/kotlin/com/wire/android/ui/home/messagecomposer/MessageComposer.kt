@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
@@ -50,10 +51,11 @@ import androidx.compose.ui.text.TextLayoutResult
 import com.wire.android.R
 import com.wire.android.ui.common.TextWithLearnMore
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
+import com.wire.android.ui.home.conversations.ConversationScreenState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
@@ -69,7 +71,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlin.math.roundToInt
 
@@ -77,9 +78,10 @@ import kotlin.math.roundToInt
 fun MessageComposer(
     conversationId: ConversationId,
     messageComposerStateHolder: MessageComposerStateHolder,
+    bottomSheetVisible: Boolean,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
-    onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
+    onShowBottomSheet: (ConversationScreenState.BottomSheetMenuType) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     tempWritableVideoUri: Uri?,
@@ -128,6 +130,7 @@ fun MessageComposer(
                 EnabledMessageComposer(
                     conversationId = conversationId,
                     messageComposerStateHolder = messageComposerStateHolder,
+                    bottomSheetVisible = bottomSheetVisible,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
                         onSendMessageBundle(messageCompositionHolder.toMessageBundle(conversationId))
@@ -138,16 +141,7 @@ fun MessageComposer(
                     onImagesPicked = onImagesPicked,
                     onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.UriPickedBundle(conversationId, it)) },
                     onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
-                    onLocationPicked = {
-                        onSendMessageBundle(
-                            ComposableMessageBundle.LocationBundle(
-                                conversationId,
-                                it.getFormattedAddress(),
-                                it.location
-                            )
-                        )
-                    },
-                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                    onShowBottomSheet = onShowBottomSheet,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                     tempWritableVideoUri = tempWritableVideoUri,
@@ -254,13 +248,15 @@ private fun BaseComposerPreview(
     }
     val messageTextState = rememberTextFieldState()
     val messageComposition = remember { mutableStateOf(MessageComposition(ConversationId("value", "domain"))) }
-
+    val keyboardController = LocalSoftwareKeyboardController.current
     MessageComposer(
         conversationId = ConversationId("value", "domain"),
+        bottomSheetVisible = false,
         messageComposerStateHolder = MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
                 messageTextState = messageTextState,
+                keyboardController = keyboardController
             ),
             messageCompositionHolder = MessageCompositionHolder(
                 messageComposition = messageComposition,
@@ -271,10 +267,10 @@ private fun BaseComposerPreview(
                 onTypingEvent = {}
             ),
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
-            modalBottomSheetState = WireModalSheetState()
+            modalBottomSheetState = rememberWireModalSheetState()
         ),
         messageListContent = { },
-        onChangeSelfDeletionClicked = { },
+        onShowBottomSheet = { },
         onClearMentionSearchResult = { },
         onPermissionPermanentlyDenied = { },
         onSendMessageBundle = { },

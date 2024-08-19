@@ -19,8 +19,8 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,9 +33,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imeAnimationSource
 import androidx.compose.foundation.layout.imeAnimationTarget
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,24 +47,38 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.wire.android.feature.sketch.DrawingCanvasBottomSheet
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
+import com.wire.android.ui.home.conversations.ConversationScreenState
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
-import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
+import com.wire.android.ui.home.messagecomposer.state.ComposerState
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
-import com.wire.android.util.CurrentConversationDetailsCache
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
 @Suppress("ComplexMethod")
@@ -69,13 +86,13 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer
 fun EnabledMessageComposer(
     conversationId: ConversationId,
     messageComposerStateHolder: MessageComposerStateHolder,
+    bottomSheetVisible: Boolean,
     messageListContent: @Composable () -> Unit,
-    onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
+    onShowBottomSheet: (ConversationScreenState.BottomSheetMenuType) -> Unit,
     onSendButtonClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
-    onLocationPicked: (GeoLocatedAddress) -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
@@ -87,22 +104,17 @@ fun EnabledMessageComposer(
     val navBarHeight = BottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
     val offsetY = WindowInsets.ime.getBottom(density)
-    val isKeyboardMoving = isKeyboardMoving()
     val imeAnimationSource = WindowInsets.imeAnimationSource.getBottom(density)
     val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
+    val rippleProgress = remember { Animatable(0f) }
+    var hideRipple by remember { mutableStateOf(true) }
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
 
-        LaunchedEffect(isImeVisible) {
-            if (!isImeVisible) {
-                inputStateHolder.clearFocus()
-            }
-        }
-
         LaunchedEffect(offsetY) {
             with(density) {
-                inputStateHolder.handleImeOffsetChange(
+                handleImeOffsetChange(
                     offsetY.toDp(),
                     navBarHeight,
                     imeAnimationSource.toDp(),
@@ -111,12 +123,34 @@ fun EnabledMessageComposer(
             }
         }
 
+        LaunchedEffect(inputStateHolder.optionsVisible) {
+            println("KBX LaunchedEffect optionsVisible ${inputStateHolder.optionsVisible}")
+            if (inputStateHolder.optionsVisible) {
+                rippleProgress.snapTo(0f)
+                rippleProgress.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(durationMillis = 400)
+                )
+            } else {
+                println("KBX hideRipple")
+                hideRipple = true
+                rippleProgress.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(durationMillis = 400)
+                )
+                hideRipple = false
+            }
+        }
+
         LaunchedEffect(modalBottomSheetState.isVisible) {
+            println("KBX bottomSheetVisible ${modalBottomSheetState.isVisible}")
+            println("KBX additionalOptionsSubMenuState ${additionalOptionStateHolder.additionalOptionsSubMenuState}")
+
             if (modalBottomSheetState.isVisible) {
-                messageCompositionInputStateHolder.clearFocus()
+//                messageCompositionInputStateHolder.clearFocus()
             } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
-                messageCompositionInputStateHolder.requestFocus()
                 additionalOptionStateHolder.unselectAdditionalOptionsMenu()
+                messageCompositionInputStateHolder.requestFocus()
             }
         }
 
@@ -125,7 +159,9 @@ fun EnabledMessageComposer(
             color = colorsScheme().messageComposerBackgroundColor
         ) {
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .imePadding()
             ) {
                 val expandOrHideMessagesModifier =
                     if (inputStateHolder.isTextExpanded) {
@@ -173,157 +209,213 @@ fun EnabledMessageComposer(
                         )
                     }
 
-                    if (additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
-                        Box(fillRemainingSpaceOrWrapContent, contentAlignment = Alignment.BottomCenter) {
-                            var currentSelectedLineIndex by remember { mutableStateOf(0) }
-                            var cursorCoordinateY by remember { mutableStateOf(0F) }
+                    Box(fillRemainingSpaceOrWrapContent, contentAlignment = Alignment.BottomCenter) {
+                        var currentSelectedLineIndex by remember { mutableStateOf(0) }
+                        var cursorCoordinateY by remember { mutableStateOf(0F) }
 
-                            ActiveMessageComposerInput(
-                                conversationId = conversationId,
-                                messageComposition = messageComposition.value,
-                                messageTextState = inputStateHolder.messageTextState,
-                                isTextExpanded = inputStateHolder.isTextExpanded,
-                                inputType = messageCompositionInputStateHolder.inputType,
-                                inputFocused = messageCompositionInputStateHolder.inputFocused,
-                                onInputFocusedChanged = ::onInputFocusedChanged,
-                                onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
-                                onTextCollapse = messageCompositionInputStateHolder::collapseText,
-                                onCancelReply = messageCompositionHolder::clearReply,
-                                onCancelEdit = ::cancelEdit,
-                                onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                                onSendButtonClicked = onSendButtonClicked,
-                                onEditButtonClicked = {
-                                    onSendButtonClicked()
-                                    messageCompositionInputStateHolder.toComposing()
-                                },
-                                onLineBottomYCoordinateChanged = { yCoordinate ->
-                                    cursorCoordinateY = yCoordinate
-                                },
-                                onSelectedLineIndexChanged = { index ->
-                                    currentSelectedLineIndex = index
-                                },
-                                showOptions = inputStateHolder.optionsVisible,
-                                onPlusClick = ::showAdditionalOptionsMenu,
-                                modifier = fillRemainingSpaceOrWrapContent,
-                            )
+                        ActiveMessageComposerInput(
+                            conversationId = conversationId,
+                            messageComposition = messageComposition.value,
+                            messageTextState = inputStateHolder.messageTextState,
+                            isTextExpanded = inputStateHolder.isTextExpanded,
+                            inputType = messageCompositionInputStateHolder.inputType,
+                            focusRequester = messageCompositionInputStateHolder.focusRequester,
+                            onFocused = ::onInputFocused,
+                            onToggleInputSize = messageCompositionInputStateHolder::toggleInputSize,
+                            onTextCollapse = messageCompositionInputStateHolder::collapseText,
+                            onCancelReply = messageCompositionHolder::clearReply,
+                            onCancelEdit = ::cancelEdit,
+                            onChangeSelfDeletionClicked = {
+                                onShowBottomSheet(ConversationScreenState.BottomSheetMenuType.SelfDeletion(it))
+                            },
+                            onSendButtonClicked = onSendButtonClicked,
+                            onEditButtonClicked = {
+                                onSendButtonClicked()
+                                messageCompositionInputStateHolder.toComposing()
+                            },
+                            onLineBottomYCoordinateChanged = { yCoordinate ->
+                                cursorCoordinateY = yCoordinate
+                            },
+                            onSelectedLineIndexChanged = { index ->
+                                currentSelectedLineIndex = index
+                            },
+                            showOptions = isImeVisible,
+                            optionsSelected = inputStateHolder.optionsVisible,
+                            onPlusClick = {
+                                if (!hideRipple) {
+                                    showAttachments(!inputStateHolder.optionsVisible)
+                                }
+                            },
+                            modifier = fillRemainingSpaceOrWrapContent.onKeyboardDismiss(inputStateHolder.optionsVisible) {
+                                println("KBX onKeyboardDismiss")
+                                inputStateHolder.showAttachments(false)
+                            },
+                        )
 
-                            val mentionSearchResult = messageComposerViewState.value.mentionSearchResult
-                            if (mentionSearchResult.isNotEmpty() && inputStateHolder.isTextExpanded
-                            ) {
-                                DropDownMentionsSuggestions(
-                                    currentSelectedLineIndex = currentSelectedLineIndex,
-                                    cursorCoordinateY = cursorCoordinateY,
-                                    membersToMention = mentionSearchResult,
-                                    searchQuery = messageComposerViewState.value.mentionSearchQuery,
-                                    onMentionPicked = {
-                                        messageCompositionHolder.addMention(it)
-                                        onClearMentionSearchResult()
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-                    if (inputStateHolder.optionsVisible) {
-                        if (additionalOptionStateHolder.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
-                            AdditionalOptionsMenu(
-                                conversationId = conversationId,
-                                additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
-                                selectedOption = additionalOptionStateHolder.selectedOption,
-                                isEditing = messageCompositionInputStateHolder.inputType is InputType.Editing,
-                                isMentionActive = messageComposerViewState.value.mentionSearchResult.isNotEmpty(),
-                                onMentionButtonClicked = messageCompositionHolder::startMention,
-                                onOnSelfDeletingOptionClicked = {
-                                    additionalOptionStateHolder.toSelfDeletingOptionsMenu()
-                                    onChangeSelfDeletionClicked(it)
-                                },
-                                onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
-                                onPingOptionClicked = onPingOptionClicked,
-                                onAdditionalOptionsMenuClicked = {
-                                    if (!isKeyboardMoving) {
-                                        if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.AttachFile) {
-                                            additionalOptionStateHolder.unselectAdditionalOptionsMenu()
-                                            messageCompositionInputStateHolder.toComposing()
-                                        } else {
-                                            showAdditionalOptionsMenu()
-                                        }
-                                    }
-                                },
-                                onRichEditingButtonClicked = {
-                                    messageCompositionInputStateHolder.requestFocus()
-                                    additionalOptionStateHolder.toRichTextEditing()
-                                },
-                                onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                                onDrawingModeClicked = {
-                                    showAdditionalOptionsMenu()
-                                    additionalOptionStateHolder.toDrawingMode()
+                        val mentionSearchResult = messageComposerViewState.value.mentionSearchResult
+                        if (mentionSearchResult.isNotEmpty() && inputStateHolder.isTextExpanded
+                        ) {
+                            DropDownMentionsSuggestions(
+                                currentSelectedLineIndex = currentSelectedLineIndex,
+                                cursorCoordinateY = cursorCoordinateY,
+                                membersToMention = mentionSearchResult,
+                                searchQuery = messageComposerViewState.value.mentionSearchQuery,
+                                onMentionPicked = {
+                                    messageCompositionHolder.addMention(it)
+                                    onClearMentionSearchResult()
                                 }
                             )
                         }
-                        Box(
-                            modifier = Modifier
-                                .height(
-                                    inputStateHolder.calculateOptionsMenuHeight(additionalOptionStateHolder.additionalOptionsSubMenuState)
-                                )
-                                .fillMaxWidth()
-                                .background(colorsScheme().messageComposerBackgroundColor)
-                        ) {
-                            androidx.compose.animation.AnimatedVisibility(
-                                visible = inputStateHolder.subOptionsVisible,
-                                enter = fadeIn(),
-                                exit = fadeOut(),
-                            ) {
-                                AdditionalOptionSubMenu(
-                                    isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
-                                    additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
-                                    onRecordAudioMessageClicked = ::toAudioRecording,
-                                    onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
-                                    onLocationPickerClicked = ::toLocationPicker,
-                                    onImagesPicked = onImagesPicked,
-                                    onAttachmentPicked = onAttachmentPicked,
-                                    onAudioRecorded = onAudioRecorded,
-                                    onLocationPicked = onLocationPicked,
-                                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
-                                    tempWritableImageUri = tempWritableImageUri,
-                                    tempWritableVideoUri = tempWritableVideoUri,
-                                    modifier = Modifier.fillMaxSize()
-                                )
+                    }
+
+                    if (isImeVisible) {
+                        AdditionalOptionsMenu(
+                            conversationId = conversationId,
+                            additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
+                            selectedOption = additionalOptionStateHolder.selectedOption,
+                            attachmentsVisible = inputStateHolder.optionsVisible,
+                            isEditing = messageCompositionInputStateHolder.inputType is InputType.Editing,
+                            isMentionActive = messageComposerViewState.value.mentionSearchResult.isNotEmpty(),
+                            onMentionButtonClicked = messageCompositionHolder::startMention,
+                            onOnSelfDeletingOptionClicked = {
+                                onShowBottomSheet(ConversationScreenState.BottomSheetMenuType.SelfDeletion(it))
+                                additionalOptionStateHolder.toSelfDeletingOptionsMenu() // KBX TODO potrzebne?
+                            },
+                            onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
+                            onPingOptionClicked = onPingOptionClicked,
+                            onAdditionalOptionsMenuClicked = {
+                                if (!hideRipple) {
+                                    showAttachments(!inputStateHolder.optionsVisible)
+                                }
+                            },
+                            onRichEditingButtonClicked = {
+                                messageCompositionInputStateHolder.requestFocus()
+                                additionalOptionStateHolder.toRichTextEditing()
+                            },
+                            onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
+                            onDrawingModeClicked = {
+                                onShowBottomSheet(ConversationScreenState.BottomSheetMenuType.Sketch)
                             }
-                        }
+                        )
                     }
                 }
             }
-
-            if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.DrawingMode) {
-                DrawingCanvasBottomSheet(
-                    onDismissSketch = {
-                        showAdditionalOptionsMenu()
+            if ((inputStateHolder.optionsVisible || rippleProgress.value > 0f) && !bottomSheetVisible) {
+                Popup(alignment = Alignment.BottomCenter,
+                    properties = PopupProperties(
+                        dismissOnBackPress = true,
+                        dismissOnClickOutside = true
+                    ),
+                    offset = if (isImeVisible) {
+                        IntOffset(0, 0)
+                    } else {
+                        with(density) { IntOffset(0, -dimensions().spacing64x.toPx().roundToInt()) }
                     },
-                    onSendSketch = {
-                        onAttachmentPicked(UriAsset(it))
-                        showAdditionalOptionsMenu()
-                    },
-                    conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
-                    tempWritableImageUri = tempWritableImageUri
-                )
-            }
+                    onDismissRequest = {
+                        hideRipple = true
+                        showAttachments(false)
+                    }) {
+                    val rippleColor = colorsScheme().messageComposerBackgroundColor
+                    val shape = if (isImeVisible) {
+                        RectangleShape
+                    } else {
+                        RoundedCornerShape(dimensions().corner14x)
+                    }
 
-            BackHandler(inputStateHolder.inputType is InputType.Editing) {
-                cancelEdit()
-            }
-            BackHandler(isImeVisible || inputStateHolder.optionsVisible) {
-                inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(
+                                if (isImeVisible) {
+                                    inputStateHolder.calculateOptionsMenuHeight(additionalOptionStateHolder.additionalOptionsSubMenuState)
+                                } else {
+                                    250.dp
+                                }
+                            )
+                            .padding(
+                                horizontal = if (isImeVisible) {
+                                    dimensions().spacing0x
+                                } else {
+                                    dimensions().spacing8x
+                                }
+                            )
+                            .background(
+                                color = Color.Transparent,
+                                shape = shape
+                            )
+                            .clip(shape)
+                            .drawBehind {
+                                if (!hideRipple || rippleProgress.value > 0f) {
+                                    val maxRadius = size.getDistanceToCorner(Offset(0f, 0f))
+                                    val currentRadius = maxRadius * rippleProgress.value
+
+                                    drawCircle(
+                                        color = rippleColor,
+                                        radius = currentRadius,
+                                        center = Offset(
+                                            0f,
+                                            if (isImeVisible) {
+                                                0f
+                                            } else {
+                                                size.height
+                                            }
+                                        )
+                                    )
+                                }
+                            }
+
+                    ) {
+                        AdditionalOptionSubMenu(
+                            optionsVisible = inputStateHolder.optionsVisible,
+                            isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
+                            additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
+                            onRecordAudioMessageClicked = ::toAudioRecording,
+                            onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
+                            onLocationPickerClicked = {
+                                onShowBottomSheet(ConversationScreenState.BottomSheetMenuType.Location)
+                            },
+                            onImagesPicked = onImagesPicked,
+                            onAttachmentPicked = onAttachmentPicked,
+                            onAudioRecorded = onAudioRecorded,
+                            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+                            tempWritableImageUri = tempWritableImageUri,
+                            tempWritableVideoUri = tempWritableVideoUri,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+
+                BackHandler(inputStateHolder.optionsVisible) {
+                    inputStateHolder.showAttachments(false)
+                }
+                BackHandler(inputStateHolder.inputType is InputType.Editing) {
+                    cancelEdit()
+                }
+                BackHandler(isImeVisible || inputStateHolder.composerState != ComposerState.Collapsed) {
+                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
+                }
             }
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun isKeyboardMoving(): Boolean {
-    val density = LocalDensity.current
-    val isImeVisible = WindowInsets.isImeVisible
-    val imeAnimationSource = WindowInsets.imeAnimationSource.getBottom(density)
-    val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
-    return isImeVisible && imeAnimationSource != imeAnimationTarget
+
+@OptIn(ExperimentalComposeUiApi::class)
+fun Modifier.onKeyboardDismiss(
+    isAttachmentsShowed: Boolean,
+    handleOnBackPressed: () -> Unit
+): Modifier =
+    this.onPreInterceptKeyBeforeSoftKeyboard { event: KeyEvent ->
+        println("KBX keyevent $event")
+        println("KBX type ${event.type}")
+        if (isAttachmentsShowed && event.type == KeyEventType.KeyDown && event.key.keyCode == 17179869184) {
+            handleOnBackPressed.invoke()
+            return@onPreInterceptKeyBeforeSoftKeyboard true
+        }
+        false
+    }
+
+fun Size.getDistanceToCorner(corner: Offset): Float {
+    val cornerOffset = Offset(width - corner.x, height - corner.y)
+    return cornerOffset.getDistance()
 }

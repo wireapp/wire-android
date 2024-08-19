@@ -31,9 +31,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,6 +44,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -78,6 +82,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.feature.sketch.DrawingCanvasBottomSheet
 import com.wire.android.mapper.MessageDateTimeGroup
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
@@ -86,10 +91,10 @@ import com.wire.android.navigation.ArgsSerializer
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.getOngoingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
-import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -138,12 +143,14 @@ import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfi
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuItems
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
 import com.wire.android.ui.home.messagecomposer.MessageComposer
+import com.wire.android.ui.home.messagecomposer.location.LocationPickerComponent
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
@@ -153,6 +160,7 @@ import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialo
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CurrentConversationDetailsCache
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -193,6 +201,7 @@ private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 private const val MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT = 5
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("ComplexMethod")
 @RootNavGraph
 @WireDestination(
@@ -683,6 +692,7 @@ private fun startCallIfPossible(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -767,7 +777,41 @@ private fun ConversationScreen(
             )
         }
 
+        ConversationScreenState.BottomSheetMenuType.Location -> {
+            println("KBX show location")
+            listOf<@Composable () -> Unit> {
+                LocationPickerComponent(
+                    onLocationPicked = {
+                        onSendMessage(
+                            ComposableMessageBundle.LocationBundle(
+                                conversationInfoViewState.conversationId,
+                                it.getFormattedAddress(),
+                                it.location
+                            )
+                        )
+                    },
+                    onLocationClosed = conversationScreenState::hideContextMenu
+                )
+            }
+        }
+
         ConversationScreenState.BottomSheetMenuType.None -> emptyList()
+        ConversationScreenState.BottomSheetMenuType.Sketch -> {
+            listOf<@Composable () -> Unit> {
+                DrawingCanvasBottomSheet(
+                    onDismissSketch = conversationScreenState::hideContextMenu,
+                    onSendSketch = {
+                        conversationScreenState.hideContextMenu()
+                        onSendMessage(ComposableMessageBundle.UriPickedBundle(
+                            conversationId = conversationInfoViewState.conversationId,
+                            attachmentUri = UriAsset(it)
+                        ))
+                    },
+                    conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
+                    tempWritableImageUri = tempWritableImageUri
+                )
+            }
+        }
     }
     // only here we will use normal Scaffold because of specific behaviour of message composer
     Scaffold(
@@ -803,7 +847,11 @@ private fun ConversationScreen(
             )
         },
         content = { internalPadding ->
-            Box(modifier = Modifier.padding(internalPadding)) {
+            Box(
+                modifier = Modifier
+                    .padding(internalPadding)
+                    .consumeWindowInsets(internalPadding)
+            ) {
                 ConversationScreenContent(
                     conversationId = conversationInfoViewState.conversationId,
                     audioMessagesState = conversationMessagesViewState.audioMessagesState,
@@ -814,6 +862,7 @@ private fun ConversationScreen(
                     selectedMessageId = conversationMessagesViewState.searchedMessageId,
                     messageComposerStateHolder = messageComposerStateHolder,
                     messages = conversationMessagesViewState.messages,
+                    bottomSheetVisible = conversationScreenState.bottomSheetMenuType != ConversationScreenState.BottomSheetMenuType.None,
                     onSendMessage = onSendMessage,
                     onImagesPicked = onImagesPicked,
                     onAssetItemClicked = onAssetItemClicked,
@@ -824,29 +873,34 @@ private fun ConversationScreen(
                     onResetSessionClicked = onResetSessionClick,
                     onOpenProfile = onOpenProfile,
                     onUpdateConversationReadDate = onUpdateConversationReadDate,
-                    onShowEditingOptions = conversationScreenState::showEditContextMenu,
+                    onShowBottomSheet = conversationScreenState::showBottomSheet,
                     onSwipedToReply = messageComposerStateHolder::toReply,
                     onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                     onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                    onChangeSelfDeletionClicked = conversationScreenState::showSelfDeletionContextMenu,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri,
                     onLinkClick = onLinkClick,
                     onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
-                    currentTimeInMillisFlow = currentTimeInMillisFlow
+                    currentTimeInMillisFlow = currentTimeInMillisFlow,
                 )
             }
         }
     )
-    MenuModalSheetLayout(
-        header = menuModalHeader,
-        sheetState = conversationScreenState.modalBottomSheetState,
-        coroutineScope = conversationScreenState.coroutineScope,
-        menuItems = menuItems
-    )
+    if(conversationScreenState.bottomSheetMenuType != ConversationScreenState.BottomSheetMenuType.None) {
+        MenuModalSheetLayout(
+            header = menuModalHeader,
+            sheetState = conversationScreenState.modalBottomSheetState,
+            coroutineScope = conversationScreenState.coroutineScope,
+            menuItems = menuItems,
+            contentWindowInsets = {
+//                BottomSheetDefaults.windowInsets // TODO KBX check
+                WindowInsets.navigationBars
+            }
+        )
+    }
     SnackBarMessage(composerMessages, conversationMessages)
 }
 
@@ -861,6 +915,7 @@ private fun ConversationScreenContent(
     selectedMessageId: String?,
     messageComposerStateHolder: MessageComposerStateHolder,
     messages: Flow<PagingData<UIMessage>>,
+    bottomSheetVisible: Boolean,
     onSendMessage: (MessageBundle) -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
     onAssetItemClicked: (String) -> Unit,
@@ -871,13 +926,12 @@ private fun ConversationScreenContent(
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
-    onShowEditingOptions: (UIMessage.Regular) -> Unit,
+    onShowBottomSheet: (ConversationScreenState.BottomSheetMenuType) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit,
-    onChangeSelfDeletionClicked: (SelfDeletionTimer) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     tempWritableImageUri: Uri?,
@@ -895,6 +949,7 @@ private fun ConversationScreenContent(
     MessageComposer(
         conversationId = conversationId,
         messageComposerStateHolder = messageComposerStateHolder,
+        bottomSheetVisible = bottomSheetVisible,
         messageListContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,
@@ -911,7 +966,7 @@ private fun ConversationScreenContent(
                 onReactionClicked = onReactionClicked,
                 onResetSessionClicked = onResetSessionClicked,
                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                onShowEditingOption = onShowEditingOptions,
+                onShowBottomSheet = onShowBottomSheet,
                 onSwipedToReply = onSwipedToReply,
                 conversationDetailsData = conversationDetailsData,
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
@@ -923,7 +978,7 @@ private fun ConversationScreenContent(
                 currentTimeInMillisFlow = currentTimeInMillisFlow
             )
         },
-        onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+        onShowBottomSheet = onShowBottomSheet,
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
@@ -983,7 +1038,7 @@ fun MessageList(
     onChangeAudioPosition: (String, Int) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onShowEditingOption: (UIMessage.Regular) -> Unit,
+    onShowBottomSheet: (ConversationScreenState.BottomSheetMenuType) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
@@ -1102,7 +1157,7 @@ fun MessageList(
                         assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
                         onAudioClick = onAudioItemClicked,
                         onChangeAudioPosition = onChangeAudioPosition,
-                        onLongClicked = onShowEditingOption,
+                        onShowBottomSheet = onShowBottomSheet,
                         swipableMessageConfiguration = swipableConfiguration,
                         onAssetMessageClicked = onAssetItemClicked,
                         onImageMessageClicked = onImageFullScreenMode,

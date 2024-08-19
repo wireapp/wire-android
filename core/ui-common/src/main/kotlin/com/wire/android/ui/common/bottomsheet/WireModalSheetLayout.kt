@@ -21,6 +21,7 @@ package com.wire.android.ui.common.bottomsheet
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,6 +50,7 @@ fun WireModalSheetLayout(
     tonalElevation: Dp = WireBottomSheetDefaults.WireSheetTonalElevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
     dragHandle: @Composable (() -> Unit)? = { WireBottomSheetDefaults.WireDragHandle() },
+    contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
     sheetContent: @Composable ColumnScope.() -> Unit
 ) {
     if (sheetState.currentValue != SheetValue.Hidden) {
@@ -62,7 +64,8 @@ fun WireModalSheetLayout(
             tonalElevation = tonalElevation,
             onDismissRequest = sheetState::onDismissRequest,
             dragHandle = dragHandle,
-            modifier = modifier.absoluteOffset(y = 1.dp)
+            modifier = modifier.absoluteOffset(y = 1.dp),
+            contentWindowInsets = contentWindowInsets
         )
     }
 
@@ -71,16 +74,44 @@ fun WireModalSheetLayout(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuModalSheetLayout(
     sheetState: WireModalSheetState,
     coroutineScope: CoroutineScope,
     menuItems: List<@Composable () -> Unit>,
-    header: MenuModalSheetHeader = MenuModalSheetHeader.Gone
+    modifier: Modifier = Modifier,
+    header: MenuModalSheetHeader = MenuModalSheetHeader.Gone,
+    contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
+
 ) {
     WireModalSheetLayout(
+        modifier = modifier,
         sheetState = sheetState,
         coroutineScope = coroutineScope,
+        contentWindowInsets = contentWindowInsets,
+        sheetContent = {
+            MenuModalSheetContent(
+                menuItems = menuItems,
+                header = header
+            )
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MenuModalSheetLayout2(
+    sheetState: SheetState,
+    coroutineScope: CoroutineScope,
+    menuItems: List<@Composable () -> Unit>,
+    onCloseBottomSheet: () -> Unit,
+    header: MenuModalSheetHeader = MenuModalSheetHeader.Gone
+) {
+    WireModalSheetLayout2(
+        sheetState = sheetState,
+        coroutineScope = coroutineScope,
+        onCloseBottomSheet = onCloseBottomSheet,
         sheetContent = {
             MenuModalSheetContent(
                 menuItems = menuItems,

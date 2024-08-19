@@ -71,7 +71,10 @@ class MessageComposerStateHolderTest {
         messageComposerViewState = mutableStateOf(MessageComposerViewState())
         messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))
         messageTextState = TextFieldState()
-        messageCompositionInputStateHolder = MessageCompositionInputStateHolder(messageTextState = messageTextState)
+        messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
+            messageTextState = messageTextState,
+            keyboardController = null
+        )
         messageCompositionHolder = MessageCompositionHolder(
             messageComposition = messageComposition,
             messageTextState = messageTextState,
@@ -156,16 +159,6 @@ class MessageComposerStateHolderTest {
 
         // then
         assertEquals(currentText, messageCompositionHolder.messageTextState.text.toString())
-    }
-
-    @Test
-    fun `given state, when input focus change to false, then clear focus`() = runTest {
-        // given
-        // when
-        state.onInputFocusedChanged(onFocused = false)
-
-        // then
-        assertEquals(false, messageCompositionInputStateHolder.inputFocused)
     }
 
     @Test

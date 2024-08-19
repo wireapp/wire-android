@@ -25,22 +25,17 @@ import androidx.compose.runtime.setValue
 
 enum class AdditionalOptionMenuState {
     AttachmentAndAdditionalOptionsMenu,
-    RichTextEditing,
-    Hidden
+    RichTextEditing
 }
 
 enum class AdditionalOptionSubMenuState {
+    None,
     RecordAudio,
-    AttachFile,
-    AttachImage,
-    Emoji,
-    Location,
-    Gif;
 }
 
 enum class AdditionalOptionSelectItem {
     RichTextEditing,
-    DrawingMode,
+//    DrawingMode, TODO KBX remove
 
     // it's only used to show keyboard after self deleting bottom sheet collapses
     SelfDeleting,
@@ -53,7 +48,7 @@ class AdditionalOptionStateHolder {
     var selectedOption by mutableStateOf(AdditionalOptionSelectItem.None)
 
     var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(
-        AdditionalOptionSubMenuState.AttachFile
+        AdditionalOptionSubMenuState.None
     )
         private set
 
@@ -61,25 +56,28 @@ class AdditionalOptionStateHolder {
         private set
 
     fun showAdditionalOptionsMenu() {
+        println("KBX showAdditionalOptionsMenu")
         selectedOption = AdditionalOptionSelectItem.AttachFile
-        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.AttachFile
+        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.None // KBX Do we need this if it's only triggered by closing audio recording
     }
 
     fun unselectAdditionalOptionsMenu() {
+        println("KBX unselectAdditionalOptionsMenu")
         selectedOption = AdditionalOptionSelectItem.None
+        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.None // KBX same here
     }
 
     fun toAudioRecording() {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.RecordAudio
     }
 
-    fun toLocationPicker() {
-        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Location
-        additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
-    }
+//    fun toLocationPicker() { // TODO KBX check
+//        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Location
+//        additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
+//    }
 
     fun toInitialAttachmentOptionsMenu() {
-        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.AttachFile
+        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.None
         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
     }
 
@@ -94,10 +92,6 @@ class AdditionalOptionStateHolder {
 
     fun toSelfDeletingOptionsMenu() {
         selectedOption = AdditionalOptionSelectItem.SelfDeleting
-    }
-
-    fun toDrawingMode() {
-        selectedOption = AdditionalOptionSelectItem.DrawingMode
     }
 
     companion object {

@@ -46,6 +46,7 @@ fun AdditionalOptionsMenu(
     conversationId: ConversationId,
     additionalOptionsState: AdditionalOptionMenuState,
     selectedOption: AdditionalOptionSelectItem,
+    attachmentsVisible: Boolean,
     isEditing: Boolean,
     isMentionActive: Boolean,
     onAdditionalOptionsMenuClicked: () -> Unit,
@@ -60,11 +61,13 @@ fun AdditionalOptionsMenu(
     onGifOptionClicked: (() -> Unit)? = null
 ) {
     Box(modifier.background(colorsScheme().messageComposerBackgroundColor)) {
+        println("KBX selected option $selectedOption")
         when (additionalOptionsState) {
             AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
                 AttachmentAndAdditionalOptionsMenuItems(
                     conversationId = conversationId,
                     selectedOption = selectedOption,
+                    attachmentsVisible = attachmentsVisible,
                     isEditing = isEditing,
                     isMentionActive = isMentionActive,
                     onMentionButtonClicked = onMentionButtonClicked,
@@ -85,8 +88,6 @@ fun AdditionalOptionsMenu(
                     onCloseRichTextEditingButtonClicked = onCloseRichEditingButtonClicked
                 )
             }
-
-            AdditionalOptionMenuState.Hidden -> {}
         }
     }
 }
@@ -94,6 +95,7 @@ fun AdditionalOptionsMenu(
 @Composable
 fun AdditionalOptionSubMenu(
     isFileSharingEnabled: Boolean,
+    optionsVisible: Boolean,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     onLocationPickerClicked: () -> Unit,
     onCloseAdditionalAttachment: () -> Unit,
@@ -102,13 +104,13 @@ fun AdditionalOptionSubMenu(
     onImagesPicked: (List<Uri>) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
-    onLocationPicked: (GeoLocatedAddress) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier) {
         AttachmentOptionsComponent(
+            modifier = modifier,
+            optionsVisible = optionsVisible,
             onImagesPicked = onImagesPicked,
             onAttachmentPicked = onAttachmentPicked,
             tempWritableImageUri = tempWritableImageUri,
@@ -119,9 +121,7 @@ fun AdditionalOptionSubMenu(
             onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         )
         when (additionalOptionsState) {
-            AdditionalOptionSubMenuState.AttachFile -> {
-                /* DO NOTHING, ALREADY DISPLAYED AS PARENT */
-            }
+            AdditionalOptionSubMenuState.None -> {}
 
             AdditionalOptionSubMenuState.RecordAudio -> {
                 RecordAudioComponent(
@@ -129,19 +129,7 @@ fun AdditionalOptionSubMenu(
                     onCloseRecordAudio = onCloseAdditionalAttachment
                 )
             }
-
-            AdditionalOptionSubMenuState.Location -> {
-                LocationPickerComponent(
-                    onLocationPicked = onLocationPicked,
-                    onLocationClosed = onCloseAdditionalAttachment
-                )
-            }
-            // non functional for now
-            AdditionalOptionSubMenuState.AttachImage -> {}
-            AdditionalOptionSubMenuState.Emoji -> {}
-            AdditionalOptionSubMenuState.Gif -> {}
         }
-    }
 }
 
 @Composable
@@ -149,6 +137,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     conversationId: ConversationId,
     isEditing: Boolean,
     selectedOption: AdditionalOptionSelectItem,
+    attachmentsVisible: Boolean,
     isMentionActive: Boolean,
     onMentionButtonClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: (SelfDeletionTimer) -> Unit,
@@ -164,6 +153,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
         MessageComposeActions(
             conversationId = conversationId,
             isEditing = isEditing,
+            attachmentsVisible = attachmentsVisible,
             selectedOption = selectedOption,
             isMentionActive = isMentionActive,
             onMentionButtonClicked = onMentionButtonClicked,

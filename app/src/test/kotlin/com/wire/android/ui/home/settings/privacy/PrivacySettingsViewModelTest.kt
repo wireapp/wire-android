@@ -20,6 +20,10 @@ package com.wire.android.ui.home.settings.privacy
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.ui.analytics.AnalyticsConfiguration
+import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ReadReceiptStatusConfigResult
@@ -54,7 +58,7 @@ class PrivacySettingsViewModelTest {
         // then
         assertEquals(
             true,
-            viewModel.state.isAnonymousUsageDataEnabled
+            viewModel.state.isAnalyticsUsageEnabled
         )
     }
 
@@ -69,7 +73,7 @@ class PrivacySettingsViewModelTest {
         // then
         assertEquals(
             false,
-            viewModel.state.isAnonymousUsageDataEnabled
+            viewModel.state.isAnalyticsUsageEnabled
         )
     }
 
@@ -86,7 +90,7 @@ class PrivacySettingsViewModelTest {
         // then
         assertEquals(
             false,
-            viewModel.state.isAnonymousUsageDataEnabled
+            viewModel.state.isAnalyticsUsageEnabled
         )
     }
 
@@ -103,7 +107,7 @@ class PrivacySettingsViewModelTest {
         // then
         assertEquals(
             true,
-            viewModel.state.isAnonymousUsageDataEnabled
+            viewModel.state.isAnalyticsUsageEnabled
         )
     }
 
@@ -114,6 +118,7 @@ class PrivacySettingsViewModelTest {
         val observeScreenshotCensoringConfig = mockk<ObserveScreenshotCensoringConfigUseCase>()
         val persistTypingIndicatorStatusConfig = mockk<PersistTypingIndicatorStatusConfigUseCase>()
         val observeTypingIndicatorEnabled = mockk<ObserveTypingIndicatorEnabledUseCase>()
+        val selfServerConfig = mockk<SelfServerConfigUseCase>()
         val dataStore = mockk<UserDataStore>()
 
         val viewModel by lazy {
@@ -125,6 +130,8 @@ class PrivacySettingsViewModelTest {
                 observeScreenshotCensoringConfig = observeScreenshotCensoringConfig,
                 persistTypingIndicatorStatusConfig = persistTypingIndicatorStatusConfig,
                 observeTypingIndicatorEnabled = observeTypingIndicatorEnabled,
+                analyticsEnabled = AnalyticsConfiguration.Enabled,
+                selfServerConfig = selfServerConfig,
                 dataStore = dataStore
             )
         }
@@ -140,6 +147,9 @@ class PrivacySettingsViewModelTest {
             coEvery { persistTypingIndicatorStatusConfig.invoke(true) } returns TypingIndicatorConfigResult.Success
             coEvery { observeTypingIndicatorEnabled() } returns flowOf(true)
             coEvery { dataStore.setIsAnonymousAnalyticsEnabled(any()) } returns Unit
+            coEvery { selfServerConfig.invoke() } returns SelfServerConfigUseCase.Result.Success(
+                serverLinks = newServerConfig(1).copy(links = ServerConfig.STAGING)
+            )
         }
 
         fun withEnabledAnonymousUsageData() = apply {

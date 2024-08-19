@@ -81,7 +81,6 @@ fun assetOptionsMenuItems(
         add { DownloadAssetExternallyOption(onDownloadAsset) }
         if (!isEphemeral) add { ShareAssetMenuOption(onShareAsset) }
         if (isOpenable) add { OpenAssetExternallyOption(onOpenAsset) }
-        add { DeleteItemMenuOption(onDeleteClick) }
     }
     add { DeleteItemMenuOption(onDeleteClick) }
 }

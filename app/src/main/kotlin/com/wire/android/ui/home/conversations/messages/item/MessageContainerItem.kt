@@ -44,7 +44,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.collections.immutable.PersistentMap
 
 @OptIn(ExperimentalFoundationApi::class)
 @Suppress("ComplexMethod")
@@ -52,11 +51,6 @@ import kotlinx.collections.immutable.PersistentMap
 fun MessageContainerItem(
     message: UIMessage,
     conversationDetailsData: ConversationDetailsData,
-    searchQuery: String = "",
-    showAuthor: Boolean = true,
-    useSmallBottomPadding: Boolean = false,
-    audioMessagesState: PersistentMap<String, AudioState>,
-    assetStatus: AssetTransferStatus? = null,
     onLongClicked: (UIMessage.Regular) -> Unit,
     swipableMessageConfiguration: SwipableMessageConfiguration,
     onAssetMessageClicked: (String) -> Unit,
@@ -67,6 +61,12 @@ fun MessageContainerItem(
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
+    modifier: Modifier = Modifier,
+    searchQuery: String = "",
+    showAuthor: Boolean = true,
+    useSmallBottomPadding: Boolean = false,
+    audioState: AudioState? = null,
+    assetStatus: AssetTransferStatus? = null,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
     onLinkClick: (String) -> Unit = {},
@@ -77,7 +77,7 @@ fun MessageContainerItem(
     shouldDisplayFooter: Boolean = true,
     onReplyClickable: Clickable? = null,
     isSelectedMessage: Boolean = false,
-    isInteractionAvailable: Boolean = true,
+    isInteractionAvailable: Boolean = true
 ) {
     val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
     if (
@@ -92,7 +92,7 @@ fun MessageContainerItem(
         )
     }
     Row(
-        Modifier
+        modifier
             .customizeMessageBackground(
                 defaultBackgroundColor,
                 message.sendingFailed,
@@ -135,7 +135,7 @@ fun MessageContainerItem(
                 message = message,
                 conversationDetailsData = conversationDetailsData,
                 showAuthor = showAuthor,
-                audioMessagesState = audioMessagesState,
+                audioState = audioState,
                 assetStatus = assetStatus,
                 onAudioClick = onAudioClick,
                 onChangeAudioPosition = onChangeAudioPosition,

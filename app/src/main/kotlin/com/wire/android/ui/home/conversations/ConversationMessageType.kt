@@ -22,7 +22,7 @@ import com.wire.android.R
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.util.ui.UIText
 
-sealed class ConversationSnackbarMessages(override val uiText: UIText) : SnackBarMessage {
+sealed class ConversationSnackbarMessages(override val uiText: UIText, override val actionLabel: UIText? = null) : SnackBarMessage {
     data object ErrorPickingAttachment : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_generic))
     data object ErrorSendingAsset : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_sending_asset))
     data object ErrorSendingImage : ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_sending_image))
@@ -34,14 +34,19 @@ sealed class ConversationSnackbarMessages(override val uiText: UIText) : SnackBa
         ConversationSnackbarMessages(UIText.StringResource(R.string.error_conversation_max_asset_size_limit, maxLimitInMB))
 
     data class OnFileDownloaded(val assetName: String?) :
-        ConversationSnackbarMessages(UIText.StringResource(R.string.conversation_on_file_downloaded, assetName ?: ""))
+        ConversationSnackbarMessages(
+            uiText = UIText.StringResource(R.string.conversation_on_file_downloaded, assetName ?: ""),
+            actionLabel = UIText.StringResource(R.string.label_show)
+        )
 
     data class OnResetSession(val text: UIText) : ConversationSnackbarMessages(text)
 }
 
-sealed class MediaGallerySnackbarMessages(override val uiText: UIText) : SnackBarMessage {
-    class OnImageDownloaded(val assetName: String? = null) :
-        MediaGallerySnackbarMessages(UIText.StringResource(R.string.media_gallery_on_image_downloaded, assetName ?: ""))
+sealed class MediaGallerySnackbarMessages(override val uiText: UIText, override val actionLabel: UIText? = null) : SnackBarMessage {
+    class OnImageDownloaded(val assetName: String? = null) : MediaGallerySnackbarMessages(
+        uiText = UIText.StringResource(R.string.media_gallery_on_image_downloaded, assetName ?: ""),
+        actionLabel = UIText.StringResource(R.string.label_show)
+    )
 
     data object OnImageDownloadError : MediaGallerySnackbarMessages(UIText.StringResource(R.string.media_gallery_on_image_download_error))
     data object DeletingMessageError : MediaGallerySnackbarMessages(UIText.StringResource(R.string.error_conversation_deleting_message))

@@ -23,8 +23,11 @@ package com.wire.android.ui.home.conversations.messages.item
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import com.wire.android.R
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
+import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.mock.mockAssetAudioMessage
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockFooter
 import com.wire.android.ui.home.conversations.mock.mockHeader
@@ -48,7 +51,6 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.android.ui.theme.Accent
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.collections.immutable.persistentMapOf
 
 private val previewUserId = UserId("value", "domain")
 
@@ -66,7 +68,7 @@ fun PreviewMessage() {
                 )
             ),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -95,7 +97,7 @@ fun PreviewMessageWithReactions() {
                 messageFooter = mockFooter
             ),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -135,7 +137,7 @@ fun PreviewMessageWithReply() {
                 )
             ),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -165,7 +167,7 @@ fun PreviewDeletedMessage() {
                 )
             },
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -196,7 +198,7 @@ fun PreviewFailedSendMessage() {
                 )
             },
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -227,7 +229,7 @@ fun PreviewFailedDecryptionMessage() {
                 )
             },
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -248,7 +250,7 @@ fun PreviewAssetMessageWithReactions() {
         RegularMessageItem(
             message = mockAssetMessage().copy(messageFooter = mockFooter),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -311,7 +313,7 @@ fun PreviewImageMessageUploaded() {
         RegularMessageItem(
             message = mockedImageUIMessage(messageId = "assetMessageId"),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             assetStatus = AssetTransferStatus.UPLOADED,
             onLongClicked = {},
             onAssetMessageClicked = {},
@@ -333,7 +335,7 @@ fun PreviewImageMessageUploading() {
         RegularMessageItem(
             message = mockedImageUIMessage("assetMessageId"),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             assetStatus = AssetTransferStatus.UPLOAD_IN_PROGRESS,
             onLongClicked = {},
             onAssetMessageClicked = {},
@@ -361,7 +363,7 @@ fun PreviewImageMessageFailedUpload() {
                 )
             ),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             assetStatus = AssetTransferStatus.FAILED_UPLOAD,
             onLongClicked = {},
             onAssetMessageClicked = {},
@@ -378,13 +380,53 @@ fun PreviewImageMessageFailedUpload() {
 
 @PreviewMultipleThemes
 @Composable
+fun PreviewAudioMessageFetching() = WireTheme {
+    RegularMessageItem(
+        message = mockAssetAudioMessage(),
+        conversationDetailsData = ConversationDetailsData.None(null),
+        audioState = AudioState(AudioMediaPlayingState.Fetching, 0, AudioState.TotalTimeInMs.NotKnown),
+        assetStatus = AssetTransferStatus.UPLOADED,
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
+        onImageMessageClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> },
+        onReplyClickable = null
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewAudioMessagePlaying() = WireTheme {
+    RegularMessageItem(
+        message = mockAssetAudioMessage(),
+        conversationDetailsData = ConversationDetailsData.None(null),
+        audioState = AudioState(AudioMediaPlayingState.Playing, 20_000, AudioState.TotalTimeInMs.Known(60_000)),
+        assetStatus = AssetTransferStatus.UPLOADED,
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
+        onImageMessageClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> },
+        onReplyClickable = null
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
 fun PreviewMessageWithSystemMessage() {
     WireTheme {
         Column {
             RegularMessageItem(
                 message = mockMessageWithText,
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioMessagesState = persistentMapOf(),
+                audioState = null,
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -428,7 +470,7 @@ fun PreviewMessagesWithUnavailableQuotedMessage() {
                 )
             ),
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -450,7 +492,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
             RegularMessageItem(
                 message = mockMessageWithText,
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioMessagesState = persistentMapOf(),
+                audioState = null,
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -472,7 +514,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 showAuthor = false,
-                audioMessagesState = persistentMapOf(),
+                audioState = null,
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -494,7 +536,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 showAuthor = false,
-                audioMessagesState = persistentMapOf(),
+                audioState = null,
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -516,7 +558,7 @@ fun PreviewMessageWithMarkdownTextAndLinks() {
         RegularMessageItem(
             message = mockMessageWithMarkdownTextAndLinks,
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -537,7 +579,7 @@ fun PreviewMessageWithMarkdownListAndImages() {
         RegularMessageItem(
             message = mockMessageWithMarkdownListAndImages,
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -558,7 +600,7 @@ fun PreviewMessageWithMarkdownTablesAndBlocks() {
         RegularMessageItem(
             message = mockMessageWithMarkdownTablesAndBlocks,
             conversationDetailsData = ConversationDetailsData.None(null),
-            audioMessagesState = persistentMapOf(),
+            audioState = null,
             onLongClicked = {},
             onAssetMessageClicked = {},
             onAudioClick = {},
@@ -581,7 +623,7 @@ fun PreviewMessageWithMarkdownQuery() {
                 message = mockMessageWithTextLoremIpsum,
                 searchQuery = "ed",
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioMessagesState = persistentMapOf(),
+                audioState = null,
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -596,7 +638,7 @@ fun PreviewMessageWithMarkdownQuery() {
                 message = mockMessageWithMarkdownTextAndLinks,
                 searchQuery = "code",
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioMessagesState = persistentMapOf(),
+                audioState = null,
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -611,7 +653,7 @@ fun PreviewMessageWithMarkdownQuery() {
                 message = mockMessageWithMarkdownTextAndLinks,
                 searchQuery = ".com",
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioMessagesState = persistentMapOf(),
+                audioState = null,
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -626,7 +668,7 @@ fun PreviewMessageWithMarkdownQuery() {
                 message = mockMessageWithMarkdownListAndImages,
                 searchQuery = "can",
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioMessagesState = persistentMapOf(),
+                audioState = null,
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -641,7 +683,7 @@ fun PreviewMessageWithMarkdownQuery() {
                 message = mockMessageWithMarkdownTablesAndBlocks,
                 searchQuery = "Joh",
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioMessagesState = persistentMapOf(),
+                audioState = null,
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},
@@ -667,7 +709,7 @@ fun PreviewMessageWithAccents() = WireTheme {
                     messageContent = UIMessageContent.TextMessage(MessageBody(UIText.DynamicString("Text")))
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
-                audioMessagesState = persistentMapOf(),
+                audioState = null,
                 onLongClicked = {},
                 onAssetMessageClicked = {},
                 onAudioClick = {},

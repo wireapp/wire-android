@@ -67,6 +67,44 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
     }
 
     override fun halt() {
+        isConfigured = false
         Countly.sharedInstance().halt()
     }
+
+    override suspend fun setTrackingIdentifierWithMerge(
+        identifier: String,
+        isTeamMember: Boolean,
+        migrationComplete: suspend () -> Unit
+    ) {
+        Countly.sharedInstance().deviceId().changeWithMerge(identifier).also {
+            migrationComplete()
+        }
+
+        setUserProfileProperties(isTeamMember = isTeamMember)
+    }
+
+    override suspend fun setTrackingIdentifierWithoutMerge(
+        identifier: String,
+        shouldPropagateIdentifier: Boolean,
+        isTeamMember: Boolean,
+        propagateIdentifier: suspend () -> Unit
+    ) {
+        Countly.sharedInstance().deviceId().changeWithoutMerge(identifier)
+
+        setUserProfileProperties(isTeamMember = isTeamMember)
+
+        if (shouldPropagateIdentifier) {
+            propagateIdentifier()
+        }
+    }
+
+    private fun setUserProfileProperties(isTeamMember: Boolean) {
+        Countly.sharedInstance().userProfile().setProperty(
+            AnalyticsEventConstants.TEAM_IS_TEAM,
+            isTeamMember
+        )
+        Countly.sharedInstance().userProfile().save()
+    }
+
+    override fun isAnalyticsInitialized(): Boolean = Countly.sharedInstance().isInitialized
 }

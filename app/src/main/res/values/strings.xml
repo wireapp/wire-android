@@ -20,6 +20,10 @@
     <string name="app_version">App version</string>
     <string name="build_variant_name">Build variant</string>
     <string name="debug_id" translatable="false">Debug Identifier</string>
+    <string name="debug_analytics_enabled_title" translatable="false">Analytics Initialized</string>
+    <string name="debug_analytics_tracking_identifier_title" translatable="false">
+        Analytics Tracking Identifier
+    </string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
@@ -173,7 +177,7 @@
     <string name="content_description_record_audio_button_send">Send Audio Message</string>
     <string name="content_description_mls_certificate_valid">All devices of all participants have a valid MLS certificate</string>
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
-    <string name="content_description_jump_to_last_message">Scroll down to last message, button</string>
+    <string name="content_description_jump_to_last_message">Scroll to end of conversation</string>
     <string name="content_description_location_icon">Location item</string>
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
@@ -227,7 +231,7 @@
     <string name="search_no_results">No matches found</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">What\'s new</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire’s New Android App!</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Welcome to Wire\'s New Android App!</string>
     <string name="whats_new_release_notes_group_title">Release Notes</string>
     <string name="whats_new_android_release_notes_label">All Android Release Notes</string>
     <!-- Settings -->
@@ -253,7 +257,7 @@
     <string name="server_details_dialog_body_with_proxy">Backend name:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="server_details_dialog_title">On-premises Backend</string>
     <string name="welcome_migration_dialog_title">Welcome To Our New Android App 👋</string>
-    <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
+    <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire\'s redesigned app—new options and improved accessibility, with the same strong security.</string>
     <string name="welcome_migration_dialog_continue">Start Using Wire</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Update required</string>
@@ -433,8 +437,8 @@
     <string name="empty_group_name_error">Please enter a group name</string>
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters
     </string>
-    <string name="group_can_not_be_created_title">Group can’t be created</string>
-    <string name="group_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can’t join the same group conversation.\n\nTo create the group, remove affected participants.</string>
+    <string name="group_can_not_be_created_title">Group can\'t be created</string>
+    <string name="group_can_not_be_created_federation_conflict_description">People from backends %1$s and %2$s can\'t join the same group conversation.\n\nTo create the group, remove affected participants.</string>
     <string name="group_can_not_be_created_edit_participiant_list">Edit Participants List</string>
     <string name="group_can_not_be_created_discard_group_creation">Discard Group Creation</string>
     <string name="asset_message_tap_to_download_text">Tap to download</string>
@@ -454,6 +458,7 @@
     <string name="member_name_you_label_lowercase">you</string>
     <string name="label_add_participants">Add Participants</string>
     <string name="username_unavailable_label">Name not available</string>
+    <string name="temporary_user_label">%s left</string>
     <string name="group_unavailable_label">Group name not available</string>
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
@@ -643,7 +648,7 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_deactivated">deactivated</string>
     <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
-    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">You haven’t updated this device for a while. In the meantime, the standard messaging protocol changed from Proteus to Messaging Layer Security (MLS). Due to this change, some messages may not appear here.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">You haven\'t updated this device for a while. In the meantime, the standard messaging protocol changed from Proteus to Messaging Layer Security (MLS). Due to this change, some messages may not appear here.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">You didn\'t update your app in time. Some messages may not appear here.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">Migration of encryption protocol was canceled.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
@@ -683,7 +688,7 @@
         <item quantity="other">You removed %1$d people from the conversation</item>
     </plurals>
     <plurals name="last_message_team_member_removed">
-        <item quantity="one">1 person was removed form the team</item>
+        <item quantity="one">1 person was removed from the team</item>
         <item quantity="other">%1$d people were removed from the team</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">You were removed from the conversation</string>
@@ -881,7 +886,6 @@
     <string name="calling_confirm_start_call_title_dialog">Start a call</string>
     <string name="calling_confirm_start_call_description_dialog">Are you sure you want to call %1$s people?</string>
     <string name="calling_confirm_start_call_action_dialog">Call</string>
-    <string name="calling_participant_tile_default_user_name">Default</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s is calling…</string>
@@ -912,7 +916,7 @@
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
     <!-- Missing keyPackages dialog -->
     <string name="missing_keypackage_dialog_title">Unable to start conversation</string>
-    <string name="missing_keypackage_dialog_body">You can’t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
+    <string name="missing_keypackage_dialog_body">You can\'t start the conversation with %1$s right now. %1$s needs to open Wire or log in again first. Please try again later.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
@@ -959,7 +963,7 @@
     <string name="disable_guests_dialog_button">Not Allow Guests</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Block user?</string>
-    <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. They will not be notified about this.</string>
+    <string name="block_user_dialog_body">%1$s won\'t be able to contact you or add you to group conversations. They will not be notified about this.</string>
     <string name="block_user_dialog_confirm_button">Block</string>
     <string name="other_user_devices_description">Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation.</string>
     <!--Settings -->
@@ -1159,6 +1163,12 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="cancel_login_button_label">Cancel</string>
     <string name="cancel_login_dialog_description">If you cancel now, you will be logged out.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
+    <!-- Analytics Usage dialog -->
+    <string name="analytics_usage_dialog_title">Consent to share user data</string>
+    <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID.\n\nThe data is neither linked to your personal information nor shared with third parties besides Zeta Project Germany GmbH. It includes, for example, when you use a feature, your app version, device type, or your operating system. The ID will be deleted at the latest from your device after [28] days after the last activity.\n\nFind further details in our Privacy Policy (link). You can revoke your consent at any time.</string>
+    <string name="analytics_usage_dialog_button_agree">Agree</string>
+    <string name="analytics_usage_dialog_button_decline">Decline</string>
+    <string name="analytics_usage_dialog_button_privacy_policy">Privacy Policy</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
     <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
@@ -1187,7 +1197,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="invalid_link_dialog_body">Link could not be opened</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
-    <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
+    <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don\'t have Wire.</string>
     <string name="guest_link_button_create_link">Create Link</string>
     <string name="guest_link_button_copy_link">Copy Link</string>
     <string name="guest_link_button_share_link">Share Link</string>
@@ -1216,8 +1226,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_client_verified">Verified</string>
     <string name="label_client_unverified">Not Verified</string>
     <string name="label_self_client_verification_description">To verify your own device, compare this key fingerprint with the same key fingerprint on another device.</string>
-    <string name="label_client_verification_description">Verify that this device fingerprint matches the fingerprint shown on %s’s device.</string>
-    <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
+    <string name="label_client_verification_description">Verify that this device fingerprint matches the fingerprint shown on %s\'s device.</string>
+    <string name="label_fingerprint_description">If fingerprints don\'t match, reset the session to generate new encryption keys on both sides.</string>
     <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">unknown</string>
     <string name="device_name_unknown">Unknown device</string>
@@ -1306,18 +1316,17 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="settings_licenses_settings_label">License Information</string>
     <string name="settings_dependencies_label">Dependencies</string>
     <string name="settings_myaccount_logout">Delete Account</string>
-    <string name="app_not_found_for_action">No Application has been found to do Action</string>
     <string name="delete_acount_dialog_title">Delete Account</string>
     <string name="delete_acount_dialog_text">If you continue, we will send a message via email. Follow the link to permanently delete your account.</string>
     <string name="end_to_end_identity_required_dialog_title">End-to-end identity certificate</string>
-    <string name="end_to_end_identity_required_dialog_text">As of today, your team uses end-to-end identity to make Wire’s usage more secure and practicable.\n\nEnter your identity provider’s credentials in the next step to automatically get a verification certificate for this device.</string>
-    <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire’s usage more secure.\n\nEnter your identity provider’s credentials in the next step to automatically get a verification certificate for this device.</string>
+    <string name="end_to_end_identity_required_dialog_text">As of today, your team uses end-to-end identity to make Wire\'s usage more secure and practicable.\n\nEnter your identity provider\'s credentials in the next step to automatically get a verification certificate for this device.</string>
+    <string name="end_to_end_identity_required_dialog_text_no_snooze">Your team now uses end-to-end identity to make Wire\'s usage more secure.\n\nEnter your identity provider\'s credentials in the next step to automatically get a verification certificate for this device.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Get certificate</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Remind me later</string>
     <string name="end_to_end_identity_snooze_dialog_text">You can get the certificate in your Wire Settings during the next %1$s.\nOpen Devices and select Get Certificate for your current device. </string>
     <string name="end_to_end_identity_renew_dialog_title">Update certificate</string>
-    <string name="end_to_end_identity_renew_dialog_text">The end-to-end identity certificate for this device expires soon. To keep your communication secure, update your certificate now.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
-    <string name="end_to_end_identity_renew_dialog_text_no_snooze">The end-to-end identity certificate for this device has expired.\n\nEnter your identity provider’s credentials in the next step to update the certificate automatically.</string>
+    <string name="end_to_end_identity_renew_dialog_text">The end-to-end identity certificate for this device expires soon. To keep your communication secure, update your certificate now.\n\nEnter your identity provider\'s credentials in the next step to update the certificate automatically.</string>
+    <string name="end_to_end_identity_renew_dialog_text_no_snooze">The end-to-end identity certificate for this device has expired.\n\nEnter your identity provider\'s credentials in the next step to update the certificate automatically.</string>
     <string name="end_to_end_identity_renew_dialog_positive_button">Update Certificate</string>
     <string name="end_to_end_identity_renew_error_dialog_title">The certificate could not be updated.</string>
     <string name="end_to_end_identity_renew_error_dialog_text">You can retry to update the certificate now, or you will get a reminder later.</string>
@@ -1325,7 +1334,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="end_to_end_identity_renew_success_dialog_title">Certificate updated</string>
     <string name="end_to_end_identity_renew_success_dialog_text">The certificate is updated and your device is verified.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Certificate Details</string>
-    <string name="end_to_end_identity_enrollment_error_dialog_title">Certificate couldn’t be issued</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_title">Certificate couldn\'t be issued</string>
     <string name="end_to_end_identity_enrollment_error_dialog_text">Please try again, or reach out to your team admin.</string>
     <string name="end_to_end_identity_ceritifcate">Certificate Details</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">End-to-end certificate revoked</string>
@@ -1346,7 +1355,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="record_audio_permission_denied_dialog_settings_button">Settings</string>
     <string name="record_audio_max_file_size_reached_title">Recording Stopped</string>
     <string name="record_audio_max_file_size_reached_text">File size for audio messages is limited to %1$d MB.</string>
-    <string name="record_audio_unable_due_to_ongoing_call">You can’t record an audio message during a call.</string>
+    <string name="record_audio_unable_due_to_ongoing_call">You can\'t record an audio message during a call.</string>
     <string name="record_audio_unable_due_to_error">Something went wrong while trying to record audio message. Please try again.</string>
     <string name="label_not_now">Not Now</string>
     <string name="last_message_composite_with_missing_text">sent an interactive message</string>
@@ -1358,7 +1367,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="create_guest_link_without_password_title">Create link without password</string>
     <string name="conversation_options_create_password_protected_guest_link_title">Create Password Secured Link</string>
     <string name="conversation_options_create_password_protected_guest_link_discrption">People who want to join the conversation via the guest link need to enter this password first.</string>
-    <string name="conversation_options_create_password_protected_guest_link_discrption_2">You can’t change the password later. Make sure to copy and store it.</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption_2">You can\'t change the password later. Make sure to copy and store it.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_label">SET PASSWORD</string>
     <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">CONFIRM PASSWORD</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Enter password</string>
@@ -1411,7 +1420,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="legal_hold_system_message_disabled_others">Legal hold deactivated for %1$s.</string>
     <string name="legal_hold_system_message_disabled_conversation">Legal hold is no longer active for this conversation.</string>
     <string name="legal_hold_system_message_enabled_conversation">Legal hold is now active for this conversation.</string>
-    <string name="legal_hold_system_message_interaction_disabled">You can’t write messages with this user, as they are not part of your team and one of you is subject to legal hold. Once legal hold is deactivated, you can write messages again.</string>
+    <string name="legal_hold_system_message_interaction_disabled">You can\'t write messages with this user, as they are not part of your team and one of you is subject to legal hold. Once legal hold is deactivated, you can write messages again.</string>
     <!-- Sure want to send message Dialog -->
     <string name="sure_about_messaging_dialog_title">Conversation no longer verified</string>
     <string name="sure_about_messaging_dialog_body">At least one participant started using a new device or has an invalid certificate.\n\nDo you still want to send the message?</string>
@@ -1448,4 +1457,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="no_file_manager_app">No file manager app found to complete this action.</string>
 
     <string name="restricted_asset_error_toast_message">Sending of files is forbidden due to company restrictions</string>
+    <!--    Ping dialog-->
+    <string name="ping_confirm_sending_title_dialog">Send a ping</string>
+    <string name="ping_confirm_sending_description_dialog">Are you sure you want to ping %1$s people?</string>
+    <string name="ping_confirm_sending_action_dialog">Ping</string>
 </resources>

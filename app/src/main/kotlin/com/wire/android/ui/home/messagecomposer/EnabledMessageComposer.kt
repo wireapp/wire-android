@@ -78,6 +78,7 @@ import com.wire.android.ui.home.messagecomposer.state.ComposerState
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -86,9 +87,8 @@ import kotlin.math.roundToInt
 fun EnabledMessageComposer(
     conversationId: ConversationId,
     messageComposerStateHolder: MessageComposerStateHolder,
-    bottomSheetVisible: Boolean,
     messageListContent: @Composable () -> Unit,
-    onShowBottomSheet: (ConversationScreenState.BottomSheetMenuType) -> Unit,
+    onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onSendButtonClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
@@ -142,17 +142,17 @@ fun EnabledMessageComposer(
             }
         }
 
-        LaunchedEffect(modalBottomSheetState.isVisible) {
-            println("KBX bottomSheetVisible ${modalBottomSheetState.isVisible}")
-            println("KBX additionalOptionsSubMenuState ${additionalOptionStateHolder.additionalOptionsSubMenuState}")
-
-            if (modalBottomSheetState.isVisible) {
-//                messageCompositionInputStateHolder.clearFocus()
-            } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
-                additionalOptionStateHolder.unselectAdditionalOptionsMenu()
-                messageCompositionInputStateHolder.requestFocus()
-            }
-        }
+//        LaunchedEffect(modalBottomSheetState.isVisible) { // TODO KBX to jest gdzieś na górze
+//            println("KBX bottomSheetVisible ${modalBottomSheetState.isVisible}")
+//            println("KBX additionalOptionsSubMenuState ${additionalOptionStateHolder.additionalOptionsSubMenuState}")
+//
+//            if (modalBottomSheetState.isVisible) {
+////                messageCompositionInputStateHolder.clearFocus()
+//            } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
+//                additionalOptionStateHolder.unselectAdditionalOptionsMenu()
+//                messageCompositionInputStateHolder.requestFocus()
+//            }
+//        }
 
         Surface(
             modifier = modifier,

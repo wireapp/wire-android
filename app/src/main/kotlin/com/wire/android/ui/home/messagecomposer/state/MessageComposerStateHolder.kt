@@ -43,7 +43,6 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 @Composable
 fun rememberMessageComposerStateHolder(
     messageComposerViewState: State<MessageComposerViewState>,
-    modalBottomSheetState: WireModalSheetState,
     draftMessageComposition: MessageComposition,
     onSaveDraft: (MessageDraft) -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
@@ -99,7 +98,6 @@ fun rememberMessageComposerStateHolder(
     return remember {
         MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
-            modalBottomSheetState = modalBottomSheetState,
             messageCompositionInputStateHolder = messageCompositionInputStateHolder,
             messageCompositionHolder = messageCompositionHolder,
             additionalOptionStateHolder = additionalOptionStateHolder,
@@ -116,7 +114,6 @@ class MessageComposerStateHolder(
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
     val messageCompositionHolder: MessageCompositionHolder,
     val additionalOptionStateHolder: AdditionalOptionStateHolder,
-    val modalBottomSheetState: WireModalSheetState
 ) {
     val messageComposition = messageCompositionHolder.messageComposition
 

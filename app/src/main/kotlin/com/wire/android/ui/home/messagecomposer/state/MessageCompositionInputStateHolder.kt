@@ -38,6 +38,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.android.util.isNotMarkdownBlank
 
 enum class ComposerState {
     Collapsed,
@@ -73,11 +74,11 @@ class MessageCompositionInputStateHolder(
     val inputType: InputType by derivedStateOf {
         when (val state = compositionState) {
             is CompositionState.Composing -> InputType.Composing(
-                isSendButtonEnabled = messageTextState.text.isNotEmpty()
+                isSendButtonEnabled = messageTextState.text.isNotMarkdownBlank()
             )
 
             is CompositionState.Editing -> InputType.Editing(
-                isEditButtonEnabled = messageTextState.text.toString() != state.originalMessageText
+                isEditButtonEnabled = messageTextState.text != state.originalMessageText && messageTextState.text.isNotMarkdownBlank()
             )
         }
     }

@@ -22,6 +22,7 @@ data class MyAccountState(
     val fullName: String = "",
     val userName: String = "",
     val email: String = "",
+    val canDeleteAccount: Boolean = false,
     val teamName: String? = null,
     val domain: String = "",
     val changePasswordUrl: String? = null,

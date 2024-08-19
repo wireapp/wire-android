@@ -23,68 +23,88 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
-class WireModalSheetState(
-    initialValue: SheetValue = SheetValue.Hidden,
+open class WireModalSheetState<T : Any> internal constructor(
     density: Density,
+    private val scope: CoroutineScope,
+    initialValue: WireSheetValue<T> = WireSheetValue.Hidden,
     private val onDismissAction: () -> Unit = {}
 ) {
     val sheetState: SheetState = SheetState(
-        skipPartiallyExpanded = true,
-        initialValue = initialValue,
-        confirmValueChange = { true },
         density = density,
+        skipPartiallyExpanded = true,
+        initialValue = initialValue.originalValue,
+        confirmValueChange = { true },
         skipHiddenState = false
     )
 
-    var currentValue: SheetValue by mutableStateOf(initialValue)
+    var currentValue: WireSheetValue<T> by mutableStateOf(initialValue)
         private set
 
-    fun show() {
-        currentValue = SheetValue.Expanded
+    fun show(value: T) {
+        currentValue = WireSheetValue.Expanded(value)
     }
 
-    suspend fun hide() {
+    fun hide(onComplete: suspend () -> Unit = {}) = scope.launch {
         sheetState.hide()
-        currentValue = SheetValue.Hidden
+        currentValue = WireSheetValue.Hidden
+        onComplete()
     }
+    fun hide() = hide {}
 
     fun onDismissRequest() {
         onDismissAction()
-        currentValue = SheetValue.Hidden
+        currentValue = WireSheetValue.Hidden
     }
 
-    // When the available screen height changes, for instance when keyboard disappears, for a brief moment the sheet's content is visible
-    // so change in elevation and alpha according to this flag is just to make sure that the content isn't visible until it's really needed.
-    val visibleContent = sheetState.currentValue != SheetValue.Hidden || sheetState.targetValue != SheetValue.Hidden
-
     val isVisible
-        get() = currentValue != SheetValue.Hidden
+        get() = currentValue !is WireSheetValue.Hidden
 
     companion object {
-        fun saver(density: Density) = Saver<WireModalSheetState, SheetValue>(
-            save = { it.currentValue },
-            restore = { savedValue -> WireModalSheetState(savedValue, density) }
+        @Suppress("UNCHECKED_CAST")
+        fun <T : Any> saver(density: Density, scope: CoroutineScope): Saver<WireModalSheetState<T>, *> = Saver(
+            save = {
+                val isExpanded = it.currentValue is WireSheetValue.Expanded<T>
+                val (isValueOfTypeUnit, value) = (it.currentValue as? WireSheetValue.Expanded<T>)?.let {
+                    val isValueOfTypeUnit = it.value is Unit // Unit cannot be saved into Bundle, need to handle it separately
+                    val value = if (isValueOfTypeUnit) null else it.value
+                    isValueOfTypeUnit to value
+                } ?: (false to null)
+                listOf(isExpanded, isValueOfTypeUnit, value)
+            },
+            restore = { savedValue ->
+                val isExpanded = savedValue[0] as Boolean
+                val sheetValue = when (isExpanded) {
+                    true -> {
+                        val isValueOfTypeUnit = savedValue[1] as Boolean
+                        if (isValueOfTypeUnit) {
+                            WireSheetValue.Expanded(Unit as T)
+                        } else {
+                            val value = savedValue[2] as T
+                            WireSheetValue.Expanded(value)
+                        }
+                    }
+                    false -> WireSheetValue.Hidden
+                }
+                WireModalSheetState(density, scope, sheetValue)
+            }
         )
     }
 }
 
-/**
- * Creates a Default [WireModalSheetState] that can be used to show and hide a [WireModalSheetLayout].
- */
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun rememberWireModalSheetState(initialValue: SheetValue = SheetValue.Hidden): WireModalSheetState {
-    val density = LocalDensity.current
-    return rememberSaveable(saver = WireModalSheetState.saver(density)) {
-        WireModalSheetState(initialValue, density = density)
-    }
+sealed class WireSheetValue<out T : Any>(val originalValue: SheetValue) {
+    data object Hidden : WireSheetValue<Nothing>(SheetValue.Hidden)
+    data class Expanded<T : Any>(val value: T) : WireSheetValue<T>(SheetValue.Expanded)
 }
 
 /**
@@ -94,14 +114,17 @@ fun rememberWireModalSheetState(initialValue: SheetValue = SheetValue.Hidden): W
  * @param initialValue The initial value of the sheet.
  * @param onDismissAction The action to be executed when the sheet is dismissed.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun rememberDismissibleWireModalSheetState(
-    initialValue: SheetValue = SheetValue.Hidden,
-    onDismissAction: () -> Unit
-): WireModalSheetState {
+fun <T : Any> rememberWireModalSheetState(
+    initialValue: WireSheetValue<T> = WireSheetValue.Hidden,
+    onDismissAction: () -> Unit = {}
+): WireModalSheetState<T> {
     val density = LocalDensity.current
-    return rememberSaveable(saver = WireModalSheetState.saver(density)) {
-        WireModalSheetState(initialValue, density, onDismissAction)
+    val scope = rememberCoroutineScope()
+    return rememberSaveable(saver = WireModalSheetState.saver(density, scope)) {
+        WireModalSheetState(density, scope, initialValue, onDismissAction)
     }
 }
+
+// to simplify execution of the sheet with Unit value
+fun WireModalSheetState<Unit>.show() = this.show(Unit)

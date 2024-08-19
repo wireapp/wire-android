@@ -15,11 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.feature.analytics.handler
 
-package com.wire.android.ui.calling
-
-enum class CallScreenType {
-    Incoming,
-    Ongoing,
-    Outgoing
+fun interface AnalyticsPropagationHandler<T> {
+    suspend fun propagate(manager: T, identifier: String)
 }

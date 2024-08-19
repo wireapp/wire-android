@@ -19,9 +19,14 @@ package com.wire.android.feature.analytics
 
 import android.app.Activity
 import android.content.Context
+import com.wire.android.feature.analytics.handler.AnalyticsMigrationHandler
+import com.wire.android.feature.analytics.handler.AnalyticsPropagationHandler
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.feature.analytics.model.AnalyticsResult
 import com.wire.android.feature.analytics.model.AnalyticsSettings
+import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -43,14 +48,16 @@ class AnonymousAnalyticsManagerTest {
             .withAnonymousAnalyticsRecorderConfigure()
             .arrange()
 
-        arrangement.toggleIsEnabledFlow(true)
+        arrangement.withAnalyticsResult(Arrangement.existingIdentifierResult)
 
         // when
         manager.init(
             context = arrangement.context,
             analyticsSettings = Arrangement.analyticsSettings,
-            isEnabledFlow = arrangement.isEnabledFlow.consumeAsFlow(),
+            analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
+            migrationHandler = arrangement.migrationHandler,
+            propagationHandler = arrangement.propagationHandler,
             dispatcher = dispatcher
         )
         advanceUntilIdle()
@@ -76,23 +83,26 @@ class AnonymousAnalyticsManagerTest {
             attribute1 = "attr1"
         )
 
-        arrangement.toggleIsEnabledFlow(true)
+        arrangement.withAnalyticsResult(Arrangement.existingIdentifierResult)
 
         // when
         manager.init(
             context = arrangement.context,
             analyticsSettings = Arrangement.analyticsSettings,
-            isEnabledFlow = arrangement.isEnabledFlow.consumeAsFlow(),
+            analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
+            migrationHandler = arrangement.migrationHandler,
+            propagationHandler = arrangement.propagationHandler,
             dispatcher = dispatcher
         )
         advanceUntilIdle()
 
         manager.sendEvent(event)
+        advanceUntilIdle()
 
         // then
         verify(exactly = 1) {
-            arrangement.anonymousAnalyticsRecorder.sendEvent(event)
+            arrangement.anonymousAnalyticsRecorder.sendEvent(any())
         }
     }
 
@@ -108,21 +118,22 @@ class AnonymousAnalyticsManagerTest {
             attribute1 = "attr1"
         )
 
-        arrangement.toggleIsEnabledFlow(true)
+        arrangement.withAnalyticsResult(Arrangement.existingIdentifierResult)
 
         // when
         manager.init(
             context = arrangement.context,
             analyticsSettings = Arrangement.analyticsSettings,
-            isEnabledFlow = arrangement.isEnabledFlow.consumeAsFlow(),
+            analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
+            migrationHandler = arrangement.migrationHandler,
+            propagationHandler = arrangement.propagationHandler,
             dispatcher = dispatcher
         )
-        advanceUntilIdle()
 
         manager.sendEvent(event)
 
-        arrangement.toggleIsEnabledFlow(false)
+        arrangement.withAnalyticsResult(Arrangement.disabledIdentifierResult)
         advanceUntilIdle()
 
         manager.sendEvent(event)
@@ -140,8 +151,18 @@ class AnonymousAnalyticsManagerTest {
             .withAnonymousAnalyticsRecorderConfigure()
             .arrange()
 
-        arrangement.toggleIsEnabledFlow(false)
-        advanceUntilIdle()
+        arrangement.withAnalyticsResult(Arrangement.disabledIdentifierResult)
+
+        // when
+        manager.init(
+            context = arrangement.context,
+            analyticsSettings = Arrangement.analyticsSettings,
+            analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
+            anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
+            migrationHandler = arrangement.migrationHandler,
+            propagationHandler = arrangement.propagationHandler,
+            dispatcher = dispatcher
+        )
 
         manager.onStart(activity = mockk<Activity>())
 
@@ -158,10 +179,21 @@ class AnonymousAnalyticsManagerTest {
             .withAnonymousAnalyticsRecorderConfigure()
             .arrange()
 
-        arrangement.toggleIsEnabledFlow(false)
-        advanceUntilIdle()
+        arrangement.withAnalyticsResult(Arrangement.disabledIdentifierResult)
+
+        // when
+        manager.init(
+            context = arrangement.context,
+            analyticsSettings = Arrangement.analyticsSettings,
+            analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
+            anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
+            migrationHandler = arrangement.migrationHandler,
+            propagationHandler = arrangement.propagationHandler,
+            dispatcher = dispatcher
+        )
 
         manager.onStop(activity = mockk<Activity>())
+        advanceUntilIdle()
 
         // then
         verify(exactly = 0) {
@@ -174,24 +206,28 @@ class AnonymousAnalyticsManagerTest {
         // given
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
-            .toggleIsEnabledFlow(false)
+            .withAnalyticsResult(Arrangement.disabledIdentifierResult)
             .arrange()
         val activity: Activity = mockk()
-        manager.onStart(activity)
+
         manager.init(
             context = arrangement.context,
             analyticsSettings = Arrangement.analyticsSettings,
-            isEnabledFlow = arrangement.isEnabledFlow.consumeAsFlow(),
+            analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
+            migrationHandler = arrangement.migrationHandler,
+            propagationHandler = arrangement.propagationHandler,
             dispatcher = dispatcher
         )
-        advanceUntilIdle()
+
+        manager.onStart(activity)
+
         verify(exactly = 0) {
             arrangement.anonymousAnalyticsRecorder.onStart(activity)
         }
 
         // when
-        arrangement.toggleIsEnabledFlow(true)
+        arrangement.withAnalyticsResult(Arrangement.existingIdentifierResult)
         advanceUntilIdle()
 
         // then
@@ -206,17 +242,19 @@ class AnonymousAnalyticsManagerTest {
         val (arrangement, manager) = Arrangement()
             .withAnonymousAnalyticsRecorderConfigure()
             .arrange()
+
         manager.init(
             context = arrangement.context,
             analyticsSettings = Arrangement.analyticsSettings,
-            isEnabledFlow = arrangement.isEnabledFlow.consumeAsFlow(),
+            analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
             anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
+            migrationHandler = arrangement.migrationHandler,
+            propagationHandler = arrangement.propagationHandler,
             dispatcher = dispatcher
         )
-        advanceUntilIdle()
 
         // when
-        arrangement.toggleIsEnabledFlow(false)
+        arrangement.withAnalyticsResult(Arrangement.disabledIdentifierResult)
         advanceUntilIdle()
 
         // then
@@ -232,10 +270,22 @@ class AnonymousAnalyticsManagerTest {
         @MockK
         lateinit var anonymousAnalyticsRecorder: AnonymousAnalyticsRecorder
 
-        val isEnabledFlow = Channel<Boolean>(capacity = Channel.UNLIMITED)
+        @MockK
+        lateinit var migrationHandler: AnalyticsMigrationHandler<DummyManager>
+
+        @MockK
+        lateinit var propagationHandler: AnalyticsPropagationHandler<DummyManager>
+
+        val analyticsResultChannel = Channel<AnalyticsResult<DummyManager>>(capacity = Channel.UNLIMITED)
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+
+            every { anonymousAnalyticsRecorder.onStop() } returns Unit
+            every { anonymousAnalyticsRecorder.onStart(any()) } returns Unit
+            every { anonymousAnalyticsRecorder.sendEvent(any()) } returns Unit
+            coEvery { anonymousAnalyticsRecorder.setTrackingIdentifierWithMerge(any(), any(), any()) } returns Unit
+            coEvery { anonymousAnalyticsRecorder.setTrackingIdentifierWithoutMerge(any(), any(), any(), any()) } returns Unit
         }
 
         private val manager by lazy {
@@ -248,16 +298,18 @@ class AnonymousAnalyticsManagerTest {
             every { anonymousAnalyticsRecorder.configure(any(), any()) } returns Unit
         }
 
-        suspend fun toggleIsEnabledFlow(enabled: Boolean) = apply {
-            isEnabledFlow.send(enabled)
+        suspend fun withAnalyticsResult(result: AnalyticsResult<DummyManager>) = apply {
+            analyticsResultChannel.send(result)
         }
 
         companion object {
+            const val CURRENT_IDENTIFIER = "abcd-1234"
             val analyticsSettings = AnalyticsSettings(
                 countlyAppKey = "appKey",
                 countlyServerUrl = "serverUrl",
                 enableDebugLogging = true
             )
+
             data class DummyEvent(
                 override val key: String,
                 val attribute1: String
@@ -266,6 +318,18 @@ class AnonymousAnalyticsManagerTest {
                     "attribute1" to attribute1
                 )
             }
+
+            interface DummyManager
+
+            private fun dummyManager() = object : DummyManager {}
+            val existingIdentifierResult = AnalyticsResult<DummyManager>(
+                identifierResult = AnalyticsIdentifierResult.ExistingIdentifier(CURRENT_IDENTIFIER),
+                isTeamMember = true,
+                manager = dummyManager()
+            )
+            val disabledIdentifierResult = existingIdentifierResult.copy(
+                identifierResult = AnalyticsIdentifierResult.Disabled
+            )
         }
     }
 }

@@ -135,6 +135,7 @@
     <string name="content_description_record_audio_button_start">Audio aufnehmen</string>
     <string name="content_description_record_audio_button_stop">Aufnahme stoppen</string>
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
+    <string name="content_description_jump_to_last_message">Zum Ende der Unterhaltung scrollen</string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -150,6 +151,7 @@
     <string name="about_app_screen_title">Über diese App</string>
     <string name="settings_privacy_policy_label">Datenschutzerklärung</string>
     <string name="settings_terms_of_use_label">Datenschutz und AGB</string>
+    <string name="settings_wire_website_label">Wire-Webseite</string>
     <string name="label_copyright">Urheberrecht</string>
     <string name="debug_settings_screen_title">Einstellungen zur Fehlerbehebung</string>
     <string name="item_dependencies_title">Abhängigkeiten:</string>
@@ -1077,6 +1079,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="cancel_login_button_label">Abbrechen</string>
     <string name="cancel_login_dialog_description">Wenn Sie jetzt abbrechen, werden Sie abgemeldet.</string>
     <string name="cancel_login_dialog_title">Sind Sie sicher, dass Sie den Vorgang abbrechen möchten?</string>
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s konnte einige Ihrer Nachrichten nicht entschlüsseln, hat das Problem aber gelöst. Dies betraf alle Unterhaltungen, die Sie gemeinsam nutzen.</string>
     <string name="label_manual_migration_title">Migration von Version 3.82.38</string>
@@ -1220,6 +1223,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="notification_obfuscated_message_title">Jemand</string>
     <string name="notification_obfuscated_message_content">Hat eine selbstlöschende Nachricht gesendet</string>
     <string name="settings_licenses_settings_label">Lizenzen</string>
+    <string name="settings_dependencies_label">Abhängigkeiten</string>
     <string name="settings_myaccount_logout">Benutzerkonto löschen</string>
     <string name="delete_acount_dialog_title">Benutzerkonto löschen</string>
     <string name="delete_acount_dialog_text">Wenn Sie fortfahren, erhalten Sie eine E-Mail von Wire. Folgen Sie dem Link, um Ihr Konto dauerhaft zu löschen.</string>
@@ -1353,4 +1357,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

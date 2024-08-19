@@ -170,7 +170,6 @@
     <string name="content_description_record_audio_button_send">音声メッセージを送信</string>
     <string name="content_description_mls_certificate_valid">すべての参加者のすべてのデバイスには有効なMLS証明書があります</string>
     <string name="content_description_proteus_certificate_valid">すべての参加者が検証されます(Proteus)</string>
-    <string name="content_description_jump_to_last_message">最後のメッセージにスクロールするボタン</string>
     <string name="content_description_location_icon">位置情報の項目</string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
@@ -191,7 +190,6 @@
     <string name="search_no_results">一致するものが見つかりません</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">更新情報</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋Wireの新しいAndroidアプリへようこそ！</string>
     <string name="whats_new_release_notes_group_title">更新履歴</string>
     <string name="whats_new_android_release_notes_label">全てのAndroidの更新履歴</string>
     <!-- Settings -->
@@ -214,7 +212,6 @@
     <string name="server_details_dialog_body_with_proxy">バックエンド名:\n%1$s\n\nバックエンドURL:\n%2$s\n\nプロキシURL:\n%3$s\n\nプロキシ認証:\n%4$s</string>
     <string name="server_details_dialog_title">オンプレミスのバックエンド</string>
     <string name="welcome_migration_dialog_title">👋Wireの新しいAndroidアプリへようこそ</string>
-    <string name="welcome_migration_dialog_content">誰もが使いやすいようにアプリを作り直しました。\n\nWireの新しいアプリでは強力なセキュリティはそのままに、新しいオプションが追加されアクセシビリティが向上しました。</string>
     <string name="welcome_migration_dialog_continue">Wireを使い始める</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">更新が必要です</string>
@@ -363,6 +360,7 @@
     <!--max account reached dialog-->
     <!--create and restore backup-->
     <!-- Update App dialog -->
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <!-- join conversation dialog -->
     <!-- edit self-deleting messages -->
@@ -382,4 +380,5 @@
     <!-- Share Location -->
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

@@ -174,7 +174,7 @@
     <string name="content_description_record_audio_button_send">Отправить аудиосообщение</string>
     <string name="content_description_mls_certificate_valid">Все устройства всех участников имеют действующий сертификат MLS</string>
     <string name="content_description_proteus_certificate_valid">Все участники верифицированы (Proteus)</string>
-    <string name="content_description_jump_to_last_message">Прокрутка вниз к последнему сообщению, кнопка</string>
+    <string name="content_description_jump_to_last_message">Перейти к концу беседы</string>
     <string name="content_description_location_icon">Элемент местоположения</string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
@@ -207,7 +207,7 @@
     <!-- Settings -->
     <string name="settings_backups_group_title">Резервные копии</string>
     <string name="settings_other_group_title">Другое</string>
-    <string name="settings_backup_info">Создайте резервную копию, чтобы сохранить историю бесед. Она пригодится для восстановления истории в случае потери или замены устройства.\n\nВыберите надежный пароль для защиты резервной копии.</string>
+    <string name="settings_backup_info">Создайте резервную копию, чтобы сохранить историю бесед. Она пригодится для восстановления истории в случае потери или замены устройства.\n\nЗадайте надежный пароль для защиты резервной копии.</string>
     <string name="settings_backup_last_backup_title">Последнее резервное копирование</string>
     <string name="settings_backup_last_backup_date">Последняя резервная копия для этого устройства была создана на %1$s в %2$s.</string>
     <string name="settings_backup_last_backup_date_no_time">Вы еще не создавали резервную копию с этого устройства.</string>
@@ -886,7 +886,6 @@
     <string name="calling_confirm_start_call_title_dialog">Начать звонок</string>
     <string name="calling_confirm_start_call_description_dialog">Вы действительно хотите позвонить %1$s пользователям?</string>
     <string name="calling_confirm_start_call_action_dialog">Позвонить</string>
-    <string name="calling_participant_tile_default_user_name">По умолчанию</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Вернуться к вызову</string>
     <string name="connectivity_status_bar_return_to_incoming_call">%1$s вызывает…</string>
@@ -1094,7 +1093,7 @@
     <string name="label_code_commit_id">Хэш коммита</string>
     <string name="label_client_id">ID клиента: %1$s</string>
     <string name="label_client_added_time">ДОБАВЛЕН</string>
-    <string name="label_client_last_active_label">ПОСЛЕДНЕЕ</string>
+    <string name="label_client_last_active_label">ПОСЛЕДНЯЯ АКТИВНОСТЬ</string>
     <string name="label_client_last_active_time_zero_weeks">Менее недели назад</string>
     <string name="label_client_last_active_time">%1$s назад</string>
     <string name="label_client_device_id">Proteus ID</string>
@@ -1166,6 +1165,12 @@
     <string name="cancel_login_button_label">Отмена</string>
     <string name="cancel_login_dialog_description">В случае отказа произойдет завершение сеанса.</string>
     <string name="cancel_login_dialog_title">Вы действительно хотите отменить?</string>
+    <!-- Analytics Usage dialog -->
+    <string name="analytics_usage_dialog_title">Согласие на передачу пользовательских данных</string>
+    <string name="analytics_usage_dialog_text">Помогите улучшить Wire, поделившись данными о вашем использовании с помощью псевдонимного идентификатора.\n\n Эти данные не связаны с вашей личной информацией и не передаются третьим лицам, кроме Zeta Project Germany GmbH. К ним относятся, например, время использования функции, версия приложения, тип устройства или операционная система. Идентификатор будет удален с вашего устройства не позднее чем через [28] дней после последнего действия.\n\nПодробнее см. в нашей Политике конфиденциальности (ссылка). Вы можете отозвать свое согласие в любое время.</string>
+    <string name="analytics_usage_dialog_button_agree">Принять</string>
+    <string name="analytics_usage_dialog_button_decline">Отклонить</string>
+    <string name="analytics_usage_dialog_button_privacy_policy">Политика конфиденциальности</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s не смог расшифровать некоторые из ваших сообщений, но решил проблему. Это затронуло все ваши совместные беседы.</string>
     <string name="label_manual_migration_title">Миграция с версии 3.82.38</string>
@@ -1334,7 +1339,6 @@
     <string name="settings_licenses_settings_label">Информация о лицензии</string>
     <string name="settings_dependencies_label">Зависимости</string>
     <string name="settings_myaccount_logout">Удалить аккаунт</string>
-    <string name="app_not_found_for_action">Не найдено приложений для выполнения действия</string>
     <string name="delete_acount_dialog_title">Удалить аккаунт</string>
     <string name="delete_acount_dialog_text">Если вы продолжите, мы отправим сообщение по электронной почте. Перейдите по ссылке, чтобы окончательно удалить свою учетную запись.</string>
     <string name="end_to_end_identity_required_dialog_title">Сертификат сквозной идентификации</string>
@@ -1475,4 +1479,8 @@
     <string name="no_gallery_app">Не найдена галерея для выполнения этого действия.</string>
     <string name="no_file_manager_app">Не найден файловый менеджер для выполнения этого действия.</string>
     <string name="restricted_asset_error_toast_message">Отправка файлов запрещена из-за ограничений компании</string>
+    <!--    Ping dialog-->
+    <string name="ping_confirm_sending_title_dialog">Отправить пинг</string>
+    <string name="ping_confirm_sending_description_dialog">Вы действительно хотите отправить пинг %1$s пользователям?</string>
+    <string name="ping_confirm_sending_action_dialog">Пинг</string>
 </resources>

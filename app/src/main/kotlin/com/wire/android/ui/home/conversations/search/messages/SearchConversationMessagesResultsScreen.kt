@@ -56,7 +56,7 @@ fun SearchConversationMessagesResultsScreen(
                 is UIMessage.Regular -> {
                     MessageContainerItem(
                         message = message,
-                        conversationDetailsData = ConversationDetailsData.None,
+                        conversationDetailsData = ConversationDetailsData.None(null),
                         searchQuery = searchQuery,
                         audioMessagesState = persistentMapOf(),
                         onShowBottomSheet = { },

@@ -72,6 +72,7 @@ import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
@@ -109,31 +110,30 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
+import io.github.esentsov.PackagePrivate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 
 @RootNavGraph
 @WireDestination(
     navArgsDelegate = OtherUserProfileNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtherUserProfileScreen(
     navigator: Navigator,
     navArgs: OtherUserProfileNavArgs,
-    viewModel: OtherUserProfileScreenViewModel = hiltViewModel(),
-    resultNavigator: ResultBackNavigator<String>
+    resultNavigator: ResultBackNavigator<String>,
+    viewModel: OtherUserProfileScreenViewModel = hiltViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current
 
     val scope = rememberCoroutineScope()
 
-    val sheetState = rememberWireModalSheetState()
-    val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
-    val closeBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
+    val sheetState = rememberWireModalSheetState<Unit>()
 
     val conversationId = viewModel.state.conversationId
         ?: viewModel.state.conversationSheetContent?.conversationId
@@ -168,16 +168,32 @@ fun OtherUserProfileScreen(
         state = viewModel.state,
         requestInProgress = viewModel.requestInProgress,
         sheetState = sheetState,
-        openBottomSheet = openBottomSheet,
-        closeBottomSheet = closeBottomSheet,
-        eventsHandler = viewModel,
-        bottomSheetEventsHandler = viewModel,
+        openBottomSheet = sheetState::show,
+        closeBottomSheet = sheetState::hide,
+        eventsHandler = viewModel as OtherUserProfileEventsHandler,
+        bottomSheetEventsHandler = viewModel as OtherUserProfileBottomSheetEventsHandler,
         onIgnoreConnectionRequest = {
             resultNavigator.setResult(it)
             resultNavigator.navigateBack()
         },
-        onOpenConversation = { navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
-        onOpenDeviceDetails = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(navArgs.userId, it.clientId))) },
+        onOpenConversation = {
+            navigator.navigate(
+                NavigationCommand(
+                    ConversationScreenDestination(it),
+                    BackStackMode.UPDATE_EXISTED
+                )
+            )
+        },
+        onOpenDeviceDetails = {
+            navigator.navigate(
+                NavigationCommand(
+                    DeviceDetailsScreenDestination(
+                        navArgs.userId,
+                        it.clientId
+                    )
+                )
+            )
+        },
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
         navigateBack = navigator::navigateBack,
         navigationIconType = NavigationIconType.Close,
@@ -197,11 +213,13 @@ fun OtherUserProfileScreen(
     }
 
     VisibilityState(legalHoldSubjectDialogState) {
-        LegalHoldSubjectProfileDialog(viewModel.state.userName, legalHoldSubjectDialogState::dismiss)
+        LegalHoldSubjectProfileDialog(
+            viewModel.state.userName,
+            legalHoldSubjectDialogState::dismiss
+        )
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
 @Composable
 fun OtherProfileScreenContent(
@@ -209,18 +227,18 @@ fun OtherProfileScreenContent(
     state: OtherUserProfileState,
     navigationIconType: NavigationIconType,
     requestInProgress: Boolean,
-    sheetState: WireModalSheetState,
+    sheetState: WireModalSheetState<Unit>,
     openBottomSheet: () -> Unit,
     closeBottomSheet: () -> Unit,
     eventsHandler: OtherUserProfileEventsHandler,
     bottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler,
+    onSearchConversationMessagesClick: () -> Unit,
     onIgnoreConnectionRequest: (String) -> Unit = { },
     onOpenConversation: (ConversationId) -> Unit = {},
     onOpenDeviceDetails: (Device) -> Unit = {},
-    onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit = {},
     navigateBack: () -> Unit = {},
-    onLegalHoldLearnMoreClick: () -> Unit = {},
+    onLegalHoldLearnMoreClick: () -> Unit = {}
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState()
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
@@ -273,7 +291,9 @@ fun OtherProfileScreenContent(
     }
     val maxBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val tabBarElevationState by remember(tabItems, lazyListStates, currentTabState) {
-        derivedStateOf { lazyListStates[tabItems[currentTabState]]?.topBarElevation(maxBarElevation) ?: 0.dp }
+        derivedStateOf {
+            lazyListStates[tabItems[currentTabState]]?.topBarElevation(maxBarElevation) ?: 0.dp
+        }
     }
 
     if (!requestInProgress) {
@@ -302,7 +322,16 @@ fun OtherProfileScreenContent(
                 onLegalHoldLearnMoreClick = onLegalHoldLearnMoreClick,
             )
         },
-        topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
+        topBarFooter = {
+            TopBarFooter(
+                state = state,
+                pagerState = pagerState,
+                tabBarElevation = tabBarElevationState,
+                tabItems = tabItems,
+                currentTab = currentTabState,
+                scope = scope
+            )
+        },
         content = {
             Content(
                 state = state,
@@ -324,12 +353,11 @@ fun OtherProfileScreenContent(
                 onOpenConversation
             )
         },
-        isSwipeable = state.connectionState == ConnectionState.ACCEPTED
+        isSwipeable = state.connectionState != ConnectionState.BLOCKED
     )
 
     WireModalSheetLayout(
         sheetState = sheetState,
-        coroutineScope = scope,
         sheetContent = {
             OtherUserProfileBottomSheetContent(
                 getBottomSheetVisibility = getBottomSheetVisibility,
@@ -423,6 +451,7 @@ private fun TopBarCollapsing(
                 connection = targetState.connectionState,
                 isProteusVerified = targetState.isProteusVerified,
                 isMLSVerified = targetState.isMLSVerified,
+                expiresAt = targetState.expiresAt
             )
             if (state.isUnderLegalHold) {
                 LegalHoldSubjectBanner(
@@ -441,7 +470,6 @@ private fun TopBarCollapsing(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TopBarFooter(
     state: OtherUserProfileState,
@@ -488,7 +516,7 @@ private fun Content(
 
     Crossfade(targetState = tabItems to state, label = "OtherUserProfile") { (tabItems, state) ->
         Column {
-            if (!state.isDataLoading) {
+            if (!state.isDataLoading && !state.isTemporaryUser()) {
                 OtherUserConnectionStatusInfo(state.connectionState, state.membership)
                 OtherUserConnectionUnverifiedWarning(state.fullName, state.connectionState)
             }
@@ -502,7 +530,11 @@ private fun Content(
                         ) { pageIndex ->
                             when (val tabItem = tabItems[pageIndex]) {
                                 OtherUserProfileTabItem.DETAILS ->
-                                    OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
+                                    OtherUserProfileDetails(
+                                        state,
+                                        otherUserProfileScreenState,
+                                        lazyListStates[tabItem]!!
+                                    )
 
                                 OtherUserProfileTabItem.GROUP ->
                                     OtherUserProfileGroup(
@@ -540,8 +572,10 @@ private fun Content(
     }
 }
 
+@SuppressLint("ComposeModifierMissing")
+@PackagePrivate
 @Composable
-private fun ContentFooter(
+fun ContentFooter(
     state: OtherUserProfileState,
     maxBarElevation: Dp,
     onIgnoreConnectionRequest: (String) -> Unit = {},
@@ -552,13 +586,13 @@ private fun ContentFooter(
         enter = fadeIn(),
         exit = fadeOut(),
     ) {
-        Surface(
-            shadowElevation = maxBarElevation,
-            color = MaterialTheme.wireColorScheme.background
-        ) {
-            Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
-                // TODO show open conversation button for service bots after AR-2135
-                if (!state.isMetadataEmpty() && state.membership != Membership.Service) {
+        // TODO show open conversation button for service bots after AR-2135
+        if (!state.isMetadataEmpty() && state.membership != Membership.Service && !state.isTemporaryUser()) {
+            Surface(
+                shadowElevation = maxBarElevation,
+                color = MaterialTheme.wireColorScheme.background
+            ) {
+                Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
                     ConnectionActionButton(
                         state.userId,
                         state.userName,
@@ -578,6 +612,7 @@ enum class OtherUserProfileTabItem(@StringRes val titleResId: Int) : TabItem {
     GROUP(R.string.user_profile_group_tab),
     DETAILS(R.string.user_profile_details_tab),
     DEVICES(R.string.user_profile_devices_tab);
+
     override val title: UIText = UIText.StringResource(titleResId)
 }
 
@@ -647,6 +682,31 @@ fun PreviewOtherProfileScreenContentNotConnected() {
             eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
             bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
             onSearchConversationMessagesClick = {}
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@PreviewMultipleThemes
+fun PreviewOtherProfileScreenTempUser() {
+    WireTheme {
+        OtherProfileScreenContent(
+            scope = rememberCoroutineScope(),
+            state = OtherUserProfileState.PREVIEW.copy(
+                userName = "",
+                connectionState = ConnectionState.CANCELLED,
+                isUnderLegalHold = true,
+                expiresAt = Instant.DISTANT_FUTURE
+            ),
+            navigationIconType = NavigationIconType.Back,
+            requestInProgress = false,
+            sheetState = rememberWireModalSheetState(),
+            openBottomSheet = {},
+            closeBottomSheet = {},
+            eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
+            bottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW,
+            onSearchConversationMessagesClick = {},
         )
     }
 }

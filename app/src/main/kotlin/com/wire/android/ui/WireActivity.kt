@@ -65,7 +65,7 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.getIncomingCallIntent
-import com.wire.android.ui.calling.getOngoingCallIntent
+import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
@@ -96,6 +96,7 @@ import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedView
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
+import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
@@ -416,7 +417,15 @@ class WireActivity : AppCompatActivity() {
                         result = e2EIResult,
                         updateCertificate = featureFlagNotificationViewModel::enrollE2EICertificate,
                         snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog,
-                        openCertificateDetails = { navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(it))) },
+                        openCertificateDetails = {
+                            navigate(
+                                NavigationCommand(
+                                    E2eiCertificateDetailsScreenDestination(
+                                        E2EICertificateDetails.DuringLoginCertificateDetails(it)
+                                    )
+                                )
+                            )
+                        },
                         dismissSuccessDialog = featureFlagNotificationViewModel::dismissSuccessE2EIdDialog,
                         isE2EILoading = isE2EILoading
                     )

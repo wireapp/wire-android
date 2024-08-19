@@ -19,14 +19,10 @@
 package com.wire.android.ui.home.conversations
 
 import android.content.Context
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -40,10 +36,10 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberConversationScreenState(
-    bottomSheetState: WireModalSheetState = rememberWireModalSheetState(),
+    editSheetState: WireModalSheetState<UIMessage.Regular> = rememberWireModalSheetState<UIMessage.Regular>(),
+    selfDeletingSheetState: WireModalSheetState<SelfDeletionTimer> = rememberWireModalSheetState<SelfDeletionTimer>(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): ConversationScreenState {
     val context = LocalContext.current
@@ -55,7 +51,8 @@ fun rememberConversationScreenState(
             context = context,
             clipboardManager = clipboardManager,
             snackBarHostState = snackBarHostState,
-            modalBottomSheetState = bottomSheetState,
+            editSheetState = editSheetState,
+            selfDeletingSheetState = selfDeletingSheetState,
             coroutineScope = coroutineScope
         )
     }
@@ -66,42 +63,26 @@ class ConversationScreenState(
     val context: Context,
     val clipboardManager: ClipboardManager,
     val snackBarHostState: SnackbarHostState,
-    val modalBottomSheetState: WireModalSheetState,
+    val editSheetState: WireModalSheetState<UIMessage.Regular>,
+    val selfDeletingSheetState: WireModalSheetState<SelfDeletionTimer>,
     val coroutineScope: CoroutineScope
 ) {
-
-    var bottomSheetMenuType: BottomSheetMenuType by mutableStateOf(BottomSheetMenuType.None)
-
-    fun showBottomSheet(type: BottomSheetMenuType) {
-        bottomSheetMenuType = type
-        coroutineScope.launch { modalBottomSheetState.show() }
+    fun showEditContextMenu(message: UIMessage.Regular) {
+        editSheetState.show(message)
     }
-
-    fun hideContextMenu(onComplete: () -> Unit = {}) {
-        coroutineScope.launch {
-            bottomSheetMenuType = BottomSheetMenuType.None
-            modalBottomSheetState.hide()
-            onComplete()
-        }
-    }
+    // TODO KBX add location state
 
     fun copyMessage(text: String) {
         clipboardManager.setText(AnnotatedString(text))
         coroutineScope.launch {
-            modalBottomSheetState.hide()
             snackBarHostState.showSnackbar(context.getString(R.string.info_message_copied))
         }
     }
 
-    sealed class BottomSheetMenuType {
-        class Edit(val selectedMessage: UIMessage.Regular) : BottomSheetMenuType()
-
-        class SelfDeletion(val currentlySelected: SelfDeletionTimer) : BottomSheetMenuType()
-
-        data object Location : BottomSheetMenuType()
-
-        data object Sketch: BottomSheetMenuType()
-
-        data object None : BottomSheetMenuType()
+    fun showSelfDeletionContextMenu(currentlySelected: SelfDeletionTimer) {
+        selfDeletingSheetState.show(currentlySelected)
     }
+
+    val isAnySheetVisible: Boolean
+        get() = editSheetState.isVisible || selfDeletingSheetState.isVisible
 }

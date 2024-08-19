@@ -40,7 +40,6 @@ import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.sharing.SendMessagesSnackbarMessages
-import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
@@ -87,7 +86,7 @@ class SendMessageViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem,
     private val handleUriAsset: HandleUriAssetUseCase,
-    private val sendKnockUseCase: SendKnockUseCase,
+    private val sendKnock: SendKnockUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
@@ -114,6 +113,9 @@ class SendMessageViewModel @Inject constructor(
     )
 
     init {
+        conversationNavArgs.pendingTextBundle?.let { text ->
+            trySendPendingMessageBundle(text)
+        }
         conversationNavArgs.pendingBundles?.let { assetBundles ->
             trySendMessages(
                 assetBundles.map { assetBundle ->
@@ -135,6 +137,12 @@ class SendMessageViewModel @Inject constructor(
 
     private suspend fun shouldInformAboutUnderLegalHoldBeforeSendingMessage(conversationId: ConversationId) =
         observeConversationUnderLegalHoldNotified(conversationId).first().let { !it }
+
+    private fun trySendPendingMessageBundle(pendingMessage: String) {
+        viewModelScope.launch {
+            sendMessage(ComposableMessageBundle.SendTextMessageBundle(conversationId, pendingMessage, emptyList()))
+        }
+    }
 
     fun trySendMessage(messageBundle: MessageBundle) {
         trySendMessages(listOf(messageBundle))
@@ -208,8 +216,7 @@ class SendMessageViewModel @Inject constructor(
             is ComposableMessageBundle.AudioMessageBundle -> {
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
-                    conversationId = messageBundle.conversationId,
-                    specifiedMimeType = SUPPORTED_AUDIO_MIME_TYPE,
+                    conversationId = messageBundle.conversationId
                 )
             }
 
@@ -236,7 +243,7 @@ class SendMessageViewModel @Inject constructor(
 
             is Ping -> {
                 pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
-                sendKnockUseCase(conversationId = messageBundle.conversationId, hotKnock = false)
+                sendKnock(conversationId = messageBundle.conversationId, hotKnock = false)
                     .handleLegalHoldFailureAfterSendingMessage(messageBundle.conversationId)
             }
         }
@@ -244,13 +251,12 @@ class SendMessageViewModel @Inject constructor(
 
     private suspend fun handleAssetMessageBundle(
         conversationId: ConversationId,
-        attachmentUri: UriAsset,
-        specifiedMimeType: String? = null, // specify a particular mimetype, otherwise it will be taken from the uri / file extension
+        attachmentUri: UriAsset
     ) {
         when (val result = handleUriAsset.invoke(
             uri = attachmentUri.uri,
             saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
-            specifiedMimeType = specifiedMimeType
+            specifiedMimeType = attachmentUri.mimeType
         )) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
                 assetTooLargeDialogState = AssetTooLargeDialogState.Visible(

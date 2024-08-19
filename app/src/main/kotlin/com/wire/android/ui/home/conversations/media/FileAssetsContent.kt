@@ -119,7 +119,7 @@ private fun AssetMessagesListContent(
                         is UIMessage.Regular -> {
                             MessageContainerItem(
                                 message = message,
-                                conversationDetailsData = ConversationDetailsData.None,
+                                conversationDetailsData = ConversationDetailsData.None(null),
                                 audioMessagesState = audioMessagesState,
                                 assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
                                 onShowBottomSheet = { },

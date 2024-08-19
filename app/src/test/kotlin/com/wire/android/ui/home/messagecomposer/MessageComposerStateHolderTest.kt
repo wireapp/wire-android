@@ -21,13 +21,11 @@ package com.wire.android.ui.home.messagecomposer
 import android.content.Context
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestConversation
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
@@ -49,7 +47,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class MessageComposerStateHolderTest {
 
@@ -61,7 +59,6 @@ class MessageComposerStateHolderTest {
     private lateinit var messageCompositionInputStateHolder: MessageCompositionInputStateHolder
     private lateinit var messageCompositionHolder: MessageCompositionHolder
     private lateinit var additionalOptionStateHolder: AdditionalOptionStateHolder
-    private lateinit var modalBottomSheetState: WireModalSheetState
     private lateinit var state: MessageComposerStateHolder
     private lateinit var messageTextState: TextFieldState
 
@@ -84,14 +81,12 @@ class MessageComposerStateHolderTest {
             onTypingEvent = {},
         )
         additionalOptionStateHolder = AdditionalOptionStateHolder()
-        modalBottomSheetState = WireModalSheetState()
 
         state = MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = messageCompositionInputStateHolder,
             messageCompositionHolder = messageCompositionHolder,
             additionalOptionStateHolder = additionalOptionStateHolder,
-            modalBottomSheetState = modalBottomSheetState
         )
     }
 

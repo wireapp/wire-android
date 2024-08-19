@@ -100,7 +100,6 @@
     <string name="archive_screen_title">Архівувати</string>
     <string name="support_screen_title">Підтримка</string>
     <!--Whats New -->
-    <string name="whats_new_welcome_to_new_android_app_label">Ласкаво просимо до нового додатку Wire для Android!</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Резервні копії</string>
     <!-- Welcome -->
@@ -171,6 +170,7 @@
     <!--max account reached dialog-->
     <!--create and restore backup-->
     <!-- Update App dialog -->
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <!-- join conversation dialog -->
     <!-- edit self-deleting messages -->
@@ -190,4 +190,5 @@
     <!-- Share Location -->
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

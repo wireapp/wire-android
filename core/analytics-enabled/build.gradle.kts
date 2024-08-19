@@ -7,6 +7,7 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
 
+    implementation("com.wire.kalium:kalium-data")
     api(project(":core:analytics"))
 
     val composeBom = platform(libs.compose.bom)

@@ -171,7 +171,6 @@
     <string name="content_description_record_audio_button_send">Sesli mesaj gönder</string>
     <string name="content_description_mls_certificate_valid">Tüm katılımcıların tüm cihazları geçerli bir MLS sertifikasına sahiptir</string>
     <string name="content_description_proteus_certificate_valid">Tüm katılımcıların tamamı doğrulanmıştır (Proteus)</string>
-    <string name="content_description_jump_to_last_message">Tuşla son mesaja ilerleyin</string>
     <string name="content_description_location_icon">Konum öğesi</string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
@@ -192,7 +191,6 @@
     <string name="search_no_results">Eşleşme bulunamadı</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Neler yeni</string>
-    <string name="whats_new_welcome_to_new_android_app_label">👋Wire\'ın Yeni Android Uygulamasına Hoş Geldiniz!</string>
     <string name="whats_new_release_notes_group_title">Sürüm notları</string>
     <string name="whats_new_android_release_notes_label">Android Sürüm Notları</string>
     <!-- Settings -->
@@ -280,6 +278,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--max account reached dialog-->
     <!--create and restore backup-->
     <!-- Update App dialog -->
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <!-- join conversation dialog -->
     <!-- edit self-deleting messages -->
@@ -300,4 +299,5 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Share Location -->
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

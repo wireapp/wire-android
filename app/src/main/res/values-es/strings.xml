@@ -190,7 +190,6 @@ URL del backend:
 %2$s</string>
     <string name="server_details_dialog_title">Backend local</string>
     <string name="welcome_migration_dialog_title">Bienvenido a nuestra nueva aplicaci&#243;n para Android &#128075;</string>
-    <string name="welcome_migration_dialog_content">Reconstruimos la aplicaci&#243;n para que sea m&#225;s usable para todos. Conoce m&#225;s sobre la aplicaci&#243;n redise&#241;ada de Wire&#8212;nuevas opciones y mejor accesibilidad, con la misma seguridad s&#243;lida.</string>
     <string name="welcome_migration_dialog_continue">Comenzar a usar Wire</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Actualizaci&#243;n requerida</string>
@@ -767,7 +766,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="disable_guests_dialog_button">No permitir invitados</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">&#191;Bloquear usuario?</string>
-    <string name="block_user_dialog_body">%1$s no podr&#225; contactarte ni agregarte a conversaciones grupales. No se le notificar&#225; sobre esto.</string>
     <string name="block_user_dialog_confirm_button">Bloquear</string>
     <string name="other_user_devices_description">Wire asigna una huella digital &#250;nica a cada dispositivo. Comparelas con %1$s y verifique su conversaci&#243;n. </string>
     <!--Settings -->
@@ -887,6 +885,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="cancel_login_button_label">Cancelar</string>
     <string name="cancel_login_dialog_description">Si cancelas ahora, se cerrar&#225; tu sesi&#243;n</string>
     <string name="cancel_login_dialog_title">&#191;Seguro que quieres cancelar?</string>
+    <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s no pudo descifrar algunos de tus mensajes pero ha resuelto el problema. Esto afect&#243; a todas las conversaciones que compartes juntos.</string>
     <string name="label_manual_migration_title">Migrar desde la versi&#243;n 3.82.38</string>
@@ -912,7 +911,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <!-- invalid link -->
     <!-- guest room link -->
     <string name="folder_label_guest_link">Enlace de invitado</string>
-    <string name="guest_link_description">Invita a otros con un enlace a esta conversaci&#243;n. Cualquier persona con el enlace puede unirse a la conversaci&#243;n, incluso si no tiene Wire.</string>
     <string name="guest_link_button_create_link">Crear enlace</string>
     <string name="guest_link_button_copy_link">Copiar enlace</string>
     <string name="guest_link_button_share_link">Compartir enlace</string>
@@ -938,8 +936,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_client_verified">Verificado</string>
     <string name="label_client_unverified">No verificado</string>
     <string name="label_self_client_verification_description">Para verificar tu propio dispositivo, compara esta huella digital con la misma huella digital en otro dispositivo.</string>
-    <string name="label_client_verification_description">Verifica que la huella digital de este dispositivo coincide con la huella digital mostrada en el dispositivo de %s.</string>
-    <string name="label_fingerprint_description">Si las huellas digitales no coinciden, restablezca la sesi&#243;n para generar nuevas claves de cifrado en ambos lados.</string>
     <string name="label_self_fingerprint_description">Comparte esta huella digital con otros participantes en una conversación, para que puedan verificarla y asegurarse de que la conversación es segura.</string>
     <string name="unknown_user_name">desconocido</string>
     <string name="device_name_unknown">Dispositivo desconocido</string>
@@ -1032,4 +1028,5 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="location_could_not_be_shared">No se pudo compartir la ubicación</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <!--    Ping dialog-->
 </resources>

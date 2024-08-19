@@ -65,11 +65,6 @@ class PersistentWebSocketService : Service() {
     @Inject
     lateinit var notificationManager: WireNotificationManager
 
-    // TODO: remove since it is not used
-    @Inject
-    @CurrentSessionFlowService
-    lateinit var currentSessionFlow: CurrentSessionFlowUseCase
-
     @Inject
     lateinit var notificationChannelsManager: NotificationChannelsManager
 
@@ -84,6 +79,15 @@ class PersistentWebSocketService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        /**
+         * When service is restarted by system onCreate lifecycle method is not guaranteed to be called
+         * so we need to check if service is already started and if not generate notification and call startForeground()
+         * https://issuetracker.google.com/issues/307329994#comment100
+         */
+        if (!isServiceStarted) {
+            isServiceStarted = true
+            generateForegroundNotification()
+        }
         scope.launch {
             coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
                 when (result) {

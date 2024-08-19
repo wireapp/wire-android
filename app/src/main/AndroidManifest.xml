@@ -342,7 +342,7 @@
         <service
                 android:name=".services.PersistentWebSocketService"
                 android:exported="false"
-                android:foregroundServiceType="specialUse"></service>
+                android:foregroundServiceType="specialUse"/>
 
         <service
                 android:name=".services.OngoingCallService"

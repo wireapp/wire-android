@@ -102,7 +102,7 @@ jobs:
           build-variant: compat
 
   ## build release candidate for nightly runs.
-  build-rc:
+  build-app-release-type:
     needs: [ code-analysis, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref_name == 'release/candidate'
@@ -123,7 +123,10 @@ jobs:
           ENCODED_STRING: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
         run: |
           TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+          mkdir "${TMP_KEYSTORE_FILE_PATH}"
           echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/the.keystore
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
       - name: Build Staging flavour
         run:
           ./gradlew app:assembleStagingRelease

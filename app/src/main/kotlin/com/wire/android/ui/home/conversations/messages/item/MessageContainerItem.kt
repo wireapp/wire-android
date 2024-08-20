@@ -35,7 +35,6 @@ import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.ConversationScreenState
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -45,7 +44,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.collections.immutable.PersistentMap
 
 @OptIn(ExperimentalFoundationApi::class)
 @Suppress("ComplexMethod")
@@ -53,8 +51,7 @@ import kotlinx.collections.immutable.PersistentMap
 fun MessageContainerItem(
     message: UIMessage,
     conversationDetailsData: ConversationDetailsData,
-    audioMessagesState: PersistentMap<String, AudioState>,
-    onShowEditingOption: (UIMessage.Regular) -> Unit,
+    onLongClicked: (UIMessage.Regular) -> Unit,
     swipableMessageConfiguration: SwipableMessageConfiguration,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -68,6 +65,7 @@ fun MessageContainerItem(
     searchQuery: String = "",
     showAuthor: Boolean = true,
     useSmallBottomPadding: Boolean = false,
+    audioState: AudioState? = null,
     assetStatus: AssetTransferStatus? = null,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
@@ -115,7 +113,7 @@ fun MessageContainerItem(
                         onLongClick = remember(message) {
                             {
                                 if (!isContentClickable && !message.header.messageStatus.isDeleted) {
-                                    onShowEditingOption(message)
+                                    onLongClicked(message)
                                 }
                             }
                         }
@@ -137,11 +135,11 @@ fun MessageContainerItem(
                 message = message,
                 conversationDetailsData = conversationDetailsData,
                 showAuthor = showAuthor,
-                audioMessagesState = audioMessagesState,
+                audioState = audioState,
                 assetStatus = assetStatus,
                 onAudioClick = onAudioClick,
                 onChangeAudioPosition = onChangeAudioPosition,
-                onLongClicked = onShowEditingOption,
+                onLongClicked = onLongClicked,
                 swipableMessageConfiguration = swipableMessageConfiguration,
                 onAssetMessageClicked = onAssetMessageClicked,
                 onImageMessageClicked = onImageMessageClicked,

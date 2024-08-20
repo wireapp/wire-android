@@ -94,9 +94,6 @@ import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
-import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
-import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.ConfirmSendingPingDialog
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
@@ -131,7 +128,7 @@ import com.wire.android.ui.home.conversations.call.ConversationListCallViewModel
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
-import com.wire.android.ui.home.conversations.edit.messageOptionsMenuItems
+import com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
@@ -145,8 +142,7 @@ import com.wire.android.ui.home.conversations.migration.ConversationMigrationVie
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
-import com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuItems
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
@@ -856,44 +852,22 @@ private fun ConversationScreen(
                     currentTimeInMillisFlow = currentTimeInMillisFlow
                 )
             }
-
-            WireModalSheetLayout(
-                sheetState = conversationScreenState.selfDeletingSheetState,
-                sheetContent = { currentlySelected ->
-                    WireMenuModalSheetContent(
-                        header = MenuModalSheetHeader.Visible(title = stringResource(R.string.automatically_delete_message_after)),
-                        menuItems = selfDeletionMenuItems(
-                            currentlySelected = currentlySelected.duration.toSelfDeletionDuration(),
-                            onSelfDeletionDurationChanged = { newTimer ->
-                                conversationScreenState.selfDeletingSheetState.hide {
-                                    onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(newTimer.value))
-                                }
-                            }
-                        )
-                    )
-                }
-            )
-            WireModalSheetLayout(
-                sheetState = conversationScreenState.editSheetState,
-                sheetContent = { selectedMessage ->
-                    WireMenuModalSheetContent(
-                        header = MenuModalSheetHeader.Gone,
-                        menuItems = messageOptionsMenuItems(
-                            message = selectedMessage,
-                            hideEditMessageMenu = remember { { conversationScreenState.editSheetState.hide() } },
-                            onCopyClick = conversationScreenState::copyMessage,
-                            onDeleteClick = onDeleteMessage,
-                            onReactionClick = onReactionClick,
-                            onDetailsClick = onMessageDetailsClick,
-                            onReplyClick = messageComposerStateHolder::toReply,
-                            onEditClick = messageComposerStateHolder::toEdit,
-                            onShareAssetClick = { shareAsset(context, it) },
-                            onDownloadAssetClick = onDownloadAssetClick,
-                            onOpenAssetClick = onOpenAssetClick,
-                        )
-                    )
-                }
-            )
+    SelfDeletionOptionsModalSheetLayout(
+        sheetState = conversationScreenState.selfDeletingSheetState,
+        onNewSelfDeletingMessagesStatus = onNewSelfDeletingMessagesStatus
+    )
+    MessageOptionsModalSheetLayout(
+        sheetState = conversationScreenState.editSheetState,
+        onCopyClick = conversationScreenState::copyMessage,
+        onDeleteClick = onDeleteMessage,
+        onReactionClick = onReactionClick,
+        onDetailsClick = onMessageDetailsClick,
+        onReplyClick = messageComposerStateHolder::toReply,
+        onEditClick = messageComposerStateHolder::toEdit,
+        onShareAssetClick = { shareAsset(context, it) },
+        onDownloadAssetClick = onDownloadAssetClick,
+        onOpenAssetClick = onOpenAssetClick,
+    )
 
             val hideDrawingSheet = remember { { conversationScreenState.drawingSheetState.hide() } }
             DrawingCanvasBottomSheet(
@@ -1189,11 +1163,11 @@ fun MessageList(
                         conversationDetailsData = conversationDetailsData,
                         showAuthor = showAuthor,
                         useSmallBottomPadding = useSmallBottomPadding,
-                        audioMessagesState = audioMessagesState,
+                        audioState = audioMessagesState[message.header.messageId],
                         assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
                         onAudioClick = onAudioItemClicked,
                         onChangeAudioPosition = onChangeAudioPosition,
-                        onShowEditingOption = onShowEditingOption,
+                        onLongClicked = onShowEditingOption,
                         swipableMessageConfiguration = swipableConfiguration,
                         onAssetMessageClicked = onAssetItemClicked,
                         onImageMessageClicked = onImageFullScreenMode,

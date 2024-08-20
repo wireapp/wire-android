@@ -59,7 +59,7 @@ fun SearchConversationMessagesResultsScreen(
                         conversationDetailsData = ConversationDetailsData.None(null),
                         searchQuery = searchQuery,
                         audioMessagesState = persistentMapOf(),
-                        onShowBottomSheet = { },
+                        onShowEditingOption = { },
                         onAssetMessageClicked = { },
                         onAudioClick = { },
                         onChangeAudioPosition = { _, _ -> },

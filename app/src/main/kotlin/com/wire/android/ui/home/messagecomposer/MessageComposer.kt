@@ -67,17 +67,21 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlin.math.roundToInt
 
 @Composable
 fun MessageComposer(
     conversationId: ConversationId,
+    bottomSheetVisible: Boolean,
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
+    onDrawingClicked: () -> Unit,
+    onLocationClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     tempWritableVideoUri: Uri?,
@@ -125,6 +129,7 @@ fun MessageComposer(
             InteractionAvailability.ENABLED -> {
                 EnabledMessageComposer(
                     conversationId = conversationId,
+                    bottomSheetVisible = bottomSheetVisible,
                     messageComposerStateHolder = messageComposerStateHolder,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
@@ -136,7 +141,9 @@ fun MessageComposer(
                     onImagesPicked = onImagesPicked,
                     onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.UriPickedBundle(conversationId, it)) },
                     onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
-                    onShowBottomSheet = onShowBottomSheet,
+                    onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                    onDrawingClicked = onDrawingClicked,
+                    onLocationClicked = onLocationClicked,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                     tempWritableVideoUri = tempWritableVideoUri,
@@ -245,6 +252,7 @@ private fun BaseComposerPreview(
     val keyboardController = LocalSoftwareKeyboardController.current
     MessageComposer(
         conversationId = ConversationId("value", "domain"),
+        bottomSheetVisible = false,
         messageComposerStateHolder = MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
@@ -264,6 +272,8 @@ private fun BaseComposerPreview(
         onPingOptionClicked = { },
         messageListContent = { },
         onChangeSelfDeletionClicked = { },
+        onLocationClicked = {},
+        onDrawingClicked = {},
         onClearMentionSearchResult = { },
         onPermissionPermanentlyDenied = { },
         onSendMessageBundle = { },

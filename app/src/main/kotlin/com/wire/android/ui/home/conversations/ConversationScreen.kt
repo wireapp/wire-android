@@ -31,14 +31,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -258,7 +257,7 @@ fun ConversationScreen(
     LaunchedEffect(conversationScreenState.isAnySheetVisible) { // TODO check with enabled composer
         with(messageComposerStateHolder) {
             if (conversationScreenState.isAnySheetVisible) {
-                messageCompositionInputStateHolder.clearFocus()
+//                messageCompositionInputStateHolder.clearFocus()
             } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
                 messageCompositionInputStateHolder.requestFocus()
                 additionalOptionStateHolder.unselectAdditionalOptionsMenu()
@@ -406,6 +405,7 @@ fun ConversationScreen(
     ConversationScreen(
         bannerMessage = conversationBannerViewModel.bannerState,
         messageComposerViewState = messageComposerViewState.value,
+        bottomSheetVisible = conversationScreenState.isAnySheetVisible,
         conversationCallViewState = conversationListCallViewModel.conversationCallViewState,
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
@@ -732,7 +732,6 @@ private fun startCallIfPossible(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -741,6 +740,7 @@ private fun ConversationScreen(
     conversationCallViewState: ConversationCallViewState,
     conversationInfoViewState: ConversationInfoViewState,
     conversationMessagesViewState: ConversationMessagesViewState,
+    bottomSheetVisible: Boolean,
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
@@ -819,6 +819,7 @@ private fun ConversationScreen(
             ) {
                 ConversationScreenContent(
                     conversationId = conversationInfoViewState.conversationId,
+                    bottomSheetVisible = bottomSheetVisible,
                     audioMessagesState = conversationMessagesViewState.audioMessagesState,
                     assetStatuses = conversationMessagesViewState.assetStatuses,
                     lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
@@ -844,6 +845,8 @@ private fun ConversationScreen(
                     onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
                     onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                     onChangeSelfDeletionClicked = conversationScreenState::showSelfDeletionContextMenu,
+                    onLocationClicked = conversationScreenState::showLocationSheet,
+                    onDrawingClicked = conversationScreenState::showDrawingSheet,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                     tempWritableImageUri = tempWritableImageUri,
@@ -853,53 +856,88 @@ private fun ConversationScreen(
                     currentTimeInMillisFlow = currentTimeInMillisFlow
                 )
             }
-        }
-    )
-    WireModalSheetLayout(
-        sheetState = conversationScreenState.selfDeletingSheetState,
-        sheetContent = { currentlySelected ->
-            WireMenuModalSheetContent(
-                header = MenuModalSheetHeader.Visible(title = stringResource(R.string.automatically_delete_message_after)),
-                menuItems = selfDeletionMenuItems(
-                    currentlySelected = currentlySelected.duration.toSelfDeletionDuration(),
-                    onSelfDeletionDurationChanged = { newTimer ->
-                        conversationScreenState.selfDeletingSheetState.hide {
-                            onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(newTimer.value))
-                        }
-                    }
-                )
+
+            WireModalSheetLayout(
+                sheetState = conversationScreenState.selfDeletingSheetState,
+                sheetContent = { currentlySelected ->
+                    WireMenuModalSheetContent(
+                        header = MenuModalSheetHeader.Visible(title = stringResource(R.string.automatically_delete_message_after)),
+                        menuItems = selfDeletionMenuItems(
+                            currentlySelected = currentlySelected.duration.toSelfDeletionDuration(),
+                            onSelfDeletionDurationChanged = { newTimer ->
+                                conversationScreenState.selfDeletingSheetState.hide {
+                                    onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(newTimer.value))
+                                }
+                            }
+                        )
+                    )
+                }
             )
-        }
-    )
-    WireModalSheetLayout(
-        sheetState = conversationScreenState.editSheetState,
-        sheetContent = { selectedMessage ->
-            WireMenuModalSheetContent(
-                header = MenuModalSheetHeader.Gone,
-                menuItems = messageOptionsMenuItems(
-                    message = selectedMessage,
-                    hideEditMessageMenu = remember { { conversationScreenState.editSheetState.hide() } },
-                    onCopyClick = conversationScreenState::copyMessage,
-                    onDeleteClick = onDeleteMessage,
-                    onReactionClick = onReactionClick,
-                    onDetailsClick = onMessageDetailsClick,
-                    onReplyClick = messageComposerStateHolder::toReply,
-                    onEditClick = messageComposerStateHolder::toEdit,
-                    onShareAssetClick = { shareAsset(context, it) },
-                    onDownloadAssetClick = onDownloadAssetClick,
-                    onOpenAssetClick = onOpenAssetClick,
-                )
+            WireModalSheetLayout(
+                sheetState = conversationScreenState.editSheetState,
+                sheetContent = { selectedMessage ->
+                    WireMenuModalSheetContent(
+                        header = MenuModalSheetHeader.Gone,
+                        menuItems = messageOptionsMenuItems(
+                            message = selectedMessage,
+                            hideEditMessageMenu = remember { { conversationScreenState.editSheetState.hide() } },
+                            onCopyClick = conversationScreenState::copyMessage,
+                            onDeleteClick = onDeleteMessage,
+                            onReactionClick = onReactionClick,
+                            onDetailsClick = onMessageDetailsClick,
+                            onReplyClick = messageComposerStateHolder::toReply,
+                            onEditClick = messageComposerStateHolder::toEdit,
+                            onShareAssetClick = { shareAsset(context, it) },
+                            onDownloadAssetClick = onDownloadAssetClick,
+                            onOpenAssetClick = onOpenAssetClick,
+                        )
+                    )
+                }
             )
+
+            val hideDrawingSheet = remember { { conversationScreenState.drawingSheetState.hide() } }
+            DrawingCanvasBottomSheet(
+                modifier = Modifier.statusBarsPadding(),
+                sheetState = conversationScreenState.drawingSheetState,
+                onDismissSketch = remember { { conversationScreenState.drawingSheetState.hide() } },
+                onSendSketch = {
+                    hideDrawingSheet()
+                    onSendMessage(
+                        ComposableMessageBundle.UriPickedBundle(
+                            conversationId = conversationInfoViewState.conversationId,
+                            attachmentUri = UriAsset(it)
+                        )
+                    )
+                },
+                conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
+                tempWritableImageUri = tempWritableImageUri
+            )
+            LocationPickerComponent(
+                sheetState = conversationScreenState.locationSheetState,
+                onLocationPicked = {
+                    onSendMessage(
+                        ComposableMessageBundle.LocationBundle(
+                            conversationInfoViewState.conversationId,
+                            it.getFormattedAddress(),
+                            it.location
+                        )
+                    )
+                },
+                onLocationClosed = remember { { conversationScreenState.locationSheetState.hide() } }
+            )
+
+            SnackBarMessage(composerMessages, conversationMessages)
+
         }
     )
 
-    SnackBarMessage(composerMessages, conversationMessages)
 }
 
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreenContent(
     conversationId: ConversationId,
+    bottomSheetVisible: Boolean,
     lastUnreadMessageInstant: Instant?,
     unreadEventCount: Int,
     audioMessagesState: PersistentMap<String, AudioState>,
@@ -926,6 +964,8 @@ private fun ConversationScreenContent(
     onFailedMessageCancelClicked: (String) -> Unit,
     onChangeSelfDeletionClicked: (SelfDeletionTimer) -> Unit,
     onClearMentionSearchResult: () -> Unit,
+    onDrawingClicked: () -> Unit,
+    onLocationClicked: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
@@ -941,6 +981,7 @@ private fun ConversationScreenContent(
 
     MessageComposer(
         conversationId = conversationId,
+        bottomSheetVisible = bottomSheetVisible,
         messageComposerStateHolder = messageComposerStateHolder,
         messageListContent = {
             MessageList(
@@ -971,6 +1012,8 @@ private fun ConversationScreenContent(
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+        onDrawingClicked = onDrawingClicked,
+        onLocationClicked = onLocationClicked,
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
         onPingOptionClicked = onPingOptionClicked,
@@ -1150,7 +1193,7 @@ fun MessageList(
                         assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
                         onAudioClick = onAudioItemClicked,
                         onChangeAudioPosition = onChangeAudioPosition,
-                        onLongClicked = onShowEditingOption,
+                        onShowEditingOption = onShowEditingOption,
                         swipableMessageConfiguration = swipableConfiguration,
                         onAssetMessageClicked = onAssetItemClicked,
                         onImageMessageClicked = onImageFullScreenMode,
@@ -1346,6 +1389,7 @@ fun PreviewConversationScreen() = WireTheme {
     )
     ConversationScreen(
         bannerMessage = null,
+        bottomSheetVisible = false,
         messageComposerViewState = messageComposerViewState.value,
         conversationCallViewState = ConversationCallViewState(),
         conversationInfoViewState = ConversationInfoViewState(

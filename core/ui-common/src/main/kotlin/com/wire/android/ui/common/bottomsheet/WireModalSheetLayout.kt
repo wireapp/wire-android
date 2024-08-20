@@ -45,6 +45,7 @@ fun <T : Any> WireModalSheetLayout(
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
     dragHandle: @Composable (() -> Unit)? = { WireBottomSheetDefaults.WireDragHandle() },
     contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
+//    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
     sheetContent: @Composable ColumnScope.(T) -> Unit
 ) {
     (sheetState.currentValue as? WireSheetValue.Expanded<T>)?.let { expandedValue ->
@@ -59,10 +60,12 @@ fun <T : Any> WireModalSheetLayout(
             onDismissRequest = sheetState::onDismissRequest,
             dragHandle = dragHandle,
             modifier = modifier.absoluteOffset(y = 1.dp),
-            contentWindowInsets = contentWindowInsets
+            contentWindowInsets = contentWindowInsets,
+//            properties = properties
         )
     }
     BackHandler(enabled = sheetState.isVisible) {
+        println("KBX BackHandler sheetVisible")
         sheetState.hide()
     }
 }

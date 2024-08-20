@@ -30,8 +30,6 @@ import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
-import com.wire.android.ui.home.messagecomposer.location.LocationPickerComponent
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem

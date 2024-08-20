@@ -86,9 +86,12 @@ import kotlin.math.roundToInt
 @Composable
 fun EnabledMessageComposer(
     conversationId: ConversationId,
+    bottomSheetVisible: Boolean,
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
+    onDrawingClicked: () -> Unit,
+    onLocationClicked: () -> Unit,
     onSendButtonClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
@@ -225,9 +228,7 @@ fun EnabledMessageComposer(
                             onTextCollapse = messageCompositionInputStateHolder::collapseText,
                             onCancelReply = messageCompositionHolder::clearReply,
                             onCancelEdit = ::cancelEdit,
-                            onChangeSelfDeletionClicked = {
-                                onShowBottomSheet(ConversationScreenState.BottomSheetMenuType.SelfDeletion(it))
-                            },
+                            onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                             onSendButtonClicked = onSendButtonClicked,
                             onEditButtonClicked = {
                                 onSendButtonClicked()
@@ -278,7 +279,7 @@ fun EnabledMessageComposer(
                             isMentionActive = messageComposerViewState.value.mentionSearchResult.isNotEmpty(),
                             onMentionButtonClicked = messageCompositionHolder::startMention,
                             onOnSelfDeletingOptionClicked = {
-                                onShowBottomSheet(ConversationScreenState.BottomSheetMenuType.SelfDeletion(it))
+                                onChangeSelfDeletionClicked(it)
                                 additionalOptionStateHolder.toSelfDeletingOptionsMenu() // KBX TODO potrzebne?
                             },
                             onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
@@ -293,9 +294,7 @@ fun EnabledMessageComposer(
                                 additionalOptionStateHolder.toRichTextEditing()
                             },
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                            onDrawingModeClicked = {
-                                onShowBottomSheet(ConversationScreenState.BottomSheetMenuType.Sketch)
-                            }
+                            onDrawingModeClicked = onDrawingClicked,
                         )
                     }
                 }
@@ -371,9 +370,7 @@ fun EnabledMessageComposer(
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
                             onRecordAudioMessageClicked = ::toAudioRecording,
                             onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
-                            onLocationPickerClicked = {
-                                onShowBottomSheet(ConversationScreenState.BottomSheetMenuType.Location)
-                            },
+                            onLocationPickerClicked = onLocationClicked,
                             onImagesPicked = onImagesPicked,
                             onAttachmentPicked = onAttachmentPicked,
                             onAudioRecorded = onAudioRecorded,

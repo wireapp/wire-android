@@ -54,7 +54,7 @@ fun MessageContainerItem(
     message: UIMessage,
     conversationDetailsData: ConversationDetailsData,
     audioMessagesState: PersistentMap<String, AudioState>,
-    onShowBottomSheet: (ConversationScreenState.BottomSheetMenuType) -> Unit,
+    onShowEditingOption: (UIMessage.Regular) -> Unit,
     swipableMessageConfiguration: SwipableMessageConfiguration,
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -115,7 +115,7 @@ fun MessageContainerItem(
                         onLongClick = remember(message) {
                             {
                                 if (!isContentClickable && !message.header.messageStatus.isDeleted) {
-                                    onShowBottomSheet(ConversationScreenState.BottomSheetMenuType.Edit(message))
+                                    onShowEditingOption(message)
                                 }
                             }
                         }
@@ -141,9 +141,7 @@ fun MessageContainerItem(
                 assetStatus = assetStatus,
                 onAudioClick = onAudioClick,
                 onChangeAudioPosition = onChangeAudioPosition,
-                onLongClicked = {
-                    onShowBottomSheet(ConversationScreenState.BottomSheetMenuType.Edit(message))
-                },
+                onLongClicked = onShowEditingOption,
                 swipableMessageConfiguration = swipableMessageConfiguration,
                 onAssetMessageClicked = onAssetMessageClicked,
                 onImageMessageClicked = onImageMessageClicked,

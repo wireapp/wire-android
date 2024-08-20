@@ -25,15 +25,15 @@ import androidx.compose.ui.window.DialogProperties
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.button.WireButtonState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DiscardDialogConfirmation(
     scope: CoroutineScope,
-    sheetState: SheetState,
+    sheetState: WireModalSheetState<Unit>,
     onDismissSketch: () -> Unit,
     onHideConfirmationDialog: () -> Unit,
 ) {

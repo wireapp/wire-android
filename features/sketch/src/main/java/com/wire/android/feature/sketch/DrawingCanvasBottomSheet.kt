@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,9 +38,6 @@ import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetProperties
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,10 +46,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wire.android.feature.sketch.model.DrawingState
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.IconAlignment
@@ -76,11 +75,13 @@ fun DrawingCanvasBottomSheet(
     tempWritableImageUri: Uri?,
     modifier: Modifier = Modifier,
     conversationTitle: String = "",
-    viewModel: DrawingCanvasViewModel = viewModel()
+    viewModel: DrawingCanvasViewModel = viewModel(),
+    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { false })
+    // TODO KBX
+//    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { false })
     val onDismissEvent: () -> Unit = remember {
         {
             if (viewModel.state.paths.isNotEmpty()) {
@@ -97,20 +98,20 @@ fun DrawingCanvasBottomSheet(
         }
     }
 
-    ModalBottomSheet(
+    WireModalSheetLayout(
         modifier = modifier,
-        shape = CutCornerShape(dimensions().spacing0x),
+        sheetShape = CutCornerShape(dimensions().spacing0x),
         containerColor = colorsScheme().background,
         dragHandle = {
             DrawingTopBar(conversationTitle, onDismissEvent, viewModel::onUndoLastStroke, viewModel.state)
         },
         sheetState = sheetState,
-        onDismissRequest = onDismissEvent,
-        properties = ModalBottomSheetProperties(
-            isFocusable = true,
-            securePolicy = SecureFlagPolicy.Inherit,
-            shouldDismissOnBackPress = false
-        )
+
+//        onDismissRequest = onDismissEvent,
+//        properties = ModalBottomSheetProperties(
+//            securePolicy = SecureFlagPolicy.Inherit,
+//            shouldDismissOnBackPress = false
+//        )
     ) {
         Row(
             Modifier

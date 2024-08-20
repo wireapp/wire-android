@@ -20,38 +20,43 @@ package com.wire.android.ui.userprofile.qr
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.navArgs
+import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.getTempWritableAttachmentUri
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
+import okio.Path
+import okio.Path.Companion.toPath
 import java.io.FileOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
-class SelfQRCodeViewModel
-@Inject
-constructor(
+class SelfQRCodeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val context: Context,
     @CurrentAccount private val selfUserId: UserId,
-    private val selfServerLinks: SelfServerConfigUseCase
+    private val selfServerLinks: SelfServerConfigUseCase,
+    private val kaliumFileSystem: KaliumFileSystem,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
     private val selfQrCodeNavArgs: SelfQrCodeNavArgs = savedStateHandle.navArgs()
     var selfQRCodeState by mutableStateOf(SelfQRCodeState(selfUserId, handle = selfQrCodeNavArgs.handle))
         private set
+    private val cachePath: Path
+        get() = kaliumFileSystem.rootCachePath
 
     init {
         viewModelScope.launch {
@@ -60,30 +65,28 @@ constructor(
     }
 
     suspend fun shareQRAsset(bitmap: Bitmap): Uri {
-        val qrImageFile = tempQRUri(context)
-        viewModelScope
-            .launch {
-                withContext(Dispatchers.IO) {
-                    context.contentResolver.openFileDescriptor(qrImageFile, "rwt")?.use { fileDescriptor ->
-                        FileOutputStream(fileDescriptor.fileDescriptor)
-                            .use { fileOutputStream ->
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, QR_QUALITY_COMPRESSION, fileOutputStream)
-                                fileOutputStream.flush()
-                            }.also {
-                                Log.d("SelfQRCodeViewModel", "Image written to: $qrImageFile")
-                            }
-                    }
+        val job = viewModelScope.async {
+            val qrImageFile = getTempWritableQRUri(cachePath)
+            withContext(dispatchers.io()) {
+                context.contentResolver.openFileDescriptor(qrImageFile, "rwt")?.use { fileDescriptor ->
+                    FileOutputStream(fileDescriptor.fileDescriptor)
+                        .use { fileOutputStream ->
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, QR_QUALITY_COMPRESSION, fileOutputStream)
+                            fileOutputStream.flush()
+                        }.also {
+                            appLogger.withTextTag("SelfQRCodeViewModel").d("Image written to: $qrImageFile")
+                        }
                 }
-            }.join()
-        return qrImageFile
+            }
+            qrImageFile
+        }
+        return job.await()
     }
 
-    private fun tempQRUri(context: Context): Uri =
-        run {
-            val tempFile = File.createTempFile("temp_qr", ".jpg", context.cacheDir)
-            tempFile.deleteOnExit()
-            tempFile.toUri()
-        }
+    private suspend fun getTempWritableQRUri(tempCachePath: Path): Uri = withContext(dispatchers.io()) {
+        val tempImagePath = "$tempCachePath/$TEMP_SELF_QR_FILENAME".toPath()
+        return@withContext getTempWritableAttachmentUri(context, tempImagePath)
+    }
 
     private suspend fun getServerLinks() {
         selfQRCodeState =
@@ -99,6 +102,7 @@ constructor(
         )
 
     companion object {
+        const val TEMP_SELF_QR_FILENAME = "temp_self_qr.jpg"
         const val BASE_USER_PROFILE_URL = "%s/user-profile/?id=%s"
 
         // This URL, can be used when we have a direct link to user profile Milestone2

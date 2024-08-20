@@ -5,9 +5,9 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.navArgs
-import com.wire.android.ui.userprofile.image.AvatarPickerViewModelTest.Companion.fakeKaliumFileSystem
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -22,6 +22,7 @@ import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
+
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
@@ -29,11 +30,11 @@ class SelfQRCodeViewModelTest {
     @Test
     fun `given user is on self qr code screen, then data is loaded correctly`() = runTest {
         // given
-        val (arrangement, viewModel) = Arrangement().arrange()
+        val (_, viewModel) = Arrangement().arrange()
 
         // when - then
         assertEquals(
-            expected = "https://wire-account-staging.zinfra.io/user-profile/?id=${TestUser.SELF_USER.id.value}",
+            expected = "${ServerConfig.STAGING.accounts}/user-profile/?id=${TestUser.SELF_USER.id.value}",
             actual = viewModel.selfQRCodeState.userProfileLink,
         )
     }
@@ -63,5 +64,7 @@ class SelfQRCodeViewModelTest {
             kaliumFileSystem = fakeKaliumFileSystem,
             dispatchers = TestDispatcherProvider()
         )
+
+        val fakeKaliumFileSystem: FakeKaliumFileSystem = FakeKaliumFileSystem()
     }
 }

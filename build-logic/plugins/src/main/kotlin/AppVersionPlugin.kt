@@ -29,13 +29,13 @@ class AppVersionPlugin : Plugin<Project> {
         with(target) {
             project.tasks.register("generateVersionFile", Task::class.java) {
                 //clean the repo from a probably existing version.txt
-                if (file("$rootDir/app/version.txt").exists()) {
+                if (file("$projectDir/version.txt").exists()) {
                     println("deleting existing version.txt file for safety reasons")
-                    file("$rootDir/app/version.txt").delete()
+                    file("$projectDir/version.txt").delete()
                 }
                 // current time in UTC
                 val currentTime = LocalDateTime.now()
-                val versnisor = Versionizer(rootDir, currentTime)
+                val versnisor = Versionizer(projectDir, currentTime)
                 val versionCode = versnisor.versionCode
                 val versionName = "${AndroidApp.versionName}-${AndroidApp.leastSignificantVersionCode}"
                 val buildTime = currentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) ?: error("Failed to get build time")
@@ -50,7 +50,7 @@ class AppVersionPlugin : Plugin<Project> {
                 // output the data to a file
 
                 // TODO: revert the hard coded 9999
-                file("$rootDir/app/version.txt").writeText(
+                file("$projectDir/version.txt").writeText(
                     """
                     |VersionCode: 999999999
                     |VersionName: $versionName

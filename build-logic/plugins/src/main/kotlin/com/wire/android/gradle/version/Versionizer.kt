@@ -29,7 +29,7 @@ import java.time.LocalDateTime
  * https://github.com/wireapp/wire-android/blob/594497477325d77c1d203dbcaab79fb14b511530/app/build.gradle#L467
  */
 class Versionizer(
-    private val rootDir: File,
+    private val projectDir: File,
     private val localDateTime: LocalDateTime = LocalDateTime.now(),
 ) {
 
@@ -40,7 +40,7 @@ class Versionizer(
     // VersionCode: $$VERCODE$$\n
     // the file is added by CI tp sync build version between store and fdroid
     private fun readFromInternalFile(): Int? {
-        val file = File("app/version.txt")
+        val file = File("${projectDir}/version.txt")
         println("looking for version file")
         if (file.exists()) {
             println("Reading version from file")
@@ -49,7 +49,7 @@ class Versionizer(
             println("Version code: $versionCode from file")
             return versionCode?.toInt()
         }
-        error("No version file found in")
+        error("No version file found in ${file.absolutePath}")
         println("No version file found")
         return null
     }

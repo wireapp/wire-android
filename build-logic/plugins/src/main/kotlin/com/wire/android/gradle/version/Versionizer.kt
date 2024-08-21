@@ -49,7 +49,6 @@ class Versionizer(
             println("Version code: $versionCode from file")
             return versionCode?.toInt()
         }
-        error("No version file found in ${file.absolutePath}")
         println("No version file found")
         return null
     }

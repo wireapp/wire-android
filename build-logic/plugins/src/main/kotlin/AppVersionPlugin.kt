@@ -33,7 +33,7 @@ class AppVersionPlugin : Plugin<Project> {
                     println("deleting existing version.txt file for safety reasons")
                     file("$projectDir/version.txt").delete()
                 }
-                // current time in UTC
+
                 val currentTime = LocalDateTime.now()
                 val versnisor = Versionizer(projectDir, currentTime)
                 val versionCode = versnisor.versionCode
@@ -47,12 +47,11 @@ class AppVersionPlugin : Plugin<Project> {
                 println("Revision: $gitRevision")
                 println("Buildtime: $buildTime")
                 println("Application-name: $appName")
-                // output the data to a file
 
-                // TODO: revert the hard coded 9999
+                // output the data to a file in app/version.txt
                 file("$projectDir/version.txt").writeText(
                     """
-                    |VersionCode: 999999999
+                    |VersionCode: $versionCode
                     |VersionName: $versionName
                     |Revision: $gitRevision
                     |Buildtime: $buildTime
@@ -63,18 +62,3 @@ class AppVersionPlugin : Plugin<Project> {
         }
     }
 }
-
-fun String.execute(): Process {
-    val process = ProcessBuilder(*this.split(" ").toTypedArray())
-        .redirectErrorStream(true)
-        .start()
-    process.waitFor()
-    return process
-}
-
-val Process.text: String
-    get() {
-        val output = ByteArrayOutputStream()
-        inputStream.copyTo(output)
-        return output.toString()
-    }

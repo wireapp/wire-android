@@ -41,6 +41,7 @@ class Versionizer(
     // the file is added by CI tp sync build version between store and fdroid
     private fun readFromInternalFile(): Int? {
         val file = File("${rootDir}/version.txt")
+        println("looking for version file in ${file.path}")
         if (file.exists()) {
             println("Reading version from file")
             val lines = file.readLines()
@@ -48,7 +49,7 @@ class Versionizer(
             println("Version code: $versionCode from file")
             return versionCode?.toInt()
         }
-        println("No version file found")
+        println("No version file found in ${file.path}")
         return null
     }
 

@@ -29,9 +29,9 @@ class AppVersionPlugin : Plugin<Project> {
         with(target) {
             project.tasks.register("generateVersionFile", Task::class.java) {
                 //clean the repo from a probably existing version.txt
-                if (file("$rootDir.txt").exists()) {
+                if (file("$rootDir/app/version.txt").exists()) {
                     println("deleting existing version.txt file for safety reasons")
-                    file("$rootDir/version.txt").delete()
+                    file("$rootDir/app/version.txt").delete()
                 }
                 // current time in UTC
                 val currentTime = LocalDateTime.now()
@@ -50,7 +50,7 @@ class AppVersionPlugin : Plugin<Project> {
                 // output the data to a file
 
                 // TODO: revert the hard coded 9999
-                file("$rootDir/version.txt").writeText(
+                file("$rootDir/app/version.txt").writeText(
                     """
                     |VersionCode: 999999999
                     |VersionName: $versionName

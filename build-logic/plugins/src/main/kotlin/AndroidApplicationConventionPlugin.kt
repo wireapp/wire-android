@@ -35,6 +35,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             namespace = AndroidApp.id
             configureKotlinAndroid(this)
             defaultConfig {
+                AndroidApp.setRootDir(rootDir)
+
                 applicationId = AndroidApp.id
                 defaultConfig.targetSdk = AndroidSdk.target
                 versionCode = AndroidApp.versionCode

@@ -17,6 +17,7 @@
  */
 package com.wire.android.gradle.version
 
+import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
 
@@ -27,16 +28,19 @@ import java.time.LocalDateTime
  * This has been built to match the current Groovy implementation:
  * https://github.com/wireapp/wire-android/blob/594497477325d77c1d203dbcaab79fb14b511530/app/build.gradle#L467
  */
-class Versionizer(private val localDateTime: LocalDateTime = LocalDateTime.now()) {
+class Versionizer(
+    private val rootDir: File,
+    private val localDateTime: LocalDateTime = LocalDateTime.now(),
+) {
 
-    // get version from app/version.txt otherwise use the current date
+    // get version from /version.txt otherwise use the current date
     val versionCode = readFromInternalFile() ?: generateVersionCode()
 
     // get version from app/version.txt otherwise use the current date the file have the following format
     // VersionCode: $$VERCODE$$\n
     // the file is added by CI tp sync build version between store and fdroid
     private fun readFromInternalFile(): Int? {
-        val file = java.io.File("version.txt")
+        val file = File("${rootDir}/version.txt")
         if (file.exists()) {
             println("Reading version from file")
             val lines = file.readLines()

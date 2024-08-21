@@ -38,14 +38,18 @@ class Versionizer(private val localDateTime: LocalDateTime = LocalDateTime.now()
     private fun readFromInternalFile(): Int? {
         val file = java.io.File("app/version.txt")
         if (file.exists()) {
+            println("Reading version from file")
             val lines = file.readLines()
             val versionCode = lines.find { it.startsWith("VersionCode:") }?.substringAfter(":")?.trim()
-            return versionCode?.toIntOrNull()
+            println("Version code: $versionCode from file")
+            return versionCode?.toInt()
         }
+        println("No version file found")
         return null
     }
 
     private fun generateVersionCode(): Int {
+        println("Generating version code with date: $localDateTime")
         return if (localDateTime <= V2_DATE_OFFSET) {
             val duration = Duration.between(V1_DATE_OFFSET, localDateTime)
             (duration.seconds / V1_SECONDS_PER_BUMP).toInt()

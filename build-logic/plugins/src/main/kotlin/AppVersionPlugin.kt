@@ -2,10 +2,8 @@ import com.wire.android.gradle.version.Versionizer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-
 
 /*
  * Wire
@@ -28,7 +26,7 @@ class AppVersionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             project.tasks.register("generateVersionFile", Task::class.java) {
-                //clean the repo from a probably existing version.txt
+                // clean the repo from a probably existing version.txt
                 if (file("$projectDir/version.txt").exists()) {
                     println("deleting existing version.txt file for safety reasons")
                     file("$projectDir/version.txt").delete()

@@ -19,7 +19,7 @@ import java.io.ByteArrayOutputStream
  */
 
 fun String.execute(): Process {
-    val process = ProcessBuilder(*this.split(" ").toTypedArray())
+    val process = ProcessBuilder(this.split(" "))
         .redirectErrorStream(true)
         .start()
     process.waitFor()

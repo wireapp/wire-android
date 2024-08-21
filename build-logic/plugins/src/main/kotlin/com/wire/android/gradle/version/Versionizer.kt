@@ -33,14 +33,14 @@ class Versionizer(
     private val localDateTime: LocalDateTime = LocalDateTime.now(),
 ) {
 
-    // get version from /version.txt otherwise use the current date
+    // get version from app/version.txt otherwise use the current date
     val versionCode = readFromInternalFile() ?: generateVersionCode()
 
     // get version from app/version.txt otherwise use the current date the file have the following format
     // VersionCode: $$VERCODE$$\n
     // the file is added by CI tp sync build version between store and fdroid
     private fun readFromInternalFile(): Int? {
-        val file = File("${projectDir}/version.txt")
+        val file = File("$projectDir/version.txt")
         println("looking for version file")
         if (file.exists()) {
             println("Reading version from file")

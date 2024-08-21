@@ -33,7 +33,7 @@ class Versionizer(
     private val localDateTime: LocalDateTime = LocalDateTime.now(),
 ) {
 
-    // get version from /version.txt otherwise use the current date
+    // get version from app/version.txt otherwise use the current date
     val versionCode = readFromInternalFile() ?: generateVersionCode()
 
     // get version from app/version.txt otherwise use the current date the file have the following format

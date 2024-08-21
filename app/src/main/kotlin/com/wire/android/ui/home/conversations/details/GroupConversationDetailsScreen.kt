@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.details
 
+import SwipeableSnackbar
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -34,6 +35,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -111,8 +113,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import kotlinx.coroutines.launch
-import SwipeableSnackbar
-import androidx.compose.material3.SnackbarHost
 
 @RootNavGraph
 @WireDestination(
@@ -394,7 +394,8 @@ private fun GroupConversationDetailsContent(
                         openFullListPressed = openFullListPressed,
                         onAddParticipantsPressed = onAddParticipantsPressed,
                         onProfilePressed = onProfilePressed,
-                        lazyListState = lazyListStates[pageIndex]
+                        lazyListState = lazyListStates[pageIndex],
+                        allowAddMember = conversationSheetState.conversationSheetContent?.title?.isNotEmpty() ?:false
                     )
                 }
             }

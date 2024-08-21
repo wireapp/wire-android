@@ -99,7 +99,7 @@ fun GroupConversationDetailsTopBarCollapsing(
                     Text(
                         text = title.ifBlank {
                             if (isLoading) ""
-                            else UIText.StringResource(R.string.group_unavailable_label).asString()
+                            else UIText.StringResource(R.string.member_name_deleted_label).asString()
                         },
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,

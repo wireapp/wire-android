@@ -29,11 +29,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.QrCode
@@ -50,8 +54,12 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
@@ -64,7 +72,6 @@ import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserProfileAvatarType
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForUser
-import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -165,84 +172,95 @@ fun UserProfileInfo(
                 }
             }
         }
-        ConstraintLayout(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .animateContentSize()
-        ) {
-            val (userDescription, editButton, teamDescription) = createRefs()
 
-            Column(
-                horizontalAlignment = CenterHorizontally,
-                modifier = Modifier
-                    .padding(horizontal = dimensions().spacing64x)
-                    .wrapContentSize()
-                    .constrainAs(userDescription) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = fullName.ifBlank {
+        Row(Modifier.animateContentSize()) {
+            if (onQrCodeClick != null && isLoading.not()) {
+                Spacer(
+                    modifier = Modifier
+                        .padding(start = dimensions().spacing16x)
+                        .width(dimensions().spacing24x)
+                )
+            }
+
+            Column(horizontalAlignment = CenterHorizontally, modifier = Modifier.weight(1f)) {
+                Row(modifier = Modifier.padding(horizontal = dimensions().spacing16x)) {
+                    val proteusIcon = "proteusIcon"
+                    val mlsIcon = "mlsIcon"
+                    val text = buildAnnotatedString {
+                        append(fullName.ifBlank {
                             if (isLoading) ""
                             else UIText.StringResource(R.string.username_unavailable_label).asString()
-                        },
+                        })
+
+                        if (isProteusVerified) appendInlineContent(proteusIcon, "[icon1]")
+                        if (isMLSVerified) appendInlineContent(mlsIcon, "[icon2]")
+                    }
+                    val inlineContent: MutableMap<String, InlineTextContent> = mutableMapOf()
+                    if (isProteusVerified) inlineContent[proteusIcon] = InlineTextContent(
+                        Placeholder(
+                            width = 16.sp,
+                            height = 16.sp,
+                            placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
+                        )
+                    ) { ProteusVerifiedIcon() }
+                    if (isMLSVerified) inlineContent[mlsIcon] = InlineTextContent(
+                        Placeholder(
+                            width = 16.sp,
+                            height = 16.sp,
+                            placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
+                        )
+                    ) { MLSVerifiedIcon() }
+
+                    Text(
+                        text = text,
                         overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
+                        maxLines = 2,
+                        textAlign = TextAlign.Center,
                         style = MaterialTheme.wireTypography.title02,
                         color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground
-                        else MaterialTheme.wireColorScheme.labelText
+                        else MaterialTheme.wireColorScheme.labelText,
+                        inlineContent = inlineContent
                     )
 
-                    if (isMLSVerified) MLSVerifiedIcon()
-                    if (isProteusVerified) ProteusVerifiedIcon()
+
                 }
                 Text(
                     text = processUsername(userName, membership, expiresAt),
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.wireTypography.body02,
-                    maxLines = 1,
+                    maxLines = 2,
+                    textAlign = TextAlign.Center,
                     color = MaterialTheme.wireColorScheme.labelText
                 )
-                if (onQrCodeClick != null) {
+                UserBadge(membership, connection, topPadding = dimensions().spacing8x)
+
+            }
+
+            if (onQrCodeClick != null && isLoading.not()) {
+                Column(Modifier.padding(end = dimensions().spacing16x)) {
                     QRCodeIcon(onQrCodeClick)
                 }
-                UserBadge(membership, connection, topPadding = dimensions().spacing8x)
             }
-            val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
+        }
+        val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
-            if (localFeatureVisibilityFlags.UserProfileEditIcon) {
-                if (editableState is EditableState.IsEditable) {
-                    ManageMemberButton(
-                        modifier = Modifier
-                            .padding(start = dimensions().spacing16x)
-                            .constrainAs(editButton) {
-                                top.linkTo(userDescription.top)
-                                bottom.linkTo(userDescription.bottom)
-                                end.linkTo(userDescription.end)
-                            },
-                        onEditClick = editableState.onEditClick
-                    )
-                }
-            }
-
-            if (teamName != null) {
-                TeamInformation(
+        if (localFeatureVisibilityFlags.UserProfileEditIcon) {
+            if (editableState is EditableState.IsEditable) {
+                ManageMemberButton(
                     modifier = Modifier
-                        .padding(top = dimensions().spacing8x)
-                        .padding(horizontal = dimensions().spacing16x)
-                        .constrainAs(teamDescription) {
-                            top.linkTo(userDescription.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        },
-                    teamName = teamName
+                        .padding(start = dimensions().spacing16x),
+                    onEditClick = editableState.onEditClick
                 )
             }
+        }
+
+        if (teamName != null) {
+            TeamInformation(
+                modifier = Modifier
+                    .padding(top = dimensions().spacing8x)
+                    .padding(horizontal = dimensions().spacing16x),
+                teamName = teamName
+            )
         }
 
         userId?.also {
@@ -263,7 +281,9 @@ fun QRCodeIcon(
     androidx.compose.material3.Icon(
         imageVector = Icons.Filled.QrCode,
         contentDescription = stringResource(contentDescriptionId),
-        modifier = modifier.clickable { onQrCodeClick() }.padding(vertical = dimensions().spacing8x),
+        modifier = modifier
+            .size(dimensions().spacing24x)
+            .clickable { onQrCodeClick() },
         tint = colorsScheme().onBackground
     )
 }
@@ -308,16 +328,17 @@ sealed class EditableState {
 fun PreviewUserProfileInfo() {
     UserProfileInfo(
         userId = UserId("value", "domain"),
-        isLoading = true,
+        isLoading = false,
         editableState = EditableState.IsEditable {},
         userName = "userName",
         avatarAsset = null,
-        fullName = "fullName",
+        fullName = "Full nameeee",
         onUserProfileClick = {},
         teamName = "Wire",
         connection = ConnectionState.ACCEPTED,
         isProteusVerified = true,
-        isMLSVerified = true
+        isMLSVerified = true,
+        onQrCodeClick = {}
     )
 }
 
@@ -351,10 +372,10 @@ fun PreviewUserProfileInfoTempUser() {
         avatarAsset = null,
         fullName = "fullName",
         onUserProfileClick = {},
-        teamName = "Wire",
+        teamName = null,
         connection = ConnectionState.ACCEPTED,
-        isProteusVerified = true,
-        isMLSVerified = true,
+        isProteusVerified = false,
+        isMLSVerified = false,
         expiresAt = Clock.System.now().plus(1.hours),
         onQrCodeClick = {}
     )

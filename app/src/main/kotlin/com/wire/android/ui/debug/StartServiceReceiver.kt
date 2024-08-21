@@ -49,7 +49,8 @@ class StartServiceReceiver : BroadcastReceiver() {
         appLogger.i("$TAG: onReceive called with action ${intent?.action}")
         /**
          * We may get any event from the system, so we need to check if the action is ACTION_BOOT_COMPLETED or
-         * ACTION_LOCKED_BOOT_COMPLETED to start the persistentWebSocketService otherwise ForegroundServiceStartNotAllowedException will be thrown.
+         * ACTION_LOCKED_BOOT_COMPLETED to start the persistentWebSocketService otherwise
+         * ForegroundServiceStartNotAllowedException will be thrown.
          */
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED || intent?.action == Intent.ACTION_LOCKED_BOOT_COMPLETED) {
             scope.launch { startPersistentWebSocketService() }

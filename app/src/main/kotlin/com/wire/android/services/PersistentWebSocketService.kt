@@ -28,7 +28,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.di.CurrentSessionFlowService
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
@@ -39,7 +38,6 @@ import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
-import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope

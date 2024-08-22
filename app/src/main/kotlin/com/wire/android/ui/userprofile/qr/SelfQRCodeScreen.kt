@@ -82,7 +82,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun SelfQRCodeScreen(
     navigator: Navigator,
-    modifier: Modifier = Modifier,
     viewModel: SelfQRCodeViewModel = hiltViewModel()
 ) {
     if (viewModel.selfQRCodeState.hasError) {

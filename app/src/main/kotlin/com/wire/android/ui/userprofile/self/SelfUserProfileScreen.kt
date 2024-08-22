@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.userprofile.self
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -109,6 +110,7 @@ import com.wire.kalium.logic.data.user.UserId
     style = PopUpNavigationAnimation::class,
 )
 @Composable
+@SuppressLint("ComposeModifierMissing")
 fun SelfUserProfileScreen(
     navigator: Navigator,
     avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>,
@@ -132,7 +134,9 @@ fun SelfUserProfileScreen(
         onLegalHoldAcceptClick = legalHoldRequestedViewModel::show,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
         onOtherAccountClick = { viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate)) },
-        onQrCodeClick = { navigator.navigate(NavigationCommand(SelfQRCodeScreenDestination(viewModelSelf.userProfileState.userName))) },
+        onQrCodeClick = {
+            navigator.navigate(NavigationCommand(SelfQRCodeScreenDestination(viewModelSelf.userProfileState.userName)))
+        },
         isUserInCall = viewModelSelf::isUserInCall,
     )
 
@@ -240,12 +244,16 @@ private fun SelfUserProfileContent(
                         stickyHeader {
                             Box(
                                 contentAlignment = Alignment.Center,
-                                modifier = Modifier.fillMaxWidth().padding(top = dimensions().spacing8x)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = dimensions().spacing8x)
                             ) {
                                 when (state.legalHoldStatus) {
                                     LegalHoldUIState.Active -> LegalHoldSubjectBanner(onLegalHoldLearnMoreClick)
                                     LegalHoldUIState.Pending -> LegalHoldPendingBanner(onLegalHoldAcceptClick)
-                                    LegalHoldUIState.None -> { /* no banner */ }
+                                    LegalHoldUIState.None -> {
+                                        /* no banner */
+                                    }
                                 }
                             }
                         }

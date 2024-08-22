@@ -263,28 +263,35 @@ private fun processFullName(
     val mlsIcon = "mlsIcon"
     val text = buildAnnotatedString {
         val processedFullName = createMiddleEllipsizeIfNeeded(fullName)
-        append(processedFullName.ifBlank {
-            if (isLoading) ""
-            else UIText.StringResource(R.string.username_unavailable_label).asString()
-        })
+        append(
+            processedFullName.ifBlank {
+                if (isLoading) ""
+                else UIText.StringResource(R.string.username_unavailable_label).asString()
+            }
+        )
+
         if (isProteusVerified) appendInlineContent(proteusIcon, "[icon1]")
         if (isMLSVerified) appendInlineContent(mlsIcon, "[icon2]")
     }
     val inlineContent: MutableMap<String, InlineTextContent> = mutableMapOf()
-    if (isProteusVerified) inlineContent[proteusIcon] = InlineTextContent(
-        Placeholder(
-            width = 16.sp,
-            height = 16.sp,
-            placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
-        )
-    ) { ProteusVerifiedIcon() }
-    if (isMLSVerified) inlineContent[mlsIcon] = InlineTextContent(
-        Placeholder(
-            width = 16.sp,
-            height = 16.sp,
-            placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
-        )
-    ) { MLSVerifiedIcon() }
+    if (isProteusVerified) {
+        inlineContent[proteusIcon] = InlineTextContent(
+            Placeholder(
+                width = 16.sp,
+                height = 16.sp,
+                placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
+            )
+        ) { ProteusVerifiedIcon() }
+    }
+    if (isMLSVerified) {
+        inlineContent[mlsIcon] = InlineTextContent(
+            Placeholder(
+                width = 16.sp,
+                height = 16.sp,
+                placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
+            )
+        ) { MLSVerifiedIcon() }
+    }
     return Pair(text, inlineContent)
 }
 

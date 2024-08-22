@@ -54,6 +54,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
@@ -184,36 +185,18 @@ fun UserProfileInfo(
 
             Column(horizontalAlignment = CenterHorizontally, modifier = Modifier.weight(1f)) {
                 Row(modifier = Modifier.padding(horizontal = dimensions().spacing16x)) {
-                    val proteusIcon = "proteusIcon"
-                    val mlsIcon = "mlsIcon"
-                    val text = buildAnnotatedString {
-                        append(fullName.ifBlank {
-                            if (isLoading) ""
-                            else UIText.StringResource(R.string.username_unavailable_label).asString()
-                        })
-
-                        if (isProteusVerified) appendInlineContent(proteusIcon, "[icon1]")
-                        if (isMLSVerified) appendInlineContent(mlsIcon, "[icon2]")
-                    }
-                    val inlineContent: MutableMap<String, InlineTextContent> = mutableMapOf()
-                    if (isProteusVerified) inlineContent[proteusIcon] = InlineTextContent(
-                        Placeholder(
-                            width = 16.sp,
-                            height = 16.sp,
-                            placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
+                    val (text, inlineContent: MutableMap<String, InlineTextContent>) =
+                        processFullName(
+                            fullName = fullName,
+                            isLoading = isLoading,
+                            isProteusVerified = isProteusVerified,
+                            isMLSVerified = isMLSVerified
                         )
-                    ) { ProteusVerifiedIcon() }
-                    if (isMLSVerified) inlineContent[mlsIcon] = InlineTextContent(
-                        Placeholder(
-                            width = 16.sp,
-                            height = 16.sp,
-                            placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
-                        )
-                    ) { MLSVerifiedIcon() }
 
                     Text(
                         text = text,
-                        overflow = TextOverflow.Ellipsis,
+                        // TODO. replace with MIDDLE_ELLIPSIS when available see https://issuetracker.google.com/issues/185418980
+                        overflow = TextOverflow.Visible,
                         maxLines = 2,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.wireTypography.title02,
@@ -221,8 +204,6 @@ fun UserProfileInfo(
                         else MaterialTheme.wireColorScheme.labelText,
                         inlineContent = inlineContent
                     )
-
-
                 }
                 Text(
                     text = processUsername(userName, membership, expiresAt),
@@ -233,7 +214,6 @@ fun UserProfileInfo(
                     color = MaterialTheme.wireColorScheme.labelText
                 )
                 UserBadge(membership, connection, topPadding = dimensions().spacing8x)
-
             }
 
             if (onQrCodeClick != null && isLoading.not()) {
@@ -268,6 +248,57 @@ fun UserProfileInfo(
                 userId = it,
                 modifier = Modifier.padding(top = dimensions().spacing8x)
             )
+        }
+    }
+}
+
+@Composable
+private fun processFullName(
+    fullName: String,
+    isLoading: Boolean,
+    isProteusVerified: Boolean,
+    isMLSVerified: Boolean,
+): Pair<AnnotatedString, MutableMap<String, InlineTextContent>> {
+    val proteusIcon = "proteusIcon"
+    val mlsIcon = "mlsIcon"
+    val text = buildAnnotatedString {
+        val processedFullName = createMiddleEllipsizeIfNeeded(fullName)
+        append(processedFullName.ifBlank {
+            if (isLoading) ""
+            else UIText.StringResource(R.string.username_unavailable_label).asString()
+        })
+        if (isProteusVerified) appendInlineContent(proteusIcon, "[icon1]")
+        if (isMLSVerified) appendInlineContent(mlsIcon, "[icon2]")
+    }
+    val inlineContent: MutableMap<String, InlineTextContent> = mutableMapOf()
+    if (isProteusVerified) inlineContent[proteusIcon] = InlineTextContent(
+        Placeholder(
+            width = 16.sp,
+            height = 16.sp,
+            placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
+        )
+    ) { ProteusVerifiedIcon() }
+    if (isMLSVerified) inlineContent[mlsIcon] = InlineTextContent(
+        Placeholder(
+            width = 16.sp,
+            height = 16.sp,
+            placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
+        )
+    ) { MLSVerifiedIcon() }
+    return Pair(text, inlineContent)
+}
+
+// TODO. replace with proper Ellipsize behavior to be fixed by https://issuetracker.google.com/issues/185418980
+// TODO. We then can pass the fullName without any processing and remove this function
+private fun createMiddleEllipsizeIfNeeded(
+    fullName: String,
+    maxCharsToEllipsis: Int = 40
+): String {
+    return when {
+        fullName.length <= maxCharsToEllipsis -> fullName
+        else -> {
+            val firstPart = fullName.take(maxCharsToEllipsis)
+            "$firstPart..."
         }
     }
 }
@@ -332,7 +363,7 @@ fun PreviewUserProfileInfo() {
         editableState = EditableState.IsEditable {},
         userName = "userName",
         avatarAsset = null,
-        fullName = "Full nameeee",
+        fullName = "Juan Román Riquelme1 Riquelme3 Riquelme4",
         onUserProfileClick = {},
         teamName = "Wire",
         connection = ConnectionState.ACCEPTED,

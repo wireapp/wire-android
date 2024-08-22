@@ -106,11 +106,13 @@ fun MessageOptionsModalSheetLayout(
                     onEditClick = remember(message.header.messageId, message.messageContent) {
                         {
                             (message.messageContent as? UIMessageContent.TextMessage)?.let {
-                                onEditClick(
-                                    message.header.messageId,
-                                    message.messageContent.messageBody.message.asString(context.resources),
-                                    (message.messageContent.messageBody.message as? UIText.DynamicString)?.mentions ?: listOf()
-                                )
+                                sheetState.hide {
+                                    onEditClick(
+                                        message.header.messageId,
+                                        message.messageContent.messageBody.message.asString(context.resources),
+                                        (message.messageContent.messageBody.message as? UIText.DynamicString)?.mentions ?: listOf()
+                                    )
+                                }
                             }
                         }
                     },

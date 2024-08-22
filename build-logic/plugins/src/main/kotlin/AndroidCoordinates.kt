@@ -26,21 +26,15 @@ object AndroidSdk {
 
 object AndroidApp {
     const val id = "com.wire.android"
-<<<<<<< HEAD
     const val versionName = "4.9.0"
-    val versionCode = Versionizer().versionCode
-=======
-    const val versionName = "4.8.2"
-
-    private lateinit var _rootDir: File
-
-    fun setRootDir(rootDir: File) {
-        this._rootDir = rootDir
-    }
     val versionCode by lazy {
         Versionizer(_rootDir).versionCode
     }
->>>>>>> c3185cd83 (ci: add gradle task to generate app version [WPB-7289] (#3355))
+
+    private lateinit var _rootDir: File
+    fun setRootDir(rootDir: File) {
+        this._rootDir = rootDir
+    }
 
     /**
      * The last 5 digits of the VersionCode. From 0 to 99_999.

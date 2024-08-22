@@ -428,6 +428,7 @@
     <string name="member_name_you_label_lowercase">вы</string>
     <string name="label_add_participants">Добавить участников</string>
     <string name="username_unavailable_label">Имя недоступно</string>
+    <string name="temporary_user_label">%s покинул(-а)</string>
     <string name="group_unavailable_label">Название группы недоступно</string>
     <string name="conversation_details_title">Информация о беседе</string>
     <string name="conversation_details_options_tab">ПАРАМЕТРЫ</string>
@@ -1013,7 +1014,7 @@
     <string name="settings_show_typing_indicator_description">При включении этого параметра вы можете видеть, когда ваши собеседники пишут сообщение, а собеседники, когда пишете вы. Эта настройка применяется ко всем беседам на этом устройстве.</string>
     <string name="settings_app_lock_title">Блокировка кодом доступа</string>
     <string name="settings_send_anonymous_usage_data_title">Отправка анонимных данных об использовании</string>
-    <string name="settings_send_anonymous_usage_data_description">Данные об использовании позволяют Wire определить, как используется приложение и как его можно улучшить. Эти данные анонимны и не включают в себя содержимое вашего общения (такое как, сообщения, файлы, местоположение или звонки).</string>
+    <string name="settings_send_anonymous_usage_data_description">Помогите улучшить приложение, поделившись с Wire данными о его использовании. Эти данные анонимны и не содержат содержимого вашего общения (например, сообщений, файлов, местоположений или звонков).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Установить код доступа к приложению</string>
     <string name="settings_set_lock_screen_description">Приложение заблокируется спустя %1$s неактивности. Для его разблокировки потребуется ввести этот код или использовать биометрию.\n\nЗапомните этот код, поскольку восстановить его невозможно.</string>
@@ -1167,7 +1168,7 @@
     <string name="cancel_login_dialog_title">Вы действительно хотите отменить?</string>
     <!-- Analytics Usage dialog -->
     <string name="analytics_usage_dialog_title">Согласие на передачу пользовательских данных</string>
-    <string name="analytics_usage_dialog_text">Помогите улучшить Wire, поделившись данными о вашем использовании с помощью псевдонимного идентификатора.\n\n Эти данные не связаны с вашей личной информацией и не передаются третьим лицам, кроме Zeta Project Germany GmbH. К ним относятся, например, время использования функции, версия приложения, тип устройства или операционная система. Идентификатор будет удален с вашего устройства не позднее чем через [28] дней после последнего действия.\n\nПодробнее см. в нашей Политике конфиденциальности (ссылка). Вы можете отозвать свое согласие в любое время.</string>
+    <string name="analytics_usage_dialog_text">Помогите улучшить Wire, поделившись данными о своем использовании с помощью псевдонимного идентификатора. Эти данные не связаны с вашей личной информацией и не передаются третьим лицам, кроме Zeta Project Germany GmbH. К ним относятся, например, время использования функции, версия вашего приложения, тип устройства или операционная система. Идентификатор будет удален с вашего устройства не позднее, чем через 365 дней после последней активности. Более подробную информацию вы найдете в нашей Политике конфиденциальности (ссылка). Вы можете отозвать свое согласие в любое время.</string>
     <string name="analytics_usage_dialog_button_agree">Принять</string>
     <string name="analytics_usage_dialog_button_decline">Отклонить</string>
     <string name="analytics_usage_dialog_button_privacy_policy">Политика конфиденциальности</string>

@@ -238,6 +238,7 @@ dependencies {
 
     implementation(libs.aboutLibraries.core)
     implementation(libs.aboutLibraries.ui)
+    implementation(libs.compose.qr.code)
 
     // Unit/Android tests dependencies
     testImplementation(libs.androidx.test.archCore)

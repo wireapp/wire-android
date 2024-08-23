@@ -22,7 +22,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
-import com.wire.android.ui.NavGraphs
 
 class Navigator(val finish: () -> Unit, val navController: NavHostController) {
     private val isResumed: Boolean

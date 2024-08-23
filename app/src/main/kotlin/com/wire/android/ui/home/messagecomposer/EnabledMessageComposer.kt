@@ -58,7 +58,6 @@ import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
-import com.wire.android.util.CurrentConversationDetailsCache
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 

@@ -65,7 +65,9 @@ fun MainNavHost(
 
             // 👇 To tie NewConversationViewModel to nested NewConversationNavGraph, making it shared between all screens that belong to it
             dependency(NavGraphs.newConversation) {
-                val parentEntry = remember(navBackStackEntry) { navController.getBackStackEntry(NavGraphs.newConversation.route) }
+                val parentEntry = remember(navBackStackEntry) {
+                    navController.getBackStackEntry(NavGraphs.newConversation.route)
+                }
                 hiltViewModel<NewConversationViewModel>(parentEntry)
             }
         },

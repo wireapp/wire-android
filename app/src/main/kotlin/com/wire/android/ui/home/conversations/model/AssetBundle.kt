@@ -26,7 +26,6 @@ import com.wire.kalium.logic.data.asset.AttachmentType
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
-import kotlinx.serialization.Serializable
 import okio.Path
 import okio.Path.Companion.toPath
 import kotlin.math.roundToInt

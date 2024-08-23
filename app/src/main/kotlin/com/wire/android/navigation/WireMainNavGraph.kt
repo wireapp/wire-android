@@ -22,7 +22,7 @@ import com.ramcosta.composedestinations.spec.NavGraphSpec
 import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.ui.NavGraphs
 
-object WireMainNavGraph: NavGraphSpec {
+object WireMainNavGraph : NavGraphSpec {
     override val route = "wire.main"
     override val startRoute = NavGraphs.root.startRoute
     val destinations: List<DestinationSpec<*>> = NavGraphs.root.destinations.plus(

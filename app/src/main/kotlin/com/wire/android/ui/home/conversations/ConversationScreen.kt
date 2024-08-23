@@ -547,10 +547,14 @@ fun ConversationScreen(
         },
         openDrawingCanvas = {
             navigator.navigate(
-                NavigationCommand(DrawingCanvasScreenDestination(DrawingCanvasNavArgs(
-                    conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
-                    tempWritableUri = messageComposerViewModel.tempWritableImageUri
-                )))
+                NavigationCommand(
+                    DrawingCanvasScreenDestination(
+                        DrawingCanvasNavArgs(
+                            conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
+                            tempWritableUri = messageComposerViewModel.tempWritableImageUri
+                        )
+                    )
+                )
             )
         },
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow

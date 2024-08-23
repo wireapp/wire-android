@@ -34,7 +34,6 @@ import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
 import com.wire.android.ui.destinations.CreateAccountSummaryScreenDestination
 import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
-import com.wire.android.ui.destinations.Destination
 import com.wire.android.ui.destinations.E2EIEnrollmentScreenDestination
 import com.wire.android.ui.destinations.E2eiCertificateDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination

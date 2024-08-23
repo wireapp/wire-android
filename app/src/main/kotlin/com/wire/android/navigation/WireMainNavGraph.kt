@@ -15,25 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.sketch
+package com.wire.android.navigation
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.feature.sketch.model.DrawingState
-import com.wire.android.ui.theme.WireTheme
+import com.ramcosta.composedestinations.spec.DestinationSpec
+import com.ramcosta.composedestinations.spec.NavGraphSpec
+import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
+import com.wire.android.ui.NavGraphs
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewToolBar() {
-    WireTheme {
-        DrawingToolbar(DrawingState(), {}, {})
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewTopBar() {
-    WireTheme {
-        DrawingTopBar("Conversation Name", {}, {}, DrawingState())
-    }
+object WireMainNavGraph : NavGraphSpec {
+    override val route = "wire.main"
+    override val startRoute = NavGraphs.root.startRoute
+    val destinations: List<DestinationSpec<*>> = NavGraphs.root.destinations.plus(
+        DrawingCanvasScreenDestination
+    )
+    override val destinationsByRoute = destinations.associateBy { it.route }
+    override val nestedNavGraphs = NavGraphs.root.nestedNavGraphs
 }

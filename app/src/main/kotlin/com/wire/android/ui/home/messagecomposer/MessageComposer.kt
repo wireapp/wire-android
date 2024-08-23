@@ -80,6 +80,7 @@ fun MessageComposer(
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
+    openDrawingCanvas: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     onImagesPicked: (List<Uri>) -> Unit
@@ -148,6 +149,7 @@ fun MessageComposer(
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+                    openDrawingCanvas = openDrawingCanvas,
                     tempWritableVideoUri = tempWritableVideoUri,
                     tempWritableImageUri = tempWritableImageUri,
                 )
@@ -277,6 +279,7 @@ private fun BaseComposerPreview(
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
+        openDrawingCanvas = {},
         onImagesPicked = {}
     )
 }

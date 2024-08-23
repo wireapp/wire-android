@@ -26,7 +26,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import com.wire.android.appLogger
-import com.wire.android.navigation.NavigationGraph
+import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.destinations.AppUnlockWithBiometricsScreenDestination
@@ -66,7 +66,7 @@ class AppLockActivity : AppCompatActivity() {
                             }
                         }
 
-                    NavigationGraph(
+                    MainNavHost(
                         navigator = navigator,
                         startDestination = startDestination
                     )

@@ -123,6 +123,7 @@ dependencies {
     // features
     implementation(project(":features:sketch"))
     implementation(project(":core:ui-common"))
+    implementation(project(":core:navigation"))
 
     // kover
     kover(project(":features:sketch"))

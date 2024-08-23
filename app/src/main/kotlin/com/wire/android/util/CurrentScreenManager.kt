@@ -25,6 +25,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.wire.android.appLogger
 import com.wire.android.navigation.toDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
@@ -161,7 +162,7 @@ sealed class CurrentScreen {
 
     companion object {
         @Suppress("ComplexMethod")
-        fun fromDestination(destination: Destination?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
+        fun fromDestination(destination: DestinationSpec<*>?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
             if (!isAppVisible) {
                 return InBackground
             }

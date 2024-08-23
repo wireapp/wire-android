@@ -17,12 +17,15 @@
  */
 package com.wire.android.util.ui
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.WireTheme
 
+@SuppressLint("ComposePreviewNaming")
 @Preview(
     name = "Dark theme",
     showBackground = true,

@@ -30,6 +30,6 @@ internal data class DrawingState(
     val drawingMotionEvent: DrawingMotionEvent = DrawingMotionEvent.Idle,
     val currentPath: DrawingPathProperties = DrawingPathProperties(),
     val currentPosition: Offset = Offset.Unspecified,
-    var canvasSize: Size? = null,
+    val canvasSize: Size? = null,
     val showConfirmationDialog: Boolean = false
 )

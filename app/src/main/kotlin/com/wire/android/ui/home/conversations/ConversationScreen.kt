@@ -74,15 +74,18 @@ import androidx.paging.compose.itemKey
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult.Canceled
 import com.ramcosta.composedestinations.result.NavResult.Value
+import com.ramcosta.composedestinations.result.OpenResultRecipient
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
+import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
+import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.mapper.MessageDateTimeGroup
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.ArgsSerializer
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -137,6 +140,7 @@ import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfi
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
@@ -208,7 +212,8 @@ fun ConversationScreen(
     navigator: Navigator,
     groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
-    imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, String>,
+    imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
+    drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     conversationInfoViewModel: ConversationInfoViewModel = hiltViewModel(),
     conversationBannerViewModel: ConversationBannerViewModel = hiltViewModel(),
@@ -540,6 +545,14 @@ fun ConversationScreen(
                 }
             }
         },
+        openDrawingCanvas = {
+            navigator.navigate(
+                NavigationCommand(DrawingCanvasScreenDestination(DrawingCanvasNavArgs(
+                    conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
+                    tempWritableUri = messageComposerViewModel.tempWritableImageUri
+                )))
+            )
+        },
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
@@ -651,14 +664,27 @@ fun ConversationScreen(
         when (result) {
             Canceled -> {}
             is Value -> {
-                val pendingBundles = ArgsSerializer().decodeFromString<ImagesPreviewNavBackArgs>(result.value).pendingBundles
                 sendMessageViewModel.trySendMessages(
-                    pendingBundles.map { assetBundle ->
+                    result.value.pendingBundles.map { assetBundle ->
                         ComposableMessageBundle.AttachmentPickedBundle(
                             conversationId = conversationMessagesViewModel.conversationId,
                             assetBundle = assetBundle
                         )
                     }
+                )
+            }
+        }
+    }
+
+    drawingCanvasScreenResultRecipient.onNavResult { result ->
+        when (result) {
+            Canceled -> {}
+            is Value -> {
+                sendMessageViewModel.trySendMessage(
+                    ComposableMessageBundle.UriPickedBundle(
+                        conversationId = conversationMessagesViewModel.conversationId,
+                        attachmentUri = UriAsset(result.value.uri)
+                    )
                 )
             }
         }
@@ -760,6 +786,7 @@ private fun ConversationScreen(
     conversationScreenState: ConversationScreenState,
     messageComposerStateHolder: MessageComposerStateHolder,
     onLinkClick: (String) -> Unit,
+    openDrawingCanvas: () -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
 ) {
     val context = LocalContext.current
@@ -832,7 +859,8 @@ private fun ConversationScreen(
                     tempWritableVideoUri = tempWritableVideoUri,
                     onLinkClick = onLinkClick,
                     onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
-                    currentTimeInMillisFlow = currentTimeInMillisFlow
+                    currentTimeInMillisFlow = currentTimeInMillisFlow,
+                    openDrawingCanvas = openDrawingCanvas,
                 )
             }
         }
@@ -892,6 +920,7 @@ private fun ConversationScreenContent(
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
+    openDrawingCanvas: () -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
@@ -938,7 +967,8 @@ private fun ConversationScreenContent(
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         tempWritableVideoUri = tempWritableVideoUri,
         tempWritableImageUri = tempWritableImageUri,
-        onImagesPicked = onImagesPicked
+        onImagesPicked = onImagesPicked,
+        openDrawingCanvas = openDrawingCanvas,
     )
 }
 
@@ -1346,6 +1376,7 @@ fun PreviewConversationScreen() = WireTheme {
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { _ -> },
-        onImagesPicked = {}
+        openDrawingCanvas = {},
+        onImagesPicked = {},
     )
 }

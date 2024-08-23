@@ -47,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.wire.android.feature.sketch.DrawingCanvasBottomSheet
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
@@ -79,6 +78,7 @@ fun EnabledMessageComposer(
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
+    openDrawingCanvas: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     modifier: Modifier = Modifier,
@@ -247,7 +247,7 @@ fun EnabledMessageComposer(
                                 onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
                                 onDrawingModeClicked = {
                                     showAdditionalOptionsMenu()
-                                    additionalOptionStateHolder.toDrawingMode()
+                                    openDrawingCanvas()
                                 }
                             )
                         }
@@ -283,20 +283,6 @@ fun EnabledMessageComposer(
                         }
                     }
                 }
-            }
-
-            if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.DrawingMode) {
-                DrawingCanvasBottomSheet(
-                    onDismissSketch = {
-                        showAdditionalOptionsMenu()
-                    },
-                    onSendSketch = {
-                        onAttachmentPicked(UriAsset(it))
-                        showAdditionalOptionsMenu()
-                    },
-                    conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
-                    tempWritableImageUri = tempWritableImageUri
-                )
             }
 
             BackHandler(inputStateHolder.inputType is InputType.Editing) {

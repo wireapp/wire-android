@@ -30,6 +30,7 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -37,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -121,7 +123,7 @@ fun ChangeDisplayNameContent(
                         .fillMaxWidth()
                         .verticalScroll(scrollState)
                 ) {
-                    val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+                    val keyboardController = LocalSoftwareKeyboardController.current
                     Text(
                         text = stringResource(id = R.string.settings_myaccount_display_name_description),
                         style = MaterialTheme.wireTypography.body01,
@@ -164,7 +166,7 @@ fun ChangeDisplayNameContent(
                             text = stringResource(R.string.label_save),
                             onClick = onContinuePressed,
                             fillMaxWidth = true,
-                            trailingIcon = androidx.compose.material.icons.Icons.Filled.ChevronRight.Icon(),
+                            trailingIcon = Icons.Filled.ChevronRight.Icon(),
                             state = if (saveEnabled) Default else Disabled,
                             loading = loading,
                             modifier = Modifier.fillMaxWidth()

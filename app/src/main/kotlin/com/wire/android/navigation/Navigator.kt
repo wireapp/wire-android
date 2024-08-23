@@ -57,7 +57,7 @@ class Navigator(val finish: () -> Unit, val navController: NavHostController) {
 @Composable
 fun rememberNavigator(finish: () -> Unit): Navigator {
     val navController = rememberTrackingAnimatedNavController {
-        NavGraphs.root.destinationsByRoute[it]?.let { it::class.simpleName } // there is a proguard rule for Routes
+        WireMainNavGraph.destinationsByRoute[it]?.let { it::class.simpleName } // there is a proguard rule for Routes
     }
     return remember(finish, navController) { Navigator(finish, navController) }
 }

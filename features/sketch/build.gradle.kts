@@ -1,10 +1,13 @@
 plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
     id(libs.plugins.wire.kover.get().pluginId)
+    id(BuildPlugins.kotlinParcelize)
+    alias(libs.plugins.ksp)
 }
 
 dependencies {
     implementation(project(":core:ui-common"))
+    implementation(project(":core:navigation"))
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -21,9 +24,19 @@ dependencies {
     implementation(libs.compose.material.icons)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)
+    implementation(libs.compose.navigation)
+    implementation(libs.compose.destinations.core)
+    ksp(libs.compose.destinations.ksp)
 
     testImplementation(libs.junit4)
     testImplementation(libs.coroutines.test)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+android {
+    ksp {
+        arg("compose-destinations.moduleName", "sketch")
+        arg("compose-destinations.mode", "destinations")
+    }
 }

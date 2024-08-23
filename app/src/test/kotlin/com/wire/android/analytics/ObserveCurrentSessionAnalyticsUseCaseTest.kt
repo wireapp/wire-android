@@ -70,7 +70,28 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
                 setIsTeamMember(TestUser.SELF_USER.id)
                 setObservingTrackingIdentifierStatus(AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER))
-                setSelfServerConfig(Arrangement.SEVER_CONFIG_PRODUCTION)
+                setSelfServerConfig(Arrangement.SERVER_CONFIG_PRODUCTION)
+            }.arrange()
+
+        // when
+        useCase.invoke().test {
+            // then
+            val item = awaitItem()
+            assertIs<AnalyticsIdentifierResult.ExistingIdentifier>(item.identifierResult)
+            assertEquals(true, item.isTeamMember)
+        }
+    }
+
+    @Test
+    fun givenStagingBackendApi_whenObservingCurrentSessionAnalytics_thenExistingIdentifierAnalyticsResultIsReturned() = runTest {
+        // given
+        val (_, useCase) = Arrangement()
+            .withIsAnonymousUsageDataEnabled(true)
+            .apply {
+                setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+                setIsTeamMember(TestUser.SELF_USER.id)
+                setObservingTrackingIdentifierStatus(AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER))
+                setSelfServerConfig(Arrangement.SERVER_CONFIG_STAGING)
             }.arrange()
 
         // when
@@ -94,7 +115,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                     setObservingTrackingIdentifierStatus(
                         AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER)
                     )
-                    setSelfServerConfig(Arrangement.SEVER_CONFIG_PRODUCTION)
+                    setSelfServerConfig(Arrangement.SERVER_CONFIG_PRODUCTION)
                 }.arrange()
 
             // when
@@ -120,8 +141,8 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                         AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER)
                     )
                     setSelfServerConfig(
-                        Arrangement.SEVER_CONFIG_PRODUCTION.copy(
-                            serverLinks = Arrangement.SEVER_CONFIG_PRODUCTION.serverLinks.copy(links = ServerConfig.STAGING)
+                        Arrangement.SERVER_CONFIG_PRODUCTION.copy(
+                            serverLinks = Arrangement.SERVER_CONFIG_PRODUCTION.serverLinks.copy(links = ServerConfig.DUMMY)
                         )
                     )
                 }.arrange()
@@ -170,7 +191,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                 setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
                 setIsTeamMember(TestUser.SELF_USER.id)
                 setObservingTrackingIdentifierStatus(AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER))
-                setSelfServerConfig(Arrangement.SEVER_CONFIG_PRODUCTION)
+                setSelfServerConfig(Arrangement.SERVER_CONFIG_PRODUCTION)
             }.arrange()
 
         // when
@@ -185,7 +206,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             arrangement.setObservingTrackingIdentifierStatus(
                 AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.OTHER_TRACKING_IDENTIFIER)
             )
-            arrangement.setSelfServerConfig(Arrangement.SEVER_CONFIG_PRODUCTION)
+            arrangement.setSelfServerConfig(Arrangement.SERVER_CONFIG_PRODUCTION)
             arrangement.withIsAnonymousUsageDataEnabled(true)
 
             // then
@@ -263,7 +284,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
             const val CURRENT_TRACKING_IDENTIFIER = "abcd-1234"
             const val OTHER_TRACKING_IDENTIFIER = "aaaa-bbbb-1234"
 
-            val SEVER_CONFIG_PRODUCTION = SelfServerConfigUseCase.Result.Success(
+            val SERVER_CONFIG_PRODUCTION = SelfServerConfigUseCase.Result.Success(
                 serverLinks = ServerConfig(
                     id = "server_id",
                     links = ServerConfig.PRODUCTION,
@@ -272,6 +293,12 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                         commonApiVersion = CommonApiVersionType.New,
                         domain = null
                     )
+                )
+            )
+
+            val SERVER_CONFIG_STAGING = SERVER_CONFIG_PRODUCTION.copy(
+                serverLinks = SERVER_CONFIG_PRODUCTION.serverLinks.copy(
+                    links = ServerConfig.STAGING
                 )
             )
         }

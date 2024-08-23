@@ -45,7 +45,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.PreviewMultipleThemes
 import kotlin.math.ceil
 
 @Composable

@@ -47,5 +47,7 @@ import com.wire.android.ui.theme.WireTheme
  * Just like regular [Preview] annotations, it's important that the composable
  * preview is actually reactive to the change in theme. So it might be necessary
  * to wrap the preview in a [WireTheme] block.
+ *
+ * There's a problem with lint handling custom preview annotations in other modules, so for now it's added to each module.
  */
-annotation class PreviewMultipleThemes
+internal annotation class PreviewMultipleThemes

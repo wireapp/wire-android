@@ -66,7 +66,6 @@ import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -394,12 +393,14 @@ fun NewClientDialog(
 fun CallFeedbackDialog(
     sheetState: WireModalSheetState<Unit>,
     onRated: (Int, Boolean) -> Unit,
-    onSkipClicked: (Boolean) -> Unit
+    onSkipClicked: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val doNotAskAgain = remember {
         mutableStateOf(false)
     }
     WireModalSheetLayout(
+        modifier = modifier,
         sheetState = sheetState,
         sheetContent = {
             Column(modifier = Modifier.padding(all = dimensions().spacing24x)) {
@@ -647,6 +648,6 @@ fun PreviewTestDialog() {
 @Composable
 fun PreviewCallFeedbackDialog() {
     WireTheme {
-        CallFeedbackDialog(rememberWireModalSheetState<Unit>(initialValue = WireSheetValue.Expanded(Unit)), { _, _ -> }) { _ -> }
+        CallFeedbackDialog(rememberWireModalSheetState<Unit>(initialValue = WireSheetValue.Expanded(Unit)), { _, _ -> }, { _ -> })
     }
 }

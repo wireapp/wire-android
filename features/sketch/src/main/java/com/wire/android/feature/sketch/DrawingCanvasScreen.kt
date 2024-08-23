@@ -68,7 +68,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 import kotlinx.coroutines.launch
 
 @Destination(

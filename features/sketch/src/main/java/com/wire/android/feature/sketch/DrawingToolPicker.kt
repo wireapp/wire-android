@@ -58,7 +58,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireColorPalette
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

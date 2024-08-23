@@ -2,6 +2,7 @@ plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
     id(libs.plugins.wire.kover.get().pluginId)
     id(BuildPlugins.kotlinParcelize)
+    id(BuildPlugins.junit5)
     alias(libs.plugins.ksp)
 }
 
@@ -28,8 +29,10 @@ dependencies {
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
 
-    testImplementation(libs.junit4)
+    testImplementation(libs.junit5.core)
     testImplementation(libs.coroutines.test)
+    testImplementation(libs.mockk.core)
+    testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
 }

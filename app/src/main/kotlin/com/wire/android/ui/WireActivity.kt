@@ -573,10 +573,11 @@ class WireActivity : AppCompatActivity() {
 
     private fun Bundle?.getOriginalIntent(): Intent? {
         return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            @Suppress("DEPRECATION")// API 33
+            @Suppress("DEPRECATION") // API 33
             this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG)
-        } else
+        } else {
             this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG, Intent::class.java)
+        }
     }
 
     private fun handleDeepLinkResult(result: DeepLinkResult) {

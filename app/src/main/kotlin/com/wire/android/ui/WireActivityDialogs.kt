@@ -21,21 +21,44 @@
 package com.wire.android.ui
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.DialogProperties
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
+import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountAllowedDialogContent
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
@@ -43,6 +66,8 @@ import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -133,8 +158,10 @@ fun TeamAppLockFeatureFlagDialog(
     onConfirm: () -> Unit,
 ) {
     val text: String =
-        stringResource(id = if (isTeamAppLockEnabled) R.string.team_app_lock_enabled
-        else R.string.team_app_lock_disabled)
+        stringResource(
+            id = if (isTeamAppLockEnabled) R.string.team_app_lock_enabled
+            else R.string.team_app_lock_disabled
+        )
 
     WireDialog(
         title = stringResource(id = R.string.team_settings_changed),
@@ -363,6 +390,142 @@ fun NewClientDialog(
     }
 }
 
+@Composable
+fun CallFeedbackDialog(
+    sheetState: WireModalSheetState<Unit>,
+    onRated: (Int, Boolean) -> Unit,
+    onSkipClicked: (Boolean) -> Unit
+) {
+    val doNotAskAgain = remember {
+        mutableStateOf(false)
+    }
+    WireModalSheetLayout(
+        sheetState = sheetState,
+        sheetContent = {
+            Column(modifier = Modifier.padding(all = dimensions().spacing24x)) {
+                Text(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    text = stringResource(R.string.call_feedback_dialog_title),
+                    style = MaterialTheme.wireTypography.title01
+                )
+
+                Spacer(modifier = Modifier.height(dimensions().spacing16x))
+
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(horizontal = dimensions().spacing16x),
+                    text = stringResource(R.string.call_feedback_dialog_message),
+                    style = MaterialTheme.wireTypography.body01
+                )
+
+                Spacer(modifier = Modifier.height(dimensions().spacing32x))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        stringResource(R.string.call_feedback_dialog_label_bad),
+                        style = MaterialTheme.wireTypography.label01,
+                        modifier = Modifier.weight(1F).padding(horizontal = dimensions().spacing8x),
+                        textAlign = TextAlign.Start
+                    )
+                    Text(
+                        stringResource(R.string.call_feedback_dialog_label_fair),
+                        style = MaterialTheme.wireTypography.label01,
+                        modifier = Modifier.weight(1F),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        stringResource(R.string.call_feedback_dialog_label_excellent),
+                        style = MaterialTheme.wireTypography.label01,
+                        modifier = Modifier.weight(1F).padding(horizontal = dimensions().spacing8x),
+                        textAlign = TextAlign.End
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(dimensions().spacing8x))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+
+                    WireSecondaryButton(
+                        onClick = { sheetState.hide { onRated(1, doNotAskAgain.value) } },
+                        state = WireButtonState.Default,
+                        text = "1",
+                        modifier = Modifier.width(dimensions().spacing56x).height(dimensions().spacing56x),
+                        shape = CircleShape
+                    )
+
+                    Spacer(modifier = Modifier.weight(1F))
+
+                    WireSecondaryButton(
+                        onClick = { sheetState.hide { onRated(2, doNotAskAgain.value) } },
+                        state = WireButtonState.Default,
+                        text = "2",
+                        modifier = Modifier.width(dimensions().spacing56x).height(dimensions().spacing56x),
+                        shape = CircleShape
+                    )
+
+                    Spacer(modifier = Modifier.weight(1F))
+
+                    WireSecondaryButton(
+                        onClick = { sheetState.hide { onRated(3, doNotAskAgain.value) } },
+                        state = WireButtonState.Default,
+                        text = "3",
+                        modifier = Modifier.width(dimensions().spacing56x).height(dimensions().spacing56x),
+                        shape = CircleShape
+                    )
+
+                    Spacer(modifier = Modifier.weight(1F))
+
+                    WireSecondaryButton(
+                        onClick = { sheetState.hide { onRated(4, doNotAskAgain.value) } },
+                        state = WireButtonState.Default,
+                        text = "4",
+                        modifier = Modifier.width(dimensions().spacing56x).height(dimensions().spacing56x),
+                        shape = CircleShape
+                    )
+
+                    Spacer(modifier = Modifier.weight(1F))
+
+                    WireSecondaryButton(
+                        onClick = { sheetState.hide { onRated(5, doNotAskAgain.value) } },
+                        state = WireButtonState.Default,
+                        text = "5",
+                        modifier = Modifier.width(dimensions().spacing56x).height(dimensions().spacing56x),
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(
+                            horizontal = dimensions().spacing2x,
+                            vertical = dimensions().spacing2x
+                        )
+                    )
+                }
+
+
+                Spacer(modifier = Modifier.height(dimensions().spacing24x))
+
+                WireSecondaryButton(
+                    text = stringResource(R.string.call_feedback_dialog_skip),
+                    onClick = { sheetState.hide { onSkipClicked(doNotAskAgain.value) } }
+                )
+
+                Spacer(modifier = Modifier.height(dimensions().spacing24x))
+
+                Row {
+                    WireCheckbox(
+                        checked = doNotAskAgain.value,
+                        onCheckedChange = { doNotAskAgain.value = it }
+                    )
+
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        text = stringResource(R.string.call_feedback_dialog_do_not_ask),
+                        style = MaterialTheme.wireTypography.body01,
+                    )
+                }
+            }
+        }
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewFileRestrictionDialog() {
@@ -477,5 +640,13 @@ fun PreviewNewClientDialog() {
 fun PreviewTestDialog() {
     WireTheme {
         FileRestrictionDialog(true) {}
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCallFeedbackDialog() {
+    WireTheme {
+        CallFeedbackDialog(rememberWireModalSheetState<Unit>(initialValue = WireSheetValue.Expanded(Unit)), { _, _ -> }) { _ -> }
     }
 }

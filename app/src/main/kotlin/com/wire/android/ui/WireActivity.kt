@@ -67,6 +67,8 @@ import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
@@ -312,6 +314,7 @@ class WireActivity : AppCompatActivity() {
     @Composable
     private fun HandleDialogs(navigate: (NavigationCommand) -> Unit) {
         val context = LocalContext.current
+        val callFeedbackSheetState = rememberWireModalSheetState<Unit>()
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {
                 TeamAppLockFeatureFlagDialog(
@@ -478,11 +481,23 @@ class WireActivity : AppCompatActivity() {
                 )
             }
 
+            CallFeedbackDialog(
+                sheetState = callFeedbackSheetState,
+                onRated = featureFlagNotificationViewModel::rateCall,
+                onSkipClicked = featureFlagNotificationViewModel::skipCallFeedback
+            )
+
             if (startGettingE2EICertificate) {
                 GetE2EICertificateUI(
                     enrollmentResultHandler = { featureFlagNotificationViewModel.handleE2EIEnrollmentResult(it) },
                     isNewClient = false
                 )
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            featureFlagNotificationViewModel.showCallFeedbackFlow.collectLatest {
+                callFeedbackSheetState.show()
             }
         }
     }

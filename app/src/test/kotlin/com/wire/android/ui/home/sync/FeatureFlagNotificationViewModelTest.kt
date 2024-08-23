@@ -22,6 +22,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.framework.TestUser
+import com.wire.android.ui.analytics.IsAnalyticsAvailableUseCase
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.AppLockTeamConfig
@@ -324,6 +325,9 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var globalDataStore: GlobalDataStore
 
         @MockK
+        lateinit var isAnalyticsAvailable: IsAnalyticsAvailableUseCase
+
+        @MockK
         lateinit var markNotifyForRevokedCertificateAsNotified: MarkNotifyForRevokedCertificateAsNotifiedUseCase
 
         val viewModel: FeatureFlagNotificationViewModel by lazy {
@@ -331,9 +335,11 @@ class FeatureFlagNotificationViewModelTest {
                 coreLogic = coreLogic,
                 currentSessionFlow = currentSessionFlow,
                 globalDataStore = globalDataStore,
-                disableAppLockUseCase = disableAppLockUseCase
+                disableAppLockUseCase = disableAppLockUseCase,
+                isAnalyticsAvailable = isAnalyticsAvailable
             )
         }
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
@@ -346,7 +352,7 @@ class FeatureFlagNotificationViewModelTest {
             coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired.invoke() } returns flowOf()
-            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDueToDegradationDialog() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeShouldNotifyForRevokedCertificate() } returns flowOf()
             every { coreLogic.getSessionScope(any()).markNotifyForRevokedCertificateAsNotified } returns
                     markNotifyForRevokedCertificateAsNotified
@@ -386,7 +392,7 @@ class FeatureFlagNotificationViewModelTest {
         }
 
         fun withEndCallDialog() = apply {
-            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf(Unit)
+            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDueToDegradationDialog() } returns flowOf(Unit)
         }
 
         fun withTeamAppLockEnforce(result: AppLockTeamConfig?) = apply {

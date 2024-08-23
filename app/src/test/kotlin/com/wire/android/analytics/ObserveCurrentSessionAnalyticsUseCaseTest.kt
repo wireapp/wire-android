@@ -142,7 +142,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
                     )
                     setSelfServerConfig(
                         Arrangement.SERVER_CONFIG_PRODUCTION.copy(
-                            serverLinks = Arrangement.SERVER_CONFIG_PRODUCTION.serverLinks.copy(links = ServerConfig.STAGING)
+                            serverLinks = Arrangement.SERVER_CONFIG_PRODUCTION.serverLinks.copy(links = ServerConfig.DUMMY)
                         )
                     )
                 }.arrange()

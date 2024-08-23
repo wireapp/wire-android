@@ -189,8 +189,10 @@ class DrawingCanvasViewModelTest {
     }
 
     private class Arrangement {
+
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
+
         @MockK
         lateinit var tempWritableUri: Uri
 
@@ -200,7 +202,9 @@ class DrawingCanvasViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.navArgs<DrawingCanvasNavArgs>() } returns DrawingCanvasNavArgs("Conversation Name", tempWritableUri)
+            every {
+                savedStateHandle.navArgs<DrawingCanvasNavArgs>()
+            } returns DrawingCanvasNavArgs("Conversation Name", tempWritableUri)
         }
         fun arrange() = this to viewModel
     }

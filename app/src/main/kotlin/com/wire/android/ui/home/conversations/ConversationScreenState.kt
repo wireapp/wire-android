@@ -48,7 +48,6 @@ fun rememberConversationScreenState(
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val snackBarHostState = LocalSnackbarHostState.current
-
     return remember {
         ConversationScreenState(
             context = context,
@@ -75,7 +74,7 @@ class ConversationScreenState(
     val coroutineScope: CoroutineScope
 ) {
     fun showEditContextMenu(message: UIMessage.Regular) {
-        editSheetState.show(message)
+        editSheetState.show(message, hideKeyboard = true)
     }
 
     fun copyMessage(text: String) {
@@ -86,15 +85,15 @@ class ConversationScreenState(
     }
 
     fun showSelfDeletionContextMenu(currentlySelected: SelfDeletionTimer) {
-        selfDeletingSheetState.show(currentlySelected)
+        selfDeletingSheetState.show(currentlySelected, hideKeyboard = true)
     }
 
     fun showDrawingSheet() {
-        drawingSheetState.show()
+        drawingSheetState.show(hideKeyboard = true)
     }
 
     fun showLocationSheet() {
-        locationSheetState.show()
+        locationSheetState.show(hideKeyboard = true)
     }
 
     val isAnySheetVisible: Boolean

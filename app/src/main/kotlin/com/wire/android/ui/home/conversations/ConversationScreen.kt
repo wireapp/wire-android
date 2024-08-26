@@ -43,7 +43,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -94,6 +93,7 @@ import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.ConfirmSendingPingDialog
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
@@ -152,7 +152,6 @@ import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.model.Ping
-import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
@@ -205,7 +204,6 @@ private const val MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT = 5
 private const val MAX_GROUP_SIZE_FOR_PING = 3
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
-@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("ComplexMethod")
 @RootNavGraph
 @WireDestination(
@@ -231,7 +229,6 @@ fun ConversationScreen(
     val uriHandler = LocalUriHandler.current
     val resources = LocalContext.current.resources
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
-    val conversationScreenState = rememberConversationScreenState()
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
@@ -241,6 +238,25 @@ fun ConversationScreen(
         onTypingEvent = messageComposerViewModel::sendTypingEvent,
         onClearMentionSearchResult = messageComposerViewModel::clearMentionSearchResult
     )
+    val conversationScreenState = rememberConversationScreenState(
+        selfDeletingSheetState = rememberWireModalSheetState(onDismissAction = {
+            messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
+        }),
+        locationSheetState = rememberWireModalSheetState(
+            onDismissAction = {
+                messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
+            }
+        ),
+        editSheetState = rememberWireModalSheetState(onDismissAction = {
+            messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
+        }),
+        drawingSheetState = rememberWireModalSheetState(
+            onDismissAction = {
+                messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
+            }
+        )
+    )
+
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
@@ -250,13 +266,10 @@ fun ConversationScreen(
 
     val activity = LocalActivity.current
 
-    LaunchedEffect(conversationScreenState.isAnySheetVisible) { // TODO check with enabled composer
+    LaunchedEffect(conversationScreenState.isAnySheetVisible) {
         with(messageComposerStateHolder) {
             if (conversationScreenState.isAnySheetVisible) {
-//                messageCompositionInputStateHolder.clearFocus()
-            } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
-                messageCompositionInputStateHolder.requestFocus()
-                additionalOptionStateHolder.unselectAdditionalOptionsMenu()
+                messageCompositionInputStateHolder.showAttachments(false)
             }
         }
     }
@@ -774,137 +787,136 @@ private fun ConversationScreen(
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
-    // only here we will use normal Scaffold because of specific behaviour of message composer
-    Scaffold(
-        topBar = {
-            Column {
-                ConversationScreenTopAppBar(
-                    conversationInfoViewState = conversationInfoViewState,
-                    onBackButtonClick = onBackButtonClick,
-                    onDropDownClick = onDropDownClick,
-                    isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
-                    onSearchButtonClick = { },
-                    onPhoneButtonClick = onStartCall,
-                    hasOngoingCall = conversationCallViewState.hasOngoingCall,
-                    onJoinCallButtonClick = onJoinCall,
-                    onAudioPermissionPermanentlyDenied = {
-                        onPermissionPermanentlyDenied(ConversationActionPermissionType.CallAudio)
-                    },
-                    isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
+    Box(modifier = Modifier) {
+        // only here we will use normal Scaffold because of specific behaviour of message composer
+        Scaffold(
+            topBar = {
+                Column {
+                    ConversationScreenTopAppBar(
+                        conversationInfoViewState = conversationInfoViewState,
+                        onBackButtonClick = onBackButtonClick,
+                        onDropDownClick = onDropDownClick,
+                        isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
+                        onSearchButtonClick = { },
+                        onPhoneButtonClick = onStartCall,
+                        hasOngoingCall = conversationCallViewState.hasOngoingCall,
+                        onJoinCallButtonClick = onJoinCall,
+                        onAudioPermissionPermanentlyDenied = {
+                            onPermissionPermanentlyDenied(ConversationActionPermissionType.CallAudio)
+                        },
+                        isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
+                    )
+                    ConversationBanner(bannerMessage)
+                }
+            },
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    snackbar = { data ->
+                        SwipeableSnackbar(
+                            hostState = snackbarHostState,
+                            data = data,
+                            onDismiss = { data.dismiss() }
+                        )
+                    }
                 )
-                ConversationBanner(bannerMessage)
-            }
-        },
-        snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-                snackbar = { data ->
-                    SwipeableSnackbar(
-                        hostState = snackbarHostState,
-                        data = data,
-                        onDismiss = { data.dismiss() }
+            },
+            content = { internalPadding ->
+                Box(
+                    modifier = Modifier
+                        .padding(internalPadding)
+                        .consumeWindowInsets(internalPadding)
+                ) {
+                    ConversationScreenContent(
+                        conversationId = conversationInfoViewState.conversationId,
+                        bottomSheetVisible = bottomSheetVisible,
+                        audioMessagesState = conversationMessagesViewState.audioMessagesState,
+                        assetStatuses = conversationMessagesViewState.assetStatuses,
+                        lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
+                        unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
+                        conversationDetailsData = conversationInfoViewState.conversationDetailsData,
+                        selectedMessageId = conversationMessagesViewState.searchedMessageId,
+                        messageComposerStateHolder = messageComposerStateHolder,
+                        messages = conversationMessagesViewState.messages,
+                        onSendMessage = onSendMessage,
+                        onPingOptionClicked = onPingOptionClicked,
+                        onImagesPicked = onImagesPicked,
+                        onAssetItemClicked = onAssetItemClicked,
+                        onAudioItemClicked = onAudioClick,
+                        onChangeAudioPosition = onChangeAudioPosition,
+                        onImageFullScreenMode = onImageFullScreenMode,
+                        onReactionClicked = onReactionClick,
+                        onResetSessionClicked = onResetSessionClick,
+                        onOpenProfile = onOpenProfile,
+                        onUpdateConversationReadDate = onUpdateConversationReadDate,
+                        onShowEditingOptions = conversationScreenState::showEditContextMenu,
+                        onSwipedToReply = messageComposerStateHolder::toReply,
+                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                        onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
+                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                        onChangeSelfDeletionClicked = conversationScreenState::showSelfDeletionContextMenu,
+                        onLocationClicked = conversationScreenState::showLocationSheet,
+                        onDrawingClicked = conversationScreenState::showDrawingSheet,
+                        onClearMentionSearchResult = onClearMentionSearchResult,
+                        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+                        tempWritableImageUri = tempWritableImageUri,
+                        tempWritableVideoUri = tempWritableVideoUri,
+                        onLinkClick = onLinkClick,
+                        onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
+                        currentTimeInMillisFlow = currentTimeInMillisFlow
                     )
                 }
-            )
-        },
-        content = { internalPadding ->
-            Box(
-                modifier = Modifier
-                    .padding(internalPadding)
-                    .consumeWindowInsets(internalPadding)
-            ) {
-                ConversationScreenContent(
-                    conversationId = conversationInfoViewState.conversationId,
-                    bottomSheetVisible = bottomSheetVisible,
-                    audioMessagesState = conversationMessagesViewState.audioMessagesState,
-                    assetStatuses = conversationMessagesViewState.assetStatuses,
-                    lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
-                    unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
-                    conversationDetailsData = conversationInfoViewState.conversationDetailsData,
-                    selectedMessageId = conversationMessagesViewState.searchedMessageId,
-                    messageComposerStateHolder = messageComposerStateHolder,
-                    messages = conversationMessagesViewState.messages,
-                    onSendMessage = onSendMessage,
-                    onPingOptionClicked = onPingOptionClicked,
-                    onImagesPicked = onImagesPicked,
-                    onAssetItemClicked = onAssetItemClicked,
-                    onAudioItemClicked = onAudioClick,
-                    onChangeAudioPosition = onChangeAudioPosition,
-                    onImageFullScreenMode = onImageFullScreenMode,
-                    onReactionClicked = onReactionClick,
-                    onResetSessionClicked = onResetSessionClick,
-                    onOpenProfile = onOpenProfile,
-                    onUpdateConversationReadDate = onUpdateConversationReadDate,
-                    onShowEditingOptions = conversationScreenState::showEditContextMenu,
-                    onSwipedToReply = messageComposerStateHolder::toReply,
-                    onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                    onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
-                    onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                    onChangeSelfDeletionClicked = conversationScreenState::showSelfDeletionContextMenu,
-                    onLocationClicked = conversationScreenState::showLocationSheet,
-                    onDrawingClicked = conversationScreenState::showDrawingSheet,
-                    onClearMentionSearchResult = onClearMentionSearchResult,
-                    onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
-                    tempWritableImageUri = tempWritableImageUri,
-                    tempWritableVideoUri = tempWritableVideoUri,
-                    onLinkClick = onLinkClick,
-                    onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
-                    currentTimeInMillisFlow = currentTimeInMillisFlow
-                )
             }
-    SelfDeletionOptionsModalSheetLayout(
-        sheetState = conversationScreenState.selfDeletingSheetState,
-        onNewSelfDeletingMessagesStatus = onNewSelfDeletingMessagesStatus
-    )
-    MessageOptionsModalSheetLayout(
-        sheetState = conversationScreenState.editSheetState,
-        onCopyClick = conversationScreenState::copyMessage,
-        onDeleteClick = onDeleteMessage,
-        onReactionClick = onReactionClick,
-        onDetailsClick = onMessageDetailsClick,
-        onReplyClick = messageComposerStateHolder::toReply,
-        onEditClick = messageComposerStateHolder::toEdit,
-        onShareAssetClick = { shareAsset(context, it) },
-        onDownloadAssetClick = onDownloadAssetClick,
-        onOpenAssetClick = onOpenAssetClick,
-    )
+        )
 
-            val hideDrawingSheet = remember { { conversationScreenState.drawingSheetState.hide() } }
-            DrawingCanvasBottomSheet(
-                modifier = Modifier.statusBarsPadding(),
-                sheetState = conversationScreenState.drawingSheetState,
-                onDismissSketch = remember { { conversationScreenState.drawingSheetState.hide() } },
-                onSendSketch = {
-                    hideDrawingSheet()
-                    onSendMessage(
-                        ComposableMessageBundle.UriPickedBundle(
-                            conversationId = conversationInfoViewState.conversationId,
-                            attachmentUri = UriAsset(it)
-                        )
+        MessageOptionsModalSheetLayout(
+            sheetState = conversationScreenState.editSheetState,
+            onCopyClick = conversationScreenState::copyMessage,
+            onDeleteClick = onDeleteMessage,
+            onReactionClick = onReactionClick,
+            onDetailsClick = onMessageDetailsClick,
+            onReplyClick = messageComposerStateHolder::toReply,
+            onEditClick = messageComposerStateHolder::toEdit,
+            onShareAssetClick = { shareAsset(context, it) },
+            onDownloadAssetClick = onDownloadAssetClick,
+            onOpenAssetClick = onOpenAssetClick,
+        )
+
+        SelfDeletionOptionsModalSheetLayout(
+            sheetState = conversationScreenState.selfDeletingSheetState,
+            onNewSelfDeletingMessagesStatus = onNewSelfDeletingMessagesStatus
+        )
+        DrawingCanvasBottomSheet(
+            modifier = Modifier.statusBarsPadding(),
+            sheetState = conversationScreenState.drawingSheetState,
+            onSendSketch = {
+                messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
+                onSendMessage(
+                    ComposableMessageBundle.UriPickedBundle(
+                        conversationId = conversationInfoViewState.conversationId,
+                        attachmentUri = UriAsset(it)
                     )
-                },
-                conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
-                tempWritableImageUri = tempWritableImageUri
-            )
-            LocationPickerComponent(
-                sheetState = conversationScreenState.locationSheetState,
-                onLocationPicked = {
-                    onSendMessage(
-                        ComposableMessageBundle.LocationBundle(
-                            conversationInfoViewState.conversationId,
-                            it.getFormattedAddress(),
-                            it.location
-                        )
+                )
+            },
+            conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
+            tempWritableImageUri = tempWritableImageUri
+        )
+        LocationPickerComponent(
+            sheetState = conversationScreenState.locationSheetState,
+            onLocationPicked = {
+                onSendMessage(
+                    ComposableMessageBundle.LocationBundle(
+                        conversationInfoViewState.conversationId,
+                        it.getFormattedAddress(),
+                        it.location
                     )
-                },
-                onLocationClosed = remember { { conversationScreenState.locationSheetState.hide() } }
-            )
+                )
+            },
+            onLocationClosed = remember { { conversationScreenState.locationSheetState.hide() } }
+        )
 
-            SnackBarMessage(composerMessages, conversationMessages)
-
-        }
-    )
-
+        SnackBarMessage(composerMessages, conversationMessages)
+    }
 }
 
 @Suppress("LongParameterList")

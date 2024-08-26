@@ -59,7 +59,6 @@ fun AdditionalOptionsMenu(
     onGifOptionClicked: (() -> Unit)? = null
 ) {
     Box(modifier.background(colorsScheme().messageComposerBackgroundColor)) {
-        println("KBX selected option $selectedOption")
         when (additionalOptionsState) {
             AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
                 AttachmentAndAdditionalOptionsMenuItems(
@@ -119,7 +118,7 @@ fun AdditionalOptionSubMenu(
             onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         )
         when (additionalOptionsState) {
-            AdditionalOptionSubMenuState.None -> {}
+            AdditionalOptionSubMenuState.Default -> {}
 
             AdditionalOptionSubMenuState.RecordAudio -> {
                 RecordAudioComponent(

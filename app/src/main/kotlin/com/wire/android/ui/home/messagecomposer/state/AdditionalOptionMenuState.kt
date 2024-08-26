@@ -29,17 +29,12 @@ enum class AdditionalOptionMenuState {
 }
 
 enum class AdditionalOptionSubMenuState {
-    None,
+    Default,
     RecordAudio,
 }
 
 enum class AdditionalOptionSelectItem {
     RichTextEditing,
-//    DrawingMode, TODO KBX remove
-
-    // it's only used to show keyboard after self deleting bottom sheet collapses
-    SelfDeleting,
-    AttachFile,
     None,
 }
 
@@ -48,36 +43,24 @@ class AdditionalOptionStateHolder {
     var selectedOption by mutableStateOf(AdditionalOptionSelectItem.None)
 
     var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(
-        AdditionalOptionSubMenuState.None
+        AdditionalOptionSubMenuState.Default
     )
         private set
 
     var additionalOptionState: AdditionalOptionMenuState by mutableStateOf(AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu)
         private set
 
-    fun showAdditionalOptionsMenu() {
-        println("KBX showAdditionalOptionsMenu")
-        selectedOption = AdditionalOptionSelectItem.AttachFile
-        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.None // KBX Do we need this if it's only triggered by closing audio recording
-    }
-
     fun unselectAdditionalOptionsMenu() {
-        println("KBX unselectAdditionalOptionsMenu")
         selectedOption = AdditionalOptionSelectItem.None
-        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.None // KBX same here
+        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Default
     }
 
     fun toAudioRecording() {
         additionalOptionsSubMenuState = AdditionalOptionSubMenuState.RecordAudio
     }
 
-//    fun toLocationPicker() { // TODO KBX check
-//        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Location
-//        additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
-//    }
-
     fun toInitialAttachmentOptionsMenu() {
-        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.None
+        additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Default
         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
     }
 
@@ -88,10 +71,6 @@ class AdditionalOptionStateHolder {
     fun toAttachmentAndAdditionalOptionsMenu() {
         additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
         unselectAdditionalOptionsMenu()
-    }
-
-    fun toSelfDeletingOptionsMenu() {
-        selectedOption = AdditionalOptionSelectItem.SelfDeleting
     }
 
     companion object {

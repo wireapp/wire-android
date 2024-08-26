@@ -280,8 +280,7 @@ private fun MessageComposerTextInput(
     val isPressed by interactionSource.collectIsPressedAsState()
 
     LaunchedEffect(isPressed) {
-        println("KBX pressState $isPressed")
-        if(isPressed) {
+        if (isPressed) {
             onFocused()
         }
     }
@@ -299,10 +298,8 @@ private fun MessageComposerTextInput(
             .focusRequester(focusRequester)
             .onFocusChanged { focusState ->
                 if (focusState.isFocused) {
-                    println("KBX focusState true")
                     onFocused()
                 }
-                // TODO check if we need also do something on losing focus
             }
             .onPreInterceptKeyBeforeSoftKeyboard { event ->
                 if (event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_BACK) {

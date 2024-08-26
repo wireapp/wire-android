@@ -51,7 +51,6 @@ import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -74,7 +73,7 @@ fun LocationPickerComponent(
     onLocationClosed: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LocationPickerViewModel = hiltViewModel<LocationPickerViewModel>(),
-    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(onDismissAction = onLocationClosed),
+    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(),
 ) {
 
     val locationFlow = rememberCurrentLocationPermissionFlow(
@@ -82,7 +81,6 @@ fun LocationPickerComponent(
         onAnyPermissionDenied = { /* do nothing */ },
         onAnyPermissionPermanentlyDenied = viewModel::onPermissionPermanentlyDenied
     )
-
 
     with(viewModel.state) {
         WireModalSheetLayout(

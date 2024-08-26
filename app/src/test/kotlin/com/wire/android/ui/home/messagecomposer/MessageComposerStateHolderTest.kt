@@ -29,7 +29,6 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
-import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.InputType
@@ -161,15 +160,11 @@ class MessageComposerStateHolderTest {
         runTest {
             // given
             // when
-            state.showAdditionalOptionsMenu()
+            state.showAttachments(true)
 
             // then
             assertEquals(
-                AdditionalOptionSelectItem.AttachFile,
-                additionalOptionStateHolder.selectedOption
-            )
-            assertEquals(
-                AdditionalOptionSubMenuState.AttachFile,
+                AdditionalOptionSubMenuState.Default,
                 additionalOptionStateHolder.additionalOptionsSubMenuState
             )
             assertEquals(false, messageCompositionInputStateHolder.inputFocused)

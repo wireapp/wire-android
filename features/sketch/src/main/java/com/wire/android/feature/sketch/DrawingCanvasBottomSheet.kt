@@ -28,14 +28,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -67,51 +65,49 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawingCanvasBottomSheet(
-    onDismissSketch: () -> Unit,
     onSendSketch: (Uri) -> Unit,
     tempWritableImageUri: Uri?,
+    sheetState: WireModalSheetState<Unit>,
     modifier: Modifier = Modifier,
     conversationTitle: String = "",
-    viewModel: DrawingCanvasViewModel = viewModel(),
-    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState()
+    viewModel: DrawingCanvasViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    // TODO KBX
-//    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { false })
     val onDismissEvent: () -> Unit = remember {
         {
             if (viewModel.state.paths.isNotEmpty()) {
                 viewModel.onShowConfirmationDialog()
             } else {
-                scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() }
+                 sheetState.hide()
             }
         }
     }
     val dismissEvent: () -> Unit = remember {
         {
             viewModel.initializeCanvas()
-            onDismissSketch()
+            sheetState.hide()
         }
     }
 
     WireModalSheetLayout(
         modifier = modifier,
+        sheetState = sheetState,
         sheetShape = CutCornerShape(dimensions().spacing0x),
         containerColor = colorsScheme().background,
         dragHandle = {
             DrawingTopBar(conversationTitle, onDismissEvent, viewModel::onUndoLastStroke, viewModel.state)
         },
-        sheetState = sheetState,
-
-//        onDismissRequest = onDismissEvent,
-//        properties = ModalBottomSheetProperties(
-//            securePolicy = SecureFlagPolicy.Inherit,
-//            shouldDismissOnBackPress = false
-//        )
+        shouldDismissOnBackPress = false,
+        onBackPress = {
+            if (viewModel.state.paths.isNotEmpty()) {
+                viewModel.onShowConfirmationDialog()
+            } else {
+              sheetState.hide()
+            }
+        },
     ) {
         Row(
             Modifier
@@ -134,7 +130,7 @@ fun DrawingCanvasBottomSheet(
             onColorChanged = viewModel::onColorChanged,
             onSendSketch = {
                 scope.launch { onSendSketch(viewModel.saveImage(context, tempWritableImageUri)) }
-                    .invokeOnCompletion { scope.launch { sheetState.hide() } }
+                    .invokeOnCompletion { sheetState.hide() }
             }
         )
     }

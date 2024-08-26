@@ -20,7 +20,6 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -30,7 +29,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.Dp
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
@@ -38,7 +36,6 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList")
 @Composable
 fun rememberMessageComposerStateHolder(
@@ -118,35 +115,29 @@ class MessageComposerStateHolder(
     val messageComposition = messageCompositionHolder.messageComposition
 
     fun toEdit(messageId: String, editMessageText: String, mentions: List<MessageMention>) {
-        logActions("toEdit")
         messageCompositionHolder.setEditText(messageId, editMessageText, mentions)
         messageCompositionInputStateHolder.toEdit(editMessageText)
     }
 
     fun toReply(message: UIMessage.Regular) {
-        logActions("toReply")
         messageCompositionHolder.setReply(message)
         messageCompositionInputStateHolder.toComposing()
     }
 
     fun onInputFocused() {
-        println("KBX onInputFocused")
         additionalOptionStateHolder.unselectAdditionalOptionsMenu()
         messageCompositionInputStateHolder.setFocused()
     }
 
     fun toAudioRecording() {
-        logActions("toAudioRecording")
         additionalOptionStateHolder.toAudioRecording()
     }
 
     fun toInitialAttachmentOptions() {
-        logActions("toInitialAttachmentOptions")
         additionalOptionStateHolder.toInitialAttachmentOptionsMenu()
     }
 
     fun cancelEdit() {
-        logActions("cancelEdit")
         messageCompositionInputStateHolder.toComposing()
         messageCompositionHolder.clearMessage()
     }
@@ -156,27 +147,10 @@ class MessageComposerStateHolder(
     }
 
     fun showAttachments(showOptions: Boolean) {
-        println("KBX showAttachments $showOptions")
-//        if(showOptions) {
-//            additionalOptionStateHolder.showAdditionalOptionsMenu()
-//        } else {
-//            additionalOptionStateHolder.unselectAdditionalOptionsMenu()
-//        }
         messageCompositionInputStateHolder.showAttachments(showOptions)
     }
 
     fun clearMessage() {
-        logActions("clearMessage")
         messageCompositionHolder.clearMessage()
-    }
-
-    companion object {
-        private const val TAG = "[MessageComposerStateHolder]"
-        private const val enableLogs = true
-        private fun logActions(actionName: String) {
-            if (enableLogs) {
-                println("$TAG $actionName")
-            }
-        }
     }
 }

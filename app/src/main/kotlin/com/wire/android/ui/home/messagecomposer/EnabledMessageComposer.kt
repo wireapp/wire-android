@@ -47,7 +47,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -55,11 +54,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -70,11 +64,9 @@ import com.wire.android.ui.common.bottombar.BottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
-import com.wire.android.ui.home.conversations.ConversationScreenState
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
-import com.wire.android.ui.home.messagecomposer.state.ComposerState
+import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.kalium.logic.data.id.ConversationId
@@ -127,7 +119,6 @@ fun EnabledMessageComposer(
         }
 
         LaunchedEffect(inputStateHolder.optionsVisible) {
-            println("KBX LaunchedEffect optionsVisible ${inputStateHolder.optionsVisible}")
             if (inputStateHolder.optionsVisible) {
                 rippleProgress.snapTo(0f)
                 rippleProgress.animateTo(
@@ -135,7 +126,6 @@ fun EnabledMessageComposer(
                     animationSpec = tween(durationMillis = 400)
                 )
             } else {
-                println("KBX hideRipple")
                 hideRipple = true
                 rippleProgress.animateTo(
                     targetValue = 0f,
@@ -144,18 +134,6 @@ fun EnabledMessageComposer(
                 hideRipple = false
             }
         }
-
-//        LaunchedEffect(modalBottomSheetState.isVisible) { // TODO KBX to jest gdzieś na górze
-//            println("KBX bottomSheetVisible ${modalBottomSheetState.isVisible}")
-//            println("KBX additionalOptionsSubMenuState ${additionalOptionStateHolder.additionalOptionsSubMenuState}")
-//
-//            if (modalBottomSheetState.isVisible) {
-////                messageCompositionInputStateHolder.clearFocus()
-//            } else if (additionalOptionStateHolder.selectedOption == AdditionalOptionSelectItem.SelfDeleting) {
-//                additionalOptionStateHolder.unselectAdditionalOptionsMenu()
-//                messageCompositionInputStateHolder.requestFocus()
-//            }
-//        }
 
         Surface(
             modifier = modifier,
@@ -247,10 +225,16 @@ fun EnabledMessageComposer(
                                     showAttachments(!inputStateHolder.optionsVisible)
                                 }
                             },
-                            modifier = fillRemainingSpaceOrWrapContent.onKeyboardDismiss(inputStateHolder.optionsVisible) {
-                                println("KBX onKeyboardDismiss")
-                                inputStateHolder.showAttachments(false)
-                            },
+                            modifier = fillRemainingSpaceOrWrapContent
+                                .onKeyboardDismiss(inputStateHolder.optionsVisible) {
+                                    when (additionalOptionStateHolder.additionalOptionsSubMenuState) {
+                                        AdditionalOptionSubMenuState.Default -> {
+                                            inputStateHolder.showAttachments(false)
+                                        }
+
+                                        AdditionalOptionSubMenuState.RecordAudio -> {}
+                                    }
+                                },
                         )
 
                         val mentionSearchResult = messageComposerViewState.value.mentionSearchResult
@@ -278,10 +262,7 @@ fun EnabledMessageComposer(
                             isEditing = messageCompositionInputStateHolder.inputType is InputType.Editing,
                             isMentionActive = messageComposerViewState.value.mentionSearchResult.isNotEmpty(),
                             onMentionButtonClicked = messageCompositionHolder::startMention,
-                            onOnSelfDeletingOptionClicked = {
-                                onChangeSelfDeletionClicked(it)
-                                additionalOptionStateHolder.toSelfDeletingOptionsMenu() // KBX TODO potrzebne?
-                            },
+                            onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
                             onRichOptionButtonClicked = messageCompositionHolder::addOrRemoveMessageMarkdown,
                             onPingOptionClicked = onPingOptionClicked,
                             onAdditionalOptionsMenuClicked = {
@@ -300,7 +281,8 @@ fun EnabledMessageComposer(
                 }
             }
             if ((inputStateHolder.optionsVisible || rippleProgress.value > 0f) && !bottomSheetVisible) {
-                Popup(alignment = Alignment.BottomCenter,
+                Popup(
+                    alignment = Alignment.BottomCenter,
                     properties = PopupProperties(
                         dismissOnBackPress = true,
                         dismissOnClickOutside = true
@@ -313,7 +295,8 @@ fun EnabledMessageComposer(
                     onDismissRequest = {
                         hideRipple = true
                         showAttachments(false)
-                    }) {
+                    }
+                ) {
                     val rippleColor = colorsScheme().messageComposerBackgroundColor
                     val shape = if (isImeVisible) {
                         RectangleShape
@@ -324,13 +307,7 @@ fun EnabledMessageComposer(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(
-                                if (isImeVisible) {
-                                    inputStateHolder.calculateOptionsMenuHeight(additionalOptionStateHolder.additionalOptionsSubMenuState)
-                                } else {
-                                    250.dp
-                                }
-                            )
+                            .height(inputStateHolder.calculateOptionsMenuHeight(additionalOptionStateHolder.additionalOptionsSubMenuState))
                             .padding(
                                 horizontal = if (isImeVisible) {
                                     dimensions().spacing0x
@@ -388,29 +365,13 @@ fun EnabledMessageComposer(
                 BackHandler(inputStateHolder.inputType is InputType.Editing) {
                     cancelEdit()
                 }
-                BackHandler(isImeVisible || inputStateHolder.composerState != ComposerState.Collapsed) {
+                BackHandler(isImeVisible || inputStateHolder.inputFocused) {
                     inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
                 }
             }
         }
     }
 }
-
-
-@OptIn(ExperimentalComposeUiApi::class)
-fun Modifier.onKeyboardDismiss(
-    isAttachmentsShowed: Boolean,
-    handleOnBackPressed: () -> Unit
-): Modifier =
-    this.onPreInterceptKeyBeforeSoftKeyboard { event: KeyEvent ->
-        println("KBX keyevent $event")
-        println("KBX type ${event.type}")
-        if (isAttachmentsShowed && event.type == KeyEventType.KeyDown && event.key.keyCode == 17179869184) {
-            handleOnBackPressed.invoke()
-            return@onPreInterceptKeyBeforeSoftKeyboard true
-        }
-        false
-    }
 
 fun Size.getDistanceToCorner(corner: Offset): Float {
     val cornerOffset = Offset(width - corner.x, height - corner.y)

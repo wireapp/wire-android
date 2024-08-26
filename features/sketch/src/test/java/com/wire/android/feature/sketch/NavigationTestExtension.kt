@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.config
+package com.wire.android.feature.sketch
 
-import com.wire.android.navigation.WireMainNavGraph
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkObject
@@ -43,12 +42,12 @@ import org.junit.jupiter.api.extension.ExtensionContext
  */
 class NavigationTestExtension : BeforeEachCallback, AfterEachCallback {
     override fun beforeEach(context: ExtensionContext?) {
-        mockkStatic("com.wire.android.ui.NavArgsGettersKt")
-        WireMainNavGraph.destinations.forEach { mockkObject(it) }
+        mockkStatic("com.wire.android.feature.sketch.NavArgsGettersKt")
+        sketchDestinations.forEach { mockkObject(it) }
     }
 
     override fun afterEach(context: ExtensionContext?) {
-        unmockkStatic("com.wire.android.ui.NavArgsGettersKt")
-        WireMainNavGraph.destinations.forEach { unmockkObject(it) }
+        unmockkStatic("com.wire.android.feature.sketch.NavArgsGettersKt")
+        sketchDestinations.forEach { unmockkObject(it) }
     }
 }

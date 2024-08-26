@@ -49,7 +49,6 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -61,8 +60,8 @@ import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LocalNavigator
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationGraph
-import com.wire.android.navigation.navigateToItem
+import com.wire.android.navigation.MainNavHost
+import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.getIncomingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
@@ -240,7 +239,7 @@ class WireActivity : AppCompatActivity() {
                             }
                         )
                         CompositionLocalProvider(LocalNavigator provides navigator) {
-                            NavigationGraph(
+                            MainNavHost(
                                 navigator = navigator,
                                 startDestination = startDestination
                             )
@@ -248,7 +247,7 @@ class WireActivity : AppCompatActivity() {
 
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-                        SetUpNavigation(navigator.navController, onComplete)
+                        SetUpNavigation(navigator, onComplete)
                         HandleScreenshotCensoring()
                         HandleDialogs(navigator::navigate)
                     }
@@ -259,11 +258,11 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun SetUpNavigation(
-        navController: NavHostController,
+        navigator: Navigator,
         onComplete: () -> Unit,
     ) {
         val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
-        val currentNavController by rememberUpdatedState(navController)
+        val currentNavigator by rememberUpdatedState(navigator)
         LaunchedEffect(Unit) {
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -277,22 +276,22 @@ class WireActivity : AppCompatActivity() {
                         }
                         .collectLatest {
                             currentKeyboardController?.hide()
-                            currentNavController.navigateToItem(it)
+                            currentNavigator.navigate(it)
                         }
                 }
             }
         }
 
-        DisposableEffect(navController) {
+        DisposableEffect(navigator.navController) {
             val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, _, _ ->
                 currentKeyboardController?.hide()
             }
-            navController.addOnDestinationChangedListener(updateScreenSettingsListener)
-            navController.addOnDestinationChangedListener(currentScreenManager)
+            navigator.navController.addOnDestinationChangedListener(updateScreenSettingsListener)
+            navigator.navController.addOnDestinationChangedListener(currentScreenManager)
 
             onDispose {
-                navController.removeOnDestinationChangedListener(updateScreenSettingsListener)
-                navController.removeOnDestinationChangedListener(currentScreenManager)
+                navigator.navController.removeOnDestinationChangedListener(updateScreenSettingsListener)
+                navigator.navController.removeOnDestinationChangedListener(currentScreenManager)
             }
         }
     }

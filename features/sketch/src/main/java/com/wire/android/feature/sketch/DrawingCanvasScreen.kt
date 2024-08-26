@@ -17,10 +17,11 @@
  */
 package com.wire.android.feature.sketch
 
-import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,29 +30,29 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetProperties
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
+import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.feature.sketch.model.DrawingState
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.navigation.WaitUntilTransitionEndsWrapper
+import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.IconAlignment
@@ -59,88 +60,131 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireSecondaryIconButton
-import com.wire.android.ui.common.button.WireTertiaryIconButton
 import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
+import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Destination(
+    wrappers = [WaitUntilTransitionEndsWrapper::class],
+    style = PopUpNavigationAnimation::class,
+    navArgsDelegate = DrawingCanvasNavArgs::class,
+)
 @Composable
-fun DrawingCanvasBottomSheet(
-    onDismissSketch: () -> Unit,
-    onSendSketch: (Uri) -> Unit,
-    tempWritableImageUri: Uri?,
-    modifier: Modifier = Modifier,
-    conversationTitle: String = "",
-    viewModel: DrawingCanvasViewModel = viewModel()
+fun DrawingCanvasScreen(
+    drawingCanvasNavArgs: DrawingCanvasNavArgs,
+    resultNavigator: ResultBackNavigator<DrawingCanvasNavBackArgs>,
+    viewModel: DrawingCanvasViewModel = viewModel(),
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { false })
+    val discardDrawing: () -> Unit = remember {
+        {
+            viewModel.initializeCanvas()
+            resultNavigator.navigateBack()
+        }
+    }
     val onDismissEvent: () -> Unit = remember {
         {
             if (viewModel.state.paths.isNotEmpty()) {
                 viewModel.onShowConfirmationDialog()
             } else {
-                scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissSketch() }
+                discardDrawing()
             }
         }
     }
-    val dismissEvent: () -> Unit = remember {
-        {
-            viewModel.initializeCanvas()
-            onDismissSketch()
-        }
-    }
-
-    ModalBottomSheet(
-        modifier = modifier,
-        shape = CutCornerShape(dimensions().spacing0x),
-        containerColor = colorsScheme().background,
-        dragHandle = {
-            DrawingTopBar(conversationTitle, onDismissEvent, viewModel::onUndoLastStroke, viewModel.state)
+    DrawingCanvasContent(
+        state = viewModel.state,
+        title = drawingCanvasNavArgs.conversationName,
+        onStartDrawingEvent = viewModel::onStartDrawingEvent,
+        onDrawEvent = viewModel::onDrawEvent,
+        onStopDrawingEvent = viewModel::onStopDrawingEvent,
+        onSizeChanged = viewModel::onSizeChanged,
+        onStartDrawing = viewModel::onStartDrawing,
+        onDraw = viewModel::onDraw,
+        onColorChanged = viewModel::onColorChanged,
+        onStopDrawing = viewModel::onStopDrawing,
+        onDismissEvent = onDismissEvent,
+        onUndoStroke = viewModel::onUndoLastStroke,
+        onSendSketch = remember {
+            {
+                scope.launch {
+                    resultNavigator.setResult(DrawingCanvasNavBackArgs(viewModel.saveImage(context)))
+                    resultNavigator.navigateBack()
+                }
+            }
         },
-        sheetState = sheetState,
-        onDismissRequest = onDismissEvent,
-        properties = ModalBottomSheetProperties(
-            isFocusable = true,
-            securePolicy = SecureFlagPolicy.Inherit,
-            shouldDismissOnBackPress = false
-        )
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .weight(weight = 1f, fill = true)
-        ) {
-            DrawingCanvasComponent(
-                state = viewModel.state,
-                onStartDrawingEvent = viewModel::onStartDrawingEvent,
-                onDrawEvent = viewModel::onDrawEvent,
-                onStopDrawingEvent = viewModel::onStopDrawingEvent,
-                onSizeChanged = viewModel::onSizeChanged,
-                onStartDrawing = viewModel::onStartDrawing,
-                onDraw = viewModel::onDraw,
-                onStopDrawing = viewModel::onStopDrawing
-            )
-        }
-        DrawingToolbar(
-            state = viewModel.state,
-            onColorChanged = viewModel::onColorChanged,
-            onSendSketch = {
-                scope.launch { onSendSketch(viewModel.saveImage(context, tempWritableImageUri)) }
-                    .invokeOnCompletion { scope.launch { sheetState.hide() } }
-            }
-        )
-    }
+    )
 
     if (viewModel.state.showConfirmationDialog) {
-        DiscardDialogConfirmation(scope, sheetState, dismissEvent, viewModel::onHideConfirmationDialog)
+        DrawingDiscardConfirmationDialog(discardDrawing, viewModel::onHideConfirmationDialog)
     }
+
+    BackHandler {
+        onDismissEvent()
+    }
+}
+
+@Composable
+internal fun DrawingCanvasContent(
+    state: DrawingState,
+    title: String,
+    onStartDrawingEvent: () -> Unit,
+    onDrawEvent: () -> Unit,
+    onStopDrawingEvent: () -> Unit,
+    onSizeChanged: (Size) -> Unit,
+    onStartDrawing: (Offset) -> Unit,
+    onDraw: (Offset) -> Unit,
+    onColorChanged: (Color) -> Unit,
+    onSendSketch: () -> Unit,
+    onStopDrawing: () -> Unit,
+    onDismissEvent: () -> Unit,
+    onUndoStroke: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    WireScaffold(
+        topBar = {
+            DrawingTopBar(
+                conversationTitle = title,
+                dismissAction = onDismissEvent,
+                onUndoStroke = onUndoStroke,
+                state = state
+            )
+        },
+        content = { internalPadding ->
+            Column(
+                modifier = modifier.padding(internalPadding)
+            ) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(weight = 1f, fill = true)
+                ) {
+                    DrawingCanvasComponent(
+                        state = state,
+                        onStartDrawingEvent = onStartDrawingEvent,
+                        onDrawEvent = onDrawEvent,
+                        onStopDrawingEvent = onStopDrawingEvent,
+                        onSizeChanged = onSizeChanged,
+                        onStartDrawing = onStartDrawing,
+                        onDraw = onDraw,
+                        onStopDrawing = onStopDrawing
+                    )
+                }
+                DrawingToolbar(
+                    state = state,
+                    onColorChanged = onColorChanged,
+                    onSendSketch = onSendSketch
+                )
+            }
+        }
+    )
 }
 
 @Composable
@@ -150,36 +194,21 @@ internal fun DrawingTopBar(
     onUndoStroke: () -> Unit,
     state: DrawingState
 ) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = dimensions().spacing8x),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        WireTertiaryIconButton(
-            onButtonClicked = dismissAction,
-            iconResource = R.drawable.ic_close,
-            contentDescription = R.string.content_description_close_button,
-            minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
-            minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-        )
-        Text(
-            text = conversationTitle,
-            style = MaterialTheme.wireTypography.title01,
-            color = MaterialTheme.wireColorScheme.onBackground,
-            modifier = Modifier.align(Alignment.CenterVertically),
-            maxLines = MAX_LINES_TOPBAR,
-            overflow = TextOverflow.Ellipsis
-        )
-        WireSecondaryIconButton(
-            onButtonClicked = onUndoStroke,
-            iconResource = R.drawable.ic_undo,
-            contentDescription = R.string.content_description_undo_button,
-            state = if (state.paths.isNotEmpty()) WireButtonState.Default else WireButtonState.Disabled,
-            minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
-            minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-        )
-    }
+    WireCenterAlignedTopAppBar(
+        title = conversationTitle,
+        navigationIconType = NavigationIconType.Close,
+        onNavigationPressed = dismissAction,
+        actions = {
+            WireSecondaryIconButton(
+                onButtonClicked = onUndoStroke,
+                iconResource = R.drawable.ic_undo,
+                contentDescription = R.string.content_description_undo_button,
+                state = if (state.paths.isNotEmpty()) WireButtonState.Default else WireButtonState.Disabled,
+                minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
+                minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+            )
+        }
+    )
 }
 
 @Composable
@@ -235,11 +264,17 @@ internal fun DrawingToolbar(
     DrawingToolPicker(
         sheetState = sheetState,
         currentColor = state.currentPath.color,
-        onColorSelected = {
-            onColorChanged(it)
-            sheetState.hide()
+        onColorSelected = remember {
+            {
+                onColorChanged(it)
+                sheetState.hide()
+            }
         }
     )
 }
 
-private const val MAX_LINES_TOPBAR = 1
+@Composable
+@PreviewMultipleThemes
+fun PreviewDrawingCanvasScreen() = WireTheme {
+    DrawingCanvasContent(DrawingState(), "Title", {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+}

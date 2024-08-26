@@ -206,9 +206,11 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
                     onFailure(result.coreFailure)
                 }
 
-                is CreateConversationResult.Success -> onSuccess(result.conversation.id)
+                is CreateConversationResult.Success -> {
+                    state = state.finishAction()
+                    onSuccess(result.conversation.id)
+                }
             }
-            state.finishAction()
         }
     }
 }

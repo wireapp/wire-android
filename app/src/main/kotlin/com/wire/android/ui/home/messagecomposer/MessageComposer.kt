@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -250,6 +251,7 @@ private fun BaseComposerPreview(
     val messageTextState = rememberTextFieldState()
     val messageComposition = remember { mutableStateOf(MessageComposition(ConversationId("value", "domain"))) }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
     MessageComposer(
         conversationId = ConversationId("value", "domain"),
         bottomSheetVisible = false,
@@ -257,7 +259,8 @@ private fun BaseComposerPreview(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
                 messageTextState = messageTextState,
-                keyboardController = keyboardController
+                keyboardController = keyboardController,
+                focusRequester = focusRequester
             ),
             messageCompositionHolder = MessageCompositionHolder(
                 messageComposition = messageComposition,

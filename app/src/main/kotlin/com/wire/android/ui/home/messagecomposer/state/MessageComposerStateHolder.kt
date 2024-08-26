@@ -26,6 +26,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.wire.android.ui.home.conversations.MessageComposerViewState
@@ -71,17 +72,22 @@ fun rememberMessageComposerStateHolder(
         messageCompositionHolder.handleMessageTextUpdates()
     }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember {
+        FocusRequester()
+    }
 
     val messageCompositionInputStateHolder = rememberSaveable(
         saver = MessageCompositionInputStateHolder.saver(
             messageTextState = messageTextState,
             keyboardController = keyboardController,
+            focusRequester = focusRequester,
             density = density
         )
     ) {
         MessageCompositionInputStateHolder(
             messageTextState = messageTextState,
-            keyboardController = keyboardController
+            keyboardController = keyboardController,
+            focusRequester = focusRequester
         )
     }
 

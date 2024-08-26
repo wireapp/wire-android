@@ -44,7 +44,7 @@ import com.wire.android.util.isNotMarkdownBlank
 class MessageCompositionInputStateHolder(
     val messageTextState: TextFieldState,
     private val keyboardController: SoftwareKeyboardController?,
-    val focusRequester: FocusRequester = FocusRequester()
+    val focusRequester: FocusRequester
 ) {
     var inputFocused: Boolean by mutableStateOf(false)
 
@@ -172,6 +172,7 @@ class MessageCompositionInputStateHolder(
         fun saver(
             messageTextState: TextFieldState,
             keyboardController: SoftwareKeyboardController?,
+            focusRequester: FocusRequester,
             density: Density
         ): Saver<MessageCompositionInputStateHolder, *> = Saver(
             save = {
@@ -189,6 +190,7 @@ class MessageCompositionInputStateHolder(
                     MessageCompositionInputStateHolder(
                         messageTextState = messageTextState,
                         keyboardController = keyboardController,
+                        focusRequester = focusRequester
                     ).apply {
                         inputFocused = savedState[0] as Boolean
                         keyboardHeight = (savedState[1] as Float).toDp()

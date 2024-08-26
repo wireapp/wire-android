@@ -43,6 +43,7 @@ androidx-browser = "1.8.0"
 androidx-biometric = "1.1.0"
 androidx-startup = "1.1.1"
 androidx-compose-runtime = "1.6.7"
+compose-qr = "1.0.1"
 
 # Compose
 composeBom = "2024.06.00"
@@ -100,7 +101,7 @@ androidx-test-runner = "1.5.2"
 androidx-test-uiAutomator = "2.3.0"
 androidx-text-archCore = "2.2.0"
 junit4 = "4.13.2"
-junit5 = "5.10.2"
+junit5 = "5.11.0"
 kluent = "1.73"
 mockk = "1.13.10"
 okio = "3.9.0"
@@ -247,6 +248,9 @@ commonmark-tables = { module = "org.commonmark:commonmark-ext-gfm-tables", versi
 
 # Countly
 countly-sdk = { module = "ly.count.android:sdk", version.ref = "countly" }
+
+# QRs
+compose-qr-code = { module = "com.lightspark:compose-qr-code", version.ref = "compose-qr" }
 
 # Dev tools
 aboutLibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }

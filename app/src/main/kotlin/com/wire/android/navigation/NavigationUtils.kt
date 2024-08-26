@@ -31,12 +31,8 @@ import com.ramcosta.composedestinations.spec.NavGraphSpec
 import com.ramcosta.composedestinations.utils.navGraph
 import com.ramcosta.composedestinations.utils.route
 import com.wire.android.appLogger
-import com.wire.android.ui.NavGraphs
-import com.wire.android.ui.destinations.Destination
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logger.obfuscateId
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
 
 @SuppressLint("RestrictedApi")
 internal fun NavController.navigateToItem(command: NavigationCommand) {
@@ -102,8 +98,8 @@ private fun NavOptionsBuilder.popUpTo(
     }
 }
 
-internal fun NavDestination.toDestination(): Destination? =
-    this.route?.let { currentRoute -> NavGraphs.root.destinationsByRoute[currentRoute] }
+internal fun NavDestination.toDestination(): DestinationSpec<*>? =
+    this.route?.let { currentRoute -> WireMainNavGraph.destinationsByRoute[currentRoute] }
 
 fun String.getBaseRoute(): String =
     this.indexOfAny(listOf("?", "/")).let {
@@ -116,21 +112,6 @@ fun Direction.handleNavigation(context: Context, handleOtherDirection: (Directio
     is ExternalUriStringResDirection -> CustomTabsHelper.launchUri(context, this.getUri(context.resources))
     is IntentDirection -> context.startActivity(this.intent(context))
     else -> handleOtherDirection(this)
-}
-
-object ArgsSerializer {
-    @OptIn(ExperimentalSerializationApi::class)
-    private val instance: Json by lazy {
-        Json {
-            encodeDefaults = true
-            explicitNulls = false
-            // to enable the serialization of maps with complex keys
-            // e.g. Map<QualifiedIDEntity, PersistenceSession>
-            allowStructuredMapKeys = true
-        }
-    }
-
-    operator fun invoke() = instance
 }
 
 private const val TAG = "NavigationUtils"

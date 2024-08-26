@@ -50,7 +50,8 @@ fun Modifier.onKeyboardDismiss(
 ): Modifier =
     this.onPreInterceptKeyBeforeSoftKeyboard { event: KeyEvent ->
         if (shouldIntercept && event.type == KeyEventType.KeyDown &&
-            event.key.keyCode == KEYBOARD_HIDE_BUTTON_CODE) {
+            event.key.keyCode == KEYBOARD_HIDE_BUTTON_CODE
+        ) {
             handleOnBackPressed.invoke()
             return@onPreInterceptKeyBeforeSoftKeyboard true // Consumes the event, preventing
             // further propagation.

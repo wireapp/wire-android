@@ -151,6 +151,10 @@
                         android:scheme="wire" />
 
                 <data
+                        android:host="user"
+                        android:scheme="wire" />
+
+                <data
                         android:host="other-user-profile"
                         android:scheme="wire" />
 
@@ -342,7 +346,7 @@
         <service
                 android:name=".services.PersistentWebSocketService"
                 android:exported="false"
-                android:foregroundServiceType="specialUse"></service>
+                android:foregroundServiceType="specialUse"/>
 
         <service
                 android:name=".services.OngoingCallService"

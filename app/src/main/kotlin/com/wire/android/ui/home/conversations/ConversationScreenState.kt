@@ -41,7 +41,6 @@ import kotlinx.coroutines.launch
 fun rememberConversationScreenState(
     editSheetState: WireModalSheetState<UIMessage.Regular> = rememberWireModalSheetState<UIMessage.Regular>(),
     selfDeletingSheetState: WireModalSheetState<SelfDeletionTimer> = rememberWireModalSheetState<SelfDeletionTimer>(),
-    drawingSheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(),
     locationSheetState: WireModalSheetState<Unit> = rememberWireModalSheetState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): ConversationScreenState {
@@ -55,7 +54,6 @@ fun rememberConversationScreenState(
             snackBarHostState = snackBarHostState,
             editSheetState = editSheetState,
             selfDeletingSheetState = selfDeletingSheetState,
-            drawingSheetState = drawingSheetState,
             locationSheetState = locationSheetState,
             coroutineScope = coroutineScope
         )
@@ -69,7 +67,6 @@ class ConversationScreenState(
     val snackBarHostState: SnackbarHostState,
     val editSheetState: WireModalSheetState<UIMessage.Regular>,
     val selfDeletingSheetState: WireModalSheetState<SelfDeletionTimer>,
-    val drawingSheetState: WireModalSheetState<Unit>,
     val locationSheetState: WireModalSheetState<Unit>,
     val coroutineScope: CoroutineScope
 ) {
@@ -88,14 +85,10 @@ class ConversationScreenState(
         selfDeletingSheetState.show(currentlySelected, hideKeyboard = true)
     }
 
-    fun showDrawingSheet() {
-        drawingSheetState.show(hideKeyboard = true)
-    }
-
     fun showLocationSheet() {
         locationSheetState.show(hideKeyboard = true)
     }
 
     val isAnySheetVisible: Boolean
-        get() = editSheetState.isVisible || selfDeletingSheetState.isVisible || drawingSheetState.isVisible || locationSheetState.isVisible
+        get() = editSheetState.isVisible || selfDeletingSheetState.isVisible || locationSheetState.isVisible
 }

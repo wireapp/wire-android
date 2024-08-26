@@ -82,7 +82,6 @@ fun EnabledMessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
-    onDrawingClicked: () -> Unit,
     onLocationClicked: () -> Unit,
     onSendButtonClicked: () -> Unit,
     onImagesPicked: (List<Uri>) -> Unit,
@@ -91,6 +90,7 @@ fun EnabledMessageComposer(
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     onPingOptionClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
+    openDrawingCanvas: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     modifier: Modifier = Modifier,
@@ -275,7 +275,7 @@ fun EnabledMessageComposer(
                                 additionalOptionStateHolder.toRichTextEditing()
                             },
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                            onDrawingModeClicked = onDrawingClicked,
+                            onDrawingModeClicked = openDrawingCanvas,
                         )
                     }
                 }

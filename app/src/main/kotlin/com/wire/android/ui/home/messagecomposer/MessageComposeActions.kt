@@ -118,10 +118,7 @@ private fun ComposingActions(
                 onRichEditingButtonClicked
             )
             if (DrawingIcon) {
-                DrawingModeAction(
-                    isSelected = false,
-                    onDrawingModeClicked
-                )
+                DrawingModeAction(onDrawingModeClicked)
             }
             if (EmojiIcon) AddEmojiAction({})
             if (GifIcon) AddGifAction(onGifButtonClicked)
@@ -176,12 +173,12 @@ private fun RichTextEditingAction(isSelected: Boolean, onButtonClicked: () -> Un
 }
 
 @Composable
-private fun DrawingModeAction(isSelected: Boolean, onButtonClicked: () -> Unit) {
+private fun DrawingModeAction(onButtonClicked: () -> Unit) {
     WireSecondaryIconButton(
         onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_drawing,
-        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
+        state = WireButtonState.Default,
         contentDescription = R.string.content_description_conversation_enable_drawing_mode
     )
 }

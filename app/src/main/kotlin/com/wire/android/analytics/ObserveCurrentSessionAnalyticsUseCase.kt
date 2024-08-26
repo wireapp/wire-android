@@ -78,7 +78,9 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                     previousAnalyticsResult = identifierResult
 
                     val isProdBackend = when (val serverConfig = currentBackend(userId)) {
-                        is SelfServerConfigUseCase.Result.Success -> serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
+                        is SelfServerConfigUseCase.Result.Success ->
+                            serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
+                                    || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
                         is SelfServerConfigUseCase.Result.Failure -> false
                     }
 

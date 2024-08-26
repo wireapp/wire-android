@@ -37,7 +37,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -76,16 +75,18 @@ import androidx.paging.compose.itemKey
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult.Canceled
 import com.ramcosta.composedestinations.result.NavResult.Value
+import com.ramcosta.composedestinations.result.OpenResultRecipient
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.feature.sketch.DrawingCanvasBottomSheet
+import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
+import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
+import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.mapper.MessageDateTimeGroup
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.ArgsSerializer
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -158,7 +159,6 @@ import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialo
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.CurrentConversationDetailsCache
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -214,7 +214,8 @@ fun ConversationScreen(
     navigator: Navigator,
     groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
     mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
-    imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, String>,
+    imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
+    drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     conversationInfoViewModel: ConversationInfoViewModel = hiltViewModel(),
     conversationBannerViewModel: ConversationBannerViewModel = hiltViewModel(),
@@ -250,11 +251,6 @@ fun ConversationScreen(
         editSheetState = rememberWireModalSheetState(onDismissAction = {
             messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
         }),
-        drawingSheetState = rememberWireModalSheetState(
-            onDismissAction = {
-                messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
-            }
-        )
     )
 
     val permissionPermanentlyDeniedDialogState =
@@ -562,6 +558,18 @@ fun ConversationScreen(
                 }
             }
         },
+        openDrawingCanvas = {
+            navigator.navigate(
+                NavigationCommand(
+                    DrawingCanvasScreenDestination(
+                        DrawingCanvasNavArgs(
+                            conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
+                            tempWritableUri = messageComposerViewModel.tempWritableImageUri
+                        )
+                    )
+                )
+            )
+        },
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow
     )
     BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
@@ -673,14 +681,27 @@ fun ConversationScreen(
         when (result) {
             Canceled -> {}
             is Value -> {
-                val pendingBundles = ArgsSerializer().decodeFromString<ImagesPreviewNavBackArgs>(result.value).pendingBundles
                 sendMessageViewModel.trySendMessages(
-                    pendingBundles.map { assetBundle ->
+                    result.value.pendingBundles.map { assetBundle ->
                         ComposableMessageBundle.AttachmentPickedBundle(
                             conversationId = conversationMessagesViewModel.conversationId,
                             assetBundle = assetBundle
                         )
                     }
+                )
+            }
+        }
+    }
+
+    drawingCanvasScreenResultRecipient.onNavResult { result ->
+        when (result) {
+            Canceled -> {}
+            is Value -> {
+                sendMessageViewModel.trySendMessage(
+                    ComposableMessageBundle.UriPickedBundle(
+                        conversationId = conversationMessagesViewModel.conversationId,
+                        attachmentUri = UriAsset(result.value.uri)
+                    )
                 )
             }
         }
@@ -783,6 +804,7 @@ private fun ConversationScreen(
     conversationScreenState: ConversationScreenState,
     messageComposerStateHolder: MessageComposerStateHolder,
     onLinkClick: (String) -> Unit,
+    openDrawingCanvas: () -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
 ) {
     val context = LocalContext.current
@@ -856,14 +878,14 @@ private fun ConversationScreen(
                         onFailedMessageRetryClicked = onFailedMessageRetryClicked,
                         onChangeSelfDeletionClicked = conversationScreenState::showSelfDeletionContextMenu,
                         onLocationClicked = conversationScreenState::showLocationSheet,
-                        onDrawingClicked = conversationScreenState::showDrawingSheet,
                         onClearMentionSearchResult = onClearMentionSearchResult,
                         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                         tempWritableImageUri = tempWritableImageUri,
                         tempWritableVideoUri = tempWritableVideoUri,
                         onLinkClick = onLinkClick,
                         onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
-                        currentTimeInMillisFlow = currentTimeInMillisFlow
+                        currentTimeInMillisFlow = currentTimeInMillisFlow,
+                        openDrawingCanvas = openDrawingCanvas
                     )
                 }
             }
@@ -885,21 +907,6 @@ private fun ConversationScreen(
         SelfDeletionOptionsModalSheetLayout(
             sheetState = conversationScreenState.selfDeletingSheetState,
             onNewSelfDeletingMessagesStatus = onNewSelfDeletingMessagesStatus
-        )
-        DrawingCanvasBottomSheet(
-            modifier = Modifier.statusBarsPadding(),
-            sheetState = conversationScreenState.drawingSheetState,
-            onSendSketch = {
-                messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
-                onSendMessage(
-                    ComposableMessageBundle.UriPickedBundle(
-                        conversationId = conversationInfoViewState.conversationId,
-                        attachmentUri = UriAsset(it)
-                    )
-                )
-            },
-            conversationTitle = CurrentConversationDetailsCache.conversationName.asString(),
-            tempWritableImageUri = tempWritableImageUri
         )
         LocationPickerComponent(
             sheetState = conversationScreenState.locationSheetState,
@@ -950,13 +957,13 @@ private fun ConversationScreenContent(
     onFailedMessageCancelClicked: (String) -> Unit,
     onChangeSelfDeletionClicked: (SelfDeletionTimer) -> Unit,
     onClearMentionSearchResult: () -> Unit,
-    onDrawingClicked: () -> Unit,
     onLocationClicked: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onLinkClick: (String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
+    openDrawingCanvas: () -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
@@ -998,7 +1005,6 @@ private fun ConversationScreenContent(
             )
         },
         onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-        onDrawingClicked = onDrawingClicked,
         onLocationClicked = onLocationClicked,
         onClearMentionSearchResult = onClearMentionSearchResult,
         onSendMessageBundle = onSendMessage,
@@ -1006,7 +1012,8 @@ private fun ConversationScreenContent(
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
         tempWritableVideoUri = tempWritableVideoUri,
         tempWritableImageUri = tempWritableImageUri,
-        onImagesPicked = onImagesPicked
+        onImagesPicked = onImagesPicked,
+        openDrawingCanvas = openDrawingCanvas,
     )
 }
 
@@ -1415,6 +1422,7 @@ fun PreviewConversationScreen() = WireTheme {
         conversationScreenState = conversationScreenState,
         messageComposerStateHolder = messageComposerStateHolder,
         onLinkClick = { _ -> },
-        onImagesPicked = {}
+        openDrawingCanvas = {},
+        onImagesPicked = {},
     )
 }

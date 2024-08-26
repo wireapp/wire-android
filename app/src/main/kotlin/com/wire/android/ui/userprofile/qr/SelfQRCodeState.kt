@@ -15,25 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.sketch
+package com.wire.android.ui.userprofile.qr
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.feature.sketch.model.DrawingState
-import com.wire.android.ui.theme.WireTheme
+import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.kalium.logic.data.user.UserId
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewToolBar() {
-    WireTheme {
-        DrawingToolbar(DrawingState(), {}, {})
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewTopBar() {
-    WireTheme {
-        DrawingTopBar("Conversation Name", {}, {}, DrawingState())
-    }
-}
+data class SelfQRCodeState(
+    val userId: UserId,
+    val avatarAsset: UserAvatarAsset? = null,
+    val handle: String = "",
+    val userProfileLink: String = "",
+    val hasError: Boolean = false
+)

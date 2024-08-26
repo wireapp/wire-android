@@ -80,10 +80,10 @@ fun MessageComposer(
     onSendMessageBundle: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
-    onDrawingClicked: () -> Unit,
     onLocationClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
+    openDrawingCanvas: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     onImagesPicked: (List<Uri>) -> Unit
@@ -142,10 +142,10 @@ fun MessageComposer(
                     onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.UriPickedBundle(conversationId, it)) },
                     onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-                    onDrawingClicked = onDrawingClicked,
                     onLocationClicked = onLocationClicked,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+                    openDrawingCanvas = openDrawingCanvas,
                     tempWritableVideoUri = tempWritableVideoUri,
                     tempWritableImageUri = tempWritableImageUri,
                 )
@@ -273,12 +273,12 @@ private fun BaseComposerPreview(
         messageListContent = { },
         onChangeSelfDeletionClicked = { },
         onLocationClicked = {},
-        onDrawingClicked = {},
         onClearMentionSearchResult = { },
         onPermissionPermanentlyDenied = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
+        openDrawingCanvas = {},
         onImagesPicked = {}
     )
 }

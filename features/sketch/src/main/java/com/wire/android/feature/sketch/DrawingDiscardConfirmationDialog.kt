@@ -23,15 +23,12 @@ import androidx.compose.ui.window.DialogProperties
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.button.WireButtonState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 
 @Composable
-internal fun DiscardDialogConfirmation(
-    scope: CoroutineScope,
-    sheetState: WireModalSheetState<Unit>,
+internal fun DrawingDiscardConfirmationDialog(
     onDismissSketch: () -> Unit,
     onHideConfirmationDialog: () -> Unit,
 ) {
@@ -40,12 +37,7 @@ internal fun DiscardDialogConfirmation(
         text = stringResource(id = R.string.confirm_changes_text),
         onDismiss = onHideConfirmationDialog,
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = {
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    onHideConfirmationDialog()
-                    onDismissSketch()
-                }
-            },
+            onClick = onDismissSketch,
             text = stringResource(id = R.string.confirm_changes_dismiss),
             type = WireDialogButtonType.Primary,
             state = WireButtonState.Error
@@ -56,4 +48,10 @@ internal fun DiscardDialogConfirmation(
         ),
         properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = false, dismissOnClickOutside = false)
     )
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun DrawingDiscardConfirmationDialogPreview() = WireTheme {
+    DrawingDiscardConfirmationDialog({}, {})
 }

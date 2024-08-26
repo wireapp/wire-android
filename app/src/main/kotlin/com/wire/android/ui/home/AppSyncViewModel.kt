@@ -20,7 +20,7 @@ package com.wire.android.ui.home
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.kalium.logic.feature.e2ei.CertificateRevocationListCheckWorker
+import com.wire.kalium.logic.feature.e2ei.SyncCertificateRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.ObserveCertificateRevocationForSelfClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.FeatureFlagsSyncWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AppSyncViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
-    private val certificateRevocationListCheckWorker: CertificateRevocationListCheckWorker,
+    private val certificateRevocationListCheckWorker: SyncCertificateRevocationListUseCase,
     private val observeCertificateRevocationForSelfClient: ObserveCertificateRevocationForSelfClientUseCase,
     private val featureFlagsSyncWorker: FeatureFlagsSyncWorker
 ) : SavedStateViewModel(savedStateHandle) {

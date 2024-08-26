@@ -20,14 +20,14 @@ package com.wire.android.ui.calling
 import android.content.Intent
 import android.os.Build
 import android.view.WindowManager
+import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.wire.android.ui.AppLockActivity
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import kotlinx.coroutines.launch
 
-abstract class CallActivity : AppCompatActivity() {
+abstract class CallActivity : ComponentActivity() {
     companion object {
         const val EXTRA_CONVERSATION_ID = "conversation_id"
         const val EXTRA_USER_ID = "user_id"

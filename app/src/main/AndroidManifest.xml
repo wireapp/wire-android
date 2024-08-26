@@ -17,23 +17,23 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        package="com.wire.android"
-        android:installLocation="internalOnly"
-        android:sharedUserId="${sharedUserId}">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.wire.android"
+    android:installLocation="internalOnly"
+    android:sharedUserId="${sharedUserId}">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission
-            android:name="android.permission.READ_EXTERNAL_STORAGE"
-            android:maxSdkVersion="32" />
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <uses-permission
-            android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-            android:maxSdkVersion="28" />
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
     <uses-permission
-            android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION"
-            android:maxSdkVersion="28" />
+        android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION"
+        android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -56,64 +56,66 @@
 
     <!-- Needed to specify that we are using OpenGL ES 2.0 API-->
     <uses-feature
-            android:glEsVersion="0x00020000"
-            android:required="false" />
+        android:glEsVersion="0x00020000"
+        android:required="false" />
 
     <uses-feature
-            android:name="android.hardware.camera"
-            android:required="false" />
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <!--  usesCleartextTraffic is true as we need to check Certificate Revocation List in HTTP.
     The CRL itself is signed by the issuer so there is no security issue.
     For all other calls, we use HTTPS, and this is enforced by OkHttp using ConnectionSpecs. -->
     <application
-            android:name=".WireApplication"
-            android:allowBackup="false"
-            android:fullBackupContent="false"
+        android:name=".WireApplication"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="false"
+        android:theme="@style/AppTheme.SplashScreen"
+        android:usesCleartextTraffic="true"
+        tools:replace="android:allowBackup,android:supportsRtl">
+
+        <activity
+            android:name=".ui.AppLockActivity"
+            android:exported="true"
             android:hardwareAccelerated="true"
-            android:icon="@mipmap/ic_launcher"
-            android:label="@string/app_name"
-            android:requestLegacyExternalStorage="true"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:supportsRtl="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".ui.calling.ongoing.OngoingCallActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:exported="true"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:supportsPictureInPicture="true"
+            android:taskAffinity="wire.call"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".ui.calling.StartingCallActivity"
+            android:exported="true"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
+            android:taskAffinity="wire.call"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".ui.WireActivity"
+            android:exported="true"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.SplashScreen"
-            android:usesCleartextTraffic="true"
-            tools:replace="android:allowBackup,android:supportsRtl">
-
-        <activity
-                android:name=".ui.AppLockActivity"
-                android:exported="true"
-                android:hardwareAccelerated="true"
-                android:launchMode="singleTop"
-                android:screenOrientation="portrait"
-                android:theme="@style/AppTheme" />
-
-        <activity
-                android:name=".ui.calling.ongoing.OngoingCallActivity"
-                android:exported="true"
-                android:hardwareAccelerated="true"
-                android:launchMode="singleTop"
-                android:screenOrientation="portrait"
-                android:taskAffinity="wire.call"
-                android:theme="@style/AppTheme" />
-
-        <activity
-                android:name=".ui.calling.StartingCallActivity"
-                android:exported="true"
-                android:hardwareAccelerated="true"
-                android:launchMode="singleInstance"
-                android:screenOrientation="portrait"
-                android:taskAffinity="wire.call"
-                android:theme="@style/AppTheme" />
-
-        <activity
-                android:name=".ui.WireActivity"
-                android:exported="true"
-                android:hardwareAccelerated="true"
-                android:launchMode="singleTask"
-                android:screenOrientation="portrait"
-                android:theme="@style/AppTheme.SplashScreen"
-                android:windowSoftInputMode="adjustResize|stateHidden">
+            android:windowSoftInputMode="adjustResize|stateHidden">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -127,36 +129,36 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                        android:host="access"
-                        android:scheme="wire" />
+                    android:host="access"
+                    android:scheme="wire" />
 
                 <data
-                        android:host="sso-login"
-                        android:scheme="wire" />
+                    android:host="sso-login"
+                    android:scheme="wire" />
 
                 <data
-                        android:host="incoming-call"
-                        android:scheme="wire" />
+                    android:host="incoming-call"
+                    android:scheme="wire" />
 
                 <data
-                        android:host="conversation-join"
-                        android:scheme="wire" />
+                    android:host="conversation-join"
+                    android:scheme="wire" />
 
                 <data
-                        android:host="migration-login"
-                        android:scheme="wire" />
+                    android:host="migration-login"
+                    android:scheme="wire" />
 
                 <data
-                        android:host="conversation"
-                        android:scheme="wire" />
+                    android:host="conversation"
+                    android:scheme="wire" />
 
                 <data
-                        android:host="other-user-profile"
-                        android:scheme="wire" />
+                    android:host="other-user-profile"
+                    android:scheme="wire" />
 
                 <data
-                        android:host="ongoing-call"
-                        android:scheme="wire" />
+                    android:host="ongoing-call"
+                    android:scheme="wire" />
             </intent-filter>
 
             <intent-filter>
@@ -227,9 +229,9 @@
         </activity>
 
         <activity
-                android:name="net.openid.appauth.RedirectUriReceiverActivity"
-                android:exported="true"
-                tools:node="replace">
+            android:name="net.openid.appauth.RedirectUriReceiverActivity"
+            android:exported="true"
+            tools:node="replace">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -237,9 +239,9 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                        android:host="e2ei"
-                        android:path="/oauth2redirect"
-                        android:scheme="wire" />
+                    android:host="e2ei"
+                    android:path="/oauth2redirect"
+                    android:scheme="wire" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -248,9 +250,9 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                        android:host="e2ei"
-                        android:path="/logout"
-                        android:scheme="wire" />
+                    android:host="e2ei"
+                    android:path="/logout"
+                    android:scheme="wire" />
             </intent-filter>
         </activity>
 
@@ -259,70 +261,70 @@
         so we need to remove default FirebaseInitProvider and create our custom FirebaseInitializer.
         -->
         <meta-data
-                android:name="gcp.firebase.API_KEY"
-                android:value="${GCP_API_KEY}" />
+            android:name="gcp.firebase.API_KEY"
+            android:value="${GCP_API_KEY}" />
 
         <provider
-                android:name="com.google.firebase.provider.FirebaseInitProvider"
-                android:authorities="${applicationId}.firebaseinitprovider"
-                tools:node="remove" />
+            android:name="com.google.firebase.provider.FirebaseInitProvider"
+            android:authorities="${applicationId}.firebaseinitprovider"
+            tools:node="remove" />
 
         <provider
-                android:name="androidx.startup.InitializationProvider"
-                android:authorities="${applicationId}.androidx-startup"
-                android:exported="false"
-                tools:node="merge">
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
 
             <!--
             We create custom WorkManager Configuration.Provider and initialize on-demand,
             so we need to remove default WorkManagerInitializer.
             -->
             <meta-data
-                    android:name="androidx.work.WorkManagerInitializer"
-                    android:value="androidx.startup"
-                    tools:node="remove" />
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
 
             <meta-data
-                    android:name="com.wire.android.initializer.FirebaseInitializer"
-                    android:value="androidx.startup" />
+                android:name="com.wire.android.initializer.FirebaseInitializer"
+                android:value="androidx.startup" />
 
         </provider>
 
         <provider
-                android:name="androidx.core.content.FileProvider"
-                android:authorities="${applicationId}.provider"
-                android:exported="false"
-                android:grantUriPermissions="true">
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
-                    android:name="android.support.FILE_PROVIDER_PATHS"
-                    android:resource="@xml/provider_paths" />
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
         </provider>
 
         <receiver
-                android:name=".notification.broadcastreceivers.NotificationReplyReceiver"
-                android:exported="false" />
+            android:name=".notification.broadcastreceivers.NotificationReplyReceiver"
+            android:exported="false" />
         <receiver
-                android:name=".notification.broadcastreceivers.DeclineIncomingCallReceiver"
-                android:exported="false" />
+            android:name=".notification.broadcastreceivers.DeclineIncomingCallReceiver"
+            android:exported="false" />
         <receiver
-                android:name=".notification.broadcastreceivers.EndOngoingCallReceiver"
-                android:exported="false" />
+            android:name=".notification.broadcastreceivers.EndOngoingCallReceiver"
+            android:exported="false" />
         <receiver
-                android:name=".notification.broadcastreceivers.CallNotificationDismissedReceiver"
-                android:exported="false" />
+            android:name=".notification.broadcastreceivers.CallNotificationDismissedReceiver"
+            android:exported="false" />
 
         <service
-                android:name=".services.WireFirebaseMessagingService"
-                android:exported="false">
+            android:name=".services.WireFirebaseMessagingService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
         <receiver
-                android:name=".ui.debug.StartServiceReceiver"
-                android:enabled="true"
-                android:exported="false">
+            android:name=".ui.debug.StartServiceReceiver"
+            android:enabled="true"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
@@ -331,23 +333,23 @@
 
 
         <receiver
-                android:name=".migration.UpdateReceiver"
-                android:enabled="true"
-                android:exported="false">
+            android:name=".migration.UpdateReceiver"
+            android:enabled="true"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
 
         <service
-                android:name=".services.PersistentWebSocketService"
-                android:exported="false"
-                android:foregroundServiceType="specialUse"/>
+            android:name=".services.PersistentWebSocketService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
 
         <service
-                android:name=".services.OngoingCallService"
-                android:exported="false"
-                android:foregroundServiceType="phoneCall|microphone" />
+            android:name=".services.OngoingCallService"
+            android:exported="false"
+            android:foregroundServiceType="phoneCall|microphone" />
     </application>
 
 </manifest>

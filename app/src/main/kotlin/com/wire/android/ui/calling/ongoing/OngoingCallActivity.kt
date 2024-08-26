@@ -19,8 +19,12 @@ package com.wire.android.ui.calling.ongoing
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.PictureInPictureParams
+import android.app.RemoteAction
 import android.content.Intent
+import android.graphics.drawable.Icon
 import android.os.Bundle
+import android.util.Rational
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
@@ -28,14 +32,18 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.style.TransitionAnimationType
+import com.wire.android.notification.endOngoingCallPendingIntent
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -84,7 +92,11 @@ class OngoingCallActivity : CallActivity() {
                             },
                             label = TAG
                         ) { _ ->
-                            OngoingCallScreen(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+                            OngoingCallScreen(
+                                qualifiedIdMapper.fromStringToQualifiedID(
+                                    conversationId
+                                )
+                            )
                         }
                     } ?: run { finish() }
                 }
@@ -118,4 +130,20 @@ fun getOngoingCallIntent(
 ) = Intent(activity, OngoingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
+}
+
+fun OngoingCallActivity.enterPiPMode(conversationId: ConversationId, userId: UserId) {
+    appLogger.i("OngoingCallActivity: Entering Picture-in-Picture mode..")
+    val hangupAction = RemoteAction(
+        Icon.createWithResource(this, R.drawable.ic_call_end),
+        getString(R.string.calling_hang_up_call),
+        getString(R.string.content_description_calling_hang_up_call),
+        endOngoingCallPendingIntent(this, conversationId.toString(), userId.toString())
+    )
+
+    val pictureInPictureParams = PictureInPictureParams.Builder()
+        .setAspectRatio(Rational(2, 3))
+        .setActions(listOf(hangupAction))
+        .build()
+    this.enterPictureInPictureMode(pictureInPictureParams)
 }

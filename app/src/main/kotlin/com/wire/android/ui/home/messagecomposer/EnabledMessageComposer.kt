@@ -109,7 +109,7 @@ fun EnabledMessageComposer(
 
         LaunchedEffect(offsetY) {
             with(density) {
-                handleImeOffsetChange(
+                inputStateHolder.handleImeOffsetChange(
                     offsetY.toDp(),
                     navBarHeight,
                     imeAnimationSource.toDp(),

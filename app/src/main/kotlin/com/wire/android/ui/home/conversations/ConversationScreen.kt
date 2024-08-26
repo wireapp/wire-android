@@ -918,8 +918,7 @@ private fun ConversationScreen(
                         it.location
                     )
                 )
-            },
-            onLocationClosed = remember { { conversationScreenState.locationSheetState.hide() } }
+            }
         )
 
         SnackBarMessage(composerMessages, conversationMessages)

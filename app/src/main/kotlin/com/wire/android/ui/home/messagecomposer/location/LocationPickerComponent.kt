@@ -70,7 +70,6 @@ import com.wire.android.util.permission.rememberCurrentLocationPermissionFlow
 @Composable
 fun LocationPickerComponent(
     onLocationPicked: (GeoLocatedAddress) -> Unit,
-    onLocationClosed: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LocationPickerViewModel = hiltViewModel<LocationPickerViewModel>(),
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(),
@@ -119,7 +118,7 @@ fun LocationPickerComponent(
                                 LocationErrorMessage {
                                     sheetState.hide {
                                         viewModel.onLocationSharingErrorDialogDiscarded()
-                                        onLocationClosed()
+                                        sheetState.hide()
                                     }
                                 }
                             }
@@ -127,7 +126,7 @@ fun LocationPickerComponent(
                                 isLocationLoading = isLocationLoading,
                                 geoLocatedAddress = geoLocatedAddress,
                                 onLocationPicked = onLocationPicked,
-                                onLocationClosed = onLocationClosed
+                                onLocationClosed = sheetState::hide
                             )
                         }
                     }
@@ -139,7 +138,7 @@ fun LocationPickerComponent(
                     body = R.string.location_app_permission_dialog_body,
                     onDismiss = {
                         viewModel.onPermissionsDialogDiscarded()
-                        onLocationClosed()
+                        sheetState.hide()
                     }
                 )
             }

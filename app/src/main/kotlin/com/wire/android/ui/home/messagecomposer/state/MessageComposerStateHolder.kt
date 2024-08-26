@@ -142,10 +142,6 @@ class MessageComposerStateHolder(
         messageCompositionHolder.clearMessage()
     }
 
-    fun handleImeOffsetChange(offset: Dp, navBarHeight: Dp, source: Dp, target: Dp) {
-        messageCompositionInputStateHolder.handleImeOffsetChange(offset, navBarHeight, source, target)
-    }
-
     fun showAttachments(showOptions: Boolean) {
         messageCompositionInputStateHolder.showAttachments(showOptions)
     }

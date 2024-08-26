@@ -37,7 +37,7 @@ class AppSyncViewModel @Inject constructor(
 
     fun startSyncingAppConfig() {
         viewModelScope.launch {
-            certificateRevocationListCheckWorker.execute()
+            certificateRevocationListCheckWorker()
         }
         viewModelScope.launch {
             observeCertificateRevocationForSelfClient.invoke()

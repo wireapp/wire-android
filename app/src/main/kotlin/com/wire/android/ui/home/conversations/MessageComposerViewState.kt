@@ -22,9 +22,9 @@ import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.asset.AttachmentType
+import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MessageId
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 
 data class MessageComposerViewState(
     val isFileSharingEnabled: Boolean = true,

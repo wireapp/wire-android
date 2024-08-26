@@ -21,13 +21,14 @@
 package com.wire.android.ui
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -74,6 +75,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
+import java.text.NumberFormat
 
 @Composable
 fun FileRestrictionDialog(
@@ -426,7 +428,9 @@ fun CallFeedbackDialog(
                     Text(
                         stringResource(R.string.call_feedback_dialog_label_bad),
                         style = MaterialTheme.wireTypography.label01,
-                        modifier = Modifier.weight(1F).padding(horizontal = dimensions().spacing8x),
+                        modifier = Modifier
+                            .weight(1F)
+                            .padding(horizontal = dimensions().spacing8x),
                         textAlign = TextAlign.Start
                     )
                     Text(
@@ -438,68 +442,32 @@ fun CallFeedbackDialog(
                     Text(
                         stringResource(R.string.call_feedback_dialog_label_excellent),
                         style = MaterialTheme.wireTypography.label01,
-                        modifier = Modifier.weight(1F).padding(horizontal = dimensions().spacing8x),
+                        modifier = Modifier
+                            .weight(1F)
+                            .padding(horizontal = dimensions().spacing8x),
                         textAlign = TextAlign.End
                     )
                 }
 
                 Spacer(modifier = Modifier.height(dimensions().spacing8x))
 
-                Row(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
 
-                    WireSecondaryButton(
-                        onClick = { sheetState.hide { onRated(1, doNotAskAgain.value) } },
-                        state = WireButtonState.Default,
-                        text = "1",
-                        modifier = Modifier.width(dimensions().spacing56x).height(dimensions().spacing56x),
-                        shape = CircleShape
-                    )
+                    val numberFormat = NumberFormat.getNumberInstance()
 
-                    Spacer(modifier = Modifier.weight(1F))
-
-                    WireSecondaryButton(
-                        onClick = { sheetState.hide { onRated(2, doNotAskAgain.value) } },
-                        state = WireButtonState.Default,
-                        text = "2",
-                        modifier = Modifier.width(dimensions().spacing56x).height(dimensions().spacing56x),
-                        shape = CircleShape
-                    )
-
-                    Spacer(modifier = Modifier.weight(1F))
-
-                    WireSecondaryButton(
-                        onClick = { sheetState.hide { onRated(3, doNotAskAgain.value) } },
-                        state = WireButtonState.Default,
-                        text = "3",
-                        modifier = Modifier.width(dimensions().spacing56x).height(dimensions().spacing56x),
-                        shape = CircleShape
-                    )
-
-                    Spacer(modifier = Modifier.weight(1F))
-
-                    WireSecondaryButton(
-                        onClick = { sheetState.hide { onRated(4, doNotAskAgain.value) } },
-                        state = WireButtonState.Default,
-                        text = "4",
-                        modifier = Modifier.width(dimensions().spacing56x).height(dimensions().spacing56x),
-                        shape = CircleShape
-                    )
-
-                    Spacer(modifier = Modifier.weight(1F))
-
-                    WireSecondaryButton(
-                        onClick = { sheetState.hide { onRated(5, doNotAskAgain.value) } },
-                        state = WireButtonState.Default,
-                        text = "5",
-                        modifier = Modifier.width(dimensions().spacing56x).height(dimensions().spacing56x),
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(
-                            horizontal = dimensions().spacing2x,
-                            vertical = dimensions().spacing2x
+                    for (rate in 1..5) {
+                        WireSecondaryButton(
+                            onClick = { sheetState.hide { onRated(rate, doNotAskAgain.value) } },
+                            state = WireButtonState.Default,
+                            text = numberFormat.format(rate),
+                            modifier = Modifier.size(dimensions().spacing56x),
+                            shape = CircleShape
                         )
-                    )
+                    }
                 }
-
 
                 Spacer(modifier = Modifier.height(dimensions().spacing24x))
 

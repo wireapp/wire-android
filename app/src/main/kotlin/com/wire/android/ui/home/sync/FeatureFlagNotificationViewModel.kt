@@ -351,6 +351,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         featureFlagState = featureFlagState.copy(e2EIResult = null)
     }
 
+    @Suppress("UnusedParameter")
     fun rateCall(rate: Int, doNotAsk: Boolean) {
         currentUserId?.let {
             viewModelScope.launch {

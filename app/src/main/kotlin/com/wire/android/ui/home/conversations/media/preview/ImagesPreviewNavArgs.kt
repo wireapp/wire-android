@@ -18,9 +18,10 @@
 package com.wire.android.ui.home.conversations.media.preview
 
 import android.net.Uri
+import android.os.Parcelable
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.serialization.Serializable
+import kotlinx.parcelize.Parcelize
 
 data class ImagesPreviewNavArgs(
     val conversationId: ConversationId,
@@ -28,5 +29,5 @@ data class ImagesPreviewNavArgs(
     val assetUriList: ArrayList<Uri>
 )
 
-@Serializable
-data class ImagesPreviewNavBackArgs(val pendingBundles: List<AssetBundle>)
+@Parcelize
+data class ImagesPreviewNavBackArgs(val pendingBundles: List<AssetBundle>) : Parcelable

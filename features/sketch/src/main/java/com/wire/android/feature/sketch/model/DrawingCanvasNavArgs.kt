@@ -15,26 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.util
+package com.wire.android.feature.sketch.model
 
-import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.toUIText
+import android.net.Uri
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-/**
- * Cache for the current conversation details.
- * This is used to display the conversation name in the toolbar or can be used for other purposes.
- *
- * TODO: This is temporary, when we have navigation for sketch, we might do it with navigation arguments.
- * TODO: Anyway, this might be useful, and we might keep it or discuss it.
- */
-object CurrentConversationDetailsCache {
+data class DrawingCanvasNavArgs(val conversationName: String, val tempWritableUri: Uri?)
 
-    @Volatile
-    var conversationName: UIText = "".toUIText()
-        private set
-
-    @Synchronized
-    fun updateConversationName(newName: UIText) {
-        conversationName = newName
-    }
-}
+@Parcelize
+data class DrawingCanvasNavBackArgs(val uri: Uri) : Parcelable

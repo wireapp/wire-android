@@ -116,7 +116,7 @@ fun HomeScreen(
         rememberShowNotificationsPermissionFlow(
             onPermissionGranted = { /* do nothing */ },
             onPermissionDenied = showNotificationsPermissionDeniedDialog,
-            onPermissionPermanentlyDenied = showNotificationsPermissionDeniedDialog,
+            onPermissionPermanentlyDenied = { /* do nothing */ },
         )
 
     val lifecycleOwner = LocalLifecycleOwner.current

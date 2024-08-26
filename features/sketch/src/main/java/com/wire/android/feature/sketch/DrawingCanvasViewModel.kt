@@ -31,8 +31,10 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.net.toUri
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
 import com.wire.android.feature.sketch.model.DrawingPathProperties
 import com.wire.android.feature.sketch.model.DrawingState
@@ -45,7 +47,9 @@ import java.io.File
 import java.io.FileOutputStream
 
 @Suppress("TooManyFunctions")
-class DrawingCanvasViewModel : ViewModel() {
+class DrawingCanvasViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+
+    private val drawingCanvasNavArgs: DrawingCanvasNavArgs = savedStateHandle.navArgs()
 
     internal var state: DrawingState by mutableStateOf(DrawingState())
         private set
@@ -143,20 +147,19 @@ class DrawingCanvasViewModel : ViewModel() {
      * Saves the image to the provided URI and resets the canvas.
      *
      * @param context The context to use to open the file descriptor.
-     * @param tempWritableImageUri The URI to save the image to.
      *
      * @return The [Uri] of the saved image.
      */
-    suspend fun saveImage(context: Context, tempWritableImageUri: Uri?): Uri {
-        val tempSketchFile = tempWritableImageUri.orTempUri(context)
+    suspend fun saveImage(context: Context): Uri {
+        val tempSketchFile = drawingCanvasNavArgs.tempWritableUri.orTempUri(context)
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 with(state) {
                     if (canvasSize == null || state.paths.isEmpty()) return@withContext
 
                     val bitmap = Bitmap.createBitmap(
-                        canvasSize!!.width.toInt(),
-                        canvasSize!!.height.toInt(),
+                        canvasSize.width.toInt(),
+                        canvasSize.height.toInt(),
                         Bitmap.Config.ARGB_8888
                     )
                     val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.White.toArgb() }) }

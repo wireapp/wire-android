@@ -16,4 +16,9 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="content_description_back_button">Botón atrás</string>
+    <string name="content_description_close_button">Botón de Cerrar</string>
+    <string name="content_description_menu_button">Navegación principal</string>
+    <string name="content_description_drop_down_icon">Flecha hacia abajo</string>
+</resources>

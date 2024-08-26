@@ -16,4 +16,9 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="content_description_back_button">戻るボタン</string>
+    <string name="content_description_close_button">閉じるボタン</string>
+    <string name="content_description_menu_button">メインナビゲーション</string>
+    <string name="content_description_drop_down_icon">ドロップダウンの矢印</string>
+</resources>

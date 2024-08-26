@@ -51,7 +51,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
-import com.wire.android.navigation.ArgsSerializer
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -89,7 +88,7 @@ import okio.Path.Companion.toPath
 @Composable
 fun ImagesPreviewScreen(
     navigator: Navigator,
-    resultNavigator: ResultBackNavigator<String>,
+    resultNavigator: ResultBackNavigator<ImagesPreviewNavBackArgs>,
     imagesPreviewViewModel: ImagesPreviewViewModel = hiltViewModel(),
     checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel()
 ) {
@@ -100,11 +99,7 @@ fun ImagesPreviewScreen(
             checkAssetRestrictionsViewModel.checkRestrictions(
                 importedMediaList = mediaAssets,
                 onSuccess = {
-                    val result = ArgsSerializer().encodeToString(
-                        serializer = ImagesPreviewNavBackArgs.serializer(),
-                        value = ImagesPreviewNavBackArgs(pendingBundles = ArrayList(it))
-                    )
-                    resultNavigator.setResult(result)
+                    resultNavigator.setResult(ImagesPreviewNavBackArgs(it))
                     resultNavigator.navigateBack()
                 }
             )

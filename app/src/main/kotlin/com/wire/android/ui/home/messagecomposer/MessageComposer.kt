@@ -40,8 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
@@ -73,13 +75,16 @@ import kotlin.math.roundToInt
 @Composable
 fun MessageComposer(
     conversationId: ConversationId,
+    bottomSheetVisible: Boolean,
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
+    onLocationClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
+    openDrawingCanvas: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     onImagesPicked: (List<Uri>) -> Unit
@@ -125,6 +130,7 @@ fun MessageComposer(
             InteractionAvailability.ENABLED -> {
                 EnabledMessageComposer(
                     conversationId = conversationId,
+                    bottomSheetVisible = bottomSheetVisible,
                     messageComposerStateHolder = messageComposerStateHolder,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
@@ -136,18 +142,11 @@ fun MessageComposer(
                     onImagesPicked = onImagesPicked,
                     onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.UriPickedBundle(conversationId, it)) },
                     onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
-                    onLocationPicked = {
-                        onSendMessageBundle(
-                            ComposableMessageBundle.LocationBundle(
-                                conversationId,
-                                it.getFormattedAddress(),
-                                it.location
-                            )
-                        )
-                    },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                    onLocationClicked = onLocationClicked,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+                    openDrawingCanvas = openDrawingCanvas,
                     tempWritableVideoUri = tempWritableVideoUri,
                     tempWritableImageUri = tempWritableImageUri,
                 )
@@ -251,13 +250,17 @@ private fun BaseComposerPreview(
     }
     val messageTextState = rememberTextFieldState()
     val messageComposition = remember { mutableStateOf(MessageComposition(ConversationId("value", "domain"))) }
-
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
     MessageComposer(
         conversationId = ConversationId("value", "domain"),
+        bottomSheetVisible = false,
         messageComposerStateHolder = MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
                 messageTextState = messageTextState,
+                keyboardController = keyboardController,
+                focusRequester = focusRequester
             ),
             messageCompositionHolder = MessageCompositionHolder(
                 messageComposition = messageComposition,
@@ -272,11 +275,13 @@ private fun BaseComposerPreview(
         onPingOptionClicked = { },
         messageListContent = { },
         onChangeSelfDeletionClicked = { },
+        onLocationClicked = {},
         onClearMentionSearchResult = { },
         onPermissionPermanentlyDenied = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
+        openDrawingCanvas = {},
         onImagesPicked = {}
     )
 }

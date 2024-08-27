@@ -21,6 +21,7 @@ package com.wire.android.ui
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Toast
@@ -49,7 +50,6 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -61,12 +61,12 @@ import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LocalNavigator
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationGraph
-import com.wire.android.navigation.navigateToItem
+import com.wire.android.navigation.MainNavHost
+import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.getIncomingCallIntent
-import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
+import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
@@ -240,7 +240,7 @@ class WireActivity : AppCompatActivity() {
                             }
                         )
                         CompositionLocalProvider(LocalNavigator provides navigator) {
-                            NavigationGraph(
+                            MainNavHost(
                                 navigator = navigator,
                                 startDestination = startDestination
                             )
@@ -248,7 +248,7 @@ class WireActivity : AppCompatActivity() {
 
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-                        SetUpNavigation(navigator.navController, onComplete)
+                        SetUpNavigation(navigator, onComplete)
                         HandleScreenshotCensoring()
                         HandleDialogs(navigator::navigate)
                     }
@@ -259,11 +259,11 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun SetUpNavigation(
-        navController: NavHostController,
+        navigator: Navigator,
         onComplete: () -> Unit,
     ) {
         val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
-        val currentNavController by rememberUpdatedState(navController)
+        val currentNavigator by rememberUpdatedState(navigator)
         LaunchedEffect(Unit) {
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -277,22 +277,22 @@ class WireActivity : AppCompatActivity() {
                         }
                         .collectLatest {
                             currentKeyboardController?.hide()
-                            currentNavController.navigateToItem(it)
+                            currentNavigator.navigate(it)
                         }
                 }
             }
         }
 
-        DisposableEffect(navController) {
+        DisposableEffect(navigator.navController) {
             val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, _, _ ->
                 currentKeyboardController?.hide()
             }
-            navController.addOnDestinationChangedListener(updateScreenSettingsListener)
-            navController.addOnDestinationChangedListener(currentScreenManager)
+            navigator.navController.addOnDestinationChangedListener(updateScreenSettingsListener)
+            navigator.navController.addOnDestinationChangedListener(currentScreenManager)
 
             onDispose {
-                navController.removeOnDestinationChangedListener(updateScreenSettingsListener)
-                navController.removeOnDestinationChangedListener(currentScreenManager)
+                navigator.navController.removeOnDestinationChangedListener(updateScreenSettingsListener)
+                navigator.navController.removeOnDestinationChangedListener(currentScreenManager)
             }
         }
     }
@@ -514,7 +514,15 @@ class WireActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(HANDLED_DEEPLINK_FLAG, true)
+        outState.putParcelable(ORIGINAL_SAVED_INTENT_FLAG, intent)
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        savedInstanceState.getOriginalIntent()?.let {
+            this.intent = it
+        }
     }
 
     @Suppress("ComplexCondition")
@@ -522,9 +530,10 @@ class WireActivity : AppCompatActivity() {
         intent: Intent?,
         savedInstanceState: Bundle? = null
     ) {
+        val originalIntent = savedInstanceState.getOriginalIntent()
         if (intent == null
             || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
-            || savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true
+            || originalIntent == intent // This is the case when the activity is recreated and already handled
             || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
             return
@@ -558,6 +567,15 @@ class WireActivity : AppCompatActivity() {
                 }
             )
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
+        }
+    }
+
+    private fun Bundle?.getOriginalIntent(): Intent? {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            @Suppress("DEPRECATION") // API 33
+            this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG)
+        } else {
+            this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG, Intent::class.java)
         }
     }
 
@@ -598,6 +616,7 @@ class WireActivity : AppCompatActivity() {
 
     companion object {
         private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
+        private const val ORIGINAL_SAVED_INTENT_FLAG = "original_saved_intent"
         private const val TAG = "WireActivity"
     }
 }

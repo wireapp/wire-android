@@ -33,9 +33,6 @@ class Versionizer(
     private val localDateTime: LocalDateTime = LocalDateTime.now(),
 ) {
 
-<<<<<<< HEAD
-    val versionCode = generateVersionCode()
-=======
     // get version from app/version.txt otherwise use the current date
     val versionCode = readFromInternalFile() ?: generateVersionCode()
 
@@ -55,7 +52,6 @@ class Versionizer(
         println("No version file found")
         return null
     }
->>>>>>> c3185cd83 (ci: add gradle task to generate app version [WPB-7289] (#3355))
 
     private fun generateVersionCode(): Int {
         println("Generating version code with date: $localDateTime")

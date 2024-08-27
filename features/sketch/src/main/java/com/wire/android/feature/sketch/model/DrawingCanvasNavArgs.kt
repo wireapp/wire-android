@@ -15,11 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.feature.sketch.model
 
-package com.wire.android.util.ui
+import android.net.Uri
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-import androidx.compose.ui.unit.dp
+data class DrawingCanvasNavArgs(val conversationName: String, val tempWritableUri: Uri?)
 
-object KeyboardHeight {
-    val default = 250.dp
-}
+@Parcelize
+data class DrawingCanvasNavBackArgs(val uri: Uri) : Parcelable

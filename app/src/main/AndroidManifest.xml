@@ -113,7 +113,7 @@
                 android:launchMode="singleTask"
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.SplashScreen"
-                android:windowSoftInputMode="adjustResize|stateHidden">
+                android:windowSoftInputMode="adjustNothing|stateHidden">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -148,6 +148,10 @@
 
                 <data
                         android:host="conversation"
+                        android:scheme="wire" />
+
+                <data
+                        android:host="user"
                         android:scheme="wire" />
 
                 <data

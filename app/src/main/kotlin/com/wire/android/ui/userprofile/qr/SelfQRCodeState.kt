@@ -15,26 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.util
+package com.wire.android.ui.userprofile.qr
 
-import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.toUIText
+import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.kalium.logic.data.user.UserId
 
-/**
- * Cache for the current conversation details.
- * This is used to display the conversation name in the toolbar or can be used for other purposes.
- *
- * TODO: This is temporary, when we have navigation for sketch, we might do it with navigation arguments.
- * TODO: Anyway, this might be useful, and we might keep it or discuss it.
- */
-object CurrentConversationDetailsCache {
-
-    @Volatile
-    var conversationName: UIText = "".toUIText()
-        private set
-
-    @Synchronized
-    fun updateConversationName(newName: UIText) {
-        conversationName = newName
-    }
-}
+data class SelfQRCodeState(
+    val userId: UserId,
+    val avatarAsset: UserAvatarAsset? = null,
+    val handle: String = "",
+    val userProfileLink: String = "",
+    val hasError: Boolean = false
+)

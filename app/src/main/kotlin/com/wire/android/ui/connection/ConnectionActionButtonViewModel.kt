@@ -202,9 +202,11 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
                     if (result.coreFailure is CoreFailure.MissingKeyPackages) onMissingKeyPackages()
                 }
 
-                is CreateConversationResult.Success -> onSuccess(result.conversation.id)
+                is CreateConversationResult.Success -> {
+                    state = state.finishAction()
+                    onSuccess(result.conversation.id)
+                }
             }
-            state.finishAction()
         }
     }
 

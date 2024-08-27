@@ -30,6 +30,7 @@ import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
@@ -40,12 +41,12 @@ import kotlinx.coroutines.launch
 fun rememberConversationScreenState(
     editSheetState: WireModalSheetState<UIMessage.Regular> = rememberWireModalSheetState<UIMessage.Regular>(),
     selfDeletingSheetState: WireModalSheetState<SelfDeletionTimer> = rememberWireModalSheetState<SelfDeletionTimer>(),
+    locationSheetState: WireModalSheetState<Unit> = rememberWireModalSheetState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): ConversationScreenState {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val snackBarHostState = LocalSnackbarHostState.current
-
     return remember {
         ConversationScreenState(
             context = context,
@@ -53,6 +54,7 @@ fun rememberConversationScreenState(
             snackBarHostState = snackBarHostState,
             editSheetState = editSheetState,
             selfDeletingSheetState = selfDeletingSheetState,
+            locationSheetState = locationSheetState,
             coroutineScope = coroutineScope
         )
     }
@@ -65,10 +67,11 @@ class ConversationScreenState(
     val snackBarHostState: SnackbarHostState,
     val editSheetState: WireModalSheetState<UIMessage.Regular>,
     val selfDeletingSheetState: WireModalSheetState<SelfDeletionTimer>,
+    val locationSheetState: WireModalSheetState<Unit>,
     val coroutineScope: CoroutineScope
 ) {
     fun showEditContextMenu(message: UIMessage.Regular) {
-        editSheetState.show(message)
+        editSheetState.show(message, hideKeyboard = true)
     }
 
     fun copyMessage(text: String) {
@@ -79,9 +82,13 @@ class ConversationScreenState(
     }
 
     fun showSelfDeletionContextMenu(currentlySelected: SelfDeletionTimer) {
-        selfDeletingSheetState.show(currentlySelected)
+        selfDeletingSheetState.show(currentlySelected, hideKeyboard = true)
+    }
+
+    fun showLocationSheet() {
+        locationSheetState.show(hideKeyboard = true)
     }
 
     val isAnySheetVisible: Boolean
-        get() = editSheetState.isVisible || selfDeletingSheetState.isVisible
+        get() = editSheetState.isVisible || selfDeletingSheetState.isVisible || locationSheetState.isVisible
 }

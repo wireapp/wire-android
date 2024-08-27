@@ -18,13 +18,16 @@
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
@@ -42,33 +46,38 @@ fun RichTextOptions(
     onRichTextHeaderButtonClicked: () -> Unit,
     onRichTextBoldButtonClicked: () -> Unit,
     onRichTextItalicButtonClicked: () -> Unit,
-    onCloseRichTextEditingButtonClicked: () -> Unit
+    onCloseRichTextEditingButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Absolute.SpaceEvenly,
-        modifier = Modifier.wrapContentSize()
-    ) {
-        val modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f)
-            .padding(horizontal = dimensions().spacing0x)
+    Column(modifier.wrapContentSize()) {
+        HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Absolute.SpaceEvenly,
+            modifier = Modifier.wrapContentSize()
+                .height(dimensions().spacing56x)
+        ) {
+            val iconModifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(horizontal = dimensions().spacing0x)
 
-        HeaderButton(
-            modifier = modifier,
-            onRichTextHeaderButtonClicked = onRichTextHeaderButtonClicked
-        )
-        BoldButton(
-            modifier = modifier,
-            onRichTextBoldButtonClicked = onRichTextBoldButtonClicked
-        )
-        ItalicButton(
-            modifier = modifier,
-            onRichTextItalicButtonClicked = onRichTextItalicButtonClicked,
-        )
-        CloseButton(
-            onCloseRichTextEditingButtonClicked = onCloseRichTextEditingButtonClicked
-        )
+            HeaderButton(
+                modifier = iconModifier,
+                onRichTextHeaderButtonClicked = onRichTextHeaderButtonClicked
+            )
+            BoldButton(
+                modifier = iconModifier,
+                onRichTextBoldButtonClicked = onRichTextBoldButtonClicked
+            )
+            ItalicButton(
+                modifier = iconModifier,
+                onRichTextItalicButtonClicked = onRichTextItalicButtonClicked,
+            )
+            CloseButton(
+                onCloseRichTextEditingButtonClicked = onCloseRichTextEditingButtonClicked
+            )
+        }
     }
 }
 

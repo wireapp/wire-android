@@ -51,6 +51,7 @@ fun PrivacySettingsConfigScreen(
     with(viewModel) {
         PrivacySettingsScreenContent(
             isAnonymousUsageDataEnabled = state.isAnalyticsUsageEnabled,
+            shouldShowAnalyticsUsage = state.shouldShowAnalyticsUsage,
             areReadReceiptsEnabled = state.areReadReceiptsEnabled,
             setReadReceiptsState = ::setReadReceiptsState,
             isTypingIndicatorEnabled = state.isTypingIndicatorEnabled,
@@ -66,6 +67,7 @@ fun PrivacySettingsConfigScreen(
 @Composable
 fun PrivacySettingsScreenContent(
     isAnonymousUsageDataEnabled: Boolean,
+    shouldShowAnalyticsUsage: Boolean,
     areReadReceiptsEnabled: Boolean,
     setReadReceiptsState: (Boolean) -> Unit,
     isTypingIndicatorEnabled: Boolean,
@@ -91,7 +93,7 @@ fun PrivacySettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            if (BuildConfig.ANALYTICS_ENABLED) {
+            if (shouldShowAnalyticsUsage) {
                 GroupConversationOptionsItem(
                     title = stringResource(id = R.string.settings_send_anonymous_usage_data_title),
                     switchState = SwitchState.Enabled(value = isAnonymousUsageDataEnabled, onCheckedChange = setAnonymousUsageDataEnabled),
@@ -143,6 +145,7 @@ fun PrivacySettingsScreenContent(
 fun PreviewSendReadReceipts() = WireTheme {
     PrivacySettingsScreenContent(
         isAnonymousUsageDataEnabled = true,
+        shouldShowAnalyticsUsage = true,
         areReadReceiptsEnabled = true,
         setReadReceiptsState = {},
         isTypingIndicatorEnabled = true,

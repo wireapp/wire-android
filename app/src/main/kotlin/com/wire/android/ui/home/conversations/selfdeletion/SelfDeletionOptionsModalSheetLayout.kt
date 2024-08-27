@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.selfdeletion
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -36,9 +37,11 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer
 fun SelfDeletionOptionsModalSheetLayout(
     sheetState: WireModalSheetState<SelfDeletionTimer>,
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     WireModalSheetLayout(
         sheetState = sheetState,
+        modifier = modifier,
         sheetContent = { currentlySelected ->
             WireMenuModalSheetContent(
                 header = MenuModalSheetHeader.Visible(title = stringResource(R.string.automatically_delete_message_after)),

@@ -50,6 +50,7 @@ import com.wire.kalium.logic.util.isPositiveNotNull
 fun MessageComposeActions(
     conversationId: ConversationId,
     isEditing: Boolean,
+    attachmentsVisible: Boolean,
     selectedOption: AdditionalOptionSelectItem,
     onMentionButtonClicked: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
@@ -62,23 +63,24 @@ fun MessageComposeActions(
 ) {
     if (isEditing) {
         EditingActions(
-            selectedOption,
-            isMentionActive,
-            onRichEditingButtonClicked,
-            onMentionButtonClicked
+            selectedOption = selectedOption,
+            isMentionActive = isMentionActive,
+            onRichEditingButtonClicked = onRichEditingButtonClicked,
+            onMentionButtonClicked = onMentionButtonClicked
         )
     } else {
         ComposingActions(
-            conversationId,
-            selectedOption,
-            isMentionActive,
-            onAdditionalOptionButtonClicked,
-            onRichEditingButtonClicked,
-            onGifButtonClicked,
-            onSelfDeletionOptionButtonClicked,
-            onPingButtonClicked,
-            onMentionButtonClicked,
-            onDrawingModeClicked
+            conversationId = conversationId,
+            selectedOption = selectedOption,
+            isMentionActive = isMentionActive,
+            attachmentsVisible = attachmentsVisible,
+            onAdditionalOptionButtonClicked = onAdditionalOptionButtonClicked,
+            onRichEditingButtonClicked = onRichEditingButtonClicked,
+            onGifButtonClicked = onGifButtonClicked,
+            onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
+            onPingButtonClicked = onPingButtonClicked,
+            onMentionButtonClicked = onMentionButtonClicked,
+            onDrawingModeClicked = onDrawingModeClicked
         )
     }
 }
@@ -87,6 +89,7 @@ fun MessageComposeActions(
 private fun ComposingActions(
     conversationId: ConversationId,
     selectedOption: AdditionalOptionSelectItem,
+    attachmentsVisible: Boolean,
     isMentionActive: Boolean,
     onAdditionalOptionButtonClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit,
@@ -107,7 +110,7 @@ private fun ComposingActions(
     ) {
         with(localFeatureVisibilityFlags) {
             AdditionalOptionButton(
-                isSelected = selectedOption == AdditionalOptionSelectItem.AttachFile,
+                isSelected = attachmentsVisible,
                 onClick = onAdditionalOptionButtonClicked
             )
             RichTextEditingAction(

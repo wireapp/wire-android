@@ -47,7 +47,7 @@ fun MessageOptionsModalSheetLayout(
     onEditClick: (messageId: String, messageBody: String, mentions: List<MessageMention>) -> Unit,
     onShareAssetClick: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
-    onOpenAssetClick: (messageId: String) -> Unit
+    onOpenAssetClick: (messageId: String) -> Unit,
 ) {
     val context = LocalContext.current
     WireModalSheetLayout(

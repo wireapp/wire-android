@@ -117,5 +117,5 @@ jobs:
         uses: softprops/action-gh-release@v2.0.8
         with:
           files: |
-            app/build/outputs/apk/prodCompatrelease/*.apk
+            app/build/outputs/apk/prod/Compatrelease/*.apk
             app/version.txt

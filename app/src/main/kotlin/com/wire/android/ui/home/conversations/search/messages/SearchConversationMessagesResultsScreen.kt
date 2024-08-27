@@ -57,6 +57,7 @@ fun SearchConversationMessagesResultsScreen(
                         message = message,
                         conversationDetailsData = ConversationDetailsData.None(null),
                         searchQuery = searchQuery,
+                        audioState = null,
                         onLongClicked = { },
                         onAssetMessageClicked = { },
                         onAudioClick = { },

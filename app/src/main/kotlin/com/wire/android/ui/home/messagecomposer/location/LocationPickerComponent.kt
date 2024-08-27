@@ -49,8 +49,8 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
-import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -70,11 +70,10 @@ import com.wire.android.util.permission.rememberCurrentLocationPermissionFlow
 @Composable
 fun LocationPickerComponent(
     onLocationPicked: (GeoLocatedAddress) -> Unit,
-    onLocationClosed: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LocationPickerViewModel = hiltViewModel<LocationPickerViewModel>()
+    viewModel: LocationPickerViewModel = hiltViewModel<LocationPickerViewModel>(),
+    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(),
 ) {
-    val sheetState = rememberWireModalSheetState<Unit>(onDismissAction = onLocationClosed)
 
     val locationFlow = rememberCurrentLocationPermissionFlow(
         onAllPermissionsGranted = viewModel::getCurrentLocation,
@@ -82,16 +81,14 @@ fun LocationPickerComponent(
         onAnyPermissionPermanentlyDenied = viewModel::onPermissionPermanentlyDenied
     )
 
-    LaunchedEffect(Unit) {
-        sheetState.show()
-        locationFlow.launch()
-    }
-
     with(viewModel.state) {
         WireModalSheetLayout(
             modifier = modifier,
             sheetState = sheetState,
         ) {
+            LaunchedEffect(Unit) {
+                locationFlow.launch()
+            }
             WireMenuModalSheetContent(
                 header = MenuModalSheetHeader.Visible(title = stringResource(R.string.location_attachment_share_title)),
                 menuItems = buildList {
@@ -121,7 +118,7 @@ fun LocationPickerComponent(
                                 LocationErrorMessage {
                                     sheetState.hide {
                                         viewModel.onLocationSharingErrorDialogDiscarded()
-                                        onLocationClosed()
+                                        sheetState.hide()
                                     }
                                 }
                             }
@@ -129,7 +126,7 @@ fun LocationPickerComponent(
                                 isLocationLoading = isLocationLoading,
                                 geoLocatedAddress = geoLocatedAddress,
                                 onLocationPicked = onLocationPicked,
-                                onLocationClosed = onLocationClosed
+                                onLocationClosed = sheetState::hide
                             )
                         }
                     }
@@ -141,7 +138,7 @@ fun LocationPickerComponent(
                     body = R.string.location_app_permission_dialog_body,
                     onDismiss = {
                         viewModel.onPermissionsDialogDiscarded()
-                        onLocationClosed()
+                        sheetState.hide()
                     }
                 )
             }

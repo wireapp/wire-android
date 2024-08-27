@@ -1,11 +1,11 @@
 New
-    Fresh design - completely rebuilt.
+    Fresh design - completely rebuilt
     Ability to add Reactions to messages
     Swipe left to reply
     Button to scroll to end of conversation
-    Drafts : keep your message in text field after leaving conversation
-    Navigate to original message from a reply.
-    Preview a picture before sending.
+    Drafts: keep your message in text field after leaving conversation
+    Navigate to original message from a reply
+    Preview a picture before sending
     Time dividers and grouping of messages
     Easy accessible main navigation and an updated conversation list with a new activity section
     Improved search for a conversation
@@ -24,4 +24,4 @@ Improved
     Indication of guests, federated and external contacts are more recognizable
     Improved visual contrast ratios (colors) – following accessibility standard WCAG 2.1 (level AA)
     Share your location
-    Search in conversation for text messages and files.
+    Search in conversation for text messages and files

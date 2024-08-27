@@ -16,9 +16,4 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources>
-    <string name="content_description_back_button">Przycisk powrotu</string>
-    <string name="content_description_close_button">Przycisk zamykaj&#261;cy</string>
-    <string name="content_description_menu_button">G&#322;&#243;wne menu nawigacyjne</string>
-    <string name="content_description_drop_down_icon">Strza&#322;ka rozwijaj&#261;ca list&#281;</string>
-</resources>
+<resources></resources>

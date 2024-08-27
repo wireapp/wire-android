@@ -346,7 +346,7 @@ class FeatureFlagNotificationViewModelTest {
             coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired.invoke() } returns flowOf()
-            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDueToDegradationDialog() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeShouldNotifyForRevokedCertificate() } returns flowOf()
             every { coreLogic.getSessionScope(any()).markNotifyForRevokedCertificateAsNotified } returns
                     markNotifyForRevokedCertificateAsNotified
@@ -386,7 +386,7 @@ class FeatureFlagNotificationViewModelTest {
         }
 
         fun withEndCallDialog() = apply {
-            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf(Unit)
+            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDueToDegradationDialog() } returns flowOf(Unit)
         }
 
         fun withTeamAppLockEnforce(result: AppLockTeamConfig?) = apply {

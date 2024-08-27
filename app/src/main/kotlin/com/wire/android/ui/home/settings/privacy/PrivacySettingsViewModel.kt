@@ -90,6 +90,7 @@ class PrivacySettingsViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            // TODO(Analytics): To be changed with UseCase
             val isAnalyticsConfigurationEnabled = analyticsEnabled is AnalyticsConfiguration.Enabled
             val isValidBackend = when (val serverConfig = selfServerConfig()) {
                 is SelfServerConfigUseCase.Result.Success ->

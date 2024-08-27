@@ -215,7 +215,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     private suspend fun observeCallEndedBecauseOfConversationDegraded(userId: UserId) =
-        coreLogic.getSessionScope(userId).calls.observeEndCallDialog().collect {
+        coreLogic.getSessionScope(userId).calls.observeEndCallDueToDegradationDialog().collect {
             featureFlagState = featureFlagState.copy(showCallEndedBecauseOfConversationDegraded = true)
         }
 

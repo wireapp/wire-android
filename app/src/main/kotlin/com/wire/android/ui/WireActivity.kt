@@ -546,6 +546,11 @@ class WireActivity : AppCompatActivity() {
     }
 
     private fun handleSynchronizeExternalData(intent: Intent) {
+        if (!BuildConfig.DEBUG) {
+            appLogger.e("Synchronizing external data is only allowed on debug builds")
+            return
+        }
+
         intent.data?.lastPathSegment.let { eventsPath ->
             openFileInput(eventsPath)?.let { inputStream ->
                 viewModel.handleSynchronizeExternalData(inputStream)

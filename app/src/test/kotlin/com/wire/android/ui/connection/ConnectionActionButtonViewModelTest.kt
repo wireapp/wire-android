@@ -275,6 +275,7 @@ class ConnectionActionButtonViewModelTest {
             }
             verify { arrangement.onOpenConversation(any()) }
             verify { arrangement.onMissingKeyPackages wasNot Called }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
     @Test
@@ -294,6 +295,7 @@ class ConnectionActionButtonViewModelTest {
             }
             verify { arrangement.onOpenConversation wasNot Called }
             verify { arrangement.onMissingKeyPackages wasNot Called }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
     @Test
@@ -313,6 +315,7 @@ class ConnectionActionButtonViewModelTest {
             }
             verify { arrangement.onOpenConversation wasNot Called }
             verify { arrangement.onMissingKeyPackages() }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
     companion object {

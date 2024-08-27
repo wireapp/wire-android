@@ -26,7 +26,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
@@ -69,15 +71,23 @@ fun rememberMessageComposerStateHolder(
     LaunchedEffect(Unit) {
         messageCompositionHolder.handleMessageTextUpdates()
     }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember {
+        FocusRequester()
+    }
 
     val messageCompositionInputStateHolder = rememberSaveable(
         saver = MessageCompositionInputStateHolder.saver(
             messageTextState = messageTextState,
+            keyboardController = keyboardController,
+            focusRequester = focusRequester,
             density = density
         )
     ) {
         MessageCompositionInputStateHolder(
             messageTextState = messageTextState,
+            keyboardController = keyboardController,
+            focusRequester = focusRequester
         )
     }
 
@@ -119,23 +129,13 @@ class MessageComposerStateHolder(
         messageCompositionInputStateHolder.toComposing()
     }
 
-    fun onInputFocusedChanged(onFocused: Boolean) {
-        if (onFocused) {
-            additionalOptionStateHolder.unselectAdditionalOptionsMenu()
-            messageCompositionInputStateHolder.requestFocus()
-        } else {
-            messageCompositionInputStateHolder.clearFocus()
-        }
+    fun onInputFocused() {
+        additionalOptionStateHolder.unselectAdditionalOptionsMenu()
+        messageCompositionInputStateHolder.setFocused()
     }
 
     fun toAudioRecording() {
-        messageCompositionInputStateHolder.showOptions()
         additionalOptionStateHolder.toAudioRecording()
-    }
-
-    fun toLocationPicker() {
-        messageCompositionInputStateHolder.showOptions()
-        additionalOptionStateHolder.toLocationPicker()
     }
 
     fun toInitialAttachmentOptions() {
@@ -147,9 +147,8 @@ class MessageComposerStateHolder(
         messageCompositionHolder.clearMessage()
     }
 
-    fun showAdditionalOptionsMenu() {
-        messageCompositionInputStateHolder.showOptions()
-        additionalOptionStateHolder.showAdditionalOptionsMenu()
+    fun showAttachments(showOptions: Boolean) {
+        messageCompositionInputStateHolder.showAttachments(showOptions)
     }
 
     fun clearMessage() {

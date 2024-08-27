@@ -48,13 +48,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun AttachmentButton(
-    text: String = "",
-    @DrawableRes icon: Int,
-    labelStyle: TextStyle,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
+fun AttachmentButton(@DrawableRes icon: Int, labelStyle: TextStyle, modifier: Modifier = Modifier, text: String = "", onClick: () -> Unit) {
     Column(
         modifier = modifier
             .padding(dimensions().spacing4x)
@@ -96,5 +90,10 @@ fun AttachmentButton(
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentButton() {
-    AttachmentButton("Share Location", R.drawable.ic_location, MaterialTheme.wireTypography.button03) { }
+    AttachmentButton(
+        icon = R.drawable.ic_location,
+        labelStyle = MaterialTheme.wireTypography.button03,
+        modifier = Modifier,
+        text = "Share Location"
+    ) { }
 }

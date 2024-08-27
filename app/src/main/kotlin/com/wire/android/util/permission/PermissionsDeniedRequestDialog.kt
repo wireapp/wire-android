@@ -36,8 +36,8 @@ import com.wire.android.util.extension.openAppInfoScreen
  */
 @Composable
 fun PermissionsDeniedRequestDialog(
-    @StringRes title: Int = R.string.app_permission_dialog_title,
     @StringRes body: Int,
+    @StringRes title: Int = R.string.app_permission_dialog_title,
     @StringRes positiveButton: Int = R.string.app_permission_dialog_settings_positive_button,
     @StringRes negativeButton: Int = R.string.app_permission_dialog_settings_negative_button,
     onDismiss: () -> Unit

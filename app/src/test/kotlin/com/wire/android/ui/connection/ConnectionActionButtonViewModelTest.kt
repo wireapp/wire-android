@@ -274,7 +274,12 @@ class ConnectionActionButtonViewModelTest {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
             }
             verify { arrangement.onOpenConversation(any()) }
+<<<<<<< HEAD
             verify { arrangement.onMissingKeyPackages wasNot Called }
+=======
+            verify { arrangement.onStartConversationError wasNot Called }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
+>>>>>>> 232e7359b (fix: button keeps spinning when user starts a conversation and back (WPB-5862) (#3372))
         }
 
     @Test
@@ -293,7 +298,12 @@ class ConnectionActionButtonViewModelTest {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
             }
             verify { arrangement.onOpenConversation wasNot Called }
+<<<<<<< HEAD
             verify { arrangement.onMissingKeyPackages wasNot Called }
+=======
+            verify { arrangement.onStartConversationError(eq(failure)) }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
+>>>>>>> 232e7359b (fix: button keeps spinning when user starts a conversation and back (WPB-5862) (#3372))
         }
 
     @Test
@@ -312,7 +322,12 @@ class ConnectionActionButtonViewModelTest {
                 arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
             }
             verify { arrangement.onOpenConversation wasNot Called }
+<<<<<<< HEAD
             verify { arrangement.onMissingKeyPackages() }
+=======
+            verify { arrangement.onStartConversationError(eq(errorResult)) }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
+>>>>>>> 232e7359b (fix: button keeps spinning when user starts a conversation and back (WPB-5862) (#3372))
         }
 
     companion object {

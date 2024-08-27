@@ -64,6 +64,7 @@ import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
+import com.wire.kalium.logic.feature.debug.SynchronizeExternalDataResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -92,6 +93,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.InputStream
+import java.io.InputStreamReader
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -304,6 +307,30 @@ class WireActivityViewModel @Inject constructor(
 
     private fun isSharingIntent(intent: Intent?): Boolean {
         return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
+    }
+
+    fun handleSynchronizeExternalData(
+        data: InputStream
+    ) {
+        viewModelScope.launch(dispatchers.io()) {
+            when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
+                is CurrentSessionResult.Failure.Generic -> null
+                CurrentSessionResult.Failure.SessionNotFound -> null
+                is CurrentSessionResult.Success -> {
+                    coreLogic.sessionScope(currentSession.accountInfo.userId) {
+                        when (val result = debug.synchronizeExternalData(InputStreamReader(data).readText())) {
+                            is SynchronizeExternalDataResult.Success -> {
+                                appLogger.d("Synchronized external data")
+                            }
+
+                            is SynchronizeExternalDataResult.Failure -> {
+                                appLogger.d("Failed to Synchronize external data: ${result.coreFailure}")
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Suppress("ComplexMethod")

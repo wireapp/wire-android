@@ -230,6 +230,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/*" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SYNC" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="file" />
+            </intent-filter>
         </activity>
 
         <activity

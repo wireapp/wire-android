@@ -324,6 +324,10 @@
     <string name="user_profile_unblock_user">Avblockera användare</string>
     <string name="user_profile_group_remove_button">Ta bort från gruppen</string>
     <string name="user_profile_logging_out_progress">Loggar ut...</string>
+    <string name="user_profile_qr_code">Öppna QR-kod</string>
+    <string name="user_profile_qr_code_title">Dela profil</string>
+    <string name="user_profile_qr_code_share_link">Dela profillänk</string>
+    <string name="user_profile_qr_code_share_image_link">Dela QR-kod</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Ta bort från gruppen?</string>
     <string name="dialog_remove_conversation_member_error">Det uppstod ett fel när deltagaren skulle tas bort från gruppen</string>

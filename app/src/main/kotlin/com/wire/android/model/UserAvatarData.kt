@@ -31,7 +31,7 @@ data class UserAvatarData(
     val membership: Membership = Membership.None,
     val nameBasedAvatar: NameBasedAvatar? = null
 ) {
-    val shouldPreferAvatar = asset != null || nameBasedAvatar == null
+    val shouldPreferAvatar = asset != null || nameBasedAvatar == null || nameBasedAvatar.fullName.isNullOrEmpty()
 }
 
-data class NameBasedAvatar(val fullName: String, val accentColor: Int)
+data class NameBasedAvatar(val fullName: String?, val accentColor: Int)

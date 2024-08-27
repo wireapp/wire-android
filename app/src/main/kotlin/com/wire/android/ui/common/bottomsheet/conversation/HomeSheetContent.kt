@@ -30,13 +30,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
-import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -82,7 +83,8 @@ internal fun ConversationMainSheetContent(
                     UserProfileAvatar(
                         avatarData = UserAvatarData(
                             asset = conversationSheetContent.conversationTypeDetail.avatarAsset,
-                            connectionState = connectionState
+                            connectionState = connectionState,
+                            nameBasedAvatar = NameBasedAvatar(conversationSheetContent.title, accentColor = 0)
                         )
                     )
                 }

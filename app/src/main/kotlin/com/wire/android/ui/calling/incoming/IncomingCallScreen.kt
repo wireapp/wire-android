@@ -262,7 +262,8 @@ private fun IncomingCallContent(
                 protocolInfo = callState.protocolInfo,
                 mlsVerificationStatus = callState.mlsVerificationStatus,
                 proteusVerificationStatus = callState.proteusVerificationStatus,
-                onMinimiseScreen = onMinimiseScreen
+                onMinimiseScreen = onMinimiseScreen,
+                accentId = callState.accentId
             )
         }
     }

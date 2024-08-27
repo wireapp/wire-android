@@ -146,6 +146,7 @@ class SharedCallingViewModel @AssistedInject constructor(
                             protocolInfo = details.conversation.protocol,
                             mlsVerificationStatus = details.conversation.mlsVerificationStatus,
                             proteusVerificationStatus = details.conversation.proteusVerificationStatus,
+                            accentId = details.otherUser.accentId
                         )
                     }
 

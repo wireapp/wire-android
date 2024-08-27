@@ -110,8 +110,8 @@ fun UserProfileAvatar(
         if (avatarData.shouldPreferAvatar) {
             ImageAvatar(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation, type, size, avatarBorderSize)
         } else {
-            CircularAvatar(
-                avatarData = avatarData.nameBasedAvatar!!,
+            DefaultInitialsAvatar(
+                avatarData = avatarData.nameBasedAvatar!!, // todo improve this
                 size = size
             )
         }
@@ -262,7 +262,7 @@ private fun getDefaultAvatarResourceId(membership: Membership): Int =
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
-fun CircularAvatar(
+private fun DefaultInitialsAvatar(
     avatarData: NameBasedAvatar,
     size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize
 ) {
@@ -278,15 +278,15 @@ fun CircularAvatar(
             .background(
                 MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
                     Accent.fromAccentId(avatarData.accentColor),
-                    Color.Blue
+                    MaterialTheme.wireColorScheme.secondaryText
                 )
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = avatarData.fullName.take(2),
+            text = avatarData.fullName!!.take(2).uppercase(),
             color = MaterialTheme.colorScheme.onBackground,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
             fontSize = size.value.sp / 3,
         )
@@ -373,7 +373,7 @@ fun PreviewTempUserSmallAvatarCustomIndicators() {
 fun PreviewUserProfileAvatarWithInitialsBig() {
     WireTheme {
         UserProfileAvatar(
-            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("JR", 5)),
+            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("JR", 11)),
             padding = 4.dp,
             size = dimensions().avatarDefaultBigSize,
             type = UserProfileAvatarType.WithoutIndicators,

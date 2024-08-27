@@ -30,6 +30,7 @@ data class CallState(
     val conversationId: ConversationId,
     val conversationName: ConversationName? = null,
     val callerName: String? = null,
+    val accentId: Int = 0,
     val callStatus: CallStatus = CallStatus.CLOSED,
     val avatarAssetId: UserAvatarAsset? = null,
     val participants: List<UICallParticipant> = listOf(),

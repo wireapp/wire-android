@@ -41,7 +41,7 @@ class AppVersionPlugin : Plugin<Project> {
                 // git commit hash code
                 val gitRevision = "git rev-parse --short HEAD".execute().text.trim()
                 println("VersionCode: $versionCode")
-                println("VersionName: $versionName")
+                println("VersionName: $versionName-fdroid")
                 println("Revision: $gitRevision")
                 println("Buildtime: $buildTime")
                 println("Application-name: $appName")

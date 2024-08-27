@@ -395,8 +395,10 @@ private fun GroupConversationDetailsContent(
                         onAddParticipantsPressed = onAddParticipantsPressed,
                         onProfilePressed = onProfilePressed,
                         lazyListState = lazyListStates[pageIndex],
-                        allowAddMember = conversationSheetState.conversationSheetContent?.title?.isNotEmpty() == true
-                                || groupParticipantsState.data.allCount > 1
+                        isAbandonedOneOnOneConversation = conversationSheetState.conversationSheetContent?.isAbandonedOneOnOneConversation(
+                            groupParticipantsState.data.allCount
+                        ) ?: false
+
                     )
                 }
             }

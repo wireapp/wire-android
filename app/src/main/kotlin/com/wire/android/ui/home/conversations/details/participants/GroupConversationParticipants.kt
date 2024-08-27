@@ -62,7 +62,7 @@ fun GroupConversationParticipants(
     onAddParticipantsPressed: () -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     lazyListState: LazyListState = rememberLazyListState(),
-    allowAddMember: Boolean = true
+    isAbandonedOneOnOneConversation: Boolean = false
 ) {
     val context = LocalContext.current
     Column {
@@ -87,7 +87,7 @@ fun GroupConversationParticipants(
                             groupParticipantsState.data.allCount.toString()
                         )
                     )
-                    if (groupParticipantsState.data.isSelfAnAdmin && allowAddMember) {
+                    if (groupParticipantsState.data.isSelfAnAdmin && !isAbandonedOneOnOneConversation) {
                         WirePrimaryButton(
                             text = stringResource(R.string.conversation_details_group_participants_add),
                             fillMaxWidth = true,

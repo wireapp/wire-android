@@ -46,7 +46,7 @@ jobs:
 
       - name: Zip test results
         run: |
-          zip -r unit-tests-android_${{ env.COMMIT_HASH }}.zip **/build/test-results/**/*.xml **/build/outputs/androidTest-results/**/*.xml **/build/reports/tests/**/*.*
+          zip -r unit-tests-android_${{ env.COMMIT_HASH }}.zip **/build/test-results/**/*.xml **/build/outputs/androidTest-results/**/*.xml
 
       - name: Upload zipped test results
         uses: actions/upload-artifact@v4

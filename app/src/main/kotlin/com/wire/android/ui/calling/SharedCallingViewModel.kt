@@ -145,7 +145,7 @@ class SharedCallingViewModel @AssistedInject constructor(
                             membership = userTypeMapper.toMembership(details.otherUser.userType),
                             protocolInfo = details.conversation.protocol,
                             mlsVerificationStatus = details.conversation.mlsVerificationStatus,
-                            proteusVerificationStatus = details.conversation.proteusVerificationStatus
+                            proteusVerificationStatus = details.conversation.proteusVerificationStatus,
                         )
                     }
 

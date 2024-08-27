@@ -28,5 +28,10 @@ data class UserAvatarData(
     val asset: ImageAsset.UserAvatarAsset? = null,
     val availabilityStatus: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
     val connectionState: ConnectionState? = null,
-    val membership: Membership = Membership.None
-)
+    val membership: Membership = Membership.None,
+    val nameBasedAvatar: NameBasedAvatar? = null
+) {
+    val shouldPreferAvatar = asset != null || nameBasedAvatar == null
+}
+
+data class NameBasedAvatar(val fullName: String, val accentColor: Int)

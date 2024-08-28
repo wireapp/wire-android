@@ -373,7 +373,7 @@ fun PreviewTempUserSmallAvatarCustomIndicators() {
 fun PreviewUserProfileAvatarWithInitialsBig() {
     WireTheme {
         UserProfileAvatar(
-            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("JR", -1)),
+            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("Juan Roman Riquelme", -1)),
             padding = 4.dp,
             size = dimensions().avatarDefaultBigSize,
             type = UserProfileAvatarType.WithoutIndicators,
@@ -386,7 +386,7 @@ fun PreviewUserProfileAvatarWithInitialsBig() {
 fun PreviewUserProfileAvatarSmallest() {
     WireTheme {
         UserProfileAvatar(
-            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("JR", 11)),
+            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("Juan", -1)),
             padding = 4.dp,
             size = dimensions().spacing16x,
             type = UserProfileAvatarType.WithoutIndicators,

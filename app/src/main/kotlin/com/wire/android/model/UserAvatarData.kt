@@ -49,7 +49,11 @@ data class NameBasedAvatar(val fullName: String?, val accentColor: Int) {
             if (fullName.isNullOrEmpty()) return String.EMPTY
             val names = fullName.split(" ").map { it.uppercase() }
             return when {
-                names.size > 1 -> names.map { it.first() }.joinToString("")
+                names.size > 1 -> {
+                    val initials = names.map { it.first() }
+                    initials.first().toString() + initials.last()
+                }
+
                 else -> names.first().take(2)
             }
         }

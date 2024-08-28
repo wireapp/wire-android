@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.conversations.details
 
+import SwipeableSnackbar
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.slideInVertically
@@ -38,7 +39,12 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+<<<<<<< HEAD
 import androidx.compose.material3.Surface
+=======
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+>>>>>>> 862931793 (fix(conversation): disable addMember on a one-on-one conversation with deleted account (WPB-10259) (#3349))
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -123,7 +129,10 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.GroupID
 import com.wire.kalium.logic.data.mls.CipherSuite
 import kotlinx.coroutines.launch
+<<<<<<< HEAD
 import kotlinx.datetime.Instant
+=======
+>>>>>>> 862931793 (fix(conversation): disable addMember on a one-on-one conversation with deleted account (WPB-10259) (#3349))
 
 @RootNavGraph
 @WireDestination(
@@ -425,7 +434,11 @@ private fun GroupConversationDetailsContent(
                     GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
                         groupParticipantsState = groupParticipantsState,
                         onProfilePressed = onProfilePressed,
-                        lazyListState = lazyListStates[pageIndex]
+                        lazyListState = lazyListStates[pageIndex],
+                        isAbandonedOneOnOneConversation = conversationSheetState.conversationSheetContent?.isAbandonedOneOnOneConversation(
+                            groupParticipantsState.data.allCount
+                        ) ?: false
+
                     )
                 }
             }

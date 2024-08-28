@@ -55,7 +55,8 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 fun GroupConversationParticipants(
     onProfilePressed: (UIParticipant) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
-    lazyListState: LazyListState = rememberLazyListState()
+    lazyListState: LazyListState = rememberLazyListState(),
+    isAbandonedOneOnOneConversation: Boolean = false
 ) {
     val context = LocalContext.current
     Column {
@@ -64,6 +65,7 @@ fun GroupConversationParticipants(
             modifier = Modifier.fillMaxSize()
         ) {
             item(key = "participants_list_header") {
+<<<<<<< HEAD
                 if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
                     Column(
                         modifier = Modifier
@@ -71,6 +73,35 @@ fun GroupConversationParticipants(
                             .background(MaterialTheme.wireColorScheme.surface)
                             .padding(MaterialTheme.wireDimensions.spacing16x)
                     ) {
+=======
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.wireColorScheme.surface)
+                        .padding(MaterialTheme.wireDimensions.spacing16x)
+                ) {
+                    Text(
+                        text = context.resources.stringWithStyledArgs(
+                            R.string.conversation_details_participants_info,
+                            MaterialTheme.wireTypography.body01,
+                            MaterialTheme.wireTypography.body02,
+                            MaterialTheme.wireColorScheme.onBackground,
+                            MaterialTheme.wireColorScheme.onBackground,
+                            groupParticipantsState.data.allCount.toString()
+                        )
+                    )
+                    if (groupParticipantsState.data.isSelfAnAdmin && !isAbandonedOneOnOneConversation) {
+                        WirePrimaryButton(
+                            text = stringResource(R.string.conversation_details_group_participants_add),
+                            fillMaxWidth = true,
+                            onClick = onAddParticipantsPressed,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = MaterialTheme.wireDimensions.spacing16x),
+                        )
+                    }
+                    if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+>>>>>>> 862931793 (fix(conversation): disable addMember on a one-on-one conversation with deleted account (WPB-10259) (#3349))
                         val groupParticipants = groupParticipantsState.data.allParticipants
                         MLSProgressIndicator(
                             mlsProgress = (groupParticipants)

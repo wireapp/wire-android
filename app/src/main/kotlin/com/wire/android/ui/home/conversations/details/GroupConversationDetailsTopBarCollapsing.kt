@@ -106,6 +106,7 @@ fun GroupConversationDetailsTopBarCollapsing(
                             horizontal = dimensions().spacing16x,
                             vertical = dimensions().spacing4x
                         )
+<<<<<<< HEAD
                 )
                 Text(
                     text = stringResource(
@@ -114,6 +115,22 @@ fun GroupConversationDetailsTopBarCollapsing(
                     ),
                     style = MaterialTheme.wireTypography.subline01,
                     color = MaterialTheme.wireColorScheme.secondaryText,
+=======
+                ) {
+                    Text(
+                        text = title.ifBlank {
+                            if (isLoading) ""
+                            else UIText.StringResource(R.string.member_name_deleted_label).asString()
+                        },
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        style = MaterialTheme.wireTypography.body02,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+>>>>>>> 862931793 (fix(conversation): disable addMember on a one-on-one conversation with deleted account (WPB-10259) (#3349))
                     modifier = Modifier
                         .padding(horizontal = dimensions().spacing64x)
                 )

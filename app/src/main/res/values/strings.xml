@@ -600,6 +600,10 @@
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
+    <string name="conversation_banner_federated">federated users</string>
+    <string name="conversation_banner_externals">externals</string>
+    <string name="conversation_banner_guests">guests</string>
+    <string name="conversation_banner_services">services</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Federated users, externals, guests and services are present</string>
     <string name="conversation_banner_federated_externals_guests_present">Federated users, externals and guests are present</string>
     <string name="conversation_banner_federated_externals_services_present">Federated users, externals and services are present</string>

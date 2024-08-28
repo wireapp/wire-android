@@ -556,6 +556,10 @@
     <string name="label_edit">Szerkesztés</string>
     <string name="label_delete">Törlés</string>
     <string name="info_message_copied">Üzenet másolva</string>
+    <string name="conversation_banner_federated">Szövetségesek</string>
+    <string name="conversation_banner_externals">külsősök</string>
+    <string name="conversation_banner_guests">vendégek</string>
+    <string name="conversation_banner_services">szolgáltatások</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Szövetségesek, külsősök, vendégek és szolgáltatások is vannak itt</string>
     <string name="conversation_banner_federated_externals_guests_present">Szövetségesek, külsősök és vendégek is vannak itt</string>
     <string name="conversation_banner_federated_externals_services_present">Szövetségesek, külsősök és szolgáltatások is vannak itt</string>

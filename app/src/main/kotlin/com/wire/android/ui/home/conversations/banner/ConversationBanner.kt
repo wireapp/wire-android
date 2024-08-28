@@ -20,28 +20,89 @@ package com.wire.android.ui.home.conversations.banner
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.topappbar.StatusLabel
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.QueryMatchExtractor
 import com.wire.android.util.ui.UIText
 
 @Composable
-fun ConversationBanner(bannerMessage: UIText?) {
-    bannerMessage?.let {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.primary)
-                .padding(vertical = dimensions().spacing6x, horizontal = dimensions().spacing16x),
-            contentAlignment = Alignment.Center
-        ) {
-            StatusLabel(it.asString())
+fun ConversationBanner(
+    bannerMessage: UIText?,
+    modifier: Modifier = Modifier,
+    spannedTexts: List<String> = listOf()
+) {
+    bannerMessage?.let { uiText ->
+        Column(modifier = modifier.fillMaxWidth()) {
+            HorizontalDivider(color = MaterialTheme.wireColorScheme.divider)
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = MaterialTheme.colorScheme.surface)
+                    .padding(vertical = dimensions().spacing6x, horizontal = dimensions().spacing16x),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = styleBannerText(uiText, spannedTexts),
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            HorizontalDivider(color = MaterialTheme.wireColorScheme.divider)
+        }
+    }
+}
+
+@Composable
+private fun styleBannerText(
+    uiText: UIText,
+    spannedTexts: List<String>
+) = buildAnnotatedString {
+    withStyle(
+        style = SpanStyle(
+            color = MaterialTheme.wireColorScheme.onSurface,
+            fontWeight = MaterialTheme.wireTypography.title03.fontWeight,
+            fontSize = MaterialTheme.wireTypography.title03.fontSize,
+            fontFamily = MaterialTheme.wireTypography.title03.fontFamily,
+            fontStyle = MaterialTheme.wireTypography.title03.fontStyle,
+            letterSpacing = MaterialTheme.wireTypography.title03.letterSpacing
+        )
+    ) {
+        append(uiText.asString())
+    }
+
+    spannedTexts.flatMap { textToSpan ->
+        QueryMatchExtractor.extractQueryMatchIndexes(
+            matchText = textToSpan,
+            text = uiText.asString()
+        )
+    }.forEach { highLightIndex ->
+        if (highLightIndex.endIndex <= this.length) {
+            addStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.wireColorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                ),
+                start = highLightIndex.startIndex,
+                end = highLightIndex.endIndex
+            )
         }
     }
 }
@@ -49,5 +110,8 @@ fun ConversationBanner(bannerMessage: UIText?) {
 @Preview
 @Composable
 fun PreviewConversationBanner() {
-    ConversationBanner(bannerMessage = UIText.DynamicString("Federated users, Externals, guests and services are present"))
+    ConversationBanner(
+        bannerMessage = UIText.DynamicString("Federated users, Externals, guests and services are present"),
+        spannedTexts = listOf("Federated users", "Guests")
+    )
 }

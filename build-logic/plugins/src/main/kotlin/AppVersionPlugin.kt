@@ -35,13 +35,13 @@ class AppVersionPlugin : Plugin<Project> {
                 val currentTime = LocalDateTime.now()
                 val versnisor = Versionizer(projectDir, currentTime)
                 val versionCode = versnisor.versionCode
-                val versionName = "${AndroidApp.versionName}-${AndroidApp.leastSignificantVersionCode}"
+                val versionName = "${AndroidApp.versionName}-${AndroidApp.leastSignificantVersionCode}-fdroid"
                 val buildTime = currentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) ?: error("Failed to get build time")
                 val appName = "com.wire"
                 // git commit hash code
                 val gitRevision = "git rev-parse --short HEAD".execute().text.trim()
                 println("VersionCode: $versionCode")
-                println("VersionName: $versionName-fdroid")
+                println("VersionName: $versionName")
                 println("Revision: $gitRevision")
                 println("Buildtime: $buildTime")
                 println("Application-name: $appName")

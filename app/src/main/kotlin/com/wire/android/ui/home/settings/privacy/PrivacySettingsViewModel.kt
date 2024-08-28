@@ -65,6 +65,7 @@ class PrivacySettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            val shouldShowAnalyticsUsage = shouldShowAnalyticsUsage()
             combine(
                 observeReadReceiptsEnabled(),
                 observeTypingIndicatorEnabled(),
@@ -73,6 +74,7 @@ class PrivacySettingsViewModel @Inject constructor(
             ) { readReceiptsEnabled, typingIndicatorEnabled, screenshotCensoringConfig, anonymousUsageDataEnabled ->
                 PrivacySettingsState(
                     isAnalyticsUsageEnabled = anonymousUsageDataEnabled,
+                    shouldShowAnalyticsUsage = shouldShowAnalyticsUsage,
                     areReadReceiptsEnabled = readReceiptsEnabled,
                     isTypingIndicatorEnabled = typingIndicatorEnabled,
                     screenshotCensoringConfig = when (screenshotCensoringConfig) {
@@ -88,21 +90,19 @@ class PrivacySettingsViewModel @Inject constructor(
                 )
             }.collect { state = it }
         }
+    }
 
-        viewModelScope.launch {
-            // TODO(Analytics): To be changed with UseCase
-            val isAnalyticsConfigurationEnabled = analyticsEnabled is AnalyticsConfiguration.Enabled
-            val isValidBackend = when (val serverConfig = selfServerConfig()) {
-                is SelfServerConfigUseCase.Result.Success ->
-                    serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
-                            || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
-                is SelfServerConfigUseCase.Result.Failure -> false
-            }
-
-            state = state.copy(
-                shouldShowAnalyticsUsage = isAnalyticsConfigurationEnabled && isValidBackend
-            )
+    private suspend fun shouldShowAnalyticsUsage(): Boolean {
+        // TODO(Analytics): To be changed with UseCase
+        val isAnalyticsConfigurationEnabled = analyticsEnabled is AnalyticsConfiguration.Enabled
+        val isValidBackend = when (val serverConfig = selfServerConfig()) {
+            is SelfServerConfigUseCase.Result.Success ->
+                serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
+                        || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
+            is SelfServerConfigUseCase.Result.Failure -> false
         }
+
+        return isAnalyticsConfigurationEnabled && isValidBackend
     }
 
     fun setReadReceiptsState(isEnabled: Boolean) {

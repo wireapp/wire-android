@@ -58,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.BackStackMode
@@ -188,12 +189,14 @@ private fun ImportMediaAuthenticatedContent(
     if (isRestrictedInTeam) {
         ImportMediaRestrictedContent(
             importMediaAuthenticatedState = importMediaViewModel.importMediaState,
+            avatarAsset = null,
             navigateBack = navigator.finish
         )
     } else {
         ImportMediaRegularContent(
             importMediaAuthenticatedState = importMediaViewModel.importMediaState,
             searchQueryTextState = importMediaViewModel.searchQueryTextState,
+            avatarAsset = importMediaViewModel.avatarAsset,
             onConversationClicked = importMediaViewModel::onConversationClicked,
             checkRestrictionsAndSendImportedMedia = {
                 with(importMediaViewModel.importMediaState) {
@@ -243,6 +246,7 @@ private fun ImportMediaAuthenticatedContent(
 @Composable
 fun ImportMediaRestrictedContent(
     importMediaAuthenticatedState: ImportMediaAuthenticatedState,
+    avatarAsset: ImageAsset.UserAvatarAsset?,
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -277,6 +281,7 @@ fun ImportMediaRestrictedContent(
 @Composable
 fun ImportMediaRegularContent(
     importMediaAuthenticatedState: ImportMediaAuthenticatedState,
+    avatarAsset: ImageAsset.UserAvatarAsset?,
     searchQueryTextState: TextFieldState,
     onConversationClicked: (conversationId: ConversationId) -> Unit,
     checkRestrictionsAndSendImportedMedia: () -> Unit,
@@ -629,6 +634,7 @@ fun PreviewImportMediaScreenRestricted() {
     WireTheme {
         ImportMediaRestrictedContent(
             importMediaAuthenticatedState = ImportMediaAuthenticatedState(),
+            avatarAsset = null,
             navigateBack = {}
         )
     }
@@ -687,6 +693,7 @@ fun PreviewImportMediaScreenRegular() {
                     )
                 ),
             ),
+            avatarAsset = null,
             searchQueryTextState = rememberTextFieldState(),
             onConversationClicked = {},
             checkRestrictionsAndSendImportedMedia = {},
@@ -709,6 +716,7 @@ fun PreviewImportMediaTextScreenRegular() {
                         "This is a second line with a veeeeeeeeeeeeeeeeeeeeeeeeeeery long shared text message"
             ),
             searchQueryTextState = rememberTextFieldState(),
+            avatarAsset = null,
             onConversationClicked = {},
             checkRestrictionsAndSendImportedMedia = {},
             onNewSelfDeletionTimerPicked = {},

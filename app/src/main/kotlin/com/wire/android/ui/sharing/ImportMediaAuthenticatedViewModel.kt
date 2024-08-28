@@ -52,6 +52,8 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.parcelableArrayList
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.InteractionAvailability
+import com.wire.kalium.logic.data.conversation.interactionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
@@ -168,68 +170,74 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private fun ConversationDetails.toConversationItem(
         wireSessionImageLoader: WireSessionImageLoader,
         userTypeMapper: UserTypeMapper
-    ): ConversationItem? = when (this) {
-        is ConversationDetails.Group -> {
-            ConversationItem.GroupConversation(
-                groupName = conversation.name.orEmpty(),
-                conversationId = conversation.id,
-                mutedStatus = conversation.mutedStatus,
-                isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
-                lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
-                badgeEventType = parseConversationEventType(
-                    conversation.mutedStatus,
-                    unreadEventCount
-                ),
-                hasOnGoingCall = hasOngoingCall,
-                isSelfUserCreator = isSelfUserCreator,
-                isSelfUserMember = isSelfUserMember,
-                teamId = conversation.teamId,
-                selfMemberRole = selfRole,
-                isArchived = conversation.archived,
-                mlsVerificationStatus = conversation.mlsVerificationStatus,
-                proteusVerificationStatus = conversation.proteusVerificationStatus
-            )
+    ): ConversationItem? {
+        // remove all conversations that self user can not interact with
+        if (this.interactionAvailability() != InteractionAvailability.ENABLED) {
+            return null
         }
-
-        is ConversationDetails.OneOne -> {
-            ConversationItem.PrivateConversation(
-                userAvatarData = UserAvatarData(
-                    otherUser.previewPicture?.let {
-                        ImageAsset.UserAvatarAsset(
-                            wireSessionImageLoader,
-                            it
-                        )
-                    },
-                    otherUser.availabilityStatus,
-                    otherUser.connectionStatus
-                ),
-                conversationInfo = ConversationInfo(
-                    name = otherUser.name.orEmpty(),
-                    membership = userTypeMapper.toMembership(userType),
-                    isSenderUnavailable = otherUser.isUnavailableUser
-                ),
-                conversationId = conversation.id,
-                mutedStatus = conversation.mutedStatus,
-                isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
-                lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
-                badgeEventType = parsePrivateConversationEventType(
-                    otherUser.connectionStatus,
-                    otherUser.deleted,
-                    parseConversationEventType(
+        return when (this) {
+            is ConversationDetails.Group -> {
+                ConversationItem.GroupConversation(
+                    groupName = conversation.name.orEmpty(),
+                    conversationId = conversation.id,
+                    mutedStatus = conversation.mutedStatus,
+                    isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
+                    lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
+                    badgeEventType = parseConversationEventType(
                         conversation.mutedStatus,
                         unreadEventCount
-                    )
-                ),
-                userId = otherUser.id,
-                blockingState = otherUser.BlockState,
-                teamId = otherUser.teamId,
-                isArchived = conversation.archived,
-                mlsVerificationStatus = conversation.mlsVerificationStatus,
-                proteusVerificationStatus = conversation.proteusVerificationStatus
-            )
-        }
+                    ),
+                    hasOnGoingCall = hasOngoingCall,
+                    isSelfUserCreator = isSelfUserCreator,
+                    isSelfUserMember = isSelfUserMember,
+                    teamId = conversation.teamId,
+                    selfMemberRole = selfRole,
+                    isArchived = conversation.archived,
+                    mlsVerificationStatus = conversation.mlsVerificationStatus,
+                    proteusVerificationStatus = conversation.proteusVerificationStatus
+                )
+            }
 
-        else -> null // We don't care about connection requests
+            is ConversationDetails.OneOne -> {
+                ConversationItem.PrivateConversation(
+                    userAvatarData = UserAvatarData(
+                        otherUser.previewPicture?.let {
+                            ImageAsset.UserAvatarAsset(
+                                wireSessionImageLoader,
+                                it
+                            )
+                        },
+                        otherUser.availabilityStatus,
+                        otherUser.connectionStatus
+                    ),
+                    conversationInfo = ConversationInfo(
+                        name = otherUser.name.orEmpty(),
+                        membership = userTypeMapper.toMembership(userType),
+                        isSenderUnavailable = otherUser.isUnavailableUser
+                    ),
+                    conversationId = conversation.id,
+                    mutedStatus = conversation.mutedStatus,
+                    isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
+                    lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
+                    badgeEventType = parsePrivateConversationEventType(
+                        otherUser.connectionStatus,
+                        otherUser.deleted,
+                        parseConversationEventType(
+                            conversation.mutedStatus,
+                            unreadEventCount
+                        )
+                    ),
+                    userId = otherUser.id,
+                    blockingState = otherUser.BlockState,
+                    teamId = otherUser.teamId,
+                    isArchived = conversation.archived,
+                    mlsVerificationStatus = conversation.mlsVerificationStatus,
+                    proteusVerificationStatus = conversation.proteusVerificationStatus
+                )
+            }
+
+            else -> null // We don't care about connection requests
+        }
     }
 
     private fun searchShareableConversation(

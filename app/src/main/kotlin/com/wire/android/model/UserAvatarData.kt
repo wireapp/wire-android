@@ -31,7 +31,12 @@ data class UserAvatarData(
     val membership: Membership = Membership.None,
     val nameBasedAvatar: NameBasedAvatar? = null
 ) {
-    val shouldPreferAvatar = asset != null || nameBasedAvatar == null || nameBasedAvatar.fullName.isNullOrEmpty()
+
+    fun shouldPreferNameBasedAvatar(): Boolean {
+        return asset == null && nameBasedAvatar != null &&
+                nameBasedAvatar.fullName.isNullOrEmpty().not() && membership != Membership.Service
+    }
+
 }
 
 data class NameBasedAvatar(val fullName: String?, val accentColor: Int)

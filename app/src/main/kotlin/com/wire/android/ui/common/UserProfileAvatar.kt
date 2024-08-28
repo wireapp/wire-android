@@ -107,15 +107,7 @@ fun UserProfileAvatar(
             }
             .padding(padding)
     ) {
-        if (avatarData.shouldPreferAvatar) {
-            ImageAvatar(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation, type, size, avatarBorderSize)
-        } else {
-            DefaultInitialsAvatar(
-                avatarData = avatarData.nameBasedAvatar!!, // todo improve this
-                size = size
-            )
-        }
-
+        UserAvatar(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation, type, size, avatarBorderSize)
         if (type is UserProfileAvatarType.WithIndicators.LegalHold) {
             val avatarWithLegalHoldRadius = (size.value / 2f) + avatarBorderSize.value
             val statusRadius = (dimensions().userAvatarStatusSize - dimensions().avatarStatusBorderSize).value / 2f
@@ -146,7 +138,7 @@ fun UserProfileAvatar(
 }
 
 @Composable
-private fun ImageAvatar(
+private fun UserAvatar(
     avatarData: UserAvatarData,
     showPlaceholderIfNoAsset: Boolean,
     withCrossfadeAnimation: Boolean,
@@ -154,6 +146,11 @@ private fun ImageAvatar(
     size: Dp,
     avatarBorderSize: Dp
 ) {
+
+    if (avatarData.shouldPreferNameBasedAvatar()) {
+        DefaultInitialsAvatar(avatarData.nameBasedAvatar!!, size)
+        return
+    }
     val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
     Image(
         painter = painter,
@@ -238,6 +235,7 @@ private fun painter(
         painterResource(id = R.drawable.ic_blocked_user_avatar)
     }
 
+    // todo do here the initials for empty asset
     data.asset == null -> {
         if (showPlaceholderIfNoAsset) getDefaultAvatar(membership = data.membership)
         else ColorPainter(Color.Transparent)
@@ -271,7 +269,7 @@ private fun DefaultInitialsAvatar(
             .size(size)
             .clip(CircleShape)
             .border(
-                width = dimensions().spacing2x,
+                width = dimensions().spacing1x,
                 shape = CircleShape,
                 color = colorsScheme().outline
             )
@@ -373,9 +371,22 @@ fun PreviewTempUserSmallAvatarCustomIndicators() {
 fun PreviewUserProfileAvatarWithInitialsBig() {
     WireTheme {
         UserProfileAvatar(
-            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("JR", 11)),
+            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("JR", -1)),
             padding = 4.dp,
             size = dimensions().avatarDefaultBigSize,
+            type = UserProfileAvatarType.WithoutIndicators,
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewUserProfileAvatarSmallest() {
+    WireTheme {
+        UserProfileAvatar(
+            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("JR", 11)),
+            padding = 4.dp,
+            size = dimensions().spacing16x,
             type = UserProfileAvatarType.WithoutIndicators,
         )
     }

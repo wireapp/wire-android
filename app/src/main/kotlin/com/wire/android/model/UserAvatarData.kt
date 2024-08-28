@@ -39,4 +39,7 @@ data class UserAvatarData(
 
 }
 
+/**
+ * Holder that can be used to generate an avatar based on the user's full name initials and accent color.
+ */
 data class NameBasedAvatar(val fullName: String?, val accentColor: Int)

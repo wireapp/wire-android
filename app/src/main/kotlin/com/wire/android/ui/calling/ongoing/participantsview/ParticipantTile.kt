@@ -457,7 +457,7 @@ private fun PreviewParticipantTile(
             avatar = null,
             membership = Membership.Admin,
             hasEstablishedAudio = hasEstablishedAudio,
-            accentId = 1
+            accentId = -1
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},

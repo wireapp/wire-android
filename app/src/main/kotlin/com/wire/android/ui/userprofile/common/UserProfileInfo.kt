@@ -65,6 +65,7 @@ import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.MLSVerifiedIcon
@@ -116,6 +117,7 @@ fun UserProfileInfo(
     isMLSVerified: Boolean = false,
     expiresAt: Instant? = null,
     onQrCodeClick: (() -> Unit)? = null,
+    accentId: Int = -1
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -129,7 +131,8 @@ fun UserProfileInfo(
             val userAvatarData = UserAvatarData(
                 asset = avatarAsset,
                 connectionState = connection,
-                membership = membership
+                membership = membership,
+                nameBasedAvatar = NameBasedAvatar(fullName, accentId)
             )
             val showPlaceholderIfNoAsset = remember { mutableStateOf(!delayToShowPlaceholderIfNoAsset.isPositive()) }
             val currentAssetIsNull = rememberUpdatedState(avatarAsset == null)

@@ -256,6 +256,7 @@ class ConnectionActionButtonViewModelTest {
             }
             verify { arrangement.onOpenConversation(any()) }
             verify { arrangement.onStartConversationError wasNot Called }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
     @Test
@@ -275,6 +276,7 @@ class ConnectionActionButtonViewModelTest {
             }
             verify { arrangement.onOpenConversation wasNot Called }
             verify { arrangement.onStartConversationError(eq(failure)) }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
     @Test
@@ -295,6 +297,7 @@ class ConnectionActionButtonViewModelTest {
             }
             verify { arrangement.onOpenConversation wasNot Called }
             verify { arrangement.onStartConversationError(eq(errorResult)) }
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
         }
 
     companion object {

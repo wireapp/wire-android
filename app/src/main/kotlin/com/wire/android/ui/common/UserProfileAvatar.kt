@@ -17,6 +17,7 @@
  */
 
 @file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.common
 
 import android.annotation.SuppressLint
@@ -262,7 +263,7 @@ private fun getDefaultAvatarResourceId(membership: Membership): Int =
 @SuppressLint("ComposeModifierMissing")
 @Composable
 private fun DefaultInitialsAvatar(
-    avatarData: NameBasedAvatar,
+    nameBasedAvatar: NameBasedAvatar,
     size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize
 ) {
     Box(
@@ -276,14 +277,14 @@ private fun DefaultInitialsAvatar(
             )
             .background(
                 MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                    Accent.fromAccentId(avatarData.accentColor),
+                    Accent.fromAccentId(nameBasedAvatar.accentColor),
                     MaterialTheme.wireColorScheme.secondaryText
                 )
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = avatarData.fullName!!.take(2).uppercase(),
+            text = nameBasedAvatar.initials,
             color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,

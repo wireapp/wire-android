@@ -20,6 +20,7 @@ package com.wire.android.model
 
 import androidx.compose.runtime.Stable
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
@@ -34,7 +35,7 @@ data class UserAvatarData(
 
     fun shouldPreferNameBasedAvatar(): Boolean {
         return asset == null && nameBasedAvatar != null &&
-                nameBasedAvatar.fullName.isNullOrEmpty().not() && membership != Membership.Service
+                nameBasedAvatar.initials.isEmpty().not() && membership != Membership.Service
     }
 
 }
@@ -42,4 +43,14 @@ data class UserAvatarData(
 /**
  * Holder that can be used to generate an avatar based on the user's full name initials and accent color.
  */
-data class NameBasedAvatar(val fullName: String?, val accentColor: Int)
+data class NameBasedAvatar(val fullName: String?, val accentColor: Int) {
+    val initials: String
+        get() {
+            if (fullName.isNullOrEmpty()) return String.EMPTY
+            val names = fullName.split(" ").map { it.uppercase() }
+            return when {
+                names.size > 1 -> names.map { it.first() }.joinToString("")
+                else -> names.first().take(2)
+            }
+        }
+}

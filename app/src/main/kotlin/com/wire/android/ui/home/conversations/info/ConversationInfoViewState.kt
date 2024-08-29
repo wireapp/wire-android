@@ -37,6 +37,7 @@ data class ConversationInfoViewState(
     val mlsVerificationStatus: Conversation.VerificationStatus? = null,
     val proteusVerificationStatus: Conversation.VerificationStatus? = null,
     val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.UNKNOWN,
+    val accentId: Int = -1
 )
 
 sealed class ConversationDetailsData(open val conversationProtocol: Conversation.ProtocolInfo?) {
@@ -47,8 +48,7 @@ sealed class ConversationDetailsData(open val conversationProtocol: Conversation
         val otherUserName: String?,
         val connectionState: ConnectionState,
         val isBlocked: Boolean,
-        val isDeleted: Boolean,
-        val accentId: Int
+        val isDeleted: Boolean
     ) : ConversationDetailsData(conversationProtocol)
 
     data class Group(

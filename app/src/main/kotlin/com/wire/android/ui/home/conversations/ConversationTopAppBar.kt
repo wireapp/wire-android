@@ -213,7 +213,7 @@ private fun Avatar(
                 connectionState = (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState,
                 nameBasedAvatar = NameBasedAvatar(
                     fullName = conversationInfoViewState.conversationName.asString(),
-                    accentColor = (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.OneOne)?.accentId ?: -1
+                    accentColor = conversationInfoViewState.accentId
                 )
             ),
             size = dimensions().avatarConversationTopBarSize,

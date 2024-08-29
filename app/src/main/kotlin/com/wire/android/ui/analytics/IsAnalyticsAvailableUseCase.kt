@@ -17,28 +17,32 @@
  */
 package com.wire.android.ui.analytics
 
-import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.di.KaliumCoreLogic
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 /**
- * UseCase that determines if Analytics is available for current Build and user.
+ * UseCase that determines if Analytics is available for current Build and specific [UserId].
  * Use it for checking if Analytics UI (e.x. asking user for some feedback that will be sent to Analytics) should be shown to user or not.
  */
 @ViewModelScoped
 class IsAnalyticsAvailableUseCase @Inject constructor(
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val analyticsEnabled: AnalyticsConfiguration,
-    private val dataStore: UserDataStore,
-    private val selfServerConfig: SelfServerConfigUseCase
+    private val userDataStoreProvider: UserDataStoreProvider
 ) {
 
-    suspend operator fun invoke(): Boolean {
+    suspend operator fun invoke(userId: UserId): Boolean {
+        val dataStore = userDataStoreProvider.getOrCreate(userId)
         val isAnalyticsUsageEnabled = dataStore.isAnonymousUsageDataEnabled().first()
         val isAnalyticsConfigurationEnabled = analyticsEnabled is AnalyticsConfiguration.Enabled
-        val isProdBackend = when (val serverConfig = selfServerConfig()) {
+        val isProdBackend = when (val serverConfig = coreLogic.getSessionScope(userId).users.serverLinks()) {
             is SelfServerConfigUseCase.Result.Success ->
                 serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
                         || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api

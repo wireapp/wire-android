@@ -18,11 +18,15 @@
 package com.wire.android.ui.analytics
 
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.framework.TestUser
 import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -45,7 +49,7 @@ class IsAnalyticsAvailableUseCaseTest {
         advanceUntilIdle()
 
         // when
-        val result = useCase()
+        val result = useCase(TestUser.USER_ID)
 
         // then
         assertEquals(params.expected, result)
@@ -53,13 +57,17 @@ class IsAnalyticsAvailableUseCaseTest {
 
     private class Arrangement {
         val dataStore = mockk<UserDataStore>()
+        val dataStoreProvider = mockk<UserDataStoreProvider>()
         val selfServerConfig = mockk<SelfServerConfigUseCase>()
+        val coreLogic = mockk<CoreLogic>()
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
             coEvery { dataStore.setIsAnonymousAnalyticsEnabled(any()) } returns Unit
             coEvery { dataStore.setIsAnalyticsDialogSeen() } returns Unit
+            every { dataStoreProvider.getOrCreate(any()) } returns dataStore
+            coEvery { coreLogic.getSessionScope(any()).users.serverLinks } returns selfServerConfig
         }
 
         fun withServerConfig(serverConfig: ServerConfig) = apply {
@@ -74,8 +82,8 @@ class IsAnalyticsAvailableUseCaseTest {
 
         fun arrange(analyticsConfiguration: AnalyticsConfiguration) = this to IsAnalyticsAvailableUseCase(
             analyticsEnabled = analyticsConfiguration,
-            dataStore = dataStore,
-            selfServerConfig = selfServerConfig
+            coreLogic = coreLogic,
+            userDataStoreProvider = dataStoreProvider
         )
     }
 

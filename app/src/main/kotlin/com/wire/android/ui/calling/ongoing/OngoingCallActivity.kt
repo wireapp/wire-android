@@ -132,6 +132,9 @@ fun getOngoingCallIntent(
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
 }
 
+private const val ASPECT_RATIO_NUMERATOR = 2
+private const val ASPECT_RATIO_DENOMINATOR = 3
+
 fun OngoingCallActivity.enterPiPMode(conversationId: ConversationId, userId: UserId) {
     appLogger.i("OngoingCallActivity: Entering Picture-in-Picture mode..")
     val hangupAction = RemoteAction(
@@ -142,7 +145,7 @@ fun OngoingCallActivity.enterPiPMode(conversationId: ConversationId, userId: Use
     )
 
     val pictureInPictureParams = PictureInPictureParams.Builder()
-        .setAspectRatio(Rational(2, 3))
+        .setAspectRatio(Rational(ASPECT_RATIO_NUMERATOR, ASPECT_RATIO_DENOMINATOR))
         .setActions(listOf(hangupAction))
         .build()
     this.enterPictureInPictureMode(pictureInPictureParams)

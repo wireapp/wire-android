@@ -245,6 +245,7 @@ private fun HandleSendingVideoFeed(
     }
 }
 
+@Suppress("CyclomaticComplexMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OngoingCallContent(
@@ -279,7 +280,9 @@ private fun OngoingCallContent(
 
     WireBottomSheetScaffold(
         sheetDragHandle = null,
-        topBar = if (activity.isInPictureInPictureMode) null else {
+        topBar = if (activity.isInPictureInPictureMode) {
+            null
+        } else {
             {
                 OngoingCallTopBar(
                     conversationName = when (conversationName) {

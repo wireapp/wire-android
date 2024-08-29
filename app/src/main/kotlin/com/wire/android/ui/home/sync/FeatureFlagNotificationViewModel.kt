@@ -227,7 +227,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private suspend fun observeAskCallFeedback(userId: UserId) =
         coreLogic.getSessionScope(userId).calls.observeAskCallFeedbackUseCase().collect { shouldAskFeedback ->
-            if (!isAnalyticsAvailable()) {
+            if (!isAnalyticsAvailable(userId)) {
                 // Analytics is disabled. Do nothing.
             } else if (shouldAskFeedback) {
                 showCallFeedbackFlow.emit(Unit)

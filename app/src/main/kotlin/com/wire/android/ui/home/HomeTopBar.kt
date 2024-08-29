@@ -79,7 +79,8 @@ fun PreviewTopBarWithNameBasedAvatar() {
             elevation = 0.dp,
             withLegalHoldIndicator = false,
             onHamburgerMenuClick = {},
-            onNavigateToSelfUserProfile = {})
+            onNavigateToSelfUserProfile = {}
+        )
     }
 }
 

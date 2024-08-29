@@ -828,7 +828,15 @@ private fun ConversationScreen(
                         },
                         isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
                     )
-                    ConversationBanner(bannerMessage)
+                    ConversationBanner(
+                        bannerMessage = bannerMessage,
+                        spannedTexts = listOf(
+                            stringResource(R.string.conversation_banner_federated),
+                            stringResource(R.string.conversation_banner_externals),
+                            stringResource(R.string.conversation_banner_guests),
+                            stringResource(R.string.conversation_banner_services)
+                        )
+                    )
                 }
             },
             snackbarHost = {

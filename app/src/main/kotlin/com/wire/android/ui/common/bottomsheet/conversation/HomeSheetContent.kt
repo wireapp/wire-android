@@ -84,7 +84,7 @@ internal fun ConversationMainSheetContent(
                         avatarData = UserAvatarData(
                             asset = conversationSheetContent.conversationTypeDetail.avatarAsset,
                             connectionState = connectionState,
-                            nameBasedAvatar = NameBasedAvatar(conversationSheetContent.title, accentColor = 0)
+                            nameBasedAvatar = NameBasedAvatar(conversationSheetContent.title, accentColor = -1)
                         )
                     )
                 }

@@ -144,7 +144,8 @@ class ConversationInfoViewModel @Inject constructor(
                 otherUserName = conversationDetails.otherUser.name,
                 connectionState = conversationDetails.otherUser.connectionStatus,
                 isBlocked = conversationDetails.otherUser.connectionStatus == ConnectionState.BLOCKED,
-                isDeleted = conversationDetails.otherUser.deleted
+                isDeleted = conversationDetails.otherUser.deleted,
+                accentId = conversationDetails.otherUser.accentId
             )
 
             else -> ConversationDetailsData.None(conversationDetails.conversation.protocol)

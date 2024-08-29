@@ -47,7 +47,8 @@ sealed class ConversationDetailsData(open val conversationProtocol: Conversation
         val otherUserName: String?,
         val connectionState: ConnectionState,
         val isBlocked: Boolean,
-        val isDeleted: Boolean
+        val isDeleted: Boolean,
+        val accentId: Int
     ) : ConversationDetailsData(conversationProtocol)
 
     data class Group(

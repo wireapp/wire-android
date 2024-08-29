@@ -526,6 +526,10 @@
     <string name="label_edit">Bearbeiten</string>
     <string name="label_delete">Löschen</string>
     <string name="info_message_copied">Nachricht kopiert</string>
+    <string name="conversation_banner_federated">Föderierte Benutzer</string>
+    <string name="conversation_banner_externals">Externe</string>
+    <string name="conversation_banner_guests">Gäste</string>
+    <string name="conversation_banner_services">Dienste</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Föderierte Benutzer, Externe und Gäste anwesend, Dienste aktiv</string>
     <string name="conversation_banner_federated_externals_guests_present">Föderierte Benutzer, Externe und Gäste anwesend</string>
     <string name="conversation_banner_federated_externals_services_present">Föderierte Benutzer und Externe anwesend, Dienste aktiv</string>

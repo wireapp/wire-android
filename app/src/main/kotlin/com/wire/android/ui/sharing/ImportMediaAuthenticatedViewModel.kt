@@ -97,6 +97,8 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     val searchQueryTextState: TextFieldState = TextFieldState()
     var importMediaState by mutableStateOf(ImportMediaAuthenticatedState())
         private set
+    var avatarAsset by mutableStateOf<ImageAsset.UserAvatarAsset?>(null)
+        private set
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -115,10 +117,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private fun loadUserAvatar() = viewModelScope.launch(dispatchers.io()) {
         getSelf().collect { selfUser ->
             withContext(dispatchers.main()) {
-                importMediaState =
-                    importMediaState.copy(avatarAsset = selfUser.previewPicture?.let {
-                        ImageAsset.UserAvatarAsset(wireSessionImageLoader, it)
-                    })
+                avatarAsset = selfUser.previewPicture?.let {
+                    ImageAsset.UserAvatarAsset(wireSessionImageLoader, it)
+                }
             }
         }
     }
@@ -145,8 +146,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             }
             .flowOn(dispatchers.io())
             .collect { updatedState ->
-                importMediaState =
-                    importMediaState.copy(shareableConversationListState = updatedState)
+                withContext(dispatchers.main()) {
+                    importMediaState =
+                        importMediaState.copy(shareableConversationListState = updatedState)
+                }
             }
     }
 
@@ -380,7 +383,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
 @Stable
 data class ImportMediaAuthenticatedState(
-    val avatarAsset: ImageAsset.UserAvatarAsset? = null,
     val importedAssets: PersistentList<ImportedMediaAsset> = persistentListOf(),
     val importedText: String? = null,
     val isImporting: Boolean = false,

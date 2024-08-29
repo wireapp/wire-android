@@ -73,6 +73,23 @@ const val MINUTES_IN_DAY = 60 * 24
 const val LEGAL_HOLD_INDICATOR_TEST_TAG = "legal_hold_indicator"
 const val TEMP_USER_INDICATOR_TEST_TAG = "temp_user_indicator"
 
+sealed class UserProfileAvatarType {
+
+    /**
+     * This avatar has indicators in the form of borders around the avatar.
+     */
+    sealed class WithIndicators : UserProfileAvatarType() {
+        // this will take the indicators into account when calculating avatar size so the composable itself will be larger by the borders
+        data class LegalHold(val legalHoldIndicatorVisible: Boolean) : WithIndicators()
+        data class TemporaryUser(val expiresAt: Instant) : WithIndicators()
+    }
+
+    /**
+     * This will not take the indicators into account when calculating avatar size so the avatar itself will be exactly as specified size
+     */
+    data object WithoutIndicators : UserProfileAvatarType()
+}
+
 /**
  * @param avatarData data for the avatar
  * @param modifier modifier for the avatar composable
@@ -165,6 +182,37 @@ private fun UserAvatar(
     )
 }
 
+@SuppressLint("ComposeModifierMissing")
+@Composable
+private fun DefaultInitialsAvatar(
+    nameBasedAvatar: NameBasedAvatar,
+    type: UserProfileAvatarType,
+    avatarBorderSize: Dp,
+    size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize
+) {
+    Box(
+        modifier = Modifier
+            .withAvatarSize(size, avatarBorderSize, dimensions().avatarStatusBorderSize, type)
+            .let { withAvatarBorders(type, avatarBorderSize, it) }
+            .clip(CircleShape)
+            .background(
+                MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
+                    Accent.fromAccentId(nameBasedAvatar.accentColor),
+                    colorsScheme().secondaryText
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = nameBasedAvatar.initials,
+            color = MaterialTheme.wireColorScheme.onPrimaryButtonSelected,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            fontSize = size.value.sp / 3,
+        )
+    }
+}
+
 /**
  * Workaround to have profile avatar available for preview
  * @see [painter] https://developer.android.com/jetpack/compose/tooling
@@ -204,37 +252,6 @@ private fun getDefaultAvatarResourceId(membership: Membership): Int =
     } else {
         R.drawable.ic_default_user_avatar
     }
-
-@SuppressLint("ComposeModifierMissing")
-@Composable
-private fun DefaultInitialsAvatar(
-    nameBasedAvatar: NameBasedAvatar,
-    type: UserProfileAvatarType,
-    avatarBorderSize: Dp,
-    size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize
-) {
-    Box(
-        modifier = Modifier
-            .withAvatarSize(size, avatarBorderSize, dimensions().avatarStatusBorderSize, type)
-            .let { withAvatarBorders(type, avatarBorderSize, it) }
-            .clip(CircleShape)
-            .background(
-                MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                    Accent.fromAccentId(nameBasedAvatar.accentColor),
-                    colorsScheme().secondaryText
-                )
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = nameBasedAvatar.initials,
-            color = MaterialTheme.wireColorScheme.onPrimaryButtonSelected,
-            fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center,
-            fontSize = size.value.sp / 3,
-        )
-    }
-}
 
 /**
  * Calculate the avatar borders based on the type of the avatar.
@@ -293,18 +310,6 @@ private fun Modifier.withAvatarSize(
             }
         }
     )
-}
-
-sealed class UserProfileAvatarType {
-
-    sealed class WithIndicators : UserProfileAvatarType() {
-        // this will take the indicators into account when calculating avatar size so the composable itself will be larger by the borders
-        data class LegalHold(val legalHoldIndicatorVisible: Boolean) : WithIndicators()
-        data class TemporaryUser(val expiresAt: Instant) : WithIndicators()
-    }
-
-    // this will not take the indicators into account when calculating avatar size so the avatar itself will be exactly as specified size
-    data object WithoutIndicators : UserProfileAvatarType()
 }
 
 @PreviewMultipleThemes
@@ -384,7 +389,6 @@ fun PreviewTempUserSmallAvatarCustomIndicators() {
         )
     }
 }
-
 
 @PreviewMultipleThemes
 @Composable

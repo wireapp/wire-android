@@ -37,7 +37,6 @@ data class UserAvatarData(
         return asset == null && nameBasedAvatar != null &&
                 nameBasedAvatar.initials.isEmpty().not() && membership != Membership.Service
     }
-
 }
 
 /**

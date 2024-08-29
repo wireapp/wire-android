@@ -70,12 +70,16 @@ fun PreviewTopBar() {
 fun PreviewTopBarWithNameBasedAvatar() {
     WireTheme {
         HomeTopBar(
-            UserAvatarData(null, UserAvailabilityStatus.AVAILABLE, nameBasedAvatar = NameBasedAvatar("Jon Doe", -1)),
-            "Title",
-            0.dp,
-            false,
-            {},
-            {})
+            UserAvatarData(
+                asset = null,
+                availabilityStatus = UserAvailabilityStatus.AVAILABLE,
+                nameBasedAvatar = NameBasedAvatar("Jon Doe", -1)
+            ),
+            title = "Title",
+            elevation = 0.dp,
+            withLegalHoldIndicator = false,
+            onHamburgerMenuClick = {},
+            onNavigateToSelfUserProfile = {})
     }
 }
 

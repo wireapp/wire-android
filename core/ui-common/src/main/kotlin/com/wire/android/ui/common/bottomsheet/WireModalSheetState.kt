@@ -28,16 +28,20 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.Density
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 open class WireModalSheetState<T : Any> internal constructor(
     density: Density,
     private val scope: CoroutineScope,
-    initialValue: WireSheetValue<T> = WireSheetValue.Hidden,
-    private val onDismissAction: () -> Unit = {}
+    private val keyboardController: SoftwareKeyboardController? = null,
+    private val onDismissAction: () -> Unit = {},
+    initialValue: WireSheetValue<T> = WireSheetValue.Hidden
 ) {
     val sheetState: SheetState = SheetState(
         density = density,
@@ -50,8 +54,15 @@ open class WireModalSheetState<T : Any> internal constructor(
     var currentValue: WireSheetValue<T> by mutableStateOf(initialValue)
         private set
 
-    fun show(value: T) {
-        currentValue = WireSheetValue.Expanded(value)
+    fun show(value: T, hideKeyboard: Boolean = false) {
+        scope.launch {
+            // workaround for jumping bottom sheet when keyboard hides
+            if (hideKeyboard && keyboardController != null) {
+                keyboardController.hide()
+                delay(DELAY_TO_SHOW_BOTTOM_SHEET_WHEN_KEYBOARD_IS_OPEN)
+            }
+            currentValue = WireSheetValue.Expanded(value)
+        }
     }
 
     fun hide(onComplete: suspend () -> Unit = {}) = scope.launch {
@@ -59,6 +70,7 @@ open class WireModalSheetState<T : Any> internal constructor(
         currentValue = WireSheetValue.Hidden
         onComplete()
     }
+
     fun hide() = hide {}
 
     fun onDismissRequest() {
@@ -70,8 +82,15 @@ open class WireModalSheetState<T : Any> internal constructor(
         get() = currentValue !is WireSheetValue.Hidden
 
     companion object {
+        const val DELAY_TO_SHOW_BOTTOM_SHEET_WHEN_KEYBOARD_IS_OPEN = 300L
+
         @Suppress("UNCHECKED_CAST")
-        fun <T : Any> saver(density: Density, scope: CoroutineScope): Saver<WireModalSheetState<T>, *> = Saver(
+        fun <T : Any> saver(
+            density: Density,
+            softwareKeyboardController: SoftwareKeyboardController?,
+            onDismissAction: () -> Unit,
+            scope: CoroutineScope
+        ): Saver<WireModalSheetState<T>, *> = Saver(
             save = {
                 val isExpanded = it.currentValue is WireSheetValue.Expanded<T>
                 val (isValueOfTypeUnit, value) = (it.currentValue as? WireSheetValue.Expanded<T>)?.let {
@@ -93,9 +112,10 @@ open class WireModalSheetState<T : Any> internal constructor(
                             WireSheetValue.Expanded(value)
                         }
                     }
+
                     false -> WireSheetValue.Hidden
                 }
-                WireModalSheetState(density, scope, sheetValue)
+                WireModalSheetState(density, scope, softwareKeyboardController, onDismissAction, sheetValue)
             }
         )
     }
@@ -119,12 +139,26 @@ fun <T : Any> rememberWireModalSheetState(
     initialValue: WireSheetValue<T> = WireSheetValue.Hidden,
     onDismissAction: () -> Unit = {}
 ): WireModalSheetState<T> {
+    val softwareKeyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
-    return rememberSaveable(saver = WireModalSheetState.saver(density, scope)) {
-        WireModalSheetState(density, scope, initialValue, onDismissAction)
+    return rememberSaveable(
+        saver = WireModalSheetState.saver(
+            density = density,
+            softwareKeyboardController = softwareKeyboardController,
+            onDismissAction = onDismissAction,
+            scope = scope
+        )
+    ) {
+        WireModalSheetState(
+            density = density,
+            scope = scope,
+            keyboardController = softwareKeyboardController,
+            onDismissAction = onDismissAction,
+            initialValue = initialValue
+        )
     }
 }
 
 // to simplify execution of the sheet with Unit value
-fun WireModalSheetState<Unit>.show() = this.show(Unit)
+fun WireModalSheetState<Unit>.show(hideKeyboard: Boolean = false) = this.show(Unit, hideKeyboard = hideKeyboard)

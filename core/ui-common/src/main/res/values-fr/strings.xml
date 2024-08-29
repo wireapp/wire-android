@@ -16,4 +16,9 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="content_description_back_button">Bouton de retour en arrière</string>
+    <string name="content_description_close_button">Bouton de fermeture</string>
+    <string name="content_description_menu_button">Navigation principale</string>
+    <string name="content_description_drop_down_icon">Flèche déroulante</string>
+</resources>

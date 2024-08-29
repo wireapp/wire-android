@@ -537,6 +537,10 @@
     <string name="label_edit">සංස්කරණය</string>
     <string name="label_delete">මකන්න</string>
     <string name="info_message_copied">පණිවිඩය පිටපත් විය</string>
+    <string name="conversation_banner_federated">ඒකාබද්ධ පරිශ්‍රීලකයින්</string>
+    <string name="conversation_banner_externals">පිටස්තරයින්</string>
+    <string name="conversation_banner_guests">අමුත්තන්</string>
+    <string name="conversation_banner_services">සේවා</string>
     <string name="conversation_banner_federated_externals_guests_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින්, අමුත්තන් සහ සේවා ඇත</string>
     <string name="conversation_banner_federated_externals_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ අමුත්තන් සිටියි</string>
     <string name="conversation_banner_federated_externals_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ සේවා ඇත</string>

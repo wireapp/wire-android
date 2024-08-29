@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.sketch
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -49,8 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -61,6 +58,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireColorPalette
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -191,25 +189,13 @@ private const val GRID_CELLS = 6
 
 private fun Color.isWhite() = this == Color.White
 
-@Preview(showSystemUi = true, device = Devices.NEXUS_5)
+@PreviewMultipleThemes
 @Composable
-fun PreviewDrawingToolPickerSelectedNonWhite() {
+fun PreviewDrawingToolPickerSelected() {
     WireTheme {
         DrawingToolPicker(
             sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(Unit)),
             currentColor = WireColorPalette.LightBlue500,
-            onColorSelected = {}
-        )
-    }
-}
-
-@Preview(uiMode = UI_MODE_NIGHT_YES)
-@Composable
-fun PreviewDrawingToolPickerSelectedWhite() {
-    WireTheme {
-        DrawingToolPicker(
-            sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(Unit)),
-            currentColor = Color.White,
             onColorSelected = {}
         )
     }

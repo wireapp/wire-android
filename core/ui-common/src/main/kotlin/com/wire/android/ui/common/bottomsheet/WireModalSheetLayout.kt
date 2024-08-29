@@ -21,10 +21,13 @@ package com.wire.android.ui.common.bottomsheet
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +45,9 @@ fun <T : Any> WireModalSheetLayout(
     contentColor: Color = WireBottomSheetDefaults.WireSheetContentColor,
     tonalElevation: Dp = WireBottomSheetDefaults.WireSheetTonalElevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
+    onBackPress: (() -> Unit) = { sheetState.hide() },
+    onDismissRequest: (() -> Unit) = sheetState::onDismissRequest,
+    shouldDismissOnBackPress: Boolean = true,
     dragHandle: @Composable (() -> Unit)? = { WireBottomSheetDefaults.WireDragHandle() },
     sheetContent: @Composable ColumnScope.(T) -> Unit
 ) {
@@ -49,18 +55,22 @@ fun <T : Any> WireModalSheetLayout(
         ModalBottomSheet(
             sheetState = sheetState.sheetState,
             shape = sheetShape,
-            content = { sheetContent(expandedValue.value) },
+            content = {
+                BackHandler(!shouldDismissOnBackPress) {
+                    onBackPress()
+                }
+                sheetContent(expandedValue.value)
+            },
             containerColor = containerColor,
             contentColor = contentColor,
             scrimColor = scrimColor,
             tonalElevation = tonalElevation,
-            onDismissRequest = sheetState::onDismissRequest,
+            onDismissRequest = onDismissRequest,
             dragHandle = dragHandle,
-            modifier = modifier.absoluteOffset(y = 1.dp)
+            modifier = modifier.absoluteOffset(y = 1.dp),
+            contentWindowInsets = { WindowInsets.navigationBars },
+            properties = ModalBottomSheetProperties(shouldDismissOnBackPress = shouldDismissOnBackPress)
         )
-    }
-    BackHandler(enabled = sheetState.isVisible) {
-        sheetState.hide()
     }
 }
 

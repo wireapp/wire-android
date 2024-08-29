@@ -15,15 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
+@file:Suppress("MaxLineLength")
+
 package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
-import com.wire.android.util.EMPTY
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -35,390 +44,216 @@ import org.junit.jupiter.api.extension.ExtendWith
 class MessageCompositionInputStateHolderTest {
 
     @Test
-    fun `when offset increases and is bigger than previous and options height, options height is updated`() = runTest {
-        val (state, _) = Arrangement().arrange()
-        // When
-        state.handleImeOffsetChange(
-            50.dp,
-            NAVIGATION_BAR_HEIGHT,
-            SOURCE,
-            TARGET
-        )
-
-        // Then
-        state.optionsHeight shouldBeEqualTo 50.dp
-        state.subOptionsVisible shouldBeEqualTo false
-    }
-
-    @Test
-    fun `when offset decreases and showSubOptions is false, options height is updated`() = runTest {
-        // Given
-        val (state, _) = Arrangement().arrange()
-        state.updateValuesForTesting(previousOffset = 50.dp)
-
-        // When
-        state.handleImeOffsetChange(
-            20.dp,
-            NAVIGATION_BAR_HEIGHT,
-            SOURCE,
-            TARGET
-        )
-
-        // Then
-        state.optionsHeight shouldBeEqualTo 20.dp
-    }
-
-    @Test
-    fun `when offset decreases to zero, showOptions and isTextExpanded are set to false`() = runTest {
-        // Given
-        val (state, _) = Arrangement().arrange()
-        state.updateValuesForTesting(previousOffset = 50.dp)
-
-        // When
-        state.handleImeOffsetChange(
-            0.dp,
-            NAVIGATION_BAR_HEIGHT,
-            SOURCE,
-            TARGET
-        )
-
-        // Then
-        state.optionsVisible shouldBeEqualTo false
-        state.isTextExpanded shouldBeEqualTo false
-    }
-
-    @Test
-    fun `when offset equals keyboard height, showSubOptions is set to false`() = runTest {
-        // Given
-        val (state, _) = Arrangement().arrange()
-        state.updateValuesForTesting(keyboardHeight = 30.dp)
-
-        // When
-        state.handleImeOffsetChange(
-            30.dp,
-            NAVIGATION_BAR_HEIGHT,
-            SOURCE,
-            TARGET
-        )
-
-        // Then
-        state.subOptionsVisible shouldBeEqualTo false
-    }
-
-    @Test
-    fun `when offset is greater than keyboard height, keyboardHeight is updated`() = runTest {
-        // Given
-        val (state, _) = Arrangement().arrange()
-        state.updateValuesForTesting(keyboardHeight = 20.dp)
-
-        // When
-        state.handleImeOffsetChange(
-            30.dp,
-            NAVIGATION_BAR_HEIGHT,
-            SOURCE,
-            TARGET
-        )
-
-        // Then
-        state.keyboardHeight shouldBeEqualTo 30.dp
-    }
-
-    @Test
-    fun `when offset increases and is greater than keyboardHeight but is less than previousOffset, keyboardHeight is updated`() = runTest {
-        // Given
-        val (state, _) = Arrangement().arrange()
-        state.updateValuesForTesting(previousOffset = 50.dp, keyboardHeight = 20.dp)
-
-        // When
-        state.handleImeOffsetChange(
-            30.dp,
-            NAVIGATION_BAR_HEIGHT,
-            SOURCE,
-            TARGET
-        )
-
-        // Then
-        state.keyboardHeight shouldBeEqualTo 30.dp
-        state.optionsHeight shouldBeEqualTo 30.dp
-    }
-
-    @Test
-    fun `when offset decreases, showSubOptions is true, and actualOffset is greater than optionsHeight, values remain unchanged`() =
+    fun `given source and target differ and target is zero when IME offset changes then options height resets and input focus is lost`() =
         runTest {
             // Given
             val (state, _) = Arrangement().arrange()
-            state.updateValuesForTesting(
-                previousOffset = 50.dp,
-                keyboardHeight = 20.dp,
-                showSubOptions = true,
-                optionsHeight = 10.dp
-            )
+            val initialHeight = 30.dp
+            state.updateValuesForTesting(keyboardHeight = initialHeight)
+            val sourceHeight = 50.dp
+            val targetHeight = 0.dp
 
             // When
-            state.handleImeOffsetChange(
-                30.dp,
-                NAVIGATION_BAR_HEIGHT,
-                SOURCE,
-                TARGET
-            )
+            state.handleImeOffsetChange(40.dp, 0.dp, sourceHeight, targetHeight)
+            advanceUntilIdle()
 
             // Then
-            state.optionsHeight shouldBeEqualTo 10.dp
-        }
-
-    @Test
-    fun `when offset decreases, showSubOptions is false, and actualOffset is greater than optionsHeight, optionsHeight is updated`() =
-        runTest {
-            // Given
-            val (state, _) = Arrangement().arrange()
-            state.updateValuesForTesting(
-                previousOffset = 50.dp,
-                keyboardHeight = 20.dp,
-                showSubOptions = false,
-                optionsHeight = 10.dp
-            )
-
-            // When
-            state.handleImeOffsetChange(
-                30.dp,
-                NAVIGATION_BAR_HEIGHT,
-                SOURCE,
-                TARGET
-            )
-
-            // Then
-            state.optionsHeight shouldBeEqualTo 30.dp
-        }
-
-    @Test
-    fun `when offset is the same as previousOffset and greater than current keyboardHeight, keyboardHeight is updated`() = runTest {
-        // Given
-        val (state, _) = Arrangement().arrange()
-        state.updateValuesForTesting(previousOffset = 40.dp, keyboardHeight = 20.dp)
-
-        // When
-        state.handleImeOffsetChange(
-            40.dp,
-            NAVIGATION_BAR_HEIGHT,
-            SOURCE,
-            TARGET
-        )
-
-        // Then
-        state.keyboardHeight shouldBeEqualTo 40.dp
-        state.optionsHeight shouldBeEqualTo 0.dp
-    }
-
-    @Test
-    fun `given first keyboard appear when source equals target, then initialKeyboardHeight is set`() = runTest {
-        // Given
-        val (state, _) = Arrangement().arrange()
-        val imeValue = 50.dp
-        state.updateValuesForTesting(initialKeyboardHeight = 0.dp)
-
-        // When
-        state.handleImeOffsetChange(20.dp, NAVIGATION_BAR_HEIGHT, source = imeValue, target = imeValue)
-
-        // Then
-        state.initialKeyboardHeight shouldBeEqualTo imeValue
-    }
-
-    @Test
-    fun `given extended keyboard height when attachment button is clicked, then keyboardHeight is set to initialKeyboardHeight`() =
-        runTest {
-            // Given
-            val (state, _) = Arrangement().arrange()
-            val initialKeyboardHeight = 10.dp
-            state.updateValuesForTesting(previousOffset = 40.dp, keyboardHeight = 20.dp, initialKeyboardHeight = initialKeyboardHeight)
-
-            // When
-            state.showOptions()
-            state.handleImeOffsetChange(0.dp, NAVIGATION_BAR_HEIGHT, source = TARGET, target = SOURCE)
-
-            // Then
-            state.keyboardHeight shouldBeEqualTo 20.dp
-            state.optionsHeight shouldBeEqualTo initialKeyboardHeight
-        }
-
-    @Test
-    fun `when offset decreases but is not zero, only optionsHeight is updated`() = runTest {
-        // Given
-        val (state, _) = Arrangement().arrange()
-        state.updateValuesForTesting(previousOffset = 50.dp)
-
-        // When
-        state.handleImeOffsetChange(
-            10.dp,
-            NAVIGATION_BAR_HEIGHT,
-            SOURCE,
-            TARGET
-        )
-
-        // Then
-        state.optionsHeight shouldBeEqualTo 10.dp
-        state.optionsVisible shouldBeEqualTo false
-        state.isTextExpanded shouldBeEqualTo false
-    }
-
-    @Test
-    fun `when keyboard is still in a process of hiding from the previous screen after navigating, options should not be visible`() =
-        runTest {
-            // Given
-            val (state, _) = Arrangement().arrange()
-            state.updateValuesForTesting(previousOffset = 0.dp)
-
-            // When
-            state.handleImeOffsetChange(
-                offset = 40.dp,
-                navBarHeight = NAVIGATION_BAR_HEIGHT,
-                source = 50.dp,
-                target = 0.dp
-            )
-
-            // Then
-            state.optionsHeight shouldBeEqualTo 0.dp
-            state.optionsVisible shouldBeEqualTo false
+            state.optionsHeight shouldBeEqualTo initialHeight
+            state.inputFocused shouldBeEqualTo false
             state.isTextExpanded shouldBeEqualTo false
         }
 
     @Test
-    fun `given empty text, when composing, then send button should be disabled`() = runTest {
+    fun `given initial keyboard height is non-zero when IME offset increases then keyboard height does not update but options height updates`() =
+        runTest {
+            // Given
+            val (state, _) = Arrangement().arrange()
+            val initialHeight = 30.dp
+            val newHeight = 50.dp
+            state.updateValuesForTesting(keyboardHeight = initialHeight)
+
+            // When
+            state.handleImeOffsetChange(newHeight, 0.dp, newHeight, newHeight)
+
+            // Then
+            state.keyboardHeight shouldBeEqualTo initialHeight
+            state.optionsHeight shouldBeEqualTo newHeight
+        }
+
+    @Test
+    fun `given initial keyboard height when keyboard height changes then both keyboardHeight and optionsHeight update correctly`() =
+        runTest {
+            // Given
+            val (state, _) = Arrangement().arrange()
+            val newOffset = 100.dp
+
+            // When
+            state.handleImeOffsetChange(newOffset, 0.dp, newOffset, newOffset)
+
+            // Then
+            state.keyboardHeight shouldBeEqualTo newOffset
+            state.optionsHeight shouldBeEqualTo newOffset
+        }
+
+    @Test
+    fun `given text is not blank when transitioning to composing state then send button is enabled`() = runTest {
         // Given
-        val messageText = String.EMPTY
-        val (state, _) = Arrangement()
-            .withText(messageText)
-            .arrange()
+        val (state, _) = Arrangement().withText("Hello World").arrange()
 
         // When
         state.toComposing()
 
         // Then
-        state.inputType.shouldBeInstanceOf<InputType.Composing>().let {
-            it.isSendButtonEnabled shouldBeEqualTo false
+        state.inputType.shouldBeInstanceOf<InputType.Composing>().isSendButtonEnabled shouldBeEqualTo true
+    }
+
+    @Test
+    fun `given text has changed and is not blank when transitioning to editing state then edit button is enabled`() = runTest {
+        // Given
+        val initialText = "Hello"
+        val newText = "Hello World"
+        val (state, _) = Arrangement().withText(initialText).arrange()
+        state.toEdit(newText)
+
+        // When
+        val result = state.inputType as InputType.Editing
+
+        // Then
+        result.isEditButtonEnabled shouldBeEqualTo true
+    }
+
+    @Test
+    fun `given text size toggle is activated when toggling text size then isTextExpanded state changes correctly`() = runTest {
+        // Given
+        val (state, _) = Arrangement().arrange()
+
+        // When & Then
+        state.toggleInputSize()
+        state.isTextExpanded shouldBeEqualTo true
+        state.toggleInputSize()
+        state.isTextExpanded shouldBeEqualTo false
+    }
+
+    @Test
+    fun `given text is expanded when collapsing text then isTextExpanded resets to false`() = runTest {
+        // Given
+        val (state, _) = Arrangement().arrange()
+        state.toggleInputSize()
+
+        // When
+        state.collapseText()
+
+        // Then
+        state.isTextExpanded shouldBeEqualTo false
+    }
+
+    @Test
+    fun `given keyboard is focused when setting focus then inputFocused is true and keyboard shows`() = runTest {
+        // Given
+        val (state, arrangement) = Arrangement().arrange()
+
+        // When
+        state.setFocused()
+
+        // Then
+        state.inputFocused shouldBeEqualTo true
+        verify(exactly = 1) {
+            arrangement.softwareKeyboardController.show()
         }
     }
 
     @Test
-    fun `given non-empty text but with only empty markdown, when composing, then send button should be disabled`() = runTest {
+    fun `given options are visible when focus is requested then options remain visible and inputFocused is true`() = runTest {
         // Given
-        val messageText = "# " // just an example, more combinations are tested in StringUtilTest
-        val (state, _) = Arrangement()
-            .withText(messageText)
-            .arrange()
+        val (state, _) = Arrangement().arrange()
+        state.showAttachments(true)
+
+        // When
+        state.requestFocus()
+
+        // Then
+        state.inputFocused shouldBeEqualTo true
+        state.optionsVisible shouldBeEqualTo true
+    }
+
+    @Test
+    fun `given text is initially blank when transitioning to composing state then send button is disabled`() = runTest {
+        // Given
+        val (state, _) = Arrangement().withText("").arrange()
 
         // When
         state.toComposing()
 
         // Then
-        state.inputType.shouldBeInstanceOf<InputType.Composing>().let {
-            it.isSendButtonEnabled shouldBeEqualTo false
-        }
+        state.inputType.shouldBeInstanceOf<InputType.Composing>().isSendButtonEnabled shouldBeEqualTo false
     }
 
     @Test
-    fun `given non-empty text, when composing, then send button should be enabled`() = runTest {
+    fun `given unchanged text when editing then edit button is disabled`() = runTest {
         // Given
-        val messageText = "text"
-        val (state, _) = Arrangement()
-            .withText(messageText)
-            .arrange()
+        val messageText = "Hello"
+        val (state, _) = Arrangement().withText(messageText).arrange()
 
         // When
-        state.toComposing()
+        state.toEdit(messageText)
 
         // Then
-        state.inputType.shouldBeInstanceOf<InputType.Composing>().let {
-            it.isSendButtonEnabled shouldBeEqualTo true
-        }
+        state.inputType.shouldBeInstanceOf<InputType.Editing>().isEditButtonEnabled shouldBeEqualTo false
     }
 
     @Test
-    fun `given empty text, when editing, then send button should be disabled`() = runTest {
-        // Given
-        val editMessageText = "edit"
-        val messageText = String.EMPTY
-        val (state, _) = Arrangement()
-            .withText(messageText)
-            .arrange()
+    fun `given additional space is added to the keyboard when handling IME offset change then options height adjusts but keyboard height remains`() =
+        runTest {
+            // Given
+            val (state, _) = Arrangement().arrange()
+            state.updateValuesForTesting(keyboardHeight = 20.dp)
 
-        // When
-        state.toEdit(editMessageText)
+            // When
+            state.handleImeOffsetChange(50.dp, 0.dp, 50.dp, 50.dp)
 
-        // Then
-        state.inputType.shouldBeInstanceOf<InputType.Editing>().let {
-            it.isEditButtonEnabled shouldBeEqualTo false
+            // Then
+            state.keyboardHeight shouldBeEqualTo 20.dp
+            state.optionsHeight shouldBeEqualTo 50.dp
         }
-    }
 
     @Test
-    fun `given non-empty text bit with only empty markdown, when editing, then send button should be disabled`() = runTest {
+    fun `given keyboard is visible when keyboard is hidden then reset keyboard and options height`() = runTest {
         // Given
-        val editMessageText = "edit"
-        val messageText = "# " // just an example, more combinations are tested in StringUtilTest
-        val (state, _) = Arrangement()
-            .withText(messageText)
-            .arrange()
+        val (state, _) = Arrangement().arrange()
+        state.updateValuesForTesting(keyboardHeight = 30.dp, optionsHeight = 30.dp)
 
         // When
-        state.toEdit(editMessageText)
+        state.handleImeOffsetChange(0.dp, 0.dp, 30.dp, 0.dp)
 
         // Then
-        state.inputType.shouldBeInstanceOf<InputType.Editing>().let {
-            it.isEditButtonEnabled shouldBeEqualTo false
-        }
-    }
-
-    @Test
-    fun `given the same text as edit message text, when editing, then send button should be disabled`() = runTest {
-        // Given
-        val editMessageText = "edit"
-        val (state, _) = Arrangement()
-            .withText(editMessageText)
-            .arrange()
-
-        // When
-        state.toEdit(editMessageText)
-
-        // Then
-        state.inputType.shouldBeInstanceOf<InputType.Editing>().let {
-            it.isEditButtonEnabled shouldBeEqualTo false
-        }
-    }
-
-    @Test
-    fun `given different text than edit message text, when editing, then send button should be enabled`() = runTest {
-        // Given
-        val editMessageText = "edit"
-        val messageText = "$editMessageText new"
-        val (state, _) = Arrangement()
-            .withText(messageText)
-            .arrange()
-
-        // When
-        state.toEdit(editMessageText)
-
-        // Then
-        state.inputType.shouldBeInstanceOf<InputType.Editing>().let {
-            it.isEditButtonEnabled shouldBeEqualTo true
-        }
+        state.keyboardHeight shouldBeEqualTo 30.dp
+        state.optionsHeight shouldBeEqualTo 30.dp
+        state.inputFocused shouldBeEqualTo false
     }
 
     class Arrangement {
 
         private val textFieldState = TextFieldState()
-        private val state = MessageCompositionInputStateHolder(textFieldState)
+
+        val softwareKeyboardController = mockk<SoftwareKeyboardController>()
+
+        private val focusRequester = mockk<FocusRequester>()
+
+        private val state by lazy {
+            MessageCompositionInputStateHolder(textFieldState, softwareKeyboardController, focusRequester)
+        }
+
+        init {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+            every { focusRequester.requestFocus() } returns Unit
+            every { focusRequester.captureFocus() } returns true
+            every { softwareKeyboardController.show() } returns Unit
+        }
 
         fun withText(text: String) = apply {
             textFieldState.setTextAndPlaceCursorAtEnd(text)
         }
 
         fun arrange() = state to this
-    }
-
-    companion object {
-        // I set it 0 to make tests more straight forward
-        val NAVIGATION_BAR_HEIGHT = 0.dp
-        val SOURCE = 0.dp
-        val TARGET = 50.dp
     }
 }

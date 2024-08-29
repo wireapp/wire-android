@@ -82,7 +82,7 @@ fun PreviewMemberItemToMention() {
         name = "name",
         label = "handle",
         membership = Membership.Federated,
-        searchQuery = "search",
+        searchQuery = "na",
         clickable = Clickable(),
         modifier = Modifier
     )

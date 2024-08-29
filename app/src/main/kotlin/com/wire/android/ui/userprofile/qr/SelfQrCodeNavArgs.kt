@@ -15,25 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.sketch
+package com.wire.android.ui.userprofile.qr
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.feature.sketch.model.DrawingState
-import com.wire.android.ui.theme.WireTheme
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewToolBar() {
-    WireTheme {
-        DrawingToolbar(DrawingState(), {}, {})
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewTopBar() {
-    WireTheme {
-        DrawingTopBar("Conversation Name", {}, {}, DrawingState())
-    }
-}
+@Parcelize
+data class SelfQrCodeNavArgs(
+    val handle: String = ""
+) : Parcelable

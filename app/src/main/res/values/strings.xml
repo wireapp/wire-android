@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
   ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
@@ -218,7 +217,7 @@
     <string name="settings_terms_of_use_label">Legal</string>
     <string name="settings_wire_website_label">Wire Website</string>
     <string name="label_copyright">Copyright</string>
-    <string translatable="false" name="label_copyright_value">© Wire Swiss GmbH</string>
+    <string name="label_copyright_value" translatable="false">© Wire Swiss GmbH</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
     <string name="debug_settings_api_versioning_title" translatable="false">API VERSIONING</string>
     <string name="debug_settings_e2ei_enrollment_title" translatable="false">E2EI Manual Enrollment</string>
@@ -546,6 +545,11 @@
     <string name="user_profile_unblock_user">Unblock User</string>
     <string name="user_profile_group_remove_button">Remove from group</string>
     <string name="user_profile_logging_out_progress">Logging out...</string>
+    <string name="user_profile_qr_code">Open QR Code</string>
+    <string name="user_profile_qr_code_title">Share Profile</string>
+    <string name="user_profile_qr_code_share_link">Share Profile Link</string>
+    <string name="user_profile_qr_code_share_image_link">Share QR Code</string>
+    <string name="user_profile_qr_code_description">Share your profile to connect easily with other people. You must still accept a connection request before you two can start communicating.</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remove from group?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
@@ -596,6 +600,10 @@
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
+    <string name="conversation_banner_federated">federated users</string>
+    <string name="conversation_banner_externals">externals</string>
+    <string name="conversation_banner_guests">guests</string>
+    <string name="conversation_banner_services">services</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Federated users, externals, guests and services are present</string>
     <string name="conversation_banner_federated_externals_guests_present">Federated users, externals and guests are present</string>
     <string name="conversation_banner_federated_externals_services_present">Federated users, externals and services are present</string>
@@ -1461,4 +1469,13 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="ping_confirm_sending_title_dialog">Send a ping</string>
     <string name="ping_confirm_sending_description_dialog">Are you sure you want to ping %1$s people?</string>
     <string name="ping_confirm_sending_action_dialog">Ping</string>
+
+    <!-- Call Feedback Dialog -->
+    <string name="call_feedback_dialog_title">Call Quality Feedback</string>
+    <string name="call_feedback_dialog_message">How do you rate the overall quality of the call?</string>
+    <string name="call_feedback_dialog_skip">Skip</string>
+    <string name="call_feedback_dialog_do_not_ask">Don\'t ask again</string>
+    <string name="call_feedback_dialog_label_bad">Bad</string>
+    <string name="call_feedback_dialog_label_fair">Fair</string>
+    <string name="call_feedback_dialog_label_excellent">Excellent</string>
 </resources>

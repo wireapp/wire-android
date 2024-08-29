@@ -18,27 +18,25 @@
 
 package com.wire.android.ui.home
 
-import com.wire.android.model.ImageAsset
+import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.ui.destinations.CreateAccountUsernameScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
 data class HomeState(
-    val avatarAsset: ImageAsset.UserAvatarAsset? = null,
-    val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
+    val userAvatarData: UserAvatarData = UserAvatarData(null),
     val shouldDisplayWelcomeMessage: Boolean = false,
     val shouldDisplayLegalHoldIndicator: Boolean = false,
 )
 
 sealed class HomeRequirement {
     data class Migration(val userId: UserId) : HomeRequirement()
-    object RegisterDevice : HomeRequirement()
-    object CreateAccountUsername : HomeRequirement()
-    object None : HomeRequirement()
+    data object RegisterDevice : HomeRequirement()
+    data object CreateAccountUsername : HomeRequirement()
+    data object None : HomeRequirement()
 
     fun navigate(navigate: (NavigationCommand) -> Unit) = when (this) {
         is Migration -> navigate(NavigationCommand(MigrationScreenDestination(this.userId), BackStackMode.CLEAR_WHOLE))

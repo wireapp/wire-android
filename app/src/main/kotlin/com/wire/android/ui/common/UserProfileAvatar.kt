@@ -148,9 +148,8 @@ private fun UserAvatar(
     size: Dp,
     avatarBorderSize: Dp
 ) {
-
     if (avatarData.shouldPreferNameBasedAvatar()) {
-        DefaultInitialsAvatar(avatarData.nameBasedAvatar!!, size)
+        DefaultInitialsAvatar(avatarData.nameBasedAvatar!!, type, avatarBorderSize, size)
         return
     }
     val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
@@ -158,65 +157,12 @@ private fun UserAvatar(
         painter = painter,
         contentDescription = stringResource(R.string.content_description_user_avatar),
         modifier = Modifier
-            .size(
-                when (type) {
-                    is UserProfileAvatarType.WithIndicators.LegalHold -> {
-                        // indicator borders need to be taken into account, the avatar itself will be smaller by the borders widths
-                        size + (max(avatarBorderSize, dimensions().avatarStatusBorderSize) * 2)
-                    }
-
-                    is UserProfileAvatarType.WithIndicators.TemporaryUser,
-                    is UserProfileAvatarType.WithoutIndicators -> {
-                        // indicator borders don't need to be taken into account, the avatar itself will take all available space
-                        size
-                    }
-                }
-            )
-            .let {
-                if (type is UserProfileAvatarType.WithIndicators.LegalHold) {
-                    if (type.legalHoldIndicatorVisible) {
-                        it
-                            .border(
-                                width = avatarBorderSize / 2,
-                                shape = CircleShape,
-                                color = colorsScheme().error.copy(alpha = 0.3f)
-                            )
-                            .padding(avatarBorderSize / 2)
-                            .border(
-                                width = avatarBorderSize / 2,
-                                shape = CircleShape,
-                                color = colorsScheme().error.copy(alpha = 1.0f)
-                            )
-                            .padding(avatarBorderSize / 2)
-                    } else {
-                        it
-                            // this is to make the border of the avatar to be the same size as with the legal hold indicator
-                            .padding(avatarBorderSize - dimensions().spacing1x)
-                            .border(
-                                width = dimensions().spacing1x,
-                                shape = CircleShape,
-                                color = colorsScheme().outline
-                            )
-                            .padding(dimensions().spacing1x)
-                    }
-                } else it
-            }
+            .withAvatarSize(size, avatarBorderSize, dimensions().avatarStatusBorderSize, type)
+            .let { withAvatarBorders(type, avatarBorderSize, it) }
             .clip(CircleShape)
             .testTag("User avatar"),
         contentScale = ContentScale.Crop
     )
-}
-
-sealed class UserProfileAvatarType {
-
-    sealed class WithIndicators : UserProfileAvatarType() {
-        // this will take the indicators into account when calculating avatar size so the composable itself will be larger by the borders
-        data class LegalHold(val legalHoldIndicatorVisible: Boolean) : WithIndicators()
-        data class TemporaryUser(val expiresAt: Instant) : WithIndicators()
-    }
-
-    // this will not take the indicators into account when calculating avatar size so the avatar itself will be exactly as specified size
-    data object WithoutIndicators : UserProfileAvatarType()
 }
 
 /**
@@ -237,7 +183,6 @@ private fun painter(
         painterResource(id = R.drawable.ic_blocked_user_avatar)
     }
 
-    // todo do here the initials for empty asset
     data.asset == null -> {
         if (showPlaceholderIfNoAsset) getDefaultAvatar(membership = data.membership)
         else ColorPainter(Color.Transparent)
@@ -264,28 +209,26 @@ private fun getDefaultAvatarResourceId(membership: Membership): Int =
 @Composable
 private fun DefaultInitialsAvatar(
     nameBasedAvatar: NameBasedAvatar,
+    type: UserProfileAvatarType,
+    avatarBorderSize: Dp,
     size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize
 ) {
     Box(
         modifier = Modifier
-            .size(size)
+            .withAvatarSize(size, avatarBorderSize, dimensions().avatarStatusBorderSize, type)
+            .let { withAvatarBorders(type, avatarBorderSize, it) }
             .clip(CircleShape)
-            .border(
-                width = dimensions().spacing1x,
-                shape = CircleShape,
-                color = colorsScheme().outline
-            )
             .background(
                 MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
                     Accent.fromAccentId(nameBasedAvatar.accentColor),
-                    MaterialTheme.wireColorScheme.secondaryText
+                    colorsScheme().secondaryText
                 )
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = nameBasedAvatar.initials,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.wireColorScheme.onPrimaryButtonSelected,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
             fontSize = size.value.sp / 3,
@@ -293,12 +236,87 @@ private fun DefaultInitialsAvatar(
     }
 }
 
+/**
+ * Calculate the avatar borders based on the type of the avatar.
+ * If the legal hold indicator is visible then the avatar will have two borders
+ */
+@Composable
+private fun withAvatarBorders(type: UserProfileAvatarType, avatarBorderSize: Dp, it: Modifier = Modifier) =
+    if (type is UserProfileAvatarType.WithIndicators.LegalHold) {
+        if (type.legalHoldIndicatorVisible) {
+            it
+                .border(
+                    width = avatarBorderSize / 2,
+                    shape = CircleShape,
+                    color = colorsScheme().error.copy(alpha = 0.3f)
+                )
+                .padding(avatarBorderSize / 2)
+                .border(
+                    width = avatarBorderSize / 2,
+                    shape = CircleShape,
+                    color = colorsScheme().error.copy(alpha = 1.0f)
+                )
+                .padding(avatarBorderSize / 2)
+        } else {
+            it
+                // this is to make the border of the avatar to be the same size as with the legal hold indicator
+                .padding(avatarBorderSize - dimensions().spacing1x)
+                .border(
+                    width = dimensions().spacing1x,
+                    shape = CircleShape,
+                    color = colorsScheme().outline
+                )
+                .padding(dimensions().spacing1x)
+        }
+    } else it
+
+/**
+ * Calculate the size of the avatar based on the type (legal hold enabled or not) of the avatar and the size of the avatar itself
+ */
+private fun Modifier.withAvatarSize(
+    size: Dp,
+    avatarBorderSize: Dp,
+    avatarStatusBorderSize: Dp,
+    type: UserProfileAvatarType
+): Modifier {
+    return size(
+        when (type) {
+            is UserProfileAvatarType.WithIndicators.LegalHold -> {
+                // indicator borders need to be taken into account, the avatar itself will be smaller by the borders widths
+                size + (max(avatarBorderSize, avatarStatusBorderSize) * 2)
+            }
+
+            is UserProfileAvatarType.WithIndicators.TemporaryUser,
+            is UserProfileAvatarType.WithoutIndicators -> {
+                // indicator borders don't need to be taken into account, the avatar itself will take all available space
+                size
+            }
+        }
+    )
+}
+
+sealed class UserProfileAvatarType {
+
+    sealed class WithIndicators : UserProfileAvatarType() {
+        // this will take the indicators into account when calculating avatar size so the composable itself will be larger by the borders
+        data class LegalHold(val legalHoldIndicatorVisible: Boolean) : WithIndicators()
+        data class TemporaryUser(val expiresAt: Instant) : WithIndicators()
+    }
+
+    // this will not take the indicators into account when calculating avatar size so the avatar itself will be exactly as specified size
+    data object WithoutIndicators : UserProfileAvatarType()
+}
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewUserProfileAvatar() {
     WireTheme {
         UserProfileAvatar(
-            avatarData = UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE),
+            avatarData = UserAvatarData(
+                availabilityStatus = UserAvailabilityStatus.AVAILABLE,
+                nameBasedAvatar = NameBasedAvatar("Jon Doe", -1)
+            ),
+            type = UserProfileAvatarType.WithIndicators.LegalHold(legalHoldIndicatorVisible = false)
         )
     }
 }

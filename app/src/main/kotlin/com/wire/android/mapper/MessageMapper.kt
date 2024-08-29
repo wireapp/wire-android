@@ -202,6 +202,7 @@ class MessageMapper @Inject constructor(
     private fun getUserAvatarData(sender: User?) = UserAvatarData(
         asset = sender?.previewAsset(wireSessionImageLoader),
         availabilityStatus = sender?.availabilityStatus ?: UserAvailabilityStatus.NONE,
+        membership = sender?.userType?.let { userTypeMapper.toMembership(it) } ?: Membership.None,
         connectionState = getConnectionState(sender),
         nameBasedAvatar = NameBasedAvatar(sender?.name, sender?.accentId ?: -1)
     )

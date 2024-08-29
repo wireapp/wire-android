@@ -23,7 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.Clickable
-import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserProfileAvatarType
@@ -35,8 +35,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @Composable
 fun HomeTopBar(
-    avatarAsset: UserAvatarAsset?,
-    status: UserAvailabilityStatus,
+    userAvatarData: UserAvatarData,
     title: String,
     elevation: Dp,
     withLegalHoldIndicator: Boolean,
@@ -49,7 +48,7 @@ fun HomeTopBar(
         navigationIconType = NavigationIconType.Menu,
         actions = {
             UserProfileAvatar(
-                avatarData = UserAvatarData(avatarAsset, status),
+                avatarData = userAvatarData,
                 clickable = remember { Clickable(enabled = true) { onNavigateToSelfUserProfile() } },
                 type = UserProfileAvatarType.WithIndicators.LegalHold(legalHoldIndicatorVisible = withLegalHoldIndicator),
             )
@@ -62,7 +61,21 @@ fun HomeTopBar(
 @Composable
 fun PreviewTopBar() {
     WireTheme {
-        HomeTopBar(null, UserAvailabilityStatus.AVAILABLE, "Title", 0.dp, false, {}, {})
+        HomeTopBar(UserAvatarData(null, UserAvailabilityStatus.AVAILABLE), "Title", 0.dp, false, {}, {})
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewTopBarWithNameBasedAvatar() {
+    WireTheme {
+        HomeTopBar(
+            UserAvatarData(null, UserAvailabilityStatus.AVAILABLE, nameBasedAvatar = NameBasedAvatar("Jon Doe", -1)),
+            "Title",
+            0.dp,
+            false,
+            {},
+            {})
     }
 }
 
@@ -70,6 +83,6 @@ fun PreviewTopBar() {
 @Composable
 fun PreviewTopBarWithLegalHold() {
     WireTheme {
-        HomeTopBar(null, UserAvailabilityStatus.AVAILABLE, "Title", 0.dp, true, {}, {})
+        HomeTopBar(UserAvatarData(null, UserAvailabilityStatus.AVAILABLE), "Title", 0.dp, true, {}, {})
     }
 }

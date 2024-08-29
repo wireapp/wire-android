@@ -48,7 +48,7 @@ fun RegularMessageItemLeading(
             avatarData = userAvatarData,
             clickable = if (isContentClickable) null else avatarClickable,
             avatarBorderSize = dimensions().spacing2x,
-            type = header.guestExpiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithoutIndicators,
+            type = header.guestExpiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithoutIndicators
         )
     }
 }

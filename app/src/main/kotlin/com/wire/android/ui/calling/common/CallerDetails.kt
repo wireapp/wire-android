@@ -165,7 +165,7 @@ fun PreviewCallerDetails() {
             mlsVerificationStatus = null,
             proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
             onMinimiseScreen = { },
-            accentId = 11
+            accentId = -1
         )
     }
 }

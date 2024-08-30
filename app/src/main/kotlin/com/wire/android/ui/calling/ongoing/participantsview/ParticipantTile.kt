@@ -129,8 +129,10 @@ fun ParticipantTile(
                         height =
                             Dimension.fillToConstraints.atMost(maxAvatarSize + activeSpeakerBorderPadding)
                     },
-                avatar = UserAvatarData(participantTitleState.avatar),
-                nameBasedAvatar = NameBasedAvatar(participantTitleState.name, participantTitleState.accentId),
+                avatar = UserAvatarData(
+                    asset = participantTitleState.avatar,
+                    nameBasedAvatar = NameBasedAvatar(participantTitleState.name, participantTitleState.accentId)
+                ),
                 isOnPiPMode = isOnPiPMode
             )
 

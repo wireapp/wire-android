@@ -71,6 +71,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.waz.avs.CameraPreviewBuilder
 import com.waz.avs.VideoRenderer
 import com.wire.android.R
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.UserProfileAvatar
@@ -129,6 +130,7 @@ fun ParticipantTile(
                             Dimension.fillToConstraints.atMost(maxAvatarSize + activeSpeakerBorderPadding)
                     },
                 avatar = UserAvatarData(participantTitleState.avatar),
+                nameBasedAvatar = NameBasedAvatar(participantTitleState.name, participantTitleState.accentId),
                 isOnPiPMode = isOnPiPMode
             )
 
@@ -475,6 +477,7 @@ private fun PreviewParticipantTile(
             avatar = null,
             membership = Membership.Admin,
             hasEstablishedAudio = hasEstablishedAudio,
+            accentId = -1
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},

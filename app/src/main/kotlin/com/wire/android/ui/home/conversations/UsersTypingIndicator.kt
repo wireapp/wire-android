@@ -145,12 +145,7 @@ private fun UsersTypingAvatarPreviews(
     ) {
         usersTyping.take(maxPreviewsDisplay).forEach { user ->
             UserProfileAvatar(
-                avatarData = user.avatarData.copy(
-                    nameBasedAvatar = user.avatarData.nameBasedAvatar?.copy(
-                        fullName = user.name,
-                        accentColor = -1
-                    )
-                ),
+                avatarData = user.avatarData,
                 size = dimensions().spacing16x,
                 modifier = Modifier
                     .clip(RoundedCornerShape(roundedCornersSize))

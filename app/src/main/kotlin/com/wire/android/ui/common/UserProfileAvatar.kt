@@ -210,7 +210,7 @@ private fun DefaultInitialsAvatar(
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge,
             maxLines = 1,
-            fontSize = (size.value.sp / 3).nonScaledSp
+            fontSize = (size.value.sp / 2.5).nonScaledSp
         )
     }
 }

@@ -70,5 +70,6 @@ fun UserSummary.previewAsset(
 ) = UserAvatarData(
     asset = this.userPreviewAssetId?.let { UserAvatarAsset(wireSessionImageLoader, it) },
     availabilityStatus = this.availabilityStatus,
-    connectionState = this.connectionStatus
+    connectionState = this.connectionStatus,
+    nameBasedAvatar = NameBasedAvatar(fullName = userName, accentColor = accentId)
 )

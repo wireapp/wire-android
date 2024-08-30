@@ -92,6 +92,7 @@ fun ParticipantTile(
     isSelfUserCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     modifier: Modifier = Modifier,
+    isOnPiPMode: Boolean = false,
     shouldFillSelfUserCameraPreview: Boolean = false,
     shouldFillOthersVideoPreview: Boolean = true,
     isZoomingEnabled: Boolean = false,
@@ -118,12 +119,17 @@ fun ParticipantTile(
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                        bottom.linkTo(bottomRow.top)
+                        if (isOnPiPMode) {
+                            bottom.linkTo(parent.bottom)
+                        } else {
+                            bottom.linkTo(bottomRow.top)
+                        }
                         width = Dimension.fillToConstraints.atMost(maxAvatarSize)
                         height =
                             Dimension.fillToConstraints.atMost(maxAvatarSize + activeSpeakerBorderPadding)
                     },
                 avatar = UserAvatarData(participantTitleState.avatar),
+                isOnPiPMode = isOnPiPMode
             )
 
             if (isSelfUser) {
@@ -144,23 +150,25 @@ fun ParticipantTile(
                 )
             }
 
-            BottomRow(
-                participantTitleState = participantTitleState,
-                isSelfUser = isSelfUser,
-                isSelfUserMuted = isSelfUserMuted,
-                modifier = Modifier
-                    .padding(
-                        // move by the size of the active speaker border
-                        start = dimensions().spacing6x,
-                        end = dimensions().spacing6x,
-                        bottom = dimensions().spacing6x,
-                    )
-                    .constrainAs(bottomRow) {
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-            )
+            if (!isOnPiPMode) {
+                BottomRow(
+                    participantTitleState = participantTitleState,
+                    isSelfUser = isSelfUser,
+                    isSelfUserMuted = isSelfUserMuted,
+                    modifier = Modifier
+                        .padding(
+                            // move by the size of the active speaker border
+                            start = dimensions().spacing6x,
+                            end = dimensions().spacing6x,
+                            bottom = dimensions().spacing6x,
+                        )
+                        .constrainAs(bottomRow) {
+                            bottom.linkTo(parent.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
+                )
+            }
         }
     }
 }
@@ -355,12 +363,13 @@ private fun OthersVideoRenderer(
 private fun AvatarTile(
     avatar: UserAvatarData,
     modifier: Modifier = Modifier,
+    isOnPiPMode: Boolean = false
 ) {
     BoxWithConstraints(
         modifier = modifier,
         contentAlignment = Alignment.Center,
     ) {
-        val size = min(maxWidth, maxHeight)
+        val size = if (isOnPiPMode) 20.dp else min(maxWidth, maxHeight)
         UserProfileAvatar(
             padding = dimensions().spacing0x,
             size = size,

@@ -45,8 +45,8 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
@@ -206,9 +206,10 @@ private fun DefaultInitialsAvatar(
         Text(
             text = nameBasedAvatar.initials,
             color = MaterialTheme.wireColorScheme.onPrimaryButtonSelected,
-            fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
-            fontSize = size.value.sp / 3,
+            style = MaterialTheme.typography.titleLarge,
+            maxLines = 1,
+            fontSize = size.value.sp / 3
         )
     }
 }
@@ -403,7 +404,7 @@ fun PreviewUserProfileAvatarWithInitialsBig() {
     }
 }
 
-@PreviewMultipleThemes
+@Preview(fontScale = 1f)
 @Composable
 fun PreviewUserProfileAvatarSmallest() {
     WireTheme {

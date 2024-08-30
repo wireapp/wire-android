@@ -574,6 +574,7 @@ fun buildPreviewParticipantsList(count: Int = 10) = buildList {
                 isSharingScreen = false,
                 avatar = null,
                 membership = Membership.Admin,
+                accentId = -1
             )
         )
     }

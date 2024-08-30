@@ -65,6 +65,7 @@ import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.MLSVerifiedIcon
@@ -77,6 +78,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
@@ -115,6 +117,7 @@ fun UserProfileInfo(
     isMLSVerified: Boolean = false,
     expiresAt: Instant? = null,
     onQrCodeClick: (() -> Unit)? = null,
+    accentId: Int = -1
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -128,7 +131,8 @@ fun UserProfileInfo(
             val userAvatarData = UserAvatarData(
                 asset = avatarAsset,
                 connectionState = connection,
-                membership = membership
+                membership = membership,
+                nameBasedAvatar = NameBasedAvatar(fullName, accentId)
             )
             val showPlaceholderIfNoAsset = remember { mutableStateOf(!delayToShowPlaceholderIfNoAsset.isPositive()) }
             val currentAssetIsNull = rememberUpdatedState(avatarAsset == null)
@@ -364,57 +368,61 @@ sealed class EditableState {
 @PreviewMultipleThemes
 @Composable
 fun PreviewUserProfileInfo() {
-    UserProfileInfo(
-        userId = UserId("value", "domain"),
-        isLoading = false,
-        editableState = EditableState.IsEditable {},
-        userName = "userName",
-        avatarAsset = null,
-        fullName = "Juan Román Riquelme1 Riquelme3 Riquelme4",
-        onUserProfileClick = {},
-        teamName = "Wire",
-        connection = ConnectionState.ACCEPTED,
-        isProteusVerified = true,
-        isMLSVerified = true,
-        onQrCodeClick = {}
-    )
+    WireTheme {
+        UserProfileInfo(
+            userId = UserId("value", "domain"),
+            isLoading = false,
+            editableState = EditableState.IsEditable {},
+            userName = "userName",
+            avatarAsset = null,
+            fullName = "Juan Román Riquelme1 Riquelme3 Riquelme4",
+            onUserProfileClick = {},
+            teamName = "Wire",
+            connection = ConnectionState.ACCEPTED,
+            isProteusVerified = true,
+            isMLSVerified = true,
+            onQrCodeClick = {}
+        )
+    }
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewUserProfileInfoTempUser() {
-    UserProfileInfo(
-        userId = UserId("value", "domain"),
-        isLoading = false,
-        editableState = EditableState.IsEditable {},
-        userName = UsernameMapper.fromOtherUser(
-            OtherUser(
-                id = UserId("value", "domain"),
-                name = "fullName",
-                handle = "",
-                accentId = 1,
-                connectionStatus = ConnectionState.ACCEPTED,
-                userType = UserType.GUEST,
-                availabilityStatus = UserAvailabilityStatus.AVAILABLE,
-                completePicture = null,
-                previewPicture = null,
-                expiresAt = Clock.System.now().plus(2.minutes),
-                botService = null,
-                isProteusVerified = true,
-                teamId = null,
-                deleted = false,
-                defederated = false,
-                supportedProtocols = null
-            )
-        ),
-        avatarAsset = null,
-        fullName = "fullName",
-        onUserProfileClick = {},
-        teamName = null,
-        connection = ConnectionState.ACCEPTED,
-        isProteusVerified = false,
-        isMLSVerified = false,
-        expiresAt = Clock.System.now().plus(1.hours),
-        onQrCodeClick = {}
-    )
+    WireTheme {
+        UserProfileInfo(
+            userId = UserId("value", "domain"),
+            isLoading = false,
+            editableState = EditableState.IsEditable {},
+            userName = UsernameMapper.fromOtherUser(
+                OtherUser(
+                    id = UserId("value", "domain"),
+                    name = "fullName",
+                    handle = "",
+                    accentId = 1,
+                    connectionStatus = ConnectionState.ACCEPTED,
+                    userType = UserType.GUEST,
+                    availabilityStatus = UserAvailabilityStatus.AVAILABLE,
+                    completePicture = null,
+                    previewPicture = null,
+                    expiresAt = Clock.System.now().plus(2.minutes),
+                    botService = null,
+                    isProteusVerified = true,
+                    teamId = null,
+                    deleted = false,
+                    defederated = false,
+                    supportedProtocols = null
+                )
+            ),
+            avatarAsset = null,
+            fullName = "fullName",
+            onUserProfileClick = {},
+            teamName = null,
+            connection = ConnectionState.ACCEPTED,
+            isProteusVerified = false,
+            isMLSVerified = false,
+            expiresAt = Clock.System.now().plus(1.hours),
+            onQrCodeClick = {}
+        )
+    }
 }

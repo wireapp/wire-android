@@ -56,7 +56,8 @@ class ObserveUsersTypingInConversationUseCaseTest {
             UserType.NONE,
             false,
             ConnectionState.ACCEPTED,
-            UserAvailabilityStatus.AVAILABLE
+            UserAvailabilityStatus.AVAILABLE,
+            0
         )
         val (arrangement, useCase) = Arrangement()
             .withMapperFrom(userSummaryArg)

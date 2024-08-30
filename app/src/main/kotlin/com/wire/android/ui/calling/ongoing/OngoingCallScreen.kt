@@ -114,6 +114,8 @@ fun OngoingCallScreen(
     val activity = LocalActivity.current
     val isPiPAvailableOnThisDevice =
         activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+    val shouldUsePiPMode = BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice
+
     LaunchedEffect(ongoingCallViewModel.state.flowState) {
         when (ongoingCallViewModel.state.flowState) {
             OngoingCallState.FlowState.CallClosed -> {
@@ -136,7 +138,7 @@ fun OngoingCallScreen(
         setVideoPreview = sharedCallingViewModel::setVideoPreview,
         clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
         onCollapse = {
-            if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice) {
+            if (shouldUsePiPMode) {
                 (activity as OngoingCallActivity).enterPiPMode(
                     conversationId,
                     ongoingCallViewModel.currentUserId
@@ -158,7 +160,7 @@ fun OngoingCallScreen(
     )
 
     BackHandler {
-        if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice) {
+        if (shouldUsePiPMode) {
             (activity as OngoingCallActivity).enterPiPMode(
                 conversationId,
                 ongoingCallViewModel.currentUserId
@@ -174,7 +176,7 @@ fun OngoingCallScreen(
     val context = LocalContext.current
     DisposableEffect(context) {
         val onUserLeaveBehavior: () -> Unit = {
-            if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice) {
+            if (shouldUsePiPMode) {
                 (activity as OngoingCallActivity).enterPiPMode(
                     conversationId,
                     ongoingCallViewModel.currentUserId

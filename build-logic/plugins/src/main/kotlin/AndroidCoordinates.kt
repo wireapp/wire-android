@@ -26,7 +26,7 @@ object AndroidSdk {
 
 object AndroidApp {
     const val id = "com.wire.android"
-    const val versionName = "4.8.3"
+    const val versionName = "4.8.5"
 
     private lateinit var _rootDir: File
 

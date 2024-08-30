@@ -53,7 +53,8 @@ data class OtherUserProfileState(
     val isMLSVerified: Boolean = false,
     val isUnderLegalHold: Boolean = false,
     val isConversationStarted: Boolean = false,
-    val expiresAt: Instant? = null
+    val expiresAt: Instant? = null,
+    val accentId: Int = -1
 ) {
     fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
         return conversationSheetContent?.let {

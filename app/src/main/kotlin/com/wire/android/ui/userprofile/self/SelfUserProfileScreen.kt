@@ -237,7 +237,8 @@ private fun SelfUserProfileContent(
                             teamName = teamName,
                             onUserProfileClick = onChangeUserProfilePicture,
                             editableState = EditableState.IsEditable(onEditClick),
-                            onQrCodeClick = onQrCodeClick
+                            onQrCodeClick = onQrCodeClick,
+                            accentId = accentId
                         )
                     }
                     if (state.legalHoldStatus != LegalHoldUIState.None) {

@@ -38,6 +38,7 @@ class UICallParticipantMapper @Inject constructor(
         isSharingScreen = participant.isSharingScreen,
         avatar = participant.avatarAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
         membership = userTypeMapper.toMembership(participant.userType),
-        hasEstablishedAudio = participant.hasEstablishedAudio
+        hasEstablishedAudio = participant.hasEstablishedAudio,
+        accentId = participant.accentId
     )
 }

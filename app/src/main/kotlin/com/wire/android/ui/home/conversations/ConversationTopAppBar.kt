@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import com.wire.android.R
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.calling.controlbuttons.StartCallButton
@@ -209,7 +210,11 @@ private fun Avatar(
             avatarData = UserAvatarData(
                 asset = conversationAvatar.avatarAsset,
                 availabilityStatus = conversationAvatar.status,
-                connectionState = (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState
+                connectionState = (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState,
+                nameBasedAvatar = NameBasedAvatar(
+                    fullName = conversationInfoViewState.conversationName.asString(),
+                    accentColor = conversationInfoViewState.accentId
+                )
             ),
             size = dimensions().avatarConversationTopBarSize,
             padding = dimensions().avatarConversationTopBarClickablePadding,

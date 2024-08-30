@@ -1,0 +1,27 @@
+New
+    Fresh design - completely rebuilt
+    Ability to add Reactions to messages
+    Swipe left to reply
+    Button to scroll to end of conversation
+    Drafts: keep your message in text field after leaving conversation
+    Navigate to original message from a reply
+    Preview a picture before sending
+    Time dividers and grouping of messages
+    Easy accessible main navigation and an updated conversation list with a new activity section
+    Improved search for a conversation
+    Easier to create 1:1 and group conversations
+    Group conversations are marked with different colors to distinguish easily between 1:1 and group conversations
+    Calling controls are accessible all the time during a call
+    More comfortable to write longer messages as the text field adjusts accordingly
+    Improved dark and light mode – fully aligned with your system settings
+    Select a profile picture in your conversation to access your contact’s profiles easily
+    Quickly change your availability status or switch between accounts for teams
+    Log out directly from your profile and decide if you want to keep your history
+
+Improved
+    Less storage space and lower battery consumption
+    Reliable app notifications and messaging
+    Indication of guests, federated and external contacts are more recognizable
+    Improved visual contrast ratios (colors) – following accessibility standard WCAG 2.1 (level AA)
+    Share your location
+    Search in conversation for text messages and files

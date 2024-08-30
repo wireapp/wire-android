@@ -197,10 +197,14 @@ private fun DefaultInitialsAvatar(
             .let { withAvatarBorders(type, avatarBorderSize, it) }
             .clip(CircleShape)
             .background(
-                MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
-                    Accent.fromAccentId(nameBasedAvatar.accentColor),
-                    colorsScheme().secondaryText
-                )
+                if (type is UserProfileAvatarType.WithIndicators.TemporaryUser) {
+                    colorsScheme().wireAccentColors.getOrDefault(Accent.Unknown, colorsScheme().secondaryText)
+                } else {
+                    colorsScheme().wireAccentColors.getOrDefault(
+                        Accent.fromAccentId(nameBasedAvatar.accentColor),
+                        colorsScheme().secondaryText
+                    )
+                }
             ),
         contentAlignment = Alignment.Center
     ) {

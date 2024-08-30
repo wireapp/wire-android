@@ -58,6 +58,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.nonScaledSp
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -209,7 +210,7 @@ private fun DefaultInitialsAvatar(
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge,
             maxLines = 1,
-            fontSize = size.value.sp / 3
+            fontSize =( size.value.sp / 3).nonScaledSp
         )
     }
 }
@@ -404,7 +405,7 @@ fun PreviewUserProfileAvatarWithInitialsBig() {
     }
 }
 
-@Preview(fontScale = 1f)
+@Preview(fontScale = 3f)
 @Composable
 fun PreviewUserProfileAvatarSmallest() {
     WireTheme {

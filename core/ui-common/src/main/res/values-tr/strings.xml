@@ -16,9 +16,4 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources>
-    <string name="content_description_back_button">Geri tuşu</string>
-    <string name="content_description_close_button">Kapat düğmesi</string>
-    <string name="content_description_menu_button">Ana navigasyon</string>
-    <string name="content_description_drop_down_icon">Aşağı ok</string>
-</resources>
+<resources></resources>

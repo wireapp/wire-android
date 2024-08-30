@@ -27,6 +27,7 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -91,11 +92,13 @@ fun ParticipantTile(
     isSelfUserCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     modifier: Modifier = Modifier,
-    shouldFill: Boolean = true,
+    shouldFillSelfUserCameraPreview: Boolean = false,
+    shouldFillOthersVideoPreview: Boolean = true,
     isZoomingEnabled: Boolean = false,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
-    val alpha = if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
+    val alpha =
+        if (participantTitleState.hasEstablishedAudio) ContentAlpha.high else ContentAlpha.medium
     Surface(
         modifier = modifier
             .thenIf(participantTitleState.isSpeaking, activeSpeakerBorderModifier),
@@ -117,7 +120,8 @@ fun ParticipantTile(
                         end.linkTo(parent.end)
                         bottom.linkTo(bottomRow.top)
                         width = Dimension.fillToConstraints.atMost(maxAvatarSize)
-                        height = Dimension.fillToConstraints.atMost(maxAvatarSize + activeSpeakerBorderPadding)
+                        height =
+                            Dimension.fillToConstraints.atMost(maxAvatarSize + activeSpeakerBorderPadding)
                     },
                 avatar = UserAvatarData(participantTitleState.avatar),
             )
@@ -125,6 +129,7 @@ fun ParticipantTile(
             if (isSelfUser) {
                 CameraPreview(
                     isCameraOn = isSelfUserCameraOn,
+                    shouldFill = shouldFillSelfUserCameraPreview,
                     onSelfUserVideoPreviewCreated = onSelfUserVideoPreviewCreated,
                     onClearSelfUserVideoPreview = onClearSelfUserVideoPreview
                 )
@@ -134,7 +139,7 @@ fun ParticipantTile(
                     clientId = participantTitleState.clientId,
                     isCameraOn = participantTitleState.isCameraOn,
                     isSharingScreen = participantTitleState.isSharingScreen,
-                    shouldFill = shouldFill,
+                    shouldFill = shouldFillOthersVideoPreview,
                     isZoomingEnabled = isZoomingEnabled
                 )
             }
@@ -144,7 +149,8 @@ fun ParticipantTile(
                 isSelfUser = isSelfUser,
                 isSelfUserMuted = isSelfUserMuted,
                 modifier = Modifier
-                    .padding( // move by the size of the active speaker border
+                    .padding(
+                        // move by the size of the active speaker border
                         start = dimensions().spacing6x,
                         end = dimensions().spacing6x,
                         bottom = dimensions().spacing6x,
@@ -159,7 +165,8 @@ fun ParticipantTile(
     }
 }
 
-private fun Modifier.thenIf(condition: Boolean, other: Modifier): Modifier = if (condition) this.then(other) else this
+private fun Modifier.thenIf(condition: Boolean, other: Modifier): Modifier =
+    if (condition) this.then(other) else this
 
 private val activeSpeakerBorderModifier
     @Composable get() = Modifier
@@ -211,7 +218,10 @@ private fun BottomRow(
             layout(constraints.maxWidth, usernamePlaceable.height) {
                 muteIconPlaceable?.placeRelative(0, 0)
                 if (usernamePlaceable.width < constraints.maxWidth - 2 * muteIconWidth) { // can fit in center
-                    usernamePlaceable.placeRelative((constraints.maxWidth - usernamePlaceable.width) / 2, 0)
+                    usernamePlaceable.placeRelative(
+                        (constraints.maxWidth - usernamePlaceable.width) / 2,
+                        0
+                    )
                 } else { // needs to take all remaining space
                     usernamePlaceable.placeRelative(muteIconWidth, 0)
                 }
@@ -243,6 +253,7 @@ private fun CleanUpRendererIfNeeded(videoRenderer: VideoRenderer) {
 private fun CameraPreview(
     isCameraOn: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
+    shouldFill: Boolean = false,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
     var isCameraStopped by remember { mutableStateOf(isCameraOn) }
@@ -254,7 +265,7 @@ private fun CameraPreview(
         val videoPreview = remember {
             CameraPreviewBuilder(context)
                 .setBackgroundColor(backgroundColor)
-                .shouldFill(false)
+                .shouldFill(shouldFill)
                 .build()
         }
         AndroidView(
@@ -306,6 +317,7 @@ private fun OthersVideoRenderer(
 
         AndroidView(
             modifier = Modifier
+                .fillMaxSize()
                 .onSizeChanged {
                     size = it
                 }
@@ -334,7 +346,8 @@ private fun OthersVideoRenderer(
                 val frameLayout = FrameLayout(it)
                 frameLayout.addView(videoRenderer)
                 frameLayout
-            })
+            }
+        )
     }
 }
 
@@ -364,7 +377,8 @@ private fun UsernameTile(
     hasEstablishedAudio: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val color = if (isSpeaking) colorsScheme().primary else colorsScheme().callingParticipantNameBackground
+    val color =
+        if (isSpeaking) colorsScheme().primary else colorsScheme().callingParticipantNameBackground
     val nameLabelColor =
         when {
             isSpeaking -> colorsScheme().onPrimary
@@ -472,7 +486,11 @@ fun PreviewParticipantConnecting() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewParticipantLongNameConnecting() = WireTheme {
-    PreviewParticipantTile(shape = PreviewTileShape.Regular, hasEstablishedAudio = false, longName = true)
+    PreviewParticipantTile(
+        shape = PreviewTileShape.Regular,
+        hasEstablishedAudio = false,
+        longName = true
+    )
 }
 
 @PreviewMultipleThemes

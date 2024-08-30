@@ -40,6 +40,7 @@ import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.ProximitySensorManager
+import com.wire.android.ui.calling.ongoing.OngoingCallActivity.Companion.TAG
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.data.id.ConversationId
@@ -120,7 +121,7 @@ class OngoingCallActivity : CallActivity() {
     }
 
     companion object {
-        private const val TAG = "OngoingCallActivity"
+        const val TAG = "OngoingCallActivity"
     }
 }
 
@@ -136,7 +137,7 @@ private const val ASPECT_RATIO_NUMERATOR = 2
 private const val ASPECT_RATIO_DENOMINATOR = 3
 
 fun OngoingCallActivity.enterPiPMode(conversationId: ConversationId, userId: UserId) {
-    appLogger.i("OngoingCallActivity: Entering Picture-in-Picture mode..")
+    appLogger.i("$TAG: Entering Picture-in-Picture mode..")
     val hangupAction = RemoteAction(
         Icon.createWithResource(this, R.drawable.ic_call_end),
         getString(R.string.calling_hang_up_call),

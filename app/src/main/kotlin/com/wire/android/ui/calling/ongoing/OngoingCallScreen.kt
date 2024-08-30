@@ -378,6 +378,7 @@ private fun OngoingCallContent(
                             isSelfUserCameraOn = isCameraOn,
                             isSelfUserMuted = isMuted ?: true,
                             contentHeight = this@BoxWithConstraints.maxHeight,
+                            contentWidth = this@BoxWithConstraints.constraints.maxWidth,
                             onSelfVideoPreviewCreated = setVideoPreview,
                             onSelfClearVideoPreview = clearVideoPreview,
                             requestVideoStreams = requestVideoStreams,

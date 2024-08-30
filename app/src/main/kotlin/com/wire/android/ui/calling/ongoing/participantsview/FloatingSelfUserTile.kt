@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.calling.ongoing.participantsview
 
-import android.util.Log
 import android.view.View
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.core.spring
@@ -99,7 +98,6 @@ fun FloatingSelfUserTile(
 
     DisposableEffect(activity) {
         val observer = Consumer<PictureInPictureModeChangedInfo> { info ->
-            Log.d("TAG", "FloatingSelfUserTile: isInPictureInPictureMode: ${info.isInPictureInPictureMode}")
             if(info.isInPictureInPictureMode) {
                 selfVideoTileHeight = SELF_VIDEO_TILE_HEIGHT_IN_PIP
                 selfVideoTileWidth = SELF_VIDEO_TILE_WIDTH_IN_PIP

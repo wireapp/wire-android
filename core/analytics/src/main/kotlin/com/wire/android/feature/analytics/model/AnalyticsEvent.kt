@@ -42,13 +42,37 @@ interface AnalyticsEvent {
      *      }
      * }
      */
-    fun toSegmentation(): Map<String, Any>
+    fun toSegmentation(): Map<String, Any> = mapOf()
 
     data class AppOpen(
         override val key: String = AnalyticsEventConstants.APP_OPEN
-    ) : AnalyticsEvent {
-        override fun toSegmentation(): Map<String, Any> = mapOf()
-    }
+    ) : AnalyticsEvent
+
+    /**
+     * Calling
+     */
+    data class CallInitiated(
+        override val key: String = AnalyticsEventConstants.CALLING_INITIATED
+    ) : AnalyticsEvent
+
+    data class CallJoined(
+        override val key: String = AnalyticsEventConstants.CALLING_JOINED
+    ) : AnalyticsEvent
+
+    /**
+     * Backup
+     */
+    data class BackupExportFailed(
+        override val key: String = AnalyticsEventConstants.BACKUP_EXPORT_FAILED
+    ) : AnalyticsEvent
+
+    data class BackupRestoreSucceeded(
+        override val key: String = AnalyticsEventConstants.BACKUP_RESTORE_SUCCEEDED
+    ) : AnalyticsEvent
+
+    data class BackupRestoreFailed(
+        override val key: String = AnalyticsEventConstants.BACKUP_RESTORE_FAILED
+    ) : AnalyticsEvent
 }
 
 object AnalyticsEventConstants {
@@ -57,4 +81,17 @@ object AnalyticsEventConstants {
     const val APP_VERSION = "app_version"
     const val TEAM_IS_TEAM = "team_is_team"
     const val APP_OPEN = "app.open"
+
+    /**
+     * Calling
+     */
+    const val CALLING_INITIATED = "calling.initiated_call"
+    const val CALLING_JOINED = "calling.joined_call"
+
+    /**
+     * Backup
+     */
+    const val BACKUP_EXPORT_FAILED = "backup.export_failed"
+    const val BACKUP_RESTORE_SUCCEEDED = "backup.restore_succeeded"
+    const val BACKUP_RESTORE_FAILED = "backup.restore_failed"
 }

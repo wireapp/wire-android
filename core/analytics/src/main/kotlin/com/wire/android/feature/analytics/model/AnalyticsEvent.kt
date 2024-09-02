@@ -17,6 +17,9 @@
  */
 package com.wire.android.feature.analytics.model
 
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CONTRIBUTED_LOCATION
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MESSAGE_ACTION_KEY
+
 interface AnalyticsEvent {
     /**
      * Key to be used to differentiate every event
@@ -73,6 +76,26 @@ interface AnalyticsEvent {
     data class BackupRestoreFailed(
         override val key: String = AnalyticsEventConstants.BACKUP_RESTORE_FAILED
     ) : AnalyticsEvent
+
+    /**
+     * Contributed, message action related
+     */
+    sealed interface Contributed : AnalyticsEvent {
+        override val key: String
+            get() = AnalyticsEventConstants.CONTRIBUTED
+
+        val messageAction: String
+
+        data class Location(
+            override val messageAction: String = CONTRIBUTED_LOCATION
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+    }
 }
 
 object AnalyticsEventConstants {
@@ -94,4 +117,11 @@ object AnalyticsEventConstants {
     const val BACKUP_EXPORT_FAILED = "backup.export_failed"
     const val BACKUP_RESTORE_SUCCEEDED = "backup.restore_succeeded"
     const val BACKUP_RESTORE_FAILED = "backup.restore_failed"
+
+    /**
+     * Contributed, message related
+     */
+    const val CONTRIBUTED = "contributed"
+    const val MESSAGE_ACTION_KEY = "message_action"
+    const val CONTRIBUTED_LOCATION = "location"
 }

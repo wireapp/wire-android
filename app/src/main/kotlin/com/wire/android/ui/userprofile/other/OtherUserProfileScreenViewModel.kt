@@ -396,6 +396,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             isProteusVerified = otherUser.isProteusVerified,
             isUnderLegalHold = otherUser.isUnderLegalHold,
             expiresAt = otherUser.expiresAt,
+            accentId = otherUser.accentId,
             conversationSheetContent = conversation?.let {
                 ConversationSheetContent(
                     title = otherUser.name.orEmpty(),

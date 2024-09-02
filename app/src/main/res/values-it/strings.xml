@@ -532,6 +532,10 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_edit">Modifica</string>
     <string name="label_delete">Elimina</string>
     <string name="info_message_copied">Messaggio copiato</string>
+    <string name="conversation_banner_federated">utenti federati</string>
+    <string name="conversation_banner_externals">esterni</string>
+    <string name="conversation_banner_guests">ospiti</string>
+    <string name="conversation_banner_services">servizi</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Sono presenti utenti federati, esterni, ospiti e servizi</string>
     <string name="conversation_banner_federated_externals_guests_present">Sono presenti utenti federati, esterni e ospiti</string>
     <string name="conversation_banner_federated_externals_services_present">Sono presenti utenti federati, esterni e servizi</string>

@@ -567,6 +567,10 @@
     <string name="label_edit">Изменить</string>
     <string name="label_delete">Удалить</string>
     <string name="info_message_copied">Сообщение скопировано</string>
+    <string name="conversation_banner_federated">федеративные пользователи</string>
+    <string name="conversation_banner_externals">внешние пользователи</string>
+    <string name="conversation_banner_guests">гости</string>
+    <string name="conversation_banner_services">сервисы</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Присутствуют федеративные пользователи, внешние пользователи, гости и сервисы</string>
     <string name="conversation_banner_federated_externals_guests_present">Присутствуют федеративные пользователи, внешние пользователи и гости</string>
     <string name="conversation_banner_federated_externals_services_present">Присутствуют федеративные пользователи, внешние пользователи и сервисы</string>

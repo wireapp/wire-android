@@ -59,5 +59,9 @@ gradlePlugin {
             id = libs.plugins.wire.kover.get().pluginId
             implementationClass = "KoverConventionPlugin"
         }
+        register("appVersionPlugin") {
+            id = libs.plugins.wire.versionizer.get().pluginId
+            implementationClass = "AppVersionPlugin"
+        }
     }
 }

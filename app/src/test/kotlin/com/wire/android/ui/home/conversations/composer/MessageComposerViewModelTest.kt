@@ -21,9 +21,9 @@ package com.wire.android.ui.home.conversations.composer
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.draft.MessageDraft
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi

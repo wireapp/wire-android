@@ -169,6 +169,7 @@ class SelfUserProfileViewModel @Inject constructor(
                             otherAccounts = otherAccounts,
                             avatarAsset = userProfileState.avatarAsset,
                             isAvatarLoading = false,
+                            accentId = accentId
                         )
                     }
                 }

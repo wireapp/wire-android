@@ -26,7 +26,7 @@ import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
-data class SelfUserProfileState constructor(
+data class SelfUserProfileState(
     val userId: UserId,
     val avatarAsset: UserAvatarAsset? = null,
     val errorMessageCode: ErrorCodes? = null,
@@ -41,4 +41,5 @@ data class SelfUserProfileState constructor(
     val isReadOnlyAccount: Boolean = true,
     val isLoggingOut: Boolean = false,
     val legalHoldStatus: LegalHoldUIState = LegalHoldUIState.None,
+    val accentId: Int = -1
 )

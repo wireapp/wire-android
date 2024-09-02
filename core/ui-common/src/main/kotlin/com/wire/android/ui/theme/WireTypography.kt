@@ -21,8 +21,12 @@
 package com.wire.android.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import io.github.esentsov.PackagePrivate
 
 @Immutable
@@ -75,3 +79,7 @@ val WireTypographyTypes: ScreenSizeDependent<WireTypography> = ScreenSizeDepende
     tablet7 = DefaultWireTypography,
     tablet10 = DefaultWireTypography
 )
+
+val TextUnit.nonScaledSp
+    @Composable
+    get() = (this.value / LocalDensity.current.fontScale).sp

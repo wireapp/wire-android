@@ -19,6 +19,7 @@
 package com.wire.android.mapper
 
 import com.wire.android.model.ImageAsset
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -47,7 +48,8 @@ class ContactMapper
                 label = UsernameMapper.fromOtherUser(otherUser),
                 avatarData = UserAvatarData(
                     asset = previewPicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
-                    connectionState = connectionStatus
+                    connectionState = connectionStatus,
+                    nameBasedAvatar = NameBasedAvatar(fullName = name, accentColor = otherUser.accentId)
                 ),
                 membership = userTypeMapper.toMembership(userType),
                 connectionState = otherUser.connectionStatus
@@ -63,7 +65,8 @@ class ContactMapper
                 name = name,
                 label = String.EMPTY,
                 avatarData = UserAvatarData(
-                    asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) }
+                    asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
+                    membership = Membership.Service
                 ),
                 membership = Membership.Service,
                 connectionState = ConnectionState.ACCEPTED
@@ -79,7 +82,8 @@ class ContactMapper
                 name = name ?: String.EMPTY,
                 label = mapUserHandle(user),
                 avatarData = UserAvatarData(
-                    asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) }
+                    asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
+                    nameBasedAvatar = NameBasedAvatar(fullName = name, accentColor = -1)
                 ),
                 membership = userTypeMapper.toMembership(type),
                 connectionState = connectionStatus

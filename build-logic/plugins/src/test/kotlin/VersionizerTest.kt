@@ -24,6 +24,7 @@ import org.amshove.kluent.shouldBeLessThan
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.io.File
 import java.time.LocalDateTime
 
 @RunWith(JUnit4::class)
@@ -32,23 +33,26 @@ class VersionizerTest {
     @Test
     fun `given version generator when I generate two versions AT THE SAME TIME I should get the same version number`() {
         val dateTime = LocalDateTime.now()
-
-        Versionizer(dateTime).versionCode shouldBeEqualTo Versionizer(dateTime).versionCode
+        val projectRoot = File("")
+        Versionizer(projectRoot, dateTime).versionCode shouldBeEqualTo Versionizer(projectRoot, dateTime).versionCode
     }
 
 
     @Test
     fun `given version generator when I generate a version I should get the same version number on the current Android project`() {
         val dateTime = LocalDateTime.of(2021, 6, 23, 13, 54, 28)
+        val projectRoot = File("")
 
-        Versionizer(dateTime).versionCode shouldBeEqualTo 548966
+        Versionizer(projectRoot, dateTime).versionCode shouldBeEqualTo 548966
     }
 
     @Test
     fun `given before than 21 of June 2024 Build, then bump every 10 seconds`() {
         val oldDate = LocalDateTime.of(2024, 6, 20, 0, 0)
-        val oldVersionCode = Versionizer(oldDate).versionCode
-        val newVersionCode = Versionizer(oldDate.plusSeconds(10)).versionCode
+        val projectRoot = File("")
+
+        val oldVersionCode = Versionizer(projectRoot, oldDate).versionCode
+        val newVersionCode = Versionizer(projectRoot, oldDate.plusSeconds(10)).versionCode
 
         assertVersionCodeAreProperlyIncremented(oldVersionCode, newVersionCode)
         assertEquals(1, newVersionCode - oldVersionCode)
@@ -57,8 +61,10 @@ class VersionizerTest {
     @Test
     fun `given after 21 of June 2024 Build, then bump every 5 minutes`() {
         val oldDate = LocalDateTime.of(2024, 6, 22, 14, 0)
-        val oldVersionCode = Versionizer(oldDate).versionCode
-        val newVersionCode = Versionizer(oldDate.plusMinutes(5)).versionCode
+        val projectRoot = File("")
+
+        val oldVersionCode = Versionizer(projectRoot, oldDate).versionCode
+        val newVersionCode = Versionizer(projectRoot, oldDate.plusMinutes(5)).versionCode
 
         println("Version number: $newVersionCode")
         assertVersionCodeAreProperlyIncremented(oldVersionCode, newVersionCode)
@@ -67,16 +73,18 @@ class VersionizerTest {
 
     @Test
     fun `given version generator when I generate a new version THE NEXT DAY then I should get an incremented version number`() {
-        val oldVersionCode = Versionizer().versionCode
-        val newVersionCode = Versionizer(LocalDateTime.now().plusDays(1)).versionCode
+        val projectRoot = File("")
+        val oldVersionCode = Versionizer(projectRoot).versionCode
+        val newVersionCode = Versionizer(projectRoot, LocalDateTime.now().plusDays(1)).versionCode
 
         assertVersionCodeAreProperlyIncremented(oldVersionCode, newVersionCode)
     }
 
     @Test
     fun `given version generator when I generate a new version IN ONE YEAR then I should get an incremented version number`() {
-        val oldVersionCode = Versionizer().versionCode
-        val newVersionCode = Versionizer(LocalDateTime.now().plusYears(1)).versionCode
+        val projectRoot = File("")
+        val oldVersionCode = Versionizer(projectRoot).versionCode
+        val newVersionCode = Versionizer(projectRoot, LocalDateTime.now().plusYears(1)).versionCode
 
         assertVersionCodeAreProperlyIncremented(oldVersionCode, newVersionCode)
     }
@@ -84,19 +92,29 @@ class VersionizerTest {
     @Test
     fun `given version generator when I generate a new version IN ONE and TWO YEARS then I should get an incremented version number`() {
         val now = LocalDateTime.now()
-        val oldVersionCode = Versionizer(now.plusYears(1)).versionCode
-        val newVersionCode = Versionizer(now.plusYears(2)).versionCode
+        val projectRoot = File("")
+        val oldVersionCode = Versionizer(projectRoot, now.plusYears(1)).versionCode
+        val newVersionCode = Versionizer(projectRoot, now.plusYears(2)).versionCode
 
         assertVersionCodeAreProperlyIncremented(oldVersionCode, newVersionCode)
     }
 
     @Test
     fun `given version generator when I generate a new version IN TEN YEARS then I should get an incremented version number`() {
-        val oldVersionCode = Versionizer().versionCode
-        val newVersionCode = Versionizer(LocalDateTime.now().plusYears(10)).versionCode
+        val projectRoot = File("")
+        val oldVersionCode = Versionizer(projectRoot).versionCode
+        val newVersionCode = Versionizer(projectRoot, LocalDateTime.now().plusYears(10)).versionCode
 
         // This will break 655 years from now.
         assertVersionCodeAreProperlyIncremented(oldVersionCode, newVersionCode)
+    }
+
+    @Test
+    fun `given root project have version txt file, then use the version code from the file`() {
+        val projectRoot = File("src/test/resources")
+        val versionCode = Versionizer(projectRoot).versionCode
+
+        versionCode shouldBeEqualTo 100018802
     }
 
     private fun assertVersionCodeAreProperlyIncremented(oldVersionCode: Int, newVersionCode: Int) {

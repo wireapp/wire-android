@@ -102,6 +102,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     MAX_REMOTE_SEARCH_RESULT_COUNT("max_remote_search_result_count", ConfigType.INT),
     LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC("limit_team_members_fetch_during_slow_sync", ConfigType.INT),
 
+    PICTURE_IN_PICTURE_ENABLED("picture_in_picture_enabled", ConfigType.BOOLEAN),
+
     /**
      * Anonymous Analytics
      */

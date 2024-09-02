@@ -123,5 +123,15 @@ object AnalyticsEventConstants {
      */
     const val CONTRIBUTED = "contributed"
     const val MESSAGE_ACTION_KEY = "message_action"
+
+    const val CONTRIBUTED_TEXT = "text"
+    const val CONTRIBUTED_PHOTO = "photo"
+    const val CONTRIBUTED_AUDIO_CALL = "audio_call"
+    const val CONTRIBUTED_VIDEO_CALL = "video_call"
+    const val CONTRIBUTED_GIF = "giphy"
+    const val CONTRIBUTED_PING = "ping"
+    const val CONTRIBUTED_FILE = "file"
+    const val CONTRIBUTED_VIDEO = "video"
+    const val CONTRIBUTED_AUDIO = "audio"
     const val CONTRIBUTED_LOCATION = "location"
 }

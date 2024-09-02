@@ -26,6 +26,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.model.NameBasedAvatar
+import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
@@ -95,13 +97,16 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             getSelf().collect { selfUser ->
                 homeState = homeState.copy(
-                    avatarAsset = selfUser.previewPicture?.let {
-                        UserAvatarAsset(
-                            wireSessionImageLoader,
-                            it
-                        )
-                    },
-                    status = selfUser.availabilityStatus
+                    userAvatarData = UserAvatarData(
+                        asset = selfUser.previewPicture?.let {
+                            UserAvatarAsset(
+                                wireSessionImageLoader,
+                                it
+                            )
+                        },
+                        availabilityStatus = selfUser.availabilityStatus,
+                        nameBasedAvatar = NameBasedAvatar(selfUser.name, selfUser.accentId)
+                    )
                 )
             }
         }

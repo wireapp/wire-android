@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
   ~ Copyright (C) 2024 Wire Swiss GmbH
   ~
@@ -218,7 +217,7 @@
     <string name="settings_terms_of_use_label">Legal</string>
     <string name="settings_wire_website_label">Wire Website</string>
     <string name="label_copyright">Copyright</string>
-    <string translatable="false" name="label_copyright_value">© Wire Swiss GmbH</string>
+    <string name="label_copyright_value" translatable="false">© Wire Swiss GmbH</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
     <string name="debug_settings_api_versioning_title" translatable="false">API VERSIONING</string>
     <string name="debug_settings_e2ei_enrollment_title" translatable="false">E2EI Manual Enrollment</string>
@@ -601,6 +600,10 @@
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
+    <string name="conversation_banner_federated">federated users</string>
+    <string name="conversation_banner_externals">externals</string>
+    <string name="conversation_banner_guests">guests</string>
+    <string name="conversation_banner_services">services</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Federated users, externals, guests and services are present</string>
     <string name="conversation_banner_federated_externals_guests_present">Federated users, externals and guests are present</string>
     <string name="conversation_banner_federated_externals_services_present">Federated users, externals and services are present</string>
@@ -1170,7 +1173,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
     <!-- Analytics Usage dialog -->
     <string name="analytics_usage_dialog_title">Consent to share user data</string>
-    <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID. The data is neither linked to your personal information nor shared with third parties besides Zeta Project Germany GmbH. It includes, for example, when you use a feature, your app version, device type, or your operating system. The ID will be deleted at the latest from your device after 365 days after the last activity.Find further details in our\n\nPrivacy Policy (link). You can revoke your consent at any time.</string>
+    <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID. The data is neither linked to your personal information nor shared with third parties besides Zeta Project Germany GmbH. It includes, for example, when you use a feature, your app version, device type, or your operating system. This data will be deleted at the latest after 365 days.\n\nFind further details in our Privacy Policy. You can revoke your consent at any time.</string>
     <string name="analytics_usage_dialog_button_agree">Agree</string>
     <string name="analytics_usage_dialog_button_decline">Decline</string>
     <string name="analytics_usage_dialog_button_privacy_policy">Privacy Policy</string>
@@ -1466,4 +1469,13 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="ping_confirm_sending_title_dialog">Send a ping</string>
     <string name="ping_confirm_sending_description_dialog">Are you sure you want to ping %1$s people?</string>
     <string name="ping_confirm_sending_action_dialog">Ping</string>
+
+    <!-- Call Feedback Dialog -->
+    <string name="call_feedback_dialog_title">Call Quality Feedback</string>
+    <string name="call_feedback_dialog_message">How do you rate the overall quality of the call?</string>
+    <string name="call_feedback_dialog_skip">Skip</string>
+    <string name="call_feedback_dialog_do_not_ask">Don\'t ask again</string>
+    <string name="call_feedback_dialog_label_bad">Bad</string>
+    <string name="call_feedback_dialog_label_fair">Fair</string>
+    <string name="call_feedback_dialog_label_excellent">Excellent</string>
 </resources>

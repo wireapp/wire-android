@@ -47,8 +47,8 @@ compose-qr = "1.0.1"
 
 # Compose
 composeBom = "2024.06.00"
-compose-foundation = "1.7.0-beta06" # remove when composeBom contains new stable version of BasicTextField2
-compose-material-android = "1.7.0-beta06" # remove when composeBom contains new stable version of BasicTextField2
+compose-foundation = "1.7.0-rc01" # remove when composeBom contains new stable version of BasicTextField2
+compose-material-android = "1.7.0-rc01" # remove when composeBom contains new stable version of BasicTextField2
 compose-activity = "1.9.0"
 compose-compiler = "1.5.11"
 compose-constraint = "1.0.1"
@@ -123,7 +123,7 @@ wire-android-application = { id = "com.wire.android.application" }
 wire-android-library = { id = "com.wire.android.library" }
 wire-hilt = { id = "com.wire.android.hilt" }
 wire-kover = { id = "com.wire.android.kover" }
-
+wire-versionizer = { id = "com.wire.android.versionizer" }
 [bundles]
 #android = ["appCompat", "activityCompose", "work", "composeMaterial", "coroutinesAndroid", "ktor", "ktor-okHttp"]
 

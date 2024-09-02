@@ -451,7 +451,8 @@ private fun TopBarCollapsing(
                 connection = targetState.connectionState,
                 isProteusVerified = targetState.isProteusVerified,
                 isMLSVerified = targetState.isMLSVerified,
-                expiresAt = targetState.expiresAt
+                expiresAt = targetState.expiresAt,
+                accentId = targetState.accentId
             )
             if (state.isUnderLegalHold) {
                 LegalHoldSubjectBanner(

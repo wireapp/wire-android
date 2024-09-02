@@ -32,5 +32,6 @@ data class UICallParticipant(
     val isSharingScreen: Boolean,
     val avatar: ImageAsset.UserAvatarAsset? = null,
     val membership: Membership,
-    val hasEstablishedAudio: Boolean
+    val hasEstablishedAudio: Boolean,
+    val accentId: Int
 )

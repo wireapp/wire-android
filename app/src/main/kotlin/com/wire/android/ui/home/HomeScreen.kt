@@ -116,7 +116,7 @@ fun HomeScreen(
         rememberShowNotificationsPermissionFlow(
             onPermissionGranted = { /* do nothing */ },
             onPermissionDenied = showNotificationsPermissionDeniedDialog,
-            onPermissionPermanentlyDenied = showNotificationsPermissionDeniedDialog,
+            onPermissionPermanentlyDenied = { /* do nothing */ },
         )
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -281,8 +281,7 @@ fun HomeContent(
                         Column(modifier = Modifier.animateContentSize()) {
                             AnimatedVisibility(visible = !searchBarState.isSearchActive) {
                                 HomeTopBar(
-                                    avatarAsset = homeState.avatarAsset,
-                                    status = homeState.status,
+                                    userAvatarData = homeState.userAvatarData,
                                     title = stringResource(currentNavigationItem.title),
                                     elevation = elevation,
                                     withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,

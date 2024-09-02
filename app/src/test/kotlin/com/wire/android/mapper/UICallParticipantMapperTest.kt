@@ -40,6 +40,7 @@ class UICallParticipantMapperTest {
             isSpeaking = false,
             isSharingScreen = false,
             hasEstablishedAudio = true,
+            accentId = -1
         )
         // When
         val result = mapper.toUICallParticipant(item)

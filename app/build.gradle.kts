@@ -37,6 +37,7 @@ plugins {
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
     id(libs.plugins.wire.kover.get().pluginId)
+    id(libs.plugins.wire.versionizer.get().pluginId)
 }
 
 repositories {

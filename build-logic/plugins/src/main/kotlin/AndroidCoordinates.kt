@@ -16,6 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 import com.wire.android.gradle.version.Versionizer
+import java.io.File
 
 object AndroidSdk {
     const val min = 26
@@ -26,7 +27,14 @@ object AndroidSdk {
 object AndroidApp {
     const val id = "com.wire.android"
     const val versionName = "4.9.0"
-    val versionCode = Versionizer().versionCode
+    val versionCode by lazy {
+        Versionizer(_rootDir).versionCode
+    }
+
+    private lateinit var _rootDir: File
+    fun setRootDir(rootDir: File) {
+        this._rootDir = rootDir
+    }
 
     /**
      * The last 5 digits of the VersionCode. From 0 to 99_999.
@@ -43,5 +51,7 @@ object AndroidApp {
      * unless they are build almost one year apart.
      */
     @Suppress("MagicNumber")
-    val leastSignificantVersionCode = versionCode % 100_000
+    val leastSignificantVersionCode by lazy {
+        versionCode % 100_000
+    }
 }

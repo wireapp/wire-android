@@ -1,3 +1,5 @@
+import java.io.ByteArrayOutputStream
+
 /*
  * Wire
  * Copyright (C) 2024 Wire Swiss GmbH
@@ -16,22 +18,17 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.calling.model
+fun String.execute(): Process {
+    val process = ProcessBuilder(this.split(" "))
+        .redirectErrorStream(true)
+        .start()
+    process.waitFor()
+    return process
+}
 
-import com.wire.android.model.ImageAsset
-import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.kalium.logic.data.id.QualifiedID
-
-data class UICallParticipant(
-    val id: QualifiedID,
-    val clientId: String,
-    val name: String? = null,
-    val isMuted: Boolean,
-    val isSpeaking: Boolean = false,
-    val isCameraOn: Boolean,
-    val isSharingScreen: Boolean,
-    val avatar: ImageAsset.UserAvatarAsset? = null,
-    val membership: Membership,
-    val hasEstablishedAudio: Boolean,
-    val accentId: Int
-)
+val Process.text: String
+    get() {
+        val output = ByteArrayOutputStream()
+        inputStream.copyTo(output)
+        return output.toString()
+    }

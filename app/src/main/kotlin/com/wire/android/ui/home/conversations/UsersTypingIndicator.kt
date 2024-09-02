@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserProfileAvatarType
@@ -221,7 +222,7 @@ fun PreviewUsersTypingOne() = WireTheme {
                     handle = "alice",
                     isSelf = false,
                     isService = false,
-                    avatarData = UserAvatarData(),
+                    avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("Alice", -1)),
                     membership = Membership.None,
                     connectionState = null,
                     unavailable = false,

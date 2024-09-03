@@ -50,7 +50,6 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -189,8 +188,12 @@ fun CreatePasswordProtectedGuestLinkScreenContent(
                     WirePasswordTextField(
                         textState = passwordTextState,
                         labelMandatoryIcon = true,
-                        labelText = stringResource(R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text),
-                        descriptionText = stringResource(R.string.conversation_options_create_password_protected_guest_link_password_description),
+                        labelText = stringResource(
+                            R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text
+                        ),
+                        descriptionText = stringResource(
+                            R.string.conversation_options_create_password_protected_guest_link_password_description
+                        ),
                         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Next),
                         modifier = Modifier
                             .testTag("password"),

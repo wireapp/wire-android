@@ -175,7 +175,7 @@ class CreatePasswordGuestLinkViewModelTest {
     }
 
     @Test
-    fun `given password is invalid, when password is valid and password matches confirm, then isPasswordValid is marked as true`() =
+    fun `given password is invalid, when password changes, then isPasswordValid state is set to false`() =
         runTest {
             val (_, viewModel) = Arrangement()
                 .withObservePasswordChanges()
@@ -186,8 +186,7 @@ class CreatePasswordGuestLinkViewModelTest {
             assertTrue(viewModel.state.invalidPassword)
 
             viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password1")
-            viewModel.state.passwordTextState.clearText()
-            delay(2)
+
             assertFalse(viewModel.state.invalidPassword)
         }
 

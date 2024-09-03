@@ -190,8 +190,10 @@ sealed class MessageFlowStatus {
             )
         }
 
-        data class Decryption(val isDecryptionResolved: Boolean) : Failure(
-            UIText.StringResource(R.string.label_message_decryption_failure_message)
+        data class Decryption(val isDecryptionResolved: Boolean, private val errorCode: Int?) : Failure(
+            errorCode?.let {
+                UIText.StringResource(R.string.label_message_decryption_failure_message_with_error_code, it)
+            } ?: UIText.StringResource(R.string.label_message_decryption_failure_message)
         )
     }
 

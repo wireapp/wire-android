@@ -178,7 +178,12 @@ class RegularMessageMapper @Inject constructor(
                     )
                 } ?: UIText.StringResource(R.string.sent_a_message_with_unknown_content)
 
-                is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
+                is MessageContent.FailedDecryption -> {
+                    content.errorCode?.let {
+                        UIText.StringResource(R.string.label_message_decryption_failure_message_with_error_code, it)
+                    } ?: UIText.StringResource(R.string.label_message_decryption_failure_message)
+                }
+
                 else -> UIText.StringResource(R.string.sent_a_message_with_unknown_content)
             },
             quotedMessage = quotedMessage

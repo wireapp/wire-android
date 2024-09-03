@@ -276,6 +276,7 @@ private fun Message.Regular.failureToDecrypt(isDecryptionResolved: Boolean) =
         .copy(
             content = MessageContent.FailedDecryption(
                 encodedData = null,
+                errorCode = null,
                 senderUserId = this.senderUserId,
                 isDecryptionResolved = isDecryptionResolved
             )

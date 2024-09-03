@@ -50,6 +50,7 @@
     <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">Message could not be decrypted (Error %s).</string>
     <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
     <string name="label_system_message_self_user_knock">%s pinged</string>
     <string name="label_system_message_other_user_knock">%s pinged</string>
@@ -222,6 +223,7 @@
     <string name="debug_settings_api_versioning_title" translatable="false">API VERSIONING</string>
     <string name="debug_settings_e2ei_enrollment_title" translatable="false">E2EI Manual Enrollment</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
+    <string name="debug_settings_break_session" translatable="false">⚠️ Break Session</string>
     <string name="item_dependencies_title">Dependencies:</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
     <string name="support_screen_title">Support</string>

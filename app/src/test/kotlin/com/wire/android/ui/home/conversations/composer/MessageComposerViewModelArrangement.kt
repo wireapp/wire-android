@@ -201,6 +201,7 @@ internal fun withMockConversationDetailsOneOnOne(
         every { connectionStatus } returns connectionState
         every { isUnavailableUser } returns unavailable
         every { deleted } returns false
+        every { accentId } returns 0
     },
     userType = UserType.INTERNAL,
     lastMessage = null,

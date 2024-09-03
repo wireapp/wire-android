@@ -1175,7 +1175,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
     <!-- Analytics Usage dialog -->
     <string name="analytics_usage_dialog_title">Consent to share user data</string>
-    <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID. The data is neither linked to your personal information nor shared with third parties besides Zeta Project Germany GmbH. It includes, for example, when you use a feature, your app version, device type, or your operating system. The ID will be deleted at the latest from your device after 365 days after the last activity.Find further details in our\n\nPrivacy Policy (link). You can revoke your consent at any time.</string>
+    <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID. The data is neither linked to your personal information nor shared with third parties besides Zeta Project Germany GmbH. It includes, for example, when you use a feature, your app version, device type, or your operating system. This data will be deleted at the latest after 365 days.\n\nFind further details in our Privacy Policy. You can revoke your consent at any time.</string>
     <string name="analytics_usage_dialog_button_agree">Agree</string>
     <string name="analytics_usage_dialog_button_decline">Decline</string>
     <string name="analytics_usage_dialog_button_privacy_policy">Privacy Policy</string>

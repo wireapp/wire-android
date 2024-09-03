@@ -75,7 +75,8 @@ class UIParticipantMapperTest {
                 testOtherUser(0).userType,
                 testOtherUser(0).deleted,
                 testOtherUser(0).connectionStatus,
-                testOtherUser(0).availabilityStatus
+                testOtherUser(0).availabilityStatus,
+                testOtherUser(0).accentId
             )
         )
         // When

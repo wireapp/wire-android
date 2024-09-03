@@ -50,7 +50,6 @@ import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
-import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs

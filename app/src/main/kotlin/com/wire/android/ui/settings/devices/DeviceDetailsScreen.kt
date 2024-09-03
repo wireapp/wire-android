@@ -59,7 +59,6 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.common.CopyButton
 import com.wire.android.ui.common.MLSVerificationIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
-import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType

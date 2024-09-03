@@ -17,8 +17,10 @@
  */
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.ScopedArgsTestExtension
@@ -36,28 +38,26 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoo
 import io.mockk.MockKAnnotations
 import io.mockk.clearMocks
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(CoroutineTestExtension::class, ScopedArgsTestExtension::class, NavigationTestExtension::class, SnapshotExtension::class)
+@ExtendWith(
+    CoroutineTestExtension::class,
+    ScopedArgsTestExtension::class,
+    NavigationTestExtension::class,
+    SnapshotExtension::class
+)
 class CreatePasswordGuestLinkViewModelTest {
-
-    @Test
-    fun `given password entered, when password is valid and password matches confirm, then isPasswordValid is marked as true`() {
-        val (_, viewModel) = Arrangement()
-            .withPasswordValidation(true)
-            .arrange()
-
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
-
-        assertTrue(viewModel.state.isPasswordValid)
-    }
 
     @Test
     fun `given password entered, when password is valid and doesn't match confirm, then isPasswordValid is marked as false`() {
@@ -65,29 +65,12 @@ class CreatePasswordGuestLinkViewModelTest {
             .withPasswordValidation(true)
             .arrange()
 
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
 
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password123")
+        viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password123")
 
-        assertEquals(false, viewModel.state.isPasswordValid)
-    }
-
-    @Test
-    fun `given password confirm emitted new value, when the new value is different, then validate is called`() {
-        val (arrangement, viewModel) = Arrangement()
-            .withPasswordValidation(true)
-            .arrange()
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("old_password")
-        arrangement.clearValidatePasswordCallsCount()
-
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("new_password")
-
-        assertEquals("new_password", viewModel.confirmPasswordTextState.text.toString())
-
-        verify(exactly = 1) {
-            arrangement.validatePassword(any())
-        }
+        assertEquals(false, viewModel.state.invalidPassword)
     }
 
     @Test
@@ -95,12 +78,12 @@ class CreatePasswordGuestLinkViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withPasswordValidation(true)
             .arrange()
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
         arrangement.clearValidatePasswordCallsCount()
 
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
 
-        assertEquals("password", viewModel.confirmPasswordTextState.text.toString())
+        assertEquals("password", viewModel.state.confirmPasswordTextState.text.toString())
 
         verify(exactly = 0) {
             arrangement.validatePassword(any())
@@ -108,15 +91,21 @@ class CreatePasswordGuestLinkViewModelTest {
     }
 
     @Test
-    fun `given onPasswordConfirmUpdated, when password is valid and matches confirm, then isPasswordValid is true`() {
-        val (_, viewModel) = Arrangement()
+    fun `given onGenerateLink called, when password is valid and matches confirm, then invalidPassword is false`() {
+        val (arrangement, viewModel) = Arrangement()
             .withPasswordValidation(true)
             .arrange()
 
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
 
-        assertEquals(true, viewModel.state.isPasswordValid)
+        viewModel.onGenerateLink()
+        assertFalse(viewModel.state.invalidPassword)
+
+        coVerify(exactly = 1) {
+            arrangement.validatePassword(any())
+            arrangement.generateGuestRoomLink(any(), any())
+        }
     }
 
     @Test
@@ -125,10 +114,10 @@ class CreatePasswordGuestLinkViewModelTest {
             .withPasswordValidation(true)
             .arrange()
 
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password123")
+        viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password123")
 
-        assertEquals(false, viewModel.state.isPasswordValid)
+        assertEquals(false, viewModel.state.invalidPassword)
     }
 
     @Test
@@ -138,14 +127,14 @@ class CreatePasswordGuestLinkViewModelTest {
             .withPasswordValidation(true)
             .arrange()
 
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
 
         viewModel.onGenerateRandomPassword()
 
-        assertEquals("generated_password", viewModel.passwordTextState.text.toString())
-        assertEquals(viewModel.passwordTextState.text, viewModel.confirmPasswordTextState.text)
-        assertEquals(true, viewModel.state.isPasswordValid)
+        assertEquals("generated_password", viewModel.state.passwordTextState.text.toString())
+        assertEquals(viewModel.state.passwordTextState.text, viewModel.state.confirmPasswordTextState.text)
+        assertFalse(viewModel.state.invalidPassword)
     }
 
     @Test
@@ -155,9 +144,9 @@ class CreatePasswordGuestLinkViewModelTest {
             .withGenerateGuestLink(GenerateGuestRoomLinkResult.Success)
             .arrange()
 
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
-        viewModel.state = viewModel.state.copy(isPasswordValid = true)
+        viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state = viewModel.state.copy(invalidPassword = true)
 
         viewModel.onGenerateLink()
 
@@ -172,9 +161,9 @@ class CreatePasswordGuestLinkViewModelTest {
             .withGenerateGuestLink(GenerateGuestRoomLinkResult.Failure(expectedError))
             .arrange()
 
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
-        viewModel.state = viewModel.state.copy(isPasswordValid = true)
+        viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state = viewModel.state.copy(invalidPassword = true)
 
         viewModel.onGenerateLink()
 
@@ -185,6 +174,109 @@ class CreatePasswordGuestLinkViewModelTest {
         )
     }
 
+    @Test
+    fun `given password is invalid, when password is valid and password matches confirm, then isPasswordValid is marked as true`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withObservePasswordChanges()
+                .withPasswordValidation(true)
+                .withInvalidPasswordState()
+                .arrange()
+
+            assertTrue(viewModel.state.invalidPassword)
+
+            viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password1")
+            viewModel.state.passwordTextState.clearText()
+            delay(2)
+            assertFalse(viewModel.state.invalidPassword)
+        }
+
+    @Test
+    fun `given password and confirm password does not match, when clicking on generate link, then isPasswordValid is marked as false and link not generated`() {
+        val (arrangement, viewModel) = Arrangement()
+            .withObservePasswordChanges()
+            .withPasswordValidation(true)
+            .arrange()
+
+        viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password1")
+
+        viewModel.onGenerateLink()
+
+        assertTrue(viewModel.state.invalidPassword)
+        assertFalse(viewModel.state.isLinkCreationSuccessful)
+
+        coVerify(exactly = 0) {
+            arrangement.generateGuestRoomLink(any(), any())
+            arrangement.validatePassword(any())
+        }
+    }
+
+    @Test
+    fun `given password and confirm match but empty, when clicking on generate link, then isPasswordValid is marked as false and link not generated`() {
+        val (arrangement, viewModel) = Arrangement()
+            .withObservePasswordChanges()
+            .withPasswordValidation(true)
+            .arrange()
+
+        viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("")
+
+        viewModel.onGenerateLink()
+
+        assertTrue(viewModel.state.invalidPassword)
+        assertFalse(viewModel.state.isLinkCreationSuccessful)
+
+        coVerify(exactly = 0) {
+            arrangement.generateGuestRoomLink(any(), any())
+            arrangement.validatePassword(any())
+        }
+    }
+
+    @Test
+    fun `given a valid password and confirm, when clicking on generate link, then link is generated`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withObservePasswordChanges()
+            .withPasswordValidation(true)
+            .withGenerateGuestLink(GenerateGuestRoomLinkResult.Success)
+            .arrange()
+
+        viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+
+        viewModel.suspendGenerateGuestRoomLink()
+
+        assertFalse(viewModel.state.invalidPassword)
+        assertTrue(viewModel.state.isLinkCreationSuccessful)
+
+        coVerify(exactly = 1) {
+            arrangement.generateGuestRoomLink(any(), any())
+            arrangement.validatePassword(any())
+        }
+    }
+
+    @Test
+    fun `given a invalid password and confirm, when clicking on generate link, then link is generated`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withObservePasswordChanges()
+            .withPasswordValidation(false)
+            .arrange()
+
+        viewModel.state.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        viewModel.state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("password")
+
+        viewModel.suspendGenerateGuestRoomLink()
+
+        assertTrue(viewModel.state.invalidPassword)
+        assertFalse(viewModel.state.isLinkCreationSuccessful)
+
+        coVerify(exactly = 0) {
+            arrangement.generateGuestRoomLink(any(), any())
+        }
+        coVerify(exactly = 1) {
+            arrangement.validatePassword(any())
+        }
+    }
     private companion object {
         val CONVERSATION_ID = ConversationId("conv_id", "conv_domain")
     }
@@ -218,6 +310,10 @@ class CreatePasswordGuestLinkViewModelTest {
             } returns if (result) ValidatePasswordResult.Valid else ValidatePasswordResult.Invalid()
         }
 
+        fun withInvalidPasswordState() = apply {
+            viewModel.state = viewModel.state.copy(invalidPassword = true)
+        }
+
         fun withGenerateGuestLink(
             result: GenerateGuestRoomLinkResult
         ) = apply {
@@ -232,6 +328,14 @@ class CreatePasswordGuestLinkViewModelTest {
             every {
                 generateRandomPasswordUseCase()
             } returns result
+        }
+
+        fun withObservePasswordChanges() = apply {
+            viewModel.viewModelScope.launch {
+                viewModel.viewModelScope.launch {
+                    viewModel.observePasswordValidation()
+                }
+            }
         }
 
         private val viewModel: CreatePasswordGuestLinkViewModel by lazy {

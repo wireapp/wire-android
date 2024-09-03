@@ -40,6 +40,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +50,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
+import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -56,6 +58,7 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.editguestaccess.GenerateGuestRoomLinkFailureDialog
 import com.wire.android.ui.theme.WireTheme
@@ -63,6 +66,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import kotlinx.coroutines.launch
 
 @RootNavGraph
 @WireDestination(
@@ -75,12 +79,13 @@ fun CreatePasswordProtectedGuestLinkScreen(
 ) {
     CreatePasswordProtectedGuestLinkScreenContent(
         state = viewModel.state,
-        passwordTextState = viewModel.passwordTextState,
-        confirmPasswordTextState = viewModel.confirmPasswordTextState,
+        passwordTextState = viewModel.state.passwordTextState,
+        confirmPasswordTextState = viewModel.state.confirmPasswordTextState,
         navigateBack = navigator::navigateBack,
         onGenerateRandomPassword = viewModel::onGenerateRandomPassword,
         onGenerateLink = viewModel::onGenerateLink,
         onErrorDialogDismissed = viewModel::onErrorDialogDismissed,
+        observePasswordValidation = viewModel::observePasswordValidation,
     )
 }
 
@@ -93,6 +98,7 @@ fun CreatePasswordProtectedGuestLinkScreenContent(
     onGenerateRandomPassword: () -> Unit,
     onGenerateLink: () -> Unit,
     onErrorDialogDismissed: () -> Unit,
+    observePasswordValidation: suspend () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
@@ -101,20 +107,24 @@ fun CreatePasswordProtectedGuestLinkScreenContent(
     val passwordCurrentState by rememberUpdatedState(newValue = passwordTextState.text.toString())
     val onCopyClick = remember {
         {
-            if (state.isPasswordValid) {
-                clipboardManager.setText(AnnotatedString(passwordCurrentState))
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.conversation_options_create_password_protected_guest_link_password_copied),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            clipboardManager.setText(AnnotatedString(passwordCurrentState))
+            Toast.makeText(
+                context,
+                context.getString(R.string.conversation_options_create_password_protected_guest_link_password_copied),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
     LaunchedEffect(state.isLinkCreationSuccessful) {
         if (state.isLinkCreationSuccessful) {
             onCopyClick()
             navigateBack()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        launch {
+            observePasswordValidation()
         }
     }
 
@@ -177,28 +187,23 @@ fun CreatePasswordProtectedGuestLinkScreenContent(
                 }
                 item {
                     WirePasswordTextField(
-                        labelText = stringResource(
-                            id = R.string.conversation_options_create_password_protected_guest_link_password_label
-                        ),
                         textState = passwordTextState,
-                        placeholderText = stringResource(
-                            id = R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text
-                        ),
+                        labelMandatoryIcon = true,
+                        labelText = stringResource(R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text),
+                        descriptionText = stringResource(R.string.conversation_options_create_password_protected_guest_link_password_description),
                         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Next),
-                        autoFill = false,
-                    )
-                    Spacer(modifier = Modifier.height(dimensions().spacing8x))
-                }
-                item {
-
-                    Text(
-                        style = MaterialTheme.wireTypography.subline01,
-                        text = stringResource(
-                            id = R.string.conversation_options_create_password_protected_guest_link_password_description
-                        )
+                        modifier = Modifier
+                            .testTag("password"),
+                        state = if (state.invalidPassword) {
+                            WireTextFieldState.Error()
+                        } else {
+                            WireTextFieldState.Default
+                        },
+                        autoFill = false
                     )
                     Spacer(modifier = Modifier.height(dimensions().spacing16x))
                 }
+
                 item {
                     WirePasswordTextField(
                         labelText = stringResource(
@@ -208,6 +213,11 @@ fun CreatePasswordProtectedGuestLinkScreenContent(
                             id = R.string.conversation_options_create_password_protected_guest_link_button_placeholder_text
                         ),
                         textState = confirmPasswordTextState,
+                        state = if (state.invalidPassword) {
+                            WireTextFieldState.Error()
+                        } else {
+                            WireTextFieldState.Default
+                        },
                         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
                         autoFill = false
                     )
@@ -220,7 +230,7 @@ fun CreatePasswordProtectedGuestLinkScreenContent(
                 shadowElevation = dimensions().spacing8x
             ) {
                 CreateButton(
-                    enabled = state.isPasswordValid,
+                    enabled = true,
                     isLoading = state.isLoading,
                     onCreateLink = onGenerateLink
                 )
@@ -267,5 +277,6 @@ fun PreviewCreatePasswordProtectedGuestLinkScreen() = WireTheme {
         onGenerateRandomPassword = {},
         onGenerateLink = {},
         onErrorDialogDismissed = {},
+        observePasswordValidation = {}
     )
 }

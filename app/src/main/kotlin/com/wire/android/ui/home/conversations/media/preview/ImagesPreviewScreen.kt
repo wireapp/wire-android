@@ -292,7 +292,6 @@ private fun BoxScope.ThumbnailsRow(
             }
         }
     }
-
 }
 
 @PreviewMultipleThemes
@@ -389,4 +388,3 @@ fun PreviewImagesPreviewScreenSingleAsset() {
         )
     }
 }
-

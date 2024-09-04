@@ -95,7 +95,7 @@ class MessageMapperTest {
         val message2 = arrangement.testMessage(senderUserId = userId2, status = Message.Status.Failed, date = yesterday)
         val message3 = arrangement.testMessage(senderUserId = userId1, editStatus = Message.EditStatus.Edited(now), date = now)
         val message4 = arrangement.testMessage(senderUserId = userId1, visibility = Message.Visibility.DELETED, date = now)
-        val message5 = arrangement.testMessage(senderUserId = userId1, date = now).failureToDecrypt(false)
+        val message5 = arrangement.testMessage(senderUserId = userId1, date = now).failureToDecrypt(false, 203)
         val message6 = arrangement.testMessage(senderUserId = userId1, date = now).failureToDecrypt(true)
 
         val member1 = TestUser.MEMBER_SELF.copy(TestUser.SELF_USER.copy(id = userId1))
@@ -110,74 +110,59 @@ class MessageMapperTest {
         val uiMessage6 = mapper.toUIMessage(members, message6)
 
         // Then
-        assertEquals(
-            true,
-            checkMessageData(
-                uiMessage = uiMessage1,
-                time = message1.date
-            )
+        checkMessageData(
+            uiMessage = uiMessage1,
+            time = message1.date
         )
-        assertEquals(
-            true,
-            checkMessageData(
-                uiMessage = uiMessage2,
-                time = message2.date,
-                source = MessageSource.OtherUser,
-                membership = Membership.Guest,
-                status = MessageStatus(
-                    flowStatus = MessageFlowStatus.Failure.Send.Locally(false),
-                    expirationStatus = ExpirationStatus.NotExpirable
-                )
-            )
-        )
-        assertEquals(
-            true,
-            checkMessageData(
-                uiMessage = uiMessage3,
-                time = message3.date,
-                status = MessageStatus(
-                    flowStatus = MessageFlowStatus.Sent,
-                    editStatus = MessageEditStatus.Edited(now.toIsoDateTimeString().uiMessageDateTime()!!),
-                    expirationStatus = ExpirationStatus.NotExpirable
-                )
-            )
-        )
-        assertEquals(
-            true,
-            checkMessageData(
-                uiMessage = uiMessage4,
-                time = message4.date,
-                status = MessageStatus(
-                    flowStatus = MessageFlowStatus.Sent,
-                    isDeleted = true,
-                    expirationStatus = ExpirationStatus.NotExpirable
-                )
+
+        checkMessageData(
+            uiMessage = uiMessage2,
+            time = message2.date,
+            source = MessageSource.OtherUser,
+            membership = Membership.Guest,
+            status = MessageStatus(
+                flowStatus = MessageFlowStatus.Failure.Send.Locally(false),
+                expirationStatus = ExpirationStatus.NotExpirable
             )
         )
 
-        assertEquals(
-            true,
-            checkMessageData(
-                uiMessage = uiMessage5,
-                time = message5.date,
-                status = MessageStatus(
-                    flowStatus = MessageFlowStatus.Failure.Decryption(false),
-                    isDeleted = false,
-                    expirationStatus = ExpirationStatus.NotExpirable
-                )
+        checkMessageData(
+            uiMessage = uiMessage3,
+            time = message3.date,
+            status = MessageStatus(
+                flowStatus = MessageFlowStatus.Sent,
+                editStatus = MessageEditStatus.Edited(now.toIsoDateTimeString().uiMessageDateTime()!!),
+                expirationStatus = ExpirationStatus.NotExpirable
             )
         )
 
-        assertEquals(
-            true,
-            checkMessageData(
-                uiMessage = uiMessage6,
-                time = message6.date,
-                status = MessageStatus(
-                    flowStatus = MessageFlowStatus.Failure.Decryption(true),
-                    isDeleted = false,
-                    expirationStatus = ExpirationStatus.NotExpirable
-                )
+        checkMessageData(
+            uiMessage = uiMessage4,
+            time = message4.date,
+            status = MessageStatus(
+                flowStatus = MessageFlowStatus.Sent,
+                isDeleted = true,
+                expirationStatus = ExpirationStatus.NotExpirable
+            )
+        )
+
+        checkMessageData(
+            uiMessage = uiMessage5,
+            time = message5.date,
+            status = MessageStatus(
+                flowStatus = MessageFlowStatus.Failure.Decryption(false, 203),
+                isDeleted = false,
+                expirationStatus = ExpirationStatus.NotExpirable
+            )
+        )
+
+        checkMessageData(
+            uiMessage = uiMessage6,
+            time = message6.date,
+            status = MessageStatus(
+                flowStatus = MessageFlowStatus.Failure.Decryption(true, null),
+                isDeleted = false,
+                expirationStatus = ExpirationStatus.NotExpirable
             )
         )
     }
@@ -215,14 +200,14 @@ class MessageMapperTest {
             flowStatus = MessageFlowStatus.Sent,
             expirationStatus = ExpirationStatus.NotExpirable
         )
-    ): Boolean {
-        return (uiMessage?.source == source && uiMessage.header.membership == membership
-                && uiMessage.header.messageTime.formattedDate == time?.toIsoDateTimeString()?.uiMessageDateTime()
-                && uiMessage.header.messageStatus.flowStatus == status.flowStatus
-                && uiMessage.header.messageStatus.isDeleted == status.isDeleted
-                && uiMessage.header.messageStatus.editStatus == status.editStatus
-                && uiMessage.header.messageStatus.expirationStatus == status.expirationStatus
-                )
+    ) {
+        assertEquals(uiMessage?.source, source)
+        assertEquals(uiMessage!!.header.membership, membership)
+        assertEquals(uiMessage.header.messageTime.formattedDate, time?.toIsoDateTimeString()?.uiMessageDateTime())
+        assertEquals(uiMessage.header.messageStatus.flowStatus, status.flowStatus)
+        assertEquals(uiMessage.header.messageStatus.isDeleted, status.isDeleted)
+        assertEquals(uiMessage.header.messageStatus.editStatus, status.editStatus)
+        assertEquals(uiMessage.header.messageStatus.expirationStatus, status.expirationStatus)
     }
 
     private class Arrangement {
@@ -271,12 +256,12 @@ class MessageMapperTest {
     }
 }
 
-private fun Message.Regular.failureToDecrypt(isDecryptionResolved: Boolean) =
+private fun Message.Regular.failureToDecrypt(isDecryptionResolved: Boolean, errorCode: Int? = null) =
     this
         .copy(
             content = MessageContent.FailedDecryption(
                 encodedData = null,
-                errorCode = null,
+                errorCode = errorCode,
                 senderUserId = this.senderUserId,
                 isDecryptionResolved = isDecryptionResolved
             )

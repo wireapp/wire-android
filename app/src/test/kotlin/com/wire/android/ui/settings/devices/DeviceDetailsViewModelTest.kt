@@ -41,6 +41,8 @@ import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.Result
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
+import com.wire.kalium.logic.feature.debug.BreakSessionResult
+import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
 import com.wire.kalium.logic.feature.e2ei.Handle
 import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
@@ -360,6 +362,9 @@ class DeviceDetailsViewModelTest {
         @MockK
         lateinit var isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 
+        @MockK
+        lateinit var breakSession: BreakSessionUseCase
+
         val currentUserId = UserId("currentUserId", "currentUserDomain")
 
         val viewModel by lazy {
@@ -373,7 +378,8 @@ class DeviceDetailsViewModelTest {
                 currentUserId = currentUserId,
                 observeUserInfo = observeUserInfo,
                 e2eiCertificate = getE2eiCertificate,
-                isE2EIEnabledUseCase = isE2EIEnabledUseCase
+                isE2EIEnabledUseCase = isE2EIEnabledUseCase,
+                breakSession = breakSession
             )
         }
 
@@ -383,6 +389,7 @@ class DeviceDetailsViewModelTest {
             coEvery { observeUserInfo(any()) } returns flowOf(GetUserInfoResult.Success(TestUser.OTHER_USER, null))
             coEvery { getE2eiCertificate(any()) } returns MLS_CLIENT_IDENTITY_WITHOUT_E2EI.right()
             coEvery { isE2EIEnabledUseCase() } returns true
+            coEvery { breakSession(any(), any()) } returns BreakSessionResult.Success
         }
 
         fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = IsPasswordRequiredUseCase.Result.Success(true)) =

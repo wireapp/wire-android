@@ -148,7 +148,7 @@ fun Uri.toBitmap(context: Context): Bitmap? {
 /**
  * Checks whether it is the URI of the image
  */
-fun Uri.isImage(context: Context): Boolean = this.getMimeType(context)?.startsWith("image/") == true
+fun Uri.isImage(context: Context): Boolean = isImageFile(this.getMimeType(context))
 
 /**
  * Rotates the image to its [ExifInterface.ORIENTATION_NORMAL] in case it's rotated with a different orientation than

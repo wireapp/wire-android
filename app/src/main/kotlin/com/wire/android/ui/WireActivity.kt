@@ -539,7 +539,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("ComplexCondition")
+    @Suppress("ComplexCondition", "LongMethod")
     private fun handleDeepLink(
         intent: Intent?,
         savedInstanceState: Bundle? = null
@@ -555,11 +555,11 @@ class WireActivity : AppCompatActivity() {
             val navigate: (NavigationCommand) -> Unit = { lifecycleScope.launch { navigationCommands.emit(it) } }
             viewModel.handleDeepLink(
                 intent = intent,
-                onOpenConversation = { conversationId, switchedAccount ->
-                    if (switchedAccount) {
+                onOpenConversation = {
+                    if (it.switchedAccount) {
                         navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
                     } else {
-                        navigate(NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.UPDATE_EXISTED))
+                        navigate(NavigationCommand(ConversationScreenDestination(it.conversationId), BackStackMode.UPDATE_EXISTED))
                     }
                 },
                 onIsSharingIntent = {

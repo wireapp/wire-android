@@ -310,7 +310,7 @@ class WireActivityViewModel @Inject constructor(
     fun handleDeepLink(
         intent: Intent?,
         onIsSharingIntent: () -> Unit,
-        onOpenConversation: (conversationId: ConversationId, switchedAccount: Boolean) -> Unit,
+        onOpenConversation: (DeepLinkResult.OpenConversation) -> Unit,
         onSSOLogin: (DeepLinkResult.SSOLogin) -> Unit,
         onMigrationLogin: (DeepLinkResult.MigrationLogin) -> Unit,
         onOpenOtherUserProfile: (DeepLinkResult.OpenOtherUserProfile) -> Unit,
@@ -341,10 +341,10 @@ class WireActivityViewModel @Inject constructor(
                     result.code,
                     result.key,
                     result.domain
-                ) { conversationId -> onOpenConversation(conversationId, result.switchedAccount) }
+                ) { conversationId -> onOpenConversation(DeepLinkResult.OpenConversation(conversationId, result.switchedAccount)) }
 
                 is DeepLinkResult.MigrationLogin -> onMigrationLogin(result)
-                is DeepLinkResult.OpenConversation -> onOpenConversation(result.conversationId, result.switchedAccount)
+                is DeepLinkResult.OpenConversation -> onOpenConversation(result)
                 is DeepLinkResult.OpenOtherUserProfile -> onOpenOtherUserProfile(result)
 
                 DeepLinkResult.SharingIntent -> onIsSharingIntent()

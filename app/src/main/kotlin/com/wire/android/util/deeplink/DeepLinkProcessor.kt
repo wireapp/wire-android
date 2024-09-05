@@ -174,20 +174,21 @@ class DeepLinkProcessor @Inject constructor(
     private suspend fun switchAccountIfNeeded(uri: Uri, accountInfo: AccountInfo.Valid): SwitchAccountStatus =
         uri.getQueryParameter(USER_TO_USE_QUERY_PARAM)?.toQualifiedID(qualifiedIdMapper)
             ?.let { userId ->
-                val shouldSwitchAccount = if (accountInfo.userId != userId) {
-                    coreLogic.getSessionScope(accountInfo.userId).calls.establishedCall().first().isEmpty()
-                } else {
-                    false
-                }
-                if (shouldSwitchAccount) {
-                    return when (accountSwitch(SwitchAccountParam.SwitchToAccount(userId))) {
-                        SwitchAccountResult.Failure -> SwitchAccountStatus.FailedDueToUnknownError
-                        SwitchAccountResult.GivenAccountIsInvalid -> SwitchAccountStatus.FailedDueToUnknownError
-                        SwitchAccountResult.NoOtherAccountToSwitch -> SwitchAccountStatus.NoNeeded
-                        SwitchAccountResult.SwitchedToAnotherAccount -> SwitchAccountStatus.Switched
+                return when {
+                    accountInfo.userId == userId -> {
+                        SwitchAccountStatus.NoNeeded
                     }
-                } else {
-                    return SwitchAccountStatus.FailedDueToCall
+                    coreLogic.getSessionScope(accountInfo.userId).calls.establishedCall().first().isNotEmpty() -> {
+                        SwitchAccountStatus.FailedDueToCall
+                    }
+                    else -> {
+                        when (accountSwitch(SwitchAccountParam.SwitchToAccount(userId))) {
+                            SwitchAccountResult.Failure -> SwitchAccountStatus.FailedDueToUnknownError
+                            SwitchAccountResult.GivenAccountIsInvalid -> SwitchAccountStatus.FailedDueToUnknownError
+                            SwitchAccountResult.NoOtherAccountToSwitch -> SwitchAccountStatus.NoNeeded
+                            SwitchAccountResult.SwitchedToAnotherAccount -> SwitchAccountStatus.Switched
+                        }
+                    }
                 }
             } ?: SwitchAccountStatus.NoNeeded
 

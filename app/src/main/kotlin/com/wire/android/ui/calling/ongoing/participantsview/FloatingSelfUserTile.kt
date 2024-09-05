@@ -1,0 +1,132 @@
+/*
+ * Wire
+ * Copyright (C) 2024 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+package com.wire.android.ui.calling.ongoing.participantsview
+
+import android.view.View
+import androidx.compose.animation.core.animateOffsetAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
+
+private const val DAMPING_RATIO_MEDIUM_BOUNCY = 0.6f
+private const val STIFFNESS_MEDIUM_LOW = 300f
+private const val DEFAULT_OFFSETX_SELF_USER_TILE = -50f
+private const val DEFAULT_OFFSETY_SELF_USER_TILE = 80F
+private val SELF_VIDEO_TILE_HEIGHT = 250.dp
+private val SELF_VIDEO_TILE_WIDTH = 150.dp
+
+@Composable
+fun FloatingSelfUserTile(
+    contentHeight: Dp,
+    contentWidth: Float,
+    participant: UICallParticipant,
+    onSelfUserVideoPreviewCreated: (view: View) -> Unit,
+    modifier: Modifier = Modifier,
+    onClearSelfUserVideoPreview: () -> Unit
+) {
+    val density = LocalDensity.current
+    val contentHeightPx = density.run { (contentHeight).toPx() }
+
+    var selfUserTileOffsetX by remember {
+        mutableStateOf(DEFAULT_OFFSETX_SELF_USER_TILE)
+    }
+    var selfUserTileOffsetY by remember {
+        mutableStateOf(DEFAULT_OFFSETY_SELF_USER_TILE)
+    }
+    val selfUserTileOffset by animateOffsetAsState(
+        targetValue = Offset(selfUserTileOffsetX, selfUserTileOffsetY),
+        animationSpec = spring(
+            DAMPING_RATIO_MEDIUM_BOUNCY,
+            stiffness = STIFFNESS_MEDIUM_LOW
+        ),
+        label = "selfUserTileOffset"
+    )
+
+    Card(
+        border = BorderStroke(1.dp, colorsScheme().uncheckedColor),
+        shape = RoundedCornerShape(dimensions().corner6x),
+        modifier = modifier
+            .height(SELF_VIDEO_TILE_HEIGHT)
+            .width(SELF_VIDEO_TILE_WIDTH)
+            .offset { IntOffset(selfUserTileOffset.x.toInt(), selfUserTileOffset.y.toInt()) }
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragEnd = {
+                        selfUserTileOffsetX =
+                            if (selfUserTileOffsetX - 150f > -(contentWidth / 2)) {
+                                DEFAULT_OFFSETX_SELF_USER_TILE
+                            } else {
+                                -contentWidth + SELF_VIDEO_TILE_WIDTH.toPx() - DEFAULT_OFFSETX_SELF_USER_TILE
+                            }
+                        selfUserTileOffsetY =
+                            if (selfUserTileOffsetY + 250f > (contentHeightPx / 2)) {
+                                contentHeightPx - SELF_VIDEO_TILE_HEIGHT.toPx() - DEFAULT_OFFSETY_SELF_USER_TILE
+                            } else {
+                                DEFAULT_OFFSETY_SELF_USER_TILE
+                            }
+                    }
+                ) { change, dragAmount ->
+                    change.consume()
+                    val newOffsetX = (selfUserTileOffsetX + dragAmount.x)
+                        .coerceAtLeast(
+                            -contentHeightPx - SELF_VIDEO_TILE_WIDTH.toPx()
+                        )
+                        .coerceAtMost(-50f)
+
+                    val newOffsetY = (selfUserTileOffsetY + dragAmount.y)
+                        .coerceAtLeast(50f)
+                        .coerceAtMost(
+                            contentHeightPx - SELF_VIDEO_TILE_HEIGHT.toPx()
+                        )
+
+                    selfUserTileOffsetX = newOffsetX
+                    selfUserTileOffsetY = newOffsetY
+                }
+            }
+    ) {
+        ParticipantTile(
+            participantTitleState = participant,
+            isSelfUser = true,
+            shouldFillSelfUserCameraPreview = true,
+            isSelfUserMuted = participant.isMuted,
+            isSelfUserCameraOn = participant.isCameraOn,
+            onSelfUserVideoPreviewCreated = onSelfUserVideoPreviewCreated,
+            onClearSelfUserVideoPreview = onClearSelfUserVideoPreview,
+        )
+    }
+}

@@ -41,7 +41,7 @@ class CheckAssetRestrictionsViewModel @Inject constructor() : ViewModel() {
                 assetType = it.assetBundle.assetType,
                 maxLimitInMB = it.assetSizeExceeded!!,
                 savedToDevice = false,
-                multipleAssets = true
+                multipleAssets = importedMediaList.size > 1,
             )
         } ?: onSuccess(importedMediaList.map { it.assetBundle })
     }

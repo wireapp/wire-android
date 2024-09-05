@@ -94,7 +94,7 @@ fun FullScreenTile(
                 } else {
                     it.isMuted
                 },
-                shouldFill = false,
+                shouldFillOthersVideoPreview = false,
                 isZoomingEnabled = true,
                 onSelfUserVideoPreviewCreated = setVideoPreview,
                 onClearSelfUserVideoPreview = clearVideoPreview

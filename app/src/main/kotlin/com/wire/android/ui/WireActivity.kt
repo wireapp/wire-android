@@ -558,10 +558,8 @@ class WireActivity : AppCompatActivity() {
                 onOpenConversation = {
                     if (it.switchedAccount) {
                         navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-                        navigate(NavigationCommand(ConversationScreenDestination(it.conversationId), BackStackMode.UPDATE_EXISTED))
-                    } else {
-                        navigate(NavigationCommand(ConversationScreenDestination(it.conversationId), BackStackMode.UPDATE_EXISTED))
                     }
+                    navigate(NavigationCommand(ConversationScreenDestination(it.conversationId), BackStackMode.UPDATE_EXISTED))
                 },
                 onIsSharingIntent = {
                     navigate(
@@ -595,10 +593,8 @@ class WireActivity : AppCompatActivity() {
                 onOpenOtherUserProfile = {
                     if (it.switchedAccount) {
                         navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-                        navigate(NavigationCommand(OtherUserProfileScreenDestination(it.userId), BackStackMode.UPDATE_EXISTED))
-                    } else {
-                        navigate(NavigationCommand(OtherUserProfileScreenDestination(it.userId), BackStackMode.UPDATE_EXISTED))
                     }
+                    navigate(NavigationCommand(OtherUserProfileScreenDestination(it.userId), BackStackMode.UPDATE_EXISTED))
                 },
                 onSSOLogin = {
                     navigate(NavigationCommand(LoginScreenDestination(ssoLoginResult = it), BackStackMode.UPDATE_EXISTED))

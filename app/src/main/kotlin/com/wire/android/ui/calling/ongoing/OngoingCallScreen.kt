@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.calling.ongoing
 
+import android.content.pm.PackageManager
 import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -47,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -56,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallState
@@ -109,6 +112,9 @@ fun OngoingCallScreen(
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val activity = LocalActivity.current
+    val isPiPAvailableOnThisDevice =
+        activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+    val shouldUsePiPMode = BuildConfig.PICTURE_IN_PICTURE_ENABLED && isPiPAvailableOnThisDevice
 
     LaunchedEffect(ongoingCallViewModel.state.flowState) {
         when (ongoingCallViewModel.state.flowState) {
@@ -131,7 +137,16 @@ fun OngoingCallScreen(
         flipCamera = sharedCallingViewModel::flipCamera,
         setVideoPreview = sharedCallingViewModel::setVideoPreview,
         clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
-        onCollapse = { activity.moveTaskToBack(true) },
+        onCollapse = {
+            if (shouldUsePiPMode) {
+                (activity as OngoingCallActivity).enterPiPMode(
+                    conversationId,
+                    ongoingCallViewModel.currentUserId
+                )
+            } else {
+                activity.moveTaskToBack(true)
+            }
+        },
         requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
         hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast,
         onCameraPermissionPermanentlyDenied = {
@@ -143,8 +158,37 @@ fun OngoingCallScreen(
             )
         }
     )
+
     BackHandler {
-        activity.moveTaskToBack(true)
+        if (shouldUsePiPMode) {
+            (activity as OngoingCallActivity).enterPiPMode(
+                conversationId,
+                ongoingCallViewModel.currentUserId
+            )
+        } else {
+            activity.moveTaskToBack(true)
+        }
+    }
+
+    /**
+     * Enter PiP mode when the user leaves the app by pressing the home button.
+     */
+    val context = LocalContext.current
+    DisposableEffect(context) {
+        val onUserLeaveBehavior: () -> Unit = {
+            if (shouldUsePiPMode) {
+                (activity as OngoingCallActivity).enterPiPMode(
+                    conversationId,
+                    ongoingCallViewModel.currentUserId
+                )
+            }
+        }
+        (activity as OngoingCallActivity).addOnUserLeaveHintListener(
+            onUserLeaveBehavior
+        )
+        onDispose {
+            activity.removeOnUserLeaveHintListener(onUserLeaveBehavior)
+        }
     }
 
     PermissionPermanentlyDeniedDialog(
@@ -203,6 +247,7 @@ private fun HandleSendingVideoFeed(
     }
 }
 
+@Suppress("CyclomaticComplexMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OngoingCallContent(
@@ -221,6 +266,8 @@ private fun OngoingCallContent(
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) = with(callState) {
 
+    val activity = LocalActivity.current
+
     val sheetInitialValue = SheetValue.PartiallyExpanded
     val sheetState = rememberStandardBottomSheetState(
         initialValue = sheetInitialValue
@@ -235,43 +282,49 @@ private fun OngoingCallContent(
 
     WireBottomSheetScaffold(
         sheetDragHandle = null,
-        topBar = {
-            OngoingCallTopBar(
-                conversationName = when (conversationName) {
-                    is ConversationName.Known -> conversationName.name
-                    is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
-                    else -> ""
-                },
-                isCbrEnabled = isCbrEnabled,
-                onCollapse = onCollapse,
-                protocolInfo = protocolInfo,
-                mlsVerificationStatus = mlsVerificationStatus,
-                proteusVerificationStatus = proteusVerificationStatus
-            )
+        topBar = if (activity.isInPictureInPictureMode) {
+            null
+        } else {
+            {
+                OngoingCallTopBar(
+                    conversationName = when (conversationName) {
+                        is ConversationName.Known -> conversationName.name
+                        is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
+                        else -> ""
+                    },
+                    isCbrEnabled = isCbrEnabled,
+                    onCollapse = onCollapse,
+                    protocolInfo = protocolInfo,
+                    mlsVerificationStatus = mlsVerificationStatus,
+                    proteusVerificationStatus = proteusVerificationStatus
+                )
+            }
         },
-        sheetPeekHeight = dimensions().defaultSheetPeekHeight,
+        sheetPeekHeight = if (activity.isInPictureInPictureMode) 0.dp else dimensions().defaultSheetPeekHeight,
         scaffoldState = scaffoldState,
         sheetContent = {
-            CallingControls(
-                conversationId = conversationId,
-                isMuted = isMuted ?: true,
-                isCameraOn = isCameraOn,
-                isOnFrontCamera = isOnFrontCamera,
-                isSpeakerOn = isSpeakerOn,
-                toggleSpeaker = toggleSpeaker,
-                toggleMute = toggleMute,
-                onHangUpCall = hangUpCall,
-                onToggleVideo = toggleVideo,
-                flipCamera = flipCamera,
-                onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied
-            )
+            if (!activity.isInPictureInPictureMode) {
+                CallingControls(
+                    conversationId = conversationId,
+                    isMuted = isMuted ?: true,
+                    isCameraOn = isCameraOn,
+                    isOnFrontCamera = isOnFrontCamera,
+                    isSpeakerOn = isSpeakerOn,
+                    toggleSpeaker = toggleSpeaker,
+                    toggleMute = toggleMute,
+                    onHangUpCall = hangUpCall,
+                    onToggleVideo = toggleVideo,
+                    flipCamera = flipCamera,
+                    onCameraPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied
+                )
+            }
         },
     ) {
         BoxWithConstraints(
             modifier = Modifier
                 .padding(
                     top = it.calculateTopPadding(),
-                    bottom = dimensions().defaultSheetPeekHeight
+                    bottom = if (activity.isInPictureInPictureMode) 0.dp else dimensions().defaultSheetPeekHeight
                 )
         ) {
 
@@ -521,6 +574,7 @@ fun buildPreviewParticipantsList(count: Int = 10) = buildList {
                 isSharingScreen = false,
                 avatar = null,
                 membership = Membership.Admin,
+                accentId = -1
             )
         )
     }

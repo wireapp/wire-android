@@ -27,6 +27,7 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
@@ -517,9 +518,10 @@ private fun ConversationDetails.toConversationItem(
     is OneOne -> {
         ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(
-                otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                otherUser.availabilityStatus,
-                otherUser.connectionStatus
+                asset = otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+                availabilityStatus = otherUser.availabilityStatus,
+                connectionState = otherUser.connectionStatus,
+                nameBasedAvatar = NameBasedAvatar(otherUser.name, otherUser.accentId)
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser.name.orEmpty(),
@@ -550,8 +552,9 @@ private fun ConversationDetails.toConversationItem(
     is Connection -> {
         ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(
-                otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE
+                asset = otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+                availabilityStatus = otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE,
+                nameBasedAvatar = NameBasedAvatar(otherUser?.name, otherUser?.accentId ?: -1)
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser?.name.orEmpty(),

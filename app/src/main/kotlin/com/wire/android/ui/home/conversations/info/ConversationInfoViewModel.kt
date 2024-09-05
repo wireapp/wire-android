@@ -128,7 +128,16 @@ class ConversationInfoViewModel @Inject constructor(
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
+            accentId = getAccentId(conversationDetails)
         )
+    }
+
+    private fun getAccentId(conversationDetails: ConversationDetails): Int {
+        return if (conversationDetails is ConversationDetails.OneOne) {
+            conversationDetails.otherUser.accentId
+        } else {
+            -1
+        }
     }
 
     private fun getConversationDetailsData(conversationDetails: ConversationDetails) =
@@ -144,7 +153,7 @@ class ConversationInfoViewModel @Inject constructor(
                 otherUserName = conversationDetails.otherUser.name,
                 connectionState = conversationDetails.otherUser.connectionStatus,
                 isBlocked = conversationDetails.otherUser.connectionStatus == ConnectionState.BLOCKED,
-                isDeleted = conversationDetails.otherUser.deleted
+                isDeleted = conversationDetails.otherUser.deleted,
             )
 
             else -> ConversationDetailsData.None(conversationDetails.conversation.protocol)

@@ -453,6 +453,10 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_edit">Edytuj</string>
     <string name="label_delete">Usu&#324;</string>
     <string name="info_message_copied">Wiadomo&#347;&#263; skopiowana</string>
+    <string name="conversation_banner_federated">u&#380;ytkownicy federowani</string>
+    <string name="conversation_banner_externals">zewn&#281;trzni</string>
+    <string name="conversation_banner_guests">go&#347;cie</string>
+    <string name="conversation_banner_services">us&#322;ugi</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Obecni s&#261; u&#380;ytkownicy federowani, zewn&#281;trzni, go&#347;cie oraz us&#322;ugi.</string>
     <string name="conversation_banner_federated_externals_guests_present">Obecni s&#261; u&#380;ytkownicy federowani, zewn&#281;trzni oraz go&#347;cie.</string>
     <string name="conversation_banner_federated_externals_services_present">Obecni s&#261; u&#380;ytkownicy federowani, zewn&#281;trzni oraz us&#322;ugi.</string>

@@ -28,7 +28,6 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
@@ -186,9 +185,6 @@ class DeepLinkProcessorTest {
 
         @MockK
         private lateinit var coreLogic: CoreLogic
-
-        @MockK
-        private lateinit var userSessionScope: UserSessionScope
 
         @MockK
         private lateinit var establishedCallsUseCase: ObserveEstablishedCallsUseCase

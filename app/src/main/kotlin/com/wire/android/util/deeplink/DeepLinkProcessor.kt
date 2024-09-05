@@ -56,14 +56,14 @@ sealed class DeepLinkResult {
         val switchedAccount: Boolean = false
     ) : DeepLinkResult()
 
-    data class OpenOtherUserProfile(val userId: QualifiedID, val switchedAccount: Boolean = false) :
-        DeepLinkResult()
+    data class OpenOtherUserProfile(val userId: QualifiedID, val switchedAccount: Boolean = false) : DeepLinkResult()
 
     data class JoinConversation(
-        val code: String, val key: String, val domain: String?,
+        val code: String,
+        val key: String,
+        val domain: String?,
         val switchedAccount: Boolean = false
-    ) :
-        DeepLinkResult()
+    ) : DeepLinkResult()
 
     data class MigrationLogin(val userHandle: String) : DeepLinkResult()
 
@@ -133,7 +133,6 @@ class DeepLinkProcessor @Inject constructor(
         }
     }
 
-
     private fun handleNotAuthorizedDeepLinks(uri: Uri): DeepLinkResult {
         return when (uri.host) {
             ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
@@ -141,7 +140,6 @@ class DeepLinkProcessor @Inject constructor(
             MIGRATION_LOGIN_HOST -> getOpenMigrationLoginDeepLinkResult(uri)
             else -> DeepLinkResult.AuthorizationNeeded
         }
-
     }
 
     private fun handleAuthorizedDeepLinks(uri: Uri, accountInfo: AccountInfo.Valid, switchedAccount: Boolean): DeepLinkResult {
@@ -153,7 +151,6 @@ class DeepLinkProcessor @Inject constructor(
             else -> DeepLinkResult.Unknown
         }
     }
-
 
     private fun getConnectingUserProfile(uri: Uri, switchedAccount: Boolean, accountInfo: AccountInfo.Valid): DeepLinkResult {
         return uri.lastPathSegment?.toDefaultQualifiedId(accountInfo.userId.domain)?.let {
@@ -174,7 +171,7 @@ class DeepLinkProcessor @Inject constructor(
         return QualifiedID(this.lowercase(), domain)
     }
 
-    private suspend fun switchAccountIfNeeded(uri: Uri, accountInfo: AccountInfo.Valid): SwitchAccountStatus {
+    private suspend fun switchAccountIfNeeded(uri: Uri, accountInfo: AccountInfo.Valid): SwitchAccountStatus =
         uri.getQueryParameter(USER_TO_USE_QUERY_PARAM)?.toQualifiedID(qualifiedIdMapper)
             ?.let { userId ->
                 val shouldSwitchAccount = if (accountInfo.userId != userId) {
@@ -192,9 +189,7 @@ class DeepLinkProcessor @Inject constructor(
                 } else {
                     return SwitchAccountStatus.FailedDueToCall
                 }
-            }
-        return SwitchAccountStatus.NoNeeded
-    }
+            } ?: SwitchAccountStatus.NoNeeded
 
     private fun getOpenConversationDeepLinkResult(
         uri: Uri,

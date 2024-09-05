@@ -558,6 +558,7 @@ class WireActivity : AppCompatActivity() {
                 onOpenConversation = {
                     if (it.switchedAccount) {
                         navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                        navigate(NavigationCommand(ConversationScreenDestination(it.conversationId), BackStackMode.UPDATE_EXISTED))
                     } else {
                         navigate(NavigationCommand(ConversationScreenDestination(it.conversationId), BackStackMode.UPDATE_EXISTED))
                     }
@@ -594,6 +595,7 @@ class WireActivity : AppCompatActivity() {
                 onOpenOtherUserProfile = {
                     if (it.switchedAccount) {
                         navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                        navigate(NavigationCommand(OtherUserProfileScreenDestination(it.userId), BackStackMode.UPDATE_EXISTED))
                     } else {
                         navigate(NavigationCommand(OtherUserProfileScreenDestination(it.userId), BackStackMode.UPDATE_EXISTED))
                     }

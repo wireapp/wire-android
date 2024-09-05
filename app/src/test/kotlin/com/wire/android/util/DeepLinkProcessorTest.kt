@@ -24,14 +24,19 @@ import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
@@ -180,14 +185,25 @@ class DeepLinkProcessorTest {
         private lateinit var currentSession: CurrentSessionUseCase
 
         @MockK
+        private lateinit var coreLogic: CoreLogic
+
+        @MockK
+        private lateinit var userSessionScope: UserSessionScope
+
+        @MockK
+        private lateinit var establishedCallsUseCase: ObserveEstablishedCallsUseCase
+
+        @MockK
         internal lateinit var uri: Uri
 
         init {
             MockKAnnotations.init(this)
             coEvery { accountSwitchUseCase(any()) } returns SwitchAccountResult.SwitchedToAnotherAccount
+            coEvery { establishedCallsUseCase.invoke() } returns flowOf(emptyList())
+            every { coreLogic.getSessionScope(any()).calls.establishedCall } returns establishedCallsUseCase
         }
 
-        fun arrange() = this to DeepLinkProcessor(accountSwitchUseCase, currentSession)
+        fun arrange() = this to DeepLinkProcessor(accountSwitchUseCase, currentSession, coreLogic)
 
         fun withRemoteConfigDeeplink(url: String?) = apply {
             coEvery { uri.host } returns DeepLinkProcessor.ACCESS_DEEPLINK_HOST

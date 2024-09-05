@@ -129,7 +129,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {})
-        coVerify(exactly = 1) { arrangement.deepLinkProcessor.invoke(any()) }
+        coVerify(exactly = 1) { arrangement.deepLinkProcessor.invoke(any(), false) }
         verify(exactly = 1) { arrangement.onDeepLinkResult(result) }
     }
 

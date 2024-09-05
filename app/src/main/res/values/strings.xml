@@ -1064,6 +1064,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
     <string name="cant_switch_account_in_call">You can\'t switch accounts while in a call</string>
+    <string name="deeplink_authorization_needed">You must login to perform this action</string>
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>

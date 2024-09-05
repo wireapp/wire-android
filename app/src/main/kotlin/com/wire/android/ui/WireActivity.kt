@@ -80,6 +80,7 @@ import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
@@ -590,7 +591,13 @@ class WireActivity : AppCompatActivity() {
                 onMigrationLogin = {
                     navigate(NavigationCommand(LoginScreenDestination(it.userHandle), BackStackMode.UPDATE_EXISTED))
                 },
-                onOpenOtherUserProfile = {},
+                onOpenOtherUserProfile = {
+                    if (it.switchedAccount) {
+                        navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                    } else {
+                        navigate(NavigationCommand(OtherUserProfileScreenDestination(it.userId), BackStackMode.UPDATE_EXISTED))
+                    }
+                },
                 onSSOLogin = {
                     navigate(NavigationCommand(LoginScreenDestination(ssoLoginResult = it), BackStackMode.UPDATE_EXISTED))
                 }

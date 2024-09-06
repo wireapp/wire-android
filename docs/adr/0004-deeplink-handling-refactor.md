@@ -1,13 +1,10 @@
 # 4. Deeplink handling refactor
 
-Date: 2024-09-05
+Date: 2024-09-06
 
 ## Status
 
-Proposed
-
-TODO:
-- fix and write more tests when ADR will be accepted
+Accepted
 
 ## Context
 

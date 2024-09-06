@@ -189,7 +189,7 @@ class DeepLinkProcessorTest {
             .arrange()
         val result = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.Failure::class.java, result)
-        assertEquals(DeepLinkResult.Failure(DeepLinkResult.FailureReason.OngoingCall), result)
+        assertEquals(DeepLinkResult.Failure.OngoingCall, result)
     }
 
     @Test
@@ -201,7 +201,7 @@ class DeepLinkProcessorTest {
             .arrange()
         val result = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.Failure::class.java, result)
-        assertEquals(DeepLinkResult.Failure(DeepLinkResult.FailureReason.Unknown), result)
+        assertEquals(DeepLinkResult.Failure.Unknown, result)
     }
 
     @Test
@@ -265,6 +265,7 @@ class DeepLinkProcessorTest {
         fun withSwitchedAccount(switchAccountResult: SwitchAccountResult) = apply {
             coEvery { accountSwitchUseCase(any()) } returns switchAccountResult
         }
+
         fun withRemoteConfigDeeplink(url: String?) = apply {
             coEvery { uri.host } returns DeepLinkProcessor.ACCESS_DEEPLINK_HOST
             coEvery { uri.getQueryParameter(DeepLinkProcessor.SERVER_CONFIG_PARAM) } returns url

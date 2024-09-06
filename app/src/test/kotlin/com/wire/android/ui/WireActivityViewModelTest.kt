@@ -169,7 +169,7 @@ class WireActivityViewModelTest {
     @Test
     fun `given Intent with ServerConfig during an ongoing call, when handling deep links, then onCannotLoginDuringACall is called `() =
         runTest {
-            val result = DeepLinkResult.Failure(DeepLinkResult.FailureReason.OngoingCall)
+            val result = DeepLinkResult.Failure.OngoingCall
             val (arrangement, viewModel) = Arrangement()
                 .withSomeCurrentSession()
                 .withDeepLinkResult(result)

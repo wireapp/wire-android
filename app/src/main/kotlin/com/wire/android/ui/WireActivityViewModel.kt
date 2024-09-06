@@ -330,13 +330,8 @@ class WireActivityViewModel @Inject constructor(
                 DeepLinkResult.AuthorizationNeeded -> onAuthorizationNeeded()
                 is DeepLinkResult.SSOLogin -> onSSOLogin(result)
                 is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
-                is DeepLinkResult.Failure -> {
-                    when (result.reason) {
-                        DeepLinkResult.FailureReason.OngoingCall -> onCannotLoginDuringACall()
-                        DeepLinkResult.FailureReason.Unknown -> appLogger.e("unknown deeplink failure")
-                    }
-                }
-
+                is DeepLinkResult.Failure.OngoingCall -> onCannotLoginDuringACall()
+                is DeepLinkResult.Failure.Unknown -> appLogger.e("unknown deeplink failure")
                 is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(
                     result.code,
                     result.key,

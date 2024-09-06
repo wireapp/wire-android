@@ -71,11 +71,9 @@ sealed class DeepLinkResult {
 
     data object AuthorizationNeeded : DeepLinkResult()
 
-    data class Failure(val reason: FailureReason) : DeepLinkResult()
-
-    enum class FailureReason {
-        OngoingCall,
-        Unknown
+    sealed class Failure : DeepLinkResult() {
+        data object OngoingCall : Failure()
+        data object Unknown : Failure()
     }
 }
 
@@ -109,25 +107,22 @@ class DeepLinkProcessor @Inject constructor(
             }
 
             is AccountInfo.Valid -> {
-                return when (switchAccountIfNeeded(uri, accountInfo)) {
-                    SwitchAccountStatus.Switched -> {
-                        var deepLinkResult = handleNotAuthorizedDeepLinks(uri)
-                        if (deepLinkResult == DeepLinkResult.AuthorizationNeeded) {
-                            deepLinkResult = handleAuthorizedDeepLinks(uri, accountInfo, true)
-                        }
-                        deepLinkResult
-                    }
-
+                return when (val switchStatus = switchAccountIfNeeded(uri, accountInfo)) {
+                    SwitchAccountStatus.Switched,
                     SwitchAccountStatus.NoNeeded -> {
                         var deepLinkResult = handleNotAuthorizedDeepLinks(uri)
                         if (deepLinkResult == DeepLinkResult.AuthorizationNeeded) {
-                            deepLinkResult = handleAuthorizedDeepLinks(uri, accountInfo, false)
+                            deepLinkResult = handleAuthorizedDeepLinks(
+                                uri = uri,
+                                accountInfo = accountInfo,
+                                switchedAccount = switchStatus == SwitchAccountStatus.Switched
+                            )
                         }
                         deepLinkResult
                     }
 
-                    SwitchAccountStatus.FailedDueToCall -> DeepLinkResult.Failure(DeepLinkResult.FailureReason.OngoingCall)
-                    SwitchAccountStatus.FailedDueToUnknownError -> DeepLinkResult.Failure(DeepLinkResult.FailureReason.Unknown)
+                    SwitchAccountStatus.FailedDueToCall -> DeepLinkResult.Failure.OngoingCall
+                    SwitchAccountStatus.FailedDueToUnknownError -> DeepLinkResult.Failure.Unknown
                 }
             }
         }
@@ -178,9 +173,11 @@ class DeepLinkProcessor @Inject constructor(
                     accountInfo.userId == userId -> {
                         SwitchAccountStatus.NoNeeded
                     }
+
                     coreLogic.getSessionScope(accountInfo.userId).calls.establishedCall().first().isNotEmpty() -> {
                         SwitchAccountStatus.FailedDueToCall
                     }
+
                     else -> {
                         when (accountSwitch(SwitchAccountParam.SwitchToAccount(userId))) {
                             SwitchAccountResult.Failure -> SwitchAccountStatus.FailedDueToUnknownError

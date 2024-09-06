@@ -19,7 +19,6 @@
 package com.wire.android.ui
 
 import android.content.Intent
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -307,22 +306,15 @@ class WireActivityViewModel @Inject constructor(
         return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
     }
 
-    @VisibleForTesting
-    internal suspend fun canLoginThroughDeepLinks() = viewModelScope.async {
-        coreLogic.getGlobalScope().session.currentSession().takeIf {
-            it is CurrentSessionResult.Success
-        }?.let {
-            val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
-            coreLogic.getSessionScope(currentUserId).calls.establishedCall().first().isEmpty()
-        } ?: true
-    }
-
     @Suppress("ComplexMethod")
     fun handleDeepLink(
         intent: Intent?,
         onIsSharingIntent: () -> Unit,
-        onOpenConversation: (ConversationId) -> Unit,
-        onResult: (DeepLinkResult) -> Unit,
+        onOpenConversation: (DeepLinkResult.OpenConversation) -> Unit,
+        onSSOLogin: (DeepLinkResult.SSOLogin) -> Unit,
+        onMigrationLogin: (DeepLinkResult.MigrationLogin) -> Unit,
+        onOpenOtherUserProfile: (DeepLinkResult.OpenOtherUserProfile) -> Unit,
+        onAuthorizationNeeded: () -> Unit,
         onCannotLoginDuringACall: () -> Unit
     ) {
         viewModelScope.launch(dispatchers.io()) {
@@ -331,41 +323,27 @@ class WireActivityViewModel @Inject constructor(
                 // so we need to finish migration first.
                 return@launch
             }
-            val result = intent?.data?.let { deepLinkProcessor.get().invoke(it) }
-            when {
-                result is DeepLinkResult.SSOLogin -> {
-                    if (canLoginThroughDeepLinks().await()) {
-                        onResult(result)
-                    } else {
-                        onCannotLoginDuringACall()
-                    }
-                }
+            val isSharingIntent = isSharingIntent(intent)
+            val result = intent?.data?.let { deepLinkProcessor.get().invoke(it, isSharingIntent) } ?: DeepLinkResult.Unknown
 
-                result is DeepLinkResult.MigrationLogin -> onResult(result)
-                result is DeepLinkResult.CustomServerConfig -> {
-                    if (canLoginThroughDeepLinks().await()) {
-                        onCustomServerConfig(result)
-                    } else {
-                        onCannotLoginDuringACall()
-                    }
-                }
+            when (result) {
+                DeepLinkResult.AuthorizationNeeded -> onAuthorizationNeeded()
+                is DeepLinkResult.SSOLogin -> onSSOLogin(result)
+                is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
+                is DeepLinkResult.Failure.OngoingCall -> onCannotLoginDuringACall()
+                is DeepLinkResult.Failure.Unknown -> appLogger.e("unknown deeplink failure")
+                is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(
+                    result.code,
+                    result.key,
+                    result.domain
+                ) { conversationId -> onOpenConversation(DeepLinkResult.OpenConversation(conversationId, result.switchedAccount)) }
 
-                isSharingIntent(intent) -> onIsSharingIntent()
-                shouldLogIn() -> {
-                    // to handle the deepLinks above user needs to be Logged in
-                    // do nothing, already handled by initialAppState
-                }
+                is DeepLinkResult.MigrationLogin -> onMigrationLogin(result)
+                is DeepLinkResult.OpenConversation -> onOpenConversation(result)
+                is DeepLinkResult.OpenOtherUserProfile -> onOpenOtherUserProfile(result)
 
-                result is DeepLinkResult.JoinConversation ->
-                    onConversationInviteDeepLink(
-                        result.code,
-                        result.key,
-                        result.domain,
-                        onOpenConversation
-                    )
-
-                result != null -> onResult(result)
-                result is DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
+                DeepLinkResult.SharingIntent -> onIsSharingIntent()
+                DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
             }
         }
     }

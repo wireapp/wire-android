@@ -117,7 +117,7 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
                 /* title = */ availableAssetName,
                 /* description = */ availableAssetName,
                 /* isMediaScannerScannable = */ true,
-                /* mimeType = */ mimeType ?: "*/*",
+                /* mimeType = */ mimeType.orEmpty().ifEmpty { "*/*" },
                 /* path = */ destinationFile.absolutePath,
                 /* length = */ fileSize,
                 /* showNotification = */ false

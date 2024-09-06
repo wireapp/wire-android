@@ -183,6 +183,12 @@ class WireActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+
+        if (intent.action?.equals(Intent.ACTION_SYNC) == true) {
+            handleSynchronizeExternalData(intent)
+            return
+        }
+
         setIntent(intent)
         if (isNavigationCollecting) {
             /*
@@ -536,6 +542,19 @@ class WireActivity : AppCompatActivity() {
         super.onRestoreInstanceState(savedInstanceState)
         savedInstanceState.getOriginalIntent()?.let {
             this.intent = it
+        }
+    }
+
+    private fun handleSynchronizeExternalData(intent: Intent) {
+        if (!BuildConfig.DEBUG) {
+            appLogger.e("Synchronizing external data is only allowed on debug builds")
+            return
+        }
+
+        intent.data?.lastPathSegment.let { eventsPath ->
+            openFileInput(eventsPath)?.let { inputStream ->
+                viewModel.handleSynchronizeExternalData(inputStream)
+            }
         }
     }
 

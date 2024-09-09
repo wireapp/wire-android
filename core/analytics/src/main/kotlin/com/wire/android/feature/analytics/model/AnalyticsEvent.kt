@@ -95,6 +95,96 @@ interface AnalyticsEvent {
                 )
             }
         }
+
+        data class Text(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_TEXT
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class Photo(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_PHOTO
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class AudioCall(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_AUDIO_CALL
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class VideoCall(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_VIDEO_CALL
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class Gif(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_GIF
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class Ping(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_PING
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class File(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_FILE
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class Video(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_VIDEO
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class Audio(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_AUDIO
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
     }
 }
 

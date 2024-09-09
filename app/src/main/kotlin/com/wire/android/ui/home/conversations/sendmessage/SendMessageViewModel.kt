@@ -25,6 +25,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
@@ -252,17 +253,18 @@ class SendMessageViewModel @Inject constructor(
     }
 
     private fun handleContributionEvent(messageBundle: MessageBundle) {
-        // TODO(ym): handle the rest below, when doing so, assign when to a event var, and call send at the end
-        when (messageBundle) {
-            is ComposableMessageBundle.AttachmentPickedBundle,
-            is ComposableMessageBundle.AudioMessageBundle,
-            is ComposableMessageBundle.EditMessageBundle,
-            is ComposableMessageBundle.SendTextMessageBundle,
+        val event = when (messageBundle) {
             is ComposableMessageBundle.UriPickedBundle,
-            is Ping -> { /* do nothing */
-            }
+            is ComposableMessageBundle.AttachmentPickedBundle -> return
+
+            is ComposableMessageBundle.AudioMessageBundle -> AnalyticsEvent.Contributed.Audio()
             is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location()
+            is Ping -> AnalyticsEvent.Contributed.Ping()
+            is ComposableMessageBundle.EditMessageBundle,
+            is ComposableMessageBundle.SendTextMessageBundle -> AnalyticsEvent.Contributed.Text()
         }
+
+        AnonymousAnalyticsManagerImpl.sendEvent(event)
     }
 
     private suspend fun handleAssetMessageBundle(

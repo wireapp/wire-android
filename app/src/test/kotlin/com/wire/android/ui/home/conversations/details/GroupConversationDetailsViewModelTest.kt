@@ -629,18 +629,16 @@ class GroupConversationDetailsViewModelTest {
 
     @ParameterizedTest
     @EnumSource(IsServiceAllowedTestParams::class)
-    fun `isServicesAllowed test`(params: IsServiceAllowedTestParams) = runTest() {
+    fun `isServicesAllowed test`(params: IsServiceAllowedTestParams) = runTest {
         // given
         val conversation =
             TestConversation
                 .GROUP(if (params.isMLSConversation) TestConversation.MLS_PROTOCOL_INFO else Conversation.ProtocolInfo.Proteus)
                 .copy(
-                    accessRole = if (params.isServiceAllowed)
-                        listOf(
-                            Conversation.AccessRole.EXTERNAL,
-                            Conversation.AccessRole.SERVICE
-                        )
-                    else listOf(Conversation.AccessRole.EXTERNAL)
+                    accessRole = listOf(Conversation.AccessRole.EXTERNAL).run {
+                        if (params.isServiceAllowed) plus(Conversation.AccessRole.SERVICE)
+                        else this
+                    }
                 )
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withDefaultProtocol(if (params.isMLSTeam) SupportedProtocol.MLS else SupportedProtocol.PROTEUS)

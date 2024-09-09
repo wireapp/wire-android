@@ -62,7 +62,6 @@ fun VerticalCallingPager(
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     contentHeight: Dp,
-    contentWidth: Int,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
@@ -87,11 +86,12 @@ fun VerticalCallingPager(
                 if (participants.isNotEmpty()) {
                     // if PiP is enabled and more than one participant is present,
                     // we need to remove the first participant(self user) from the list
-                    val newParticipants = if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
-                        participants.subList(1, participants.size)
-                    } else {
-                        participants
-                    }
+                    val newParticipants =
+                        if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
+                            participants.subList(1, participants.size)
+                        } else {
+                            participants
+                        }
                     val participantsChunkedList = remember(newParticipants) {
                         newParticipants.chunked(MAX_TILES_PER_PAGE)
                     }
@@ -175,7 +175,6 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
         isSelfUserMuted = false,
         isSelfUserCameraOn = false,
         contentHeight = 800.dp,
-        contentWidth = 300,
         onSelfVideoPreviewCreated = {},
         onSelfClearVideoPreview = {},
         requestVideoStreams = {},

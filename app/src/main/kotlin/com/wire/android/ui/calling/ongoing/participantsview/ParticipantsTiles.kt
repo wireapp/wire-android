@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
+import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -68,6 +69,8 @@ fun VerticalCallingPager(
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val activity = LocalActivity.current
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -128,8 +131,8 @@ fun VerticalCallingPager(
                     }
                 }
             }
-            // we don't need to display the indicator if we have one page
-            if (pagesCount(participants.size) > 1) {
+            // we don't need to display the indicator if we have one page and when it's in PiP mode
+            if (pagesCount(participants.size) > 1 && !activity.isInPictureInPictureMode) {
                 Surface(
                     shape = RoundedCornerShape(dimensions().corner16x),
                     modifier = Modifier

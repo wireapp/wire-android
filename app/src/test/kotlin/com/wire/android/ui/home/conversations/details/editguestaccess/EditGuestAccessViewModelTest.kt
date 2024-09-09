@@ -230,8 +230,11 @@ class EditGuestAccessViewModelTest {
                     .GROUP(if (params.isMLSConversation) TestConversation.MLS_PROTOCOL_INFO else Conversation.ProtocolInfo.Proteus)
                     .copy(
                         accessRole = listOf(Conversation.AccessRole.EXTERNAL).run {
-                            if (params.isServiceAllowed) plus(Conversation.AccessRole.SERVICE)
-                            else this
+                            if (params.isServiceAllowed) {
+                                plus(Conversation.AccessRole.SERVICE)
+                            } else {
+                                this
+                            }
                         }
                     )
             val conversationResult = ObserveConversationDetailsUseCase.Result.Success(

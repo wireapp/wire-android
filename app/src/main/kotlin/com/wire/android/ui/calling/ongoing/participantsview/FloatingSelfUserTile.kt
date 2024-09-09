@@ -98,7 +98,7 @@ fun FloatingSelfUserTile(
 
     DisposableEffect(activity) {
         val observer = Consumer<PictureInPictureModeChangedInfo> { info ->
-            if(info.isInPictureInPictureMode) {
+            if (info.isInPictureInPictureMode) {
                 selfVideoTileHeight = SELF_VIDEO_TILE_HEIGHT_IN_PIP
                 selfVideoTileWidth = SELF_VIDEO_TILE_WIDTH_IN_PIP
                 selfUserTileOffsetX = -10f

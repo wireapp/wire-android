@@ -19,7 +19,6 @@
 package com.wire.android.ui.calling.ongoing.participantsview.gridview
 
 import android.view.View
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

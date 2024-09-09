@@ -431,7 +431,7 @@ private fun DebugToolsOptions(
  */
 @Composable
 fun DependenciesItem(dependencies: ImmutableMap<String, String?>) {
-    val text = remember (dependencies) {
+    val text = remember(dependencies) {
         dependencies.prettyPrintMap()
     }
     RowItemTemplate(

@@ -25,6 +25,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.SavedStateViewModel
@@ -247,6 +248,21 @@ class SendMessageViewModel @Inject constructor(
                     .handleLegalHoldFailureAfterSendingMessage(messageBundle.conversationId)
             }
         }
+        handleContributionEvent(messageBundle)
+    }
+
+    private fun handleContributionEvent(messageBundle: MessageBundle) {
+        // TODO(ym): handle the rest below, when doing so, assign when to a event var, and call send at the end
+        when (messageBundle) {
+            is ComposableMessageBundle.AttachmentPickedBundle,
+            is ComposableMessageBundle.AudioMessageBundle,
+            is ComposableMessageBundle.EditMessageBundle,
+            is ComposableMessageBundle.SendTextMessageBundle,
+            is ComposableMessageBundle.UriPickedBundle,
+            is Ping -> { /* do nothing */
+            }
+            is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location()
+        }
     }
 
     private suspend fun handleAssetMessageBundle(
@@ -419,6 +435,7 @@ class SendMessageViewModel @Inject constructor(
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }
+
     private companion object {
         const val MAX_LIMIT_MESSAGE_SEND = 20
     }

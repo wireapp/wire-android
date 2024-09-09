@@ -154,16 +154,6 @@ fun VerticalCallingPager(
                     )
                 }
             }
-            if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
-                FloatingSelfUserTile(
-                    modifier = Modifier.align(Alignment.TopEnd),
-                    contentHeight = contentHeight,
-                    contentWidth = contentWidth.toFloat(),
-                    participant = participants.first(),
-                    onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
-                    onClearSelfUserVideoPreview = onSelfClearVideoPreview
-                )
-            }
         }
     }
 }

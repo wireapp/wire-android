@@ -73,6 +73,7 @@ import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
+import com.wire.android.ui.calling.ongoing.participantsview.FloatingSelfUserTile
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
@@ -396,6 +397,16 @@ private fun OngoingCallContent(
                         ) {
                             hideDoubleTapToast()
                         }
+                    }
+                    if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
+                        FloatingSelfUserTile(
+                            modifier = Modifier.align(Alignment.TopEnd),
+                            contentHeight = this@BoxWithConstraints.maxHeight,
+                            contentWidth = this@BoxWithConstraints.constraints.maxWidth.toFloat(),
+                            participant = participants.first(),
+                            onSelfUserVideoPreviewCreated = setVideoPreview,
+                            onClearSelfUserVideoPreview = clearVideoPreview
+                        )
                     }
                 }
             }

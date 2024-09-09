@@ -35,6 +35,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import com.wire.android.BuildConfig
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -83,7 +84,7 @@ fun GroupCallGrid(
             // since we are getting participants by chunk of 8 items,
             // we need to check that we are on first page for self user
             val isSelfUser = remember(pageIndex, participants.first()) {
-                pageIndex == 0 && participants.first() == participant
+                pageIndex == 0 && participants.first() == participant && !BuildConfig.PICTURE_IN_PICTURE_ENABLED
             }
 
             ParticipantTile(

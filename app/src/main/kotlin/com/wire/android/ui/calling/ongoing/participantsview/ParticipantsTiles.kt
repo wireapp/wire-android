@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.wire.android.BuildConfig
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -60,6 +61,7 @@ fun VerticalCallingPager(
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     contentHeight: Dp,
+    contentWidth: Int,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
@@ -80,12 +82,18 @@ fun VerticalCallingPager(
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
                 if (participants.isNotEmpty()) {
-
-                    val participantsChunkedList = remember(participants) {
-                        participants.chunked(MAX_TILES_PER_PAGE)
+                    // if PiP is enabled and more than one participant is present,
+                    // we need to remove the first participant(self user) from the list
+                    val newParticipants = if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
+                        participants.subList(1, participants.size)
+                    } else {
+                        participants
                     }
-                    val participantsWithCameraOn by rememberUpdatedState(participants.count { it.isCameraOn })
-                    val participantsWithScreenShareOn by rememberUpdatedState(participants.count { it.isSharingScreen })
+                    val participantsChunkedList = remember(newParticipants) {
+                        newParticipants.chunked(MAX_TILES_PER_PAGE)
+                    }
+                    val participantsWithCameraOn by rememberUpdatedState(newParticipants.count { it.isCameraOn })
+                    val participantsWithScreenShareOn by rememberUpdatedState(newParticipants.count { it.isSharingScreen })
 
                     if (participantsChunkedList[pageIndex].size <= MAX_ITEMS_FOR_HORIZONTAL_VIEW) {
                         CallingHorizontalView(
@@ -143,6 +151,16 @@ fun VerticalCallingPager(
                     )
                 }
             }
+            if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
+                FloatingSelfUserTile(
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    contentHeight = contentHeight,
+                    contentWidth = contentWidth.toFloat(),
+                    participant = participants.first(),
+                    onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
+                    onClearSelfUserVideoPreview = onSelfClearVideoPreview
+                )
+            }
         }
     }
 }
@@ -164,6 +182,7 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
         isSelfUserMuted = false,
         isSelfUserCameraOn = false,
         contentHeight = 800.dp,
+        contentWidth = 300,
         onSelfVideoPreviewCreated = {},
         onSelfClearVideoPreview = {},
         requestVideoStreams = {},
@@ -174,7 +193,11 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
 @PreviewMultipleThemes
 @Composable
 fun PreviewVerticalCallingPagerHorizontalView() = WireTheme {
-    PreviewVerticalCallingPager(participants = buildPreviewParticipantsList(MAX_ITEMS_FOR_HORIZONTAL_VIEW))
+    PreviewVerticalCallingPager(
+        participants = buildPreviewParticipantsList(
+            MAX_ITEMS_FOR_HORIZONTAL_VIEW
+        )
+    )
 }
 
 @PreviewMultipleThemes

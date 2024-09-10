@@ -23,6 +23,7 @@ import androidx.core.net.toUri
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
@@ -86,6 +87,12 @@ class SendMessageViewModelTest {
                     any()
                 )
             }
+
+            verify(exactly = 1) {
+                arrangement.analyticsManager.sendEvent(match {
+                    it is AnalyticsEvent.Contributed.File
+                })
+            }
         }
 
     @Test
@@ -123,6 +130,12 @@ class SendMessageViewModelTest {
                     any()
                 )
             }
+
+            verify(exactly = 1) {
+                arrangement.analyticsManager.sendEvent(match {
+                    it is AnalyticsEvent.Contributed.Photo
+                })
+            }
         }
 
     @Test
@@ -149,6 +162,10 @@ class SendMessageViewModelTest {
                     any(),
                     any()
                 )
+            }
+
+            verify(exactly = 0) {
+                arrangement.analyticsManager.sendEvent(any())
             }
         }
 
@@ -192,6 +209,9 @@ class SendMessageViewModelTest {
                 )
             }
             assert(viewModel.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
+            verify(exactly = 0) {
+                arrangement.analyticsManager.sendEvent(any())
+            }
         }
 
     @Test
@@ -234,6 +254,9 @@ class SendMessageViewModelTest {
                 )
             }
             assert(viewModel.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
+            verify(exactly = 0) {
+                arrangement.analyticsManager.sendEvent(any())
+            }
         }
 
     @Test
@@ -268,6 +291,9 @@ class SendMessageViewModelTest {
                     )
                 }
                 assertEquals(ConversationSnackbarMessages.ErrorPickingAttachment, awaitItem())
+                verify(exactly = 0) {
+                    arrangement.analyticsManager.sendEvent(any())
+                }
             }
         }
 
@@ -287,6 +313,11 @@ class SendMessageViewModelTest {
             // Then
             coVerify(exactly = 1) { arrangement.sendKnockUseCase.invoke(any(), any()) }
             verify(exactly = 1) { arrangement.pingRinger.ping(any(), isReceivingPing = false) }
+            verify(exactly = 1) {
+                arrangement.analyticsManager.sendEvent(match {
+                    it is AnalyticsEvent.Contributed.Ping
+                })
+            }
         }
 
     @Test
@@ -324,6 +355,11 @@ class SendMessageViewModelTest {
                     any()
                 )
             }
+            verify(exactly = 1) {
+                arrangement.analyticsManager.sendEvent(match {
+                    it is AnalyticsEvent.Contributed.Audio
+                })
+            }
         }
 
     @Test
@@ -354,6 +390,11 @@ class SendMessageViewModelTest {
         }
         coVerify(exactly = 1) {
             arrangement.removeMessageDraftUseCase.invoke(any())
+        }
+        verify(exactly = 1) {
+            arrangement.analyticsManager.sendEvent(match {
+                it is AnalyticsEvent.Contributed.Text
+            })
         }
     }
 
@@ -395,6 +436,11 @@ class SendMessageViewModelTest {
             coVerify(exactly = 1) {
                 arrangement.removeMessageDraftUseCase.invoke(any())
             }
+            verify(exactly = 1) {
+                arrangement.analyticsManager.sendEvent(match {
+                    it is AnalyticsEvent.Contributed.Text
+                })
+            }
         }
 
     @Test
@@ -423,6 +469,9 @@ class SendMessageViewModelTest {
                 SureAboutMessagingDialogState.Visible.ConversationVerificationDegraded(conversationId, listOf(messageBundle)),
                 viewModel.sureAboutMessagingDialogState
             )
+            verify(exactly = 0) {
+                arrangement.analyticsManager.sendEvent(any())
+            }
         }
 
     @Test
@@ -442,6 +491,9 @@ class SendMessageViewModelTest {
                 SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.BeforeSending(conversationId, listOf(messageBundle)),
                 viewModel.sureAboutMessagingDialogState
             )
+            verify(exactly = 0) {
+                arrangement.analyticsManager.sendEvent(any())
+            }
         }
 
     @Test
@@ -461,6 +513,9 @@ class SendMessageViewModelTest {
             // then
             coVerify(exactly = 0) { arrangement.sendTextMessage.invoke(any(), any(), any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
+            verify(exactly = 0) {
+                arrangement.analyticsManager.sendEvent(any())
+            }
         }
 
     @Test
@@ -481,6 +536,11 @@ class SendMessageViewModelTest {
             // then
             coVerify(exactly = 1) { arrangement.sendTextMessage.invoke(any(), any(), any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
+            verify(exactly = 1) {
+                arrangement.analyticsManager.sendEvent(match {
+                    it is AnalyticsEvent.Contributed.Text
+                })
+            }
         }
 
     @Test
@@ -501,6 +561,9 @@ class SendMessageViewModelTest {
                 SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold.AfterSending(conversationId, listOf(messageId)),
                 viewModel.sureAboutMessagingDialogState
             )
+            verify(exactly = 0) {
+                arrangement.analyticsManager.sendEvent(any())
+            }
         }
 
     @Test
@@ -521,6 +584,9 @@ class SendMessageViewModelTest {
             // then
             coVerify(exactly = 0) { arrangement.retryFailedMessageUseCase.invoke(any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
+            verify(exactly = 0) {
+                arrangement.analyticsManager.sendEvent(any())
+            }
         }
 
     @Test
@@ -541,6 +607,11 @@ class SendMessageViewModelTest {
             // then
             coVerify(exactly = 1) { arrangement.retryFailedMessageUseCase.invoke(eq(messageId), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
+            verify(exactly = 1) {
+                arrangement.analyticsManager.sendEvent(match {
+                    it is AnalyticsEvent.Contributed.Text
+                })
+            }
         }
 
     @Test
@@ -563,6 +634,11 @@ class SendMessageViewModelTest {
             // then
             coVerify(exactly = 1) { arrangement.sendLocation.invoke(any(), any(), any(), any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
+            verify(exactly = 1) {
+                arrangement.analyticsManager.sendEvent(match {
+                    it is AnalyticsEvent.Contributed.Location
+                })
+            }
         }
 
     @Test
@@ -602,6 +678,9 @@ class SendMessageViewModelTest {
                     )
                 }
                 assertEquals(ConversationSnackbarMessages.ErrorAssetRestriction, awaitItem())
+                verify(exactly = 1) {
+                    arrangement.analyticsManager.sendEvent(any())
+                }
             }
         }
 
@@ -646,6 +725,9 @@ class SendMessageViewModelTest {
                     )
                 }
                 assertEquals(ConversationSnackbarMessages.ErrorAssetRestriction, awaitItem())
+                verify(exactly = 1) {
+                    arrangement.analyticsManager.sendEvent(any())
+                }
             }
         }
 
@@ -659,6 +741,11 @@ class SendMessageViewModelTest {
             .arrange()
 
         coVerify { arrangement.sendTextMessage(any(), eq(textToShare), any(), any()) }
+        verify(exactly = 1) {
+            arrangement.analyticsManager.sendEvent(match {
+                it is AnalyticsEvent.Contributed.Text
+            })
+        }
     }
 
     @Test
@@ -700,6 +787,9 @@ class SendMessageViewModelTest {
                     any(),
                     any()
                 )
+            }
+            verify {
+                arrangement.analyticsManager.sendEvent(any())
             }
         }
     }

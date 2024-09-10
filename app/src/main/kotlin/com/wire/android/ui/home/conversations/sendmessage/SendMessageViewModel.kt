@@ -25,7 +25,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
@@ -67,6 +67,7 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.onFailure
+import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -98,6 +99,7 @@ class SendMessageViewModel @Inject constructor(
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
     private val sendLocation: SendLocationUseCase,
     private val removeMessageDraft: RemoveMessageDraftUseCase,
+    private val analyticsManager: AnonymousAnalyticsManager
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -201,6 +203,7 @@ class SendMessageViewModel @Inject constructor(
                         mentions = newMentions.map { it.intoMessageMention() },
                     )
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                        .handleNonAssetContributionEvent(messageBundle)
                 }
             }
 
@@ -233,6 +236,7 @@ class SendMessageViewModel @Inject constructor(
                         quotedMessageId = quotedMessageId
                     )
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                        .handleNonAssetContributionEvent(messageBundle)
                 }
             }
 
@@ -240,6 +244,7 @@ class SendMessageViewModel @Inject constructor(
                 with(messageBundle) {
                     sendLocation(conversationId, location.latitude.toFloat(), location.longitude.toFloat(), locationName, zoom)
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                        .handleNonAssetContributionEvent(messageBundle)
                 }
             }
 
@@ -247,9 +252,9 @@ class SendMessageViewModel @Inject constructor(
                 pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
                 sendKnockUseCase(conversationId = messageBundle.conversationId, hotKnock = false)
                     .handleLegalHoldFailureAfterSendingMessage(messageBundle.conversationId)
+                    .handleNonAssetContributionEvent(messageBundle)
             }
         }
-        handleNonAssetContributionEvent(messageBundle)
     }
 
     private suspend fun handleAssetMessageBundle(
@@ -300,6 +305,7 @@ class SendMessageViewModel @Inject constructor(
                                 audioLengthInMs = 0L
                             )
                                 .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                                .handleAssetContributionEvent(assetType)
                         }
 
                         AttachmentType.VIDEO,
@@ -320,42 +326,47 @@ class SendMessageViewModel @Inject constructor(
                                     )
                                 )
                                     .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                                    .handleAssetContributionEvent(assetType)
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
                             }
                         }
                     }
-                    handleAssetContributionEvent(assetType)
                 }
             }
         }
     }
 
-    private fun handleAssetContributionEvent(assetType: AttachmentType) {
-        val event = when (assetType) {
-            AttachmentType.IMAGE -> AnalyticsEvent.Contributed.Photo()
-            AttachmentType.VIDEO -> AnalyticsEvent.Contributed.Video()
-            AttachmentType.GENERIC_FILE -> AnalyticsEvent.Contributed.File()
-            AttachmentType.AUDIO -> AnalyticsEvent.Contributed.Audio()
+    private fun Either<CoreFailure?, Unit>.handleAssetContributionEvent(
+        assetType: AttachmentType
+    ) = also {
+        onSuccess {
+            val event = when (assetType) {
+                AttachmentType.IMAGE -> AnalyticsEvent.Contributed.Photo()
+                AttachmentType.VIDEO -> AnalyticsEvent.Contributed.Video()
+                AttachmentType.GENERIC_FILE -> AnalyticsEvent.Contributed.File()
+                AttachmentType.AUDIO -> AnalyticsEvent.Contributed.Audio()
+            }
+            analyticsManager.sendEvent(event)
         }
-        AnonymousAnalyticsManagerImpl.sendEvent(event)
     }
 
-    private fun handleNonAssetContributionEvent(messageBundle: MessageBundle) {
-        val event = when (messageBundle) {
-            // assets are not handled here, as they need extra processing
-            is ComposableMessageBundle.UriPickedBundle,
-            is ComposableMessageBundle.AudioMessageBundle,
-            is ComposableMessageBundle.AttachmentPickedBundle -> return
+    private fun Either<CoreFailure, Unit>.handleNonAssetContributionEvent(messageBundle: MessageBundle) = also {
+        onSuccess {
+            val event = when (messageBundle) {
+                // assets are not handled here, as they need extra processing
+                is ComposableMessageBundle.UriPickedBundle,
+                is ComposableMessageBundle.AudioMessageBundle,
+                is ComposableMessageBundle.AttachmentPickedBundle -> return@also
 
-            is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location()
-            is Ping -> AnalyticsEvent.Contributed.Ping()
-            is ComposableMessageBundle.EditMessageBundle,
-            is ComposableMessageBundle.SendTextMessageBundle -> AnalyticsEvent.Contributed.Text()
+                is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location()
+                is Ping -> AnalyticsEvent.Contributed.Ping()
+                is ComposableMessageBundle.EditMessageBundle,
+                is ComposableMessageBundle.SendTextMessageBundle -> AnalyticsEvent.Contributed.Text()
+            }
+            analyticsManager.sendEvent(event)
         }
-
-        AnonymousAnalyticsManagerImpl.sendEvent(event)
     }
 
     private fun CoreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) = also {

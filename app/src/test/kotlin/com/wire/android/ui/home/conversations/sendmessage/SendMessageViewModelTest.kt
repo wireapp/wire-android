@@ -607,7 +607,7 @@ class SendMessageViewModelTest {
             // then
             coVerify(exactly = 1) { arrangement.retryFailedMessageUseCase.invoke(eq(messageId), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
-            verify(exactly = 1) {
+            verify(exactly = 0) {
                 arrangement.analyticsManager.sendEvent(match {
                     it is AnalyticsEvent.Contributed.Text
                 })
@@ -678,7 +678,7 @@ class SendMessageViewModelTest {
                     )
                 }
                 assertEquals(ConversationSnackbarMessages.ErrorAssetRestriction, awaitItem())
-                verify(exactly = 1) {
+                verify(exactly = 0) {
                     arrangement.analyticsManager.sendEvent(any())
                 }
             }
@@ -725,7 +725,7 @@ class SendMessageViewModelTest {
                     )
                 }
                 assertEquals(ConversationSnackbarMessages.ErrorAssetRestriction, awaitItem())
-                verify(exactly = 1) {
+                verify(exactly = 0) {
                     arrangement.analyticsManager.sendEvent(any())
                 }
             }

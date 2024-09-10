@@ -437,6 +437,34 @@ private fun DebugToolsOptions(
     }
 }
 
+<<<<<<< HEAD
+=======
+/**
+ *
+ */
+@Composable
+fun DependenciesItem(dependencies: ImmutableMap<String, String?>) {
+    val text = remember(dependencies) {
+        dependencies.prettyPrintMap()
+    }
+    RowItemTemplate(
+        modifier = Modifier.padding(dimensions().spacing8x),
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.label01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
+                text = stringResource(id = R.string.item_dependencies_title),
+            )
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = text,
+            )
+        },
+    )
+}
+
+>>>>>>> 4b09e5870 (fix: empty dependencies section [WPB-10929] (#3425))
 @Composable
 private fun DisableEventProcessingSwitch(
     isEnabled: Boolean = false,
@@ -465,6 +493,15 @@ private fun DisableEventProcessingSwitch(
         }
     )
 }
+<<<<<<< HEAD
+=======
+
+@Stable
+private fun Map<String, String?>.prettyPrintMap(): String = this
+    .map { (key, value) -> "$key: $value" }
+    .joinToString("\n")
+
+>>>>>>> 4b09e5870 (fix: empty dependencies section [WPB-10929] (#3425))
 //endregion
 
 @PreviewMultipleThemes
@@ -492,5 +529,9 @@ fun PreviewOtherDebugOptions() {
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
         checkCrlRevocationList = {},
+<<<<<<< HEAD
+=======
+        dependenciesMap = persistentMapOf("preview dependency" to "1.0.0", "another dependency" to "1.0.0")
+>>>>>>> 4b09e5870 (fix: empty dependencies section [WPB-10929] (#3425))
     )
 }

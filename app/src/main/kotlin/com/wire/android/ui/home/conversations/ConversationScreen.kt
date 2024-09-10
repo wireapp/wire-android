@@ -321,7 +321,7 @@ fun ConversationScreen(
                                 activity.startActivity(this)
                             }
                         },
-                        onOpenOngoingCallScreen =  {
+                        onOpenOngoingCallScreen = {
                             getOngoingCallIntent(activity, it.toString()).run {
                                 activity.startActivity(this)
                             }

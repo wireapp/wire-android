@@ -89,9 +89,11 @@ class SendMessageViewModelTest {
             }
 
             verify(exactly = 1) {
-                arrangement.analyticsManager.sendEvent(match {
-                    it is AnalyticsEvent.Contributed.File
-                })
+                arrangement.analyticsManager.sendEvent(
+                    match {
+                        it is AnalyticsEvent.Contributed.File
+                    }
+                )
             }
         }
 
@@ -132,9 +134,11 @@ class SendMessageViewModelTest {
             }
 
             verify(exactly = 1) {
-                arrangement.analyticsManager.sendEvent(match {
-                    it is AnalyticsEvent.Contributed.Photo
-                })
+                arrangement.analyticsManager.sendEvent(
+                    match {
+                        it is AnalyticsEvent.Contributed.Photo
+                    }
+                )
             }
         }
 
@@ -314,9 +318,11 @@ class SendMessageViewModelTest {
             coVerify(exactly = 1) { arrangement.sendKnockUseCase.invoke(any(), any()) }
             verify(exactly = 1) { arrangement.pingRinger.ping(any(), isReceivingPing = false) }
             verify(exactly = 1) {
-                arrangement.analyticsManager.sendEvent(match {
-                    it is AnalyticsEvent.Contributed.Ping
-                })
+                arrangement.analyticsManager.sendEvent(
+                    match {
+                        it is AnalyticsEvent.Contributed.Ping
+                    }
+                )
             }
         }
 
@@ -356,9 +362,11 @@ class SendMessageViewModelTest {
                 )
             }
             verify(exactly = 1) {
-                arrangement.analyticsManager.sendEvent(match {
-                    it is AnalyticsEvent.Contributed.Audio
-                })
+                arrangement.analyticsManager.sendEvent(
+                    match {
+                        it is AnalyticsEvent.Contributed.Audio
+                    }
+                )
             }
         }
 
@@ -392,9 +400,11 @@ class SendMessageViewModelTest {
             arrangement.removeMessageDraftUseCase.invoke(any())
         }
         verify(exactly = 1) {
-            arrangement.analyticsManager.sendEvent(match {
-                it is AnalyticsEvent.Contributed.Text
-            })
+            arrangement.analyticsManager.sendEvent(
+                match {
+                    it is AnalyticsEvent.Contributed.Text
+                }
+            )
         }
     }
 
@@ -437,9 +447,11 @@ class SendMessageViewModelTest {
                 arrangement.removeMessageDraftUseCase.invoke(any())
             }
             verify(exactly = 1) {
-                arrangement.analyticsManager.sendEvent(match {
-                    it is AnalyticsEvent.Contributed.Text
-                })
+                arrangement.analyticsManager.sendEvent(
+                    match {
+                        it is AnalyticsEvent.Contributed.Text
+                    }
+                )
             }
         }
 
@@ -537,9 +549,11 @@ class SendMessageViewModelTest {
             coVerify(exactly = 1) { arrangement.sendTextMessage.invoke(any(), any(), any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
             verify(exactly = 1) {
-                arrangement.analyticsManager.sendEvent(match {
-                    it is AnalyticsEvent.Contributed.Text
-                })
+                arrangement.analyticsManager.sendEvent(
+                    match {
+                        it is AnalyticsEvent.Contributed.Text
+                    }
+                )
             }
         }
 
@@ -608,9 +622,11 @@ class SendMessageViewModelTest {
             coVerify(exactly = 1) { arrangement.retryFailedMessageUseCase.invoke(eq(messageId), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
             verify(exactly = 0) {
-                arrangement.analyticsManager.sendEvent(match {
-                    it is AnalyticsEvent.Contributed.Text
-                })
+                arrangement.analyticsManager.sendEvent(
+                    match {
+                        it is AnalyticsEvent.Contributed.Text
+                    }
+                )
             }
         }
 
@@ -635,9 +651,11 @@ class SendMessageViewModelTest {
             coVerify(exactly = 1) { arrangement.sendLocation.invoke(any(), any(), any(), any(), any()) }
             assertEquals(SureAboutMessagingDialogState.Hidden, viewModel.sureAboutMessagingDialogState)
             verify(exactly = 1) {
-                arrangement.analyticsManager.sendEvent(match {
-                    it is AnalyticsEvent.Contributed.Location
-                })
+                arrangement.analyticsManager.sendEvent(
+                    match {
+                        it is AnalyticsEvent.Contributed.Location
+                    }
+                )
             }
         }
 
@@ -742,9 +760,11 @@ class SendMessageViewModelTest {
 
         coVerify { arrangement.sendTextMessage(any(), eq(textToShare), any(), any()) }
         verify(exactly = 1) {
-            arrangement.analyticsManager.sendEvent(match {
-                it is AnalyticsEvent.Contributed.Text
-            })
+            arrangement.analyticsManager.sendEvent(
+                match {
+                    it is AnalyticsEvent.Contributed.Text
+                }
+            )
         }
     }
 

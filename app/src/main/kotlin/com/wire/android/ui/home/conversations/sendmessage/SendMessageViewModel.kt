@@ -341,8 +341,18 @@ class SendMessageViewModel @Inject constructor(
                             }
                         }
                     }
+                    handleAssetContributionEvent(assetType)
                 }
             }
+        }
+    }
+
+    private fun handleAssetContributionEvent(assetType: AttachmentType) {
+        when (assetType) {
+            AttachmentType.IMAGE -> AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.Contributed.Photo())
+            AttachmentType.VIDEO -> AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.Contributed.Video())
+            AttachmentType.GENERIC_FILE -> AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.Contributed.File())
+            AttachmentType.AUDIO -> AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.Contributed.Audio())
         }
     }
 

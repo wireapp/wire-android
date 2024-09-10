@@ -431,20 +431,23 @@ private fun DebugToolsOptions(
  */
 @Composable
 fun DependenciesItem(dependencies: ImmutableMap<String, String?>) {
-    val title = stringResource(id = R.string.item_dependencies_title)
-    val text = remember {
-        prettyPrintMap(dependencies, title)
+    val text = remember(dependencies) {
+        dependencies.prettyPrintMap()
     }
     RowItemTemplate(
-        modifier = Modifier.wrapContentWidth(),
+        modifier = Modifier.padding(dimensions().spacing8x),
         title = {
+            Text(
+                style = MaterialTheme.wireTypography.label01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
+                text = stringResource(id = R.string.item_dependencies_title),
+            )
             Text(
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.onBackground,
                 text = text,
-                modifier = Modifier.padding(start = dimensions().spacing8x)
             )
-        }
+        },
     )
 }
 
@@ -478,12 +481,9 @@ private fun DisableEventProcessingSwitch(
 }
 
 @Stable
-private fun prettyPrintMap(map: Map<String, String?>, title: String): String = StringBuilder().apply {
-    append("$title\n")
-    map.forEach { (key, value) ->
-        append("$key: $value\n")
-    }
-}.toString()
+private fun Map<String, String?>.prettyPrintMap(): String = this
+    .map { (key, value) -> "$key: $value" }
+    .joinToString("\n")
 
 //endregion
 
@@ -512,6 +512,6 @@ fun PreviewOtherDebugOptions() {
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
         checkCrlRevocationList = {},
-        dependenciesMap = persistentMapOf()
+        dependenciesMap = persistentMapOf("preview dependency" to "1.0.0", "another dependency" to "1.0.0")
     )
 }

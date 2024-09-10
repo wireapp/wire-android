@@ -44,6 +44,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
@@ -60,6 +61,7 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTim
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetUpdatedSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
+import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.functional.getOrNull
@@ -97,6 +99,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
     override val savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
+    private val getDefaultProtocol: GetDefaultProtocolUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
 ) : GroupConversationParticipantsViewModel(
     savedStateHandle, observeConversationMembers, refreshUsersWithoutMetadata
@@ -129,21 +132,19 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     .flowOn(dispatcher.io())
                     .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
-            val isSelfAdminFlow = observeConversationMembers(conversationId)
-                .map { it.isSelfAnAdmin }
-                .distinctUntilChanged()
-
             val selfTeam = getSelfTeam().getOrNull()
             val selfUser = observerSelfUser().first()
+            val isMLSTeam = getDefaultProtocol() == SupportedProtocol.MLS
 
             combine(
                 groupDetailsFlow,
-                isSelfAdminFlow,
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
-            ) { groupDetails, isSelfAnAdmin, selfDeletionTimer ->
+            ) { groupDetails, selfDeletionTimer ->
 
                 val isSelfInOwnerTeam = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
                 val isSelfExternalMember = selfUser.userType == UserType.EXTERNAL
+                val isSelfAnAdmin = groupDetails.selfRole == Conversation.Member.Role.Admin
+                val isMLSConversation = groupDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
 
                 conversationSheetContent = ConversationSheetContent(
                     title = groupDetails.conversation.name.orEmpty(),
@@ -165,10 +166,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         protocolInfo = groupDetails.conversation.protocol,
                         areAccessOptionsAvailable = groupDetails.conversation.isTeamGroup(),
                         isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed(),
-                        isServicesAllowed = groupDetails.conversation.isServicesAllowed(),
+                        isServicesAllowed = groupDetails.conversation.isServicesAllowed() && !isMLSTeam && !isMLSConversation,
                         isUpdatingNameAllowed = isSelfAnAdmin && !isSelfExternalMember,
                         isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
-                        isUpdatingServicesAllowed = isSelfAnAdmin,
+                        isUpdatingServicesAllowed = isSelfAnAdmin && !isMLSTeam && !isMLSConversation,
                         isUpdatingReadReceiptAllowed = isSelfAnAdmin && groupDetails.conversation.isTeamGroup(),
                         isUpdatingSelfDeletingAllowed = isSelfAnAdmin,
                         mlsEnabled = isMLSEnabled(),

@@ -93,6 +93,6 @@ jobs:
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJson: service_account.json
-          packageName: com.wire
+          packageName: com.wire.internal
           releaseFiles: app/build/outputs/bundle/internalCompat/*.aab
           track: alpha

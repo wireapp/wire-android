@@ -512,6 +512,6 @@ fun PreviewOtherDebugOptions() {
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
         checkCrlRevocationList = {},
-        dependenciesMap = persistentMapOf("avs" to "1.0.0", "core-crypto" to "1.0.0")
+        dependenciesMap = persistentMapOf("preview dependency" to "1.0.0", "another dependency" to "1.0.0")
     )
 }

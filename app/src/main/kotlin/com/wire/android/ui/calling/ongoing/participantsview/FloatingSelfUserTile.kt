@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,11 +36,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.core.app.PictureInPictureModeChangedInfo
+import androidx.core.util.Consumer
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.OngoingCallActivity
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 
@@ -48,7 +53,9 @@ private const val STIFFNESS_MEDIUM_LOW = 300f
 private const val DEFAULT_OFFSETX_SELF_USER_TILE = -50f
 private const val DEFAULT_OFFSETY_SELF_USER_TILE = 80F
 private val SELF_VIDEO_TILE_HEIGHT = 250.dp
+private val SELF_VIDEO_TILE_HEIGHT_IN_PIP = 60.dp
 private val SELF_VIDEO_TILE_WIDTH = 150.dp
+private val SELF_VIDEO_TILE_WIDTH_IN_PIP = 40.dp
 
 @Composable
 fun FloatingSelfUserTile(
@@ -59,8 +66,20 @@ fun FloatingSelfUserTile(
     modifier: Modifier = Modifier,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
+    var selfVideoTileHeight by remember {
+        mutableStateOf(SELF_VIDEO_TILE_HEIGHT)
+    }
+    var selfVideoTileWidth by remember {
+        mutableStateOf(SELF_VIDEO_TILE_WIDTH)
+    }
+    val activity = LocalContext.current
+
     val density = LocalDensity.current
     val contentHeightPx = density.run { (contentHeight).toPx() }
+
+    var isOnPiPMode by remember {
+        mutableStateOf(false)
+    }
 
     var selfUserTileOffsetX by remember {
         mutableStateOf(DEFAULT_OFFSETX_SELF_USER_TILE)
@@ -77,12 +96,34 @@ fun FloatingSelfUserTile(
         label = "selfUserTileOffset"
     )
 
+    DisposableEffect(activity) {
+        val observer = Consumer<PictureInPictureModeChangedInfo> { info ->
+            if (info.isInPictureInPictureMode) {
+                selfVideoTileHeight = SELF_VIDEO_TILE_HEIGHT_IN_PIP
+                selfVideoTileWidth = SELF_VIDEO_TILE_WIDTH_IN_PIP
+                selfUserTileOffsetX = -10f
+                selfUserTileOffsetY = 10f
+                isOnPiPMode = true
+            } else {
+                selfVideoTileHeight = SELF_VIDEO_TILE_HEIGHT
+                selfVideoTileWidth = SELF_VIDEO_TILE_WIDTH
+                selfUserTileOffsetX = DEFAULT_OFFSETX_SELF_USER_TILE
+                selfUserTileOffsetY = DEFAULT_OFFSETY_SELF_USER_TILE
+                isOnPiPMode = false
+            }
+        }
+        (activity as OngoingCallActivity).addOnPictureInPictureModeChangedListener(
+            observer
+        )
+        onDispose { activity.removeOnPictureInPictureModeChangedListener(observer) }
+    }
+
     Card(
         border = BorderStroke(1.dp, colorsScheme().uncheckedColor),
         shape = RoundedCornerShape(dimensions().corner6x),
         modifier = modifier
-            .height(SELF_VIDEO_TILE_HEIGHT)
-            .width(SELF_VIDEO_TILE_WIDTH)
+            .height(selfVideoTileHeight)
+            .width(selfVideoTileWidth)
             .offset { IntOffset(selfUserTileOffset.x.toInt(), selfUserTileOffset.y.toInt()) }
             .pointerInput(Unit) {
                 detectDragGestures(
@@ -91,11 +132,11 @@ fun FloatingSelfUserTile(
                             if (selfUserTileOffsetX - 150f > -(contentWidth / 2)) {
                                 DEFAULT_OFFSETX_SELF_USER_TILE
                             } else {
-                                -contentWidth + SELF_VIDEO_TILE_WIDTH.toPx() - DEFAULT_OFFSETX_SELF_USER_TILE
+                                -contentWidth + selfVideoTileWidth.toPx() - DEFAULT_OFFSETX_SELF_USER_TILE
                             }
                         selfUserTileOffsetY =
                             if (selfUserTileOffsetY + 250f > (contentHeightPx / 2)) {
-                                contentHeightPx - SELF_VIDEO_TILE_HEIGHT.toPx() - DEFAULT_OFFSETY_SELF_USER_TILE
+                                contentHeightPx - selfVideoTileHeight.toPx() - DEFAULT_OFFSETY_SELF_USER_TILE
                             } else {
                                 DEFAULT_OFFSETY_SELF_USER_TILE
                             }
@@ -104,14 +145,14 @@ fun FloatingSelfUserTile(
                     change.consume()
                     val newOffsetX = (selfUserTileOffsetX + dragAmount.x)
                         .coerceAtLeast(
-                            -contentHeightPx - SELF_VIDEO_TILE_WIDTH.toPx()
+                            -contentHeightPx - selfVideoTileWidth.toPx()
                         )
                         .coerceAtMost(-50f)
 
                     val newOffsetY = (selfUserTileOffsetY + dragAmount.y)
                         .coerceAtLeast(50f)
                         .coerceAtMost(
-                            contentHeightPx - SELF_VIDEO_TILE_HEIGHT.toPx()
+                            contentHeightPx - selfVideoTileHeight.toPx()
                         )
 
                     selfUserTileOffsetX = newOffsetX
@@ -122,6 +163,7 @@ fun FloatingSelfUserTile(
         ParticipantTile(
             participantTitleState = participant,
             isSelfUser = true,
+            isOnPiPMode = isOnPiPMode,
             shouldFillSelfUserCameraPreview = true,
             isSelfUserMuted = participant.isMuted,
             isSelfUserCameraOn = participant.isCameraOn,

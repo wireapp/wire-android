@@ -249,22 +249,7 @@ class SendMessageViewModel @Inject constructor(
                     .handleLegalHoldFailureAfterSendingMessage(messageBundle.conversationId)
             }
         }
-        handleContributionEvent(messageBundle)
-    }
-
-    private fun handleContributionEvent(messageBundle: MessageBundle) {
-        val event = when (messageBundle) {
-            is ComposableMessageBundle.UriPickedBundle,
-            is ComposableMessageBundle.AttachmentPickedBundle -> return
-
-            is ComposableMessageBundle.AudioMessageBundle -> AnalyticsEvent.Contributed.Audio()
-            is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location()
-            is Ping -> AnalyticsEvent.Contributed.Ping()
-            is ComposableMessageBundle.EditMessageBundle,
-            is ComposableMessageBundle.SendTextMessageBundle -> AnalyticsEvent.Contributed.Text()
-        }
-
-        AnonymousAnalyticsManagerImpl.sendEvent(event)
+        handleNonAssetContributionEvent(messageBundle)
     }
 
     private suspend fun handleAssetMessageBundle(
@@ -348,12 +333,29 @@ class SendMessageViewModel @Inject constructor(
     }
 
     private fun handleAssetContributionEvent(assetType: AttachmentType) {
-        when (assetType) {
-            AttachmentType.IMAGE -> AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.Contributed.Photo())
-            AttachmentType.VIDEO -> AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.Contributed.Video())
-            AttachmentType.GENERIC_FILE -> AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.Contributed.File())
-            AttachmentType.AUDIO -> AnonymousAnalyticsManagerImpl.sendEvent(AnalyticsEvent.Contributed.Audio())
+        val event = when (assetType) {
+            AttachmentType.IMAGE -> AnalyticsEvent.Contributed.Photo()
+            AttachmentType.VIDEO -> AnalyticsEvent.Contributed.Video()
+            AttachmentType.GENERIC_FILE -> AnalyticsEvent.Contributed.File()
+            AttachmentType.AUDIO -> AnalyticsEvent.Contributed.Audio()
         }
+        AnonymousAnalyticsManagerImpl.sendEvent(event)
+    }
+
+    private fun handleNonAssetContributionEvent(messageBundle: MessageBundle) {
+        val event = when (messageBundle) {
+            // assets are not handled here, as they need extra processing
+            is ComposableMessageBundle.UriPickedBundle,
+            is ComposableMessageBundle.AudioMessageBundle,
+            is ComposableMessageBundle.AttachmentPickedBundle -> return
+
+            is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location()
+            is Ping -> AnalyticsEvent.Contributed.Ping()
+            is ComposableMessageBundle.EditMessageBundle,
+            is ComposableMessageBundle.SendTextMessageBundle -> AnalyticsEvent.Contributed.Text()
+        }
+
+        AnonymousAnalyticsManagerImpl.sendEvent(event)
     }
 
     private fun CoreFailure.handleLegalHoldFailureAfterSendingMessage(conversationId: ConversationId) = also {

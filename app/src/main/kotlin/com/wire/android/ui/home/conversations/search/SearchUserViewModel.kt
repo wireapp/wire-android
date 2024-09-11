@@ -82,7 +82,7 @@ class SearchUserViewModel @Inject constructor(
     }
 
     private suspend fun search(query: String) {
-        val (searchTerm, domain) = federatedSearchParser(query)
+        val (searchTerm, domain) = federatedSearchParser(query, addMembersSearchNavArgs?.isOtherDomainAllowed ?: true)
         val isHandleSearch = validateUserHandle(searchTerm.removeQueryPrefix()) is ValidateUserHandleResult.Valid
 
         if (isHandleSearch) {

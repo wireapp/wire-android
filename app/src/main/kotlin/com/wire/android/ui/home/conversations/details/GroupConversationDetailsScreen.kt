@@ -181,7 +181,8 @@ fun GroupConversationDetailsScreen(
                 NavigationCommand(
                     AddMembersSearchScreenDestination(
                         viewModel.conversationId,
-                        viewModel.groupOptionsState.value.isServicesAllowed
+                        viewModel.groupOptionsState.value.isServicesAllowed,
+                        viewModel.groupOptionsState.value.isOtherDomainAllowed
                     )
                 )
             )

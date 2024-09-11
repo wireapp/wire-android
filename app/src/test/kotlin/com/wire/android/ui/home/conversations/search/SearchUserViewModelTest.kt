@@ -82,7 +82,7 @@ class SearchUserViewModelTest {
         }
 
         coVerify(exactly = 1) {
-            arrangement.federatedSearchParser(any())
+            arrangement.federatedSearchParser(any(), any())
         }
     }
 
@@ -93,7 +93,7 @@ class SearchUserViewModelTest {
 
             val conversationId = ConversationId("id", "domain")
             val (arrangement, viewModel) = Arrangement()
-                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true, false))
                 .withSearchResult(
                     SearchUserResult(
                         connected = listOf(),
@@ -120,7 +120,7 @@ class SearchUserViewModelTest {
             }
 
             coVerify(exactly = 1) {
-                arrangement.federatedSearchParser(any())
+                arrangement.federatedSearchParser(any(), eq(false))
             }
         }
 
@@ -177,7 +177,7 @@ class SearchUserViewModelTest {
             }
 
             coVerify(exactly = 1) {
-                arrangement.federatedSearchParser(any())
+                arrangement.federatedSearchParser(any(), any())
             }
 
             assertEquals(result.connected.map(arrangement::fromSearchUserResult), viewModel.state.contactsResult)
@@ -214,7 +214,7 @@ class SearchUserViewModelTest {
             }
 
             coVerify(exactly = 1) {
-                arrangement.federatedSearchParser(any())
+                arrangement.federatedSearchParser(any(), any())
             }
     }
 
@@ -283,7 +283,7 @@ class SearchUserViewModelTest {
         }
 
         fun withFederatedSearchParserResult(result: FederatedSearchParser.Result) = apply {
-            coEvery { federatedSearchParser(any()) } returns result
+            coEvery { federatedSearchParser(any(), any()) } returns result
         }
 
         fun withIsValidHandleResult(result: ValidateUserHandleResult) = apply {

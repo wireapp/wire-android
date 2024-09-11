@@ -55,7 +55,8 @@ data class GroupConversationOptionsState(
     val loadingReadReceiptOption: Boolean = false,
     val error: Error = Error.None,
     val mlsEnabled: Boolean = false,
-    val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled
+    val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled,
+    val isOtherDomainAllowed: Boolean = true
 ) {
 
     sealed interface Error {

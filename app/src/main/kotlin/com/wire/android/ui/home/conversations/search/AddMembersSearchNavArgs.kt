@@ -21,5 +21,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 
 data class AddMembersSearchNavArgs(
     val conversationId: ConversationId,
-    val isServicesAllowed: Boolean
+    val isServicesAllowed: Boolean,
+    val isOtherDomainAllowed: Boolean
 )

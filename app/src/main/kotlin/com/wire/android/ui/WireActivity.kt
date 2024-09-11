@@ -108,7 +108,6 @@ import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
-import com.wire.android.util.deeplink.DeepLinkResult
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -184,6 +183,12 @@ class WireActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+
+        if (intent.action?.equals(Intent.ACTION_SYNC) == true) {
+            handleSynchronizeExternalData(intent)
+            return
+        }
+
         setIntent(intent)
         if (isNavigationCollecting) {
             /*
@@ -540,7 +545,20 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("ComplexCondition")
+    private fun handleSynchronizeExternalData(intent: Intent) {
+        if (!BuildConfig.DEBUG) {
+            appLogger.e("Synchronizing external data is only allowed on debug builds")
+            return
+        }
+
+        intent.data?.lastPathSegment.let { eventsPath ->
+            openFileInput(eventsPath)?.let { inputStream ->
+                viewModel.handleSynchronizeExternalData(inputStream)
+            }
+        }
+    }
+
+    @Suppress("ComplexCondition", "LongMethod")
     private fun handleDeepLink(
         intent: Intent?,
         savedInstanceState: Bundle? = null
@@ -556,14 +574,11 @@ class WireActivity : AppCompatActivity() {
             val navigate: (NavigationCommand) -> Unit = { lifecycleScope.launch { navigationCommands.emit(it) } }
             viewModel.handleDeepLink(
                 intent = intent,
-                onResult = ::handleDeepLinkResult,
                 onOpenConversation = {
-                    navigate(
-                        NavigationCommand(
-                            ConversationScreenDestination(it),
-                            BackStackMode.CLEAR_TILL_START
-                        )
-                    )
+                    if (it.switchedAccount) {
+                        navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                    }
+                    navigate(NavigationCommand(ConversationScreenDestination(it.conversationId), BackStackMode.UPDATE_EXISTED))
                 },
                 onIsSharingIntent = {
                     navigate(
@@ -574,11 +589,34 @@ class WireActivity : AppCompatActivity() {
                     )
                 },
                 onCannotLoginDuringACall = {
-                    Toast.makeText(
-                        this,
-                        resources.getString(R.string.cant_switch_account_in_call),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            resources.getString(R.string.cant_switch_account_in_call),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                onAuthorizationNeeded = {
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            resources.getString(R.string.deeplink_authorization_needed),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                onMigrationLogin = {
+                    navigate(NavigationCommand(LoginScreenDestination(it.userHandle), BackStackMode.UPDATE_EXISTED))
+                },
+                onOpenOtherUserProfile = {
+                    if (it.switchedAccount) {
+                        navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                    }
+                    navigate(NavigationCommand(OtherUserProfileScreenDestination(it.userId), BackStackMode.UPDATE_EXISTED))
+                },
+                onSSOLogin = {
+                    navigate(NavigationCommand(LoginScreenDestination(ssoLoginResult = it), BackStackMode.UPDATE_EXISTED))
                 }
             )
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
@@ -591,41 +629,6 @@ class WireActivity : AppCompatActivity() {
             this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG)
         } else {
             this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG, Intent::class.java)
-        }
-    }
-
-    private fun handleDeepLinkResult(result: DeepLinkResult) {
-        val navigate: (NavigationCommand) -> Unit = { lifecycleScope.launch { navigationCommands.emit(it) } }
-        when (result) {
-            is DeepLinkResult.SSOLogin -> {
-                navigate(NavigationCommand(LoginScreenDestination(ssoLoginResult = result), BackStackMode.UPDATE_EXISTED))
-            }
-
-            is DeepLinkResult.MigrationLogin -> {
-                navigate(NavigationCommand(LoginScreenDestination(result.userHandle), BackStackMode.UPDATE_EXISTED))
-            }
-
-            is DeepLinkResult.CustomServerConfig -> {
-                // do nothing, already handled in ViewModel
-            }
-
-            is DeepLinkResult.OpenConversation -> {
-                if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-                navigate(NavigationCommand(ConversationScreenDestination(result.conversationsId), BackStackMode.UPDATE_EXISTED))
-            }
-
-            is DeepLinkResult.OpenOtherUserProfile -> {
-                if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-                navigate(NavigationCommand(OtherUserProfileScreenDestination(result.userId), BackStackMode.UPDATE_EXISTED))
-            }
-
-            is DeepLinkResult.JoinConversation -> {
-                // do nothing, already handled in ViewModel
-            }
-
-            is DeepLinkResult.Unknown -> {
-                appLogger.e("unknown deeplink result $result")
-            }
         }
     }
 

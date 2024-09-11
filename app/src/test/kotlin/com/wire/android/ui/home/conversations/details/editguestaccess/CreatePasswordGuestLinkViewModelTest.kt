@@ -42,6 +42,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -173,8 +174,7 @@ class CreatePasswordGuestLinkViewModelTest {
     }
 
     @Test
-    fun `given password is invalid, when password changes, then isPasswordValid state is set to false`() =
-        runTest {
+    fun `given password is invalid, when password changes, then isPasswordValid state is set to false`() {
             val (_, viewModel) = Arrangement()
                 .withObservePasswordChanges()
                 .withPasswordValidation(true)

@@ -104,25 +104,26 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
             put(MIME_TYPE, mimeType)
             put(SIZE, fileSize)
         }
-        resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+        resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.also { downloadedUri ->
+            resolver.copyFile(downloadedUri, downloadedDataPath)
+        }
     } else {
         val authority = getProviderAuthority()
         val destinationFile = File(downloadsDir, availableAssetName)
-        val uri = FileProvider.getUriForFile(this, authority, destinationFile)
-        if (mimeType?.isNotEmpty() == true) {
-            val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        FileProvider.getUriForFile(this, authority, destinationFile).also { downloadedUri ->
+            resolver.copyFile(downloadedUri, downloadedDataPath)
             downloadManager.addCompletedDownload(
                 /* title = */ availableAssetName,
                 /* description = */ availableAssetName,
                 /* isMediaScannerScannable = */ true,
-                /* mimeType = */ mimeType,
+                /* mimeType = */ mimeType.orEmpty().ifEmpty { "*/*" },
                 /* path = */ destinationFile.absolutePath,
                 /* length = */ fileSize,
                 /* showNotification = */ false
             )
         }
-        uri
-    }?.also { downloadedUri -> resolver.copyFile(downloadedUri, downloadedDataPath) }
+    }
 }
 
 fun ContentResolver.copyFile(destinationUri: Uri, sourcePath: Path) {
@@ -201,28 +202,32 @@ suspend fun Uri.resampleImageAndCopyToTempPath(
     dispatcher: DispatcherProvider = DefaultDispatcherProvider()
 ): Long {
     return withContext(dispatcher.io()) {
-        var size: Long
         val originalImage = toByteArray(context, dispatcher)
         if (originalImage.isEmpty()) return@withContext 0L // if the image is empty, resampling it would cause an exception
 
-        ImageUtil.resample(originalImage, sizeClass).let { processedImage ->
-            val file = tempCachePath.toFile()
-            try {
-                size = processedImage.size.toLong()
-                file.setWritable(true)
-                file.outputStream().use { it.write(processedImage) }
-            } catch (e: FileNotFoundException) {
-                appLogger.e("[ResampleImage] Cannot find file ${file.path}", e)
-                throw e
-            } catch (e: IOException) {
-                appLogger.e("[ResampleImage] I/O error while writing the image", e)
-                throw e
-            }
+        val mimeType = this@resampleImageAndCopyToTempPath.getMimeType(context)
+        if (mimeType == "image/gif") {
+            // GIFs are not resampled, it takes long and usually GIFs are small enough to be shared as is.
+            // If the GIF is too large, the user will be informed about that, just like for all other files.
+            originalImage.writeToFile(tempCachePath.toFile())
+        } else {
+            ImageUtil.resample(originalImage, sizeClass).writeToFile(tempCachePath.toFile())
         }
-
-        size
     }
 }
+
+private fun ByteArray.writeToFile(file: File): Long =
+    try {
+        file.setWritable(true)
+        file.outputStream().use { it.write(this) }
+        this.size.toLong()
+    } catch (e: FileNotFoundException) {
+        appLogger.e("[ResampleImage] Cannot find file ${file.path}", e)
+        throw e
+    } catch (e: IOException) {
+        appLogger.e("[ResampleImage] I/O error while writing the image", e)
+        throw e
+    }
 
 fun Context.getFileName(uri: Uri): String? = when (uri.scheme) {
     ContentResolver.SCHEME_CONTENT -> getContentFileName(uri)

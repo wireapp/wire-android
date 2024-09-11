@@ -1070,6 +1070,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
     <string name="cant_switch_account_in_call">You can\'t switch accounts while in a call</string>
+    <string name="deeplink_authorization_needed">You must login to perform this action</string>
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:</string>
     <string name="custom_backend_dialog_body_backend_name">Backend name:</string>
@@ -1175,7 +1176,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
     <!-- Analytics Usage dialog -->
     <string name="analytics_usage_dialog_title">Consent to share user data</string>
-    <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID. The data is neither linked to your personal information nor shared with third parties besides Zeta Project Germany GmbH. It includes, for example, when you use a feature, your app version, device type, or your operating system. This data will be deleted at the latest after 365 days.\n\nFind further details in our Privacy Policy. You can revoke your consent at any time.</string>
+    <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID. The data is neither linked to your personal information nor shared with third parties besides Wire Group. It includes, for example, when you use a feature, your app version, device type, or your operating system. This data will be deleted at the latest after 365 days.\n\nFind further details in our Privacy Policy. You can revoke your consent at any time.</string>
     <string name="analytics_usage_dialog_button_agree">Agree</string>
     <string name="analytics_usage_dialog_button_decline">Decline</string>
     <string name="analytics_usage_dialog_button_privacy_policy">Privacy Policy</string>

@@ -19,7 +19,6 @@
 package com.wire.android.ui.calling.ongoing.participantsview.gridview
 
 import android.view.View
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +34,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import com.wire.android.BuildConfig
+import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -43,7 +44,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GroupCallGrid(
     participants: List<UICallParticipant>,
@@ -58,6 +58,8 @@ fun GroupCallGrid(
     contentPadding: Dp = dimensions().spacing4x,
     spacedBy: Dp = dimensions().spacing2x,
 ) {
+    val activity = LocalActivity.current
+
     // We need the number of tiles rows needed to calculate their height
     val numberOfTilesRows = remember(participants.size) {
         tilesRowsCount(participants.size)
@@ -83,7 +85,7 @@ fun GroupCallGrid(
             // since we are getting participants by chunk of 8 items,
             // we need to check that we are on first page for self user
             val isSelfUser = remember(pageIndex, participants.first()) {
-                pageIndex == 0 && participants.first() == participant
+                pageIndex == 0 && participants.first() == participant && !BuildConfig.PICTURE_IN_PICTURE_ENABLED
             }
 
             ParticipantTile(
@@ -104,6 +106,7 @@ fun GroupCallGrid(
                     .height(tileHeight)
                     .animateItem(),
                 participantTitleState = participant,
+                isOnPiPMode = activity.isInPictureInPictureMode,
                 isSelfUser = isSelfUser,
                 isSelfUserMuted = isSelfUserMuted,
                 isSelfUserCameraOn = isSelfUserCameraOn,

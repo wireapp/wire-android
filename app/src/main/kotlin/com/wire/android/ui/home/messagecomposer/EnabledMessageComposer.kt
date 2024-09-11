@@ -21,7 +21,12 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.content.MediaType
+import androidx.compose.foundation.content.consume
+import androidx.compose.foundation.content.contentReceiver
+import androidx.compose.foundation.content.hasMediaType
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,6 +59,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -69,11 +75,12 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
+import com.wire.android.util.isImage
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Suppress("ComplexMethod")
 @Composable
 fun EnabledMessageComposer(
@@ -95,6 +102,7 @@ fun EnabledMessageComposer(
     tempWritableImageUri: Uri?,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     val density = LocalDensity.current
     val navBarHeight = BottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
@@ -234,7 +242,27 @@ fun EnabledMessageComposer(
 
                                         AdditionalOptionSubMenuState.RecordAudio -> {}
                                     }
-                                },
+                                }
+                                .contentReceiver(
+                                    receiveContentListener = { transferableContent ->
+                                        if (transferableContent.hasMediaType(MediaType.Image)) {
+                                            val imageUriList = mutableListOf<Uri>()
+                                            transferableContent
+                                                .consume { item ->
+                                                    // Only use URIs with images
+                                                    (item.uri != null && item.uri.isImage(context))
+                                                        .also { hasImageUri ->
+                                                            if (hasImageUri) imageUriList.add(item.uri)
+                                                        }
+                                                }
+                                                .also {
+                                                    onImagesPicked(imageUriList)
+                                                }
+                                        } else {
+                                            transferableContent
+                                        }
+                                    }
+                                ),
                         )
 
                         val mentionSearchResult = messageComposerViewState.value.mentionSearchResult

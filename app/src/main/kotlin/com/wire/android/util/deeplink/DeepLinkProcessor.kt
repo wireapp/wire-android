@@ -20,16 +20,20 @@ package com.wire.android.util.deeplink
 
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -48,47 +52,103 @@ sealed class DeepLinkResult {
     }
 
     data class OpenConversation(
-        val conversationsId: ConversationId,
+        val conversationId: ConversationId,
         val switchedAccount: Boolean = false
     ) : DeepLinkResult()
 
-    data class OpenOtherUserProfile(val userId: QualifiedID, val switchedAccount: Boolean = false) :
-        DeepLinkResult()
+    data class OpenOtherUserProfile(val userId: QualifiedID, val switchedAccount: Boolean = false) : DeepLinkResult()
 
-    data class JoinConversation(val code: String, val key: String, val domain: String?) :
-        DeepLinkResult()
+    data class JoinConversation(
+        val code: String,
+        val key: String,
+        val domain: String?,
+        val switchedAccount: Boolean = false
+    ) : DeepLinkResult()
 
     data class MigrationLogin(val userHandle: String) : DeepLinkResult()
+
+    data object SharingIntent : DeepLinkResult()
+
+    data object AuthorizationNeeded : DeepLinkResult()
+
+    sealed class Failure : DeepLinkResult() {
+        data object OngoingCall : Failure()
+        data object Unknown : Failure()
+    }
 }
 
 @Singleton
 class DeepLinkProcessor @Inject constructor(
     private val accountSwitch: AccountSwitchUseCase,
-    private val currentSession: CurrentSessionUseCase
+    private val currentSession: CurrentSessionUseCase,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) {
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
-    suspend operator fun invoke(uri: Uri): DeepLinkResult {
-        val switchedAccount = switchAccountIfNeeded(uri)
+    suspend operator fun invoke(uri: Uri?, isSharingIntent: Boolean): DeepLinkResult {
+        return when (val sessionResult = currentSession()) {
+            is CurrentSessionResult.Failure.Generic,
+            CurrentSessionResult.Failure.SessionNotFound -> uri?.let { handleNotAuthorizedDeepLinks(uri) } ?: DeepLinkResult.Unknown
 
+            is CurrentSessionResult.Success -> {
+                if (isSharingIntent) {
+                    return DeepLinkResult.SharingIntent
+                } else {
+                    uri?.let { handleDeepLinks(uri, sessionResult.accountInfo) } ?: DeepLinkResult.Unknown
+                }
+            }
+        }
+    }
+
+    private suspend fun handleDeepLinks(uri: Uri, accountInfo: AccountInfo): DeepLinkResult {
+        return when (accountInfo) {
+            is AccountInfo.Invalid -> {
+                handleNotAuthorizedDeepLinks(uri)
+            }
+
+            is AccountInfo.Valid -> {
+                return when (val switchStatus = switchAccountIfNeeded(uri, accountInfo)) {
+                    SwitchAccountStatus.Switched,
+                    SwitchAccountStatus.NoNeeded -> {
+                        var deepLinkResult = handleNotAuthorizedDeepLinks(uri)
+                        if (deepLinkResult == DeepLinkResult.AuthorizationNeeded) {
+                            deepLinkResult = handleAuthorizedDeepLinks(
+                                uri = uri,
+                                accountInfo = accountInfo,
+                                switchedAccount = switchStatus == SwitchAccountStatus.Switched
+                            )
+                        }
+                        deepLinkResult
+                    }
+
+                    SwitchAccountStatus.FailedDueToCall -> DeepLinkResult.Failure.OngoingCall
+                    SwitchAccountStatus.FailedDueToUnknownError -> DeepLinkResult.Failure.Unknown
+                }
+            }
+        }
+    }
+
+    private fun handleNotAuthorizedDeepLinks(uri: Uri): DeepLinkResult {
         return when (uri.host) {
             ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
             SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
-            CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri, switchedAccount)
-            OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(
-                uri,
-                switchedAccount
-            )
-
             MIGRATION_LOGIN_HOST -> getOpenMigrationLoginDeepLinkResult(uri)
-            JOIN_CONVERSATION_DEEPLINK_HOST -> getJoinConversationDeepLinkResult(uri)
-            OPEN_USER_PROFILE_DEEPLINK_HOST -> getConnectingUserProfile(uri, switchedAccount)
+            else -> DeepLinkResult.AuthorizationNeeded
+        }
+    }
+
+    private fun handleAuthorizedDeepLinks(uri: Uri, accountInfo: AccountInfo.Valid, switchedAccount: Boolean): DeepLinkResult {
+        return when (uri.host) {
+            CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri, switchedAccount)
+            OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri, switchedAccount)
+            JOIN_CONVERSATION_DEEPLINK_HOST -> getJoinConversationDeepLinkResult(uri, switchedAccount)
+            OPEN_USER_PROFILE_DEEPLINK_HOST -> getConnectingUserProfile(uri, switchedAccount, accountInfo)
             else -> DeepLinkResult.Unknown
         }
     }
 
-    private suspend fun getConnectingUserProfile(uri: Uri, switchedAccount: Boolean): DeepLinkResult {
-        return uri.lastPathSegment?.toDefaultQualifiedId()?.let {
+    private fun getConnectingUserProfile(uri: Uri, switchedAccount: Boolean, accountInfo: AccountInfo.Valid): DeepLinkResult {
+        return uri.lastPathSegment?.toDefaultQualifiedId(accountInfo.userId.domain)?.let {
             DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
         } ?: DeepLinkResult.Unknown
     }
@@ -100,29 +160,34 @@ class DeepLinkProcessor @Inject constructor(
      * TODO: replace and remove this with String.toQualifiedID() when web sends qualified id.
      * REF: WPB-10532
      */
-    private suspend fun String.toDefaultQualifiedId(): QualifiedID {
-        val domain = when (val result = currentSession()) {
-            is CurrentSessionResult.Success -> result.accountInfo.userId.domain
-            else -> "wire.com"
-        }
+    private fun String.toDefaultQualifiedId(currentUserDomain: String?): QualifiedID {
+        val domain = currentUserDomain ?: "wire.com"
         // This lowercase is important, since web/iOS is sending/handling this as uppercase.
         return QualifiedID(this.lowercase(), domain)
     }
 
-    private suspend fun switchAccountIfNeeded(uri: Uri): Boolean {
+    private suspend fun switchAccountIfNeeded(uri: Uri, accountInfo: AccountInfo.Valid): SwitchAccountStatus =
         uri.getQueryParameter(USER_TO_USE_QUERY_PARAM)?.toQualifiedID(qualifiedIdMapper)
             ?.let { userId ->
-                val shouldSwitchAccount = when (val result = currentSession()) {
-                    is CurrentSessionResult.Failure.Generic -> true
-                    CurrentSessionResult.Failure.SessionNotFound -> true
-                    is CurrentSessionResult.Success -> result.accountInfo.userId != userId
+                return when {
+                    accountInfo.userId == userId -> {
+                        SwitchAccountStatus.NoNeeded
+                    }
+
+                    coreLogic.getSessionScope(accountInfo.userId).calls.establishedCall().first().isNotEmpty() -> {
+                        SwitchAccountStatus.FailedDueToCall
+                    }
+
+                    else -> {
+                        when (accountSwitch(SwitchAccountParam.SwitchToAccount(userId))) {
+                            SwitchAccountResult.Failure -> SwitchAccountStatus.FailedDueToUnknownError
+                            SwitchAccountResult.GivenAccountIsInvalid -> SwitchAccountStatus.FailedDueToUnknownError
+                            SwitchAccountResult.NoOtherAccountToSwitch -> SwitchAccountStatus.NoNeeded
+                            SwitchAccountResult.SwitchedToAnotherAccount -> SwitchAccountStatus.Switched
+                        }
+                    }
                 }
-                if (shouldSwitchAccount) {
-                    return accountSwitch(SwitchAccountParam.SwitchToAccount(userId)) == SwitchAccountResult.SwitchedToAnotherAccount
-                }
-            }
-        return false
-    }
+            } ?: SwitchAccountStatus.NoNeeded
 
     private fun getOpenConversationDeepLinkResult(
         uri: Uri,
@@ -169,12 +234,12 @@ class DeepLinkProcessor @Inject constructor(
         }
     }
 
-    private fun getJoinConversationDeepLinkResult(uri: Uri): DeepLinkResult {
+    private fun getJoinConversationDeepLinkResult(uri: Uri, switchedAccount: Boolean): DeepLinkResult {
         val code = uri.getQueryParameter(JOIN_CONVERSATION_CODE_PARAM)
         val key = uri.getQueryParameter(JOIN_CONVERSATION_KEY_PARAM)
         val domain = uri.getQueryParameter(JOIN_CONVERSATION_DOMAIN_PARAM)
         if (code == null || key == null) return DeepLinkResult.Unknown
-        return DeepLinkResult.JoinConversation(code, key, domain)
+        return DeepLinkResult.JoinConversation(code, key, domain, switchedAccount)
     }
 
     companion object {
@@ -241,4 +306,11 @@ enum class SSOFailureCodes(val label: String, val errorCode: Int) {
         @VisibleForTesting
         const val UNKNOWN = 0
     }
+}
+
+enum class SwitchAccountStatus {
+    Switched,
+    NoNeeded,
+    FailedDueToCall,
+    FailedDueToUnknownError
 }

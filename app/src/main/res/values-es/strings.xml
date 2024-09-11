@@ -480,10 +480,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_edit">Editar</string>
     <string name="label_delete">Eliminar</string>
     <string name="info_message_copied">Mensaje copiado</string>
-    <string name="conversation_banner_federated">Usuarios federados</string>
-    <string name="conversation_banner_externals">externos</string>
-    <string name="conversation_banner_guests">invitados</string>
-    <string name="conversation_banner_services">servicios</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Usuarios federados, externos, invitados y servicios est&#225;n presentes</string>
     <string name="conversation_banner_federated_externals_guests_present">Usuarios federados, externos e invitados est&#225;n presentes</string>
     <string name="conversation_banner_federated_externals_services_present">Usuarios federados, externos y servicios est&#225;n presentes</string>
@@ -1033,4 +1029,5 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
 </resources>

@@ -351,9 +351,7 @@ class WireActivityViewModel @Inject constructor(
                 return@launch
             }
             val isSharingIntent = isSharingIntent(intent)
-            val result = intent?.data?.let { deepLinkProcessor.get().invoke(it, isSharingIntent) } ?: DeepLinkResult.Unknown
-
-            when (result) {
+            when (val result = deepLinkProcessor.get().invoke(intent?.data, isSharingIntent)) {
                 DeepLinkResult.AuthorizationNeeded -> onAuthorizationNeeded()
                 is DeepLinkResult.SSOLogin -> onSSOLogin(result)
                 is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)

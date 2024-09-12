@@ -55,17 +55,17 @@ class ChangeHandleViewModel @Inject constructor(
             getSelf().firstOrNull()?.handle.orEmpty().let { currentHandle ->
                 textState.setTextAndPlaceCursorAtEnd(currentHandle)
                 textState.textAsFlow().collectLatest { newHandle ->
-                        state = when (validateHandle(newHandle.toString())) {
-                            is ValidateUserHandleResult.Invalid -> state.copy(
-                                error = HandleUpdateErrorState.TextFieldError.UsernameInvalidError,
-                                isSaveButtonEnabled = false
-                            )
-                            is ValidateUserHandleResult.Valid -> state.copy(
-                                error = HandleUpdateErrorState.None,
-                                isSaveButtonEnabled = newHandle.toString() != currentHandle
-                            )
-                        }
+                    state = when (validateHandle(newHandle.toString())) {
+                        is ValidateUserHandleResult.Invalid -> state.copy(
+                            error = HandleUpdateErrorState.TextFieldError.UsernameInvalidError,
+                            isSaveButtonEnabled = false
+                        )
+                        is ValidateUserHandleResult.Valid -> state.copy(
+                            error = HandleUpdateErrorState.None,
+                            isSaveButtonEnabled = newHandle.toString() != currentHandle
+                        )
                     }
+                }
             }
         }
     }

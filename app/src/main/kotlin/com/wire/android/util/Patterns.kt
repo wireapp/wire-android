@@ -29,5 +29,12 @@ object Patterns {
                 "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:" +
                 "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
     )
-    val HANDLE: Pattern = Pattern.compile("^[a-z0-9._-]*$")
+
+    /**
+     * A handle can contain only lowercase characters, numbers, dots, underscores, and hyphens.
+     *
+     * We include the uppercase characters in the pattern and later we are transforming them to lowercase, so we can ignore
+     * the invalid error / animation / and removal of uppercase character from the input field.
+     */
+    val HANDLE: Pattern = Pattern.compile("^[a-zA-Z0-9._-]*$")
 }

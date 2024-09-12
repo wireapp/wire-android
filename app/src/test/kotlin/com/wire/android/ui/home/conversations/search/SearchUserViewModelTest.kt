@@ -27,23 +27,30 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.navArgs
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.GroupID
+import com.wire.kalium.logic.data.mls.CipherSuite
 import com.wire.kalium.logic.data.publicuser.model.UserSearchDetails
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
+import com.wire.kalium.logic.feature.conversation.GetConversationProtocolInfoUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
 import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchUserResult
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -93,7 +100,7 @@ class SearchUserViewModelTest {
 
             val conversationId = ConversationId("id", "domain")
             val (arrangement, viewModel) = Arrangement()
-                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true, false))
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
                 .withSearchResult(
                     SearchUserResult(
                         connected = listOf(),
@@ -122,6 +129,84 @@ class SearchUserViewModelTest {
             coVerify(exactly = 1) {
                 arrangement.federatedSearchParser(any(), eq(false))
             }
+        }
+
+    @Test
+    fun `given Proteus conversation and MLS team, when calling the searchUseCase, then otherDomain is not allowed`() =
+        runTest {
+            val conversationId = ConversationId("id", "domain")
+            val (arrangement, viewModel) = Arrangement()
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
+                .withConversationProtocolInfo(GetConversationProtocolInfoUseCase.Result.Success(Conversation.ProtocolInfo.Proteus))
+                .withDefaultProtocol(SupportedProtocol.MLS)
+                .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
+                .withFederatedSearchParserResult(
+                    FederatedSearchParser.Result(
+                        searchTerm = "query",
+                        domain = "domain"
+                    )
+                )
+                .withSearchByHandleResult(
+                    SearchUserResult(
+                        connected = listOf(),
+                        notConnected = listOf()
+                    )
+                )
+                .arrange()
+
+            assertEquals(false, viewModel.state.isOtherDomainAllowed)
+        }
+
+    @Test
+    fun `given MLS conversation and Proteus team, when calling the searchUseCase, then otherDomain is not allowed`() =
+        runTest {
+            val conversationId = ConversationId("id", "domain")
+            val (arrangement, viewModel) = Arrangement()
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
+                .withConversationProtocolInfo(GetConversationProtocolInfoUseCase.Result.Success(mlsProtocol))
+                .withDefaultProtocol(SupportedProtocol.PROTEUS)
+                .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
+                .withFederatedSearchParserResult(
+                    FederatedSearchParser.Result(
+                        searchTerm = "query",
+                        domain = "domain"
+                    )
+                )
+                .withSearchByHandleResult(
+                    SearchUserResult(
+                        connected = listOf(),
+                        notConnected = listOf()
+                    )
+                )
+                .arrange()
+
+            assertEquals(false, viewModel.state.isOtherDomainAllowed)
+        }
+
+    @Test
+    fun `given MLS conversation and MLS team, when calling the searchUseCase, then otherDomain is allowed`() =
+        runTest {
+            val conversationId = ConversationId("id", "domain")
+            val (arrangement, viewModel) = Arrangement()
+                .withAddMembersSearchNavArgs(AddMembersSearchNavArgs(conversationId, true))
+                .withConversationProtocolInfo(GetConversationProtocolInfoUseCase.Result.Success(mlsProtocol))
+                .withDefaultProtocol(SupportedProtocol.MLS)
+                .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
+                .withFederatedSearchParserResult(
+                    FederatedSearchParser.Result(
+                        searchTerm = "query",
+                        domain = "domain"
+                    )
+                )
+                .withSearchByHandleResult(
+                    SearchUserResult(
+                        connected = listOf(),
+                        notConnected = listOf()
+                    )
+                )
+                .arrange()
+
+            assertEquals(true, viewModel.state.isOtherDomainAllowed)
         }
 
     @Test
@@ -186,36 +271,36 @@ class SearchUserViewModelTest {
 
     @Test
     fun `given search term is a valid handle, when searching, then search by handle`() = runTest {
-            val query = "query"
-            val (arrangement, viewModel) = Arrangement()
-                .withAddMembersSearchNavArgsThatThrowsException()
-                .withSearchByHandleResult(
-                    SearchUserResult(
-                        connected = listOf(),
-                        notConnected = listOf()
-                    )
+        val query = "query"
+        val (arrangement, viewModel) = Arrangement()
+            .withAddMembersSearchNavArgsThatThrowsException()
+            .withSearchByHandleResult(
+                SearchUserResult(
+                    connected = listOf(),
+                    notConnected = listOf()
                 )
-                .withFederatedSearchParserResult(
-                    FederatedSearchParser.Result(
-                        searchTerm = query,
-                        domain = "domain"
-                    )
+            )
+            .withFederatedSearchParserResult(
+                FederatedSearchParser.Result(
+                    searchTerm = query,
+                    domain = "domain"
                 )
-                .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
-                .arrange()
+            )
+            .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
+            .arrange()
 
-            viewModel.searchQueryChanged(query)
-            coVerify(exactly = 1) {
-                arrangement.searchByHandleUseCase.invoke(
-                    query,
-                    excludingConversation = null,
-                    customDomain = "domain"
-                )
-            }
+        viewModel.searchQueryChanged(query)
+        coVerify(exactly = 1) {
+            arrangement.searchByHandleUseCase.invoke(
+                query,
+                excludingConversation = null,
+                customDomain = "domain"
+            )
+        }
 
-            coVerify(exactly = 1) {
-                arrangement.federatedSearchParser(any(), any())
-            }
+        coVerify(exactly = 1) {
+            arrangement.federatedSearchParser(any(), any())
+        }
     }
 
     private class Arrangement {
@@ -237,12 +322,21 @@ class SearchUserViewModelTest {
 
         @MockK
         lateinit var searchByHandleUseCase: SearchByHandleUseCase
+
+        @MockK
+        lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
+
+        @MockK
+        lateinit var getConversationProtocolInfo: GetConversationProtocolInfoUseCase
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { contactMapper.fromSearchUserResult(any()) } answers {
                 val user = args.get(0) as UserSearchDetails
                 fromSearchUserResult(user)
             }
+            every { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
+            coEvery { getConversationProtocolInfo(any()) } returns GetConversationProtocolInfoUseCase.Result.Success(Conversation.ProtocolInfo.Proteus)
         }
 
         fun fromSearchUserResult(user: UserSearchDetails): Contact {
@@ -294,19 +388,40 @@ class SearchUserViewModelTest {
             coEvery { searchByHandleUseCase(any(), any(), any()) } returns result
         }
 
+        suspend fun withConversationProtocolInfo(result: GetConversationProtocolInfoUseCase.Result) = apply {
+            coEvery { getConversationProtocolInfo(any()) } returns result
+        }
+
+        fun withDefaultProtocol(protocol: SupportedProtocol) = apply {
+            every { getDefaultProtocolUseCase() } returns protocol
+        }
+
         private lateinit var searchUserViewModel: SearchUserViewModel
 
         fun arrange() = apply {
             searchUserViewModel = SearchUserViewModel(
-                searchUsersUseCase,
-                searchByHandleUseCase,
-                contactMapper,
-                federatedSearchParser,
-                validateUserHandle,
-                savedStateHandle
+                searchUserUseCase = searchUsersUseCase,
+                searchByHandleUseCase = searchByHandleUseCase,
+                contactMapper = contactMapper,
+                federatedSearchParser = federatedSearchParser,
+                validateUserHandle = validateUserHandle,
+                getConversationProtocolInfo = getConversationProtocolInfo,
+                getDefaultProtocol = getDefaultProtocolUseCase,
+                savedStateHandle = savedStateHandle
             )
         }.run {
             this to searchUserViewModel
         }
+    }
+
+    companion object {
+
+        val mlsProtocol = Conversation.ProtocolInfo.MLS(
+            GroupID("s"),
+            Conversation.ProtocolInfo.MLSCapable.GroupState.PENDING_CREATION,
+            0UL,
+            Instant.parse("2021-03-30T15:36:00.000Z"),
+            cipherSuite = CipherSuite.MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
+        )
     }
 }

@@ -174,8 +174,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isUpdatingSelfDeletingAllowed = isSelfAnAdmin,
                         mlsEnabled = isMLSEnabled(),
                         isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
-                        selfDeletionTimer = selfDeletionTimer,
-                        isOtherDomainAllowed = isMLSTeam && isMLSConversation
+                        selfDeletionTimer = selfDeletionTimer
                     )
                 )
             }.collect {}

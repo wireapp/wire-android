@@ -80,9 +80,14 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
+<<<<<<< HEAD
 import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
+=======
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
+import com.wire.android.feature.analytics.model.AnalyticsEvent
+>>>>>>> 7a6f0681c (feat: add analytics initial events (WPB-10589) (#3428))
 import com.wire.android.mapper.MessageDateTimeGroup
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
@@ -309,6 +314,7 @@ fun ConversationScreen(
                         getOngoingCallIntent(activity, it.toString()).run {
                             activity.startActivity(this)
                         }
+                        AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
                     }
                 }
             )
@@ -322,6 +328,7 @@ fun ConversationScreen(
                     getOutgoingCallIntent(activity, conversationListCallViewModel.conversationId.toString()).run {
                         activity.startActivity(this)
                     }
+                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
                 }
                 showDialog.value = ConversationScreenDialogType.NONE
             }, onDialogDismiss = {
@@ -348,12 +355,13 @@ fun ConversationScreen(
                             getOutgoingCallIntent(activity, it.toString()).run {
                                 activity.startActivity(this)
                             }
+                        },
+                        onOpenOngoingCallScreen = {
+                            getOngoingCallIntent(activity, it.toString()).run {
+                                activity.startActivity(this)
+                            }
                         }
-                    ) {
-                        getOngoingCallIntent(activity, it.toString()).run {
-                            activity.startActivity(this)
-                        }
-                    }
+                    )
                 },
                 onDialogDismiss = {
                     showDialog.value = ConversationScreenDialogType.NONE
@@ -393,12 +401,13 @@ fun ConversationScreen(
                             getOutgoingCallIntent(activity, it.toString()).run {
                                 activity.startActivity(this)
                             }
+                        },
+                        onOpenOngoingCallScreen = {
+                            getOngoingCallIntent(activity, it.toString()).run {
+                                activity.startActivity(this)
+                            }
                         }
-                    ) {
-                        getOngoingCallIntent(activity, it.toString()).run {
-                            activity.startActivity(this)
-                        }
-                    }
+                    )
                 },
                 onDialogDismiss = { showDialog.value = ConversationScreenDialogType.NONE }
             )
@@ -477,15 +486,17 @@ fun ConversationScreen(
                     getOutgoingCallIntent(activity, it.toString()).run {
                         activity.startActivity(this)
                     }
+                },
+                onOpenOngoingCallScreen = {
+                    getOngoingCallIntent(activity, it.toString()).run {
+                        activity.startActivity(this)
+                    }
                 }
-            ) {
-                getOngoingCallIntent(activity, it.toString()).run {
-                    activity.startActivity(this)
-                }
-            }
+            )
         },
         onJoinCall = {
             conversationListCallViewModel.joinOngoingCall {
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
                 getOngoingCallIntent(activity, it.toString()).run {
                     activity.startActivity(this)
                 }
@@ -743,6 +754,7 @@ private fun startCallIfPossible(
                     } else {
                         conversationListCallViewModel.endEstablishedCallIfAny {
                             onOpenOutgoingCallScreen(conversationListCallViewModel.conversationId)
+                            AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated())
                         }
                         ConversationScreenDialogType.NONE
                     }
@@ -750,6 +762,7 @@ private fun startCallIfPossible(
 
                 ConferenceCallingResult.Disabled.Established -> {
                     onOpenOngoingCallScreen(conversationListCallViewModel.conversationId)
+                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
                     ConversationScreenDialogType.NONE
                 }
 

@@ -26,7 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
-import com.wire.android.ui.common.textfield.textAsFlow
+import com.wire.android.ui.common.textfield.textAsLowercaseFlow
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -54,15 +54,16 @@ class ChangeHandleViewModel @Inject constructor(
         viewModelScope.launch {
             getSelf().firstOrNull()?.handle.orEmpty().let { currentHandle ->
                 textState.setTextAndPlaceCursorAtEnd(currentHandle)
-                textState.textAsFlow().collectLatest { newHandle ->
-                    state = when (validateHandle(newHandle.toString())) {
+                textState.textAsLowercaseFlow().collectLatest { newHandle ->
+                    textState.edit { replace(0, textState.text.length, newHandle) }
+                    state = when (validateHandle(newHandle)) {
                         is ValidateUserHandleResult.Invalid -> state.copy(
                             error = HandleUpdateErrorState.TextFieldError.UsernameInvalidError,
                             isSaveButtonEnabled = false
                         )
                         is ValidateUserHandleResult.Valid -> state.copy(
                             error = HandleUpdateErrorState.None,
-                            isSaveButtonEnabled = newHandle.toString() != currentHandle
+                            isSaveButtonEnabled = newHandle != currentHandle
                         )
                     }
                 }

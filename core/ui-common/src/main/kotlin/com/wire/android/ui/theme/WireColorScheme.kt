@@ -184,7 +184,7 @@ private val LightWireColorScheme = WireColorScheme(
     disabledCheckedColor = WireColorPalette.Gray80,
     disabledIndeterminateColor = WireColorPalette.Gray80,
     disabledUncheckedColor = WireColorPalette.Gray80,
-    messageErrorBackgroundColor = WireColorPalette.DarkRed50,
+    messageErrorBackgroundColor = WireColorPalette.LightRed50,
     groupAvatarColors = listOf(
         // Red
         WireColorPalette.LightRed300,

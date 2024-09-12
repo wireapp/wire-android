@@ -424,7 +424,7 @@
     <string name="calling_button_label_camera">Kamera</string>
     <string name="calling_button_label_speaker">Högtalare</string>
     <string name="calling_label_ringing_call">Ringer…</string>
-    <string name="calling_label_incoming_call_someone_calling">%s ringer…</string>
+    <string name="calling_label_incoming_call_someone_calling">ringer…</string>
     <string name="calling_label_default_caller_name">Inkommande samtal</string>
     <string name="calling_ongoing_call_start_anyway">Ring ändå</string>
     <!-- Connectivity Status Bar -->

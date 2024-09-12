@@ -873,7 +873,7 @@
     <string name="calling_decline_call">Отклонить вызов</string>
     <string name="calling_label_ringing_call">Вызываем…</string>
     <string name="calling_label_incoming_call">Вызов…</string>
-    <string name="calling_label_incoming_call_someone_calling">%s вызывает…</string>
+    <string name="calling_label_incoming_call_someone_calling">вызывает…</string>
     <string name="calling_label_default_caller_name">Входящий вызов</string>
     <string name="calling_label_constant_bit_rate">ПОСТОЯННЫЙ БИТРЕЙТ</string>
     <string name="calling_minimize_view">Свернуть</string>

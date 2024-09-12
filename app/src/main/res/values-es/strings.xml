@@ -691,7 +691,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="calling_decline_call">Rechazar llamada</string>
     <string name="calling_label_ringing_call">Sonando...</string>
     <string name="calling_label_incoming_call">Llamando...</string>
-    <string name="calling_label_incoming_call_someone_calling">%s est&#225; llamando...</string>
+    <string name="calling_label_incoming_call_someone_calling">est&#225; llamando...</string>
     <string name="calling_label_default_caller_name">Llamada entrante</string>
     <string name="calling_label_constant_bit_rate">BIT RATE constante</string>
     <string name="calling_minimize_view">Minimizar vista</string>

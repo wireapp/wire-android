@@ -795,7 +795,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="calling_decline_call">Rifiuta la chiamata</string>
     <string name="calling_label_ringing_call">In chiamata...</string>
     <string name="calling_label_incoming_call">Chiamata in arrivo...</string>
-    <string name="calling_label_incoming_call_someone_calling">%s sta chiamando...</string>
+    <string name="calling_label_incoming_call_someone_calling">sta chiamando...</string>
     <string name="calling_label_default_caller_name">Chiamata in entrata</string>
     <string name="calling_label_constant_bit_rate">BIT RATE costante</string>
     <string name="calling_minimize_view">Minimizza la vista</string>

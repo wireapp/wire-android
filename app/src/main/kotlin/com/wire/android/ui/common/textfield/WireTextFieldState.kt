@@ -40,3 +40,5 @@ sealed class WireTextFieldState {
 }
 
 fun TextFieldState.textAsFlow(): Flow<CharSequence> = snapshotFlow { text }
+
+fun TextFieldState.textAsLowercaseFlow(): Flow<String> = snapshotFlow { text.toString().lowercase() }

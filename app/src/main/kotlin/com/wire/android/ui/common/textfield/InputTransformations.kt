@@ -85,7 +85,6 @@ class ForceLowercaseTransformation: InputTransformation {
     }
 }
 
-
 @Stable
 fun InputTransformation.patternWithCallback(pattern: Pattern, onIncorrectChangesFound: () -> Unit): InputTransformation =
     this.then(PatternFilterWithCallback(pattern, onIncorrectChangesFound))

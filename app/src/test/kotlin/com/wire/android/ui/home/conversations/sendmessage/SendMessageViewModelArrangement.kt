@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversations.sendmessage
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.PingRinger
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -139,6 +140,9 @@ internal class SendMessageViewModelArrangement {
 
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
+    @MockK
+    lateinit var analyticsManager: AnonymousAnalyticsManager
+
     private val viewModel by lazy {
         SendMessageViewModel(
             sendTextMessage = sendTextMessage,
@@ -158,7 +162,8 @@ internal class SendMessageViewModelArrangement {
             observeConversationUnderLegalHoldNotified = observeConversationUnderLegalHoldNotified,
             sendLocation = sendLocation,
             removeMessageDraft = removeMessageDraftUseCase,
-            savedStateHandle = savedStateHandle
+            savedStateHandle = savedStateHandle,
+            analyticsManager = analyticsManager
         )
     }
 

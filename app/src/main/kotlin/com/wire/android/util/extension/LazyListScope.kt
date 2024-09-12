@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import com.wire.android.ui.home.conversationslist.common.CollapsingFolderHeader
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 
+@Suppress("LongParameterList")
 inline fun <T, K : Any> LazyListScope.folderWithElements(
     header: String? = null,
     items: Map<K, T>,

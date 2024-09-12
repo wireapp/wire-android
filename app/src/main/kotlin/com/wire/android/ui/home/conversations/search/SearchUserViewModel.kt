@@ -121,8 +121,10 @@ class SearchUserViewModel @Inject constructor(
             .filterNot { selectedContactsIds.contains(it.id) }
         val selectedContactsResult = selectedContacts
             .filter { selectedContact ->
-                if (isHandleSearch) selectedContact.handle.contains(searchTerm, ignoreCase = true)
-                else selectedContact.name.contains(searchTerm, ignoreCase = true)
+                when {
+                    isHandleSearch -> selectedContact.handle.contains(searchTerm, ignoreCase = true)
+                    else -> selectedContact.name.contains(searchTerm, ignoreCase = true)
+                }
             }
         return SearchUserState(
             contactsResult = notSelectedContactsResult.toImmutableList(),

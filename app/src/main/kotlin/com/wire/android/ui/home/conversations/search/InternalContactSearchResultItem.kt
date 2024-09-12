@@ -101,8 +101,13 @@ fun InternalContactSearchResultItem(
             }
         },
         clickable =
-            if (actionType.clickable) clickable
-            else Clickable { onCheckChange(!isSelected) },
+            if (actionType.clickable) {
+                clickable
+            } else {
+                Clickable {
+                    onCheckChange(!isSelected)
+                }
+            },
         modifier = modifier.padding(start = dimensions().spacing8x)
     )
 }

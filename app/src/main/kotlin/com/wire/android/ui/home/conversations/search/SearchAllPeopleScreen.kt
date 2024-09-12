@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.conversations.search
 
 import androidx.compose.animation.AnimatedContent
@@ -134,7 +136,7 @@ private fun SearchResult(
         ) {
             if (contactsSelectedSearchResult.isNotEmpty()) { // selected contacts section filtered by search query
                 internalSearchResults(
-                    searchTitle = context.getString(R.string.label_selected) + " (${contactsSelectedSearchResult.size})" ,
+                    searchTitle = context.getString(R.string.label_selected) + " (${contactsSelectedSearchResult.size})",
                     searchQuery = searchQuery,
                     onChecked = onChecked,
                     isLoading = isLoading,
@@ -283,9 +285,10 @@ private fun LazyListScope.internalSuccessItem(
     if (searchResult.isNotEmpty()) {
         folderWithElements(
             header = searchTitle,
-            items = (if (allItemsVisible) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)).associateBy {
-                (contact, _) -> contact.id
-            },
+            items = (if (allItemsVisible) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE))
+                .associateBy { (contact, _) ->
+                    contact.id
+                },
             folderType = FolderType.Collapsing(expanded = expanded, onChanged = onExpansionChanged),
         ) { (contact, isSelected) ->
             with(contact) {

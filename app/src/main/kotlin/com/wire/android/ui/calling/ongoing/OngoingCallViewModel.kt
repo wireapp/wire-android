@@ -51,7 +51,7 @@ class OngoingCallViewModel @AssistedInject constructor(
     @Assisted
     val conversationId: ConversationId,
     @CurrentAccount
-    private val currentUserId: UserId,
+    val currentUserId: UserId,
     private val globalDataStore: GlobalDataStore,
     private val establishedCalls: ObserveEstablishedCallsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,

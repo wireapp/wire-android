@@ -48,8 +48,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CommonTopAppBarViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
-    @KaliumCoreLogic
-    private val coreLogic: CoreLogic,
+    @KaliumCoreLogic private val coreLogic: CoreLogic
 ) : ViewModel() {
 
     var state by mutableStateOf(CommonTopAppBarState())

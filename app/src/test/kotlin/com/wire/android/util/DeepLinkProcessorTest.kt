@@ -21,17 +21,25 @@ package com.wire.android.util
 import android.net.Uri
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountResult
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModelTest
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
@@ -44,7 +52,7 @@ class DeepLinkProcessorTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withRemoteConfigDeeplink(FAKE_REMOTE_SERVER_URL)
             .arrange()
-        val result = deepLinkProcessor(arrangement.uri)
+        val result = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.CustomServerConfig::class.java, result)
         assertEquals(DeepLinkResult.CustomServerConfig(url = FAKE_REMOTE_SERVER_URL), result)
     }
@@ -54,7 +62,7 @@ class DeepLinkProcessorTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withRemoteConfigDeeplink(null)
             .arrange()
-        val result = deepLinkProcessor(arrangement.uri)
+        val result = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.Unknown::class.java, result)
         assertEquals(DeepLinkResult.Unknown, result)
     }
@@ -64,7 +72,7 @@ class DeepLinkProcessorTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withSSOLoginSuccessDeeplink(FAKE_COOKIE, FAKE_REMOTE_SERVER_ID)
             .arrange()
-        val result = deepLinkProcessor(arrangement.uri)
+        val result = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.SSOLogin.Success::class.java, result)
         assertEquals(DeepLinkResult.SSOLogin.Success(FAKE_COOKIE, FAKE_REMOTE_SERVER_ID), result)
     }
@@ -74,7 +82,7 @@ class DeepLinkProcessorTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withSSOLoginSuccessDeeplink(null, null)
             .arrange()
-        val loginSuccessNullResult = deepLinkProcessor(arrangement.uri)
+        val loginSuccessNullResult = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, loginSuccessNullResult)
         assertEquals(
             DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByCode(SSOFailureCodes.SSOServerErrorCode.UNKNOWN)),
@@ -87,7 +95,7 @@ class DeepLinkProcessorTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withSSOLoginFailureDeeplink(FAKE_ERROR)
             .arrange()
-        val result = deepLinkProcessor(arrangement.uri)
+        val result = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, result)
         assertEquals(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByLabel(FAKE_ERROR)), result)
     }
@@ -97,7 +105,7 @@ class DeepLinkProcessorTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withSSOLoginFailureDeeplink(null)
             .arrange()
-        val loginFailureNullResult = deepLinkProcessor(arrangement.uri)
+        val loginFailureNullResult = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, loginFailureNullResult)
         assertEquals(
             DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByCode(SSOFailureCodes.SSOServerErrorCode.UNKNOWN)),
@@ -110,9 +118,18 @@ class DeepLinkProcessorTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withInvalidDeeplink()
             .arrange()
-        val result = deepLinkProcessor(arrangement.uri)
+        val result = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.Unknown::class.java, result)
         assertEquals(DeepLinkResult.Unknown, result)
+    }
+
+    @Test
+    fun `given a invalid deeplink with sharing intent, returns sharing intent`() = runTest {
+        val (arrangement, deepLinkProcessor) = Arrangement()
+            .withInvalidDeeplink()
+            .arrange()
+        val result = deepLinkProcessor(arrangement.uri, true)
+        assertInstanceOf(DeepLinkResult.SharingIntent::class.java, result)
     }
 
     @Test
@@ -121,7 +138,7 @@ class DeepLinkProcessorTest {
             .withConversationDeepLink(CURRENT_USER_ID)
             .withCurrentSessionSuccess(CURRENT_USER_ID)
             .arrange()
-        val conversationResult = deepLinkProcessor(arrangement.uri)
+        val conversationResult = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.OpenConversation::class.java, conversationResult)
         assertEquals(
             DeepLinkResult.OpenConversation(CONVERSATION_ID, false),
@@ -135,7 +152,7 @@ class DeepLinkProcessorTest {
             .withConversationDeepLink(OTHER_USER_ID)
             .withCurrentSessionSuccess(CURRENT_USER_ID)
             .arrange()
-        val conversationResult = deepLinkProcessor(arrangement.uri)
+        val conversationResult = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.OpenConversation::class.java, conversationResult)
         assertEquals(
             DeepLinkResult.OpenConversation(CONVERSATION_ID, true),
@@ -144,12 +161,13 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given an other profil deeplink for current user, returns Conversation with conversationId and not switched account`() = runTest {
+    fun `given an other profile deeplink for current user, returns Conversation with conversationId and not switched account`() = runTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withOtherUserProfileDeepLink(userIdToOpen = OTHER_USER_ID, userId = CURRENT_USER_ID)
             .withCurrentSessionSuccess(CURRENT_USER_ID)
+            .withSwitchedAccount(SwitchAccountResult.SwitchedToAnotherAccount)
             .arrange()
-        val conversationResult = deepLinkProcessor(arrangement.uri)
+        val conversationResult = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.OpenOtherUserProfile::class.java, conversationResult)
         assertEquals(
             DeepLinkResult.OpenOtherUserProfile(OTHER_USER_ID, false),
@@ -163,12 +181,67 @@ class DeepLinkProcessorTest {
             .withOtherUserProfileDeepLink(userIdToOpen = OTHER_USER_ID, userId = OTHER_USER_ID)
             .withCurrentSessionSuccess(CURRENT_USER_ID)
             .arrange()
-        val conversationResult = deepLinkProcessor(arrangement.uri)
+        val conversationResult = deepLinkProcessor(arrangement.uri, false)
         assertInstanceOf(DeepLinkResult.OpenOtherUserProfile::class.java, conversationResult)
         assertEquals(
             DeepLinkResult.OpenOtherUserProfile(OTHER_USER_ID, true),
             conversationResult
         )
+    }
+
+    @Test
+    fun `given a deeplink requiring account switch during an ongoing call, returns Failure with OngoingCall reason`() = runTest {
+        val (arrangement, deepLinkProcessor) = Arrangement()
+            .withCurrentSessionSuccess(CURRENT_USER_ID)
+            .withConversationDeepLink(userId = OTHER_USER_ID)
+            .withOngoingCall()
+            .arrange()
+        val result = deepLinkProcessor(arrangement.uri, false)
+        assertInstanceOf(DeepLinkResult.Failure::class.java, result)
+        assertEquals(DeepLinkResult.Failure.OngoingCall, result)
+    }
+
+    @Test
+    fun `given a deeplink requiring account switch that fails due to unknown error, returns Failure with Unknown reason`() = runTest {
+        val (arrangement, deepLinkProcessor) = Arrangement()
+            .withCurrentSessionSuccess(CURRENT_USER_ID)
+            .withConversationDeepLink(userId = OTHER_USER_ID)
+            .withSwitchedAccount(SwitchAccountResult.Failure)
+            .arrange()
+        val result = deepLinkProcessor(arrangement.uri, false)
+        assertInstanceOf(DeepLinkResult.Failure::class.java, result)
+        assertEquals(DeepLinkResult.Failure.Unknown, result)
+    }
+
+    @Test
+    fun `given a deeplink accessed by an unauthorized user, returns AuthorizationNeeded`() = runTest {
+        val (arrangement, deepLinkProcessor) = Arrangement()
+            .withCurrentSessionError(CurrentSessionResult.Failure.SessionNotFound)
+            .withConversationDeepLink(userId = OTHER_USER_ID)
+            .arrange()
+        val result = deepLinkProcessor(arrangement.uri, false)
+        assertInstanceOf(DeepLinkResult.AuthorizationNeeded::class.java, result)
+    }
+
+    @Test
+    fun `given a valid deeplink for an authorized session without account switch, returns appropriate deep link result`() = runTest {
+        val (arrangement, deepLinkProcessor) = Arrangement()
+            .withCurrentSessionSuccess(CURRENT_USER_ID)
+            .withRemoteConfigDeeplink(FAKE_REMOTE_SERVER_URL)
+            .arrange()
+        val result = deepLinkProcessor(arrangement.uri, false)
+        assertInstanceOf(DeepLinkResult.CustomServerConfig::class.java, result)
+        assertEquals(DeepLinkResult.CustomServerConfig(FAKE_REMOTE_SERVER_URL), result)
+    }
+
+    @Test
+    fun `given a deeplink with a sharing intent, returns SharingIntent result`() = runTest {
+        val (arrangement, deepLinkProcessor) = Arrangement()
+            .withCurrentSessionSuccess(CURRENT_USER_ID)
+            .arrange()
+        val result = deepLinkProcessor(arrangement.uri, true)
+        assertInstanceOf(DeepLinkResult.SharingIntent::class.java, result)
+        assertEquals(DeepLinkResult.SharingIntent, result)
     }
 
     class Arrangement {
@@ -180,14 +253,27 @@ class DeepLinkProcessorTest {
         private lateinit var currentSession: CurrentSessionUseCase
 
         @MockK
+        private lateinit var coreLogic: CoreLogic
+
+        @MockK
+        private lateinit var establishedCallsUseCase: ObserveEstablishedCallsUseCase
+
+        @MockK
         internal lateinit var uri: Uri
 
         init {
             MockKAnnotations.init(this)
             coEvery { accountSwitchUseCase(any()) } returns SwitchAccountResult.SwitchedToAnotherAccount
+            coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(CURRENT_USER_ID))
+            coEvery { establishedCallsUseCase.invoke() } returns flowOf(emptyList())
+            every { coreLogic.getSessionScope(any()).calls.establishedCall } returns establishedCallsUseCase
         }
 
-        fun arrange() = this to DeepLinkProcessor(accountSwitchUseCase, currentSession)
+        fun arrange() = this to DeepLinkProcessor(accountSwitchUseCase, currentSession, coreLogic)
+
+        fun withSwitchedAccount(switchAccountResult: SwitchAccountResult) = apply {
+            coEvery { accountSwitchUseCase(any()) } returns switchAccountResult
+        }
 
         fun withRemoteConfigDeeplink(url: String?) = apply {
             coEvery { uri.host } returns DeepLinkProcessor.ACCESS_DEEPLINK_HOST
@@ -240,8 +326,12 @@ class DeepLinkProcessorTest {
             withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(userId = userId)))
         }
 
-        fun withCurrentSessionError() = apply {
-            withCurrentSession(CurrentSessionResult.Failure.SessionNotFound)
+        fun withCurrentSessionError(failure: CurrentSessionResult.Failure) = apply {
+            withCurrentSession(failure)
+        }
+
+        fun withOngoingCall() = apply {
+            coEvery { establishedCallsUseCase.invoke() } returns flowOf(listOf(ONGOING_CALL))
         }
     }
 
@@ -254,5 +344,17 @@ class DeepLinkProcessorTest {
         val CONVERSATION_ID = ConversationId("some_conversation", "domain")
         val CURRENT_USER_ID = UserId("some_user", "domain")
         val OTHER_USER_ID = UserId("other_user", "other_domain")
+        val ONGOING_CALL = Call(
+            CommonTopAppBarViewModelTest.conversationId,
+            CallStatus.ESTABLISHED,
+            isMuted = true,
+            isCameraOn = false,
+            isCbrEnabled = false,
+            callerId = "caller-id",
+            conversationName = "ONE_ON_ONE Name",
+            conversationType = Conversation.Type.ONE_ON_ONE,
+            callerName = "otherUsername",
+            callerTeamName = "team1"
+        )
     }
 }

@@ -46,3 +46,6 @@ comment:
     layout: diff, files, footer
     behavior: default
     require_changes: true
+
+github_checks:
+  annotations: true

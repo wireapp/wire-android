@@ -37,7 +37,7 @@ import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.navArgs
-import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
+import com.wire.android.ui.userprofile.common.UsernameMapper.fromOtherUser
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationSuccess
@@ -70,9 +70,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.e2ei.CertificateStatus
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusResult
-import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificateStatusUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetUserE2eiCertificatesUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
@@ -107,7 +105,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val fetchUsersClients: FetchUsersClientsFromRemoteUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
-    private val getUserE2eiCertificateStatus: GetUserE2eiCertificateStatusUseCase,
+    private val getUserE2eiCertificateStatus: IsOtherUserE2EIVerifiedUseCase,
     private val getUserE2eiCertificates: GetUserE2eiCertificatesUseCase,
     private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
     savedStateHandle: SavedStateHandle
@@ -148,9 +146,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun getMLSVerificationStatus() {
         viewModelScope.launch {
-            val isMLSVerified = getUserE2eiCertificateStatus(userId).let {
-                it is GetUserE2eiCertificateStatusResult.Success && it.status == CertificateStatus.VALID
-            }
+            val isMLSVerified = getUserE2eiCertificateStatus(userId)
             state = state.copy(isMLSVerified = isMLSVerified)
         }
     }
@@ -388,7 +384,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             isAvatarLoading = false,
             userAvatarAsset = userAvatarAsset,
             fullName = otherUser.name.orEmpty(),
-            userName = mapUserLabel(otherUser),
+            userName = fromOtherUser(otherUser),
             teamName = userResult.team?.name.orEmpty(),
             email = otherUser.email.orEmpty(),
             phone = otherUser.phone.orEmpty(),
@@ -399,6 +395,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             blockingState = otherUser.BlockState,
             isProteusVerified = otherUser.isProteusVerified,
             isUnderLegalHold = otherUser.isUnderLegalHold,
+            expiresAt = otherUser.expiresAt,
+            accentId = otherUser.accentId,
             conversationSheetContent = conversation?.let {
                 ConversationSheetContent(
                     title = otherUser.name.orEmpty(),

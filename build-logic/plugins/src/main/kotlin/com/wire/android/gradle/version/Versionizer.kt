@@ -17,6 +17,7 @@
  */
 package com.wire.android.gradle.version
 
+import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
 
@@ -27,11 +28,33 @@ import java.time.LocalDateTime
  * This has been built to match the current Groovy implementation:
  * https://github.com/wireapp/wire-android/blob/594497477325d77c1d203dbcaab79fb14b511530/app/build.gradle#L467
  */
-class Versionizer(private val localDateTime: LocalDateTime = LocalDateTime.now()) {
+class Versionizer(
+    private val projectDir: File,
+    private val localDateTime: LocalDateTime = LocalDateTime.now(),
+) {
 
-    val versionCode = generateVersionCode()
+    // get version from app/version.txt otherwise use the current date
+    val versionCode = readFromInternalFile() ?: generateVersionCode()
+
+    // get version from app/version.txt otherwise use the current date the file have the following format
+    // VersionCode: $$VERCODE$$\n
+    // the file is added by CI tp sync build version between store and fdroid
+    private fun readFromInternalFile(): Int? {
+        val file = File("$projectDir/version.txt")
+        println("looking for version file")
+        if (file.exists()) {
+            println("Reading version from file")
+            val lines = file.readLines()
+            val versionCode = lines.find { it.startsWith("VersionCode:") }?.substringAfter(":")?.trim()
+            println("Version code: $versionCode from file")
+            return versionCode?.toInt()
+        }
+        println("No version file found")
+        return null
+    }
 
     private fun generateVersionCode(): Int {
+        println("Generating version code with date: $localDateTime")
         return if (localDateTime <= V2_DATE_OFFSET) {
             val duration = Duration.between(V1_DATE_OFFSET, localDateTime)
             (duration.seconds / V1_SECONDS_PER_BUMP).toInt()

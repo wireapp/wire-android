@@ -17,14 +17,9 @@
  */
 package com.wire.android.ui.settings.devices.e2ei
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.navArgs
 import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -39,11 +34,7 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val observerSelfUser: GetSelfUserUseCase,
 ) : ViewModel() {
-
-    var state: E2eiCertificateDetailsState by mutableStateOf(E2eiCertificateDetailsState())
-        private set
-
-    private val e2eiCertificateDetailsScreenNavArgs: E2eiCertificateDetailsScreenNavArgs =
+    private val navArgs: E2eiCertificateDetailsScreenNavArgs =
         savedStateHandle.navArgs()
 
     private var selfUserHandle: String? = null
@@ -58,15 +49,26 @@ class E2eiCertificateDetailsViewModel @Inject constructor(
         }
     }
 
-    fun getCertificate() = e2eiCertificateDetailsScreenNavArgs.certificateString
+    fun getCertificate() =
+        when (navArgs.certificateDetails) {
+            is E2EICertificateDetails.DuringLoginCertificateDetails ->
+                navArgs.certificateDetails.certificate
+
+            is E2EICertificateDetails.AfterLoginCertificateDetails ->
+                navArgs.certificateDetails.mlsClientIdentity.x509Identity?.certificate ?: ""
+        }
+
+    fun userHandle() =
+        when (navArgs.certificateDetails) {
+            is E2EICertificateDetails.DuringLoginCertificateDetails ->
+                selfUserHandle
+
+            is E2EICertificateDetails.AfterLoginCertificateDetails ->
+                navArgs.certificateDetails.mlsClientIdentity.x509Identity?.handle?.handle ?: ""
+        }
 
     fun getCertificateName(): String {
         val date = DateTimeUtil.currentInstant().fileDateTime()
-        return "wire-certificate-$selfUserHandle-$date.txt"
+        return "wire-certificate-${userHandle()}-$date.txt"
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-data class E2eiCertificateDetailsState(
-    val wireModalSheetState: WireModalSheetState = WireModalSheetState()
-)

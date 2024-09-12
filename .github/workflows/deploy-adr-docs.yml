@@ -1,0 +1,48 @@
+name: Deploy ADR Docs
+
+on:
+  push:
+    branches: [ 'develop' ]
+  pull_request:
+    types: [ opened, synchronize ]
+    paths: [ 'docs/adr/**' ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Install pip for adr-viewer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          pip install adr-viewer
+
+      - name: Generate ADR docs
+        run: |
+          adr-viewer --adr-path docs/adr --output docs/index.html
+
+      - name: Deploy docs 🚀
+        if: github.event_name == 'push' && github.ref_name == 'develop'
+        uses: JamesIves/github-pages-deploy-action@v4.6.4
+        with:
+          branch: gh-pages
+          clean: false
+          folder: docs
+          target-folder: docs
+
+      - name: Comment new ADR(s) in PR
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.event_name == 'pull_request'
+        run: |
+          echo "# New ADR(s) in this PR 📚:" > /tmp/new-adr
+          gh pr diff ${{ github.event.pull_request.number }} --name-only | grep docs/adr | xargs cat >> /tmp/new-adr
+          gh pr comment ${{ github.event.pull_request.number }} -F /tmp/new-adr --edit-last || gh pr comment ${{ github.event.pull_request.number }} -F /tmp/new-adr

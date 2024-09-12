@@ -18,21 +18,29 @@
 
 package com.wire.android.ui.userprofile.common
 
+import android.annotation.SuppressLint
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,34 +53,52 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.MLSVerifiedIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.UserProfileAvatarType
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForUser
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 
+@SuppressLint("ComposeParameterOrder")
 @Composable
 fun UserProfileInfo(
     userId: UserId?,
@@ -89,6 +115,9 @@ fun UserProfileInfo(
     delayToShowPlaceholderIfNoAsset: Duration = 200.milliseconds,
     isProteusVerified: Boolean = false,
     isMLSVerified: Boolean = false,
+    expiresAt: Instant? = null,
+    onQrCodeClick: (() -> Unit)? = null,
+    accentId: Int = -1
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -102,7 +131,8 @@ fun UserProfileInfo(
             val userAvatarData = UserAvatarData(
                 asset = avatarAsset,
                 connectionState = connection,
-                membership = membership
+                membership = membership,
+                nameBasedAvatar = NameBasedAvatar(fullName, accentId)
             )
             val showPlaceholderIfNoAsset = remember { mutableStateOf(!delayToShowPlaceholderIfNoAsset.isPositive()) }
             val currentAssetIsNull = rememberUpdatedState(avatarAsset == null)
@@ -127,6 +157,8 @@ fun UserProfileInfo(
                     },
                     showPlaceholderIfNoAsset = showPlaceholderIfNoAsset,
                     withCrossfadeAnimation = true,
+                    type = expiresAt?.let { UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt) }
+                        ?: UserProfileAvatarType.WithoutIndicators
                 )
             }
             this@Column.AnimatedVisibility(visible = isLoading) {
@@ -145,81 +177,74 @@ fun UserProfileInfo(
                 }
             }
         }
-        ConstraintLayout(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .animateContentSize()
-        ) {
-            val (userDescription, editButton, teamDescription) = createRefs()
 
-            Column(
-                horizontalAlignment = CenterHorizontally,
-                modifier = Modifier
-                    .padding(horizontal = dimensions().spacing64x)
-                    .wrapContentSize()
-                    .constrainAs(userDescription) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.animateContentSize()) {
+            if (onQrCodeClick != null && isLoading.not()) {
+                Spacer(
+                    modifier = Modifier
+                        .padding(start = dimensions().spacing16x)
+                        .width(dimensions().spacing24x)
+                )
+            }
+
+            Column(horizontalAlignment = CenterHorizontally, modifier = Modifier.weight(1f)) {
+                Row(modifier = Modifier.padding(horizontal = dimensions().spacing16x)) {
+                    val (text, inlineContent: MutableMap<String, InlineTextContent>) =
+                        processFullName(
+                            fullName = fullName,
+                            isLoading = isLoading,
+                            isProteusVerified = isProteusVerified,
+                            isMLSVerified = isMLSVerified
+                        )
+
                     Text(
-                        text = fullName.ifBlank {
-                            if (isLoading) ""
-                            else UIText.StringResource(R.string.username_unavailable_label).asString()
-                        },
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
+                        text = text,
+                        // TODO. replace with MIDDLE_ELLIPSIS when available see https://issuetracker.google.com/issues/185418980
+                        overflow = TextOverflow.Visible,
+                        maxLines = 2,
+                        textAlign = TextAlign.Center,
                         style = MaterialTheme.wireTypography.title02,
                         color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground
-                        else MaterialTheme.wireColorScheme.labelText
+                        else MaterialTheme.wireColorScheme.labelText,
+                        inlineContent = inlineContent
                     )
-
-                    if (isMLSVerified) MLSVerifiedIcon()
-                    if (isProteusVerified) ProteusVerifiedIcon()
                 }
                 Text(
-                    text = if (membership == Membership.Service) userName else userName.ifNotEmpty { "@$userName" },
+                    text = processUsername(userName, membership, expiresAt),
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.wireTypography.body02,
-                    maxLines = 1,
+                    maxLines = 2,
+                    textAlign = TextAlign.Center,
                     color = MaterialTheme.wireColorScheme.labelText
                 )
                 UserBadge(membership, connection, topPadding = dimensions().spacing8x)
             }
-            val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
-            if (localFeatureVisibilityFlags.UserProfileEditIcon) {
-                if (editableState is EditableState.IsEditable) {
-                    ManageMemberButton(
-                        modifier = Modifier
-                            .padding(start = dimensions().spacing16x)
-                            .constrainAs(editButton) {
-                                top.linkTo(userDescription.top)
-                                bottom.linkTo(userDescription.bottom)
-                                end.linkTo(userDescription.end)
-                            },
-                        onEditClick = editableState.onEditClick
-                    )
+            if (onQrCodeClick != null && isLoading.not()) {
+                Column(Modifier.padding(end = dimensions().spacing16x)) {
+                    QRCodeIcon(onQrCodeClick)
                 }
             }
+        }
+        val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
-            if (teamName != null) {
-                TeamInformation(
+        if (localFeatureVisibilityFlags.UserProfileEditIcon) {
+            if (editableState is EditableState.IsEditable) {
+                ManageMemberButton(
                     modifier = Modifier
-                        .padding(top = dimensions().spacing8x)
-                        .padding(horizontal = dimensions().spacing16x)
-                        .constrainAs(teamDescription) {
-                            top.linkTo(userDescription.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        },
-                    teamName = teamName
+                        .padding(start = dimensions().spacing16x),
+                    onEditClick = editableState.onEditClick
                 )
             }
+        }
+
+        if (teamName != null) {
+            TeamInformation(
+                modifier = Modifier
+                    .padding(top = dimensions().spacing8x)
+                    .padding(horizontal = dimensions().spacing16x),
+                teamName = teamName
+            )
         }
 
         userId?.also {
@@ -228,6 +253,89 @@ fun UserProfileInfo(
                 modifier = Modifier.padding(top = dimensions().spacing8x)
             )
         }
+    }
+}
+
+@Composable
+private fun processFullName(
+    fullName: String,
+    isLoading: Boolean,
+    isProteusVerified: Boolean,
+    isMLSVerified: Boolean,
+): Pair<AnnotatedString, MutableMap<String, InlineTextContent>> {
+    val proteusIcon = "proteusIcon"
+    val mlsIcon = "mlsIcon"
+    val text = buildAnnotatedString {
+        val processedFullName = createMiddleEllipsizeIfNeeded(fullName)
+        append(
+            processedFullName.ifBlank {
+                if (isLoading) ""
+                else UIText.StringResource(R.string.username_unavailable_label).asString()
+            }
+        )
+
+        if (isProteusVerified) appendInlineContent(proteusIcon, "[icon1]")
+        if (isMLSVerified) appendInlineContent(mlsIcon, "[icon2]")
+    }
+    val inlineContent: MutableMap<String, InlineTextContent> = mutableMapOf()
+    if (isProteusVerified) {
+        inlineContent[proteusIcon] = InlineTextContent(
+            Placeholder(
+                width = 16.sp,
+                height = 16.sp,
+                placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
+            )
+        ) { ProteusVerifiedIcon() }
+    }
+    if (isMLSVerified) {
+        inlineContent[mlsIcon] = InlineTextContent(
+            Placeholder(
+                width = 16.sp,
+                height = 16.sp,
+                placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
+            )
+        ) { MLSVerifiedIcon() }
+    }
+    return Pair(text, inlineContent)
+}
+
+// TODO. replace with proper Ellipsize behavior to be fixed by https://issuetracker.google.com/issues/185418980
+// TODO. We then can pass the fullName without any processing and remove this function
+private fun createMiddleEllipsizeIfNeeded(
+    fullName: String,
+    maxCharsToEllipsis: Int = 40
+): String {
+    return when {
+        fullName.length <= maxCharsToEllipsis -> fullName
+        else -> {
+            val firstPart = fullName.take(maxCharsToEllipsis)
+            "$firstPart..."
+        }
+    }
+}
+
+@Composable
+fun QRCodeIcon(
+    onQrCodeClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    @StringRes contentDescriptionId: Int = R.string.user_profile_qr_code_share_link
+) {
+    androidx.compose.material3.Icon(
+        imageVector = Icons.Filled.QrCode,
+        contentDescription = stringResource(contentDescriptionId),
+        modifier = modifier
+            .size(dimensions().spacing24x)
+            .clickable { onQrCodeClick() },
+        tint = colorsScheme().onBackground
+    )
+}
+
+@Composable
+private fun processUsername(userName: String, membership: Membership, expiresAt: Instant?): String {
+    return when {
+        expiresAt != null -> UIText.StringResource(R.string.temporary_user_label, userName).asString()
+        membership == Membership.Service -> userName
+        else -> userName.ifNotEmpty { "@$userName" }
     }
 }
 
@@ -257,20 +365,64 @@ sealed class EditableState {
     class IsEditable(val onEditClick: () -> Unit) : EditableState()
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewUserProfileInfo() {
-    UserProfileInfo(
-        userId = UserId("value", "domain"),
-        isLoading = true,
-        editableState = EditableState.IsEditable {},
-        userName = "userName",
-        avatarAsset = null,
-        fullName = "fullName",
-        onUserProfileClick = {},
-        teamName = "Wire",
-        connection = ConnectionState.ACCEPTED,
-        isProteusVerified = true,
-        isMLSVerified = true
-    )
+    WireTheme {
+        UserProfileInfo(
+            userId = UserId("value", "domain"),
+            isLoading = false,
+            editableState = EditableState.IsEditable {},
+            userName = "userName",
+            avatarAsset = null,
+            fullName = "Juan Román Riquelme1 Riquelme3 Riquelme4",
+            onUserProfileClick = {},
+            teamName = "Wire",
+            connection = ConnectionState.ACCEPTED,
+            isProteusVerified = true,
+            isMLSVerified = true,
+            onQrCodeClick = {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewUserProfileInfoTempUser() {
+    WireTheme {
+        UserProfileInfo(
+            userId = UserId("value", "domain"),
+            isLoading = false,
+            editableState = EditableState.IsEditable {},
+            userName = UsernameMapper.fromOtherUser(
+                OtherUser(
+                    id = UserId("value", "domain"),
+                    name = "fullName",
+                    handle = "",
+                    accentId = 1,
+                    connectionStatus = ConnectionState.ACCEPTED,
+                    userType = UserType.GUEST,
+                    availabilityStatus = UserAvailabilityStatus.AVAILABLE,
+                    completePicture = null,
+                    previewPicture = null,
+                    expiresAt = Clock.System.now().plus(2.minutes),
+                    botService = null,
+                    isProteusVerified = true,
+                    teamId = null,
+                    deleted = false,
+                    defederated = false,
+                    supportedProtocols = null
+                )
+            ),
+            avatarAsset = null,
+            fullName = "fullName",
+            onUserProfileClick = {},
+            teamName = null,
+            connection = ConnectionState.ACCEPTED,
+            isProteusVerified = false,
+            isMLSVerified = false,
+            expiresAt = Clock.System.now().plus(1.hours),
+            onQrCodeClick = {}
+        )
+    }
 }

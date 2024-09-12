@@ -209,6 +209,37 @@ fun MarkdownNode.getFirstInlines(): MarkdownPreview? {
     }
 }
 
+private fun List<MarkdownNode>.isNotBlank(): Boolean = this.any {
+    when (it) {
+        is MarkdownNode.Document -> it.children.isNotBlank()
+        is MarkdownNode.Block.BlockQuote -> it.children.isNotBlank()
+        is MarkdownNode.Block.FencedCode -> it.literal.isNotBlank()
+        is MarkdownNode.Block.Heading -> it.children.isNotBlank()
+        is MarkdownNode.Block.IntendedCode -> it.literal.isNotBlank()
+        is MarkdownNode.Block.ListBlock.Bullet -> it.children.isNotBlank()
+        is MarkdownNode.Block.ListBlock.Ordered -> it.children.isNotBlank()
+        is MarkdownNode.Block.ListItem -> it.children.isNotBlank()
+        is MarkdownNode.Block.Paragraph -> it.children.isNotBlank()
+        is MarkdownNode.Block.Table -> it.children.isNotBlank()
+        is MarkdownNode.Block.TableContent.Body -> it.children.isNotBlank()
+        is MarkdownNode.Block.TableContent.Head -> it.children.isNotBlank()
+        is MarkdownNode.Block.ThematicBreak -> true
+        is MarkdownNode.Inline.Break -> true
+        is MarkdownNode.Inline.Code -> it.literal.isNotBlank()
+        is MarkdownNode.Inline.Emphasis -> it.children.isNotBlank()
+        is MarkdownNode.Inline.Image -> it.destination.isNotBlank()
+        is MarkdownNode.Inline.Link -> it.destination.isNotBlank()
+        is MarkdownNode.Inline.Strikethrough -> it.children.isNotBlank()
+        is MarkdownNode.Inline.StrongEmphasis -> it.children.isNotBlank()
+        is MarkdownNode.Inline.Text -> it.literal.isNotBlank()
+        is MarkdownNode.TableCell -> it.children.isNotBlank()
+        is MarkdownNode.TableRow -> it.children.isNotBlank()
+        is MarkdownNode.Unsupported -> false
+    }
+}
+
+fun MarkdownNode.Document.isNotBlank(): Boolean = children.isNotBlank()
+
 private fun List<MarkdownNode.Inline>.toPreview(): MarkdownPreview {
     return MarkdownPreview(this.toPersistentList())
 }

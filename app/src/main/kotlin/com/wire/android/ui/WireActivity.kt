@@ -21,6 +21,7 @@ package com.wire.android.ui
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Toast
@@ -49,7 +50,6 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -60,13 +60,15 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.LocalNavigator
+import com.wire.android.navigation.MainNavHost
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationGraph
-import com.wire.android.navigation.navigateToItem
+import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.getIncomingCallIntent
-import com.wire.android.ui.calling.getOngoingCallIntent
 import com.wire.android.ui.calling.getOutgoingCallIntent
+import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
@@ -96,6 +98,7 @@ import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedView
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
+import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
@@ -105,7 +108,6 @@ import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
-import com.wire.android.util.deeplink.DeepLinkResult
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -181,6 +183,12 @@ class WireActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+
+        if (intent.action?.equals(Intent.ACTION_SYNC) == true) {
+            handleSynchronizeExternalData(intent)
+            return
+        }
+
         setIntent(intent)
         if (isNavigationCollecting) {
             /*
@@ -239,7 +247,7 @@ class WireActivity : AppCompatActivity() {
                             }
                         )
                         CompositionLocalProvider(LocalNavigator provides navigator) {
-                            NavigationGraph(
+                            MainNavHost(
                                 navigator = navigator,
                                 startDestination = startDestination
                             )
@@ -247,7 +255,7 @@ class WireActivity : AppCompatActivity() {
 
                         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
                         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-                        SetUpNavigation(navigator.navController, onComplete)
+                        SetUpNavigation(navigator, onComplete)
                         HandleScreenshotCensoring()
                         HandleDialogs(navigator::navigate)
                     }
@@ -258,11 +266,11 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun SetUpNavigation(
-        navController: NavHostController,
+        navigator: Navigator,
         onComplete: () -> Unit,
     ) {
         val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
-        val currentNavController by rememberUpdatedState(navController)
+        val currentNavigator by rememberUpdatedState(navigator)
         LaunchedEffect(Unit) {
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -276,22 +284,22 @@ class WireActivity : AppCompatActivity() {
                         }
                         .collectLatest {
                             currentKeyboardController?.hide()
-                            currentNavController.navigateToItem(it)
+                            currentNavigator.navigate(it)
                         }
                 }
             }
         }
 
-        DisposableEffect(navController) {
+        DisposableEffect(navigator.navController) {
             val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, _, _ ->
                 currentKeyboardController?.hide()
             }
-            navController.addOnDestinationChangedListener(updateScreenSettingsListener)
-            navController.addOnDestinationChangedListener(currentScreenManager)
+            navigator.navController.addOnDestinationChangedListener(updateScreenSettingsListener)
+            navigator.navController.addOnDestinationChangedListener(currentScreenManager)
 
             onDispose {
-                navController.removeOnDestinationChangedListener(updateScreenSettingsListener)
-                navController.removeOnDestinationChangedListener(currentScreenManager)
+                navigator.navController.removeOnDestinationChangedListener(updateScreenSettingsListener)
+                navigator.navController.removeOnDestinationChangedListener(currentScreenManager)
             }
         }
     }
@@ -311,6 +319,7 @@ class WireActivity : AppCompatActivity() {
     @Composable
     private fun HandleDialogs(navigate: (NavigationCommand) -> Unit) {
         val context = LocalContext.current
+        val callFeedbackSheetState = rememberWireModalSheetState<Unit>()
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {
                 TeamAppLockFeatureFlagDialog(
@@ -416,7 +425,15 @@ class WireActivity : AppCompatActivity() {
                         result = e2EIResult,
                         updateCertificate = featureFlagNotificationViewModel::enrollE2EICertificate,
                         snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog,
-                        openCertificateDetails = { navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(it))) },
+                        openCertificateDetails = {
+                            navigate(
+                                NavigationCommand(
+                                    E2eiCertificateDetailsScreenDestination(
+                                        E2EICertificateDetails.DuringLoginCertificateDetails(it)
+                                    )
+                                )
+                            )
+                        },
                         dismissSuccessDialog = featureFlagNotificationViewModel::dismissSuccessE2EIdDialog,
                         isE2EILoading = isE2EILoading
                     )
@@ -469,11 +486,23 @@ class WireActivity : AppCompatActivity() {
                 )
             }
 
+            CallFeedbackDialog(
+                sheetState = callFeedbackSheetState,
+                onRated = featureFlagNotificationViewModel::rateCall,
+                onSkipClicked = featureFlagNotificationViewModel::skipCallFeedback
+            )
+
             if (startGettingE2EICertificate) {
                 GetE2EICertificateUI(
                     enrollmentResultHandler = { featureFlagNotificationViewModel.handleE2EIEnrollmentResult(it) },
                     isNewClient = false
                 )
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            featureFlagNotificationViewModel.showCallFeedbackFlow.collectLatest {
+                callFeedbackSheetState.show()
             }
         }
     }
@@ -505,17 +534,39 @@ class WireActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(HANDLED_DEEPLINK_FLAG, true)
+        outState.putParcelable(ORIGINAL_SAVED_INTENT_FLAG, intent)
         super.onSaveInstanceState(outState)
     }
 
-    @Suppress("ComplexCondition")
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        savedInstanceState.getOriginalIntent()?.let {
+            this.intent = it
+        }
+    }
+
+    private fun handleSynchronizeExternalData(intent: Intent) {
+        if (!BuildConfig.DEBUG) {
+            appLogger.e("Synchronizing external data is only allowed on debug builds")
+            return
+        }
+
+        intent.data?.lastPathSegment.let { eventsPath ->
+            openFileInput(eventsPath)?.let { inputStream ->
+                viewModel.handleSynchronizeExternalData(inputStream)
+            }
+        }
+    }
+
+    @Suppress("ComplexCondition", "LongMethod")
     private fun handleDeepLink(
         intent: Intent?,
         savedInstanceState: Bundle? = null
     ) {
+        val originalIntent = savedInstanceState.getOriginalIntent()
         if (intent == null
             || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
-            || savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true
+            || originalIntent == intent // This is the case when the activity is recreated and already handled
             || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
             return
@@ -523,14 +574,11 @@ class WireActivity : AppCompatActivity() {
             val navigate: (NavigationCommand) -> Unit = { lifecycleScope.launch { navigationCommands.emit(it) } }
             viewModel.handleDeepLink(
                 intent = intent,
-                onResult = ::handleDeepLinkResult,
                 onOpenConversation = {
-                    navigate(
-                        NavigationCommand(
-                            ConversationScreenDestination(it),
-                            BackStackMode.CLEAR_TILL_START
-                        )
-                    )
+                    if (it.switchedAccount) {
+                        navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                    }
+                    navigate(NavigationCommand(ConversationScreenDestination(it.conversationId), BackStackMode.UPDATE_EXISTED))
                 },
                 onIsSharingIntent = {
                     navigate(
@@ -541,54 +589,52 @@ class WireActivity : AppCompatActivity() {
                     )
                 },
                 onCannotLoginDuringACall = {
-                    Toast.makeText(
-                        this,
-                        resources.getString(R.string.cant_switch_account_in_call),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            resources.getString(R.string.cant_switch_account_in_call),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                onAuthorizationNeeded = {
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            resources.getString(R.string.deeplink_authorization_needed),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                onMigrationLogin = {
+                    navigate(NavigationCommand(LoginScreenDestination(it.userHandle), BackStackMode.UPDATE_EXISTED))
+                },
+                onOpenOtherUserProfile = {
+                    if (it.switchedAccount) {
+                        navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                    }
+                    navigate(NavigationCommand(OtherUserProfileScreenDestination(it.userId), BackStackMode.UPDATE_EXISTED))
+                },
+                onSSOLogin = {
+                    navigate(NavigationCommand(LoginScreenDestination(ssoLoginResult = it), BackStackMode.UPDATE_EXISTED))
                 }
             )
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
         }
     }
 
-    private fun handleDeepLinkResult(result: DeepLinkResult) {
-        val navigate: (NavigationCommand) -> Unit = { lifecycleScope.launch { navigationCommands.emit(it) } }
-        when (result) {
-            is DeepLinkResult.SSOLogin -> {
-                navigate(NavigationCommand(LoginScreenDestination(ssoLoginResult = result), BackStackMode.UPDATE_EXISTED))
-            }
-
-            is DeepLinkResult.MigrationLogin -> {
-                navigate(NavigationCommand(LoginScreenDestination(result.userHandle), BackStackMode.UPDATE_EXISTED))
-            }
-
-            is DeepLinkResult.CustomServerConfig -> {
-                // do nothing, already handled in ViewModel
-            }
-
-            is DeepLinkResult.OpenConversation -> {
-                if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-                navigate(NavigationCommand(ConversationScreenDestination(result.conversationsId), BackStackMode.UPDATE_EXISTED))
-            }
-
-            is DeepLinkResult.OpenOtherUserProfile -> {
-                if (result.switchedAccount) navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-                navigate(NavigationCommand(OtherUserProfileScreenDestination(result.userId), BackStackMode.UPDATE_EXISTED))
-            }
-
-            is DeepLinkResult.JoinConversation -> {
-                // do nothing, already handled in ViewModel
-            }
-
-            is DeepLinkResult.Unknown -> {
-                appLogger.e("unknown deeplink result $result")
-            }
+    private fun Bundle?.getOriginalIntent(): Intent? {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            @Suppress("DEPRECATION") // API 33
+            this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG)
+        } else {
+            this?.getParcelable(ORIGINAL_SAVED_INTENT_FLAG, Intent::class.java)
         }
     }
 
     companion object {
         private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
+        private const val ORIGINAL_SAVED_INTENT_FLAG = "original_saved_intent"
         private const val TAG = "WireActivity"
     }
 }

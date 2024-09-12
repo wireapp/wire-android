@@ -50,7 +50,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LegalHoldRequestedViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    @KaliumCoreLogic private val coreLogic: CoreLogic
 ) : ViewModel() {
 
     val passwordTextState: TextFieldState = TextFieldState()

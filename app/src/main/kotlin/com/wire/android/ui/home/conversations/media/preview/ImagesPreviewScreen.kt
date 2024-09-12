@@ -23,6 +23,7 @@ import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -51,7 +52,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
-import com.wire.android.navigation.ArgsSerializer
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -89,7 +89,7 @@ import okio.Path.Companion.toPath
 @Composable
 fun ImagesPreviewScreen(
     navigator: Navigator,
-    resultNavigator: ResultBackNavigator<String>,
+    resultNavigator: ResultBackNavigator<ImagesPreviewNavBackArgs>,
     imagesPreviewViewModel: ImagesPreviewViewModel = hiltViewModel(),
     checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = hiltViewModel()
 ) {
@@ -100,11 +100,7 @@ fun ImagesPreviewScreen(
             checkAssetRestrictionsViewModel.checkRestrictions(
                 importedMediaList = mediaAssets,
                 onSuccess = {
-                    val result = ArgsSerializer().encodeToString(
-                        serializer = ImagesPreviewNavBackArgs.serializer(),
-                        value = ImagesPreviewNavBackArgs(pendingBundles = ArrayList(it))
-                    )
-                    resultNavigator.setResult(result)
+                    resultNavigator.setResult(ImagesPreviewNavBackArgs(it))
                     resultNavigator.navigateBack()
                 }
             )
@@ -235,48 +231,63 @@ private fun Content(
                 )
             }
 
-            LazyRow(
-                modifier = Modifier
-                    .padding(bottom = dimensions().spacing8x)
-                    .height(dimensions().spacing80x)
-                    .align(Alignment.BottomCenter),
-                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
-                contentPadding = PaddingValues(start = dimensions().spacing16x, end = dimensions().spacing16x)
-            ) {
-                items(
-                    count = previewState.assetBundleList.size,
-                ) { index ->
-                    Box(
-                        modifier = Modifier
-                            .width(dimensions().spacing80x)
-                            .fillMaxHeight()
-                    ) {
-                        AssetTilePreview(
-                            modifier = Modifier
-                                .size(dimensions().spacing64x)
-                                .align(Alignment.Center),
-                            assetBundle = previewState.assetBundleList[index].assetBundle,
-                            isSelected = previewState.selectedIndex == index,
-                            showOnlyExtension = true,
-                            onClick = { onSelected(index) }
-                        )
+            if (previewState.assetBundleList.size > 1) {
+                ThumbnailsRow(
+                    previewState = previewState,
+                    onSelected = onSelected,
+                    onRemoveAsset = onRemoveAsset
+                )
+            }
+        }
+    }
+}
 
-                        if (previewState.assetBundleList.size > 1) {
-                            RemoveIcon(
-                                modifier = Modifier.align(Alignment.TopEnd),
-                                onClick = {
-                                    onRemoveAsset(index)
-                                },
-                                contentDescription = stringResource(id = R.string.remove_asset_description)
-                            )
-                        }
-                        if (previewState.assetBundleList[index].assetSizeExceeded != null) {
-                            ErrorIcon(
-                                stringResource(id = R.string.asset_attention_description),
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                    }
+@Composable
+private fun BoxScope.ThumbnailsRow(
+    previewState: ImagesPreviewState,
+    onSelected: (index: Int) -> Unit,
+    onRemoveAsset: (index: Int) -> Unit
+) {
+    LazyRow(
+        modifier = Modifier
+            .padding(bottom = dimensions().spacing8x)
+            .height(dimensions().spacing80x)
+            .align(Alignment.BottomCenter),
+        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
+        contentPadding = PaddingValues(start = dimensions().spacing16x, end = dimensions().spacing16x)
+    ) {
+        items(
+            count = previewState.assetBundleList.size,
+        ) { index ->
+            Box(
+                modifier = Modifier
+                    .width(dimensions().spacing80x)
+                    .fillMaxHeight()
+            ) {
+                AssetTilePreview(
+                    modifier = Modifier
+                        .size(dimensions().spacing64x)
+                        .align(Alignment.Center),
+                    assetBundle = previewState.assetBundleList[index].assetBundle,
+                    isSelected = previewState.selectedIndex == index,
+                    showOnlyExtension = true,
+                    onClick = { onSelected(index) }
+                )
+
+                if (previewState.assetBundleList.size > 1) {
+                    RemoveIcon(
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        onClick = {
+                            onRemoveAsset(index)
+                        },
+                        contentDescription = stringResource(id = R.string.remove_asset_description)
+                    )
+                }
+                if (previewState.assetBundleList[index].assetSizeExceeded != null) {
+                    ErrorIcon(
+                        stringResource(id = R.string.asset_attention_description),
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
             }
         }
@@ -285,7 +296,7 @@ private fun Content(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewImagesPreviewScreen() {
+fun PreviewImagesPreviewScreenMultipleAssets() {
     WireTheme {
         Content(
             previewState = ImagesPreviewState(
@@ -334,6 +345,37 @@ fun PreviewImagesPreviewScreen() {
                             20,
                             "preview.pdf",
                             assetType = AttachmentType.GENERIC_FILE
+                        ),
+                        assetSizeExceeded = null
+                    )
+                ),
+            ),
+            onNavigationPressed = {},
+            onSendMessages = {},
+            onSelected = {},
+            onRemoveAsset = {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewImagesPreviewScreenSingleAsset() {
+    WireTheme {
+        Content(
+            previewState = ImagesPreviewState(
+                ConversationId("value", "domain"),
+                selectedIndex = 0,
+                conversationName = "Conversation",
+                assetBundleList = persistentListOf(
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key",
+                            "image/png",
+                            "".toPath(),
+                            20,
+                            "preview.png",
+                            assetType = AttachmentType.IMAGE
                         ),
                         assetSizeExceeded = null
                     )

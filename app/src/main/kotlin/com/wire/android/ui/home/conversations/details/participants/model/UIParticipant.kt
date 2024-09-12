@@ -44,4 +44,5 @@ data class UIParticipant(
     val isMLSVerified: Boolean = false,
     val supportedProtocolList: List<SupportedProtocol> = listOf(),
     val isUnderLegalHold: Boolean = false,
+    val expiresAt: Instant? = null
 )

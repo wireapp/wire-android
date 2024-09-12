@@ -21,77 +21,61 @@ package com.wire.android.ui.common.bottomsheet
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Deprecated("Use WireModalSheetLayout2")
-fun WireModalSheetLayout(
-    sheetState: WireModalSheetState,
-    coroutineScope: CoroutineScope,
+fun <T : Any> WireModalSheetLayout(
+    sheetState: WireModalSheetState<T>,
     modifier: Modifier = Modifier,
     sheetShape: Shape = WireBottomSheetDefaults.WireBottomSheetShape,
     containerColor: Color = WireBottomSheetDefaults.WireSheetContainerColor,
     contentColor: Color = WireBottomSheetDefaults.WireSheetContentColor,
     tonalElevation: Dp = WireBottomSheetDefaults.WireSheetTonalElevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
+    onBackPress: (() -> Unit) = { sheetState.hide() },
+    onDismissRequest: (() -> Unit) = sheetState::onDismissRequest,
+    shouldDismissOnBackPress: Boolean = true,
     dragHandle: @Composable (() -> Unit)? = { WireBottomSheetDefaults.WireDragHandle() },
-    sheetContent: @Composable ColumnScope.() -> Unit
+    sheetContent: @Composable ColumnScope.(T) -> Unit
 ) {
-    if (sheetState.currentValue != SheetValue.Hidden) {
+    (sheetState.currentValue as? WireSheetValue.Expanded<T>)?.let { expandedValue ->
         ModalBottomSheet(
             sheetState = sheetState.sheetState,
             shape = sheetShape,
-            content = sheetContent,
+            content = {
+                BackHandler(!shouldDismissOnBackPress) {
+                    onBackPress()
+                }
+                sheetContent(expandedValue.value)
+            },
             containerColor = containerColor,
             contentColor = contentColor,
             scrimColor = scrimColor,
             tonalElevation = tonalElevation,
-            onDismissRequest = sheetState::onDismissRequest,
+            onDismissRequest = onDismissRequest,
             dragHandle = dragHandle,
-            modifier = modifier.absoluteOffset(y = 1.dp)
+            modifier = modifier.absoluteOffset(y = 1.dp),
+            contentWindowInsets = { WindowInsets.navigationBars },
+            properties = ModalBottomSheetProperties(shouldDismissOnBackPress = shouldDismissOnBackPress)
         )
     }
-
-    BackHandler(enabled = sheetState.isVisible) {
-        coroutineScope.launch { sheetState.hide() }
-    }
 }
 
 @Composable
-fun MenuModalSheetLayout(
-    sheetState: WireModalSheetState,
-    coroutineScope: CoroutineScope,
-    menuItems: List<@Composable () -> Unit>,
-    header: MenuModalSheetHeader = MenuModalSheetHeader.Gone
-) {
-    WireModalSheetLayout(
-        sheetState = sheetState,
-        coroutineScope = coroutineScope,
-        sheetContent = {
-            MenuModalSheetContent(
-                menuItems = menuItems,
-                header = header
-            )
-        }
-    )
-}
-
-@Composable
-fun MenuModalSheetContent(
+fun WireMenuModalSheetContent(
     menuItems: List<@Composable () -> Unit>,
     modifier: Modifier = Modifier,
     header: MenuModalSheetHeader = MenuModalSheetHeader.Gone
@@ -99,46 +83,5 @@ fun MenuModalSheetContent(
     Column(modifier = modifier) {
         ModalSheetHeaderItem(header = header)
         buildMenuSheetItems(items = menuItems)
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun WireModalSheetLayout2(
-    sheetState: SheetState,
-    coroutineScope: CoroutineScope,
-    sheetContent: @Composable ColumnScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    sheetShape: Shape = WireBottomSheetDefaults.WireBottomSheetShape,
-    containerColor: Color = WireBottomSheetDefaults.WireSheetContainerColor,
-    contentColor: Color = WireBottomSheetDefaults.WireSheetContentColor,
-    tonalElevation: Dp = WireBottomSheetDefaults.WireSheetTonalElevation,
-    scrimColor: Color = BottomSheetDefaults.ScrimColor,
-    dragHandle: @Composable (() -> Unit)? = { WireBottomSheetDefaults.WireDragHandle() },
-    onCloseBottomSheet: () -> Unit
-) {
-    ModalBottomSheet(
-        sheetState = sheetState,
-        shape = sheetShape,
-        content = sheetContent,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        scrimColor = scrimColor,
-        tonalElevation = tonalElevation,
-        onDismissRequest = {
-            coroutineScope.launch {
-                sheetState.hide()
-            }
-        },
-        dragHandle = dragHandle,
-        modifier = modifier.absoluteOffset(y = 1.dp)
-    )
-
-    BackHandler(enabled = sheetState.isVisible) {
-        coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-            if (!sheetState.isVisible) {
-                onCloseBottomSheet()
-            }
-        }
     }
 }

@@ -45,9 +45,9 @@ import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.Result
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
+import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.feature.e2ei.usecase.GetE2EICertificateUseCaseResult
-import com.wire.kalium.logic.feature.e2ei.usecase.GetE2eiCertificateUseCase
+import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
@@ -72,7 +72,8 @@ class DeviceDetailsViewModel @Inject constructor(
     private val fingerprintUseCase: ClientFingerprintUseCase,
     private val updateClientVerificationStatus: UpdateClientVerificationStatusUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
-    private val e2eiCertificate: GetE2eiCertificateUseCase,
+    private val e2eiCertificate: GetMLSClientIdentityUseCase,
+    private val breakSession: BreakSessionUseCase,
     isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -132,17 +133,16 @@ class DeviceDetailsViewModel @Inject constructor(
 
     private fun getE2eiCertificate() {
         viewModelScope.launch {
-            val certificate = e2eiCertificate(deviceId)
-            state = if (certificate is GetE2EICertificateUseCaseResult.Success) {
+            state = e2eiCertificate(deviceId).fold({
+                state.copy(isE2eiCertificateActivated = false, isLoadingCertificate = false)
+            }, { mlsClientIdentity ->
                 state.copy(
                     isE2eiCertificateActivated = true,
-                    e2eiCertificate = certificate.certificate,
+                    mlsClientIdentity = mlsClientIdentity,
                     isLoadingCertificate = false,
-                    device = state.device.updateE2EICertificate(certificate.certificate)
+                    device = state.device.updateE2EICertificate(mlsClientIdentity)
                 )
-            } else {
-                state.copy(isE2eiCertificateActivated = false, isLoadingCertificate = false)
-            }
+            })
         }
     }
 
@@ -288,5 +288,9 @@ class DeviceDetailsViewModel @Inject constructor(
 
     fun hideEnrollE2EICertificateSuccess() {
         state = state.copy(isE2EICertificateEnrollSuccess = false)
+    }
+
+    fun breakSession() {
+        viewModelScope.launch { breakSession(userId, deviceId) }
     }
 }

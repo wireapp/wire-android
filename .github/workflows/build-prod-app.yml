@@ -2,7 +2,7 @@ name: "Prod build"
 
 on:
   release:
-    types: [created]
+    types: [ published ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.release.tag_name }}
@@ -15,21 +15,16 @@ jobs:
     uses: ./.github/workflows/gradle-run-ui-tests.yml
   unit-tests:
     uses: ./.github/workflows/gradle-run-unit-tests.yml
+    secrets: inherit
   build-app:
     needs: [ code-analysis, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     steps:
-      - name: Verify release target commit
-        id: verify_commit
-        run: |
-          release_commit=$(git rev-parse ${{ github.event.release.target_commitish }})
-          prod_commit=$(git rev-parse refs/heads/prod)
-          
-          if [[ "$release_commit" != "$prod_commit" ]]; then
-            echo "Error: The commit associated with the release tag is not the same as the HEAD of the prod branch."
-            exit 1
-          fi
-
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Needed in order to fetch Kalium sources for building
+          fetch-depth: 0
       - name: Get latest release tag
         id: get_latest_release
         run: |
@@ -48,12 +43,6 @@ jobs:
           else
             echo "Current tag ($current_tag) is equal or higher than latest tag ($latest_tag). Continuing the workflow."
           fi
-
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive # Needed in order to fetch Kalium sources for building
-          fetch-depth: 0
       - name: Set up JDK 17
         uses: buildjet/setup-java@v4
         with:
@@ -69,9 +58,16 @@ jobs:
           echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/the.keystore
       - name: Make gradlew executable
         run: chmod +x ./gradlew
+      - name: Generate version file
+        run: ./gradlew generateVersionFile
+      - name: Upload version file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Version File
+          path: app/version.txt
       - name: build prod flavour APK
         run:
-          ./gradlew app:assembleProdCompatRelease
+          ./gradlew app:assembleProdCompatrelease
         env:
           KEYSTORE_FILE_PATH_DEBUG: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
@@ -83,7 +79,7 @@ jobs:
           ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
       - name: build prod flavour bundle
         run:
-          ./gradlew app:bundleProdCompatRelease
+          ./gradlew app:bundleProdCompatrelease
         env:
           KEYSTORE_FILE_PATH_DEBUG: ${{ vars.KEYSTORE_FILE_PATH }}
           KEYSTORE_FILE_PATH_RELEASE: ${{ vars.KEYSTORE_FILE_PATH }}
@@ -106,8 +102,8 @@ jobs:
         with:
           serviceAccountJson: service_account.json
           packageName: com.wire
-          releaseFiles: app/build/outputs/bundle/prodCompatRelease/*.aab
-          track: alpha
+          releaseFiles: app/build/outputs/bundle/prodCompatrelease/*.aab
+          track: Alpha
       - name: Deploy ProdCompatRelease to S3
         uses: ./.github/actions/deploy-to-s3
         with:
@@ -117,3 +113,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           build-flavour: prod
           build-variant: compatrelease
+      - name: Attach APK and version file to release
+        uses: softprops/action-gh-release@v2.0.8
+        with:
+          files: |
+            app/build/outputs/apk/prodCompatrelease/*.apk
+            app/version.txt

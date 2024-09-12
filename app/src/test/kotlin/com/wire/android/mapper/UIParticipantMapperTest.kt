@@ -75,7 +75,8 @@ class UIParticipantMapperTest {
                 testOtherUser(0).userType,
                 testOtherUser(0).deleted,
                 testOtherUser(0).connectionStatus,
-                testOtherUser(0).availabilityStatus
+                testOtherUser(0).availabilityStatus,
+                testOtherUser(0).accentId
             )
         )
         // When
@@ -161,7 +162,8 @@ fun testOtherUser(i: Int): OtherUser = OtherUser(
     deleted = false,
     defederated = false,
     isProteusVerified = false,
-    supportedProtocols = setOf(SupportedProtocol.PROTEUS)
+    supportedProtocols = setOf(SupportedProtocol.PROTEUS),
+    isUnderLegalHold = false
 )
 
 fun testUIParticipant(i: Int): UIParticipant = UIParticipant(

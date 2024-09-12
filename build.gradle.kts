@@ -21,7 +21,7 @@ buildscript {
         google()
         mavenCentral()
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
-        maven(url ="https://plugins.gradle.org/m2/")
+        maven(url = "https://plugins.gradle.org/m2/")
     }
     dependencies {
         classpath(libs.hilt.gradlePlugin)
@@ -32,7 +32,7 @@ buildscript {
             .lowercase()
             .contains("fdroid")
 
-	    if (fdroidBuild) {
+        if (fdroidBuild) {
             println("Not including gms")
         } else {
             println("Including gms")
@@ -46,7 +46,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url = java.net.URI("https://jitpack.io") }
+        maven(url = "https://jitpack.io")
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }
 }

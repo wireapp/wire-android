@@ -23,7 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
@@ -38,7 +38,7 @@ fun EditGroupRoleBottomSheet(
     changeMemberRole: (Member.Role) -> Unit,
     closeChangeRoleBottomSheet: () -> Unit
 ) {
-    MenuModalSheetContent(
+    WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(title = stringResource(R.string.user_profile_role_in_group, groupState.groupName)),
         menuItems = listOf(
             { EditGroupRoleItem(Member.Role.Admin, groupState.role, changeMemberRole, closeChangeRoleBottomSheet) },

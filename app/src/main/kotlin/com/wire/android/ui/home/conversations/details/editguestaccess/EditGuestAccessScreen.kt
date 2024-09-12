@@ -29,12 +29,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -47,21 +45,21 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.rememberNavigator
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreatePasswordProtectedGuestLinkScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.shareViaIntent
-import kotlinx.coroutines.launch
 
 @Suppress("ComplexMethod")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,45 +70,44 @@ import kotlinx.coroutines.launch
 @Composable
 fun EditGuestAccessScreen(
     navigator: Navigator,
-    editGuestAccessViewModel: EditGuestAccessViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier,
+    editGuestAccessViewModel: EditGuestAccessViewModel = hiltViewModel()
 ) {
     val scrollState = rememberScrollState()
     val snackbarHostState = LocalSnackbarHostState.current
-    val coroutineScope = rememberCoroutineScope()
-    val sheetState = remember {
-        WireModalSheetState(SheetValue.Hidden)
-    }
-    val onSheetItemClick: (Boolean) -> Unit = remember {
-        { isPasswordProtected ->
-            coroutineScope.launch { sheetState.hide() }
-            if (isPasswordProtected) {
-                navigator.navigate(
-                    NavigationCommand(
-                        CreatePasswordProtectedGuestLinkScreenDestination(
-                            CreatePasswordGuestLinkNavArgs(
-                                conversationId = editGuestAccessViewModel.conversationId
-                            )
+    val sheetState = rememberWireModalSheetState<Unit>()
+    val onSheetItemClick: (Boolean) -> Unit = { isPasswordProtected ->
+        sheetState.hide()
+        if (isPasswordProtected) {
+            navigator.navigate(
+                NavigationCommand(
+                    CreatePasswordProtectedGuestLinkScreenDestination(
+                        CreatePasswordGuestLinkNavArgs(
+                            conversationId = editGuestAccessViewModel.conversationId
                         )
                     )
                 )
-            } else {
-                editGuestAccessViewModel.onRequestGuestRoomLink()
-            }
+            )
+        } else {
+            editGuestAccessViewModel.onRequestGuestRoomLink()
         }
     }
     CreateGuestLinkBottomSheet(
         sheetState = sheetState,
-        onSheetItemClick,
+        onItemClick = remember { onSheetItemClick },
         isPasswordInviteLinksAllowed = editGuestAccessViewModel.editGuestAccessState.isPasswordProtectedLinksAllowed
     )
 
-    WireScaffold(topBar = {
-        WireCenterAlignedTopAppBar(
-            elevation = scrollState.rememberTopBarElevationState().value,
-            onNavigationPressed = navigator::navigateBack,
-            title = stringResource(id = R.string.conversation_options_guests_label)
-        )
-    }) { internalPadding ->
+    WireScaffold(
+        modifier = modifier,
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = scrollState.rememberTopBarElevationState().value,
+                onNavigationPressed = navigator::navigateBack,
+                title = stringResource(id = R.string.conversation_options_guests_label)
+            )
+        }
+    ) { internalPadding ->
         Column {
             LazyColumn(
                 modifier = Modifier

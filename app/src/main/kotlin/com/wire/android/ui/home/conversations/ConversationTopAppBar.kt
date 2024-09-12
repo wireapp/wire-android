@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import com.wire.android.R
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.calling.controlbuttons.StartCallButton
@@ -209,7 +210,11 @@ private fun Avatar(
             avatarData = UserAvatarData(
                 asset = conversationAvatar.avatarAsset,
                 availabilityStatus = conversationAvatar.status,
-                connectionState = (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState
+                connectionState = (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState,
+                nameBasedAvatar = NameBasedAvatar(
+                    fullName = conversationInfoViewState.conversationName.asString(),
+                    accentColor = conversationInfoViewState.accentId
+                )
             ),
             size = dimensions().avatarConversationTopBarSize,
             padding = dimensions().avatarConversationTopBarClickablePadding,
@@ -251,7 +256,10 @@ fun PreviewConversationScreenTopAppBarLongTitle() {
             conversationName = UIText.DynamicString(
                 "This is some very very very very very very very very very very long conversation title"
             ),
-            conversationDetailsData = ConversationDetailsData.Group(QualifiedID("", "")),
+            conversationDetailsData = ConversationDetailsData.Group(
+                conversationProtocol = null,
+                conversationId = QualifiedID("", "")
+            ),
             conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE),
         ),
         onBackButtonClick = {},
@@ -276,7 +284,10 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearch() {
             conversationName = UIText.DynamicString(
                 "This is some very very very very very very very very very very long conversation title"
             ),
-            conversationDetailsData = ConversationDetailsData.Group(QualifiedID("", "")),
+            conversationDetailsData = ConversationDetailsData.Group(
+                conversationProtocol = null,
+                conversationId = QualifiedID("", "")
+            ),
             conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE),
         ),
         onBackButtonClick = {},
@@ -301,7 +312,10 @@ fun PreviewConversationScreenTopAppBarLongTitleWithSearchAndOngoingCall() {
             conversationName = UIText.DynamicString(
                 "This is some very very very very very very very very very very long conversation title"
             ),
-            conversationDetailsData = ConversationDetailsData.Group(QualifiedID("", "")),
+            conversationDetailsData = ConversationDetailsData.Group(
+                conversationProtocol = null,
+                conversationId = QualifiedID("", "")
+            ),
             conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE),
         ),
         onBackButtonClick = {},
@@ -325,7 +339,7 @@ fun PreviewConversationScreenTopAppBarShortTitle() {
         ConversationInfoViewState(
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
-            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
             conversationAvatar = ConversationAvatar.Group(conversationId)
         ),
         onBackButtonClick = {},
@@ -349,7 +363,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
         ConversationInfoViewState(
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
-            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
             conversationAvatar = ConversationAvatar.Group(conversationId)
         ),
         onBackButtonClick = {},
@@ -373,7 +387,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithVerified() {
         ConversationInfoViewState(
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
-            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
             conversationAvatar = ConversationAvatar.Group(conversationId),
             protocolInfo = Conversation.ProtocolInfo.Proteus,
             proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
@@ -400,7 +414,7 @@ fun PreviewConversationScreenTopAppBarShortTitleWithLegalHold() {
         ConversationInfoViewState(
             conversationId = ConversationId("value", "domain"),
             conversationName = UIText.DynamicString("Short title"),
-            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationDetailsData = ConversationDetailsData.Group(null, conversationId),
             conversationAvatar = ConversationAvatar.Group(conversationId),
             protocolInfo = Conversation.ProtocolInfo.Proteus,
             legalHoldStatus = Conversation.LegalHoldStatus.ENABLED,

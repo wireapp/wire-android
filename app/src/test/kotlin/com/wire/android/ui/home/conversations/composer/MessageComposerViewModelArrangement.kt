@@ -42,6 +42,7 @@ import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -52,7 +53,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
@@ -201,6 +201,7 @@ internal fun withMockConversationDetailsOneOnOne(
         every { connectionStatus } returns connectionState
         every { isUnavailableUser } returns unavailable
         every { deleted } returns false
+        every { accentId } returns 0
     },
     userType = UserType.INTERNAL,
     lastMessage = null,

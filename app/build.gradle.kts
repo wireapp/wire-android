@@ -37,6 +37,7 @@ plugins {
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
     id(libs.plugins.wire.kover.get().pluginId)
+    id(libs.plugins.wire.versionizer.get().pluginId)
 }
 
 repositories {
@@ -123,6 +124,7 @@ dependencies {
     // features
     implementation(project(":features:sketch"))
     implementation(project(":core:ui-common"))
+    implementation(project(":core:navigation"))
 
     // kover
     kover(project(":features:sketch"))
@@ -167,8 +169,6 @@ dependencies {
     androidTestImplementation(composeBom)
 
     implementation(libs.compose.ui)
-    implementation(libs.compose.foundation)
-    implementation(libs.compose.material.android)
     // we still cannot get rid of material2 because swipeable is still missing - https://issuetracker.google.com/issues/229839039
     // https://developer.android.com/jetpack/compose/designsystems/material2-material3#components-and
     implementation(libs.compose.material.core)
@@ -238,11 +238,13 @@ dependencies {
 
     implementation(libs.aboutLibraries.core)
     implementation(libs.aboutLibraries.ui)
+    implementation(libs.compose.qr.code)
 
     // Unit/Android tests dependencies
     testImplementation(libs.androidx.test.archCore)
     testImplementation(libs.junit4) // Maybe migrate completely to Junit 5?
     testImplementation(libs.junit5.core)
+    testImplementation(libs.junit5.params)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.mockk.core)

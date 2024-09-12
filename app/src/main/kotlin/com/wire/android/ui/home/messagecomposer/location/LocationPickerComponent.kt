@@ -28,9 +28,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -39,7 +37,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -49,10 +46,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
-import com.wire.android.ui.common.bottomsheet.rememberDismissibleWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -64,22 +62,18 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.orDefault
 import com.wire.android.util.permission.PermissionsDeniedRequestDialog
 import com.wire.android.util.permission.rememberCurrentLocationPermissionFlow
-import kotlinx.coroutines.launch
 
 /**
  * Component to pick the current location to send.
  * Later can be expanded/refactored to allow to pick a location from the map.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationPickerComponent(
     onLocationPicked: (GeoLocatedAddress) -> Unit,
-    onLocationClosed: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LocationPickerViewModel = hiltViewModel<LocationPickerViewModel>()
+    viewModel: LocationPickerViewModel = hiltViewModel<LocationPickerViewModel>(),
+    sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(),
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val sheetState = rememberDismissibleWireModalSheetState(initialValue = SheetValue.Expanded, onLocationClosed)
 
     val locationFlow = rememberCurrentLocationPermissionFlow(
         onAllPermissionsGranted = viewModel::getCurrentLocation,
@@ -87,17 +81,15 @@ fun LocationPickerComponent(
         onAnyPermissionPermanentlyDenied = viewModel::onPermissionPermanentlyDenied
     )
 
-    LaunchedEffect(Unit) {
-        locationFlow.launch()
-    }
-
     with(viewModel.state) {
         WireModalSheetLayout(
             modifier = modifier,
             sheetState = sheetState,
-            coroutineScope = coroutineScope
         ) {
-            MenuModalSheetContent(
+            LaunchedEffect(Unit) {
+                locationFlow.launch()
+            }
+            WireMenuModalSheetContent(
                 header = MenuModalSheetHeader.Visible(title = stringResource(R.string.location_attachment_share_title)),
                 menuItems = buildList {
                     add {
@@ -124,10 +116,9 @@ fun LocationPickerComponent(
                         ) {
                             if (showLocationSharingError) {
                                 LocationErrorMessage {
-                                    coroutineScope.launch {
-                                        sheetState.hide()
+                                    sheetState.hide {
                                         viewModel.onLocationSharingErrorDialogDiscarded()
-                                        onLocationClosed()
+                                        sheetState.hide()
                                     }
                                 }
                             }
@@ -135,7 +126,7 @@ fun LocationPickerComponent(
                                 isLocationLoading = isLocationLoading,
                                 geoLocatedAddress = geoLocatedAddress,
                                 onLocationPicked = onLocationPicked,
-                                onLocationClosed = onLocationClosed
+                                onLocationClosed = sheetState::hide
                             )
                         }
                     }
@@ -147,7 +138,7 @@ fun LocationPickerComponent(
                     body = R.string.location_app_permission_dialog_body,
                     onDismiss = {
                         viewModel.onPermissionsDialogDiscarded()
-                        onLocationClosed()
+                        sheetState.hide()
                     }
                 )
             }

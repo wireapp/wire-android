@@ -19,26 +19,25 @@ package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 
 @Composable
 fun CreateGuestLinkBottomSheet(
-    sheetState: WireModalSheetState,
+    sheetState: WireModalSheetState<Unit>,
     onItemClick: (passwordProtected: Boolean) -> Unit,
     isPasswordInviteLinksAllowed: Boolean,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    WireModalSheetLayout(sheetState = sheetState, coroutineScope = coroutineScope) {
-        MenuModalSheetContent(
+    WireModalSheetLayout(sheetState = sheetState) {
+        WireMenuModalSheetContent(
             header = MenuModalSheetHeader.Visible(title = stringResource(R.string.create_guest_link)),
             menuItems = buildList {
                 if (isPasswordInviteLinksAllowed) {
@@ -83,7 +82,7 @@ private fun CreateInviteLinkSheetItem(
 @Composable
 fun PreviewCreateGuestLinkBottomSheet() {
     CreateGuestLinkBottomSheet(
-        sheetState = WireModalSheetState(),
+        sheetState = rememberWireModalSheetState(),
         onItemClick = {},
         isPasswordInviteLinksAllowed = true,
     )
@@ -94,7 +93,7 @@ fun PreviewCreateGuestLinkBottomSheet() {
 @Composable
 fun PreviewCreateGuestLinkBottomSheetDisabled() {
     CreateGuestLinkBottomSheet(
-        sheetState = WireModalSheetState(),
+        sheetState = rememberWireModalSheetState(),
         onItemClick = {},
         isPasswordInviteLinksAllowed = false,
     )

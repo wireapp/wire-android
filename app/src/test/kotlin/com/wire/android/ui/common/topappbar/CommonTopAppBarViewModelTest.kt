@@ -304,8 +304,8 @@ class CommonTopAppBarViewModelTest {
 
         private val commonTopAppBarViewModel by lazy {
             CommonTopAppBarViewModel(
-                currentScreenManager,
-                coreLogic
+                currentScreenManager = currentScreenManager,
+                coreLogic = coreLogic
             )
         }
 

@@ -33,7 +33,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
-import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -59,6 +59,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
@@ -127,7 +128,7 @@ class SharedCallingViewModel @AssistedInject constructor(
                     is ConversationDetails.Group -> {
                         callState.copy(
                             conversationName = getConversationName(details.conversation.name),
-                            conversationType = ConversationType.Conference,
+                            conversationTypeForCall = ConversationTypeForCall.Conference,
                             protocolInfo = details.conversation.protocol,
                             mlsVerificationStatus = details.conversation.mlsVerificationStatus,
                             proteusVerificationStatus = details.conversation.proteusVerificationStatus
@@ -140,11 +141,12 @@ class SharedCallingViewModel @AssistedInject constructor(
                             avatarAssetId = details.otherUser.completePicture?.let { assetId ->
                                 ImageAsset.UserAvatarAsset(wireSessionImageLoader, assetId)
                             },
-                            conversationType = ConversationType.OneOnOne,
+                            conversationTypeForCall = ConversationTypeForCall.OneOnOne,
                             membership = userTypeMapper.toMembership(details.otherUser.userType),
                             protocolInfo = details.conversation.protocol,
                             mlsVerificationStatus = details.conversation.mlsVerificationStatus,
-                            proteusVerificationStatus = details.conversation.proteusVerificationStatus
+                            proteusVerificationStatus = details.conversation.proteusVerificationStatus,
+                            accentId = details.otherUser.accentId
                         )
                     }
 
@@ -174,7 +176,7 @@ class SharedCallingViewModel @AssistedInject constructor(
     }
 
     private suspend fun observeParticipants(sharedFlow: SharedFlow<Call?>) {
-        sharedFlow.collect { call ->
+        sharedFlow.distinctUntilChanged().collectLatest { call ->
             call?.let {
                 callState = callState.copy(
                     isMuted = it.isMuted,

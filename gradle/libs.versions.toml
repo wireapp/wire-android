@@ -5,7 +5,7 @@ gradle = "8.8"
 
 # Kotlin
 grgitCore = "5.2.2"
-kotlin = "2.0.0"
+kotlin = "2.0.10"
 
 # KotlinX
 coroutines = "1.8.0"
@@ -14,14 +14,14 @@ ktx-immutableCollections = "0.3.7"
 ktx-serialization = "1.6.3"
 
 # Android Core / Architecture
-detekt = "1.23.6"
+detekt = "1.23.7"
 google-gms = "4.4.2"
 gms-location = "21.3.0"
-android-gradlePlugin = "8.3.2"
-desugaring = "2.0.4"
-firebaseBOM = "33.1.0"
+android-gradlePlugin = "8.5.2"
+desugaring = "2.1.2"
+firebaseBOM = "33.2.0"
 fragment = "1.5.6"
-resaca = "2.4.6"
+resaca = "3.0.0"
 bundlizer = "0.8.0"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
@@ -32,23 +32,22 @@ androidx-appcompat = "1.7.0"
 androidx-core = "1.13.1"
 androidx-dataStore = "1.1.1"
 androidx-exif = "1.3.7"
-androidx-emoji = "1.4.0"
+androidx-emoji = "1.5.0"
 androidx-jetpack = "1.1.0"
-androidx-lifecycle = "2.8.1"
-androidx-paging3 = "3.3.0"
-androidx-paging3Compose = "3.3.0"
+androidx-lifecycle = "2.8.5"
+androidx-paging3 = "3.3.2"
+androidx-paging3Compose = "3.3.2"
 androidx-splashscreen = "1.0.1"
-androidx-workManager = "2.9.0"
+androidx-workManager = "2.9.1"
 androidx-browser = "1.8.0"
 androidx-biometric = "1.1.0"
 androidx-startup = "1.1.1"
-androidx-compose-runtime = "1.6.7"
+androidx-compose-runtime = "1.7.0"
+compose-qr = "1.0.1"
 
 # Compose
-composeBom = "2024.06.00"
-compose-foundation = "1.7.0-beta04" # remove when composeBom contains new stable version of BasicTextField2
-compose-material-android = "1.7.0-beta04" # remove when composeBom contains new stable version of BasicTextField2
-compose-activity = "1.9.0"
+composeBom = "2024.09.00"
+compose-activity = "1.9.2"
 compose-compiler = "1.5.11"
 compose-constraint = "1.0.1"
 compose-navigation = "2.7.7" # adjusted to work with compose-destinations "1.9.54"
@@ -62,6 +61,7 @@ hilt-work = "1.2.0"
 # Android UI
 accompanist = "0.32.0" # adjusted to work with compose-destinations "1.9.54"
 material = "1.12.0"
+material3 = "1.3.0"
 coil = "2.6.0"
 commonmark = "0.22.0"
 
@@ -83,10 +83,10 @@ openIdAppAuth = "0.11.1"
 # Other Tools
 aboutLibraries = "11.1.4"
 leakCanary = "2.14"
-ksp = "2.0.0-1.0.22"
+ksp = "2.0.10-1.0.24"
 
 # Benchmark
-benchmark-macro-junit4 = "1.2.0-beta03"
+benchmark-macro-junit4 = "1.3.0"
 profileinstaller = "1.3.1"
 
 # Testing
@@ -99,7 +99,7 @@ androidx-test-runner = "1.5.2"
 androidx-test-uiAutomator = "2.3.0"
 androidx-text-archCore = "2.2.0"
 junit4 = "4.13.2"
-junit5 = "5.10.2"
+junit5 = "5.11.0"
 kluent = "1.73"
 mockk = "1.13.10"
 okio = "3.9.0"
@@ -122,7 +122,7 @@ wire-android-application = { id = "com.wire.android.application" }
 wire-android-library = { id = "com.wire.android.library" }
 wire-hilt = { id = "com.wire.android.hilt" }
 wire-kover = { id = "com.wire.android.kover" }
-
+wire-versionizer = { id = "com.wire.android.versionizer" }
 [bundles]
 #android = ["appCompat", "activityCompose", "work", "composeMaterial", "coroutinesAndroid", "ktor", "ktor-okHttp"]
 
@@ -194,12 +194,10 @@ hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-work" }
 
 # Compose BOM
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose-foundation" }
-compose-material-android = { module = "androidx.compose.material:material-android", version.ref = "compose-material-android" }
 compose-material-core = { module = "androidx.compose.material:material" }
 compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }
 compose-material-ripple = { module = "androidx.compose.material:material-ripple" }
-compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 compose-runtime-liveData = { module = "androidx.compose.runtime:runtime-livedata" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-test-junit = { module = "androidx.compose.ui:ui-test-junit4" }
@@ -248,6 +246,9 @@ commonmark-tables = { module = "org.commonmark:commonmark-ext-gfm-tables", versi
 # Countly
 countly-sdk = { module = "ly.count.android:sdk", version.ref = "countly" }
 
+# QRs
+compose-qr-code = { module = "com.lightspark:compose-qr-code", version.ref = "compose-qr" }
+
 # Dev tools
 aboutLibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }
 aboutLibraries-ui = { module = "com.mikepenz:aboutlibraries-compose", version.ref = "aboutLibraries" }
@@ -270,6 +271,7 @@ androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", vers
 androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "androidx-espresso" }
 junit4 = { module = "junit:junit", version.ref = "junit4" }
 junit5-core = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
+junit5-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit5" }
 junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
 junit5-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit5" }  # needed for tests that use Robolectric because it doesn't yet support JUnit5
 kluent-android = { module = "org.amshove.kluent:kluent-android", version.ref = "kluent" }

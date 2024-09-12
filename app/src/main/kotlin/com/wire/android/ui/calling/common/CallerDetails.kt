@@ -33,9 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.common.ConversationVerificationIcons
@@ -47,9 +47,11 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.hasLabel
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
@@ -58,10 +60,11 @@ import java.util.Locale
 fun CallerDetails(
     conversationId: ConversationId,
     conversationName: ConversationName?,
+    accentId: Int,
     isCameraOn: Boolean,
     isCbrEnabled: Boolean,
     avatarAssetId: ImageAsset.UserAvatarAsset?,
-    conversationType: ConversationType,
+    conversationTypeForCall: ConversationTypeForCall,
     membership: Membership,
     callingLabel: String,
     protocolInfo: Conversation.ProtocolInfo?,
@@ -70,7 +73,9 @@ fun CallerDetails(
     onMinimiseScreen: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(top = dimensions().spacing32x),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = dimensions().spacing32x),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -130,9 +135,12 @@ fun CallerDetails(
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )
 
-        if (!isCameraOn && conversationType == ConversationType.OneOnOne) {
+        if (!isCameraOn && conversationTypeForCall == ConversationTypeForCall.OneOnOne) {
             UserProfileAvatar(
-                avatarData = UserAvatarData(avatarAssetId),
+                avatarData = UserAvatarData(
+                    asset = avatarAssetId,
+                    nameBasedAvatar = NameBasedAvatar((conversationName as? ConversationName.Known)?.name, accentId)
+                ),
                 size = dimensions().outgoingCallUserAvatarSize,
                 modifier = Modifier.padding(top = dimensions().spacing16x)
             )
@@ -140,21 +148,24 @@ fun CallerDetails(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
 fun PreviewCallerDetails() {
-    CallerDetails(
-        conversationId = ConversationId("value", "domain"),
-        conversationName = ConversationName.Known("User"),
-        isCameraOn = false,
-        isCbrEnabled = false,
-        avatarAssetId = null,
-        conversationType = ConversationType.OneOnOne,
-        membership = Membership.Guest,
-        callingLabel = String.EMPTY,
-        protocolInfo = null,
-        mlsVerificationStatus = null,
-        proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
-        onMinimiseScreen = { }
-    )
+    WireTheme {
+        CallerDetails(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = ConversationName.Known("Jon Doe"),
+            isCameraOn = false,
+            isCbrEnabled = false,
+            avatarAssetId = null,
+            conversationTypeForCall = ConversationTypeForCall.OneOnOne,
+            membership = Membership.Guest,
+            callingLabel = String.EMPTY,
+            protocolInfo = null,
+            mlsVerificationStatus = null,
+            proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+            onMinimiseScreen = { },
+            accentId = -1
+        )
+    }
 }

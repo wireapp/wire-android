@@ -19,32 +19,30 @@
 package com.wire.android.ui.calling.ongoing.participantsview.horizentalview
 
 import android.view.View
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
+import com.wire.android.BuildConfig
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.data.id.QualifiedID
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CallingHorizontalView(
     participants: List<UICallParticipant>,
@@ -54,28 +52,27 @@ fun CallingHorizontalView(
     contentHeight: Dp,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
-    onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit
+    onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: Dp = dimensions().spacing4x,
+    spacedBy: Dp = dimensions().spacing2x,
 ) {
-
+    val tileHeight = remember(participants.size, contentHeight, contentPadding, spacedBy) {
+        val heightAvailableForItems = contentHeight - 2 * contentPadding - (participants.size - 1) * spacedBy
+        heightAvailableForItems / participants.size
+    }
     LazyColumn(
-        modifier = Modifier.padding(
-            start = dimensions().spacing4x,
-            end = dimensions().spacing4x
-        ),
+        modifier = modifier,
+        contentPadding = PaddingValues(contentPadding),
         userScrollEnabled = false,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x)
+        verticalArrangement = Arrangement.spacedBy(spacedBy)
     ) {
         items(items = participants, key = { it.id.toString() + it.clientId }) { participant ->
             // since we are getting participants by chunk of 8 items,
             // we need to check that we are on first page for self user
             val isSelfUser = remember(pageIndex, participants.first()) {
-                pageIndex == 0 && participants.first() == participant
+                pageIndex == 0 && participants.first() == participant && !BuildConfig.PICTURE_IN_PICTURE_ENABLED
             }
-            val spacing4x = dimensions().spacing4x
-            val tileHeight = remember(participants.size) {
-                (contentHeight - spacing4x) / participants.size
-            }
-
             ParticipantTile(
                 modifier = Modifier
                     .pointerInput(Unit) {
@@ -93,7 +90,7 @@ fun CallingHorizontalView(
                     }
                     .fillMaxWidth()
                     .height(tileHeight)
-                    .animateItemPlacement(tween(durationMillis = 200)),
+                    .animateItem(),
                 participantTitleState = participant,
                 isSelfUser = isSelfUser,
                 isSelfUserMuted = isSelfUserMuted,
@@ -105,41 +102,36 @@ fun CallingHorizontalView(
     }
 }
 
+@Composable
+fun PreviewCallingHorizontalView(participants: List<UICallParticipant>, modifier: Modifier = Modifier) {
+    Box(modifier = modifier.height(800.dp)) {
+        CallingHorizontalView(
+            participants = participants,
+            pageIndex = 0,
+            isSelfUserMuted = true,
+            isSelfUserCameraOn = false,
+            contentHeight = 800.dp,
+            onSelfVideoPreviewCreated = {},
+            onSelfClearVideoPreview = {},
+            onDoubleTap = { }
+        )
+    }
+}
+
 @PreviewMultipleThemes
 @Composable
-fun PreviewCallingHorizontalView() {
-    val participant1 = UICallParticipant(
-        id = QualifiedID("", ""),
-        clientId = "client-id",
-        name = "user name",
-        isMuted = true,
-        isSpeaking = false,
-        isCameraOn = false,
-        isSharingScreen = false,
-        avatar = null,
-        membership = Membership.Admin,
-        hasEstablishedAudio = true
-    )
-    val participant2 = UICallParticipant(
-        id = QualifiedID("", ""),
-        clientId = "client-id",
-        name = "user name 2",
-        isMuted = true,
-        isSpeaking = false,
-        isCameraOn = false,
-        isSharingScreen = false,
-        avatar = null,
-        membership = Membership.Admin,
-        hasEstablishedAudio = true
-    )
-    CallingHorizontalView(
-        participants = listOf(participant1, participant2),
-        pageIndex = 0,
-        isSelfUserMuted = true,
-        isSelfUserCameraOn = false,
-        contentHeight = 500.dp,
-        onSelfVideoPreviewCreated = {},
-        onSelfClearVideoPreview = {},
-        onDoubleTap = { }
-    )
+fun PreviewCallingHorizontalView_1Participant() = WireTheme {
+    PreviewCallingHorizontalView(buildPreviewParticipantsList(1))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCallingHorizontalView_2Participants() = WireTheme {
+    PreviewCallingHorizontalView(buildPreviewParticipantsList(2))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCallingHorizontalView_3Participants() = WireTheme {
+    PreviewCallingHorizontalView(buildPreviewParticipantsList(3))
 }

@@ -68,6 +68,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
+import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -97,7 +98,8 @@ fun HomeScreen(
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
     homeViewModel: HomeViewModel = hiltViewModel(),
     appSyncViewModel: AppSyncViewModel = hiltViewModel(),
-    homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel()
+    homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
+    analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel()
 ) {
     homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
     val homeScreenState = rememberHomeScreenState(navigator)
@@ -114,7 +116,7 @@ fun HomeScreen(
         rememberShowNotificationsPermissionFlow(
             onPermissionGranted = { /* do nothing */ },
             onPermissionDenied = showNotificationsPermissionDeniedDialog,
-            onPermissionPermanentlyDenied = showNotificationsPermissionDeniedDialog,
+            onPermissionPermanentlyDenied = { /* do nothing */ },
         )
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -143,6 +145,13 @@ fun HomeScreen(
     if (homeViewModel.homeState.shouldDisplayWelcomeMessage) {
         WelcomeNewUserDialog(
             dismissDialog = homeViewModel::dismissWelcomeMessage
+        )
+    }
+
+    if (analyticsUsageViewModel.state.shouldDisplayDialog) {
+        AnalyticsUsageDialog(
+            agreeOption = analyticsUsageViewModel::agreeAnalyticsUsage,
+            declineOption = analyticsUsageViewModel::declineAnalyticsUsage
         )
     }
 
@@ -272,8 +281,7 @@ fun HomeContent(
                         Column(modifier = Modifier.animateContentSize()) {
                             AnimatedVisibility(visible = !searchBarState.isSearchActive) {
                                 HomeTopBar(
-                                    avatarAsset = homeState.avatarAsset,
-                                    status = homeState.status,
+                                    userAvatarData = homeState.userAvatarData,
                                     title = stringResource(currentNavigationItem.title),
                                     elevation = elevation,
                                     withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,

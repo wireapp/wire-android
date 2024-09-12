@@ -19,27 +19,31 @@ package com.wire.android.ui.settings.devices.e2ei
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
 
 @Composable
 fun E2eiCertificateDetailsBottomSheet(
-    sheetState: WireModalSheetState,
+    sheetState: WireModalSheetState<Unit>,
     onCopyToClipboard: () -> Unit,
     onDownload: () -> Unit,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
-    WireModalSheetLayout(sheetState = sheetState, coroutineScope = coroutineScope) {
-        MenuModalSheetContent(
+    val onSaveFileWriteStorageRequest = rememberWriteStoragePermissionFlow(
+        onPermissionGranted = onDownload,
+        onPermissionDenied = { },
+        onPermissionPermanentlyDenied = { }
+    )
+    WireModalSheetLayout(sheetState = sheetState) {
+        WireMenuModalSheetContent(
             header = MenuModalSheetHeader.Gone,
             menuItems = buildList {
                 add {
@@ -54,7 +58,7 @@ fun E2eiCertificateDetailsBottomSheet(
                     CreateCertificateSheetItem(
                         title = stringResource(R.string.e2ei_certificate_details_download),
                         icon = R.drawable.ic_download,
-                        onClicked = onDownload,
+                        onClicked = onSaveFileWriteStorageRequest::launch,
                         enabled = true
                     )
                 }
@@ -88,7 +92,7 @@ private fun CreateCertificateSheetItem(
 @Composable
 fun PreviewE2eiCertificateDetailsBottomSheet() {
     E2eiCertificateDetailsBottomSheet(
-        sheetState = WireModalSheetState(),
+        sheetState = rememberWireModalSheetState(),
         onCopyToClipboard = { },
         onDownload = { }
     )

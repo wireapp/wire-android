@@ -19,7 +19,6 @@
 package com.wire.android.ui
 
 import android.content.Intent
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -65,6 +64,7 @@ import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
+import com.wire.kalium.logic.feature.debug.SynchronizeExternalDataResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -90,17 +90,18 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.InputStream
+import java.io.InputStreamReader
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
-    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider,
     private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
     private val doesValidSessionExist: Lazy<DoesValidSessionExistUseCase>,
@@ -131,13 +132,6 @@ class WireActivityViewModel @Inject constructor(
     private val userIdDeferred: Deferred<UserId?> = viewModelScope.async(dispatchers.io()) {
         currentSessionFlow.get().invoke()
             .distinctUntilChanged()
-            .onEach {
-                if (it is CurrentSessionResult.Success) {
-                    if (it.accountInfo.isValid().not()) {
-                        handleInvalidSession((it.accountInfo as AccountInfo.Invalid).logoutReason)
-                    }
-                }
-            }
             .map { result ->
                 if (result is CurrentSessionResult.Success) {
                     if (result.accountInfo.isValid()) {
@@ -160,6 +154,7 @@ class WireActivityViewModel @Inject constructor(
         observeNewClientState()
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
+        observeLogoutState()
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -203,6 +198,20 @@ class WireActivityViewModel @Inject constructor(
             } catch (e: NullPointerException) {
                 appLogger.e("Error while observing sync state: $e")
             }
+        }
+    }
+
+    private fun observeLogoutState() {
+        viewModelScope.launch(dispatchers.io()) {
+            currentSessionFlow.get().invoke()
+                .distinctUntilChanged()
+                .collect {
+                    if (it is CurrentSessionResult.Success) {
+                        if (it.accountInfo.isValid().not()) {
+                            handleInvalidSession((it.accountInfo as AccountInfo.Invalid).logoutReason)
+                        }
+                    }
+                }
         }
     }
 
@@ -300,22 +309,39 @@ class WireActivityViewModel @Inject constructor(
         return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
     }
 
-    @VisibleForTesting
-    internal suspend fun canLoginThroughDeepLinks() = viewModelScope.async {
-        coreLogic.get().getGlobalScope().session.currentSession().takeIf {
-            it is CurrentSessionResult.Success
-        }?.let {
-            val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
-            coreLogic.get().getSessionScope(currentUserId).calls.establishedCall().first().isEmpty()
-        } ?: true
+    fun handleSynchronizeExternalData(
+        data: InputStream
+    ) {
+        viewModelScope.launch(dispatchers.io()) {
+            when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
+                is CurrentSessionResult.Failure.Generic -> null
+                CurrentSessionResult.Failure.SessionNotFound -> null
+                is CurrentSessionResult.Success -> {
+                    coreLogic.sessionScope(currentSession.accountInfo.userId) {
+                        when (val result = debug.synchronizeExternalData(InputStreamReader(data).readText())) {
+                            is SynchronizeExternalDataResult.Success -> {
+                                appLogger.d("Synchronized external data")
+                            }
+
+                            is SynchronizeExternalDataResult.Failure -> {
+                                appLogger.d("Failed to Synchronize external data: ${result.coreFailure}")
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Suppress("ComplexMethod")
     fun handleDeepLink(
         intent: Intent?,
         onIsSharingIntent: () -> Unit,
-        onOpenConversation: (ConversationId) -> Unit,
-        onResult: (DeepLinkResult) -> Unit,
+        onOpenConversation: (DeepLinkResult.OpenConversation) -> Unit,
+        onSSOLogin: (DeepLinkResult.SSOLogin) -> Unit,
+        onMigrationLogin: (DeepLinkResult.MigrationLogin) -> Unit,
+        onOpenOtherUserProfile: (DeepLinkResult.OpenOtherUserProfile) -> Unit,
+        onAuthorizationNeeded: () -> Unit,
         onCannotLoginDuringACall: () -> Unit
     ) {
         viewModelScope.launch(dispatchers.io()) {
@@ -324,41 +350,25 @@ class WireActivityViewModel @Inject constructor(
                 // so we need to finish migration first.
                 return@launch
             }
-            val result = intent?.data?.let { deepLinkProcessor.get().invoke(it) }
-            when {
-                result is DeepLinkResult.SSOLogin -> {
-                    if (canLoginThroughDeepLinks().await()) {
-                        onResult(result)
-                    } else {
-                        onCannotLoginDuringACall()
-                    }
-                }
+            val isSharingIntent = isSharingIntent(intent)
+            when (val result = deepLinkProcessor.get().invoke(intent?.data, isSharingIntent)) {
+                DeepLinkResult.AuthorizationNeeded -> onAuthorizationNeeded()
+                is DeepLinkResult.SSOLogin -> onSSOLogin(result)
+                is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
+                is DeepLinkResult.Failure.OngoingCall -> onCannotLoginDuringACall()
+                is DeepLinkResult.Failure.Unknown -> appLogger.e("unknown deeplink failure")
+                is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(
+                    result.code,
+                    result.key,
+                    result.domain
+                ) { conversationId -> onOpenConversation(DeepLinkResult.OpenConversation(conversationId, result.switchedAccount)) }
 
-                result is DeepLinkResult.MigrationLogin -> onResult(result)
-                result is DeepLinkResult.CustomServerConfig -> {
-                    if (canLoginThroughDeepLinks().await()) {
-                        onCustomServerConfig(result)
-                    } else {
-                        onCannotLoginDuringACall()
-                    }
-                }
+                is DeepLinkResult.MigrationLogin -> onMigrationLogin(result)
+                is DeepLinkResult.OpenConversation -> onOpenConversation(result)
+                is DeepLinkResult.OpenOtherUserProfile -> onOpenOtherUserProfile(result)
 
-                isSharingIntent(intent) -> onIsSharingIntent()
-                shouldLogIn() -> {
-                    // to handle the deepLinks above user needs to be Logged in
-                    // do nothing, already handled by initialAppState
-                }
-
-                result is DeepLinkResult.JoinConversation ->
-                    onConversationInviteDeepLink(
-                        result.code,
-                        result.key,
-                        result.domain,
-                        onOpenConversation
-                    )
-
-                result != null -> onResult(result)
-                result is DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
+                DeepLinkResult.SharingIntent -> onIsSharingIntent()
+                DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
             }
         }
     }
@@ -388,11 +398,11 @@ class WireActivityViewModel @Inject constructor(
         switchAccountActions: SwitchAccountActions
     ) {
         viewModelScope.launch {
-            coreLogic.get().getGlobalScope().session.currentSession().takeIf {
+            coreLogic.getGlobalScope().session.currentSession().takeIf {
                 it is CurrentSessionResult.Success
             }?.let {
                 val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
-                coreLogic.get().getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
+                coreLogic.getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
                 clearUserData(currentUserId)
             }
             accountSwitch.get().invoke(SwitchAccountParam.TryToSwitchToNextAccount).also {
@@ -468,11 +478,11 @@ class WireActivityViewModel @Inject constructor(
         key: String,
         domain: String?,
         onSuccess: (ConversationId) -> Unit
-    ) = when (val currentSession = coreLogic.get().getGlobalScope().session.currentSession()) {
+    ) = when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
         is CurrentSessionResult.Failure.Generic -> null
         CurrentSessionResult.Failure.SessionNotFound -> null
         is CurrentSessionResult.Success -> {
-            coreLogic.get().sessionScope(currentSession.accountInfo.userId) {
+            coreLogic.sessionScope(currentSession.accountInfo.userId) {
                 when (val result = conversations.checkIConversationInviteCode(code, key, domain)) {
                     is CheckConversationInviteCodeUseCase.Result.Success -> {
                         if (result.isSelfMember) {
@@ -526,7 +536,7 @@ class WireActivityViewModel @Inject constructor(
 
     fun observePersistentConnectionStatus() {
         viewModelScope.launch {
-            coreLogic.get().getGlobalScope().observePersistentWebSocketConnectionStatus()
+            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus()
                 .let { result ->
                     when (result) {
                         is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {

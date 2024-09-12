@@ -25,12 +25,14 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.wire.android.ui.home.conversationslist.common.CollapsingFolderHeader
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 
 inline fun <T, K : Any> LazyListScope.folderWithElements(
     header: String? = null,
     items: Map<K, T>,
     animateItemPlacement: Boolean = true,
+    folderType: FolderType = FolderType.Regular,
     crossinline divider: @Composable () -> Unit = {},
     crossinline factory: @Composable (T) -> Unit
 ) {
@@ -39,13 +41,26 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
     if (items.isNotEmpty()) {
         if (!header.isNullOrEmpty()) {
             item(key = "header:$header") {
-                FolderHeader(
-                    name = header,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .let { if (animateItemPlacement) it.animateItem() else it }
-                )
+                when (folderType) {
+                    is FolderType.Collapsing -> CollapsingFolderHeader(
+                        expanded = folderType.expanded,
+                        onClicked = folderType.onChanged,
+                        name = header,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .let { if (animateItemPlacement) it.animateItem() else it }
+                    )
+                    is FolderType.Regular -> FolderHeader(
+                        name = header,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .let { if (animateItemPlacement) it.animateItem() else it }
+                    )
+                }
             }
+        }
+        if (folderType is FolderType.Collapsing && !folderType.expanded) {
+            return // do not show items if the folder is collapsed
         }
         itemsIndexed(
             items = list,
@@ -63,4 +78,9 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
             }
         }
     }
+}
+
+sealed interface FolderType {
+    data class Collapsing(val expanded: Boolean, val onChanged: (Boolean) -> Unit) : FolderType
+    data object Regular : FolderType
 }

@@ -26,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.model.ItemActionType
@@ -55,23 +54,14 @@ fun InternalContactSearchResultItem(
     searchQuery: String,
     connectionState: ConnectionState,
     onCheckChange: (Boolean) -> Unit,
-    isAddedToGroup: Boolean,
+    isSelected: Boolean,
     clickable: Clickable,
     actionType: ItemActionType,
     modifier: Modifier = Modifier
 ) {
     RowItemTemplate(
         leadingIcon = {
-            Row(verticalAlignment = CenterVertically) {
-                if (actionType.checkable) {
-                    WireCheckbox(
-                        checked = isAddedToGroup,
-                        onCheckedChange = null, // null since we are handling the click on parent
-                        modifier = Modifier.padding(horizontal = dimensions().spacing8x)
-                    )
-                }
                 UserProfileAvatar(avatarData)
-            }
         },
         titleStartPadding = dimensions().spacing0x,
         title = {
@@ -99,15 +89,20 @@ fun InternalContactSearchResultItem(
                 Box(
                     modifier = Modifier
                         .wrapContentWidth()
-                        .padding(end = 8.dp)
+                        .padding(end = dimensions().spacing4x)
                 ) {
                     ArrowRightIcon(Modifier.align(Alignment.TopEnd))
                 }
+            } else if (actionType.checkable) {
+                WireCheckbox(
+                    checked = isSelected,
+                    onCheckedChange = null, // null since we are handling the click on parent,
+                )
             }
         },
         clickable =
             if (actionType.clickable) clickable
-            else Clickable { onCheckChange(!isAddedToGroup) },
+            else Clickable { onCheckChange(!isSelected) },
         modifier = modifier.padding(start = dimensions().spacing8x)
     )
 }
@@ -185,7 +180,7 @@ fun PreviewInternalContactSearchResultItemCheckable() = WireTheme {
         searchQuery = "",
         connectionState = ConnectionState.ACCEPTED,
         onCheckChange = {},
-        isAddedToGroup = false,
+        isSelected = false,
         clickable = Clickable {},
         actionType = ItemActionType.CHECK,
     )
@@ -201,7 +196,7 @@ fun PreviewInternalContactSearchResultItemClickable() = WireTheme {
         searchQuery = "",
         connectionState = ConnectionState.ACCEPTED,
         onCheckChange = {},
-        isAddedToGroup = false,
+        isSelected = false,
         clickable = Clickable {},
         actionType = ItemActionType.CLICK,
     )
@@ -217,7 +212,7 @@ fun PreviewExternalContactSearchResultItem() = WireTheme {
         label = "label",
         membership = Membership.None,
         searchQuery = "",
-        connectionState = ConnectionState.ACCEPTED,
+        connectionState = ConnectionState.NOT_CONNECTED,
         clickable = Clickable {},
     )
 }

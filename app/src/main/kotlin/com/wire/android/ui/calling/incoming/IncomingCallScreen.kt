@@ -250,7 +250,9 @@ private fun IncomingCallContent(
 
             val groupCallerName = if (callState.conversationTypeForCall == ConversationTypeForCall.Conference) {
                 callState.callerName
-            } else null
+            } else {
+                null
+            }
 
             CallerDetails(
                 conversationId = callState.conversationId,

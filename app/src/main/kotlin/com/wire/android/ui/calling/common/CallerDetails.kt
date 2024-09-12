@@ -145,7 +145,9 @@ fun CallerDetails(
             val isCallingLabel =
                 if (conversationTypeForCall == ConversationTypeForCall.Conference) {
                     stringResource(R.string.calling_label_incoming_call_someone_calling)
-                } else stringResource(R.string.calling_label_incoming_call)
+                } else {
+                    stringResource(R.string.calling_label_incoming_call)
+                }
             Text(
                 modifier = Modifier.padding(
                     start = dimensions().spacing2x,

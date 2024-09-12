@@ -80,14 +80,11 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
-<<<<<<< HEAD
 import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
-=======
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
->>>>>>> 7a6f0681c (feat: add analytics initial events (WPB-10589) (#3428))
 import com.wire.android.mapper.MessageDateTimeGroup
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable

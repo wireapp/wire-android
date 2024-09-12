@@ -17,6 +17,9 @@
  */
 package com.wire.android.feature.analytics.model
 
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CONTRIBUTED_LOCATION
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MESSAGE_ACTION_KEY
+
 interface AnalyticsEvent {
     /**
      * Key to be used to differentiate every event
@@ -42,12 +45,146 @@ interface AnalyticsEvent {
      *      }
      * }
      */
-    fun toSegmentation(): Map<String, Any>
+    fun toSegmentation(): Map<String, Any> = mapOf()
 
     data class AppOpen(
         override val key: String = AnalyticsEventConstants.APP_OPEN
-    ) : AnalyticsEvent {
-        override fun toSegmentation(): Map<String, Any> = mapOf()
+    ) : AnalyticsEvent
+
+    /**
+     * Calling
+     */
+    data class CallInitiated(
+        override val key: String = AnalyticsEventConstants.CALLING_INITIATED
+    ) : AnalyticsEvent
+
+    data class CallJoined(
+        override val key: String = AnalyticsEventConstants.CALLING_JOINED
+    ) : AnalyticsEvent
+
+    /**
+     * Backup
+     */
+    data class BackupExportFailed(
+        override val key: String = AnalyticsEventConstants.BACKUP_EXPORT_FAILED
+    ) : AnalyticsEvent
+
+    data class BackupRestoreSucceeded(
+        override val key: String = AnalyticsEventConstants.BACKUP_RESTORE_SUCCEEDED
+    ) : AnalyticsEvent
+
+    data class BackupRestoreFailed(
+        override val key: String = AnalyticsEventConstants.BACKUP_RESTORE_FAILED
+    ) : AnalyticsEvent
+
+    /**
+     * Contributed, message action related
+     */
+    sealed interface Contributed : AnalyticsEvent {
+        override val key: String
+            get() = AnalyticsEventConstants.CONTRIBUTED
+
+        val messageAction: String
+
+        data class Location(
+            override val messageAction: String = CONTRIBUTED_LOCATION
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class Text(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_TEXT
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class Photo(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_PHOTO
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class AudioCall(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_AUDIO_CALL
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class VideoCall(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_VIDEO_CALL
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class Gif(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_GIF
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class Ping(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_PING
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class File(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_FILE
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class Video(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_VIDEO
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
+
+        data class Audio(
+            override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_AUDIO
+        ) : Contributed {
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    MESSAGE_ACTION_KEY to messageAction
+                )
+            }
+        }
     }
 }
 
@@ -57,4 +194,34 @@ object AnalyticsEventConstants {
     const val APP_VERSION = "app_version"
     const val TEAM_IS_TEAM = "team_is_team"
     const val APP_OPEN = "app.open"
+
+    /**
+     * Calling
+     */
+    const val CALLING_INITIATED = "calling.initiated_call"
+    const val CALLING_JOINED = "calling.joined_call"
+
+    /**
+     * Backup
+     */
+    const val BACKUP_EXPORT_FAILED = "backup.export_failed"
+    const val BACKUP_RESTORE_SUCCEEDED = "backup.restore_succeeded"
+    const val BACKUP_RESTORE_FAILED = "backup.restore_failed"
+
+    /**
+     * Contributed, message related
+     */
+    const val CONTRIBUTED = "contributed"
+    const val MESSAGE_ACTION_KEY = "message_action"
+
+    const val CONTRIBUTED_TEXT = "text"
+    const val CONTRIBUTED_PHOTO = "photo"
+    const val CONTRIBUTED_AUDIO_CALL = "audio_call"
+    const val CONTRIBUTED_VIDEO_CALL = "video_call"
+    const val CONTRIBUTED_GIF = "giphy"
+    const val CONTRIBUTED_PING = "ping"
+    const val CONTRIBUTED_FILE = "file"
+    const val CONTRIBUTED_VIDEO = "video"
+    const val CONTRIBUTED_AUDIO = "audio"
+    const val CONTRIBUTED_LOCATION = "location"
 }

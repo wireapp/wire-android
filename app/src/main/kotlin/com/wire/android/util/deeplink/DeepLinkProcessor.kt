@@ -85,16 +85,16 @@ class DeepLinkProcessor @Inject constructor(
 ) {
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
-    suspend operator fun invoke(uri: Uri, isSharingIntent: Boolean): DeepLinkResult {
+    suspend operator fun invoke(uri: Uri?, isSharingIntent: Boolean): DeepLinkResult {
         return when (val sessionResult = currentSession()) {
             is CurrentSessionResult.Failure.Generic,
-            CurrentSessionResult.Failure.SessionNotFound -> handleNotAuthorizedDeepLinks(uri)
+            CurrentSessionResult.Failure.SessionNotFound -> uri?.let { handleNotAuthorizedDeepLinks(uri) } ?: DeepLinkResult.Unknown
 
             is CurrentSessionResult.Success -> {
                 if (isSharingIntent) {
                     return DeepLinkResult.SharingIntent
                 } else {
-                    handleDeepLinks(uri, sessionResult.accountInfo)
+                    uri?.let { handleDeepLinks(uri, sessionResult.accountInfo) } ?: DeepLinkResult.Unknown
                 }
             }
         }

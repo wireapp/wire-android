@@ -134,7 +134,8 @@ fun DeviceDetailsScreen(
                 )
             },
             onEnrollE2EIErrorDismiss = viewModel::hideEnrollE2EICertificateError,
-            onEnrollE2EISuccessDismiss = viewModel::hideEnrollE2EICertificateSuccess
+            onEnrollE2EISuccessDismiss = viewModel::hideEnrollE2EICertificateSuccess,
+            onBreakSession = viewModel::breakSession
         )
     }
 }
@@ -155,7 +156,8 @@ fun DeviceDetailsContent(
     enrollE2eiCertificate: () -> Unit = {},
     onUpdateClientVerification: (Boolean) -> Unit = {},
     onEnrollE2EIErrorDismiss: () -> Unit = {},
-    onEnrollE2EISuccessDismiss: () -> Unit = {}
+    onEnrollE2EISuccessDismiss: () -> Unit = {},
+    onBreakSession: () -> Unit = {}
 ) {
     val screenState = rememberConversationScreenState()
     WireScaffold(
@@ -268,6 +270,10 @@ fun DeviceDetailsContent(
                     HorizontalDivider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
+
+            if (BuildConfig.DEBUG && !state.isCurrentDevice) {
+                item { BreakSessionButton(onBreakSession) }
+            }
         }
         if (state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
             RemoveDeviceDialog(
@@ -315,6 +321,21 @@ fun DeviceDetailsContent(
             )
         }
     }
+}
+
+@Composable
+private fun BreakSessionButton(onBreakSession: () -> Unit) {
+    WirePrimaryButton(
+        text = stringResource(R.string.debug_settings_break_session),
+        onClick = onBreakSession,
+        colors = wirePrimaryButtonColors(),
+        modifier = Modifier.padding(
+            start = dimensions().spacing16x,
+            top = dimensions().spacing16x,
+            end = dimensions().spacing16x,
+            bottom = dimensions().spacing16x
+        )
+    )
 }
 
 @Composable
@@ -391,17 +412,17 @@ fun DeviceMLSSignatureItem(
 ) {
     Column(modifier = modifier) {
 
-    DeviceDetailSectionContent(
-        stringResource(id = R.string.label_mls_thumbprint),
-        sectionText = mlsThumbprint.formatAsFingerPrint(),
-        titleTrailingItem = {
-            CopyButton(
-                onCopyClicked = { onCopy(mlsThumbprint) },
-                state = WireButtonState.Default
-            )
-        }
-    )
-        }
+        DeviceDetailSectionContent(
+            stringResource(id = R.string.label_mls_thumbprint),
+            sectionText = mlsThumbprint.formatAsFingerPrint(),
+            titleTrailingItem = {
+                CopyButton(
+                    onCopyClicked = { onCopy(mlsThumbprint) },
+                    state = WireButtonState.Default
+                )
+            }
+        )
+    }
 }
 
 @Composable

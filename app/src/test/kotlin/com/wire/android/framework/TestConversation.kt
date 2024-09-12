@@ -24,6 +24,7 @@ import com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.GroupID
+import com.wire.kalium.logic.data.mls.CipherSuite
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.datetime.Instant
 
@@ -156,5 +157,13 @@ object TestConversation {
         mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
         proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
         legalHoldStatus = Conversation.LegalHoldStatus.DISABLED
+    )
+
+    val MLS_PROTOCOL_INFO = ProtocolInfo.MLS(
+        GROUP_ID,
+        ProtocolInfo.MLSCapable.GroupState.PENDING_JOIN,
+        0UL,
+        Instant.parse("2021-03-30T15:36:00.000Z"),
+        cipherSuite = CipherSuite.MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
     )
 }

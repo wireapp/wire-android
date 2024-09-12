@@ -171,7 +171,7 @@ class MessageMapper @Inject constructor(
 
         val content = message.content
         val flowStatus = if (content is MessageContent.FailedDecryption) {
-            MessageFlowStatus.Failure.Decryption(content.isDecryptionResolved)
+            MessageFlowStatus.Failure.Decryption(content.isDecryptionResolved, content.errorCode)
         } else {
             when (val status = message.status) {
                 Message.Status.Pending -> MessageFlowStatus.Sending

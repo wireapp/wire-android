@@ -221,7 +221,7 @@ fun PreviewFailedDecryptionMessage() {
                 it.copy(
                     header = it.header.copy(
                         messageStatus = MessageStatus(
-                            flowStatus = MessageFlowStatus.Failure.Decryption(false),
+                            flowStatus = MessageFlowStatus.Failure.Decryption(false, 222),
                             expirationStatus = ExpirationStatus.NotExpirable
                         )
                     ),

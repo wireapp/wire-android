@@ -25,6 +25,8 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.BuildConfig
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.ui.home.appLock.CurrentTimestampProvider
@@ -95,4 +97,7 @@ object AppModule {
     @Provides
     fun provideAnalyticsConfiguration() =
         if (BuildConfig.ANALYTICS_ENABLED) AnalyticsConfiguration.Enabled else AnalyticsConfiguration.Disabled
+
+    @Provides
+    fun provideAnonymousAnalyticsManager(): AnonymousAnalyticsManager = AnonymousAnalyticsManagerImpl
 }

@@ -79,7 +79,7 @@ class PatternFilterWithCallback(private val pattern: Pattern, private val onInco
 fun InputTransformation.forceLowercase(): InputTransformation =
     this.then(ForceLowercaseTransformation())
 
-class ForceLowercaseTransformation: InputTransformation {
+class ForceLowercaseTransformation : InputTransformation {
     override fun TextFieldBuffer.transformInput() {
         replace(0, length, asCharSequence().toString().lowercase())
     }

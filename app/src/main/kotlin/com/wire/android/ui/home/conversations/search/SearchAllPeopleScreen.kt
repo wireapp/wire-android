@@ -183,14 +183,6 @@ private fun SearchResult(
                 )
             }
         }
-//        SideEffect {
-//            if (lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset == 0) {
-//                lazyListState.requestScrollToItem(
-//                    index = lazyListState.firstVisibleItemIndex,
-//                    scrollOffset = lazyListState.firstVisibleItemScrollOffset
-//                )
-//            }
-//        }
 
         KeepOnTopWhenNotScrolled(lazyListState)
     }

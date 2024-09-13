@@ -45,6 +45,7 @@ class ContactMapper
                 id = id.value,
                 domain = id.domain,
                 name = name.orEmpty(),
+                handle = handle.orEmpty(),
                 label = UsernameMapper.fromOtherUser(otherUser),
                 avatarData = UserAvatarData(
                     asset = previewPicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
@@ -63,6 +64,7 @@ class ContactMapper
                 id = id.id,
                 domain = id.provider,
                 name = name,
+                handle = String.EMPTY,
                 label = String.EMPTY,
                 avatarData = UserAvatarData(
                     asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
@@ -79,7 +81,8 @@ class ContactMapper
             return Contact(
                 id = id.value,
                 domain = id.domain,
-                name = name ?: String.EMPTY,
+                name = name.orEmpty(),
+                handle = handle.orEmpty(),
                 label = mapUserHandle(user),
                 avatarData = UserAvatarData(
                     asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },

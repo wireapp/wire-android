@@ -609,7 +609,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <!-- Search Messages -->
     <!-- Conversation Media -->
     <!-- Search Contact-->
-    <string name="label_contacts">CONTACTOS</string>
+    <string name="label_contacts">Contactos</string>
     <string name="label_new_group">Nuevo Grupo</string>
     <string name="label_new_conversation">Nueva Conversaci&#243;n</string>
     <string name="label_search_people">Buscar Personas</string>

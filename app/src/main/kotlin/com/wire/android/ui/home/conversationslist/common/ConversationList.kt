@@ -23,12 +23,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.KeepOnTopWhenNotScrolled
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
@@ -82,20 +82,5 @@ fun ConversationList(
         }
     }
 
-    /**
-     * When the list is scrolled to top and new items (e.g. new activity section) should appear on top of the list, it appears above
-     * all current items, scroll is preserved so the list still shows the same item as the first one on list so it scrolls
-     * automatically to that item and the newly added section on top is hidden above this previously top item, so for such situation
-     * when the list is scrolled to the top and we want the new section to appear at the top we request to scroll to item at the top.
-     * Implemented according to the templates from compose lazy list test cases - LazyListRequestScrollTest.kt.
-     * https://android.googlesource.com/platform/frameworks/support/+/refs/changes/93/2987293/35/compose/foundation/foundation/integration-tests/lazy-tests/src/androidTest/kotlin/androidx/compose/foundation/lazy/list/LazyListRequestScrollTest.kt
-     */
-    SideEffect {
-        if (lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset == 0) {
-            lazyListState.requestScrollToItem(
-                index = lazyListState.firstVisibleItemIndex,
-                scrollOffset = lazyListState.firstVisibleItemScrollOffset
-            )
-        }
-    }
+    KeepOnTopWhenNotScrolled(lazyListState)
 }

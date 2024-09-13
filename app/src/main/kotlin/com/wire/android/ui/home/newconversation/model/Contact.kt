@@ -26,6 +26,7 @@ data class Contact(
     val id: String,
     val domain: String,
     val name: String,
+    val handle: String,
     val avatarData: UserAvatarData = UserAvatarData(),
     val label: String = "",
     val connectionState: ConnectionState,

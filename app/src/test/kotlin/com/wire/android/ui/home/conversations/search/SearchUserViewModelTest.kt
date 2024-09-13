@@ -49,6 +49,9 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import org.amshove.kluent.internal.assertEquals
@@ -303,6 +306,39 @@ class SearchUserViewModelTest {
         }
     }
 
+    @Test
+    fun `given a contact is selected, when searching, then return it on selected result list, not on contacts result list`() = runTest {
+        val query = ""
+        val selectedUserSearchDetails = UserSearchDetails(
+            id = UserId("id", "domain"),
+            name = "name",
+            completeAssetId = null,
+            type = UserType.INTERNAL,
+            connectionStatus = ConnectionState.ACCEPTED,
+            previewAssetId = null,
+            handle = "handle"
+        )
+        val (arrangement, viewModel) = Arrangement()
+            .withAddMembersSearchNavArgsThatThrowsException()
+            .withSearchByHandleResult(
+                SearchUserResult(
+                    connected = listOf(selectedUserSearchDetails),
+                    notConnected = emptyList()
+                )
+            )
+            .withFederatedSearchParserResult(FederatedSearchParser.Result(searchTerm = query, domain = "domain"))
+            .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
+            .arrange()
+        val selectedContact = arrangement.fromSearchUserResult(selectedUserSearchDetails)
+
+        viewModel.searchQueryChanged(query)
+        viewModel.selectedContactsChanged(persistentSetOf(selectedContact))
+        advanceUntilIdle()
+
+        assertEquals(persistentListOf(selectedContact), viewModel.state.selectedResult)
+        assertEquals(persistentListOf(), viewModel.state.contactsResult)
+    }
+
     private class Arrangement {
 
         @MockK
@@ -347,6 +383,7 @@ class SearchUserViewModelTest {
                     id = id.value,
                     domain = id.domain,
                     name = name ?: String.EMPTY,
+                    handle = handle ?: String.EMPTY,
                     label = user.handle ?: String.EMPTY,
                     avatarData = UserAvatarData(asset = null),
                     membership = when (user.type) {

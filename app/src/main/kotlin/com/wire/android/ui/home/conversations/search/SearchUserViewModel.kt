@@ -110,7 +110,12 @@ class SearchUserViewModel @Inject constructor(
                         }
                 }
                 .collectLatest { newState ->
-                    state = newState
+                    state = state.copy(
+                        contactsResult = newState.contactsResult,
+                        publicResult = newState.publicResult,
+                        selectedResult = newState.selectedResult,
+                        searchQuery = newState.searchQuery
+                    )
                 }
         }
     }

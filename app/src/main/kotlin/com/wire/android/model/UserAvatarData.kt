@@ -46,7 +46,7 @@ data class NameBasedAvatar(val fullName: String?, val accentColor: Int) {
     val initials: String
         get() {
             if (fullName.isNullOrEmpty()) return String.EMPTY
-            val names = fullName.split(" ").map { it.uppercase() }
+            val names = fullName.split(EMPTY_REGEX).filter { it.isNotEmpty() }.map { it.uppercase() }
             return when {
                 names.size > 1 -> {
                     val initials = names.map { it.first() }
@@ -57,3 +57,5 @@ data class NameBasedAvatar(val fullName: String?, val accentColor: Int) {
             }
         }
 }
+
+val EMPTY_REGEX = "\\s".toRegex()

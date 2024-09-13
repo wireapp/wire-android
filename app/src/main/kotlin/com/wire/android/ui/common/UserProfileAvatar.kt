@@ -45,6 +45,8 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -191,8 +193,10 @@ private fun DefaultInitialsAvatar(
     avatarBorderSize: Dp,
     size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize
 ) {
+    val contentDescription = stringResource(R.string.content_description_user_avatar)
     Box(
         modifier = Modifier
+            .semantics { this.contentDescription = contentDescription }
             .withAvatarSize(size, avatarBorderSize, dimensions().avatarStatusBorderSize, type)
             .let { withAvatarBorders(type, avatarBorderSize, it) }
             .clip(CircleShape)

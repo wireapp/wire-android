@@ -52,20 +52,20 @@ interface AnalyticsEvent {
      */
     fun toSegmentation(): Map<String, Any> = mapOf()
 
-    data class AppOpen(
+    data object AppOpen : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.APP_OPEN
-    ) : AnalyticsEvent
+    }
 
     /**
      * Calling
      */
-    data class CallInitiated(
+    data object CallInitiated : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.CALLING_INITIATED
-    ) : AnalyticsEvent
+    }
 
-    data class CallJoined(
+    data object CallJoined : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.CALLING_JOINED
-    ) : AnalyticsEvent
+    }
 
     /**
      * Call quality feedback
@@ -83,7 +83,7 @@ interface AnalyticsEvent {
 
         override fun toSegmentation(): Map<String, Any> {
             return mapOf(
-                CALLING_QUALITY_REVIEW_LABEL_KEY to Answered.label
+                CALLING_QUALITY_REVIEW_LABEL_KEY to label
             )
         }
 
@@ -103,6 +103,9 @@ interface AnalyticsEvent {
         }
     }
 
+    /**
+     * Call quality feedback score
+     */
     sealed interface CallQualityFeedbackScore : CallQualityFeedback {
         val score: Int
 
@@ -118,17 +121,17 @@ interface AnalyticsEvent {
     /**
      * Backup
      */
-    data class BackupExportFailed(
+    data object BackupExportFailed : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.BACKUP_EXPORT_FAILED
-    ) : AnalyticsEvent
+    }
 
-    data class BackupRestoreSucceeded(
+    data object BackupRestoreSucceeded : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.BACKUP_RESTORE_SUCCEEDED
-    ) : AnalyticsEvent
+    }
 
-    data class BackupRestoreFailed(
+    data object BackupRestoreFailed : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.BACKUP_RESTORE_FAILED
-    ) : AnalyticsEvent
+    }
 
     /**
      * Contributed, message action related
@@ -139,109 +142,55 @@ interface AnalyticsEvent {
 
         val messageAction: String
 
-        data class Location(
+        override fun toSegmentation(): Map<String, Any> {
+            return mapOf(
+                MESSAGE_ACTION_KEY to messageAction
+            )
+        }
+
+        data object Location : Contributed {
             override val messageAction: String = CONTRIBUTED_LOCATION
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class Text(
+        data object Text : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_TEXT
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class Photo(
+        data object Photo : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_PHOTO
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class AudioCall(
+        data object AudioCall : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_AUDIO_CALL
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class VideoCall(
+        data object VideoCall : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_VIDEO_CALL
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class Gif(
+        data object Gif : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_GIF
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class Ping(
+        data object Ping : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_PING
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class File(
+        data object File : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_FILE
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class Video(
+        data object Video : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_VIDEO
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class Audio(
+        data object Audio : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_AUDIO
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
     }
 }
 
-internal object AnalyticsEventConstants {
+object AnalyticsEventConstants {
     const val APP_NAME = "app_name"
     const val APP_NAME_ANDROID = "android"
     const val APP_VERSION = "app_version"

@@ -209,6 +209,7 @@ class CallNotificationBuilder @Inject constructor(
             .setContentText(context.getString(R.string.notification_outgoing_call_tap_to_return))
             .setAutoCancel(false)
             .setOngoing(true)
+            .setSilent(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .addAction(getHangUpCallAction(context, conversationIdString, userIdString))
             .setFullScreenIntent(outgoingCallPendingIntent(context, conversationIdString), true)

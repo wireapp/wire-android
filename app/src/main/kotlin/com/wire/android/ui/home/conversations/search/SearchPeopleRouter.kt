@@ -37,9 +37,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -54,18 +55,15 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.newconversation.common.CreateNewGroupButton
-import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsAlwaysEnabled
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.UIText
 import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.launch
 
 @Suppress("ComplexMethod")
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchUsersAndServicesScreen(
     searchTitle: String,
@@ -151,7 +149,7 @@ fun SearchUsersAndServicesScreen(
                                 SearchPeopleTabItem.PEOPLE -> {
                                     SearchAllPeopleOrContactsScreen(
                                         searchQuery = searchBarState.searchQueryTextState.text.toString(),
-                                        contactsAddedToGroup = selectedContacts,
+                                        contactsSelected = selectedContacts,
                                         onOpenUserProfile = onOpenUserProfile,
                                         onContactChecked = onContactChecked,
                                         isSearchActive = isSearchActive,
@@ -172,7 +170,7 @@ fun SearchUsersAndServicesScreen(
                 } else {
                     SearchAllPeopleOrContactsScreen(
                         searchQuery = searchBarState.searchQueryTextState.text.toString(),
-                        contactsAddedToGroup = selectedContacts,
+                        contactsSelected = selectedContacts,
                         onContactChecked = onContactChecked,
                         onOpenUserProfile = onOpenUserProfile,
                         isSearchActive = isSearchActive,
@@ -190,14 +188,14 @@ fun SearchUsersAndServicesScreen(
                 when (screenType) {
                     SearchPeopleScreenType.NEW_CONVERSATION -> {
                         CreateNewGroupButton(
-                                mainButtonText = actionButtonTitle,
-                                onMainButtonClick = onGroupSelectionSubmitAction
-                            )
-                        }
+                            mainButtonText = actionButtonTitle,
+                            onMainButtonClick = onGroupSelectionSubmitAction
+                        )
+                    }
 
                     SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> {
-                        SelectParticipantsButtonsAlwaysEnabled(
-                            count = selectedContacts.size,
+                        SelectParticipantsButtonsRow(
+                            selectedParticipantsCount = selectedContacts.size,
                             mainButtonText = actionButtonTitle,
                             onMainButtonClick = onGroupSelectionSubmitAction
                         )
@@ -235,7 +233,7 @@ enum class SearchPeopleScreenType {
 @Composable
 private fun SearchAllPeopleOrContactsScreen(
     searchQuery: String,
-    contactsAddedToGroup: ImmutableSet<Contact>,
+    contactsSelected: ImmutableSet<Contact>,
     isLoading: Boolean,
     isSearchActive: Boolean,
     actionType: ItemActionType,
@@ -247,18 +245,35 @@ private fun SearchAllPeopleOrContactsScreen(
     LaunchedEffect(key1 = searchQuery) {
         searchUserViewModel.searchQueryChanged(searchQuery)
     }
+    LaunchedEffect(key1 = contactsSelected, actionType) {
+        searchUserViewModel.selectedContactsChanged(
+            when (actionType) {
+                ItemActionType.CLICK -> persistentSetOf() // do not pass any selected contacts in non-selectable mode
+                ItemActionType.CHECK -> contactsSelected
+            }
+        )
+    }
 
     val lazyState = rememberLazyListState()
+    var selectedContactResultsExpanded by remember { mutableStateOf(false) }
+    var contactResultsExpanded by remember { mutableStateOf(true) }
+    var publicResultsExpanded by remember { mutableStateOf(true) }
     SearchAllPeopleScreen(
         searchQuery = searchUserViewModel.state.searchQuery,
         contactsSearchResult = searchUserViewModel.state.contactsResult,
         publicSearchResult = searchUserViewModel.state.publicResult,
-        contactsAddedToGroup = contactsAddedToGroup,
+        contactsSelectedSearchResult = searchUserViewModel.state.selectedResult,
         onChecked = onContactChecked,
         onOpenUserProfile = onOpenUserProfile,
         lazyListState = lazyState,
         isSearchActive = isSearchActive,
         isLoading = isLoading,
         actionType = actionType,
+        selectedContactResultsExpanded = selectedContactResultsExpanded,
+        onSelectedContactResultsExpansionChanged = remember { { selectedContactResultsExpanded = it } },
+        contactResultsExpanded = contactResultsExpanded,
+        onContactResultsExpansionChanged = remember { { contactResultsExpanded = it } },
+        publicResultsExpanded = publicResultsExpanded,
+        onPublicResultsExpansionChanged = remember { { publicResultsExpanded = it } }
     )
 }

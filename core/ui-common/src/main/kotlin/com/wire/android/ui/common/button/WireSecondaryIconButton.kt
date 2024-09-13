@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 
@@ -84,7 +85,7 @@ fun PreviewWireSecondaryIconButton() {
     WireSecondaryIconButton(
         {},
         loading = false,
-        iconResource = com.google.android.material.R.drawable.m3_password_eye,
+        iconResource = R.drawable.ic_close,
         contentDescription = 0
     )
 }
@@ -95,7 +96,7 @@ fun PreviewWireSecondaryIconButtonLoading() {
     WireSecondaryIconButton(
         {},
         loading = true,
-        iconResource = com.google.android.material.R.drawable.m3_password_eye,
+        iconResource = R.drawable.ic_close,
         contentDescription = 0
     )
 }
@@ -106,7 +107,7 @@ fun PreviewWireSecondaryIconButtonRound() {
     WireSecondaryIconButton(
         {},
         loading = false,
-        iconResource = com.google.android.material.R.drawable.m3_password_eye,
+        iconResource = R.drawable.ic_close,
         contentDescription = 0,
         shape = CircleShape,
         minSize = DpSize(40.dp, 40.dp),

@@ -586,11 +586,11 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <!-- Search Messages -->
     <!-- Conversation Media -->
     <!-- Search Contact-->
-    <string name="label_contacts">KONTAKTY</string>
+    <string name="label_contacts">Kontakty</string>
     <string name="label_new_group">Nowa grupa</string>
     <string name="label_new_conversation">Nowa rozmowa</string>
     <string name="label_search_people">Szukaj ludzi</string>
-    <string name="label_public_wire">PUBLICZNA ROZMOWA</string>
+    <string name="label_public_wire">Publiczny Wire</string>
     <string name="label_search_people_instruction">Wyszukaj ludzi po ich nazwie profilowej lub @nazwie u&#380;ytkownika</string>
     <string name="label_learn_more_searching_user">Dowiedz si&#281; wi&#281;cej</string>
     <string name="label_no_results_found">Nie znaleziono wynik&#243;w. Prosz&#281; spr&#243;buj ponownie.</string>

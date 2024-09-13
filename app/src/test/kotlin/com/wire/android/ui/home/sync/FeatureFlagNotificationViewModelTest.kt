@@ -316,6 +316,14 @@ class FeatureFlagNotificationViewModelTest {
                 }
             )
         }
+        coVerify(exactly = 1) {
+            arrangement.analyticsManager.sendEvent(
+                match {
+                    it is AnalyticsEvent.CallQualityFeedbackLabel && it.label ==
+                            AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_ANSWERED
+                }
+            )
+        }
     }
 
     @Test

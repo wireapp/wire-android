@@ -24,7 +24,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -59,29 +58,6 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 @Composable
-fun SelectParticipantsButtonsAlwaysEnabled(
-    count: Int = 0,
-    mainButtonText: String,
-    elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
-    modifier: Modifier = Modifier
-        .padding(horizontal = dimensions().spacing16x)
-        .height(dimensions().groupButtonHeight)
-        .fillMaxWidth(),
-    onMoreButtonIcon: @Composable (() -> Unit)? = null,
-    onMainButtonClick: () -> Unit,
-) {
-    SelectParticipantsButtonsRow(
-        selectedParticipantsCount = count,
-        mainButtonText = mainButtonText,
-        shouldAllowNoSelectionContinue = true,
-        elevation = elevation,
-        modifier = modifier,
-        onMoreButtonIcon = onMoreButtonIcon,
-        onMainButtonClick = onMainButtonClick
-    )
-}
-
-@Composable
 fun CreateNewGroupButton(mainButtonText: String, onMainButtonClick: () -> Unit) {
     SelectParticipantsButtonsRow(
         showTotalSelectedItemsCount = false,
@@ -96,11 +72,13 @@ fun SendContentButton(
     mainButtonText: String,
     count: Int,
     onMainButtonClick: () -> Unit,
-    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled,
     onSelfDeletionTimerClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled
 ) {
     val isSelfDeletionButtonVisible = selfDeletionTimer is SelfDeletionTimer.Enabled
     SelectParticipantsButtonsRow(
+        modifier = modifier,
         showTotalSelectedItemsCount = false,
         selectedParticipantsCount = count,
         leadingIcon = {
@@ -133,15 +111,15 @@ fun SendContentButton(
 
 @Composable
 fun SelectParticipantsButtonsRow(
+    mainButtonText: String,
+    onMainButtonClick: () -> Unit,
+    modifier: Modifier = Modifier,
     showTotalSelectedItemsCount: Boolean = true,
     leadingIcon: @Composable (() -> Unit)? = null,
     selectedParticipantsCount: Int = 0,
-    mainButtonText: String,
     shouldAllowNoSelectionContinue: Boolean = true,
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
-    modifier: Modifier = Modifier,
-    onMainButtonClick: () -> Unit,
-    onMoreButtonIcon: @Composable (() -> Unit)? = null,
+    onMoreButtonIcon: @Composable (() -> Unit)? = null
 ) {
     Surface(
         color = MaterialTheme.wireColorScheme.background,
@@ -179,8 +157,8 @@ fun SelectParticipantsButtonsRow(
 @Composable
 fun SelfDeletionTimerButton(
     selfDeletionTimer: SelfDeletionTimer,
-    modifier: Modifier = Modifier,
     isDisabled: Boolean,
+    modifier: Modifier = Modifier,
     onSelfDeletionTimerClicked: () -> Unit
 ) {
     val isSelected = selfDeletionTimer is SelfDeletionTimer.Enabled && selfDeletionTimer.duration != null

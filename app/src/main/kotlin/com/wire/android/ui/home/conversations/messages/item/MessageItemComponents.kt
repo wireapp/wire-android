@@ -369,7 +369,7 @@ fun PreviewMessageDecryptionFailure() {
     WireTheme {
         MessageDecryptionFailure(
             mockHeader,
-            MessageFlowStatus.Failure.Decryption(false),
+            MessageFlowStatus.Failure.Decryption(false, 0),
             { _, _ -> },
             Conversation.ProtocolInfo.Proteus
         )

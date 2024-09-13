@@ -124,6 +124,15 @@ class DeepLinkProcessorTest {
     }
 
     @Test
+    fun `given a invalid deeplink with sharing intent, returns sharing intent`() = runTest {
+        val (arrangement, deepLinkProcessor) = Arrangement()
+            .withInvalidDeeplink()
+            .arrange()
+        val result = deepLinkProcessor(arrangement.uri, true)
+        assertInstanceOf(DeepLinkResult.SharingIntent::class.java, result)
+    }
+
+    @Test
     fun `given a conversation deeplink for current user, returns Conversation with conversationId and not switched account`() = runTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withConversationDeepLink(CURRENT_USER_ID)

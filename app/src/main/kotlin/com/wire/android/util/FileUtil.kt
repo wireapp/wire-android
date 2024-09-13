@@ -104,25 +104,26 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
             put(MIME_TYPE, mimeType)
             put(SIZE, fileSize)
         }
-        resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+        resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.also { downloadedUri ->
+            resolver.copyFile(downloadedUri, downloadedDataPath)
+        }
     } else {
         val authority = getProviderAuthority()
         val destinationFile = File(downloadsDir, availableAssetName)
-        val uri = FileProvider.getUriForFile(this, authority, destinationFile)
-        if (mimeType?.isNotEmpty() == true) {
-            val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        FileProvider.getUriForFile(this, authority, destinationFile).also { downloadedUri ->
+            resolver.copyFile(downloadedUri, downloadedDataPath)
             downloadManager.addCompletedDownload(
                 /* title = */ availableAssetName,
                 /* description = */ availableAssetName,
                 /* isMediaScannerScannable = */ true,
-                /* mimeType = */ mimeType,
+                /* mimeType = */ mimeType.orEmpty().ifEmpty { "*/*" },
                 /* path = */ destinationFile.absolutePath,
                 /* length = */ fileSize,
                 /* showNotification = */ false
             )
         }
-        uri
-    }?.also { downloadedUri -> resolver.copyFile(downloadedUri, downloadedDataPath) }
+    }
 }
 
 fun ContentResolver.copyFile(destinationUri: Uri, sourcePath: Path) {

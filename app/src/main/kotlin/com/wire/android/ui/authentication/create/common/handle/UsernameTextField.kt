@@ -34,6 +34,7 @@ import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.textfield.DefaultEmail
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.forceLowercase
 import com.wire.android.ui.common.textfield.maxLengthWithCallback
 import com.wire.android.ui.common.textfield.patternWithCallback
 import com.wire.android.ui.theme.wireDimensions
@@ -56,6 +57,7 @@ fun UsernameTextField(
             placeholderText = stringResource(R.string.create_account_username_placeholder),
             labelText = stringResource(R.string.create_account_username_label),
             inputTransformation = InputTransformation
+                .forceLowercase()
                 .patternWithCallback(Patterns.HANDLE, animate)
                 .maxLengthWithCallback(255, animate),
             leadingIcon = {

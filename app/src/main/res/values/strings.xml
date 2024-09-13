@@ -50,6 +50,7 @@
     <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">Message could not be decrypted (Error %s).</string>
     <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
     <string name="label_system_message_self_user_knock">%s pinged</string>
     <string name="label_system_message_other_user_knock">%s pinged</string>
@@ -222,6 +223,7 @@
     <string name="debug_settings_api_versioning_title" translatable="false">API VERSIONING</string>
     <string name="debug_settings_e2ei_enrollment_title" translatable="false">E2EI Manual Enrollment</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
+    <string name="debug_settings_break_session" translatable="false">⚠️ Break Session</string>
     <string name="item_dependencies_title">Dependencies:</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
     <string name="support_screen_title">Support</string>
@@ -774,7 +776,8 @@
     <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
     <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <!-- Search Contact-->
-    <string name="label_contacts">CONTACTS</string>
+    <string name="label_selected">Selected</string>
+    <string name="label_contacts">Contacts</string>
     <string name="label_new_group">New Group</string>
     <string name="label_create_new_group">Create New Group</string>
     <plurals name="label_x_participants">
@@ -783,7 +786,7 @@
     </plurals>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
-    <string name="label_public_wire">PUBLIC WIRE</string>
+    <string name="label_public_wire">Public Wire</string>
     <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
     <string name="label_learn_more_searching_user">Learn more</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
@@ -1174,7 +1177,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
     <!-- Analytics Usage dialog -->
     <string name="analytics_usage_dialog_title">Consent to share user data</string>
-    <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID. The data is neither linked to your personal information nor shared with third parties besides Zeta Project Germany GmbH. It includes, for example, when you use a feature, your app version, device type, or your operating system. This data will be deleted at the latest after 365 days.\n\nFind further details in our Privacy Policy. You can revoke your consent at any time.</string>
+    <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID. The data is neither linked to your personal information nor shared with third parties besides Wire Group. It includes, for example, when you use a feature, your app version, device type, or your operating system. This data will be deleted at the latest after 365 days.\n\nFind further details in our Privacy Policy. You can revoke your consent at any time.</string>
     <string name="analytics_usage_dialog_button_agree">Agree</string>
     <string name="analytics_usage_dialog_button_decline">Decline</string>
     <string name="analytics_usage_dialog_button_privacy_policy">Privacy Policy</string>

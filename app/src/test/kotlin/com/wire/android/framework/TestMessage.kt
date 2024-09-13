@@ -43,7 +43,8 @@ object TestMessage {
         content = MessageContent.FailedDecryption(
             null,
             senderUserId = UserId("user-id", "domain"),
-            isDecryptionResolved = false
+            isDecryptionResolved = false,
+            errorCode = null
         ),
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = Instant.parse("2022-03-30T15:36:00.000Z"),

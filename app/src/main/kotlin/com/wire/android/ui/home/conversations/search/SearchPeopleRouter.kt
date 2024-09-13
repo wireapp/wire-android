@@ -195,8 +195,6 @@ fun SearchUsersAndServicesScreen(
 
                     SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> {
                         SelectParticipantsButtonsRow(
-                            shouldAllowNoSelectionContinue = true,
-                            showTotalSelectedItemsCount = false,
                             selectedParticipantsCount = selectedContacts.size,
                             mainButtonText = actionButtonTitle,
                             onMainButtonClick = onGroupSelectionSubmitAction
@@ -206,8 +204,6 @@ fun SearchUsersAndServicesScreen(
                     SearchPeopleScreenType.CONVERSATION_DETAILS -> {
                         if (pagerState.currentPage != SearchPeopleTabItem.SERVICES.ordinal) {
                             SelectParticipantsButtonsRow(
-                                shouldAllowNoSelectionContinue = true,
-                                showTotalSelectedItemsCount = false,
                                 selectedParticipantsCount = selectedContacts.size,
                                 mainButtonText = actionButtonTitle,
                                 onMainButtonClick = onGroupSelectionSubmitAction

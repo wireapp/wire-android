@@ -336,7 +336,9 @@ class SearchUserViewModelTest {
                 fromSearchUserResult(user)
             }
             every { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
-            coEvery { getConversationProtocolInfo(any()) } returns GetConversationProtocolInfoUseCase.Result.Success(Conversation.ProtocolInfo.Proteus)
+            coEvery {
+                getConversationProtocolInfo(any())
+            } returns GetConversationProtocolInfoUseCase.Result.Success(Conversation.ProtocolInfo.Proteus)
         }
 
         fun fromSearchUserResult(user: UserSearchDetails): Contact {

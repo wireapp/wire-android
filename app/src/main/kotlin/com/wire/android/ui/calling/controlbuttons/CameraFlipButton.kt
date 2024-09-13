@@ -28,10 +28,10 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun CameraFlipButton(
-    isOnFrontCamera: Boolean = false,
     onCameraFlipButtonClicked: () -> Unit,
-    size: Dp = dimensions().defaultCallingControlsSize,
     modifier: Modifier = Modifier,
+    isOnFrontCamera: Boolean = false,
+    size: Dp = dimensions().defaultCallingControlsSize
 ) {
     WireCallControlButton(
         isSelected = !isOnFrontCamera,

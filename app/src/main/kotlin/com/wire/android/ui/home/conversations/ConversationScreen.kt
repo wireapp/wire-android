@@ -311,7 +311,7 @@ fun ConversationScreen(
                         getOngoingCallIntent(activity, it.toString()).run {
                             activity.startActivity(this)
                         }
-                        AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
+                        AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                     }
                 }
             )
@@ -325,7 +325,7 @@ fun ConversationScreen(
                     getOutgoingCallIntent(activity, conversationListCallViewModel.conversationId.toString()).run {
                         activity.startActivity(this)
                     }
-                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
+                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                 }
                 showDialog.value = ConversationScreenDialogType.NONE
             }, onDialogDismiss = {
@@ -493,7 +493,7 @@ fun ConversationScreen(
         },
         onJoinCall = {
             conversationListCallViewModel.joinOngoingCall {
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                 getOngoingCallIntent(activity, it.toString()).run {
                     activity.startActivity(this)
                 }
@@ -751,7 +751,7 @@ private fun startCallIfPossible(
                     } else {
                         conversationListCallViewModel.endEstablishedCallIfAny {
                             onOpenOutgoingCallScreen(conversationListCallViewModel.conversationId)
-                            AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated())
+                            AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
                         }
                         ConversationScreenDialogType.NONE
                     }
@@ -759,7 +759,7 @@ private fun startCallIfPossible(
 
                 ConferenceCallingResult.Disabled.Established -> {
                     onOpenOngoingCallScreen(conversationListCallViewModel.conversationId)
-                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
+                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                     ConversationScreenDialogType.NONE
                 }
 

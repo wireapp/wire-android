@@ -343,10 +343,10 @@ class SendMessageViewModel @Inject constructor(
     ) = also {
         onSuccess {
             val event = when (assetType) {
-                AttachmentType.IMAGE -> AnalyticsEvent.Contributed.Photo()
-                AttachmentType.VIDEO -> AnalyticsEvent.Contributed.Video()
-                AttachmentType.GENERIC_FILE -> AnalyticsEvent.Contributed.File()
-                AttachmentType.AUDIO -> AnalyticsEvent.Contributed.Audio()
+                AttachmentType.IMAGE -> AnalyticsEvent.Contributed.Photo
+                AttachmentType.VIDEO -> AnalyticsEvent.Contributed.Video
+                AttachmentType.GENERIC_FILE -> AnalyticsEvent.Contributed.File
+                AttachmentType.AUDIO -> AnalyticsEvent.Contributed.Audio
             }
             analyticsManager.sendEvent(event)
         }
@@ -360,10 +360,10 @@ class SendMessageViewModel @Inject constructor(
                 is ComposableMessageBundle.AudioMessageBundle,
                 is ComposableMessageBundle.AttachmentPickedBundle -> return@also
 
-                is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location()
-                is Ping -> AnalyticsEvent.Contributed.Ping()
+                is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location
+                is Ping -> AnalyticsEvent.Contributed.Ping
                 is ComposableMessageBundle.EditMessageBundle,
-                is ComposableMessageBundle.SendTextMessageBundle -> AnalyticsEvent.Contributed.Text()
+                is ComposableMessageBundle.SendTextMessageBundle -> AnalyticsEvent.Contributed.Text
             }
             analyticsManager.sendEvent(event)
         }

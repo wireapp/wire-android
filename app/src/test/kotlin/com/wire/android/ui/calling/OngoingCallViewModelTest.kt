@@ -278,7 +278,7 @@ class OngoingCallViewModelTest {
     ) = Call(
         conversationId = id,
         status = CallStatus.ESTABLISHED,
-        callerId = "caller_id",
+        callerId = UserId("caller", "domain"),
         participants = listOf(),
         isMuted = false,
         isCameraOn = false,

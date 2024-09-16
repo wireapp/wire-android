@@ -174,7 +174,7 @@ class OutgoingCallViewModelTest {
         val call = Call(
             conversationId = ConversationId("caller", "domain"),
             status = CallStatus.STARTED,
-            callerId = UserId("caller", "domain").toString(),
+            callerId = UserId("caller", "domain"),
             participants = listOf(),
             isMuted = true,
             isCameraOn = false,

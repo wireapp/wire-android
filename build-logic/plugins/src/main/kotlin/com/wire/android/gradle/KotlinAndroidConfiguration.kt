@@ -73,6 +73,10 @@ private fun Project.configureKotlin() {
                 "-opt-in=kotlinx.coroutines.FlowPreview",
             )
         }
+        compilerOptions.freeCompilerArgs.addAll(
+            "-P",
+            "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true",
+        )
     }
 }
 

@@ -25,6 +25,7 @@ import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
@@ -254,7 +255,7 @@ class IncomingCallViewModelTest {
         private fun provideCall(id: ConversationId = dummyConversationId, status: CallStatus = CallStatus.INCOMING) = Call(
             conversationId = id,
             status = status,
-            callerId = "caller_id",
+            callerId = UserId("caller", "domain"),
             participants = listOf(),
             isMuted = false,
             isCameraOn = false,

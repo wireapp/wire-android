@@ -31,8 +31,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
@@ -59,7 +59,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SharedCallingViewModelTest {
 
     @MockK
-    private lateinit var allCalls: GetAllCallsWithSortedParticipantsUseCase
+    private lateinit var establishedCall: ObserveEstablishedCallWithSortedParticipantsUseCase
 
     @MockK
     private lateinit var endCall: EndCallUseCase
@@ -121,14 +121,14 @@ class SharedCallingViewModelTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        coEvery { allCalls.invoke() } returns emptyFlow()
+        coEvery { establishedCall.invoke(any()) } returns emptyFlow()
         coEvery { observeConversationDetails.invoke(any()) } returns emptyFlow()
         coEvery { observeSpeaker.invoke() } returns emptyFlow()
 
         sharedCallingViewModel = SharedCallingViewModel(
             conversationId = conversationId,
             conversationDetails = observeConversationDetails,
-            allCalls = allCalls,
+            observeEstablishedCallWithSortedParticipants = establishedCall,
             endCall = endCall,
             muteCall = muteCall,
             flipToFrontCamera = flipToFrontCamera,

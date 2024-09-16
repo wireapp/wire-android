@@ -1217,7 +1217,7 @@ class WireNotificationManagerTest {
         private fun provideCall(id: ConversationId = ConversationId("conversation_value", "conversation_domain")) = Call(
             conversationId = id,
             status = CallStatus.INCOMING,
-            callerId = "caller_id",
+            callerId = UserId("caller", "domain"),
             participants = listOf(),
             isMuted = false,
             isCameraOn = false,

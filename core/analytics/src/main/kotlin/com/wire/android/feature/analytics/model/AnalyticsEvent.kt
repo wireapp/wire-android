@@ -17,6 +17,13 @@
  */
 package com.wire.android.feature.analytics.model
 
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_ANSWERED
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_DISMISSED
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_KEY
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_NOT_DISPLAYED
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_SCORE_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CONTRIBUTED_LOCATION
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MESSAGE_ACTION_KEY
 
@@ -47,35 +54,79 @@ interface AnalyticsEvent {
      */
     fun toSegmentation(): Map<String, Any> = mapOf()
 
-    data class AppOpen(
+    data object AppOpen : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.APP_OPEN
-    ) : AnalyticsEvent
+    }
 
     /**
      * Calling
      */
-    data class CallInitiated(
+    data object CallInitiated : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.CALLING_INITIATED
-    ) : AnalyticsEvent
+    }
 
-    data class CallJoined(
+    data object CallJoined : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.CALLING_JOINED
-    ) : AnalyticsEvent
+    }
+
+    /**
+     * Call quality feedback
+     */
+    sealed interface CallQualityFeedback : AnalyticsEvent {
+        override val key: String
+            get() = AnalyticsEventConstants.CALLING_QUALITY_REVIEW
+        val label: String
+
+        override fun toSegmentation(): Map<String, Any> {
+            return mapOf(
+                CALLING_QUALITY_REVIEW_LABEL_KEY to label
+            )
+        }
+
+        data class Answered(val score: Int) : CallQualityFeedback {
+            override val label: String
+                get() = CALLING_QUALITY_REVIEW_LABEL_ANSWERED
+
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    CALLING_QUALITY_REVIEW_LABEL_KEY to label,
+                    CALLING_QUALITY_REVIEW_SCORE_KEY to score
+                )
+            }
+        }
+
+        data object NotDisplayed : CallQualityFeedback {
+            override val label: String
+                get() = CALLING_QUALITY_REVIEW_LABEL_NOT_DISPLAYED
+
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    CALLING_QUALITY_REVIEW_LABEL_KEY to label,
+                    CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY to CALLING_QUALITY_REVIEW_IGNORE_REASON
+                )
+            }
+        }
+
+        data object Dismissed : CallQualityFeedback {
+            override val label: String
+                get() = CALLING_QUALITY_REVIEW_LABEL_DISMISSED
+        }
+    }
 
     /**
      * Backup
      */
-    data class BackupExportFailed(
+    data object BackupExportFailed : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.BACKUP_EXPORT_FAILED
-    ) : AnalyticsEvent
+    }
 
-    data class BackupRestoreSucceeded(
+    data object BackupRestoreSucceeded : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.BACKUP_RESTORE_SUCCEEDED
-    ) : AnalyticsEvent
+    }
 
-    data class BackupRestoreFailed(
+    data object BackupRestoreFailed : AnalyticsEvent {
         override val key: String = AnalyticsEventConstants.BACKUP_RESTORE_FAILED
-    ) : AnalyticsEvent
+    }
 
     /**
      * Contributed, message action related
@@ -86,104 +137,50 @@ interface AnalyticsEvent {
 
         val messageAction: String
 
-        data class Location(
+        override fun toSegmentation(): Map<String, Any> {
+            return mapOf(
+                MESSAGE_ACTION_KEY to messageAction
+            )
+        }
+
+        data object Location : Contributed {
             override val messageAction: String = CONTRIBUTED_LOCATION
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class Text(
+        data object Text : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_TEXT
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class Photo(
+        data object Photo : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_PHOTO
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class AudioCall(
+        data object AudioCall : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_AUDIO_CALL
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class VideoCall(
+        data object VideoCall : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_VIDEO_CALL
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class Gif(
+        data object Gif : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_GIF
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class Ping(
+        data object Ping : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_PING
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class File(
+        data object File : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_FILE
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class Video(
+        data object Video : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_VIDEO
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
 
-        data class Audio(
+        data object Audio : Contributed {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_AUDIO
-        ) : Contributed {
-            override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MESSAGE_ACTION_KEY to messageAction
-                )
-            }
         }
     }
 }
@@ -200,6 +197,15 @@ object AnalyticsEventConstants {
      */
     const val CALLING_INITIATED = "calling.initiated_call"
     const val CALLING_JOINED = "calling.joined_call"
+
+    const val CALLING_QUALITY_REVIEW = "calling.call_quality_review"
+    const val CALLING_QUALITY_REVIEW_LABEL_KEY = "label"
+    const val CALLING_QUALITY_REVIEW_LABEL_ANSWERED = "answered"
+    const val CALLING_QUALITY_REVIEW_LABEL_NOT_DISPLAYED = "not-displayed"
+    const val CALLING_QUALITY_REVIEW_LABEL_DISMISSED = "dismissed"
+    const val CALLING_QUALITY_REVIEW_SCORE_KEY = "score"
+    const val CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY = "ignore-reason"
+    const val CALLING_QUALITY_REVIEW_IGNORE_REASON = "muted"
 
     /**
      * Backup

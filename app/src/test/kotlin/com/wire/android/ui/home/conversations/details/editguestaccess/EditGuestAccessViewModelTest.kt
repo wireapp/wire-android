@@ -24,12 +24,16 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.TestConversation
+import com.wire.android.framework.TestConversationDetails
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -39,6 +43,7 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoo
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -53,6 +58,8 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
@@ -213,6 +220,39 @@ class EditGuestAccessViewModelTest {
             assertEquals(true, editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed)
         }
 
+    @ParameterizedTest
+    @EnumSource(IsServiceAllowedTestParams::class)
+    fun `isServicesAllowed test`(params: IsServiceAllowedTestParams) =
+        runTest(dispatcher.default()) {
+            // given
+            val conversation =
+                TestConversation
+                    .GROUP(if (params.isMLSConversation) TestConversation.MLS_PROTOCOL_INFO else Conversation.ProtocolInfo.Proteus)
+                    .copy(
+                        accessRole = listOf(Conversation.AccessRole.EXTERNAL).run {
+                            if (params.isServiceAllowed) {
+                                plus(Conversation.AccessRole.SERVICE)
+                            } else {
+                                this
+                            }
+                        }
+                    )
+            val conversationResult = ObserveConversationDetailsUseCase.Result.Success(
+                TestConversationDetails.GROUP.copy(conversation = conversation)
+            )
+            val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
+                .withConversationDetails(flowOf(conversationResult))
+                .withDefaultProtocol(if (params.isMLSTeam) SupportedProtocol.MLS else SupportedProtocol.PROTEUS)
+                .withConversationMembers(flowOf(ConversationParticipantsData()))
+                .arrange()
+            advanceUntilIdle()
+
+            // when
+
+            // then
+            assertEquals(params.expectedResult, editGuestAccessViewModel.editGuestAccessState.isServicesAccessAllowed)
+        }
+
     private class Arrangement(dispatcherProvider: TestDispatcherProvider) {
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -244,6 +284,9 @@ class EditGuestAccessViewModelTest {
         @MockK
         lateinit var syncConversationCodeUseCase: SyncConversationCodeUseCase
 
+        @MockK
+        lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
+
         val editGuestAccessViewModel: EditGuestAccessViewModel by lazy {
             EditGuestAccessViewModel(
                 savedStateHandle = savedStateHandle,
@@ -256,7 +299,8 @@ class EditGuestAccessViewModelTest {
                 observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag,
                 canCreatePasswordProtectedLinks = canCreatePasswordProtectedLinks,
                 dispatcher = dispatcherProvider,
-                syncConversationCode = syncConversationCodeUseCase
+                syncConversationCode = syncConversationCodeUseCase,
+                getDefaultProtocol = getDefaultProtocolUseCase
             )
         }
 
@@ -275,6 +319,7 @@ class EditGuestAccessViewModelTest {
             coEvery { observeGuestRoomLink(any()) } returns flowOf()
             coEvery { observeGuestRoomLinkFeatureFlag() } returns flowOf()
             coEvery { canCreatePasswordProtectedLinks() } returns true
+            every { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
         }
 
         fun withSyncConversationCodeSuccess() = apply {
@@ -302,6 +347,23 @@ class EditGuestAccessViewModelTest {
             coEvery { updateConversationAccessRole(any(), any(), any()) } returns result
         }
 
+        fun withDefaultProtocol(protocol: SupportedProtocol) = apply {
+            every { getDefaultProtocolUseCase() } returns protocol
+        }
+
         fun arrange() = this to editGuestAccessViewModel
+    }
+
+    enum class IsServiceAllowedTestParams(
+        val isMLSTeam: Boolean,
+        val isMLSConversation: Boolean,
+        val isServiceAllowed: Boolean,
+        val expectedResult: Boolean
+    ) {
+        MLS_TEAM(true, false, true, false),
+        MLS_CONVERSATION(false, true, true, false),
+        MLS_CONVERSATION_AND_TEAM(true, true, true, false),
+        NO_SERVICES(false, false, false, false),
+        SERVICES(false, false, true, true)
     }
 }

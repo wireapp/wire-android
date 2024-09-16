@@ -31,14 +31,19 @@ import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
 import com.wire.kalium.logic.feature.search.SearchByHandleUseCase
+import com.wire.kalium.logic.feature.search.SearchUserResult
 import com.wire.kalium.logic.feature.search.SearchUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -61,6 +66,7 @@ class SearchUserViewModel @Inject constructor(
     }
 
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
+    private val selectedContactsFlow = MutableStateFlow<ImmutableSet<Contact>>(persistentSetOf())
     var state: SearchUserState by mutableStateOf(SearchUserState())
         private set
 
@@ -69,8 +75,21 @@ class SearchUserViewModel @Inject constructor(
             searchQueryTextFlow
                 .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
                 .onStart { emit(String.EMPTY) }
-                .collectLatest { query ->
-                    search(query)
+                .flatMapLatest { searchQuery ->
+                    val (searchTerm, domain) = federatedSearchParser(searchQuery)
+                    val isHandleSearch = validateUserHandle(searchTerm.removeQueryPrefix()) is ValidateUserHandleResult.Valid
+                    val searchResult = if (isHandleSearch) {
+                        searchByHandle(searchTerm, domain)
+                    } else {
+                        searchByName(searchTerm, domain)
+                    }
+                    selectedContactsFlow
+                        .mapLatest { selectedContacts ->
+                            filterResults(searchResult, selectedContacts, isHandleSearch, searchTerm)
+                        }
+                }
+                .collectLatest { newState ->
+                    state = newState
                 }
         }
     }
@@ -81,48 +100,58 @@ class SearchUserViewModel @Inject constructor(
         }
     }
 
-    private suspend fun search(query: String) {
-        val (searchTerm, domain) = federatedSearchParser(query)
-        val isHandleSearch = validateUserHandle(searchTerm.removeQueryPrefix()) is ValidateUserHandleResult.Valid
-
-        if (isHandleSearch) {
-            searchByHandle(searchTerm, domain)
-        } else {
-            searchByName(searchTerm, domain)
+    fun selectedContactsChanged(selectedContacts: ImmutableSet<Contact>) {
+        viewModelScope.launch {
+            selectedContactsFlow.emit(selectedContacts)
         }
     }
 
-    private suspend fun searchByHandle(searchTerm: String, domain: String?) {
+    private fun filterResults(
+        searchResult: SearchUserResult,
+        selectedContacts: ImmutableSet<Contact>,
+        isHandleSearch: Boolean,
+        searchTerm: String
+    ): SearchUserState {
+        val selectedContactsIds = selectedContacts.map { it.id }
+        val notSelectedContactsResult = searchResult.connected
+            .map(contactMapper::fromSearchUserResult)
+            .filterNot { selectedContactsIds.contains(it.id) }
+        val notSelectedPublicResult = searchResult.notConnected
+            .map(contactMapper::fromSearchUserResult)
+            .filterNot { selectedContactsIds.contains(it.id) }
+        val selectedContactsResult = selectedContacts
+            .filter { selectedContact ->
+                when {
+                    isHandleSearch -> selectedContact.handle.contains(searchTerm, ignoreCase = true)
+                    else -> selectedContact.name.contains(searchTerm, ignoreCase = true)
+                }
+            }
+        return SearchUserState(
+            contactsResult = notSelectedContactsResult.toImmutableList(),
+            publicResult = notSelectedPublicResult.toImmutableList(),
+            selectedResult = selectedContactsResult.toImmutableList(),
+            searchQuery = searchTerm
+        )
+    }
+
+    private suspend fun searchByHandle(searchTerm: String, domain: String?): SearchUserResult =
         searchByHandleUseCase(
             searchTerm,
             excludingConversation = addMembersSearchNavArgs?.conversationId,
             customDomain = domain
-        ).also { userSearchEntities ->
-            state = state.copy(
-                contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
-                publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList(),
-                searchQuery = searchTerm
-            )
-        }
-    }
+        )
 
-    private suspend fun searchByName(searchTerm: String, domain: String?) {
+    private suspend fun searchByName(searchTerm: String, domain: String?): SearchUserResult =
         searchUserUseCase(
             searchTerm,
             excludingMembersOfConversation = addMembersSearchNavArgs?.conversationId,
             customDomain = domain
-        ).also { userSearchEntities ->
-            state = state.copy(
-                contactsResult = userSearchEntities.connected.map(contactMapper::fromSearchUserResult).toImmutableList(),
-                publicResult = userSearchEntities.notConnected.map(contactMapper::fromSearchUserResult).toImmutableList(),
-                searchQuery = searchTerm
-            )
-        }
-    }
+        )
 }
 
 data class SearchUserState(
     val contactsResult: ImmutableList<Contact> = persistentListOf(),
     val publicResult: ImmutableList<Contact> = persistentListOf(),
+    val selectedResult: ImmutableList<Contact> = persistentListOf(),
     val searchQuery: String = String.EMPTY,
 )

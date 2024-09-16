@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
+import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -61,13 +62,14 @@ fun VerticalCallingPager(
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     contentHeight: Dp,
-    contentWidth: Int,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val activity = LocalActivity.current
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -84,11 +86,12 @@ fun VerticalCallingPager(
                 if (participants.isNotEmpty()) {
                     // if PiP is enabled and more than one participant is present,
                     // we need to remove the first participant(self user) from the list
-                    val newParticipants = if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
-                        participants.subList(1, participants.size)
-                    } else {
-                        participants
-                    }
+                    val newParticipants =
+                        if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
+                            participants.subList(1, participants.size)
+                        } else {
+                            participants
+                        }
                     val participantsChunkedList = remember(newParticipants) {
                         newParticipants.chunked(MAX_TILES_PER_PAGE)
                     }
@@ -128,8 +131,8 @@ fun VerticalCallingPager(
                     }
                 }
             }
-            // we don't need to display the indicator if we have one page
-            if (pagesCount(participants.size) > 1) {
+            // we don't need to display the indicator if we have one page and when it's in PiP mode
+            if (pagesCount(participants.size) > 1 && !activity.isInPictureInPictureMode) {
                 Surface(
                     shape = RoundedCornerShape(dimensions().corner16x),
                     modifier = Modifier
@@ -150,16 +153,6 @@ fun VerticalCallingPager(
                         indicatorShape = CircleShape
                     )
                 }
-            }
-            if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
-                FloatingSelfUserTile(
-                    modifier = Modifier.align(Alignment.TopEnd),
-                    contentHeight = contentHeight,
-                    contentWidth = contentWidth.toFloat(),
-                    participant = participants.first(),
-                    onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
-                    onClearSelfUserVideoPreview = onSelfClearVideoPreview
-                )
             }
         }
     }
@@ -182,7 +175,6 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
         isSelfUserMuted = false,
         isSelfUserCameraOn = false,
         contentHeight = 800.dp,
-        contentWidth = 300,
         onSelfVideoPreviewCreated = {},
         onSelfClearVideoPreview = {},
         requestVideoStreams = {},

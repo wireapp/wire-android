@@ -64,7 +64,7 @@ import kotlin.math.roundToInt
  * @param maxBarElevation maximum elevation value available
  * @param topBarBackgroundColor background color of the top bar
  * @param topBarFooter bar under the [topBarCollapsing], moves with it and ends up directly under [topBarHeader] when collapsed
- * @param bottomBar bottom bar of the screen, typically a [NavigationBar]
+ * @param bottomBar bottom bar of the screen
  * @param floatingActionButton Main action button of the screen, typically a [FloatingActionButton]
  * @param floatingActionButtonPosition position of the FAB on the screen. See [FabPosition].
  * @param collapsingEnabled if true then collapsing is enabled

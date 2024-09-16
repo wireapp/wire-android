@@ -726,7 +726,7 @@
     <string name="label_conversation_pictures_empty">Ebben a beszélgetésben még senki nem osztott meg képet 🥲</string>
     <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
     <!-- Search Contact-->
-    <string name="label_contacts">NÉVJEGYEK</string>
+    <string name="label_contacts">Névjegyek</string>
     <string name="label_new_group">Új csoport</string>
     <string name="label_create_new_group">Új csoport létrehozása</string>
     <plurals name="label_x_participants">
@@ -735,7 +735,7 @@
     </plurals>
     <string name="label_new_conversation">Új beszélgetés</string>
     <string name="label_search_people">Személyek keresése</string>
-    <string name="label_public_wire">NYILVÁNOS WIRE</string>
+    <string name="label_public_wire">Nyilvános Wire</string>
     <string name="label_search_people_instruction">Személyek keresése profilnév vagy @felhasználónév alapján</string>
     <string name="label_learn_more_searching_user">További információ</string>
     <string name="label_no_results_found">Nincs találat. Kérjük, próbálja újra.</string>
@@ -826,7 +826,7 @@
     <string name="calling_decline_call">Hívás elutasítása</string>
     <string name="calling_label_ringing_call">Kicseng…</string>
     <string name="calling_label_incoming_call">Hívás…</string>
-    <string name="calling_label_incoming_call_someone_calling">%s hívja…</string>
+    <string name="calling_label_incoming_call_someone_calling">hívja…</string>
     <string name="calling_label_default_caller_name">Bejövő hívás</string>
     <string name="calling_label_constant_bit_rate">ÁLLANDÓ BITSEBESSÉG (CBR)</string>
     <string name="calling_minimize_view">Összecsukott nézet</string>

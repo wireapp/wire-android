@@ -177,7 +177,7 @@ private fun OutgoingCallContent(
                 avatarAssetId = callState.avatarAssetId,
                 conversationTypeForCall = callState.conversationTypeForCall,
                 membership = callState.membership,
-                callingLabel = stringResource(id = R.string.calling_label_ringing_call),
+                groupCallerName = stringResource(id = R.string.calling_label_ringing_call),
                 protocolInfo = callState.protocolInfo,
                 mlsVerificationStatus = callState.mlsVerificationStatus,
                 proteusVerificationStatus = callState.proteusVerificationStatus,

@@ -776,7 +776,8 @@
     <string name="label_conversation_pictures_empty">Nobody shared pictures in this conversation yet 🥲</string>
     <string name="label_conversation_files_empty">Nobody shared files in this conversation yet 🙀</string>
     <!-- Search Contact-->
-    <string name="label_contacts">CONTACTS</string>
+    <string name="label_selected">Selected</string>
+    <string name="label_contacts">Contacts</string>
     <string name="label_new_group">New Group</string>
     <string name="label_create_new_group">Create New Group</string>
     <plurals name="label_x_participants">
@@ -785,7 +786,7 @@
     </plurals>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
-    <string name="label_public_wire">PUBLIC WIRE</string>
+    <string name="label_public_wire">Public Wire</string>
     <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
     <string name="label_learn_more_searching_user">Learn more</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
@@ -879,7 +880,7 @@
     <string name="calling_decline_call">Decline call</string>
     <string name="calling_label_ringing_call">Ringing…</string>
     <string name="calling_label_incoming_call">Calling…</string>
-    <string name="calling_label_incoming_call_someone_calling">%s is calling…</string>
+    <string name="calling_label_incoming_call_someone_calling">is calling…</string>
     <string name="calling_label_default_caller_name">Incoming call</string>
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_minimize_view">Minimize view</string>

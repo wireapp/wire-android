@@ -645,11 +645,11 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="label_conversation_pictures_empty">Ninguém compartilhou fotos nesta conversa ainda 🥲</string>
     <string name="label_conversation_files_empty">Ninguém compartilhou arquivos nesta conversa ainda 🙀</string>
     <!-- Search Contact-->
-    <string name="label_contacts">CONTATOS</string>
+    <string name="label_contacts">Contatos</string>
     <string name="label_new_group">Novo Grupo</string>
     <string name="label_new_conversation">Nova Conversa</string>
     <string name="label_search_people">Procurar pessoas</string>
-    <string name="label_public_wire">WIRE PÚBLICO</string>
+    <string name="label_public_wire">Wire Público</string>
     <string name="label_search_people_instruction">Pesquise pessoas pelo seu nome de perfil ou @nome.de.usuario</string>
     <string name="label_learn_more_searching_user">Saiba mais</string>
     <string name="label_no_results_found">Não foi possível encontrar nenhum resultado. Por favor, tente novamente.</string>
@@ -731,7 +731,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="calling_decline_call">Recusar chamada</string>
     <string name="calling_label_ringing_call">Chamando…</string>
     <string name="calling_label_incoming_call">Chamada recebida</string>
-    <string name="calling_label_incoming_call_someone_calling">%s está chamando…</string>
+    <string name="calling_label_incoming_call_someone_calling">está chamando…</string>
     <string name="calling_label_default_caller_name">Chamada Recebida</string>
     <string name="calling_label_constant_bit_rate">TAXA DE BITS CONSTANTE</string>
     <string name="calling_minimize_view">Minimizar visualização</string>

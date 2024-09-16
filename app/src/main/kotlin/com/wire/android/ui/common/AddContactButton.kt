@@ -59,6 +59,8 @@ fun AddContactButton(
             iconResource = R.drawable.ic_add_contact,
             contentDescription = R.string.content_description_add_contact,
             loading = isPerformingAction,
+            minSize = dimensions().buttonSmallMinSize,
+            minClickableSize = dimensions().buttonSmallMinSize,
             modifier = modifier
         )
     }

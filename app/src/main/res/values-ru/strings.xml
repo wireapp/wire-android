@@ -771,7 +771,7 @@
     <string name="label_conversation_pictures_empty">Никто не делился фотографиями в этой беседе 🥲</string>
     <string name="label_conversation_files_empty">Никто не делился файлами в этой беседе 🙀</string>
     <!-- Search Contact-->
-    <string name="label_contacts">КОНТАКТЫ</string>
+    <string name="label_contacts">Контакты</string>
     <string name="label_new_group">Новая группа</string>
     <string name="label_create_new_group">Создать новую группу</string>
     <plurals name="label_x_participants">
@@ -782,7 +782,7 @@
     </plurals>
     <string name="label_new_conversation">Новая беседа</string>
     <string name="label_search_people">Поиск пользователей</string>
-    <string name="label_public_wire">ПУБЛИЧНЫЙ WIRE</string>
+    <string name="label_public_wire">Публичный Wire</string>
     <string name="label_search_people_instruction">Поиск пользователей по названию их профиля или @псевдониму</string>
     <string name="label_learn_more_searching_user">Подробнее</string>
     <string name="label_no_results_found">Результатов не найдено. Пожалуйста, попробуйте еще раз.</string>
@@ -873,7 +873,7 @@
     <string name="calling_decline_call">Отклонить вызов</string>
     <string name="calling_label_ringing_call">Вызываем…</string>
     <string name="calling_label_incoming_call">Вызов…</string>
-    <string name="calling_label_incoming_call_someone_calling">%s вызывает…</string>
+    <string name="calling_label_incoming_call_someone_calling">вызывает…</string>
     <string name="calling_label_default_caller_name">Входящий вызов</string>
     <string name="calling_label_constant_bit_rate">ПОСТОЯННЫЙ БИТРЕЙТ</string>
     <string name="calling_minimize_view">Свернуть</string>

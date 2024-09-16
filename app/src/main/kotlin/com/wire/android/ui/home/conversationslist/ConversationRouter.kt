@@ -30,6 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.LocalActivity
@@ -154,6 +156,7 @@ fun ConversationRouterHomeBridge(
         }
         val onJoinedCall: (ConversationId) -> Unit = remember(navigator) {
             {
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                 getOngoingCallIntent(activity, it.toString()).run {
                     activity.startActivity(this)
                 }

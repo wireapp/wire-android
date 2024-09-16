@@ -319,7 +319,8 @@ class WireActivity : AppCompatActivity() {
     @Composable
     private fun HandleDialogs(navigate: (NavigationCommand) -> Unit) {
         val context = LocalContext.current
-        val callFeedbackSheetState = rememberWireModalSheetState<Unit>()
+        val callFeedbackSheetState =
+            rememberWireModalSheetState<Unit>(onDismissAction = { featureFlagNotificationViewModel.skipCallFeedback(false) })
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {
                 TeamAppLockFeatureFlagDialog(

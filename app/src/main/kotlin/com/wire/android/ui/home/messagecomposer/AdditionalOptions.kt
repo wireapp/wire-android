@@ -47,6 +47,7 @@ fun AdditionalOptionsMenu(
     attachmentsVisible: Boolean,
     isEditing: Boolean,
     isMentionActive: Boolean,
+    isFileSharingEnabled: Boolean,
     onAdditionalOptionsMenuClicked: () -> Unit,
     onMentionButtonClicked: (() -> Unit),
     onPingOptionClicked: () -> Unit,
@@ -73,7 +74,8 @@ fun AdditionalOptionsMenu(
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
                     onRichEditingButtonClicked = onRichEditingButtonClicked,
                     onPingClicked = onPingOptionClicked,
-                    onDrawingModeClicked = onDrawingModeClicked
+                    onDrawingModeClicked = onDrawingModeClicked,
+                    isFileSharingEnabled = isFileSharingEnabled
                 )
             }
 
@@ -105,28 +107,28 @@ fun AdditionalOptionSubMenu(
     tempWritableVideoUri: Uri?,
     modifier: Modifier = Modifier,
 ) {
-        AttachmentOptionsComponent(
-            modifier = modifier,
-            optionsVisible = optionsVisible,
-            onImagesPicked = onImagesPicked,
-            onAttachmentPicked = onAttachmentPicked,
-            tempWritableImageUri = tempWritableImageUri,
-            tempWritableVideoUri = tempWritableVideoUri,
-            isFileSharingEnabled = isFileSharingEnabled,
-            onRecordAudioMessageClicked = onRecordAudioMessageClicked,
-            onLocationPickerClicked = onLocationPickerClicked,
-            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
-        )
-        when (additionalOptionsState) {
-            AdditionalOptionSubMenuState.Default -> {}
+    AttachmentOptionsComponent(
+        modifier = modifier,
+        optionsVisible = optionsVisible,
+        onImagesPicked = onImagesPicked,
+        onAttachmentPicked = onAttachmentPicked,
+        tempWritableImageUri = tempWritableImageUri,
+        tempWritableVideoUri = tempWritableVideoUri,
+        isFileSharingEnabled = isFileSharingEnabled,
+        onRecordAudioMessageClicked = onRecordAudioMessageClicked,
+        onLocationPickerClicked = onLocationPickerClicked,
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+    )
+    when (additionalOptionsState) {
+        AdditionalOptionSubMenuState.Default -> {}
 
-            AdditionalOptionSubMenuState.RecordAudio -> {
-                RecordAudioComponent(
-                    onAudioRecorded = onAudioRecorded,
-                    onCloseRecordAudio = onCloseAdditionalAttachment
-                )
-            }
+        AdditionalOptionSubMenuState.RecordAudio -> {
+            RecordAudioComponent(
+                onAudioRecorded = onAudioRecorded,
+                onCloseRecordAudio = onCloseAdditionalAttachment
+            )
         }
+    }
 }
 
 @Composable
@@ -136,6 +138,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     selectedOption: AdditionalOptionSelectItem,
     attachmentsVisible: Boolean,
     isMentionActive: Boolean,
+    isFileSharingEnabled: Boolean,
     onMentionButtonClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: (SelfDeletionTimer) -> Unit,
     modifier: Modifier = Modifier,
@@ -159,7 +162,8 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
             onGifButtonClicked = onGifButtonClicked,
             onRichEditingButtonClicked = onRichEditingButtonClicked,
-            onDrawingModeClicked = onDrawingModeClicked
+            onDrawingModeClicked = onDrawingModeClicked,
+            isFileSharingEnabled = isFileSharingEnabled
         )
     }
 }

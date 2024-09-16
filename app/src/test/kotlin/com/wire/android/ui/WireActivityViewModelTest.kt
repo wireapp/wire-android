@@ -849,7 +849,7 @@ class WireActivityViewModelTest {
             isMuted = true,
             isCameraOn = false,
             isCbrEnabled = false,
-            callerId = "caller-id",
+            callerId = UserId("caller", "domain"),
             conversationName = "ONE_ON_ONE Name",
             conversationType = Conversation.Type.ONE_ON_ONE,
             callerName = "otherUsername",

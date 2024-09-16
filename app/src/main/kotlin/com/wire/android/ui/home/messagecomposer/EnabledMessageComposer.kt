@@ -304,6 +304,7 @@ fun EnabledMessageComposer(
                             },
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
                             onDrawingModeClicked = openDrawingCanvas,
+                            isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled
                         )
                     }
                 }

@@ -375,7 +375,7 @@ class CommonTopAppBarViewModelTest {
             true,
             false,
             false,
-            "caller-id",
+            UserId("caller", "domain"),
             "ONE_ON_ONE Name",
             Conversation.Type.ONE_ON_ONE,
             "otherUsername",

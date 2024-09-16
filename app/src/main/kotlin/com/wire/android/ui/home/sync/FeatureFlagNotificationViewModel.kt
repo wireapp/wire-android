@@ -28,6 +28,8 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.analytics.IsAnalyticsAvailableUseCase
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
@@ -60,7 +62,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val globalDataStore: GlobalDataStore,
     private val disableAppLockUseCase: DisableAppLockUseCase,
-    private val isAnalyticsAvailable: IsAnalyticsAvailableUseCase
+    private val isAnalyticsAvailable: IsAnalyticsAvailableUseCase,
+    private val analyticsManager: AnonymousAnalyticsManager
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -232,7 +235,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             } else if (shouldAskFeedback) {
                 showCallFeedbackFlow.emit(Unit)
             } else {
-                // TODO Analytics: send feedback event with "label: not-displayed"
+                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.NotDisplayed)
             }
         }
 
@@ -351,11 +354,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         featureFlagState = featureFlagState.copy(e2EIResult = null)
     }
 
-    @Suppress("UnusedParameter")
     fun rateCall(rate: Int, doNotAsk: Boolean) {
         currentUserId?.let {
             viewModelScope.launch {
-                // TODO Analytics: send feedback event
+                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.Answered(rate))
                 coreLogic.getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
             }
         }
@@ -365,7 +367,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         currentUserId?.let {
             viewModelScope.launch {
                 coreLogic.getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
-                // TODO Analytics: send feedback was skipped event
+                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.Dismissed)
             }
         }
     }

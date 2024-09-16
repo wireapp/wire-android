@@ -826,7 +826,7 @@
     <string name="calling_decline_call">Hívás elutasítása</string>
     <string name="calling_label_ringing_call">Kicseng…</string>
     <string name="calling_label_incoming_call">Hívás…</string>
-    <string name="calling_label_incoming_call_someone_calling">%s hívja…</string>
+    <string name="calling_label_incoming_call_someone_calling">hívja…</string>
     <string name="calling_label_default_caller_name">Bejövő hívás</string>
     <string name="calling_label_constant_bit_rate">ÁLLANDÓ BITSEBESSÉG (CBR)</string>
     <string name="calling_minimize_view">Összecsukott nézet</string>

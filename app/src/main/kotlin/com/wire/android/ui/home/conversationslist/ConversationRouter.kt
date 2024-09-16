@@ -153,7 +153,7 @@ fun ConversationRouterHomeBridge(
         }
         val onJoinedCall: (ConversationId) -> Unit = remember(navigator) {
             {
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined())
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                 getOngoingCallIntent(activity, it.toString()).run {
                     activity.startActivity(this)
                 }

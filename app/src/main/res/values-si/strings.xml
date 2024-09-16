@@ -802,7 +802,7 @@
     <string name="calling_decline_call">ඇමතුම නවතන්න</string>
     <string name="calling_label_ringing_call">නාද වෙමින්…</string>
     <string name="calling_label_incoming_call">අමතමින්…</string>
-    <string name="calling_label_incoming_call_someone_calling">%s අමතමින්…</string>
+    <string name="calling_label_incoming_call_someone_calling">අමතමින්…</string>
     <string name="calling_label_default_caller_name">ලැබෙන ඇමතුම</string>
     <string name="calling_label_constant_bit_rate">අචල බිටු අනුපාතය</string>
     <string name="calling_minimize_view">දැක්ම හකුළන්න</string>

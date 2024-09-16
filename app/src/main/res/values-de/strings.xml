@@ -794,7 +794,7 @@
     <string name="calling_decline_call">Anruf ablehnen</string>
     <string name="calling_label_ringing_call">Klingeln…</string>
     <string name="calling_label_incoming_call">Ruft an…</string>
-    <string name="calling_label_incoming_call_someone_calling">%s ruft an…</string>
+    <string name="calling_label_incoming_call_someone_calling">ruft an…</string>
     <string name="calling_label_default_caller_name">Eingehender Anruf</string>
     <string name="calling_label_constant_bit_rate">KONSTANTE BITRATE</string>
     <string name="calling_minimize_view">Ansicht verkleinern</string>

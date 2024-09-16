@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -76,6 +77,7 @@ import com.wire.android.ui.common.error.ErrorIcon
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.remove.RemoveIcon
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
@@ -97,6 +99,7 @@ import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.getActivity
@@ -295,12 +298,14 @@ fun ImportMediaRegularContent(
 ) {
 
     val importMediaScreenState = rememberImportMediaScreenState()
+    val lazyListState = rememberLazyListState()
+    val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
 
     with(importMediaAuthenticatedState) {
         WireScaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
-                    elevation = dimensions().spacing0x,
+                    elevation = lazyListState.topBarElevation(maxAppBarElevation),
                     onNavigationPressed = navigateBack,
                     navigationIconType = NavigationIconType.Close,
                     title = stringResource(id = R.string.import_media_content_title),
@@ -308,6 +313,14 @@ fun ImportMediaRegularContent(
                         UserProfileAvatar(
                             avatarData = UserAvatarData(avatarAsset),
                             clickable = remember { Clickable(enabled = false) { } }
+                        )
+                    },
+                    bottomContent = {
+                        ImportMediaTopBarContent(
+                            state = importMediaAuthenticatedState,
+                            searchBarState = importMediaScreenState.searchBarState,
+                            searchQueryTextState = searchQueryTextState,
+                            onRemoveAsset = onRemoveAsset,
                         )
                     }
                 )
@@ -317,10 +330,8 @@ fun ImportMediaRegularContent(
                 ImportMediaContent(
                     state = this,
                     internalPadding = internalPadding,
-                    searchQueryTextState = searchQueryTextState,
                     onConversationClicked = onConversationClicked,
-                    searchBarState = importMediaScreenState.searchBarState,
-                    onRemoveAsset = onRemoveAsset
+                    lazyListState = lazyListState,
                 )
             },
             bottomBar = {
@@ -331,6 +342,9 @@ fun ImportMediaRegularContent(
                 )
             }
         )
+        BackHandler(enabled = importMediaScreenState.searchBarState.isSearchActive) {
+            importMediaScreenState.searchBarState.closeSearch()
+        }
         WireModalSheetLayout(
             sheetState = importMediaScreenState.bottomSheetState,
             sheetContent = {
@@ -457,25 +471,16 @@ private fun ImportMediaBottomBar(
 }
 
 @Composable
-private fun ImportMediaContent(
+fun ImportMediaTopBarContent(
     state: ImportMediaAuthenticatedState,
-    internalPadding: PaddingValues,
+    searchBarState: SearchBarState,
     searchQueryTextState: TextFieldState,
-    onConversationClicked: (conversationId: ConversationId) -> Unit,
     onRemoveAsset: (index: Int) -> Unit,
-    searchBarState: SearchBarState
+    modifier: Modifier = Modifier,
 ) {
-    val importedItemsList: PersistentList<ImportedMediaAsset> = state.importedAssets
-    val itemsToImport = importedItemsList.size
+    val isMultipleImport = state.importedAssets.size != 1
 
-    val isMultipleImport = itemsToImport != 1
-
-    Column(
-        modifier = Modifier
-            .padding(internalPadding)
-            .fillMaxSize()
-    ) {
-        val lazyListState = rememberLazyListState()
+    Column(modifier = modifier) {
         if (state.isImporting) {
             Box(
                 Modifier
@@ -497,14 +502,14 @@ private fun ImportMediaContent(
             ) {
                 AssetTilePreview(
                     modifier = Modifier.fillMaxHeight(),
-                    assetBundle = importedItemsList.first().assetBundle,
+                    assetBundle = state.importedAssets.first().assetBundle,
                     showOnlyExtension = false,
                     onClick = {}
                 )
             }
         } else {
             when (state.importedText.isNullOrBlank()) {
-                true -> ImportAssetsCarrousel(importedItemsList, onRemoveAsset)
+                true -> ImportAssetsCarrousel(state.importedAssets, onRemoveAsset)
                 false -> ImportText(state.importedText)
             }
         }
@@ -513,17 +518,30 @@ private fun ImportMediaContent(
             thickness = 1.dp,
             modifier = Modifier.padding(top = dimensions().spacing12x)
         )
-        Box(Modifier.padding(dimensions().spacing6x)) {
-            SearchTopBar(
-                isSearchActive = searchBarState.isSearchActive,
-                searchBarHint = stringResource(
-                    R.string.search_bar_conversations_hint,
-                    stringResource(id = R.string.conversations_screen_title).lowercase()
-                ),
-                searchQueryTextState = searchQueryTextState,
-                onActiveChanged = searchBarState::searchActiveChanged,
-            )
-        }
+        SearchTopBar(
+            isSearchActive = searchBarState.isSearchActive,
+            searchBarHint = stringResource(
+                R.string.search_bar_conversations_hint,
+                stringResource(id = R.string.conversations_screen_title).lowercase()
+            ),
+            searchQueryTextState = searchQueryTextState,
+            onActiveChanged = searchBarState::searchActiveChanged,
+        )
+    }
+}
+
+@Composable
+private fun ImportMediaContent(
+    state: ImportMediaAuthenticatedState,
+    internalPadding: PaddingValues,
+    onConversationClicked: (conversationId: ConversationId) -> Unit,
+    lazyListState: LazyListState = rememberLazyListState(),
+) {
+    Column(
+        modifier = Modifier
+            .padding(internalPadding)
+            .fillMaxSize()
+    ) {
         ConversationList(
             modifier = Modifier.weight(1f),
             lazyListState = lazyListState,
@@ -540,9 +558,6 @@ private fun ImportMediaContent(
             onJoinCall = {},
             onAudioPermissionPermanentlyDenied = {}
         )
-    }
-    BackHandler(enabled = searchBarState.isSearchActive) {
-        searchBarState.closeSearch()
     }
 }
 

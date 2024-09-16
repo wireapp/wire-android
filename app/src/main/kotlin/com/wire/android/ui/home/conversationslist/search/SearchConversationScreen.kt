@@ -18,12 +18,14 @@
 
 package com.wire.android.ui.home.conversationslist.search
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,6 +59,7 @@ fun SearchConversationScreen(
     onJoinCall: (ConversationId) -> Unit,
     onAudioPermissionPermanentlyDenied: () -> Unit,
     modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
 ) {
     Box(modifier.fillMaxSize()) {
         if (conversationSearchResult.values.isEmpty()) {
@@ -70,6 +73,7 @@ fun SearchConversationScreen(
                 onOpenUserProfile = onOpenUserProfile,
                 onJoinCall = onJoinCall,
                 onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
+                lazyListState = lazyListState,
             )
         }
     }
@@ -78,9 +82,9 @@ fun SearchConversationScreen(
 @Composable
 private fun EmptySearchResult(onNewConversationCLick: () -> Unit) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxSize()
     ) {
         VerticalSpace.x8()
         Column(

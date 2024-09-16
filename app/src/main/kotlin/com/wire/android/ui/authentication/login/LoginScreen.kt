@@ -197,7 +197,6 @@ private fun MainLoginContent(
                         start = MaterialTheme.wireDimensions.spacing16x,
                         end = MaterialTheme.wireDimensions.spacing16x
                     ),
-                    divider = {} // no divider
                 )
             }
         },

@@ -21,14 +21,16 @@ package com.wire.android.ui.home.conversations.search
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -39,7 +41,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,6 +50,7 @@ import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
@@ -62,10 +64,7 @@ import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.coroutines.launch
 
 @Suppress("ComplexMethod")
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchUsersAndServicesScreen(
     searchTitle: String,
@@ -79,28 +78,30 @@ fun SearchUsersAndServicesScreen(
     screenType: SearchPeopleScreenType,
     modifier: Modifier = Modifier,
     isGroupSubmitVisible: Boolean = true,
-    isServicesAllowed: Boolean = false
+    isServicesAllowed: Boolean = false,
+    initialPage: SearchPeopleTabItem = SearchPeopleTabItem.PEOPLE,
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
-    val initialPageIndex = SearchPeopleTabItem.PEOPLE.ordinal
+    val tabs = remember(isServicesAllowed) { if (isServicesAllowed) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE) }
     val pagerState = rememberPagerState(
-        initialPage = initialPageIndex,
-        pageCount = { if (isServicesAllowed) SearchPeopleTabItem.entries.size else 1 }
+        initialPage = tabs.indexOf(initialPage),
+        pageCount = { tabs.size }
     )
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
+    val lazyListStates: List<LazyListState> = List(tabs.size) { rememberLazyListState() }
 
     CollapsingTopBarScaffold(
         modifier = modifier,
-        topBarHeader = { elevation ->
+        topBarHeader = {
             AnimatedVisibility(
                 visible = !searchBarState.isSearchActive,
-                enter = expandVertically(),
-                exit = shrinkVertically(),
+                enter = fadeIn() + expandVertically(),
+                exit = shrinkVertically() + fadeOut(),
             ) {
                 Box(modifier = Modifier.wrapContentSize()) {
                     WireCenterAlignedTopAppBar(
-                        elevation = elevation,
+                        elevation = dimensions().spacing0x, // CollapsingTopBarScaffold already manages elevation
                         title = searchTitle,
                         navigationIconType = when (screenType) {
                             SearchPeopleScreenType.CONVERSATION_DETAILS -> NavigationIconType.Close
@@ -118,67 +119,54 @@ fun SearchUsersAndServicesScreen(
                 searchBarHint = stringResource(R.string.label_search_people),
                 searchQueryTextState = searchBarState.searchQueryTextState,
                 onActiveChanged = searchBarState::searchActiveChanged,
-            ) {
-                if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS && isServicesAllowed) {
-                    WireTabRow(
-                        tabs = SearchPeopleTabItem.entries,
-                        selectedTabIndex = currentTabState,
-                        onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                        divider = {} // no divider
-                    )
-                }
+            )
+        },
+        topBarFooter = {
+            if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS && isServicesAllowed) {
+                WireTabRow(
+                    tabs = SearchPeopleTabItem.entries,
+                    selectedTabIndex = currentTabState,
+                    onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                )
             }
         },
-        isSwipeable = !searchBarState.isSearchActive,
+        collapsingEnabled = !searchBarState.isSearchActive,
+        contentLazyListState = lazyListStates[pagerState.currentPage],
         content = {
-            Crossfade(
-                targetState = searchBarState.isSearchActive, label = ""
-            ) { isSearchActive ->
-                val actionType = when (screenType) {
-                    SearchPeopleScreenType.NEW_CONVERSATION -> ItemActionType.CLICK
-                    SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> ItemActionType.CHECK
-                    SearchPeopleScreenType.CONVERSATION_DETAILS -> ItemActionType.CHECK
-                }
+            val actionType = when (screenType) {
+                SearchPeopleScreenType.NEW_CONVERSATION -> ItemActionType.CLICK
+                SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> ItemActionType.CHECK
+                SearchPeopleScreenType.CONVERSATION_DETAILS -> ItemActionType.CHECK
+            }
 
-                if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS) {
-                    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-                        HorizontalPager(
-                            state = pagerState,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) { pageIndex ->
-                            when (SearchPeopleTabItem.entries[pageIndex]) {
-                                SearchPeopleTabItem.PEOPLE -> {
-                                    SearchAllPeopleOrContactsScreen(
-                                        searchQuery = searchBarState.searchQueryTextState.text.toString(),
-                                        contactsAddedToGroup = selectedContacts,
-                                        onOpenUserProfile = onOpenUserProfile,
-                                        onContactChecked = onContactChecked,
-                                        isSearchActive = isSearchActive,
-                                        isLoading = false, // TODO: update correctly
-                                        actionType = actionType,
-                                    )
-                                }
+            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) { pageIndex ->
+                    when (tabs[pageIndex]) {
+                        SearchPeopleTabItem.PEOPLE -> {
+                            SearchAllPeopleOrContactsScreen(
+                                searchQuery = searchBarState.searchQueryTextState.text.toString(),
+                                contactsAddedToGroup = selectedContacts,
+                                onOpenUserProfile = onOpenUserProfile,
+                                onContactChecked = onContactChecked,
+                                isSearchActive = searchBarState.isSearchActive,
+                                isLoading = false, // TODO: update correctly
+                                actionType = actionType,
+                                lazyListState = lazyListStates[pageIndex],
+                            )
+                        }
 
-                                SearchPeopleTabItem.SERVICES -> {
-                                    SearchAllServicesScreen(
-                                        searchQuery = searchBarState.searchQueryTextState.text.toString(),
-                                        onServiceClicked = onServiceClicked,
-                                    )
-                                }
-                            }
+                        SearchPeopleTabItem.SERVICES -> {
+                            SearchAllServicesScreen(
+                                searchQuery = searchBarState.searchQueryTextState.text.toString(),
+                                onServiceClicked = onServiceClicked,
+                                lazyListState = lazyListStates[pageIndex],
+                            )
                         }
                     }
-                } else {
-                    SearchAllPeopleOrContactsScreen(
-                        searchQuery = searchBarState.searchQueryTextState.text.toString(),
-                        contactsAddedToGroup = selectedContacts,
-                        onContactChecked = onContactChecked,
-                        onOpenUserProfile = onOpenUserProfile,
-                        isSearchActive = isSearchActive,
-                        isLoading = false, // TODO: update correctly
-                        actionType = actionType,
-                    )
                 }
             }
             BackHandler(enabled = searchBarState.isSearchActive) {
@@ -190,10 +178,10 @@ fun SearchUsersAndServicesScreen(
                 when (screenType) {
                     SearchPeopleScreenType.NEW_CONVERSATION -> {
                         CreateNewGroupButton(
-                                mainButtonText = actionButtonTitle,
-                                onMainButtonClick = onGroupSelectionSubmitAction
-                            )
-                        }
+                            mainButtonText = actionButtonTitle,
+                            onMainButtonClick = onGroupSelectionSubmitAction
+                        )
+                    }
 
                     SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> {
                         SelectParticipantsButtonsAlwaysEnabled(
@@ -204,7 +192,7 @@ fun SearchUsersAndServicesScreen(
                     }
 
                     SearchPeopleScreenType.CONVERSATION_DETAILS -> {
-                        if (pagerState.currentPage != SearchPeopleTabItem.SERVICES.ordinal) {
+                        if (tabs[pagerState.currentPage] != SearchPeopleTabItem.SERVICES) {
                             SelectParticipantsButtonsRow(
                                 selectedParticipantsCount = selectedContacts.size,
                                 mainButtonText = actionButtonTitle,
@@ -216,7 +204,6 @@ fun SearchUsersAndServicesScreen(
             }
         },
         snapOnFling = false,
-        keepElevationWhenCollapsed = true
     )
 }
 
@@ -242,13 +229,13 @@ private fun SearchAllPeopleOrContactsScreen(
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
     searchUserViewModel: SearchUserViewModel = hiltViewModel(),
+    lazyListState: LazyListState = rememberLazyListState(),
 ) {
 
     LaunchedEffect(key1 = searchQuery) {
         searchUserViewModel.searchQueryChanged(searchQuery)
     }
 
-    val lazyState = rememberLazyListState()
     SearchAllPeopleScreen(
         searchQuery = searchUserViewModel.state.searchQuery,
         contactsSearchResult = searchUserViewModel.state.contactsResult,
@@ -256,7 +243,7 @@ private fun SearchAllPeopleOrContactsScreen(
         contactsAddedToGroup = contactsAddedToGroup,
         onChecked = onContactChecked,
         onOpenUserProfile = onOpenUserProfile,
-        lazyListState = lazyState,
+        lazyListState = lazyListState,
         isSearchActive = isSearchActive,
         isLoading = isLoading,
         actionType = actionType,

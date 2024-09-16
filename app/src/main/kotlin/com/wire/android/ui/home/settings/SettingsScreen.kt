@@ -51,7 +51,6 @@ fun SettingsScreen(
     homeStateHolder: HomeStateHolder,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val lazyListState: LazyListState = rememberLazyListState()
     val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
     val onAppLockSwitchClicked: (Boolean) -> Unit = remember {
         { isChecked ->
@@ -62,7 +61,7 @@ fun SettingsScreen(
 
     val context = LocalContext.current
     SettingsScreenContent(
-        lazyListState = lazyListState,
+        lazyListState = homeStateHolder.currentLazyListState,
         settingsState = viewModel.state,
         onItemClicked = remember {
             {

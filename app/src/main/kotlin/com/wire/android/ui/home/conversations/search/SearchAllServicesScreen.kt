@@ -46,17 +46,17 @@ fun SearchAllServicesScreen(
     searchQuery: String,
     onServiceClicked: (Contact) -> Unit,
     searchServicesViewModel: SearchServicesViewModel = hiltViewModel(),
+    lazyListState: LazyListState = rememberLazyListState(),
 ) {
     LaunchedEffect(key1 = searchQuery) {
         searchServicesViewModel.searchQueryChanged(searchQuery)
     }
 
-    val lazyState = rememberLazyListState()
     SearchAllServicesContent(
         searchQuery = searchServicesViewModel.state.searchQuery,
         onServiceClicked = onServiceClicked,
         result = searchServicesViewModel.state.result,
-        lazyListState = lazyState,
+        lazyListState = lazyListState,
         error = searchServicesViewModel.state.error,
         isLoading = searchServicesViewModel.state.isLoading
     )

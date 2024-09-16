@@ -48,7 +48,12 @@ fun WireTabRow(
     onTabChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.background,
-    divider: @Composable () -> Unit = @Composable { HorizontalDivider() },
+    divider: @Composable () -> Unit = @Composable {
+        HorizontalDivider(
+            color = colorsScheme().outline,
+            thickness = dimensions().dividerThickness
+        )
+    },
     upperCaseTitles: Boolean = true
 ) {
     TabRow(

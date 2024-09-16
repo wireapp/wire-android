@@ -29,10 +29,10 @@ import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.Call
-import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -41,8 +41,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
@@ -55,11 +55,12 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
@@ -72,7 +73,7 @@ import kotlinx.coroutines.launch
 class SharedCallingViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
     private val conversationDetails: ObserveConversationDetailsUseCase,
-    private val allCalls: GetAllCallsWithSortedParticipantsUseCase,
+    private val observeEstablishedCallWithSortedParticipants: ObserveEstablishedCallWithSortedParticipantsUseCase,
     private val endCall: EndCallUseCase,
     private val muteCall: MuteCallUseCase,
     private val unMuteCall: UnMuteCallUseCase,
@@ -92,15 +93,12 @@ class SharedCallingViewModel @AssistedInject constructor(
 
     var callState by mutableStateOf(CallState(conversationId))
 
+    var participantsState by mutableStateOf(persistentListOf<UICallParticipant>())
+
     init {
         viewModelScope.launch {
-            val allCallsSharedFlow = allCalls().map {
-                it.find { call ->
-                    call.conversationId == conversationId &&
-                            call.status != CallStatus.CLOSED &&
-                            call.status != CallStatus.MISSED
-                }
-            }.flowOn(dispatchers.default()).shareIn(this, started = SharingStarted.Lazily)
+            val allCallsSharedFlow = observeEstablishedCallWithSortedParticipants(conversationId)
+                .flowOn(dispatchers.default()).shareIn(this, started = SharingStarted.Lazily)
 
             launch {
                 observeConversationDetails(this)
@@ -176,7 +174,7 @@ class SharedCallingViewModel @AssistedInject constructor(
     }
 
     private suspend fun observeParticipants(sharedFlow: SharedFlow<Call?>) {
-        sharedFlow.distinctUntilChanged().collectLatest { call ->
+        sharedFlow.collectLatest { call ->
             call?.let {
                 callState = callState.copy(
                     isMuted = it.isMuted,
@@ -184,12 +182,8 @@ class SharedCallingViewModel @AssistedInject constructor(
                     isCameraOn = it.isCameraOn,
                     isCbrEnabled = it.isCbrEnabled && call.conversationType == Conversation.Type.ONE_ON_ONE,
                     callerName = it.callerName,
-                    participants = it.participants.map { participant ->
-                        uiCallParticipantMapper.toUICallParticipant(
-                            participant
-                        )
-                    }
                 )
+                participantsState = call.participants.map { uiCallParticipantMapper.toUICallParticipant(it) }.toPersistentList()
             }
         }
     }

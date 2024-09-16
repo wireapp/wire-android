@@ -58,6 +58,7 @@ fun MessageComposeActions(
     onSelfDeletionOptionButtonClicked: (SelfDeletionTimer) -> Unit,
     onGifButtonClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit,
+    isFileSharingEnabled: Boolean,
     isMentionActive: Boolean = true,
     onDrawingModeClicked: () -> Unit
 ) {
@@ -80,7 +81,8 @@ fun MessageComposeActions(
             onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
             onPingButtonClicked = onPingButtonClicked,
             onMentionButtonClicked = onMentionButtonClicked,
-            onDrawingModeClicked = onDrawingModeClicked
+            onDrawingModeClicked = onDrawingModeClicked,
+            isFileSharingEnabled = isFileSharingEnabled
         )
     }
 }
@@ -89,6 +91,7 @@ fun MessageComposeActions(
 private fun ComposingActions(
     conversationId: ConversationId,
     selectedOption: AdditionalOptionSelectItem,
+    isFileSharingEnabled: Boolean,
     attachmentsVisible: Boolean,
     isMentionActive: Boolean,
     onAdditionalOptionButtonClicked: () -> Unit,
@@ -117,7 +120,7 @@ private fun ComposingActions(
                 isSelected = selectedOption == AdditionalOptionSelectItem.RichTextEditing,
                 onRichEditingButtonClicked
             )
-            if (DrawingIcon) {
+            if (DrawingIcon && isFileSharingEnabled) {
                 DrawingModeAction(onDrawingModeClicked)
             }
             if (EmojiIcon) AddEmojiAction({})
@@ -291,10 +294,11 @@ fun PreviewMessageActionsBox() {
             .height(dimensions().spacing56x)
     ) {
         AdditionalOptionButton(isSelected = false, onClick = {})
-        RichTextEditingAction(true, { })
-        AddEmojiAction({})
-        AddGifAction({})
-        AddMentionAction(false, {})
+        DrawingModeAction {}
+        RichTextEditingAction(true) { }
+        AddEmojiAction {}
+        AddGifAction {}
+        AddMentionAction(false) {}
         PingAction {}
     }
 }

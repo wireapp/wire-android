@@ -282,7 +282,7 @@ class CallNotificationManagerTest {
         ) = Call(
             conversationId = conversationId,
             status = status,
-            callerId = UserId("caller", "domain").toString(),
+            callerId = UserId("caller", "domain"),
             participants = listOf(),
             isMuted = true,
             isCameraOn = false,

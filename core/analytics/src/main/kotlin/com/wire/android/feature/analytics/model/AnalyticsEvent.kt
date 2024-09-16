@@ -17,6 +17,8 @@
  */
 package com.wire.android.feature.analytics.model
 
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_ANSWERED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_DISMISSED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_KEY
@@ -73,12 +75,6 @@ interface AnalyticsEvent {
     sealed interface CallQualityFeedback : AnalyticsEvent {
         override val key: String
             get() = AnalyticsEventConstants.CALLING_QUALITY_REVIEW
-    }
-
-    /**
-     * Call quality feedback label
-     */
-    sealed interface CallQualityFeedbackLabel : CallQualityFeedback {
         val label: String
 
         override fun toSegmentation(): Map<String, Any> {
@@ -87,35 +83,34 @@ interface AnalyticsEvent {
             )
         }
 
-        data object Answered : CallQualityFeedbackLabel {
+        data class Answered(val score: Int) : CallQualityFeedback {
             override val label: String
                 get() = CALLING_QUALITY_REVIEW_LABEL_ANSWERED
+
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    CALLING_QUALITY_REVIEW_LABEL_KEY to label,
+                    CALLING_QUALITY_REVIEW_SCORE_KEY to score
+                )
+            }
         }
 
-        data object NotDisplayed : CallQualityFeedbackLabel {
+        data object NotDisplayed : CallQualityFeedback {
             override val label: String
                 get() = CALLING_QUALITY_REVIEW_LABEL_NOT_DISPLAYED
+
+            override fun toSegmentation(): Map<String, Any> {
+                return mapOf(
+                    CALLING_QUALITY_REVIEW_LABEL_KEY to label,
+                    CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY to CALLING_QUALITY_REVIEW_IGNORE_REASON
+                )
+            }
         }
 
-        data object Dismissed : CallQualityFeedbackLabel {
+        data object Dismissed : CallQualityFeedback {
             override val label: String
                 get() = CALLING_QUALITY_REVIEW_LABEL_DISMISSED
         }
-    }
-
-    /**
-     * Call quality feedback score
-     */
-    sealed interface CallQualityFeedbackScore : CallQualityFeedback {
-        val score: Int
-
-        override fun toSegmentation(): Map<String, Any> {
-            return mapOf(
-                CALLING_QUALITY_REVIEW_SCORE_KEY to score
-            )
-        }
-
-        data class Score(override val score: Int) : CallQualityFeedbackScore
     }
 
     /**
@@ -209,6 +204,8 @@ object AnalyticsEventConstants {
     const val CALLING_QUALITY_REVIEW_LABEL_NOT_DISPLAYED = "not-displayed"
     const val CALLING_QUALITY_REVIEW_LABEL_DISMISSED = "dismissed"
     const val CALLING_QUALITY_REVIEW_SCORE_KEY = "score"
+    const val CALLING_QUALITY_REVIEW_IGNORE_REASON_KEY = "ignore-reason"
+    const val CALLING_QUALITY_REVIEW_IGNORE_REASON = "muted"
 
     /**
      * Backup

@@ -312,14 +312,14 @@ class FeatureFlagNotificationViewModelTest {
         coVerify(exactly = 1) {
             arrangement.analyticsManager.sendEvent(
                 match {
-                    it is AnalyticsEvent.CallQualityFeedbackScore && it.score == 5
+                    it is AnalyticsEvent.CallQualityFeedback.Answered && it.score == 5
                 }
             )
         }
         coVerify(exactly = 1) {
             arrangement.analyticsManager.sendEvent(
                 match {
-                    it is AnalyticsEvent.CallQualityFeedbackLabel && it.label ==
+                    it is AnalyticsEvent.CallQualityFeedback && it.label ==
                             AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_ANSWERED
                 }
             )
@@ -337,7 +337,7 @@ class FeatureFlagNotificationViewModelTest {
         coVerify(exactly = 1) {
             arrangement.analyticsManager.sendEvent(
                 match {
-                    it is AnalyticsEvent.CallQualityFeedbackLabel && it.label ==
+                    it is AnalyticsEvent.CallQualityFeedback && it.label ==
                             AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_DISMISSED
                 }
             )

@@ -235,7 +235,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             } else if (shouldAskFeedback) {
                 showCallFeedbackFlow.emit(Unit)
             } else {
-                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedbackLabel.NotDisplayed)
+                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.NotDisplayed)
             }
         }
 
@@ -354,12 +354,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         featureFlagState = featureFlagState.copy(e2EIResult = null)
     }
 
-    @Suppress("UnusedParameter")
     fun rateCall(rate: Int, doNotAsk: Boolean) {
         currentUserId?.let {
             viewModelScope.launch {
-                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedbackScore.Score(rate))
-                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedbackLabel.Answered)
+                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.Answered(rate))
                 coreLogic.getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
             }
         }
@@ -369,7 +367,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         currentUserId?.let {
             viewModelScope.launch {
                 coreLogic.getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
-                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedbackLabel.Dismissed)
+                analyticsManager.sendEvent(AnalyticsEvent.CallQualityFeedback.Dismissed)
             }
         }
     }

@@ -28,6 +28,7 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationChannelGroupCompat
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.appLogger
+import com.wire.android.media.PingRinger
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
@@ -170,6 +171,7 @@ class NotificationChannelsManager @Inject constructor(
             .Builder(NotificationConstants.getPingsChannelId(userId), NotificationManagerCompat.IMPORTANCE_HIGH)
             .setName(NotificationConstants.PING_CHANNEL_NAME)
             .setGroup(channelGroupId)
+            .setVibrationPattern(PingRinger.VIBRATE_PATTERN)
             .setSound(knockSoundUri, audioAttributes)
             .build()
 

@@ -66,7 +66,7 @@ fun FileAssetsContent(
     groupedAssetMessageList: Flow<PagingData<UIPagingItem>>,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
-    onChangeAudioPosition: (messageId: String, position: Int) -> Unit = { _, _ ->},
+    onChangeAudioPosition: (messageId: String, position: Int) -> Unit = { _, _ -> },
     onAudioItemClicked: (messageId: String) -> Unit = {},
     onAssetItemClicked: (messageId: String) -> Unit = {},
     onItemLongClicked: (messageId: String, isMyMessage: Boolean) -> Unit = { _, _ -> },

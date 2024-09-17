@@ -249,7 +249,10 @@ class AudioMediaRecorder @Inject constructor(
             var sawInputEOS = false
             var sawOutputEOS = false
 
-            while (!sawOutputEOS) {
+            val maxRetries = 1000
+            var retryCount = 0
+
+            while (!sawOutputEOS && retryCount < maxRetries) {
                 if (!sawInputEOS) {
                     val inputBufferIndex = codec.dequeueInputBuffer(TIMEOUT_US)
                     if (inputBufferIndex >= 0) {
@@ -268,39 +271,59 @@ class AudioMediaRecorder @Inject constructor(
                 }
 
                 val outputBufferIndex = codec.dequeueOutputBuffer(bufferInfo, TIMEOUT_US)
-                if (outputBufferIndex >= 0) {
-                    val outputBuffer = codec.getOutputBuffer(outputBufferIndex)
 
-                    if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
-                        codec.releaseOutputBuffer(outputBufferIndex, false)
-                        continue
+                when {
+                    outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
+                        val newFormat = codec.outputFormat
+                        trackIndex = muxer.addTrack(newFormat)
+                        muxer.start()
+                        retryCount = 0
                     }
+                    outputBufferIndex >= 0 -> {
+                        val outputBuffer = codec.getOutputBuffer(outputBufferIndex)
 
-                    if (bufferInfo.size != 0) {
-                        outputBuffer?.position(bufferInfo.offset)
-                        outputBuffer?.limit(bufferInfo.offset + bufferInfo.size)
-
-                        if (trackIndex == -1) {
-                            val newFormat = codec.outputFormat
-                            trackIndex = muxer.addTrack(newFormat)
-                            muxer.start()
+                        if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
+                            codec.releaseOutputBuffer(outputBufferIndex, false)
+                            continue
                         }
 
-                        muxer.writeSampleData(trackIndex, outputBuffer!!, bufferInfo)
+                        if (bufferInfo.size != 0 && outputBuffer != null) {
+                            outputBuffer.position(bufferInfo.offset)
+                            outputBuffer.limit(bufferInfo.offset + bufferInfo.size)
+
+                            if (trackIndex >= 0) {
+                                muxer.writeSampleData(trackIndex, outputBuffer, bufferInfo)
+                            } else {
+                                appLogger.e("Track index is not set. Skipping writeSampleData.")
+                            }
+                        }
+
+                        codec.releaseOutputBuffer(outputBufferIndex, false)
+                        retryCount = 0
+
+                        if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
+                            sawOutputEOS = true
+                        }
                     }
-
-                    codec.releaseOutputBuffer(outputBufferIndex, false)
-
-                    if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
-                        sawOutputEOS = true
+                    outputBufferIndex == MediaCodec.INFO_TRY_AGAIN_LATER -> {
+                        retryCount++
+                        Thread.sleep(10)
                     }
                 }
             }
+            if (retryCount >= maxRetries) {
+                appLogger.e("Reached maximum retries without receiving output from codec.")
+                return@withContext false
+            }
+
             true
         } catch (e: IllegalStateException) {
             appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
             false
         } catch (e: IOException) {
+            appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
+            false
+        } catch (e: NullPointerException) {
             appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
             false
         } finally {

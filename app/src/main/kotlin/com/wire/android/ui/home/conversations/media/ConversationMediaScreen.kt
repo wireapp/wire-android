@@ -120,6 +120,7 @@ fun ConversationMediaScreen(
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         audioMessagesState = conversationMessagesViewModel.conversationViewState.audioMessagesState,
         onAudioItemClicked = conversationMessagesViewModel::audioClick,
+        onChangeAudioPosition = conversationMessagesViewModel::changeAudioPosition,
         onOpenAssetOptions = remember { onOpenAssetOptions },
     )
 
@@ -172,6 +173,7 @@ private fun Content(
     initialPage: ConversationMediaScreenTabItem = ConversationMediaScreenTabItem.PICTURES,
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit = { _, _, _ -> },
     onAudioItemClicked: (String) -> Unit = {},
+    onChangeAudioPosition: (messageId: String, position: Int) -> Unit = { _, _ -> },
     onAssetItemClicked: (String) -> Unit = {},
     onOpenAssetOptions: (messageId: String, isMyMessage: Boolean) -> Unit = { _, _ -> },
     onNavigationPressed: () -> Unit = {},
@@ -224,6 +226,7 @@ private fun Content(
                         groupedAssetMessageList = state.assetMessages,
                         audioMessagesState = audioMessagesState,
                         assetStatuses = state.assetStatuses,
+                        onChangeAudioPosition = onChangeAudioPosition,
                         onAudioItemClicked = onAudioItemClicked,
                         onAssetItemClicked = onAssetItemClicked,
                         onItemLongClicked = onOpenAssetOptions

@@ -192,25 +192,17 @@ fun CollapsingTopBarScaffold(
                 },
                 content = {
                     Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .layoutId("topBarContainer"),
+                        modifier = Modifier.fillMaxWidth().layoutId("topBarContainer"),
                         color = topBarBackgroundColor,
                         shadowElevation = topBarContainerElevationState
                     ) {}
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .layoutId("topBarCollapsing")) {
+                    Box(modifier = Modifier.fillMaxWidth().layoutId("topBarCollapsing")) {
                         topBarCollapsing()
                     }
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .layoutId("topBarFooter")) {
+                    Box(modifier = Modifier.fillMaxWidth().layoutId("topBarFooter")) {
                         topBarFooter()
                     }
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .layoutId("content")) {
+                    Box(modifier = Modifier.fillMaxWidth().layoutId("content")) {
                         content()
                     }
                 },

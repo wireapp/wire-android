@@ -18,7 +18,6 @@
 package com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,33 +50,47 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
     private val editGuestAccessNavArgs: CreatePasswordGuestLinkNavArgs = savedStateHandle.navArgs<CreatePasswordGuestLinkNavArgs>()
     private val conversationId: QualifiedID = editGuestAccessNavArgs.conversationId
 
-    val passwordTextState: TextFieldState = TextFieldState()
-    val confirmPasswordTextState: TextFieldState = TextFieldState()
     var state by mutableStateOf(CreatePasswordGuestLinkState())
         @VisibleForTesting set
 
-    init {
-        viewModelScope.launch {
-            combine(passwordTextState.textAsFlow(), confirmPasswordTextState.textAsFlow(), ::Pair)
-                .distinctUntilChanged()
-                .collectLatest { (password, confirmPassword) ->
-                    state = state.copy(isPasswordValid = validatePassword(password.toString()).isValid && password == confirmPassword)
-                }
+    suspend fun observePasswordValidation() {
+        combine(
+            state.passwordTextState.textAsFlow(),
+            state.confirmPasswordTextState.textAsFlow(),
+            ::Pair
+        ).distinctUntilChanged().collectLatest {
+            state = state.copy(
+                invalidPassword = false
+            )
         }
     }
 
     fun onGenerateLink() {
         state = state.copy(isLoading = true)
         viewModelScope.launch {
-            generateGuestRoomLink(
-                conversationId = conversationId,
-                password = passwordTextState.text.toString()
-            ).also { result ->
-                state = if (result is GenerateGuestRoomLinkResult.Failure) {
-                    state.copy(error = result.cause, isLoading = false)
-                } else {
-                    state.copy(error = null, isLoading = false, isLinkCreationSuccessful = true)
-                }
+            suspendGenerateGuestRoomLink()
+        }
+    }
+
+    @VisibleForTesting
+    suspend fun suspendGenerateGuestRoomLink() {
+        // Validate password
+        if (
+            state.passwordTextState.text.toString() != state.confirmPasswordTextState.text.toString() ||
+            state.passwordTextState.text.isBlank() ||
+            !validatePassword(state.passwordTextState.text.toString()).isValid
+        ) {
+            state = state.copy(invalidPassword = true, isLoading = false)
+            return
+        }
+        generateGuestRoomLink(
+            conversationId = conversationId,
+            password = state.passwordTextState.text.toString()
+        ).also { result ->
+            state = if (result is GenerateGuestRoomLinkResult.Failure) {
+                state.copy(error = result.cause, isLoading = false)
+            } else {
+                state.copy(error = null, isLoading = false, isLinkCreationSuccessful = true)
             }
         }
     }
@@ -88,7 +101,7 @@ class CreatePasswordGuestLinkViewModel @Inject constructor(
 
     fun onGenerateRandomPassword() {
         val password = generateRandomPasswordUseCase()
-        passwordTextState.setTextAndPlaceCursorAtEnd(password)
-        confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
+        state.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+        state.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
     }
 }

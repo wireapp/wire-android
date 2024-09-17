@@ -36,6 +36,7 @@ import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -278,6 +279,7 @@ class AudioMediaRecorder @Inject constructor(
                         muxer.start()
                         retryCount = 0
                     }
+
                     outputBufferIndex >= 0 -> {
                         val outputBuffer = codec.getOutputBuffer(outputBufferIndex)
 
@@ -304,9 +306,10 @@ class AudioMediaRecorder @Inject constructor(
                             sawOutputEOS = true
                         }
                     }
+
                     outputBufferIndex == MediaCodec.INFO_TRY_AGAIN_LATER -> {
                         retryCount++
-                        Thread.sleep(RETRY_DELAY_IN_MILLIS)
+                        delay(RETRY_DELAY_IN_MILLIS)
                     }
                 }
             }
@@ -376,7 +379,7 @@ class AudioMediaRecorder @Inject constructor(
         private const val BIT_RATE = 64000
         private const val TIMEOUT_US: Long = 10000
         const val NANOSECONDS_IN_MICROSECOND = 1000
-        const val MAX_RETRY_COUNT = 1000
-        const val RETRY_DELAY_IN_MILLIS = 10L
+        const val MAX_RETRY_COUNT = 100
+        const val RETRY_DELAY_IN_MILLIS = 100L
     }
 }

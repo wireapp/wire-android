@@ -218,7 +218,7 @@ class AudioMediaRecorder @Inject constructor(
         }
     }
 
-    @Suppress("LongMethod", "CyclomaticComplexMethod")
+    @Suppress("LongMethod", "CyclomaticComplexMethod", "TooGenericExceptionCaught")
     suspend fun convertWavToMp4(inputFilePath: String): Boolean = withContext(Dispatchers.IO) {
         var codec: MediaCodec? = null
         var muxer: MediaMuxer? = null
@@ -249,10 +249,9 @@ class AudioMediaRecorder @Inject constructor(
             var sawInputEOS = false
             var sawOutputEOS = false
 
-            val maxRetries = 1000
             var retryCount = 0
 
-            while (!sawOutputEOS && retryCount < maxRetries) {
+            while (!sawOutputEOS && retryCount < MAX_RETRY_COUNT) {
                 if (!sawInputEOS) {
                     val inputBufferIndex = codec.dequeueInputBuffer(TIMEOUT_US)
                     if (inputBufferIndex >= 0) {
@@ -307,11 +306,11 @@ class AudioMediaRecorder @Inject constructor(
                     }
                     outputBufferIndex == MediaCodec.INFO_TRY_AGAIN_LATER -> {
                         retryCount++
-                        Thread.sleep(10)
+                        Thread.sleep(RETRY_DELAY_IN_MILLIS)
                     }
                 }
             }
-            if (retryCount >= maxRetries) {
+            if (retryCount >= MAX_RETRY_COUNT) {
                 appLogger.e("Reached maximum retries without receiving output from codec.")
                 return@withContext false
             }
@@ -377,5 +376,7 @@ class AudioMediaRecorder @Inject constructor(
         private const val BIT_RATE = 64000
         private const val TIMEOUT_US: Long = 10000
         const val NANOSECONDS_IN_MICROSECOND = 1000
+        const val MAX_RETRY_COUNT = 1000
+        const val RETRY_DELAY_IN_MILLIS = 10L
     }
 }

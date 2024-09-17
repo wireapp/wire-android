@@ -85,13 +85,21 @@ fun SearchUsersAndServicesScreen(
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
-    val tabs = remember(isServicesAllowed) { if (isServicesAllowed) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE) }
+    val tabs = remember(isServicesAllowed) {
+        if (isServicesAllowed) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE)
+    }
     val pagerState = rememberPagerState(
         initialPage = tabs.indexOf(initialPage),
         pageCount = { tabs.size }
     )
-    val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
-    val lazyListStates: List<LazyListState> = List(tabs.size) { rememberLazyListState() }
+    val currentTabState by remember {
+        derivedStateOf {
+            pagerState.calculateCurrentTab()
+        }
+    }
+    val lazyListStates: List<LazyListState> = List(tabs.size) {
+        rememberLazyListState()
+    }
 
     CollapsingTopBarScaffold(
         modifier = modifier,

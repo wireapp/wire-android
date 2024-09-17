@@ -111,7 +111,9 @@ fun CollapsingTopBarScaffold(
                 val scaledOffset = if (collapsingHeight > 0f && collapsingHeight < maxBarElevationPx) {
                     // if collapsingHeight is less than maxBarElevationPx then the offset needs to be scaled
                     (offset / collapsingHeight) * maxBarElevationPx
-                } else offset
+                } else {
+                    offset
+                }
 
                 // hide top bar elevation when approaching the end of the collapsing
                 listOf(maxBarElevationPx, scaledOffset, collapsingHeight - scaledOffset).min().toDp()
@@ -147,7 +149,9 @@ fun CollapsingTopBarScaffold(
             if (available.y < 0 && anchoredDraggableState.currentValue != State.COLLAPSED && collapsingEnabled) {
                 anchoredDraggableState.settle(velocity = available.y)
                 if (snapOnFling) available else Velocity.Zero
-            } else Velocity.Zero
+            } else {
+                Velocity.Zero
+            }
 
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
             if (collapsingEnabled) {
@@ -188,17 +192,25 @@ fun CollapsingTopBarScaffold(
                 },
                 content = {
                     Surface(
-                        modifier = Modifier.fillMaxWidth().layoutId("topBarContainer"),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .layoutId("topBarContainer"),
                         color = topBarBackgroundColor,
                         shadowElevation = topBarContainerElevationState
                     ) {}
-                    Box(modifier = Modifier.fillMaxWidth().layoutId("topBarCollapsing")) {
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .layoutId("topBarCollapsing")) {
                         topBarCollapsing()
                     }
-                    Box(modifier = Modifier.fillMaxWidth().layoutId("topBarFooter")) {
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .layoutId("topBarFooter")) {
                         topBarFooter()
                     }
-                    Box(modifier = Modifier.fillMaxWidth().layoutId("content")) {
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .layoutId("content")) {
                         content()
                     }
                 },

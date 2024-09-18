@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.home
 
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
@@ -42,8 +44,10 @@ class HomeStateHolder(
     val drawerState: DrawerState,
     val currentNavigationItem: HomeDestination,
     val searchBarState: SearchBarState,
-    val navigator: Navigator
+    val navigator: Navigator,
+    lazyListStates: Map<HomeDestination, LazyListState>,
 ) {
+    val currentLazyListState = lazyListStates[currentNavigationItem] ?: error("No LazyListState found for $currentNavigationItem")
 
     fun closeDrawer() {
         coroutineScope.launch {
@@ -67,11 +71,11 @@ fun rememberHomeScreenState(
     },
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
 ): HomeStateHolder {
+    val searchBarState = rememberSearchbarState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val currentNavigationItem = currentRoute?.let { HomeDestination.fromRoute(it) } ?: HomeDestination.Conversations
-
-    val searchBarState = rememberSearchbarState()
+    val lazyListStates = HomeDestination.values().associateWith { rememberLazyListState() }
 
     val homeState = remember(
         currentNavigationItem
@@ -82,7 +86,8 @@ fun rememberHomeScreenState(
             drawerState,
             currentNavigationItem,
             searchBarState,
-            navigator
+            navigator,
+            lazyListStates
         )
     }
 

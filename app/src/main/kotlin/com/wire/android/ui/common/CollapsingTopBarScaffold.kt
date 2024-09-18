@@ -18,23 +18,29 @@
 
 package com.wire.android.ui.common
 
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.splineBasedDecay
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.rememberSwipeableState
-import androidx.compose.material.swipeable
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -43,54 +49,82 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
- * @param maxBarElevation maximum elevation value available
  * @param topBarHeader topmost part of the top bar, usually the TopAppBar, [topBarCollapsing] element slides under it,
  * the lambda receives elevation value for the [topBarHeader]
  * @param topBarCollapsing collapsing part of the top bar
+ * @param modifier modifier for the scaffold
+ * @param maxBarElevation maximum elevation value available
+ * @param topBarBackgroundColor background color of the top bar
  * @param topBarFooter bar under the [topBarCollapsing], moves with it and ends up directly under [topBarHeader] when collapsed
- * @param bottomBar bottom bar of the screen, typically a [NavigationBar]
+ * @param bottomBar bottom bar of the screen
  * @param floatingActionButton Main action button of the screen, typically a [FloatingActionButton]
  * @param floatingActionButtonPosition position of the FAB on the screen. See [FabPosition].
- * @param isSwipeable if true then collapsing is enabled
+ * @param collapsingEnabled if true then collapsing is enabled
  * @param snapOnFling on collapsing fling, only close the collapsible and don't carry the velocity to the scrollable
- * @param keepElevationWhenCollapsed if true then keep showing elevation also when scrolling children after top bar is already collapsed;
- * if false then hide elevation when approaching the end of the collapsing and don't show it when scrolling children
+ * @param contentLazyListState state of the content lazy list, used for calculating elevations
  * @param content content of the screen
  */
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CollapsingTopBarScaffold(
-    topBarHeader: @Composable (elevation: Dp) -> Unit,
+    topBarHeader: @Composable () -> Unit,
     topBarCollapsing: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     maxBarElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
+    topBarBackgroundColor: Color = MaterialTheme.wireColorScheme.background,
     topBarFooter: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
-    isSwipeable: Boolean = true,
+    collapsingEnabled: Boolean = true,
     snapOnFling: Boolean = true,
-    keepElevationWhenCollapsed: Boolean = false,
+    contentLazyListState: LazyListState? = null,
     content: @Composable () -> Unit,
 ) {
+    val density = LocalDensity.current
+    var hasFooterSegment by remember { mutableStateOf(false) }
+    var hasCollapsingSegment by remember { mutableStateOf(false) }
     val maxBarElevationPx = with(LocalDensity.current) { maxBarElevation.toPx() }
-    val swipeableState = rememberSwipeableState(initialValue = State.EXPANDED) // TODO: migrate to AnchoredDraggable
-    var nestedOffsetState by rememberSaveable { mutableStateOf(0f) }
-    var collapsingHeight by rememberSaveable { mutableStateOf(0) }
-    val topBarElevationState by remember {
+    val anchoredDraggableState = remember {
+        AnchoredDraggableState(
+            initialValue = State.EXPANDED,
+            anchors = calculateAnchors(collapsingEnabled, 0),
+            positionalThreshold = { totalDistance: Float -> totalDistance * 0.5f },
+            velocityThreshold = { with(density) { 125.dp.toPx() } },
+            snapAnimationSpec = SpringSpec(),
+            decayAnimationSpec = splineBasedDecay(density),
+        )
+    }
+    val topBarElevationState by remember(contentLazyListState, maxBarElevationPx) {
         derivedStateOf {
-            if (keepElevationWhenCollapsed) {
-                val value = -(swipeableState.offset.value + nestedOffsetState)
-                listOf(value, maxBarElevationPx).minOrNull() ?: 0f
-            } else {
-                // hide elevation when approaching the end of the collapsing and don't show it when scrolling children
-                val value = -swipeableState.offset.value
-                listOf(value, collapsingHeight - value, maxBarElevationPx).minOrNull() ?: 0f
+            with(density) {
+                val collapsingHeight = anchoredDraggableState.calculateCollapsingHeight()
+                val offset = -anchoredDraggableState.offset
+                val scaledOffset = if (collapsingHeight > 0f && collapsingHeight < maxBarElevationPx) {
+                    // if collapsingHeight is less than maxBarElevationPx then the offset needs to be scaled
+                    (offset / collapsingHeight) * maxBarElevationPx
+                } else {
+                    offset
+                }
+
+                // hide top bar elevation when approaching the end of the collapsing
+                listOf(maxBarElevationPx, scaledOffset, collapsingHeight - scaledOffset).min().toDp()
+            }
+        }
+    }
+    val topBarContainerElevationState by remember(contentLazyListState, maxBarElevationPx) {
+        derivedStateOf {
+            with(density) {
+                // start adding elevation to the whole container after fully collapsed
+                contentLazyListState.calculateContentOffset(maxBarElevationPx).toDp()
             }
         }
     }
@@ -98,21 +132,31 @@ fun CollapsingTopBarScaffold(
     val nestedScrollConnection = object : NestedScrollConnection {
 
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset =
-            if (available.y < 0) swipeableState.performDrag(available.y).toOffset()
-            else Offset.Zero
+            if (available.y < 0 && collapsingEnabled) {
+                anchoredDraggableState.dispatchRawDelta(delta = available.y).toOffset()
+            } else {
+                Offset.Zero
+            }
 
         override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset =
-            swipeableState.performDrag(available.y).toOffset().also { nestedOffsetState += consumed.y }
+            if (collapsingEnabled) {
+                anchoredDraggableState.dispatchRawDelta(delta = available.y).toOffset()
+            } else {
+                Offset.Zero
+            }
 
         override suspend fun onPreFling(available: Velocity): Velocity =
-            if (available.y < 0 && swipeableState.currentValue != State.COLLAPSED) {
-                swipeableState.performFling(available.y)
-                if (snapOnFling) available
-                else Velocity.Zero
-            } else Velocity.Zero
+            if (available.y < 0 && anchoredDraggableState.currentValue != State.COLLAPSED && collapsingEnabled) {
+                anchoredDraggableState.settle(velocity = available.y)
+                if (snapOnFling) available else Velocity.Zero
+            } else {
+                Velocity.Zero
+            }
 
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-            swipeableState.performFling(velocity = available.y)
+            if (collapsingEnabled) {
+                anchoredDraggableState.settle(velocity = available.y)
+            }
             return super.onPostFling(consumed, available)
         }
 
@@ -121,22 +165,25 @@ fun CollapsingTopBarScaffold(
 
     WireScaffold(
         modifier = modifier,
-        topBar = { topBarHeader(with(LocalDensity.current) { topBarElevationState.toDp() }) },
+        topBar = {
+            Surface(
+                color = topBarBackgroundColor,
+                shadowElevation = if (hasFooterSegment || hasCollapsingSegment) topBarElevationState else topBarContainerElevationState,
+            ) {
+                topBarHeader()
+            }
+        },
         bottomBar = bottomBar,
         floatingActionButton = floatingActionButton,
         floatingActionButtonPosition = floatingActionButtonPosition,
         content = { internalPadding ->
             Layout(
-                modifier = if (isSwipeable) {
+                modifier = if (collapsingEnabled && anchoredDraggableState.anchors.size > 1) {
                     Modifier
                         .padding(internalPadding)
-                        .swipeable(
-                            state = swipeableState,
+                        .anchoredDraggable(
+                            state = anchoredDraggableState,
                             orientation = Orientation.Vertical,
-                            anchors = mapOf(0f to State.EXPANDED).let {
-                                if (collapsingHeight > 0) it.plus(-collapsingHeight.toFloat() to State.COLLAPSED)
-                                else it
-                            }
                         )
                         .nestedScroll(nestedScrollConnection)
                 } else {
@@ -144,20 +191,47 @@ fun CollapsingTopBarScaffold(
                         .padding(internalPadding)
                 },
                 content = {
-                    Box(modifier = Modifier.layoutId("topBarCollapsing")) { topBarCollapsing() }
-                    Box(modifier = Modifier.layoutId("topBarFooter")) { topBarFooter() }
-                    Box(modifier = Modifier.layoutId("content")) { content() }
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().layoutId("topBarContainer"),
+                        color = topBarBackgroundColor,
+                        shadowElevation = topBarContainerElevationState
+                    ) {}
+                    Box(modifier = Modifier.fillMaxWidth().layoutId("topBarCollapsing")) {
+                        topBarCollapsing()
+                    }
+                    Box(modifier = Modifier.fillMaxWidth().layoutId("topBarFooter")) {
+                        topBarFooter()
+                    }
+                    Box(modifier = Modifier.fillMaxWidth().layoutId("content")) {
+                        content()
+                    }
                 },
                 measurePolicy = { measurables, constraints ->
                     val measureConstraints = constraints.copy(minWidth = 0, minHeight = 0)
                     val collapsingPlaceable = measurables.first { it.layoutId == "topBarCollapsing" }.measure(measureConstraints)
                     val footerPlaceable = measurables.first { it.layoutId == "topBarFooter" }.measure(measureConstraints)
-                    val contentPlaceable = measurables.first { it.layoutId == "content" }
-                        .measure(measureConstraints.copy(maxHeight = constraints.maxHeight - footerPlaceable.height))
-                    collapsingHeight = collapsingPlaceable.height
+                    val containerPlaceable = measurables.first { it.layoutId == "topBarContainer" }.measure(
+                        measureConstraints.copy(
+                            minHeight = collapsingPlaceable.height + footerPlaceable.height,
+                            maxHeight = collapsingPlaceable.height + footerPlaceable.height
+                        )
+                    )
+                    val contentPlaceable = measurables.first { it.layoutId == "content" }.measure(
+                        measureConstraints.copy(
+                            maxHeight = if (collapsingEnabled) {
+                                constraints.maxHeight - footerPlaceable.height
+                            } else {
+                                constraints.maxHeight - collapsingPlaceable.height - footerPlaceable.height
+                            }
+                        )
+                    )
+                    hasCollapsingSegment = collapsingPlaceable.height > 0
+                    hasFooterSegment = footerPlaceable.height > 0
+                    anchoredDraggableState.updateAnchors(calculateAnchors(collapsingEnabled, collapsingPlaceable.height))
                     layout(constraints.maxWidth, constraints.maxHeight) {
-                        val swipeOffset = swipeableState.offset.value.roundToInt()
+                        val swipeOffset = anchoredDraggableState.offset.roundToInt()
                         contentPlaceable.placeRelative(0, collapsingPlaceable.height + footerPlaceable.height + swipeOffset)
+                        containerPlaceable.placeRelative(0, swipeOffset)
                         footerPlaceable.placeRelative(0, collapsingPlaceable.height + swipeOffset)
                         collapsingPlaceable.placeRelative(0, swipeOffset)
                     }
@@ -165,6 +239,23 @@ fun CollapsingTopBarScaffold(
             )
         }
     )
+}
+
+private fun LazyListState?.calculateContentOffset(maxValue: Float) = when {
+    this == null -> 0f
+    firstVisibleItemIndex == 0 -> min(firstVisibleItemScrollOffset.toFloat(), maxValue)
+    else -> maxValue
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun AnchoredDraggableState<State>.calculateCollapsingHeight() = anchors.positionOf(State.COLLAPSED).let {
+    if (it.isNaN()) 0f else -it
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun calculateAnchors(isSwipeable: Boolean, collapsingHeight: Int) = DraggableAnchors {
+    State.EXPANDED at 0f
+    if (isSwipeable && collapsingHeight > 0) State.COLLAPSED at -collapsingHeight.toFloat()
 }
 
 private enum class State {

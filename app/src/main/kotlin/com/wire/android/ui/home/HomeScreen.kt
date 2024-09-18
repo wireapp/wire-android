@@ -21,12 +21,13 @@ package com.wire.android.ui.home
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -276,19 +277,21 @@ fun HomeContent(
             content = {
                 CollapsingTopBarScaffold(
                     snapOnFling = false,
-                    keepElevationWhenCollapsed = true,
-                    topBarHeader = { elevation ->
-                        Column(modifier = Modifier.animateContentSize()) {
-                            AnimatedVisibility(visible = !searchBarState.isSearchActive) {
-                                HomeTopBar(
-                                    userAvatarData = homeState.userAvatarData,
-                                    title = stringResource(currentNavigationItem.title),
-                                    elevation = elevation,
-                                    withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,
-                                    onHamburgerMenuClick = ::openDrawer,
-                                    onNavigateToSelfUserProfile = onSelfUserClick
-                                )
-                            }
+                    topBarHeader = {
+                        AnimatedVisibility(
+                            modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                            visible = !searchBarState.isSearchActive,
+                            enter = fadeIn() + expandVertically(),
+                            exit = shrinkVertically() + fadeOut(),
+                        ) {
+                            HomeTopBar(
+                                userAvatarData = homeState.userAvatarData,
+                                title = stringResource(currentNavigationItem.title),
+                                elevation = dimensions().spacing0x, // CollapsingTopBarScaffold manages applied elevation
+                                withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,
+                                onHamburgerMenuClick = ::openDrawer,
+                                onNavigateToSelfUserProfile = onSelfUserClick,
+                            )
                         }
                     },
                     topBarCollapsing = {
@@ -301,7 +304,8 @@ fun HomeContent(
                             )
                         }
                     },
-                    isSwipeable = !searchBarState.isSearchActive,
+                    collapsingEnabled = !searchBarState.isSearchActive,
+                    contentLazyListState = homeStateHolder.currentLazyListState,
                     content = {
                         /**
                          * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.

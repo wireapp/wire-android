@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -66,6 +67,7 @@ fun AllConversationScreen(homeStateHolder: HomeStateHolder) {
             navigator = navigator,
             conversationItemType = ConversationItemType.ALL_CONVERSATIONS,
             searchBarState = searchBarState,
+            lazyListState = currentLazyListState,
         )
     }
 }
@@ -82,10 +84,10 @@ fun AllConversationScreenContent(
     onAudioPermissionPermanentlyDenied: () -> Unit,
     dismissJoinCallAnywayDialog: () -> Unit,
     joinCallAnyway: (conversationId: ConversationId, onJoinedCall: (ConversationId) -> Unit) -> Unit,
+    joinOngoingCall: (conversationId: ConversationId, onJoinedCall: (ConversationId) -> Unit) -> Unit,
     isFromArchive: Boolean = false,
-    joinOngoingCall: (conversationId: ConversationId, onJoinedCall: (ConversationId) -> Unit) -> Unit
+    lazyListState: LazyListState = rememberLazyListState(),
 ) {
-    val lazyListState = rememberLazyListState()
     val callConversationIdToJoin = remember { mutableStateOf(ConversationId("", "")) }
 
     if (conversationListCallState.shouldShowJoinAnywayDialog) {

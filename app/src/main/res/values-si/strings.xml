@@ -537,10 +537,6 @@
     <string name="label_edit">සංස්කරණය</string>
     <string name="label_delete">මකන්න</string>
     <string name="info_message_copied">පණිවිඩය පිටපත් විය</string>
-    <string name="conversation_banner_federated">ඒකාබද්ධ පරිශ්‍රීලකයින්</string>
-    <string name="conversation_banner_externals">පිටස්තරයින්</string>
-    <string name="conversation_banner_guests">අමුත්තන්</string>
-    <string name="conversation_banner_services">සේවා</string>
     <string name="conversation_banner_federated_externals_guests_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින්, අමුත්තන් සහ සේවා ඇත</string>
     <string name="conversation_banner_federated_externals_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ අමුත්තන් සිටියි</string>
     <string name="conversation_banner_federated_externals_services_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ සේවා ඇත</string>
@@ -703,7 +699,6 @@
     <string name="label_conversation_pictures_empty">කිසිවෙක් මෙම සංවාදයෙහි ඡායාරූප බෙදාගෙන නැත 🥲</string>
     <string name="label_conversation_files_empty">කිසිවෙක් මෙම සංවාදයෙහි ගොනු බෙදාගෙන නැත 🙀</string>
     <!-- Search Contact-->
-    <string name="label_contacts">සබඳතා</string>
     <string name="label_new_group">නව සමූහයක්</string>
     <string name="label_create_new_group">නව සමූහයක් සාදන්න</string>
     <plurals name="label_x_participants">
@@ -712,7 +707,6 @@
     </plurals>
     <string name="label_new_conversation">නව සංවාදය</string>
     <string name="label_search_people">පුද්ගලයින් සොයන්න</string>
-    <string name="label_public_wire">ප්‍රසිද්ධ වයර්</string>
     <string name="label_search_people_instruction">සරල නමින් හෝ @නමින් පුද්ගලයින් සොයාගන්න</string>
     <string name="label_learn_more_searching_user">තව දැනගන්න</string>
     <string name="label_no_results_found">ප්‍රතිඵල හමු නොවිණි. නැවත උත්සාහ කරන්න.</string>
@@ -802,7 +796,6 @@
     <string name="calling_decline_call">ඇමතුම නවතන්න</string>
     <string name="calling_label_ringing_call">නාද වෙමින්…</string>
     <string name="calling_label_incoming_call">අමතමින්…</string>
-    <string name="calling_label_incoming_call_someone_calling">අමතමින්…</string>
     <string name="calling_label_default_caller_name">ලැබෙන ඇමතුම</string>
     <string name="calling_label_constant_bit_rate">අචල බිටු අනුපාතය</string>
     <string name="calling_minimize_view">දැක්ම හකුළන්න</string>
@@ -1349,4 +1342,5 @@
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
 </resources>

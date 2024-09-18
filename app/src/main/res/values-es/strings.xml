@@ -480,10 +480,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_edit">Editar</string>
     <string name="label_delete">Eliminar</string>
     <string name="info_message_copied">Mensaje copiado</string>
-    <string name="conversation_banner_federated">Usuarios federados</string>
-    <string name="conversation_banner_externals">externos</string>
-    <string name="conversation_banner_guests">invitados</string>
-    <string name="conversation_banner_services">servicios</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Usuarios federados, externos, invitados y servicios est&#225;n presentes</string>
     <string name="conversation_banner_federated_externals_guests_present">Usuarios federados, externos e invitados est&#225;n presentes</string>
     <string name="conversation_banner_federated_externals_services_present">Usuarios federados, externos y servicios est&#225;n presentes</string>
@@ -609,11 +605,9 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <!-- Search Messages -->
     <!-- Conversation Media -->
     <!-- Search Contact-->
-    <string name="label_contacts">Contactos</string>
     <string name="label_new_group">Nuevo Grupo</string>
     <string name="label_new_conversation">Nueva Conversaci&#243;n</string>
     <string name="label_search_people">Buscar Personas</string>
-    <string name="label_public_wire">Hilo P&#250;blico</string>
     <string name="label_search_people_instruction">Busca personas por su nombre de perfil o @nombredeusuario</string>
     <string name="label_learn_more_searching_user">Aprende m&#225;s</string>
     <string name="label_no_results_found">No se encontraron resultados. Por favor intenta nuevamente.</string>
@@ -691,7 +685,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="calling_decline_call">Rechazar llamada</string>
     <string name="calling_label_ringing_call">Sonando...</string>
     <string name="calling_label_incoming_call">Llamando...</string>
-    <string name="calling_label_incoming_call_someone_calling">est&#225; llamando...</string>
     <string name="calling_label_default_caller_name">Llamada entrante</string>
     <string name="calling_label_constant_bit_rate">BIT RATE constante</string>
     <string name="calling_minimize_view">Minimizar vista</string>
@@ -1033,4 +1026,5 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
 </resources>

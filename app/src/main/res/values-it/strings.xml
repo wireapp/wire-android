@@ -532,10 +532,6 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_edit">Modifica</string>
     <string name="label_delete">Elimina</string>
     <string name="info_message_copied">Messaggio copiato</string>
-    <string name="conversation_banner_federated">utenti federati</string>
-    <string name="conversation_banner_externals">esterni</string>
-    <string name="conversation_banner_guests">ospiti</string>
-    <string name="conversation_banner_services">servizi</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Sono presenti utenti federati, esterni, ospiti e servizi</string>
     <string name="conversation_banner_federated_externals_guests_present">Sono presenti utenti federati, esterni e ospiti</string>
     <string name="conversation_banner_federated_externals_services_present">Sono presenti utenti federati, esterni e servizi</string>
@@ -703,11 +699,9 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_conversation_pictures_empty">Nessuno ha ancora condiviso immagini in questa conversazione 🥲</string>
     <string name="label_conversation_files_empty">Nessuno ha ancora condiviso dei file in questa conversazione 🙀</string>
     <!-- Search Contact-->
-    <string name="label_contacts">Contatti</string>
     <string name="label_new_group">Nuovo Gruppo</string>
     <string name="label_new_conversation">Nuova Conversazione</string>
     <string name="label_search_people">Cerca persone</string>
-    <string name="label_public_wire">Telaio Pubblico</string>
     <string name="label_search_people_instruction">Cerca persone per il loro nome del profilo o @nomeutente</string>
     <string name="label_learn_more_searching_user">Scopri di pi&#249;</string>
     <string name="label_no_results_found">Nessun risultato trovato. Riprova.</string>
@@ -795,7 +789,6 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="calling_decline_call">Rifiuta la chiamata</string>
     <string name="calling_label_ringing_call">In chiamata...</string>
     <string name="calling_label_incoming_call">Chiamata in arrivo...</string>
-    <string name="calling_label_incoming_call_someone_calling">sta chiamando...</string>
     <string name="calling_label_default_caller_name">Chiamata in entrata</string>
     <string name="calling_label_constant_bit_rate">BIT RATE costante</string>
     <string name="calling_minimize_view">Minimizza la vista</string>
@@ -1337,4 +1330,5 @@ registrato. Sei pregato di riprovare.</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
 </resources>

@@ -53,7 +53,7 @@
     <string name="label_federated_membership">Federerade</string>
     <string name="label_update">Uppdatera</string>
     <string name="label_close">Stäng</string>
-    <string name="label_download">Hämta</string>
+    <string name="label_download">Ladda ner</string>
     <string name="label_open_asset_externally">Öppna</string>
     <string name="label_show">Visa</string>
     <string name="label_show_all">Visa alla</string>
@@ -132,6 +132,7 @@
     <string name="user_profile_screen_title">Användarprofil</string>
     <string name="settings_screen_title">Inställningar</string>
     <string name="settings_privacy_policy_label">Integritetspolicy</string>
+    <string name="support_screen_title">Support</string>
     <string name="backup_and_restore_screen_title">Säkerhetskopiera &amp; Återställ konversationer</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Nyheter</string>
@@ -184,8 +185,8 @@
     <string name="login_tab_email">E-POSTADRESS</string>
     <string name="login_tab_sso">SSO-INLOGGNING</string>
     <string name="login_sso_code_label">SSO-KOD ELLER E-POSTADRESS</string>
-    <string name="login_error_invalid_sso_code">Vänligen fyll i en giltig SSO-kod.</string>
-    <string name="login_error_invalid_sso_code_format">Fyll i en giltig SSO-kod</string>
+    <string name="login_error_invalid_sso_code">Ange en giltig SSO-kod.</string>
+    <string name="login_error_invalid_sso_code_format">Ange en giltig SSO-kod</string>
     <string name="deleted_user_error_title">Kontot togs bort</string>
     <string name="deleted_user_error_message">Du loggades ut eftersom att ditt konto togs
         bort.
@@ -209,6 +210,7 @@
     <string name="update_e2ei_certificat_button">Uppdatera certifikat</string>
     <!-- Register Device -->
     <!-- Delete Message -->
+    <string name="delete_message_dialog_title">Radera meddelande?</string>
     <string name="label_delete_for_me">Radera för mig</string>
     <string name="label_delete_for_everyone">Radera för alla</string>
     <!-- Replies/Quotes to other messages -->
@@ -223,7 +225,7 @@
     <string name="create_account_details_password_error">Ogiltigt lösenord</string>
     <string name="create_account_details_password_not_matching_error">Lösenorden matchar inte</string>
     <string name="create_account_details_confirm_password_label">BEKRÄFTA LÖSENORD</string>
-    <string name="create_account_code_text">Vänligen kolla din e-post %1$s för bekräftelsekoden och fyll i den nedanför.</string>
+    <string name="create_account_code_text">Kontrollera din e-post %1$s för verifieringskoden och ange den nedan.</string>
     <string name="create_account_code_resend">Skicka om koden igen</string>
     <string name="create_account_code_error_title">Ogiltig information</string>
     <string name="create_account_code_error_team_members_limit_reached">Det här teamet har nått sin gräns för antalet medlemmar.</string>
@@ -252,7 +254,7 @@
     <string name="new_group_title">Ny grupp</string>
     <string name="new_group_description">Upp till 500 personer kan ansluta till en grupp-konversation.</string>
     <string name="group_name_title">Gruppnamn</string>
-    <string name="group_name_placeholder">Fyll i namn</string>
+    <string name="group_name_placeholder">Ange ett namn</string>
     <string name="group_name_description">Ge den här gruppen ett meningsfullt namn.</string>
     <string name="protocol">Protokoll</string>
     <string name="empty_group_name_error">Vänligen fyll i ett namn på gruppen</string>
@@ -324,6 +326,10 @@
     <string name="user_profile_unblock_user">Avblockera användare</string>
     <string name="user_profile_group_remove_button">Ta bort från gruppen</string>
     <string name="user_profile_logging_out_progress">Loggar ut...</string>
+    <string name="user_profile_qr_code">Öppna QR-kod</string>
+    <string name="user_profile_qr_code_title">Dela profil</string>
+    <string name="user_profile_qr_code_share_link">Dela profillänk</string>
+    <string name="user_profile_qr_code_share_image_link">Dela QR-kod</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Ta bort från gruppen?</string>
     <string name="dialog_remove_conversation_member_error">Det uppstod ett fel när deltagaren skulle tas bort från gruppen</string>
@@ -385,6 +391,10 @@
         <item quantity="other">%1$d meddelanden</item>
     </plurals>
     <!--Typing Indicator-->
+    <plurals name="typing_indicator_event_message">
+        <item quantity="one">%s skriver</item>
+        <item quantity="other">%1$s och %2$d till skriver</item>
+    </plurals>
     <!-- Search Messages -->
     <string name="label_search_button">Sök</string>
     <!-- Conversation Media -->
@@ -401,16 +411,19 @@
     </plurals>
     <string name="label_new_conversation">Ny konversation</string>
     <string name="label_learn_more_searching_user">Läs mer</string>
+    <string name="label_no_results_found">Inga resultat kunde hittas. Försök igen.</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_message">Försök igen</string>
     <string name="error_server_miscommunication_title">Serverfel</string>
     <string name="error_server_miscommunication_message">Försök igen</string>
     <string name="error_no_network_title">Väntar på nätverk</string>
+    <string name="error_no_network_message">Kontrollera din internetanslutning och försök igen</string>
     <string name="left_conversation_group_success">Du har lämnat konversationen.</string>
     <!-- Archiving -->
     <!-- Animation label -->
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
+    <string name="notification_shared_picture">Delade en bild</string>
     <string name="notification_shared_file">Delade en fil</string>
     <string name="notification_missed_call">Missat samtal</string>
     <string name="notification_reply">Svar: %1$s</string>
@@ -424,7 +437,6 @@
     <string name="calling_button_label_camera">Kamera</string>
     <string name="calling_button_label_speaker">Högtalare</string>
     <string name="calling_label_ringing_call">Ringer…</string>
-    <string name="calling_label_incoming_call_someone_calling">ringer…</string>
     <string name="calling_label_default_caller_name">Inkommande samtal</string>
     <string name="calling_ongoing_call_start_anyway">Ring ändå</string>
     <!-- Connectivity Status Bar -->
@@ -471,11 +483,14 @@
     <string name="settings_myaccount_handle_updated">Ditt användarnamn har ändrats</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Skicka läskvitton</string>
+    <string name="settings_censor_screenshots">Censurera skärmdumpar</string>
     <string name="settings_send_anonymous_usage_data_title">Skicka anonym användningsdata</string>
     <!--Privacy Settings, App lock -->
     <string name="password_validation_length">Minst 8 tecken</string>
     <!--Devices -->
     <string name="devices_title">Dina enheter</string>
+    <string name="current_device_label">Nuvarande enhet</string>
+    <string name="other_devices_label">Andra enheter</string>
     <!--unblock user dialog -->
     <!--max account reached dialog-->
     <string name="label_logs_option_title">Loggar</string>
@@ -499,6 +514,7 @@
     <string name="backup_dialog_create_backup_share">Dela fil</string>
     <string name="group_label">grupp</string>
     <string name="conversation_label">konversation</string>
+    <string name="dialog_clear_content_title">Rensa innehåll?</string>
     <string name="dialog_clear_content_option">Rensa innehåll</string>
     <!-- Update App dialog -->
     <string name="update_app_dialog_button">Uppdatera</string>
@@ -571,6 +587,7 @@
     <string name="end_to_end_identity_required_dialog_snooze_button">Påminn mig senare</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Logga ut</string>
     <!-- Record Audio -->
+    <string name="record_audio_send_label">Skicka ljudmeddelande</string>
     <string name="record_audio_permission_denied_dialog_settings_button">Inställningar</string>
     <string name="record_audio_unable_due_to_ongoing_call">Du kan inte spela in ett ljudmeddelande under ett samtal.</string>
     <string name="join_conversation_dialog_password_placeholder">Ange lösenord</string>
@@ -601,4 +618,7 @@
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
+    <string name="call_feedback_dialog_skip">Hoppa över</string>
+    <string name="call_feedback_dialog_do_not_ask">Fråga inte igen</string>
 </resources>

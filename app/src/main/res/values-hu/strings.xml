@@ -556,10 +556,6 @@
     <string name="label_edit">Szerkesztés</string>
     <string name="label_delete">Törlés</string>
     <string name="info_message_copied">Üzenet másolva</string>
-    <string name="conversation_banner_federated">Szövetségesek</string>
-    <string name="conversation_banner_externals">külsősök</string>
-    <string name="conversation_banner_guests">vendégek</string>
-    <string name="conversation_banner_services">szolgáltatások</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Szövetségesek, külsősök, vendégek és szolgáltatások is vannak itt</string>
     <string name="conversation_banner_federated_externals_guests_present">Szövetségesek, külsősök és vendégek is vannak itt</string>
     <string name="conversation_banner_federated_externals_services_present">Szövetségesek, külsősök és szolgáltatások is vannak itt</string>
@@ -726,7 +722,6 @@
     <string name="label_conversation_pictures_empty">Ebben a beszélgetésben még senki nem osztott meg képet 🥲</string>
     <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
     <!-- Search Contact-->
-    <string name="label_contacts">Névjegyek</string>
     <string name="label_new_group">Új csoport</string>
     <string name="label_create_new_group">Új csoport létrehozása</string>
     <plurals name="label_x_participants">
@@ -735,7 +730,6 @@
     </plurals>
     <string name="label_new_conversation">Új beszélgetés</string>
     <string name="label_search_people">Személyek keresése</string>
-    <string name="label_public_wire">Nyilvános Wire</string>
     <string name="label_search_people_instruction">Személyek keresése profilnév vagy @felhasználónév alapján</string>
     <string name="label_learn_more_searching_user">További információ</string>
     <string name="label_no_results_found">Nincs találat. Kérjük, próbálja újra.</string>
@@ -826,7 +820,6 @@
     <string name="calling_decline_call">Hívás elutasítása</string>
     <string name="calling_label_ringing_call">Kicseng…</string>
     <string name="calling_label_incoming_call">Hívás…</string>
-    <string name="calling_label_incoming_call_someone_calling">hívja…</string>
     <string name="calling_label_default_caller_name">Bejövő hívás</string>
     <string name="calling_label_constant_bit_rate">ÁLLANDÓ BITSEBESSÉG (CBR)</string>
     <string name="calling_minimize_view">Összecsukott nézet</string>
@@ -965,7 +958,6 @@
     <string name="settings_show_typing_indicator_title">Gépelésjelző</string>
     <string name="settings_app_lock_title">Lezárás jelkóddal</string>
     <string name="settings_send_anonymous_usage_data_title">Anonimizált használati adatok küldése</string>
-    <string name="settings_send_anonymous_usage_data_description">A használati adatok lehetővé teszik a Wire számára, hogy megértse, hogyan használják az appot, és miként lehetne fejleszteni. Az adatok névtelenek, és nem hordozzák magukban a kommunikációja tartalmát (mint pl. üzenetek, fájlok, földrajzi helyzet, hívások).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Az alkalmazászár jelkódjának beállítása</string>
     <string name="settings_set_lock_screen_description">Az alkalmazás %1$s tétlenség után zárolja önmagát. Az alkalmazás feloldásához be kell írnia a titkos jelkódot, vagy biometrikus azonosítást kell használnia.\n\nJól jegyezze meg ezt a jelkódot, mert nincs lehetőség a visszanyerésére.</string>
@@ -1295,4 +1287,5 @@ Kérjük, próbálja meg újra.</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
 </resources>

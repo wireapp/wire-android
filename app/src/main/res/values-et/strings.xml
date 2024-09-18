@@ -322,7 +322,6 @@
     <string name="calling_decline_call">Keeldu kõnest</string>
     <string name="calling_label_ringing_call">Heliseb…</string>
     <string name="calling_label_incoming_call">Helistab…</string>
-    <string name="calling_label_incoming_call_someone_calling">helistab…</string>
     <string name="calling_label_default_caller_name">Sissetulev kõne</string>
     <string name="calling_label_constant_bit_rate">ÜHTLANE BITISAGEDUS</string>
     <string name="calling_minimize_view">Minimeeri vaade</string>
@@ -456,4 +455,5 @@
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
 </resources>

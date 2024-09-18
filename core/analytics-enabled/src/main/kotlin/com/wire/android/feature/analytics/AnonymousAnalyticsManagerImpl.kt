@@ -42,10 +42,6 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     private val mutex = Mutex()
     private lateinit var coroutineScope: CoroutineScope
 
-    init {
-        globalAnalyticsManager = this
-    }
-
     override fun <T> init(
         context: Context,
         analyticsSettings: AnalyticsSettings,
@@ -57,6 +53,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
     ) {
         this.coroutineScope = CoroutineScope(dispatcher)
         this.anonymousAnalyticsRecorder = anonymousAnalyticsRecorder
+        globalAnalyticsManager = this
 
         coroutineScope.launch {
             analyticsResultFlow

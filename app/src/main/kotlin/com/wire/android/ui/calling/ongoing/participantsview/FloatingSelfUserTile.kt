@@ -52,30 +52,29 @@ private const val DAMPING_RATIO_MEDIUM_BOUNCY = 0.6f
 private const val STIFFNESS_MEDIUM_LOW = 300f
 private const val DEFAULT_OFFSETX_SELF_USER_TILE = -50f
 private const val DEFAULT_OFFSETY_SELF_USER_TILE = 80F
-private val SELF_VIDEO_TILE_HEIGHT = 250.dp
-private val SELF_VIDEO_TILE_HEIGHT_IN_PIP = 60.dp
-private val SELF_VIDEO_TILE_WIDTH = 150.dp
-private val SELF_VIDEO_TILE_WIDTH_IN_PIP = 40.dp
+private val SELF_VIDEO_TILE_HEIGHT_IN_PIP = 50.dp
+private val SELF_VIDEO_TILE_WIDTH_IN_PIP = 30.dp
 
 @Composable
 fun FloatingSelfUserTile(
     contentHeight: Dp,
-    contentWidth: Float,
+    contentWidth: Dp,
     participant: UICallParticipant,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     modifier: Modifier = Modifier,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
     var selfVideoTileHeight by remember {
-        mutableStateOf(SELF_VIDEO_TILE_HEIGHT)
+        mutableStateOf(contentHeight / 4)
     }
     var selfVideoTileWidth by remember {
-        mutableStateOf(SELF_VIDEO_TILE_WIDTH)
+        mutableStateOf(contentWidth / 4)
     }
     val activity = LocalContext.current
 
     val density = LocalDensity.current
     val contentHeightPx = density.run { (contentHeight).toPx() }
+    val contentWidthPx = density.run { (contentWidth).toPx() }
 
     var isOnPiPMode by remember {
         mutableStateOf(false)
@@ -105,8 +104,8 @@ fun FloatingSelfUserTile(
                 selfUserTileOffsetY = 10f
                 isOnPiPMode = true
             } else {
-                selfVideoTileHeight = SELF_VIDEO_TILE_HEIGHT
-                selfVideoTileWidth = SELF_VIDEO_TILE_WIDTH
+                selfVideoTileHeight = contentHeight / 4
+                selfVideoTileWidth = contentWidth / 4
                 selfUserTileOffsetX = DEFAULT_OFFSETX_SELF_USER_TILE
                 selfUserTileOffsetY = DEFAULT_OFFSETY_SELF_USER_TILE
                 isOnPiPMode = false
@@ -128,15 +127,17 @@ fun FloatingSelfUserTile(
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragEnd = {
+                        val tileWidthPx = density.run { (selfVideoTileWidth).toPx() }
+                        val tileHeightPx = density.run { (selfVideoTileHeight).toPx() }
                         selfUserTileOffsetX =
-                            if (selfUserTileOffsetX - 150f > -(contentWidth / 2)) {
+                            if (selfUserTileOffsetX - (tileWidthPx / 2) > -(contentWidthPx / 2)) {
                                 DEFAULT_OFFSETX_SELF_USER_TILE
                             } else {
-                                -contentWidth + selfVideoTileWidth.toPx() - DEFAULT_OFFSETX_SELF_USER_TILE
+                                -contentWidthPx + tileWidthPx - DEFAULT_OFFSETX_SELF_USER_TILE
                             }
                         selfUserTileOffsetY =
-                            if (selfUserTileOffsetY + 250f > (contentHeightPx / 2)) {
-                                contentHeightPx - selfVideoTileHeight.toPx() - DEFAULT_OFFSETY_SELF_USER_TILE
+                            if (selfUserTileOffsetY + (tileHeightPx / 2) > (contentHeightPx / 2)) {
+                                contentHeightPx - tileHeightPx - DEFAULT_OFFSETY_SELF_USER_TILE
                             } else {
                                 DEFAULT_OFFSETY_SELF_USER_TILE
                             }

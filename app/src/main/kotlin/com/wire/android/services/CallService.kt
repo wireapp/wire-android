@@ -111,7 +111,7 @@ class CallService : Service() {
                             ) { outgoingCalls, establishedCalls ->
                                 val calls = outgoingCalls + establishedCalls
                                 calls.firstOrNull()?.let { call ->
-                                    Either.Right(CallNotificationData(userId,call))
+                                    Either.Right(CallNotificationData(userId, call))
                                 } ?: Either.Left("no calls")
                             }
                         } else {

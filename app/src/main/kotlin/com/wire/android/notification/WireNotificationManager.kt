@@ -163,7 +163,10 @@ class WireNotificationManager @Inject constructor(
         val observeCallsJob = observeCallNotificationsOnceJob(userId)
 
         appLogger.d("$TAG start syncing")
-        connectionPolicyManager.handleConnectionOnPushNotification(userId, STAY_ALIVE_TIME_ON_PUSH_MS)
+        connectionPolicyManager.handleConnectionOnPushNotification(
+            userId,
+            STAY_ALIVE_TIME_ON_PUSH_MS
+        )
 
         observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
         observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
@@ -180,7 +183,12 @@ class WireNotificationManager @Inject constructor(
             appLogger.d("$TAG checking the notifications once, but notifications are already observed, no need to start a new job")
             null
         } else {
-            scope.launch { observeMessageNotifications(userId, MutableStateFlow(CurrentScreen.InBackground)) }
+            scope.launch {
+                observeMessageNotifications(
+                    userId,
+                    MutableStateFlow(CurrentScreen.InBackground)
+                )
+            }
         }
     }
 
@@ -303,8 +311,16 @@ class WireNotificationManager @Inject constructor(
         currentScreenState
             .collect { screens ->
                 when (screens) {
-                    is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(screens.id, userId)
-                    is CurrentScreen.OtherUserProfile -> messagesNotificationManager.hideNotification(screens.id, userId)
+                    is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(
+                        screens.id,
+                        userId
+                    )
+
+                    is CurrentScreen.OtherUserProfile -> messagesNotificationManager.hideNotification(
+                        screens.id,
+                        userId
+                    )
+
                     else -> {}
                 }
             }
@@ -383,7 +399,11 @@ class WireNotificationManager @Inject constructor(
                 if (isBlockedByE2EIRequiredState.value) {
                     appLogger.d("$TAG notifications were skipped as E2EI is required")
                 } else {
-                    messagesNotificationManager.handleNotification(newNotifications, userId, selfUserNameState.value)
+                    messagesNotificationManager.handleNotification(
+                        newNotifications,
+                        userId,
+                        selfUserNameState.value
+                    )
                 }
                 markMessagesAsNotified(userId)
                 markConnectionAsNotified(userId)
@@ -402,7 +422,7 @@ class WireNotificationManager @Inject constructor(
                         coreLogic.getSessionScope(it.accountInfo.userId).calls.establishedCall(),
                         coreLogic.getSessionScope(it.accountInfo.userId).calls.observeOutgoingCall()
                     ) { establishedCalls, outgoingCalls ->
-                        if(establishedCalls.isNotEmpty()) {
+                        if (establishedCalls.isNotEmpty()) {
                             return@combine true
                         }
                         if (outgoingCalls.isNotEmpty()) {
@@ -419,8 +439,11 @@ class WireNotificationManager @Inject constructor(
                 servicesManager.stopCallService()
             }
             .collect { isOnCall ->
-                if (isOnCall) servicesManager.startCallService()
-                else servicesManager.stopCallService()
+                if (isOnCall) {
+                    servicesManager.startCallService()
+                } else {
+                    servicesManager.stopCallService()
+                }
             }
     }
 
@@ -436,7 +459,10 @@ class WireNotificationManager @Inject constructor(
             newNotifications
         }
 
-    private suspend fun markMessagesAsNotified(userId: QualifiedID, conversationId: ConversationId? = null) {
+    private suspend fun markMessagesAsNotified(
+        userId: QualifiedID,
+        conversationId: ConversationId? = null
+    ) {
         val markNotified = conversationId?.let {
             MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId)
         } ?: MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
@@ -445,7 +471,10 @@ class WireNotificationManager @Inject constructor(
             .markMessagesAsNotified(markNotified)
     }
 
-    private suspend fun markConnectionAsNotified(userId: QualifiedID?, connectionRequestUserId: QualifiedID? = null) {
+    private suspend fun markConnectionAsNotified(
+        userId: QualifiedID?,
+        connectionRequestUserId: QualifiedID? = null
+    ) {
         appLogger.d("$TAG markConnectionAsNotified")
         userId?.let {
             coreLogic.getSessionScope(it)

@@ -345,7 +345,7 @@
                 android:foregroundServiceType="specialUse"/>
 
         <service
-                android:name=".services.OngoingCallService"
+                android:name=".services.CallService"
                 android:exported="false"
                 android:foregroundServiceType="phoneCall|microphone" />
     </application>

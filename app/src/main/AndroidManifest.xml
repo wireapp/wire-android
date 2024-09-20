@@ -351,9 +351,15 @@
             android:foregroundServiceType="specialUse" />
 
         <service
+<<<<<<< HEAD
             android:name=".services.OngoingCallService"
             android:exported="false"
             android:foregroundServiceType="phoneCall|microphone" />
+=======
+                android:name=".services.CallService"
+                android:exported="false"
+                android:foregroundServiceType="phoneCall|microphone" />
+>>>>>>> 25e5ea1ba (fix: crash when starting foreground service for calling from background (WPB-11112) (#3456))
     </application>
 
 </manifest>

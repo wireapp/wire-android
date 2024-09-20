@@ -27,6 +27,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -62,7 +63,6 @@ class CallNotificationManager @Inject constructor(
     private val notificationManager = NotificationManagerCompat.from(context)
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val incomingCallsForUsers = MutableStateFlow<Map<UserId, Call>>(mapOf())
-    private val outgoingCallForUsers = MutableStateFlow<Map<UserId, Call>>(mapOf())
     private val reloadCallNotification = MutableSharedFlow<CallNotificationIds>()
 
     init {
@@ -78,25 +78,6 @@ class CallNotificationManager @Inject constructor(
                     } else {
                         appLogger.i("$TAG: showing incoming call")
                         showIncomingCallNotification(incomingCallData)
-                    }
-                }
-        }
-        scope.launch {
-            outgoingCallForUsers
-                .map { it.entries.firstOrNull()?.toCallNotificationData() }
-                .distinctUntilChanged()
-                .reloadIfNeeded()
-                .collectLatest { outgoingCallData ->
-                    if (outgoingCallData == null) {
-                        hideOutgoingCallNotification()
-                    } else {
-                        appLogger.i("$TAG: showing outgoing call")
-                        showOutgoingCallNotification(
-                            outgoingCallData.copy(
-                                conversationName = outgoingCallData.conversationName
-                                    ?: context.getString(R.string.username_unavailable_label)
-                            )
-                        )
                     }
                 }
         }
@@ -126,14 +107,6 @@ class CallNotificationManager @Inject constructor(
         }
     }
 
-    fun handleOutgoingCallNotifications(calls: List<Call>, userId: UserId) {
-        if (calls.isEmpty()) {
-            outgoingCallForUsers.update { it.filter { it.key != userId } }
-        } else {
-            outgoingCallForUsers.update { it.filter { it.key != userId } + (userId to calls.first()) }
-        }
-    }
-
     fun hideAllNotifications() {
         hideIncomingCallNotification()
     }
@@ -149,11 +122,6 @@ class CallNotificationManager @Inject constructor(
         notificationManager.cancel(NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal)
     }
 
-    private fun hideOutgoingCallNotification() {
-        appLogger.i("$TAG: hiding outgoing call")
-        notificationManager.cancel(NotificationIds.CALL_OUTGOING_NOTIFICATION_ID.ordinal)
-    }
-
     @SuppressLint("MissingPermission")
     @VisibleForTesting
     internal fun showIncomingCallNotification(data: CallNotificationData) {
@@ -161,17 +129,6 @@ class CallNotificationManager @Inject constructor(
         val notification = builder.getIncomingCallNotification(data)
         notificationManager.notify(
             NotificationIds.CALL_INCOMING_NOTIFICATION_ID.ordinal,
-            notification
-        )
-    }
-
-    @SuppressLint("MissingPermission")
-    @VisibleForTesting
-    internal fun showOutgoingCallNotification(data: CallNotificationData) {
-        appLogger.i("$TAG: showing outgoing call notification for user ${data.userId.toLogString()}")
-        val notification = builder.getOutgoingCallNotification(data)
-        notificationManager.notify(
-            NotificationIds.CALL_OUTGOING_NOTIFICATION_ID.ordinal,
             notification
         )
     }
@@ -199,7 +156,7 @@ class CallNotificationBuilder @Inject constructor(
     fun getOutgoingCallNotification(data: CallNotificationData): Notification {
         val userIdString = data.userId.toString()
         val conversationIdString = data.conversationId.toString()
-        val channelId = NotificationConstants.getIncomingChannelId(data.userId)
+        val channelId = NotificationConstants.getOutgoingChannelId(data.userId)
 
         return NotificationCompat.Builder(context, channelId)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -263,6 +220,7 @@ class CallNotificationBuilder @Inject constructor(
             .setSmallIcon(R.drawable.notification_icon_small)
             .setAutoCancel(true)
             .setOngoing(true)
+            .setUsesChronometer(true)
             .addAction(getHangUpCallAction(context, conversationIdString, userIdString))
             .addAction(getOpenOngoingCallAction(context, conversationIdString))
             .setFullScreenIntent(openOngoingCallPendingIntent(context, conversationIdString), true)
@@ -272,15 +230,15 @@ class CallNotificationBuilder @Inject constructor(
     }
 
     /**
-     * @return placeholder Notification for OngoingCall, that can be shown immediately after starting the Service
+     * @return placeholder Notification for CallService, that can be shown immediately after starting the Service
      * (e.g. in [android.app.Service.onCreate]). It has no any [NotificationCompat.Action], on click - just opens the app.
      * This notification should be replace by the user-specific notification (with corresponding [NotificationCompat.Action],
      * [android.content.Intent] and title) once it's possible (e.g. in [android.app.Service.onStartCommand])
      */
-    fun getOngoingCallPlaceholderNotification(): Notification {
+    fun getCallServicePlaceholderNotification(): Notification {
         val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         return NotificationCompat.Builder(context, channelId)
-            .setContentText(context.getString(R.string.notification_ongoing_call_content))
+            .setContentText(context.getString(R.string.notification_outgoing_call_tap_to_return))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -326,6 +284,7 @@ data class CallNotificationData(
     val conversationType: Conversation.Type,
     val callerName: String?,
     val callerTeamName: String?,
+    val callStatus: CallStatus
 ) {
     constructor(userId: UserId, call: Call) : this(
         userId,
@@ -334,6 +293,7 @@ data class CallNotificationData(
         call.conversationType,
         call.callerName,
         call.callerTeamName,
+        call.status
     )
 }
 

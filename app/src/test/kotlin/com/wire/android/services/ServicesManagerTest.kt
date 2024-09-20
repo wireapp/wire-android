@@ -43,12 +43,12 @@ class ServicesManagerTest {
         runTest(dispatcherProvider.main()) {
             // given
             val (arrangement, servicesManager) = Arrangement()
-                .withServiceState(OngoingCallService.ServiceState.FOREGROUND)
+                .withServiceState(CallService.ServiceState.FOREGROUND)
                 .arrange()
             // when
-            servicesManager.startOngoingCallService()
+            servicesManager.startCallService()
             advanceTimeBy((ServicesManager.DEBOUNCE_TIME - 50).milliseconds)
-            servicesManager.stopOngoingCallService()
+            servicesManager.stopCallService()
             // then
             verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntent) }
             verify(exactly = 1) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
@@ -59,13 +59,13 @@ class ServicesManagerTest {
         runTest(dispatcherProvider.main()) {
             // given
             val (arrangement, servicesManager) = Arrangement()
-                .withServiceState(OngoingCallService.ServiceState.FOREGROUND)
+                .withServiceState(CallService.ServiceState.FOREGROUND)
                 .arrange()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.startOngoingCallService()
+            servicesManager.startCallService()
             advanceTimeBy((ServicesManager.DEBOUNCE_TIME + 50).milliseconds)
-            servicesManager.stopOngoingCallService()
+            servicesManager.stopCallService()
             // then
             verify(exactly = 1) { arrangement.context.startService(arrangement.ongoingCallServiceIntent) }
             verify(exactly = 1) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
@@ -76,13 +76,13 @@ class ServicesManagerTest {
         runTest(dispatcherProvider.main()) {
             // given
             val (arrangement, servicesManager) = Arrangement()
-                .withServiceState(OngoingCallService.ServiceState.FOREGROUND)
+                .withServiceState(CallService.ServiceState.FOREGROUND)
                 .arrange()
-            servicesManager.startOngoingCallService()
+            servicesManager.startCallService()
             advanceUntilIdle()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.stopOngoingCallService()
+            servicesManager.stopCallService()
             // then
             verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntentWithStopArgument) }
             verify(exactly = 1) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
@@ -93,13 +93,13 @@ class ServicesManagerTest {
         runTest(dispatcherProvider.main()) {
             // given
             val (arrangement, servicesManager) = Arrangement()
-                .withServiceState(OngoingCallService.ServiceState.STARTED)
+                .withServiceState(CallService.ServiceState.STARTED)
                 .arrange()
-            servicesManager.startOngoingCallService()
+            servicesManager.startCallService()
             advanceUntilIdle()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.stopOngoingCallService()
+            servicesManager.stopCallService()
             // then
             verify(exactly = 1) { arrangement.context.startService(arrangement.ongoingCallServiceIntentWithStopArgument) }
             verify(exactly = 0) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
@@ -110,13 +110,13 @@ class ServicesManagerTest {
         runTest(dispatcherProvider.main()) {
             // given
             val (arrangement, servicesManager) = Arrangement()
-                .withServiceState(OngoingCallService.ServiceState.NOT_STARTED)
+                .withServiceState(CallService.ServiceState.NOT_STARTED)
                 .arrange()
-            servicesManager.startOngoingCallService()
+            servicesManager.startCallService()
             advanceUntilIdle()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.startOngoingCallService()
+            servicesManager.startCallService()
             // then
             verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntentWithStopArgument) }
             verify(exactly = 0) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
@@ -137,9 +137,9 @@ class ServicesManagerTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            mockkObject(OngoingCallService.Companion)
-            every { OngoingCallService.Companion.newIntent(context) } returns ongoingCallServiceIntent
-            every { OngoingCallService.Companion.newIntentToStop(context) } returns ongoingCallServiceIntentWithStopArgument
+            mockkObject(CallService.Companion)
+            every { CallService.Companion.newIntent(context) } returns ongoingCallServiceIntent
+            every { CallService.Companion.newIntentToStop(context) } returns ongoingCallServiceIntentWithStopArgument
         }
 
         fun clearRecordedCallsForContext() {
@@ -153,9 +153,9 @@ class ServicesManagerTest {
             )
         }
 
-        fun withServiceState(state: OngoingCallService.ServiceState) = apply {
-            every { OngoingCallService.Companion.serviceState.get() } returns state
-            every { OngoingCallService.serviceState.get() } returns state
+        fun withServiceState(state: CallService.ServiceState) = apply {
+            every { CallService.Companion.serviceState.get() } returns state
+            every { CallService.serviceState.get() } returns state
         }
 
         fun arrange() = this to servicesManager

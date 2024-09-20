@@ -62,12 +62,14 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun SystemMessageItem(
     message: UIMessage.System,
+    modifier: Modifier = Modifier,
     initiallyExpanded: Boolean = false,
     isInteractionAvailable: Boolean = true,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
 ) {
     MessageItemTemplate(
+        modifier = modifier,
         showAuthor = true,
         useSmallBottomPadding = false,
         fullAvatarOuterPadding = dimensions().avatarClickablePadding,

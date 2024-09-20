@@ -43,7 +43,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun ServiceDetailsNotFoundScreen(
-    modifier: Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

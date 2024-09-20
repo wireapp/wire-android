@@ -148,6 +148,7 @@ fun UserProfileInfo(
             ) { (userAvatarData, showPlaceholderIfNoAsset) ->
                 UserProfileAvatar(
                     size = dimensions().avatarDefaultBigSize,
+                    temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,
                     avatarData = userAvatarData,
                     clickable = remember(editableState) {
                         Clickable(

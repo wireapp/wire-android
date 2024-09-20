@@ -56,6 +56,7 @@ fun ServiceDetailsNotFoundScreen(
         Box(contentAlignment = Alignment.Center) {
             UserProfileAvatar(
                 size = dimensions().avatarDefaultBigSize,
+                temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,
                 avatarData = UserAvatarData(
                     asset = null,
                     connectionState = ConnectionState.ACCEPTED,

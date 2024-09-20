@@ -70,10 +70,10 @@ fun SystemMessageItem(
     MessageItemTemplate(
         showAuthor = true,
         useSmallBottomPadding = false,
-        fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize,
+        fullAvatarOuterPadding = dimensions().avatarClickablePadding,
         leading = {
             SystemMessageItemLeading(
-                modifier = Modifier.padding(end = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize),
+                modifier = Modifier.padding(end = dimensions().avatarClickablePadding),
                 messageContent = message.messageContent
             )
         },

@@ -34,7 +34,7 @@ class UserProfileAvatarTest {
     val composeTestRule by lazy { createComposeRule() }
 
     @Test
-    fun givenAStandardUser_ShouldNotShowIndicators() = runTest {
+    fun givenARegularUserNotUnderLegalHold_thenShouldShowStatusIndicator() = runTest {
         composeTestRule.setContent {
             WireTestTheme {
                 UserProfileAvatar(
@@ -45,38 +45,26 @@ class UserProfileAvatarTest {
             }
         }
 
+        composeTestRule.onNodeWithTag(STATUS_INDICATOR_TEST_TAG).assertIsDisplayed()
         composeTestRule.onNodeWithTag(LEGAL_HOLD_INDICATOR_TEST_TAG).assertDoesNotExist()
         composeTestRule.onNodeWithTag(TEMP_USER_INDICATOR_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun givenAUserUnderLegalHold_ShouldShowLegalHoldIndicators() = runTest {
+    fun givenARegularUserUnderLegalHold_thenShouldShowStatusAndLegalHoldIndicators() = runTest {
         composeTestRule.setContent {
             WireTestTheme {
                 UserProfileAvatar(
                     size = dimensions().avatarDefaultBigSize,
                     avatarData = UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE),
-                    type = UserProfileAvatarType.WithIndicators.LegalHold(true)
+                    type = UserProfileAvatarType.WithIndicators.RegularUser(true)
                 )
             }
         }
 
+        composeTestRule.onNodeWithTag(STATUS_INDICATOR_TEST_TAG).assertIsDisplayed()
         composeTestRule.onNodeWithTag(LEGAL_HOLD_INDICATOR_TEST_TAG).assertIsDisplayed()
-    }
-
-    @Test
-    fun givenAUserUnderLegalHoldHidden_ShouldNotShowLegalHoldIndicators() = runTest {
-        composeTestRule.setContent {
-            WireTestTheme {
-                UserProfileAvatar(
-                    size = dimensions().avatarDefaultBigSize,
-                    avatarData = UserAvatarData(),
-                    type = UserProfileAvatarType.WithIndicators.LegalHold(false)
-                )
-            }
-        }
-
-        composeTestRule.onNodeWithTag(LEGAL_HOLD_INDICATOR_TEST_TAG).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(TEMP_USER_INDICATOR_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
@@ -91,6 +79,8 @@ class UserProfileAvatarTest {
             }
         }
 
+        composeTestRule.onNodeWithTag(STATUS_INDICATOR_TEST_TAG).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(LEGAL_HOLD_INDICATOR_TEST_TAG).assertDoesNotExist()
         composeTestRule.onNodeWithTag(TEMP_USER_INDICATOR_TEST_TAG).assertExists()
     }
 }

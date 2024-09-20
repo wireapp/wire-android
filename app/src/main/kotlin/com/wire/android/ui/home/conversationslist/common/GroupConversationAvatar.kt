@@ -47,7 +47,7 @@ fun GroupConversationAvatar(
     Box(
         modifier = modifier
             .padding(padding)
-            .size(size + borderWidth * 2)  // border exceeds the size to keep sizes consistent with UserProfileAvatar
+            .size(size + borderWidth * 2) // border exceeds the size to keep sizes consistent with UserProfileAvatar
             .border(color = borderColor, width = borderWidth, shape = RoundedCornerShape(cornerRadius + borderWidth))
             .padding(borderWidth)
             .background(color = color, shape = RoundedCornerShape(cornerRadius))

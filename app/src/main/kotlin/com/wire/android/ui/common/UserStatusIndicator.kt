@@ -49,8 +49,6 @@ fun UserStatusIndicator(
     }
 }
 
-
-
 @Composable
 private fun AvailableDot(
     modifier: Modifier = Modifier,
@@ -108,7 +106,7 @@ private fun AwayDot(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewAvailable() = WireTheme() {
+fun PreviewAvailable() = WireTheme {
     Box(modifier = Modifier.background(colorsScheme().background)) {
         UserStatusIndicator(UserAvailabilityStatus.AVAILABLE, borderColor = colorsScheme().surfaceVariant)
     }

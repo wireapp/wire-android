@@ -53,7 +53,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -83,7 +82,6 @@ import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -100,7 +98,6 @@ import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
@@ -285,15 +282,9 @@ fun OtherProfileScreenContent(
     }
     val initialPage = 0
     val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { tabItems.size })
-    val lazyListStates = OtherUserProfileTabItem.values().associateWith { rememberLazyListState() }
+    val lazyListStates = OtherUserProfileTabItem.entries.associateWith { rememberLazyListState() }
     val currentTabState by remember(state, pagerState) {
         derivedStateOf { if (state.isDataLoading) 0 else pagerState.calculateCurrentTab() }
-    }
-    val maxBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
-    val tabBarElevationState by remember(tabItems, lazyListStates, currentTabState) {
-        derivedStateOf {
-            lazyListStates[tabItems[currentTabState]]?.topBarElevation(maxBarElevation) ?: 0.dp
-        }
     }
 
     if (!requestInProgress) {
@@ -305,11 +296,11 @@ fun OtherProfileScreenContent(
     }
 
     CollapsingTopBarScaffold(
-        topBarHeader = { elevation ->
+        topBarHeader = {
             TopBarHeader(
                 state = state,
                 navigationIconType = navigationIconType,
-                elevation = elevation,
+                elevation = dimensions().spacing0x, // CollapsingTopBarScaffold already manages elevation
                 onNavigateBack = navigateBack,
                 openConversationBottomSheet = openConversationBottomSheet
             )
@@ -326,12 +317,12 @@ fun OtherProfileScreenContent(
             TopBarFooter(
                 state = state,
                 pagerState = pagerState,
-                tabBarElevation = tabBarElevationState,
                 tabItems = tabItems,
                 currentTab = currentTabState,
                 scope = scope
             )
         },
+        contentLazyListState = lazyListStates[tabItems[currentTabState]],
         content = {
             Content(
                 state = state,
@@ -348,12 +339,11 @@ fun OtherProfileScreenContent(
         bottomBar = {
             ContentFooter(
                 state,
-                maxBarElevation,
                 onIgnoreConnectionRequest,
                 onOpenConversation
             )
         },
-        isSwipeable = state.connectionState != ConnectionState.BLOCKED
+        collapsingEnabled = state.connectionState != ConnectionState.BLOCKED
     )
 
     WireModalSheetLayout(
@@ -475,7 +465,6 @@ private fun TopBarCollapsing(
 private fun TopBarFooter(
     state: OtherUserProfileState,
     pagerState: PagerState,
-    tabBarElevation: Dp,
     tabItems: List<OtherUserProfileTabItem>,
     currentTab: Int,
     scope: CoroutineScope
@@ -486,17 +475,11 @@ private fun TopBarFooter(
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
-            Surface(
-                shadowElevation = tabBarElevation,
-                color = MaterialTheme.wireColorScheme.background
-            ) {
-                WireTabRow(
-                    tabs = tabItems,
-                    selectedTabIndex = currentTab,
-                    onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                    divider = {} // no divider
-                )
-            }
+            WireTabRow(
+                tabs = tabItems,
+                selectedTabIndex = currentTab,
+                onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+            )
         }
     }
 }
@@ -578,7 +561,6 @@ private fun Content(
 @Composable
 fun ContentFooter(
     state: OtherUserProfileState,
-    maxBarElevation: Dp,
     onIgnoreConnectionRequest: (String) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit = {}
 ) {
@@ -590,7 +572,7 @@ fun ContentFooter(
         // TODO show open conversation button for service bots after AR-2135
         if (!state.isMetadataEmpty() && state.membership != Membership.Service && !state.isTemporaryUser()) {
             Surface(
-                shadowElevation = maxBarElevation,
+                shadowElevation = dimensions().bottomNavigationShadowElevation,
                 color = MaterialTheme.wireColorScheme.background
             ) {
                 Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {

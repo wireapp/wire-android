@@ -46,11 +46,10 @@ fun WhatsNewScreen(
     homeStateHolder: HomeStateHolder,
     whatsNewViewModel: WhatsNewViewModel = hiltViewModel()
 ) {
-    val lazyListState: LazyListState = rememberLazyListState()
     val context = LocalContext.current
     WhatsNewScreenContent(
         state = whatsNewViewModel.state,
-        lazyListState = lazyListState,
+        lazyListState = homeStateHolder.currentLazyListState,
         onItemClicked = remember {
             {
                 it.direction.handleNavigation(

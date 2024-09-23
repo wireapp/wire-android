@@ -420,7 +420,7 @@ private fun OngoingCallContent(
                         FloatingSelfUserTile(
                             modifier = Modifier.align(Alignment.TopEnd),
                             contentHeight = this@BoxWithConstraints.maxHeight,
-                            contentWidth = this@BoxWithConstraints.constraints.maxWidth.toFloat(),
+                            contentWidth = this@BoxWithConstraints.maxWidth,
                             participant = participants.first(),
                             onSelfUserVideoPreviewCreated = setVideoPreview,
                             onClearSelfUserVideoPreview = clearVideoPreview

@@ -19,6 +19,8 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -79,6 +81,7 @@ fun ConversationRouterHomeBridge(
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     conversationListViewModel: ConversationListViewModel = hiltViewModel(),
     conversationCallListViewModel: ConversationCallListViewModel = hiltViewModel(),
+    lazyListState: LazyListState = rememberLazyListState(),
 ) {
     var currentConversationOptionNavigation by remember {
         mutableStateOf<ConversationOptionNavigation>(ConversationOptionNavigation.Home)
@@ -182,7 +185,8 @@ fun ConversationRouterHomeBridge(
                         conversationListCallState = conversationCallListViewModel.conversationListCallState,
                         dismissJoinCallAnywayDialog = conversationCallListViewModel::dismissJoinCallAnywayDialog,
                         joinCallAnyway = conversationCallListViewModel::joinAnyway,
-                        joinOngoingCall = conversationCallListViewModel::joinOngoingCall
+                        joinOngoingCall = conversationCallListViewModel::joinOngoingCall,
+                        lazyListState = lazyListState,
                     )
 
                 ConversationItemType.SEARCH -> {
@@ -196,7 +200,8 @@ fun ConversationRouterHomeBridge(
                         onJoinCall = {
                             conversationCallListViewModel.joinOngoingCall(it, onJoinedCall)
                         },
-                        onAudioPermissionPermanentlyDenied = { }
+                        onAudioPermissionPermanentlyDenied = { },
+                        lazyListState = lazyListState,
                     )
                 }
             }

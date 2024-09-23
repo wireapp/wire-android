@@ -137,7 +137,6 @@ private fun MessageDetailsScreenContent(
                     selectedTabIndex = currentTabState,
                     onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
                     modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
-                    divider = {} // no divider
                 )
             }
         },

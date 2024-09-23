@@ -61,15 +61,16 @@ fun ArchiveScreen(homeStateHolder: HomeStateHolder) {
             navigator = navigator,
             conversationItemType = ConversationItemType.ALL_CONVERSATIONS,
             searchBarState = searchBarState,
-            conversationsSource = ConversationsSource.ARCHIVE
+            conversationsSource = ConversationsSource.ARCHIVE,
+            lazyListState = currentLazyListState,
         )
     }
 }
 
 @Composable
-fun ArchivedConversationsEmptyStateScreen() {
+fun ArchivedConversationsEmptyStateScreen(modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally

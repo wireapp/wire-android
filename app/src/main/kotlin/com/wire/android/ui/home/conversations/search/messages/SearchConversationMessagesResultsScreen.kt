@@ -18,6 +18,8 @@
 package com.wire.android.ui.home.conversations.search.messages
 
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
@@ -40,9 +42,10 @@ fun SearchConversationMessagesResultsScreen(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     onMessageClick: (messageId: String) -> Unit,
     modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
     searchQuery: String = ""
 ) {
-    LazyColumn(modifier = modifier) {
+    LazyColumn(state = lazyListState, modifier = modifier) {
         items(
             count = lazyPagingMessages.itemCount,
             key = lazyPagingMessages.itemKey { it.header.messageId },

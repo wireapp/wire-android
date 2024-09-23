@@ -251,6 +251,7 @@ formatting:
     MaximumLineLength:
         active: true
         maxLineLength: 140
+        ignoreAnnotated: ['Test']
     ModifierOrdering:
         active: true
         autoCorrect: true
@@ -530,6 +531,7 @@ style:
     MaxLineLength:
         active: true
         maxLineLength: 140
+        ignoreAnnotated: ['Test']
         excludePackageStatements: true
         excludeImportStatements: true
         excludeCommentStatements: false

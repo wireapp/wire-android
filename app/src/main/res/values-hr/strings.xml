@@ -473,7 +473,6 @@
     <!-- Search Messages -->
     <!-- Conversation Media -->
     <!-- Search Contact-->
-    <string name="label_contacts">Kontakti</string>
     <string name="label_new_group">Nova Grupa</string>
     <string name="label_new_conversation">Novi razgovor</string>
     <string name="label_learn_more_searching_user">Saznaj više</string>
@@ -603,4 +602,5 @@
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
+    <!-- Call Feedback Dialog -->
 </resources>

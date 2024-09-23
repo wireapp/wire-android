@@ -17,11 +17,14 @@
  */
 package com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink
 
+import androidx.compose.foundation.text.input.TextFieldState
 import com.wire.kalium.logic.CoreFailure
 
 data class CreatePasswordGuestLinkState(
     val isLoading: Boolean = false,
     val error: CoreFailure? = null,
-    val isPasswordValid: Boolean = false,
-    val isLinkCreationSuccessful: Boolean = false
+    val invalidPassword: Boolean = false,
+    val isLinkCreationSuccessful: Boolean = false,
+    val passwordTextState: TextFieldState = TextFieldState(),
+    val confirmPasswordTextState: TextFieldState = TextFieldState()
 )

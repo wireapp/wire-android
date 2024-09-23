@@ -32,7 +32,6 @@ fun RegularMessageItemLeading(
     header: MessageHeader,
     showAuthor: Boolean,
     userAvatarData: UserAvatarData,
-    isContentClickable: Boolean,
     onOpenProfile: (String) -> Unit
 ) {
     val isProfileRedirectEnabled =
@@ -46,7 +45,7 @@ fun RegularMessageItemLeading(
         // because avatar takes start padding we don't need to add padding to message item
         UserProfileAvatar(
             avatarData = userAvatarData,
-            clickable = if (isContentClickable) null else avatarClickable,
+            clickable = avatarClickable,
             avatarBorderSize = dimensions().spacing2x,
             type = header.guestExpiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithoutIndicators
         )

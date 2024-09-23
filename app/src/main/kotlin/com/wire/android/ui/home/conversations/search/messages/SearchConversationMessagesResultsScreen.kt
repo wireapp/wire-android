@@ -25,8 +25,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
@@ -58,22 +58,15 @@ fun SearchConversationMessagesResultsScreen(
                         conversationDetailsData = ConversationDetailsData.None(null),
                         searchQuery = searchQuery,
                         audioState = null,
-                        onLongClicked = { },
-                        onAssetMessageClicked = { },
-                        onAudioClick = { },
-                        onChangeAudioPosition = { _, _ -> },
-                        onImageMessageClicked = { _, _ -> },
-                        onOpenProfile = { },
-                        onReactionClicked = { _, _ -> },
-                        onResetSessionClicked = { _, _ -> },
+                        clickActions = MessageClickActions.FullItem(
+                            onFullMessageLongClicked = null,
+                            onFullMessageClicked = onMessageClick,
+                        ),
                         onSelfDeletingMessageRead = { },
-                        isContentClickable = true,
-                        onMessageClick = onMessageClick,
-                        defaultBackgroundColor = colorsScheme().backgroundVariant,
                         shouldDisplayMessageStatus = false,
                         shouldDisplayFooter = false,
-                        onReplyClickable = null,
-                        swipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable
+                        swipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable,
+                        failureInteractionAvailable = false,
                     )
                 }
 

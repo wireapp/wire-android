@@ -68,10 +68,10 @@ fun Modifier.interceptCombinedClickable(
             } catch (_: PointerEventTimeoutCancellationException) {
                 // up or cancel event did not happen within the longPressTimeout limit
                 if (onLongPress != null) {
-                    // animate long press
-                    interactionSource.tryEmit(press)
                     // handle long press
                     onLongPress()
+                    // animate long press
+                    interactionSource.tryEmit(press)
                     // wait and consume the up or cancel gesture
                     waitForUpOrCancellation(pass = pass)?.consume()
                 } else if (onClick != null) {

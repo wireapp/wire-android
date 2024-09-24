@@ -259,6 +259,8 @@ class AudioMediaRecorder @Inject constructor(
             var sawOutputEOS = false
 
             var retryCount = 0
+            var totalBytesRead = 0L
+            val bytesPerSample = BITS_PER_SAMPLE / BITS_PER_BYTE // 16 / 8 = 2
 
             while (!sawOutputEOS && retryCount < MAX_RETRY_COUNT) {
                 if (!sawInputEOS) {
@@ -272,7 +274,11 @@ class AudioMediaRecorder @Inject constructor(
                             codec.queueInputBuffer(inputBufferIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
                             sawInputEOS = true
                         } else {
-                            val presentationTimeUs = System.nanoTime() / NANOSECONDS_IN_MICROSECOND
+                            totalBytesRead += sampleSize
+
+                            val totalSamplesRead = totalBytesRead / bytesPerSample
+                            val presentationTimeUs = (totalSamplesRead * 1_000_000L) / SAMPLING_RATE
+
                             codec.queueInputBuffer(inputBufferIndex, 0, sampleSize, presentationTimeUs, 0)
                         }
                     }
@@ -392,7 +398,6 @@ class AudioMediaRecorder @Inject constructor(
 
         private const val BIT_RATE = 64000
         private const val TIMEOUT_US: Long = 10000
-        const val NANOSECONDS_IN_MICROSECOND = 1000
         const val MAX_RETRY_COUNT = 100
         const val RETRY_DELAY_IN_MILLIS = 100L
     }

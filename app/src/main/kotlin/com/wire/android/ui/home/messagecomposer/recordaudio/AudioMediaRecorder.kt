@@ -26,6 +26,7 @@ import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.media.MediaRecorder
+import android.os.ParcelFileDescriptor
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.fileDateTime
@@ -224,10 +225,17 @@ class AudioMediaRecorder @Inject constructor(
         var codec: MediaCodec? = null
         var muxer: MediaMuxer? = null
         var fileInputStream: FileInputStream? = null
+        var parcelFileDescriptor: ParcelFileDescriptor? = null
 
         try {
             val inputFile = File(inputFilePath)
             fileInputStream = FileInputStream(inputFile)
+
+            val outputFile = mp4OutputPath?.toFile()
+            parcelFileDescriptor = ParcelFileDescriptor.open(
+                outputFile,
+                ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
+            )
 
             val mediaExtractor = MediaExtractor()
             mediaExtractor.setDataSource(inputFilePath)
@@ -245,7 +253,7 @@ class AudioMediaRecorder @Inject constructor(
             codec.start()
 
             val bufferInfo = MediaCodec.BufferInfo()
-            muxer = MediaMuxer(mp4OutputPath.toString(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+            muxer = MediaMuxer(parcelFileDescriptor.fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
             var trackIndex = -1
             var sawInputEOS = false
             var sawOutputEOS = false
@@ -347,6 +355,12 @@ class AudioMediaRecorder @Inject constructor(
                 codec?.release()
             } catch (e: IllegalStateException) {
                 appLogger.e("Could not stop or release MediaCodec: ${e.message}", throwable = e)
+            }
+
+            try {
+                parcelFileDescriptor?.close()
+            } catch (e: IOException) {
+                appLogger.e("Could not close ParcelFileDescriptor: ${e.message}", throwable = e)
             }
         }
     }

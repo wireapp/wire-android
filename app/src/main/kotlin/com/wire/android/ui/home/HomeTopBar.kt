@@ -50,7 +50,7 @@ fun HomeTopBar(
             UserProfileAvatar(
                 avatarData = userAvatarData,
                 clickable = remember { Clickable(enabled = true) { onNavigateToSelfUserProfile() } },
-                type = UserProfileAvatarType.WithIndicators.LegalHold(legalHoldIndicatorVisible = withLegalHoldIndicator),
+                type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = withLegalHoldIndicator),
             )
         },
         elevation = elevation,

@@ -42,6 +42,10 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
         )
             .enableTemporaryDeviceIdMode() // Nothing is sent until a proper ID is placed
             .setLoggingEnabled(analyticsSettings.enableDebugLogging)
+            .also {
+                it.apm.enableAppStartTimeTracking()
+                it.apm.enableForegroundBackgroundTracking()
+            }
 
         Countly.sharedInstance().init(countlyConfig)
 
@@ -107,4 +111,10 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
     }
 
     override fun isAnalyticsInitialized(): Boolean = Countly.sharedInstance().isInitialized
+
+    override fun applicationOnCreate() {
+        if (isConfigured) return
+
+        Countly.applicationOnCreate()
+    }
 }

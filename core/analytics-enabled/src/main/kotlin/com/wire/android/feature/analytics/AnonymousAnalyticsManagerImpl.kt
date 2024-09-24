@@ -170,4 +170,11 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
             Log.w(TAG, "Calling isAnalyticsInitialized with a null recorder.")
             false
         }
+
+    override fun applicationOnCreate() {
+        if (!isAnonymousUsageDataEnabled) return
+
+        anonymousAnalyticsRecorder?.applicationOnCreate()
+            ?: Log.w(TAG, "Calling applicationOnCreate with a null recorder.")
+    }
 }

@@ -50,4 +50,6 @@ interface AnonymousAnalyticsRecorder {
     )
 
     fun isAnalyticsInitialized(): Boolean
+
+    fun applicationOnCreate()
 }

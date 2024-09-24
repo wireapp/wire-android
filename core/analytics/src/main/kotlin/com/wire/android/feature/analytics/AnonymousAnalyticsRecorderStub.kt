@@ -47,4 +47,5 @@ open class AnonymousAnalyticsRecorderStub : AnonymousAnalyticsRecorder {
     ) = Unit
 
     override fun isAnalyticsInitialized(): Boolean = false
+    override fun applicationOnCreate() = Unit
 }

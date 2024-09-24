@@ -48,5 +48,8 @@ interface AnonymousAnalyticsManager {
 
     fun onStop(activity: Activity)
 
+    fun applicationOnCreate()
+
     fun isAnalyticsInitialized(): Boolean
+
 }

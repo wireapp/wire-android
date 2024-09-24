@@ -45,5 +45,7 @@ open class AnonymousAnalyticsManagerStub : AnonymousAnalyticsManager {
 
     override fun onStop(activity: Activity) = Unit
 
+    override fun applicationOnCreate() = Unit
+
     override fun isAnalyticsInitialized(): Boolean = false
 }

@@ -56,7 +56,7 @@
             "logging_enabled": true,
             "application_is_private_build": true,
             "development_api_enabled": false,
-            "mls_support_enabled": false,
+            "mls_support_enabled": true,
             "encrypt_proteus_storage": true
         },
         "internal": {
@@ -93,8 +93,8 @@
     "encrypt_proteus_storage": false,
     "self_deleting_messages": true,
     "wipe_on_cookie_invalid": false,
-    "wipe_on_device_removal": false,
-    "wipe_on_rooted_device": false,
+    "wipe_on_device_removal": true,
+    "wipe_on_rooted_device": true,
     "websocket_enabled_by_default": false,
     "firebase_push_sender_id": "782078216207",
     "firebase_app_id": "1:782078216207:android:d3db2443512d2055",

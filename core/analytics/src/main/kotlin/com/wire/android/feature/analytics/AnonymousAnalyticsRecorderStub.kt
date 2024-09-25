@@ -48,4 +48,6 @@ open class AnonymousAnalyticsRecorderStub : AnonymousAnalyticsRecorder {
 
     override fun isAnalyticsInitialized(): Boolean = false
     override fun applicationOnCreate() = Unit
+    override fun recordView(screen: String) = Unit
+    override fun stopView(screen: String) = Unit
 }

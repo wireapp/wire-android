@@ -117,4 +117,12 @@ class AnonymousAnalyticsRecorderImpl : AnonymousAnalyticsRecorder {
 
         Countly.applicationOnCreate()
     }
+
+    override fun recordView(screen: String) {
+        Countly.sharedInstance().views().startAutoStoppedView(screen)
+    }
+
+    override fun stopView(screen: String) {
+        Countly.sharedInstance().views().stopViewWithName(screen)
+    }
 }

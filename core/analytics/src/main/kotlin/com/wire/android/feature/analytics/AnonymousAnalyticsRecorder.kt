@@ -52,4 +52,8 @@ interface AnonymousAnalyticsRecorder {
     fun isAnalyticsInitialized(): Boolean
 
     fun applicationOnCreate()
+
+    fun recordView(screen: String)
+
+    fun stopView(screen: String)
 }

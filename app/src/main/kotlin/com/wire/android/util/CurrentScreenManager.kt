@@ -27,6 +27,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.wire.android.appLogger
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.navigation.toDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.CreateAccountDetailsScreenDestination
@@ -46,6 +47,7 @@ import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -120,12 +122,19 @@ class CurrentScreenManager @Inject constructor(
     }
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
+        val current = currentScreenState.value.toString()
+        appLogger.i("${TAG}: [stop view]: $current -> ${destination.label}")
+        AnonymousAnalyticsManagerImpl.stopView(current)
         val currentItem = destination.toDestination()
         currentScreenState.value = CurrentScreen.fromDestination(
             currentItem,
             arguments,
             isApplicationVisibleFlow.value
         )
+
+        val newDest = currentScreenState.value.toString()
+        appLogger.i("${TAG}: [record view]: $newDest -> ${destination.label}")
+        AnonymousAnalyticsManagerImpl.recordView(newDest)
     }
 
     companion object {
@@ -136,28 +145,32 @@ class CurrentScreenManager @Inject constructor(
 sealed class CurrentScreen {
 
     // Home Screen is being displayed
-    object Home : CurrentScreen()
+    data object Home : CurrentScreen()
 
     // Some Conversation is opened
-    data class Conversation(val id: ConversationId) : CurrentScreen()
+    data class Conversation(val id: ConversationId) : CurrentScreen() {
+        override fun toString(): String = "Conversation(${id.toString().obfuscateId()})"
+    }
 
     // Another User Profile Screen is opened
-    data class OtherUserProfile(val id: ConversationId) : CurrentScreen()
+    data class OtherUserProfile(val id: ConversationId) : CurrentScreen() {
+        override fun toString(): String = "OtherUserProfile(${id.toString().obfuscateId()})"
+    }
 
     // Import media screen is opened
-    object ImportMedia : CurrentScreen()
+    data object ImportMedia : CurrentScreen()
 
     // SelfDevices screen is opened
-    object DeviceManager : CurrentScreen()
+    data object DeviceManager : CurrentScreen()
 
     // Auth related screen is opened
-    object AuthRelated : CurrentScreen()
+    data object AuthRelated : CurrentScreen()
 
     // Some other screen is opened, kinda "do nothing screen"
-    object SomeOther : CurrentScreen()
+    data object SomeOther : CurrentScreen()
 
     // App is in background (screen is turned off, or covered by another app), non of the screens is visible
-    object InBackground : CurrentScreen()
+    data object InBackground : CurrentScreen()
 
     companion object {
         @Suppress("ComplexMethod")

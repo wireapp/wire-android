@@ -171,6 +171,24 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
             false
         }
 
+    override fun recordView(screen: String) {
+        coroutineScope.launch {
+            mutex.withLock {
+                if (!isAnonymousUsageDataEnabled) return@withLock
+                anonymousAnalyticsRecorder?.recordView(screen)
+            }
+        }
+    }
+
+    override fun stopView(screen: String) {
+        coroutineScope.launch {
+            mutex.withLock {
+                if (!isAnonymousUsageDataEnabled) return@withLock
+                anonymousAnalyticsRecorder?.stopView(screen)
+            }
+        }
+    }
+
     override fun applicationOnCreate() {
         if (!isAnonymousUsageDataEnabled) return
 

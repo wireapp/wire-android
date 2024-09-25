@@ -226,6 +226,7 @@ class AudioMediaRecorder @Inject constructor(
         var muxer: MediaMuxer? = null
         var fileInputStream: FileInputStream? = null
         var parcelFileDescriptor: ParcelFileDescriptor? = null
+        var success = true
 
         try {
             val inputFile = File(inputFilePath)
@@ -259,8 +260,8 @@ class AudioMediaRecorder @Inject constructor(
             var sawOutputEOS = false
 
             var retryCount = 0
-            var totalBytesRead = 0L
-            val bytesPerSample = BITS_PER_SAMPLE / BITS_PER_BYTE // 16 / 8 = 2
+            var presentationTimeUs = 0L
+            val bytesPerSample = (BITS_PER_SAMPLE / BITS_PER_BYTE) * AUDIO_CHANNELS
 
             while (!sawOutputEOS && retryCount < MAX_RETRY_COUNT) {
                 if (!sawInputEOS) {
@@ -274,12 +275,11 @@ class AudioMediaRecorder @Inject constructor(
                             codec.queueInputBuffer(inputBufferIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
                             sawInputEOS = true
                         } else {
-                            totalBytesRead += sampleSize
-
-                            val totalSamplesRead = totalBytesRead / bytesPerSample
-                            val presentationTimeUs = (totalSamplesRead * 1_000_000L) / SAMPLING_RATE
-
+                            val numSamples = sampleSize / bytesPerSample
+                            val bufferDurationUs = (numSamples * MICROSECONDS_PER_SECOND) / SAMPLING_RATE
                             codec.queueInputBuffer(inputBufferIndex, 0, sampleSize, presentationTimeUs, 0)
+
+                            presentationTimeUs += bufferDurationUs
                         }
                     }
                 }
@@ -298,8 +298,9 @@ class AudioMediaRecorder @Inject constructor(
                         val outputBuffer = codec.getOutputBuffer(outputBufferIndex)
 
                         if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
-                            codec.releaseOutputBuffer(outputBufferIndex, false)
-                            continue
+//                            codec.releaseOutputBuffer(outputBufferIndex, false)
+//                            continue
+                            bufferInfo.size = 0
                         }
 
                         if (bufferInfo.size != 0 && outputBuffer != null) {
@@ -329,46 +330,43 @@ class AudioMediaRecorder @Inject constructor(
             }
             if (retryCount >= MAX_RETRY_COUNT) {
                 appLogger.e("Reached maximum retries without receiving output from codec.")
-                return@withContext false
+                success = false
             }
-
-            true
-        } catch (e: IllegalStateException) {
+        } catch (e: Exception) {
             appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
-            false
-        } catch (e: IOException) {
-            appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
-            false
-        } catch (e: NullPointerException) {
-            appLogger.e("Could not convert wav to mp4: ${e.message}", throwable = e)
-            false
+            success = false
         } finally {
             try {
                 fileInputStream?.close()
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 appLogger.e("Could not close FileInputStream: ${e.message}", throwable = e)
+                success = false
             }
 
             try {
                 muxer?.stop()
                 muxer?.release()
-            } catch (e: IllegalStateException) {
+            } catch (e: Exception) {
                 appLogger.e("Could not stop or release MediaMuxer: ${e.message}", throwable = e)
+                success = false
             }
 
             try {
                 codec?.stop()
                 codec?.release()
-            } catch (e: IllegalStateException) {
+            } catch (e: Exception) {
                 appLogger.e("Could not stop or release MediaCodec: ${e.message}", throwable = e)
+                success = false
             }
 
             try {
                 parcelFileDescriptor?.close()
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 appLogger.e("Could not close ParcelFileDescriptor: ${e.message}", throwable = e)
+                success = false
             }
         }
+        success
     }
 
     companion object {
@@ -398,6 +396,7 @@ class AudioMediaRecorder @Inject constructor(
 
         private const val BIT_RATE = 64000
         private const val TIMEOUT_US: Long = 10000
+        const val MICROSECONDS_PER_SECOND = 1_000_000L
         const val MAX_RETRY_COUNT = 100
         const val RETRY_DELAY_IN_MILLIS = 100L
     }

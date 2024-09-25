@@ -119,8 +119,8 @@ fun ConversationMediaScreen(
         },
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         audioMessagesState = conversationMessagesViewModel.conversationViewState.audioMessagesState,
-        onAudioItemClicked = conversationMessagesViewModel::audioClick,
-        onChangeAudioPosition = conversationMessagesViewModel::changeAudioPosition,
+        onPlayAudioItemClicked = conversationMessagesViewModel::audioClick,
+        onAudioItemPositionChanged = conversationMessagesViewModel::changeAudioPosition,
         onOpenAssetOptions = remember { onOpenAssetOptions },
     )
 
@@ -172,8 +172,8 @@ private fun Content(
     audioMessagesState: PersistentMap<String, AudioState> = persistentMapOf(),
     initialPage: ConversationMediaScreenTabItem = ConversationMediaScreenTabItem.PICTURES,
     onImageFullScreenMode: (conversationId: ConversationId, messageId: String, isSelfAsset: Boolean) -> Unit = { _, _, _ -> },
-    onAudioItemClicked: (String) -> Unit = {},
-    onChangeAudioPosition: (messageId: String, position: Int) -> Unit = { _, _ -> },
+    onPlayAudioItemClicked: (String) -> Unit = {},
+    onAudioItemPositionChanged: (String, Int) -> Unit = { _, _ -> },
     onAssetItemClicked: (String) -> Unit = {},
     onOpenAssetOptions: (messageId: String, isMyMessage: Boolean) -> Unit = { _, _ -> },
     onNavigationPressed: () -> Unit = {},
@@ -226,8 +226,8 @@ private fun Content(
                         groupedAssetMessageList = state.assetMessages,
                         audioMessagesState = audioMessagesState,
                         assetStatuses = state.assetStatuses,
-                        onChangeAudioPosition = onChangeAudioPosition,
-                        onAudioItemClicked = onAudioItemClicked,
+                        onPlayAudioItemClicked = onPlayAudioItemClicked,
+                        onAudioItemPositionChanged = onAudioItemPositionChanged,
                         onAssetItemClicked = onAssetItemClicked,
                         onItemLongClicked = onOpenAssetOptions
                     )
@@ -280,10 +280,6 @@ data class AssetOptionsData(val messageId: String, val isMyMessage: Boolean)
 fun PreviewConversationMediaScreenEmptyContent() = WireTheme {
     Content(
         state = ConversationAssetMessagesViewState(),
-        onImageFullScreenMode = { _, _, _ -> },
-        onAudioItemClicked = { },
-        onAssetItemClicked = { },
-        onOpenAssetOptions = { _, _ -> },
     )
 }
 
@@ -297,10 +293,6 @@ fun PreviewConversationMediaScreenImagesContent() = WireTheme {
             assetStatuses = assetStatuses,
         ),
         initialPage = ConversationMediaScreenTabItem.PICTURES,
-        onImageFullScreenMode = { _, _, _ -> },
-        onAudioItemClicked = { },
-        onAssetItemClicked = { },
-        onOpenAssetOptions = { _, _ -> },
     )
 }
 
@@ -315,10 +307,6 @@ fun PreviewConversationMediaScreenFilesContent() = WireTheme {
         ),
         audioMessagesState = audioStatuses,
         initialPage = ConversationMediaScreenTabItem.FILES,
-        onImageFullScreenMode = { _, _, _ -> },
-        onAudioItemClicked = { },
-        onAssetItemClicked = { },
-        onOpenAssetOptions = { _, _ -> },
     )
 }
 

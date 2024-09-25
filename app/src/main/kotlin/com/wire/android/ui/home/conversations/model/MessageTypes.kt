@@ -83,7 +83,6 @@ internal fun MessageBody(
     buttonList: PersistentList<MessageButton>?,
     onLinkClick: (String) -> Unit,
     searchQuery: String = "",
-    onLongClick: (() -> Unit)? = null,
     clickable: Boolean = true
 ) {
     val (displayMentions, text) = messageBody?.message?.let {
@@ -99,7 +98,6 @@ internal fun MessageBody(
         searchQuery = searchQuery,
         mentions = displayMentions,
         actions = NodeActions(
-            onLongClick = onLongClick,
             onOpenProfile = onOpenProfile,
             onLinkClick = onLinkClick
         )

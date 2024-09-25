@@ -21,7 +21,6 @@ package com.wire.android.ui.home.newconversation
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
-import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus

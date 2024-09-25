@@ -298,8 +298,6 @@ class AudioMediaRecorder @Inject constructor(
                         val outputBuffer = codec.getOutputBuffer(outputBufferIndex)
 
                         if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
-//                            codec.releaseOutputBuffer(outputBufferIndex, false)
-//                            continue
                             bufferInfo.size = 0
                         }
 

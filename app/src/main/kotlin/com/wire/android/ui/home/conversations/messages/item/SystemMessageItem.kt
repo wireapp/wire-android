@@ -64,7 +64,7 @@ fun SystemMessageItem(
     message: UIMessage.System,
     modifier: Modifier = Modifier,
     initiallyExpanded: Boolean = false,
-    isInteractionAvailable: Boolean = true,
+    failureInteractionAvailable: Boolean = true,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
 ) {
@@ -132,7 +132,7 @@ fun SystemMessageItem(
                 if (message.sendingFailed) {
                     MessageSendFailureWarning(
                         messageStatus = message.header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
-                        isInteractionAvailable = isInteractionAvailable,
+                        isInteractionAvailable = failureInteractionAvailable,
                         onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId, message.conversationId) } },
                         onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
                     )

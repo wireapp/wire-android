@@ -69,10 +69,10 @@ fun AudioMessage(
     currentPositionInMs: Int,
     onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
-    onAudioMessageLongClick: (() -> Unit)?
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .padding(top = dimensions().spacing4x)
             .background(
                 color = MaterialTheme.wireColorScheme.onPrimary,
@@ -94,7 +94,6 @@ fun AudioMessage(
                 currentPositionInMs = currentPositionInMs,
                 onPlayButtonClick = onPlayButtonClick,
                 onSliderPositionChange = onSliderPositionChange,
-                onAudioMessageLongClick = onAudioMessageLongClick
             )
         }
     }
@@ -107,10 +106,10 @@ fun RecordedAudioMessage(
     currentPositionInMs: Int,
     onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
-    onAudioMessageLongClick: (() -> Unit)? = null
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = Modifier.apply {
+        modifier = modifier.apply {
             padding(top = dimensions().spacing4x)
             padding(dimensions().spacing8x)
         }
@@ -122,20 +121,18 @@ fun RecordedAudioMessage(
             currentPositionInMs = currentPositionInMs,
             onPlayButtonClick = onPlayButtonClick,
             onSliderPositionChange = onSliderPositionChange,
-            onAudioMessageLongClick = onAudioMessageLongClick
         )
     }
 }
 
 @Composable
 private fun SuccessfulAudioMessage(
-    modifier: Modifier = Modifier,
     audioMediaPlayingState: AudioMediaPlayingState,
     totalTimeInMs: AudioState.TotalTimeInMs,
     currentPositionInMs: Int,
     onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
-    onAudioMessageLongClick: (() -> Unit)? = null
+    modifier: Modifier = Modifier,
 ) {
     val audioDuration by remember(currentPositionInMs) {
         mutableStateOf(
@@ -146,8 +143,7 @@ private fun SuccessfulAudioMessage(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(dimensions().audioMessageHeight)
-            .clickable(Clickable(enabled = onAudioMessageLongClick != null, onLongClick = onAudioMessageLongClick)),
+            .height(dimensions().audioMessageHeight),
         verticalAlignment = Alignment.CenterVertically
     ) {
         WireSecondaryIconButton(

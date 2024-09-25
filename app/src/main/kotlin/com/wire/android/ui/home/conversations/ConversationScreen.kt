@@ -87,7 +87,6 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.mapper.MessageDateTimeGroup
 import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -139,6 +138,7 @@ import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBack
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
+import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
@@ -1001,22 +1001,24 @@ private fun ConversationScreenContent(
                 audioMessagesState = audioMessagesState,
                 assetStatuses = assetStatuses,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
-                onAssetItemClicked = onAssetItemClicked,
-                onAudioItemClicked = onAudioItemClicked,
-                onChangeAudioPosition = onChangeAudioPosition,
-                onImageFullScreenMode = onImageFullScreenMode,
-                onOpenProfile = onOpenProfile,
-                onReactionClicked = onReactionClicked,
-                onResetSessionClicked = onResetSessionClicked,
+                clickActions = MessageClickActions.Content(
+                    onFullMessageLongClicked = onShowEditingOptions,
+                    onProfileClicked = onOpenProfile,
+                    onReactionClicked = onReactionClicked,
+                    onAssetClicked = onAssetItemClicked,
+                    onPlayAudioClicked = onAudioItemClicked,
+                    onAudioPositionChanged = onChangeAudioPosition,
+                    onImageClicked = onImageFullScreenMode,
+                    onLinkClicked = onLinkClick,
+                    onReplyClicked = onNavigateToReplyOriginalMessage,
+                    onResetSessionClicked = onResetSessionClicked,
+                    onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+                    onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                ),
                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                onShowEditingOption = onShowEditingOptions,
                 onSwipedToReply = onSwipedToReply,
                 conversationDetailsData = conversationDetailsData,
-                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                onLinkClick = onLinkClick,
                 selectedMessageId = selectedMessageId,
-                onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow
             )
@@ -1077,23 +1079,12 @@ fun MessageList(
     audioMessagesState: PersistentMap<String, AudioState>,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     onUpdateConversationReadDate: (String) -> Unit,
-    onAssetItemClicked: (String) -> Unit,
-    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
-    onOpenProfile: (String) -> Unit,
-    onAudioItemClicked: (String) -> Unit,
-    onChangeAudioPosition: (String, Int) -> Unit,
-    onReactionClicked: (String, String) -> Unit,
-    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onShowEditingOption: (UIMessage.Regular) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
-    onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
-    onFailedMessageCancelClicked: (String) -> Unit,
-    onLinkClick: (String) -> Unit,
     selectedMessageId: String?,
-    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
     interactionAvailability: InteractionAvailability,
+    clickActions: MessageClickActions.Content,
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { }
 ) {
@@ -1201,27 +1192,11 @@ fun MessageList(
                         useSmallBottomPadding = useSmallBottomPadding,
                         audioState = audioMessagesState[message.header.messageId],
                         assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
-                        onAudioClick = onAudioItemClicked,
-                        onChangeAudioPosition = onChangeAudioPosition,
-                        onLongClicked = onShowEditingOption,
+                        clickActions = clickActions,
                         swipableMessageConfiguration = swipableConfiguration,
-                        onAssetMessageClicked = onAssetItemClicked,
-                        onImageMessageClicked = onImageFullScreenMode,
-                        onOpenProfile = onOpenProfile,
-                        onReactionClicked = onReactionClicked,
-                        onResetSessionClicked = onResetSessionClicked,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                        onLinkClick = onLinkClick,
-                        onReplyClickable = Clickable(
-                            enabled = true,
-                            onClick = {
-                                onNavigateToReplyOriginalMessage(message)
-                            }
-                        ),
                         isSelectedMessage = (message.header.messageId == selectedMessageId),
-                        isInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED
+                        failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED
                     )
 
                     val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1

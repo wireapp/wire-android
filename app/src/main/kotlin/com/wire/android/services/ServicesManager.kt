@@ -52,7 +52,7 @@ class ServicesManager @Inject constructor(
     init {
         scope.launch {
             callServiceEvents
-                .debounce { if (!it) 0L else DEBOUNCE_TIME } // debounce to avoid starting and stopping service too fast
+                .debounce { if (it) 0L else DEBOUNCE_TIME } // debounce to avoid starting and stopping service too fast
                 .distinctUntilChanged()
                 .collectLatest { shouldBeStarted ->
                     if (!shouldBeStarted) {
@@ -127,6 +127,6 @@ class ServicesManager @Inject constructor(
 
     companion object {
         @VisibleForTesting
-        internal const val DEBOUNCE_TIME = 200L
+        const val DEBOUNCE_TIME = 500L
     }
 }

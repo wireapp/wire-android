@@ -24,5 +24,6 @@ data class GroupOptionState(
     val isAllowGuestEnabled: Boolean = true,
     val isAllowServicesEnabled: Boolean = true,
     val isReadReceiptEnabled: Boolean = true,
-    val showAllowGuestsDialog: Boolean = false
+    val showAllowGuestsDialog: Boolean = false,
+    val isAllowServicesPossible: Boolean = true,
 )

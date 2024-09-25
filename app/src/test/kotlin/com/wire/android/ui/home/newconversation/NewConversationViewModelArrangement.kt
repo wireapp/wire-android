@@ -181,14 +181,6 @@ internal class NewConversationViewModelArrangement {
         ))
     }
 
-    fun withGuestEnabled(isGuestModeEnabled: Boolean) = apply {
-        groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = isGuestModeEnabled)
-    }
-
-    fun withServicesEnabled(areServicesEnabled: Boolean) = apply {
-        groupOptionsState = groupOptionsState.copy(isAllowServicesEnabled = areServicesEnabled)
-    }
-
     fun withDefaultProtocol(supportedProtocol: SupportedProtocol) = apply {
         every { getDefaultProtocol() } returns supportedProtocol
     }
@@ -198,7 +190,6 @@ internal class NewConversationViewModelArrangement {
         getSelfUser = getSelfUserUseCase,
         getDefaultProtocol = getDefaultProtocol
     ).also {
-        it.groupOptionsState = groupOptionsState
         it.createGroupState = createGroupState
     }
 }

@@ -34,6 +34,7 @@ data class GroupMetadataState(
     val mode: GroupNameMode = GroupNameMode.CREATION,
     val isSelfTeamMember: Boolean? = null,
     val isGroupCreatingAllowed: Boolean? = null,
+    val isServicesAllowed: Boolean = false
 ) {
     sealed interface NewGroupError {
         data object None : NewGroupError

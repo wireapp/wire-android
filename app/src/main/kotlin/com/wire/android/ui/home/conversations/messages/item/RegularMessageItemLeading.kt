@@ -23,8 +23,6 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserProfileAvatarType.WithIndicators
-import com.wire.android.ui.common.UserProfileAvatarType.WithoutIndicators
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.MessageHeader
 
 @Composable
@@ -46,8 +44,7 @@ fun RegularMessageItemLeading(
         UserProfileAvatar(
             avatarData = userAvatarData,
             clickable = avatarClickable,
-            avatarBorderSize = dimensions().spacing2x,
-            type = header.guestExpiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithoutIndicators
+            type = header.guestExpiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithIndicators.RegularUser(false)
         )
     }
 }

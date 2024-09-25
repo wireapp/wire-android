@@ -154,7 +154,7 @@ fun RegularMessageItem(
                 ),
             showAuthor = showAuthor,
             useSmallBottomPadding = useSmallBottomPadding,
-            fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize,
+            fullAvatarOuterPadding = dimensions().avatarClickablePadding,
             leading = {
                 RegularMessageItemLeading(
                     header = header,

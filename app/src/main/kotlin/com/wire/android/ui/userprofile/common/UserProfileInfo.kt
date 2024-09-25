@@ -148,6 +148,7 @@ fun UserProfileInfo(
             ) { (userAvatarData, showPlaceholderIfNoAsset) ->
                 UserProfileAvatar(
                     size = dimensions().avatarDefaultBigSize,
+                    temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,
                     avatarData = userAvatarData,
                     clickable = remember(editableState) {
                         Clickable(
@@ -340,7 +341,7 @@ private fun processUsername(userName: String, membership: Membership, expiresAt:
 }
 
 @Composable
-private fun ManageMemberButton(modifier: Modifier, onEditClick: () -> Unit) {
+private fun ManageMemberButton(onEditClick: () -> Unit, modifier: Modifier = Modifier) {
     IconButton(
         modifier = modifier,
         onClick = onEditClick,
@@ -349,7 +350,7 @@ private fun ManageMemberButton(modifier: Modifier, onEditClick: () -> Unit) {
 }
 
 @Composable
-private fun TeamInformation(modifier: Modifier, teamName: String) {
+private fun TeamInformation(teamName: String, modifier: Modifier = Modifier) {
     Text(
         modifier = modifier,
         text = teamName,

@@ -63,7 +63,7 @@ fun CollapsingFolderHeader(
     onClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     arrowWidth: Dp = dimensions().avatarDefaultSize,
-    arrowHorizontalPadding: Dp = dimensions().avatarClickablePadding + dimensions().avatarLegalHoldIndicatorBorderSize,
+    arrowHorizontalPadding: Dp = dimensions().avatarClickablePadding,
 ) {
     val arrowRotation: Float by animateFloatAsState(if (expanded) 180f else 90f, label = "CollapsingArrowRotationAnimation")
     Row(

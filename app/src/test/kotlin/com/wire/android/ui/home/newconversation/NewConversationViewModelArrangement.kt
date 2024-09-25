@@ -71,8 +71,6 @@ internal class NewConversationViewModelArrangement {
     @MockK
     lateinit var getDefaultProtocol: GetDefaultProtocolUseCase
 
-    private var groupOptionsState: GroupOptionState = GroupOptionState()
-
     private var createGroupState: CreateGroupState = CreateGroupState()
 
     private companion object {

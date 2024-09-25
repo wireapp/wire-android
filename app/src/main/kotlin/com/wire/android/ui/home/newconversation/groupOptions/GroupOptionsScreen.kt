@@ -191,7 +191,7 @@ private fun GroupOptionState.ReadReceiptsOptions(onReadReceiptChanged: (Boolean)
 @Composable
 private fun GroupOptionState.AllowServicesOptions(onAllowServicesChanged: (Boolean) -> Unit) {
     if (!isAllowServicesPossible) return
-    
+
     GroupConversationOptionsItem(
         title = stringResource(R.string.allow_services),
         switchState = SwitchState.Enabled(value = isAllowServicesEnabled,

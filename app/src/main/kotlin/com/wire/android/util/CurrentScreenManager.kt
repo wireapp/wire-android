@@ -122,9 +122,8 @@ class CurrentScreenManager @Inject constructor(
     }
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-        val current = currentScreenState.value.toString()
-        appLogger.i("${TAG}: [stop view]: $current -> ${destination.label}")
-        AnonymousAnalyticsManagerImpl.stopView(current)
+        val currentView = currentScreenState.value.toString()
+        AnonymousAnalyticsManagerImpl.stopView(currentView)
         val currentItem = destination.toDestination()
         currentScreenState.value = CurrentScreen.fromDestination(
             currentItem,
@@ -132,9 +131,8 @@ class CurrentScreenManager @Inject constructor(
             isApplicationVisibleFlow.value
         )
 
-        val newDest = currentScreenState.value.toString()
-        appLogger.i("${TAG}: [record view]: $newDest -> ${destination.label}")
-        AnonymousAnalyticsManagerImpl.recordView(newDest)
+        val newView = currentScreenState.value.toString()
+        AnonymousAnalyticsManagerImpl.recordView(newView)
     }
 
     companion object {

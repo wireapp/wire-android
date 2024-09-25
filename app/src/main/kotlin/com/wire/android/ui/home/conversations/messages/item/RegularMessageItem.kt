@@ -105,7 +105,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
-import com.wire.kalium.logic.data.asset.isSaved
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
@@ -127,6 +126,7 @@ fun RegularMessageItem(
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
+    modifier: Modifier = Modifier,
     searchQuery: String = "",
     showAuthor: Boolean = true,
     assetStatus: AssetTransferStatus? = null,
@@ -145,7 +145,8 @@ fun RegularMessageItem(
     @Composable
     fun messageContent() {
         MessageItemTemplate(
-            showAuthor,
+            modifier = modifier,
+            showAuthor = showAuthor,
             useSmallBottomPadding = useSmallBottomPadding,
             fullAvatarOuterPadding = dimensions().avatarClickablePadding + dimensions().avatarStatusBorderSize,
             leading = {
@@ -165,7 +166,7 @@ fun RegularMessageItem(
                         Spacer(modifier = Modifier.height(dimensions().spacing4x))
                     }
                     if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
-                        MessageExpireLabel(messageContent, assetStatus, selfDeletionTimerState.timeLeftFormatted)
+                        MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted)
 
                         // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
                         // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
@@ -445,7 +446,11 @@ private fun UIMessage.Regular.MessageContentAndStatus(
 }
 
 @Composable
-fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData: ConversationDetailsData) {
+fun EphemeralMessageExpiredLabel(
+    isSelfMessage: Boolean,
+    conversationDetailsData: ConversationDetailsData,
+    modifier: Modifier = Modifier,
+) {
 
     val stringResource = if (!isSelfMessage) {
         stringResource(id = R.string.label_information_waiting_for_deleation_when_self_not_sender)
@@ -461,56 +466,21 @@ fun EphemeralMessageExpiredLabel(isSelfMessage: Boolean, conversationDetailsData
     }
 
     Text(
+        modifier = modifier,
         text = stringResource,
         style = typography().body05
     )
 }
 
 @Composable
-fun MessageExpireLabel(messageContent: UIMessageContent?, assetTransferStatus: AssetTransferStatus?, timeLeft: String) {
+fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
     when (messageContent) {
         is UIMessageContent.Location,
-        is UIMessageContent.TextMessage -> {
-            StatusBox(statusText = stringResource(R.string.self_deleting_message_time_left, timeLeft))
-        }
-
-        is UIMessageContent.AssetMessage -> {
-            StatusBox(
-                statusText = if (assetTransferStatus.isSaved()) {
-                    stringResource(
-                        R.string.self_deleting_message_time_left,
-                        timeLeft
-                    )
-                } else {
-                    stringResource(R.string.self_deleting_message_label, timeLeft)
-                }
-            )
-        }
-
-        is UIMessageContent.AudioAssetMessage -> {
-            StatusBox(
-                statusText = if (assetTransferStatus.isSaved()) {
-                    stringResource(
-                        R.string.self_deleting_message_time_left,
-                        timeLeft
-                    )
-                } else {
-                    stringResource(R.string.self_deleting_message_label, timeLeft)
-                }
-            )
-        }
-
+        is UIMessageContent.TextMessage,
+        is UIMessageContent.AssetMessage,
+        is UIMessageContent.AudioAssetMessage,
         is UIMessageContent.ImageMessage -> {
-            StatusBox(
-                statusText = if (assetTransferStatus.isSaved()) {
-                    stringResource(
-                        R.string.self_deleting_message_time_left,
-                        timeLeft
-                    )
-                } else {
-                    stringResource(R.string.self_deleting_message_label, timeLeft)
-                }
-            )
+            StatusBox(statusText = stringResource(R.string.self_deleting_message_time_left, timeLeft))
         }
 
         is UIMessageContent.Deleted -> {

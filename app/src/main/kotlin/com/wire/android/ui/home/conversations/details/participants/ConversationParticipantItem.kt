@@ -64,18 +64,19 @@ import kotlinx.datetime.plus
 @Composable
 fun ConversationParticipantItem(
     uiParticipant: UIParticipant,
-    searchQuery: String = String.EMPTY,
     clickable: Clickable,
+    modifier: Modifier = Modifier,
+    searchQuery: String = String.EMPTY,
     showRightArrow: Boolean = true
 ) {
     RowItemTemplate(
+        modifier = modifier,
         leadingIcon = {
             UserProfileAvatar(
                 avatarData = uiParticipant.avatarData,
                 modifier = Modifier.padding(
                     start = dimensions().spacing8x
                 ),
-                avatarBorderSize = dimensions().spacing2x,
                 type = uiParticipant.expiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithoutIndicators
             )
         },

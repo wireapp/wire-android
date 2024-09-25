@@ -109,13 +109,13 @@
             android:theme="@style/AppTheme" />
 
         <activity
-                android:name=".ui.WireActivity"
-                android:exported="true"
-                android:hardwareAccelerated="true"
-                android:launchMode="singleTask"
-                android:screenOrientation="portrait"
-                android:theme="@style/AppTheme.SplashScreen"
-                android:windowSoftInputMode="adjustResize|stateHidden">
+            android:name=".ui.WireActivity"
+            android:exported="true"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.SplashScreen"
+            android:windowSoftInputMode="adjustResize|stateHidden">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -149,12 +149,12 @@
                     android:scheme="wire" />
 
                 <data
-                        android:host="conversation"
-                        android:scheme="wire" />
+                    android:host="conversation"
+                    android:scheme="wire" />
 
                 <data
-                        android:host="user"
-                        android:scheme="wire" />
+                    android:host="user"
+                    android:scheme="wire" />
 
                 <data
                     android:host="other-user-profile"
@@ -351,7 +351,7 @@
             android:foregroundServiceType="specialUse" />
 
         <service
-            android:name=".services.OngoingCallService"
+            android:name=".services.CallService"
             android:exported="false"
             android:foregroundServiceType="phoneCall|microphone" />
     </application>

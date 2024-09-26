@@ -32,9 +32,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.kalium.logic.data.asset.AssetTransferStatus
-import com.wire.kalium.logic.data.asset.isSaved
 import com.wire.kalium.logic.data.message.Message
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
@@ -250,62 +247,9 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
             }
 
             @Composable
-            fun startDeletionTimer(
-                message: UIMessage,
-                assetTransferStatus: AssetTransferStatus?,
-                onStartMessageSelfDeletion: (UIMessage) -> Unit
-            ) {
-                if (assetTransferStatus != null) {
-                    when (message.messageContent) {
-                        is UIMessageContent.AssetMessage -> startAssetDeletion(
-                            onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-                            transferStatus = assetTransferStatus
-                        )
-
-                        is UIMessageContent.AudioAssetMessage -> startAssetDeletion(
-                            onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-                            transferStatus = assetTransferStatus
-                        )
-
-                        is UIMessageContent.ImageMessage -> startAssetDeletion(
-                            onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-                            transferStatus = assetTransferStatus
-                        )
-
-                        else -> startRegularDeletion(message = message, onStartMessageSelfDeletion = onStartMessageSelfDeletion)
-                    }
-                } else {
-                    startRegularDeletion(message = message, onStartMessageSelfDeletion = onStartMessageSelfDeletion)
-                }
-            }
-
-            @Composable
-            private fun startAssetDeletion(onSelfDeletingMessageRead: () -> Unit, transferStatus: AssetTransferStatus) {
-                LaunchedEffect(transferStatus) {
-                    if (transferStatus.isSaved()) {
-                        onSelfDeletingMessageRead()
-                    }
-                }
-                LaunchedEffect(key1 = timeLeft, key2 = transferStatus) {
-                    if (transferStatus.isSaved()) {
-                        if (timeLeft != ZERO) {
-                            delay(updateInterval())
-                            recalculateTimeLeft()
-                        }
-                    }
-                }
-                val lifecycleOwner = LocalLifecycleOwner.current
-                LaunchedEffect(lifecycleOwner) {
-                    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        recalculateTimeLeft()
-                    }
-                }
-            }
-
-            @Composable
-            private fun startRegularDeletion(message: UIMessage, onStartMessageSelfDeletion: (UIMessage) -> Unit) {
+            fun StartDeletionTimer(message: UIMessage, onSelfDeletingMessageRead: (UIMessage) -> Unit) {
                 LaunchedEffect(Unit) {
-                    onStartMessageSelfDeletion(message)
+                    onSelfDeletingMessageRead(message)
                 }
                 LaunchedEffect(timeLeft) {
                     if (timeLeft != ZERO) {
@@ -322,7 +266,7 @@ class SelfDeletionTimerHelper(private val stringResourceProvider: StringResource
             }
         }
 
-        object NotExpirable : SelfDeletionTimerState()
+        data object NotExpirable : SelfDeletionTimerState()
     }
 }
 

@@ -65,10 +65,9 @@ fun MessageContainerItem(
         !message.isPending &&
         !message.sendingFailed
     ) {
-        selfDeletionTimerState.startDeletionTimer(
+        selfDeletionTimerState.StartDeletionTimer(
             message = message,
-            assetTransferStatus = assetStatus,
-            onStartMessageSelfDeletion = onSelfDeletingMessageRead
+            onSelfDeletingMessageRead = onSelfDeletingMessageRead
         )
     }
     Row(

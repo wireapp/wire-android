@@ -46,6 +46,7 @@
     <string name="label_message_edit_sent_remotely_failure">Bearbeitete Nachricht nicht gesendet, da das Backend %s nicht erreichbar ist.</string>
     <string name="label_message_receive_failure">Fehler beim Herunterladen</string>
     <string name="label_message_decryption_failure_message">Nachricht konnte nicht entschlüsselt werden.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">Nachricht konnte nicht entschlüsselt werden (Fehler %s).</string>
     <string name="label_message_decryption_failure_informative_message">Versuchen Sie, die Session zurückzusetzen, um neue Verschlüsselungsschlüssel zu erzeugen.</string>
     <string name="label_system_message_self_user_knock">%s haben gepingt</string>
     <string name="label_system_message_other_user_knock">%s hat gepingt</string>
@@ -698,6 +699,8 @@
     <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
     <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
     <!-- Search Contact-->
+    <string name="label_selected">Ausgewählt</string>
+    <string name="label_contacts">Kontakte</string>
     <string name="label_new_group">Neue Gruppe</string>
     <string name="label_create_new_group">Neue Gruppe erstellen</string>
     <plurals name="label_x_participants">
@@ -794,6 +797,7 @@
     <string name="calling_decline_call">Anruf ablehnen</string>
     <string name="calling_label_ringing_call">Klingeln…</string>
     <string name="calling_label_incoming_call">Ruft an…</string>
+    <string name="calling_label_incoming_call_someone_calling">ruft an…</string>
     <string name="calling_label_default_caller_name">Eingehender Anruf</string>
     <string name="calling_label_constant_bit_rate">KONSTANTE BITRATE</string>
     <string name="calling_minimize_view">Ansicht verkleinern</string>

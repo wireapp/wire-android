@@ -17,12 +17,11 @@
  */
 package com.wire.android.ui.home.conversations.messages.item
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
 import androidx.compose.animation.Animatable
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -285,52 +284,52 @@ internal fun MessageDecryptionFailure(
     }
 }
 
+@SuppressLint("ComposeComposableModifier", "ComposeModifierWithoutDefault")
 @Composable
 internal fun Modifier.customizeMessageBackground(
-    defaultBackgroundColor: Color,
     sendingFailed: Boolean,
     receivingFailed: Boolean,
     isDeleted: Boolean,
     isSelectedMessage: Boolean,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
+    errorBackgroundColor: Color = colorsScheme().messageErrorBackgroundColor,
+    highlightBackgroundColor: Color = colorsScheme().primaryVariant,
+    defaultBackgroundColor: Color = colorsScheme().backgroundVariant,
 ): Modifier {
+    val backgroundColorAnimation = remember { Animatable(defaultBackgroundColor) }
 
-    val selectedColorAnimation = remember { Animatable(Color.Transparent) }
-    val highlightColor = colorsScheme().primaryVariant
-    val transparentColor = colorsScheme().primary.copy(alpha = 0F)
-    LaunchedEffect(isSelectedMessage) {
-        if (isSelectedMessage) {
-            selectedColorAnimation.snapTo(highlightColor)
-            selectedColorAnimation.animateTo(
-                transparentColor,
-                tween(SELECTED_MESSAGE_ANIMATION_DURATION)
-            )
+    LaunchedEffect(sendingFailed, receivingFailed, isDeleted, isSelectedMessage, selfDeletionTimerState) {
+        when {
+            isSelectedMessage -> {
+                val targetBackgroundColor = when {
+                    sendingFailed || receivingFailed -> errorBackgroundColor
+                    else -> defaultBackgroundColor
+                }
+                backgroundColorAnimation.animateTo(
+                    targetValue = highlightBackgroundColor,
+                    animationSpec = tween(
+                        durationMillis = SELECTED_MESSAGE_ANIMATION_DURATION / 3
+                    )
+                )
+                backgroundColorAnimation.animateTo(
+                    targetValue = targetBackgroundColor,
+                    animationSpec = tween(
+                        delayMillis = SELECTED_MESSAGE_ANIMATION_DURATION / 3,
+                        durationMillis = SELECTED_MESSAGE_ANIMATION_DURATION / 3,
+                    )
+                )
+            }
+
+            selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable && !isDeleted -> {
+                backgroundColorAnimation.animateTo(highlightBackgroundColor.copy(alpha = selfDeletionTimerState.alphaBackgroundColor()))
+            }
+
+            sendingFailed || receivingFailed -> backgroundColorAnimation.snapTo(errorBackgroundColor)
+            else -> backgroundColorAnimation.snapTo(defaultBackgroundColor)
         }
     }
 
-    return this
-        .then(if (isSelectedMessage) drawBehind { drawRect(selectedColorAnimation.value) } else this)
-        .then(
-            when {
-                sendingFailed || receivingFailed -> {
-                    background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
-                }
-
-                selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable && !isDeleted -> {
-                    val deletionColor by animateColorAsState(
-                        targetValue = colorsScheme().primaryVariant.copy(alpha = selfDeletionTimerState.alphaBackgroundColor()),
-                        animationSpec = tween(),
-                        label = "message background color"
-                    )
-
-                    drawBehind { drawRect(deletionColor) }
-                }
-
-                else -> {
-                    background(defaultBackgroundColor)
-                }
-            }
-        )
+    return this.drawBehind { drawRect(backgroundColorAnimation.value) }
 }
 
 @Composable

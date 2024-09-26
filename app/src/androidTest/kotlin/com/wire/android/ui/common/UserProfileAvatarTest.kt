@@ -18,6 +18,7 @@
 package com.wire.android.ui.common
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import com.wire.android.model.UserAvatarData
@@ -33,64 +34,81 @@ class UserProfileAvatarTest {
     @get:Rule
     val composeTestRule by lazy { createComposeRule() }
 
-    @Test
-    fun givenAStandardUser_ShouldNotShowIndicators() = runTest {
+    private fun ComposeTestRule.assertNode(tag: String, isDisplayed: Boolean) =
+        this.onNodeWithTag(tag).let { if (isDisplayed) it.assertIsDisplayed() else it.assertDoesNotExist() }
+
+    private fun testIndicators(
+        userAvailabilityStatus: UserAvailabilityStatus,
+        type: UserProfileAvatarType,
+        shouldStatusIndicatorBeVisible: Boolean,
+        shouldLegalHoldIndicatorBeVisible: Boolean,
+        shouldTemporaryUserIndicatorBeVisible: Boolean,
+    ) = runTest {
         composeTestRule.setContent {
             WireTestTheme {
                 UserProfileAvatar(
                     size = dimensions().avatarDefaultBigSize,
-                    avatarData = UserAvatarData(),
-                    type = UserProfileAvatarType.WithoutIndicators
+                    avatarData = UserAvatarData(availabilityStatus = userAvailabilityStatus),
+                    type = type,
                 )
             }
         }
-
-        composeTestRule.onNodeWithTag(LEGAL_HOLD_INDICATOR_TEST_TAG).assertDoesNotExist()
-        composeTestRule.onNodeWithTag(TEMP_USER_INDICATOR_TEST_TAG).assertDoesNotExist()
+        composeTestRule.assertNode(tag = STATUS_INDICATOR_TEST_TAG, isDisplayed = shouldStatusIndicatorBeVisible)
+        composeTestRule.assertNode(tag = LEGAL_HOLD_INDICATOR_TEST_TAG, isDisplayed = shouldLegalHoldIndicatorBeVisible)
+        composeTestRule.assertNode(tag = TEMP_USER_INDICATOR_TEST_TAG, isDisplayed = shouldTemporaryUserIndicatorBeVisible)
     }
 
     @Test
-    fun givenAUserUnderLegalHold_ShouldShowLegalHoldIndicators() = runTest {
-        composeTestRule.setContent {
-            WireTestTheme {
-                UserProfileAvatar(
-                    size = dimensions().avatarDefaultBigSize,
-                    avatarData = UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE),
-                    type = UserProfileAvatarType.WithIndicators.LegalHold(true)
-                )
-            }
-        }
-
-        composeTestRule.onNodeWithTag(LEGAL_HOLD_INDICATOR_TEST_TAG).assertIsDisplayed()
-    }
+    fun givenTypeWithoutIndicators_thenShouldNotShowAnyIndicator() = testIndicators(
+        userAvailabilityStatus = UserAvailabilityStatus.AVAILABLE,
+        type = UserProfileAvatarType.WithoutIndicators,
+        shouldStatusIndicatorBeVisible = false,
+        shouldLegalHoldIndicatorBeVisible = false,
+        shouldTemporaryUserIndicatorBeVisible = false,
+    )
 
     @Test
-    fun givenAUserUnderLegalHoldHidden_ShouldNotShowLegalHoldIndicators() = runTest {
-        composeTestRule.setContent {
-            WireTestTheme {
-                UserProfileAvatar(
-                    size = dimensions().avatarDefaultBigSize,
-                    avatarData = UserAvatarData(),
-                    type = UserProfileAvatarType.WithIndicators.LegalHold(false)
-                )
-            }
-        }
-
-        composeTestRule.onNodeWithTag(LEGAL_HOLD_INDICATOR_TEST_TAG).assertDoesNotExist()
-    }
+    fun givenTypeWithIndicators_andRegularUserWithoutStatusAndWithoutLegalHold_thenShouldNotShowAnyIndicator() = testIndicators(
+        userAvailabilityStatus = UserAvailabilityStatus.NONE,
+        type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = false),
+        shouldStatusIndicatorBeVisible = false,
+        shouldLegalHoldIndicatorBeVisible = false,
+        shouldTemporaryUserIndicatorBeVisible = false,
+    )
 
     @Test
-    fun givenATempGuestUser_ShouldShowTempUserIndicators() = runTest {
-        composeTestRule.setContent {
-            WireTestTheme {
-                UserProfileAvatar(
-                    size = dimensions().avatarDefaultBigSize,
-                    avatarData = UserAvatarData(),
-                    type = UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt = Clock.System.now().plus(24.hours))
-                )
-            }
-        }
+    fun givenTypeWithIndicators_andRegularUserWithStatusAndWithoutLegalHold_thenShouldShowStatusIndicator() = testIndicators(
+        userAvailabilityStatus = UserAvailabilityStatus.AVAILABLE,
+        type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = false),
+        shouldStatusIndicatorBeVisible = true,
+        shouldLegalHoldIndicatorBeVisible = false,
+        shouldTemporaryUserIndicatorBeVisible = false,
+    )
 
-        composeTestRule.onNodeWithTag(TEMP_USER_INDICATOR_TEST_TAG).assertExists()
-    }
+    @Test
+    fun givenTypeWithIndicators_andRegularUserWithoutStatusAndWithLegalHold_thenShouldShowLegalHoldIndicator() = testIndicators(
+        userAvailabilityStatus = UserAvailabilityStatus.NONE,
+        type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = true),
+        shouldStatusIndicatorBeVisible = false,
+        shouldLegalHoldIndicatorBeVisible = true,
+        shouldTemporaryUserIndicatorBeVisible = false,
+    )
+
+    @Test
+    fun givenTypeWithIndicators_andRegularUserWithStatusAndWithLegalHold_thenShouldShowStatusAndLegalHoldIndicators() = testIndicators(
+        userAvailabilityStatus = UserAvailabilityStatus.AVAILABLE,
+        type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = true),
+        shouldStatusIndicatorBeVisible = true,
+        shouldLegalHoldIndicatorBeVisible = true,
+        shouldTemporaryUserIndicatorBeVisible = false,
+    )
+
+    @Test
+    fun givenTypeWithIndicators_andTemporaryGuestUser_thenShouldShowTemporaryUserIndicator() = testIndicators(
+        userAvailabilityStatus = UserAvailabilityStatus.AVAILABLE,
+        type = UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt = Clock.System.now().plus(24.hours)),
+        shouldStatusIndicatorBeVisible = false,
+        shouldLegalHoldIndicatorBeVisible = false,
+        shouldTemporaryUserIndicatorBeVisible = true,
+    )
 }

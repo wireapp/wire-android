@@ -26,82 +26,112 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @Composable
-fun UserStatusIndicator(status: UserAvailabilityStatus, modifier: Modifier = Modifier) {
+fun UserStatusIndicator(
+    status: UserAvailabilityStatus,
+    modifier: Modifier = Modifier,
+    size: Dp = dimensions().avatarStatusSize,
+    borderWidth: Dp = dimensions().avatarStatusBorderWidth,
+    borderColor: Color = Color.Transparent,
+) {
     when (status) {
-        UserAvailabilityStatus.AVAILABLE -> AvailableDot(modifier)
-        UserAvailabilityStatus.BUSY -> BusyDot(modifier)
-        UserAvailabilityStatus.AWAY -> AwayDot(modifier)
+        UserAvailabilityStatus.AVAILABLE -> AvailableDot(modifier, size, borderWidth, borderColor)
+        UserAvailabilityStatus.BUSY -> BusyDot(modifier, size, borderWidth, borderColor)
+        UserAvailabilityStatus.AWAY -> AwayDot(modifier, size, borderWidth, borderColor)
         UserAvailabilityStatus.NONE -> {}
     }
 }
 
 @Composable
-private fun AvailableDot(modifier: Modifier) {
+private fun AvailableDot(
+    modifier: Modifier = Modifier,
+    size: Dp = dimensions().avatarStatusSize,
+    borderWidth: Dp = dimensions().avatarStatusBorderWidth,
+    borderColor: Color = colorsScheme().background,
+) {
     Box(
         modifier = modifier
-            .size(dimensions().userAvatarStatusSize)
-            .background(MaterialTheme.wireColorScheme.background, CircleShape)
-            .padding(dimensions().avatarStatusBorderSize)
+            .size(size)
+            .background(borderColor, CircleShape)
+            .padding(borderWidth)
             .background(MaterialTheme.wireColorScheme.positive, CircleShape)
     )
 }
 
 @Composable
-private fun BusyDot(modifier: Modifier) {
+private fun BusyDot(
+    modifier: Modifier = Modifier,
+    size: Dp = dimensions().avatarStatusSize,
+    borderWidth: Dp = dimensions().avatarStatusBorderWidth,
+    borderColor: Color = colorsScheme().background,
+) {
     Box(
         modifier = modifier
-            .size(dimensions().userAvatarStatusSize)
-            .background(MaterialTheme.wireColorScheme.background, CircleShape)
-            .padding(dimensions().avatarStatusBorderSize)
+            .size(size)
+            .background(borderColor, CircleShape)
+            .padding(borderWidth)
             .background(MaterialTheme.wireColorScheme.warning, CircleShape)
             .padding(
-                top = dimensions().userAvatarBusyVerticalPadding,
-                bottom = dimensions().userAvatarBusyVerticalPadding,
-                start = dimensions().userAvatarBusyHorizontalPadding,
-                end = dimensions().userAvatarBusyHorizontalPadding
+                horizontal = size * 3 / 16,
+                vertical = size * 5 / 16,
             )
-            .background(MaterialTheme.wireColorScheme.background)
+            .background(borderColor)
     )
 }
 
 @Composable
-private fun AwayDot(modifier: Modifier) {
+private fun AwayDot(
+    modifier: Modifier = Modifier,
+    size: Dp = dimensions().avatarStatusSize,
+    borderWidth: Dp = dimensions().avatarStatusBorderWidth,
+    borderColor: Color = colorsScheme().background,
+) {
     Box(
         modifier = modifier
-            .size(dimensions().userAvatarStatusSize)
-            .background(MaterialTheme.wireColorScheme.background, CircleShape)
-            .padding(dimensions().avatarStatusBorderSize)
+            .size(size)
+            .background(borderColor, CircleShape)
+            .padding(borderWidth)
             .background(MaterialTheme.wireColorScheme.error, CircleShape)
-            .padding(dimensions().avatarStatusBorderSize)
-            .background(MaterialTheme.wireColorScheme.background, CircleShape)
+            .padding(size / 8)
+            .background(borderColor, CircleShape)
     )
 }
 
-@Preview(name = "AvailablePreview")
+@PreviewMultipleThemes
 @Composable
-fun PreviewAvailable() {
-    UserStatusIndicator(UserAvailabilityStatus.AVAILABLE)
+fun PreviewAvailable() = WireTheme {
+    Box(modifier = Modifier.background(colorsScheme().background)) {
+        UserStatusIndicator(UserAvailabilityStatus.AVAILABLE, borderColor = colorsScheme().surfaceVariant)
+    }
 }
 
-@Preview(name = "BusyPreview")
+@PreviewMultipleThemes
 @Composable
-fun PreviewBusy() {
-    UserStatusIndicator(UserAvailabilityStatus.BUSY)
+fun PreviewBusy() = WireTheme {
+    Box(modifier = Modifier.background(colorsScheme().background)) {
+        UserStatusIndicator(UserAvailabilityStatus.BUSY, borderColor = colorsScheme().surfaceVariant)
+    }
 }
 
-@Preview(name = "AwayPreview")
+@PreviewMultipleThemes
 @Composable
-fun PreviewAway() {
-    UserStatusIndicator(UserAvailabilityStatus.AWAY)
+fun PreviewAway() = WireTheme {
+    Box(modifier = Modifier.background(colorsScheme().background)) {
+        UserStatusIndicator(UserAvailabilityStatus.AWAY, borderColor = colorsScheme().surfaceVariant)
+    }
 }
 
-@Preview(name = "NonePreview")
+@PreviewMultipleThemes
 @Composable
-fun PreviewNone() {
-    UserStatusIndicator(UserAvailabilityStatus.NONE)
+fun PreviewNone() = WireTheme {
+    Box(modifier = Modifier.background(colorsScheme().background)) {
+        UserStatusIndicator(UserAvailabilityStatus.NONE, borderColor = colorsScheme().surfaceVariant)
+    }
 }

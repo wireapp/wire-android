@@ -43,7 +43,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun ServiceDetailsNotFoundScreen(
-    modifier: Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -56,6 +56,7 @@ fun ServiceDetailsNotFoundScreen(
         Box(contentAlignment = Alignment.Center) {
             UserProfileAvatar(
                 size = dimensions().avatarDefaultBigSize,
+                temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,
                 avatarData = UserAvatarData(
                     asset = null,
                     connectionState = ConnectionState.ACCEPTED,

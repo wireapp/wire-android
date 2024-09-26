@@ -40,7 +40,8 @@ class ConversationSheetContentTest {
             isArchived = false,
             protocol = Conversation.ProtocolInfo.Proteus,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            isUnderLegalHold = false
         )
         val givenParticipantsCount = 1
 
@@ -61,7 +62,8 @@ class ConversationSheetContentTest {
             isArchived = false,
             protocol = Conversation.ProtocolInfo.Proteus,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            isUnderLegalHold = false
         )
         val givenParticipantsCount = 3
 
@@ -82,7 +84,8 @@ class ConversationSheetContentTest {
             isArchived = false,
             protocol = Conversation.ProtocolInfo.Proteus,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+            proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+            isUnderLegalHold = false
         )
         val givenParticipantsCount = 3
 

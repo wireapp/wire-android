@@ -45,6 +45,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -121,6 +122,8 @@ class CallService : Service() {
                     .distinctUntilChanged()
                     .flatMapRight { callData ->
                         callNotificationManager.reloadIfNeeded(callData)
+                    }.debounce {
+                        if (it is Either.Left) ServicesManager.DEBOUNCE_TIME else 0L
                     }
                     .collectLatest {
                         it.fold(

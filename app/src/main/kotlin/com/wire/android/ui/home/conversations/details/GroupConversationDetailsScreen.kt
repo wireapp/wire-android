@@ -421,7 +421,11 @@ private fun GroupConversationDetailsContent(
                     GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
                         groupParticipantsState = groupParticipantsState,
                         onProfilePressed = onProfilePressed,
-                        lazyListState = lazyListStates[pageIndex]
+                        lazyListState = lazyListStates[pageIndex],
+                        isAbandonedOneOnOneConversation = conversationSheetState.conversationSheetContent?.isAbandonedOneOnOneConversation(
+                            groupParticipantsState.data.allCount
+                        ) ?: false
+
                     )
                 }
             }

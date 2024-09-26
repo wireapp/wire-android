@@ -10,7 +10,7 @@ kotlin = "1.9.23"
 # KotlinX
 coroutines = "1.8.0"
 ktx-dateTime = "0.5.0"
-ktx-immutableCollections = "0.3.7"
+ktx-immutableCollections = "0.3.8"
 ktx-serialization = "1.6.3"
 
 # Android Core / Architecture

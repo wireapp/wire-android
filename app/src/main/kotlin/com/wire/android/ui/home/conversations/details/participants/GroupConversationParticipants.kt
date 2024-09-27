@@ -56,13 +56,17 @@ fun GroupConversationParticipants(
     onProfilePressed: (UIParticipant) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     modifier: Modifier = Modifier,
+<<<<<<< HEAD
     lazyListState: LazyListState = rememberLazyListState()
+=======
+    lazyListState: LazyListState = rememberLazyListState(),
+>>>>>>> 48ec7dec8 (fix: disable addMember on a one-on-one conversation with deleted account (WPB-10259) (#3473))
 ) {
     val context = LocalContext.current
     Column(modifier = modifier) {
         LazyColumn(
             state = lazyListState,
-            modifier = Modifier.fillMaxSize()
+            modifier = modifier.fillMaxSize()
         ) {
             if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
                 item(key = "participants_list_header") {
@@ -125,6 +129,12 @@ fun MLSProgressIndicator(
 @PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationParticipants() = WireTheme {
+    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupConversationParticipantsAdandonedOneOnOne() = WireTheme {
     GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW)
 }
 

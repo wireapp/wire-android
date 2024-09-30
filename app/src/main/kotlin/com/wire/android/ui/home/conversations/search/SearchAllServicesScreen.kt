@@ -39,6 +39,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.extension.folderWithElements
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -46,17 +47,17 @@ fun SearchAllServicesScreen(
     searchQuery: String,
     onServiceClicked: (Contact) -> Unit,
     searchServicesViewModel: SearchServicesViewModel = hiltViewModel(),
+    lazyListState: LazyListState = rememberLazyListState(),
 ) {
     LaunchedEffect(key1 = searchQuery) {
         searchServicesViewModel.searchQueryChanged(searchQuery)
     }
 
-    val lazyState = rememberLazyListState()
     SearchAllServicesContent(
         searchQuery = searchServicesViewModel.state.searchQuery,
         onServiceClicked = onServiceClicked,
         result = searchServicesViewModel.state.result,
-        lazyListState = lazyState,
+        lazyListState = lazyListState,
         error = searchServicesViewModel.state.error,
         isLoading = searchServicesViewModel.state.isLoading
     )
@@ -106,36 +107,36 @@ private fun SuccessServicesList(
             modifier = Modifier
                 .weight(1f)
         ) {
-            services
-                .forEach {
-                    item {
-                        RowItemTemplate(
-                            leadingIcon = {
-                                Row {
-                                    UserProfileAvatar(it.avatarData)
-                                }
-                            },
-                            titleStartPadding = dimensions().spacing0x,
-                            title = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    HighlightName(
-                                        name = it.name,
-                                        searchQuery = searchQuery,
-                                        modifier = Modifier.weight(weight = 1f, fill = false)
-                                    )
-                                    UserBadge(
-                                        membership = it.membership,
-                                        connectionState = it.connectionState,
-                                        startPadding = dimensions().spacing8x
-                                    )
-                                }
-                            },
-                            actions = {},
-                            clickable = remember { Clickable(enabled = true) { onServiceClicked(it) } },
-                            modifier = Modifier.padding(start = dimensions().spacing8x)
-                        )
-                    }
-                }
+            folderWithElements(
+                items = services.associateBy { it.id }
+            ) {
+                RowItemTemplate(
+                    leadingIcon = {
+                        Row {
+                            UserProfileAvatar(it.avatarData)
+                        }
+                    },
+                    titleStartPadding = dimensions().spacing0x,
+                    title = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            HighlightName(
+                                name = it.name,
+                                searchQuery = searchQuery,
+                                modifier = Modifier.weight(weight = 1f, fill = false)
+                            )
+                            UserBadge(
+                                membership = it.membership,
+                                connectionState = it.connectionState,
+                                startPadding = dimensions().spacing8x
+                            )
+                        }
+                    },
+                    actions = {},
+                    clickable = remember(it) { Clickable(enabled = true) { onServiceClicked(it) } },
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            }
         }
     }
 }
+

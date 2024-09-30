@@ -20,6 +20,7 @@
 
 package com.wire.android.util
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -69,7 +70,7 @@ class CurrentScreenManager @Inject constructor(
 ) : DefaultLifecycleObserver,
     NavController.OnDestinationChangedListener {
 
-    private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
+    private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther())
 
     /**
      * An integer that counts up when a screen appears, and counts down when
@@ -162,15 +163,16 @@ sealed class CurrentScreen {
     data object DeviceManager : CurrentScreen()
 
     // Auth related screen is opened
-    data object AuthRelated : CurrentScreen()
+    data class AuthRelated(val destination: String?) : CurrentScreen()
 
     // Some other screen is opened, kinda "do nothing screen"
-    data object SomeOther : CurrentScreen()
+    data class SomeOther(val destination: String? = null) : CurrentScreen()
 
     // App is in background (screen is turned off, or covered by another app), non of the screens is visible
     data object InBackground : CurrentScreen()
 
     companion object {
+        @SuppressLint("RestrictedApi")
         @Suppress("ComplexMethod")
         fun fromDestination(destination: DestinationSpec<*>?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
             if (!isAppVisible) {
@@ -182,7 +184,7 @@ sealed class CurrentScreen {
                     Conversation(destination.argsFrom(arguments).conversationId)
 
                 is OtherUserProfileScreenDestination ->
-                    destination.argsFrom(arguments).conversationId?.let { OtherUserProfile(it) } ?: SomeOther
+                    destination.argsFrom(arguments).conversationId?.let { OtherUserProfile(it) } ?: SomeOther(destination.baseRoute)
 
                 is ImportMediaScreenDestination -> ImportMedia
 
@@ -200,9 +202,9 @@ sealed class CurrentScreen {
                 is E2EIEnrollmentScreenDestination,
                 is E2eiCertificateDetailsScreenDestination,
                 is RegisterDeviceScreenDestination,
-                is RemoveDeviceScreenDestination -> AuthRelated
+                is RemoveDeviceScreenDestination -> AuthRelated(destination.baseRoute)
 
-                else -> SomeOther
+                else -> SomeOther(destination?.baseRoute)
             }
         }
     }

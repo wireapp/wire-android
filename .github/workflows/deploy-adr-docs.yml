@@ -33,7 +33,7 @@ jobs:
 
       - name: Deploy docs 🚀
         if: github.event_name == 'push' && github.ref_name == 'develop'
-        uses: JamesIves/github-pages-deploy-action@v4.6.4
+        uses: JamesIves/github-pages-deploy-action@v4.6.8
         with:
           branch: gh-pages
           clean: false

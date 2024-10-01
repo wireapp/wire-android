@@ -55,5 +55,4 @@ interface AnonymousAnalyticsManager {
     fun recordView(screen: String)
 
     fun stopView(screen: String)
-
 }

@@ -392,7 +392,8 @@ class RecordAudioViewModelTest {
 
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(
                 CurrentScreen.Conversation(
-                    id = DUMMY_CALL.conversationId
+                    id = DUMMY_CALL.conversationId,
+                    "conversationScreen"
                 )
             )
 

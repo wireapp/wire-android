@@ -64,7 +64,7 @@ class CommonTopAppBarViewModelTest {
                 .withoutOngoingCall()
                 .withoutOutgoingCall()
                 .withoutIncomingCall()
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withSyncState(SyncState.SlowSync)
                 .arrange()
 
@@ -83,7 +83,7 @@ class CommonTopAppBarViewModelTest {
                 .withoutOngoingCall()
                 .withoutOutgoingCall()
                 .withoutIncomingCall()
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withSyncState(SyncState.GatheringPendingEvents)
                 .arrange()
 
@@ -102,7 +102,7 @@ class CommonTopAppBarViewModelTest {
                 .withOngoingCall()
                 .withoutOutgoingCall()
                 .withoutIncomingCall()
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withSyncState(SyncState.Waiting)
                 .arrange()
 
@@ -122,7 +122,7 @@ class CommonTopAppBarViewModelTest {
             .withOngoingCall(isMuted = true)
             .withoutOutgoingCall()
             .withoutIncomingCall()
-            .withCurrentScreen(CurrentScreen.Conversation(mockk()))
+            .withCurrentScreen(CurrentScreen.Conversation(mockk(), mockk()))
             .withSyncState(SyncState.Waiting)
             .arrange()
 
@@ -143,7 +143,7 @@ class CommonTopAppBarViewModelTest {
                 .withOngoingCall(isMuted = false)
                 .withoutOutgoingCall()
                 .withoutIncomingCall()
-                .withCurrentScreen(CurrentScreen.Conversation(mockk()))
+                .withCurrentScreen(CurrentScreen.Conversation(mockk(), mockk()))
                 .withSyncState(SyncState.Waiting)
                 .arrange()
 
@@ -164,7 +164,7 @@ class CommonTopAppBarViewModelTest {
                 .withOngoingCall(isMuted = false)
                 .withoutOutgoingCall()
                 .withoutIncomingCall()
-                .withCurrentScreen(CurrentScreen.SomeOther)
+                .withCurrentScreen(CurrentScreen.SomeOther())
                 .withSyncState(SyncState.Waiting)
                 .arrange()
 
@@ -182,7 +182,7 @@ class CommonTopAppBarViewModelTest {
             .withIncomingCall()
             .withoutOngoingCall()
             .withoutOutgoingCall()
-            .withCurrentScreen(CurrentScreen.Home)
+            .withCurrentScreen(CurrentScreen.Home("home"))
             .withSyncState(SyncState.Waiting)
             .arrange()
 
@@ -200,7 +200,7 @@ class CommonTopAppBarViewModelTest {
             .withOutgoingCall()
             .withoutIncomingCall()
             .withoutOngoingCall()
-            .withCurrentScreen(CurrentScreen.Home)
+            .withCurrentScreen(CurrentScreen.Home("home"))
             .withSyncState(SyncState.Live)
             .arrange()
 
@@ -230,7 +230,7 @@ class CommonTopAppBarViewModelTest {
             .withOngoingCall(isMuted = true)
             .withIncomingCall()
             .withOutgoingCall()
-            .withCurrentScreen(CurrentScreen.Home)
+            .withCurrentScreen(CurrentScreen.Home("home"))
             .withSyncState(SyncState.Waiting)
             .arrange()
 

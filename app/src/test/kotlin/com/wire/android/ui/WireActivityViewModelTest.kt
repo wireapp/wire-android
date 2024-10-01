@@ -188,7 +188,7 @@ class WireActivityViewModelTest {
                 .withNoCurrentSession()
                 .withMigrationRequired()
                 .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
-                .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.Home))
+                .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.Home("home")))
                 .arrange()
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
@@ -465,7 +465,7 @@ class WireActivityViewModelTest {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withNewClient(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
-            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
+            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther()))
             .arrange()
 
         assertEquals(
@@ -479,7 +479,7 @@ class WireActivityViewModelTest {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withNewClient(NewClientResult.InOtherAccount(listOf(TestClient.CLIENT), USER_ID, "name", "handle"))
-            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
+            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther()))
             .arrange()
 
         assertEquals(
@@ -495,7 +495,7 @@ class WireActivityViewModelTest {
 
     @Test
     fun `given newClient is registered when current screen does not allow dialog, then remember NewClient dialog state`() = runTest {
-        val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
+        val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther())
         val newClientFlow = MutableSharedFlow<NewClientResult>()
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
@@ -503,7 +503,7 @@ class WireActivityViewModelTest {
             .withCurrentScreen(currentScreenFlow)
             .arrange()
 
-        currentScreenFlow.value = CurrentScreen.ImportMedia
+        currentScreenFlow.value = CurrentScreen.ImportMedia("import")
         newClientFlow.emit(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
 
         advanceUntilIdle()
@@ -513,14 +513,14 @@ class WireActivityViewModelTest {
 
     @Test
     fun `given newClient is registered when current screen changed to ImportMedea, then remember NewClient dialog state`() = runTest {
-        val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
+        val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther())
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withNewClient(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
             .withCurrentScreen(currentScreenFlow)
             .arrange()
 
-        currentScreenFlow.value = CurrentScreen.ImportMedia
+        currentScreenFlow.value = CurrentScreen.ImportMedia("import")
 
         assertEquals(null, viewModel.globalAppState.newClientDialog)
     }
@@ -628,7 +628,7 @@ class WireActivityViewModelTest {
             every { observeScreenshotCensoringConfigUseCaseProviderFactory.create(any()).observeScreenshotCensoringConfig } returns
                     observeScreenshotCensoringConfigUseCase
             coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
-            coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
+            coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther())
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
             coEvery { observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin() } returns
                     flowOf(false)

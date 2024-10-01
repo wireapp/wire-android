@@ -135,7 +135,7 @@ class WireNotificationManagerTest {
     fun givenNotAuthenticatedUser_whenObserveCalled_thenNothingHappenAndCallNotificationHides() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val (arrangement, manager) = Arrangement()
-                .withCurrentScreen(CurrentScreen.SomeOther)
+                .withCurrentScreen(CurrentScreen.SomeOther())
                 .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(), this)
@@ -152,7 +152,7 @@ class WireNotificationManagerTest {
         val (arrangement, manager) = Arrangement()
             .withSpecificUserSession(userId = userId, incomingCalls = incomingCalls)
             .withMessageNotifications(listOf())
-            .withCurrentScreen(CurrentScreen.SomeOther)
+            .withCurrentScreen(CurrentScreen.SomeOther())
             .withCurrentUserSession(CurrentSessionResult.Success(AccountInfo.Valid(userId)))
             .arrange()
 
@@ -174,7 +174,7 @@ class WireNotificationManagerTest {
                 .withSpecificUserSession(userId = user1, incomingCalls = listOf())
                 .withSpecificUserSession(userId = user2, incomingCalls = incomingCalls)
                 .withMessageNotifications(listOf())
-                .withCurrentScreen(CurrentScreen.SomeOther)
+                .withCurrentScreen(CurrentScreen.SomeOther())
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(user1.value)))
                 .arrange()
 
@@ -198,7 +198,7 @@ class WireNotificationManagerTest {
                         )
                     )
                 )
-                .withCurrentScreen(CurrentScreen.SomeOther).arrange()
+                .withCurrentScreen(CurrentScreen.SomeOther()).arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(), this)
             runCurrent()
@@ -249,7 +249,7 @@ class WireNotificationManagerTest {
             .withMessageNotifications(messageNotifications)
             .withIncomingCalls(listOf())
             .withOutgoingCalls(listOf())
-            .withCurrentScreen(CurrentScreen.SomeOther)
+            .withCurrentScreen(CurrentScreen.SomeOther())
             .arrange()
 
         manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId(TestUser.SELF_USER.id.value)), this)
@@ -277,7 +277,7 @@ class WireNotificationManagerTest {
                 )
                 .withIncomingCalls(listOf())
                 .withOutgoingCalls(listOf())
-                .withCurrentScreen(CurrentScreen.Conversation(conversationId))
+                .withCurrentScreen(CurrentScreen.Conversation(conversationId, "route"))
                 .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId(TestUser.SELF_USER.id.value)), this)
@@ -335,7 +335,7 @@ class WireNotificationManagerTest {
                 .withMessageNotifications(listOf())
                 .withIncomingCalls(listOf())
                 .withOutgoingCalls(listOf())
-                .withCurrentScreen(CurrentScreen.Conversation(conversationId))
+                .withCurrentScreen(CurrentScreen.Conversation(conversationId, "route"))
                 .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this)
@@ -428,7 +428,7 @@ class WireNotificationManagerTest {
             )
             .withIncomingCalls(listOf())
             .withOutgoingCalls(listOf())
-            .withCurrentScreen(CurrentScreen.Conversation(id = conversationId))
+            .withCurrentScreen(CurrentScreen.Conversation(id = conversationId, "route"))
             .arrange()
 
         manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this)
@@ -688,7 +688,7 @@ class WireNotificationManagerTest {
                 .withIncomingCalls(listOf())
                 .withOutgoingCalls(listOf())
                 .withMessageNotifications(listOf())
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withEstablishedCall(listOf(call))
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
                 .arrange()
@@ -709,7 +709,7 @@ class WireNotificationManagerTest {
                 .withIncomingCalls(listOf())
                 .withOutgoingCalls(listOf(call))
                 .withMessageNotifications(listOf())
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withEstablishedCall(listOf())
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
                 .arrange()
@@ -729,7 +729,7 @@ class WireNotificationManagerTest {
                 .withIncomingCalls(listOf())
                 .withOutgoingCalls(listOf())
                 .withMessageNotifications(listOf())
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withEstablishedCall(listOf())
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
                 .arrange()
@@ -750,7 +750,7 @@ class WireNotificationManagerTest {
                 .withIncomingCalls(listOf())
                 .withOutgoingCalls(listOf())
                 .withMessageNotifications(listOf())
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withEstablishedCall(listOf(call))
                 .withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
                 .arrange()
@@ -770,7 +770,7 @@ class WireNotificationManagerTest {
                 .withIncomingCalls(listOf())
                 .withOutgoingCalls(listOf())
                 .withMessageNotifications(listOf())
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withEstablishedCall(listOf())
                 .withCurrentUserSession(CurrentSessionResult.Success(provideInvalidAccountInfo(userId.value)))
                 .arrange()
@@ -789,7 +789,7 @@ class WireNotificationManagerTest {
             val userId2 = UserId("value2", "domain")
             val call = provideCall().copy(status = CallStatus.ESTABLISHED)
             val (arrangement, manager) = Arrangement()
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withSpecificUserSession(userId = userId1, establishedCalls = listOf())
                 .withSpecificUserSession(userId = userId2, establishedCalls = listOf(call))
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId1.value)))
@@ -808,7 +808,7 @@ class WireNotificationManagerTest {
             val userId2 = UserId("value2", "domain")
             val call = provideCall().copy(status = CallStatus.ESTABLISHED)
             val (arrangement, manager) = Arrangement()
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withSpecificUserSession(userId = userId1, establishedCalls = listOf())
                 .withSpecificUserSession(userId = userId2, establishedCalls = listOf(call))
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId1.value)))
@@ -830,7 +830,7 @@ class WireNotificationManagerTest {
             val userId2 = UserId("value2", "domain")
             val call = provideCall().copy(status = CallStatus.ESTABLISHED)
             val (arrangement, manager) = Arrangement()
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withSpecificUserSession(userId = userId1, establishedCalls = listOf(call))
                 .withSpecificUserSession(userId = userId2, establishedCalls = listOf())
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId1.value)))
@@ -854,7 +854,7 @@ class WireNotificationManagerTest {
                 .withIncomingCalls(listOf())
                 .withOutgoingCalls(listOf())
                 .withMessageNotifications(listOf())
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withEstablishedCall(listOf(call))
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
                 .arrange()
@@ -878,7 +878,7 @@ class WireNotificationManagerTest {
                 .withIncomingCalls(listOf())
                 .withOutgoingCalls(listOf())
                 .withMessageNotifications(listOf())
-                .withCurrentScreen(CurrentScreen.Home)
+                .withCurrentScreen(CurrentScreen.Home("home"))
                 .withEstablishedCallFlow(callFlow)
                 .withCurrentUserSession(CurrentSessionResult.Success(provideAccountInfo(userId.value)))
                 .arrange()
@@ -900,7 +900,7 @@ class WireNotificationManagerTest {
         runTestWithCancellation(dispatcherProvider.main()) {
             val userId = provideUserId()
             val call = provideCall().copy(status = CallStatus.ESTABLISHED)
-            val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.Home)
+            val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.Home("home"))
             val (arrangement, manager) = Arrangement()
                 .withIncomingCalls(listOf())
                 .withOutgoingCalls(listOf())
@@ -939,7 +939,7 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(userId), this)
             advanceUntilIdle()
 
-            currentScreenFlow.value = CurrentScreen.Home
+            currentScreenFlow.value = CurrentScreen.Home("home")
             advanceUntilIdle()
 
             verify(exactly = 0) { arrangement.servicesManager.stopCallService() }
@@ -960,7 +960,7 @@ class WireNotificationManagerTest {
                 )
                 .withIncomingCalls(listOf())
                 .withOutgoingCalls(listOf())
-                .withCurrentScreen(CurrentScreen.SomeOther)
+                .withCurrentScreen(CurrentScreen.SomeOther())
                 .withObserveE2EIRequired(E2EIRequiredResult.NoGracePeriod.Create)
                 .arrange()
 

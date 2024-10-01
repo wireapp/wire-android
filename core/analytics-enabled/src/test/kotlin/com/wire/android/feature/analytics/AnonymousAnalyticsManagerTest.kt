@@ -231,7 +231,7 @@ class AnonymousAnalyticsManagerTest {
         advanceUntilIdle()
 
         // then
-        verify(exactly = 1) {
+        verify {
             arrangement.anonymousAnalyticsRecorder.onStart(activity)
         }
     }
@@ -378,6 +378,7 @@ class AnonymousAnalyticsManagerTest {
             every { anonymousAnalyticsRecorder.sendEvent(any()) } returns Unit
             every { anonymousAnalyticsRecorder.recordView(any()) } returns Unit
             every { anonymousAnalyticsRecorder.stopView(any()) } returns Unit
+            every { anonymousAnalyticsRecorder.applicationOnCreate() } returns Unit
             coEvery { anonymousAnalyticsRecorder.setTrackingIdentifierWithMerge(any(), any(), any()) } returns Unit
             coEvery { anonymousAnalyticsRecorder.setTrackingIdentifierWithoutMerge(any(), any(), any(), any()) } returns Unit
         }

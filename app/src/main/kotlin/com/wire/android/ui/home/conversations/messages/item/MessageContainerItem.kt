@@ -17,9 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.messages.item
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,12 +25,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
@@ -42,24 +38,14 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.rememberSelfDeletionTimer
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
 
-@OptIn(ExperimentalFoundationApi::class)
 @Suppress("ComplexMethod")
 @Composable
 fun MessageContainerItem(
     message: UIMessage,
     conversationDetailsData: ConversationDetailsData,
-    onLongClicked: (UIMessage.Regular) -> Unit,
+    clickActions: MessageClickActions,
     swipableMessageConfiguration: SwipableMessageConfiguration,
-    onAssetMessageClicked: (String) -> Unit,
-    onAudioClick: (String) -> Unit,
-    onChangeAudioPosition: (String, Int) -> Unit,
-    onImageMessageClicked: (UIMessage.Regular, Boolean) -> Unit,
-    onOpenProfile: (String) -> Unit,
-    onReactionClicked: (String, String) -> Unit,
-    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     modifier: Modifier = Modifier,
     searchQuery: String = "",
@@ -67,17 +53,11 @@ fun MessageContainerItem(
     useSmallBottomPadding: Boolean = false,
     audioState: AudioState? = null,
     assetStatus: AssetTransferStatus? = null,
-    onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
-    onFailedMessageCancelClicked: (String) -> Unit = {},
-    onLinkClick: (String) -> Unit = {},
-    isContentClickable: Boolean = false,
-    onMessageClick: (messageId: String) -> Unit = {},
-    defaultBackgroundColor: Color = Color.Transparent,
     shouldDisplayMessageStatus: Boolean = true,
     shouldDisplayFooter: Boolean = true,
-    onReplyClickable: Clickable? = null,
     isSelectedMessage: Boolean = false,
-    isInteractionAvailable: Boolean = true
+    failureInteractionAvailable: Boolean = true,
+    defaultBackgroundColor: Color = colorsScheme().backgroundVariant,
 ) {
     val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
     if (
@@ -85,77 +65,44 @@ fun MessageContainerItem(
         !message.isPending &&
         !message.sendingFailed
     ) {
-        selfDeletionTimerState.startDeletionTimer(
+        selfDeletionTimerState.StartDeletionTimer(
             message = message,
-            assetTransferStatus = assetStatus,
-            onStartMessageSelfDeletion = onSelfDeletingMessageRead
+            onSelfDeletingMessageRead = onSelfDeletingMessageRead
         )
     }
     Row(
         modifier
             .customizeMessageBackground(
-                defaultBackgroundColor,
-                message.sendingFailed,
-                message.decryptionFailed,
-                message.header.messageStatus.isDeleted,
-                isSelectedMessage,
-                selfDeletionTimerState
-            )
-            .then(
-                when (message) {
-                    is UIMessage.Regular -> Modifier.combinedClickable(
-                        enabled = true,
-                        onClick = {
-                            if (isContentClickable) {
-                                onMessageClick(message.header.messageId)
-                            }
-                        },
-                        onLongClick = remember(message) {
-                            {
-                                if (!isContentClickable && !message.header.messageStatus.isDeleted) {
-                                    onLongClicked(message)
-                                }
-                            }
-                        }
-                    )
-
-                    is UIMessage.System -> Modifier
-                }
+                sendingFailed = message.sendingFailed,
+                receivingFailed = message.decryptionFailed,
+                isDeleted = message.header.messageStatus.isDeleted,
+                isSelectedMessage = isSelectedMessage,
+                selfDeletionTimerState = selfDeletionTimerState,
+                defaultBackgroundColor = defaultBackgroundColor,
             )
     ) {
         when (message) {
             is UIMessage.System -> SystemMessageItem(
                 message = message,
-                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                isInteractionAvailable = isInteractionAvailable,
+                onFailedMessageCancelClicked = clickActions.onFailedMessageCancelClicked,
+                onFailedMessageRetryClicked = clickActions.onFailedMessageRetryClicked,
+                failureInteractionAvailable = failureInteractionAvailable,
             )
 
             is UIMessage.Regular -> RegularMessageItem(
                 message = message,
                 conversationDetailsData = conversationDetailsData,
+                clickActions = clickActions,
                 showAuthor = showAuthor,
                 audioState = audioState,
                 assetStatus = assetStatus,
-                onAudioClick = onAudioClick,
-                onChangeAudioPosition = onChangeAudioPosition,
-                onLongClicked = onLongClicked,
                 swipableMessageConfiguration = swipableMessageConfiguration,
-                onAssetMessageClicked = onAssetMessageClicked,
-                onImageMessageClicked = onImageMessageClicked,
-                onOpenProfile = onOpenProfile,
-                onReactionClicked = onReactionClicked,
-                onResetSessionClicked = onResetSessionClicked,
-                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                onLinkClick = onLinkClick,
-                onReplyClickable = onReplyClickable,
-                isInteractionAvailable = isInteractionAvailable,
+                failureInteractionAvailable = failureInteractionAvailable,
                 searchQuery = searchQuery,
                 shouldDisplayMessageStatus = shouldDisplayMessageStatus,
                 shouldDisplayFooter = shouldDisplayFooter,
                 selfDeletionTimerState = selfDeletionTimerState,
-                useSmallBottomPadding = useSmallBottomPadding
+                useSmallBottomPadding = useSmallBottomPadding,
             )
         }
     }

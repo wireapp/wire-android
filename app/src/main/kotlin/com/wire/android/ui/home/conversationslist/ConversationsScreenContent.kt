@@ -75,7 +75,7 @@ import kotlinx.coroutines.flow.map
  * This is a base for creating screens for displaying list of conversations.
  * Can be used to create proper navigation destination for different sources of conversations, like archive.
  */
-@Suppress("ComplexMethod")
+@Suppress("ComplexMethod", "NestedBlockDepth")
 @Composable
 fun ConversationsScreenContent(
     navigator: Navigator,
@@ -83,9 +83,9 @@ fun ConversationsScreenContent(
     emptyListContent: @Composable () -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
-    conversationListViewModel: ConversationListViewModel =
-        if (LocalInspectionMode.current) ConversationListViewModelPreview()
-        else hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
+    conversationListViewModel: ConversationListViewModel = when {
+        LocalInspectionMode.current -> ConversationListViewModelPreview()
+        else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
             key = "list_${conversationsSource.name}",
             creationCallback = { factory ->
                 factory.create(
@@ -93,12 +93,12 @@ fun ConversationsScreenContent(
                     searchQueryFlow = searchBarState.searchQueryTextState.textAsFlow().map { it.toString() }
                 )
             }
-        ),
-    conversationCallListViewModel: ConversationCallListViewModel =
-        if (LocalInspectionMode.current) ConversationCallListViewModelPreview
-        else hiltViewModel<ConversationCallListViewModelImpl>(
-            key = "call_${conversationsSource.name}"
-        ),
+        )
+    },
+    conversationCallListViewModel: ConversationCallListViewModel = when {
+        LocalInspectionMode.current -> ConversationCallListViewModelPreview
+        else -> hiltViewModel<ConversationCallListViewModelImpl>(key = "call_${conversationsSource.name}")
+    },
 ) {
     var currentConversationOptionNavigation by remember {
         mutableStateOf<ConversationOptionNavigation>(ConversationOptionNavigation.Home)
@@ -147,10 +147,14 @@ fun ConversationsScreenContent(
         }
 
         val onOpenConversation: (ConversationId) -> Unit = remember(navigator) {
-            { conversationId -> navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId))) }
+            {
+                navigator.navigate(NavigationCommand(ConversationScreenDestination(it)))
+            }
         }
         val onOpenUserProfile: (UserId) -> Unit = remember(navigator) {
-            { userId -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId))) }
+            {
+                navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(it)))
+            }
         }
         val onJoinedCall: (ConversationId) -> Unit = remember(navigator) {
             {
@@ -161,19 +165,20 @@ fun ConversationsScreenContent(
             }
         }
         val onJoinCall: (ConversationId) -> Unit = remember {
-            { conversationCallListViewModel.joinOngoingCall(it, onJoinedCall) }
+            {
+                conversationCallListViewModel.joinOngoingCall(it, onJoinedCall)
+            }
+        }
+        val onNewConversationClicked: () -> Unit = remember {
+            {
+                navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination))
+            }
         }
 
         with(conversationListViewModel.conversationListState) {
-            if (foldersWithConversations.isEmpty() || foldersWithConversations.all { it.value.isEmpty() }) {
-                if (searchQuery.isNotBlank()) SearchConversationsEmptyContent(
-                    onNewConversationCLick = remember {
-                        { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) }
-                    }
-                )
-                else emptyListContent()
-            } else {
-                ConversationList(
+            when {
+                // when there is at least one conversation in any folder
+                foldersWithConversations.isNotEmpty() && foldersWithConversations.any { it.value.isNotEmpty() } -> ConversationList(
                     lazyListState = lazyListState,
                     conversationListItems = foldersWithConversations,
                     searchQuery = searchQuery,
@@ -190,6 +195,9 @@ fun ConversationsScreenContent(
                         )
                     }
                 )
+                // when there is no conversation in any folder
+                searchQuery.isNotBlank() -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
+                else -> emptyListContent()
             }
         }
 

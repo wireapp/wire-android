@@ -80,11 +80,11 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.sketch.destinations.DrawingCanvasScreenDestination
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
-import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
-import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.mapper.MessageDateTimeGroup
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
@@ -92,7 +92,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState

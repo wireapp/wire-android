@@ -18,7 +18,6 @@
 package com.wire.android.ui.calling.ongoing
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.PictureInPictureParams
 import android.app.RemoteAction
 import android.content.Context

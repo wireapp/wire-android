@@ -23,7 +23,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestConversationDetails
-import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -53,7 +52,8 @@ class ConversationCallListViewModelTest {
     private val dispatcherProvider = TestDispatcherProvider()
 
     @Test
-    fun `given a conversation id, when joining an ongoing call, then verify that answer call usecase is called`() = runTest(dispatcherProvider.main()) {
+    fun `given a conversation id, when joining an ongoing call, then verify that answer call usecase is called`() =
+        runTest(dispatcherProvider.main()) {
         // Given
         val (arrangement, conversationCallListViewModel) = Arrangement().arrange()
 
@@ -66,7 +66,7 @@ class ConversationCallListViewModelTest {
     }
 
     @Test
-    fun `given join dialog displayed, when user dismiss it, then hide it`() {
+    fun `given join dialog displayed, when user dismiss it, then hide it`() = runTest(dispatcherProvider.main()) {
         // Given
         val (_, conversationCallListViewModel) = Arrangement()
             .withEstablishedCall(call)
@@ -81,7 +81,8 @@ class ConversationCallListViewModelTest {
     }
 
     @Test
-    fun `given no ongoing call, when user tries to join a call, then invoke answerCall call use case`() = runTest(dispatcherProvider.main()) {
+    fun `given no ongoing call, when user tries to join a call, then invoke answerCall call use case`() =
+        runTest(dispatcherProvider.main()) {
         // Given
         val (arrangement, conversationCallListViewModel) = Arrangement()
             .withEstablishedCall(null)
@@ -112,7 +113,8 @@ class ConversationCallListViewModelTest {
     }
 
     @Test
-    fun `given an ongoing call, when user confirms dialog to join a call, then end current call and join the newer one`() = runTest(dispatcherProvider.main()) {
+    fun `given an ongoing call, when user confirms dialog to join a call, then end current call and join the newer one`() =
+        runTest(dispatcherProvider.main()) {
         // Given
         val (arrangement, conversationCallListViewModel) = Arrangement()
             .withEstablishedCall(call)

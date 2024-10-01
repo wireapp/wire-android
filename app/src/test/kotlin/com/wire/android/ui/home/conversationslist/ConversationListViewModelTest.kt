@@ -85,7 +85,8 @@ class ConversationListViewModelTest {
     }
 
     @Test
-    fun `given non-empty search query, when collecting, then update state with filtered conversations`() = runTest(dispatcherProvider.main()) {
+    fun `given non-empty search query, when collecting, then update state with filtered conversations`() =
+        runTest(dispatcherProvider.main()) {
         // Given
         val searchQueryText = TestConversationDetails.CONVERSATION_ONE_ONE.conversation.name.orDefault("test")
         val (arrangement, conversationListViewModel) = Arrangement().arrange()
@@ -104,7 +105,8 @@ class ConversationListViewModelTest {
     }
 
     @Test
-    fun `given a valid conversation muting state, when calling muteConversation, then should call with call the UseCase`() = runTest(dispatcherProvider.main()) {
+    fun `given a valid conversation muting state, when calling muteConversation, then should call with call the UseCase`() =
+        runTest(dispatcherProvider.main()) {
         // Given
         val (arrangement, conversationListViewModel) = Arrangement()
             .updateConversationMutedStatusSuccess()
@@ -114,26 +116,29 @@ class ConversationListViewModelTest {
         conversationListViewModel.muteConversation(conversationId, MutedConversationStatus.AllMuted)
 
         // Then
-        coVerify(exactly = 1) { arrangement.updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, any()) }
+        coVerify(exactly = 1) {
+            arrangement.updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, any())
+        }
     }
 
     @Test
-    fun `given a valid conversation muting state, when calling block user, then should call BlockUserUseCase`() = runTest(dispatcherProvider.main()) {
+    fun `given a valid conversation muting state, when calling block user, then should call BlockUserUseCase`() =
+        runTest(dispatcherProvider.main()) {
         // Given
         val (arrangement, conversationListViewModel) = Arrangement()
             .blockUserSuccess()
             .arrange()
 
         // When
-        conversationListViewModel.blockUser(BlockUserDialogState(userName = "someName", userId = userId)
-        )
+        conversationListViewModel.blockUser(BlockUserDialogState(userName = "someName", userId = userId))
 
         // Then
         coVerify(exactly = 1) { arrangement.blockUser(userId) }
     }
 
     @Test
-    fun `given a valid conversation muting state, when calling unblock user, then should call BlockUserUseCase`() = runTest(dispatcherProvider.main()) {
+    fun `given a valid conversation muting state, when calling unblock user, then should call BlockUserUseCase`() =
+        runTest(dispatcherProvider.main()) {
         // Given
         val (arrangement, conversationListViewModel) = Arrangement()
             .unblockUserSuccess()

@@ -140,6 +140,7 @@ fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = f
     }
 }.toImmutableList()
 
+@Suppress("MagicNumber")
 fun previewConversationFolders() = buildMap<ConversationFolder, List<ConversationItem>> {
     put(ConversationFolder.Predefined.NewActivities, previewConversationList(3, 0, true))
     put(ConversationFolder.Predefined.Conversations, previewConversationList(6, 3, false))

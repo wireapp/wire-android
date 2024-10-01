@@ -101,7 +101,10 @@ interface ConversationListViewModel {
     val requestInProgress: Boolean get() = false
     val conversationListState: ConversationListState get() = ConversationListState()
     suspend fun refreshMissingMetadata() {}
-    fun moveConversationToArchive(dialogState: DialogState, timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds()) {}
+    fun moveConversationToArchive(
+        dialogState: DialogState,
+        timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds()
+    ) {}
     fun blockUser(blockUserState: BlockUserDialogState) {}
     fun unblockUser(userId: UserId) {}
     fun deleteGroup(groupDialogState: GroupDialogState) {}
@@ -235,10 +238,9 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         return when (source) {
             ConversationsSource.ARCHIVE -> {
                 buildMap {
-                    if (this@withFolders.isNotEmpty()) put(
-                        ConversationFolder.WithoutHeader,
-                        this@withFolders
-                    )
+                    if (this@withFolders.isNotEmpty()) {
+                        put(ConversationFolder.WithoutHeader, this@withFolders)
+                    }
                 }
             }
 
@@ -273,14 +275,12 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                 val remainingConversations = this - unreadConversations.toSet()
 
                 buildMap {
-                    if (unreadConversations.isNotEmpty()) put(
-                        ConversationFolder.Predefined.NewActivities,
-                        unreadConversations
-                    )
-                    if (remainingConversations.isNotEmpty()) put(
-                        ConversationFolder.Predefined.Conversations,
-                        remainingConversations
-                    )
+                    if (unreadConversations.isNotEmpty()) {
+                        put(ConversationFolder.Predefined.NewActivities, unreadConversations)
+                    }
+                    if (remainingConversations.isNotEmpty()) {
+                        put(ConversationFolder.Predefined.Conversations, remainingConversations)
+                    }
                 }
             }
         }
@@ -292,20 +292,11 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     ) {
         conversationId?.let {
             viewModelScope.launch {
-                when (updateConversationMutedStatus(
-                    conversationId,
-                    mutedConversationStatus,
-                    Date().time
-                )) {
-                    ConversationUpdateStatusResult.Failure -> _infoMessage.emit(
-                        HomeSnackBarMessage.MutingOperationError
-                    )
+                when (updateConversationMutedStatus(conversationId, mutedConversationStatus, Date().time)) {
+                    ConversationUpdateStatusResult.Failure -> _infoMessage.emit(HomeSnackBarMessage.MutingOperationError)
 
                     ConversationUpdateStatusResult.Success ->
-                        appLogger.d(
-                            "MutedStatus changed for conversation: " +
-                                    "$conversationId to $mutedConversationStatus"
-                        )
+                        appLogger.d("MutedStatus changed for conversation: $conversationId to $mutedConversationStatus")
                 }
             }
         }

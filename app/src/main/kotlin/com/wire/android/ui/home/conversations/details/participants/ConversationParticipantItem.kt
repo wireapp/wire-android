@@ -41,7 +41,6 @@ import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserProfileAvatarType.WithIndicators
-import com.wire.android.ui.common.UserProfileAvatarType.WithoutIndicators
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.search.HighlightName
@@ -77,7 +76,7 @@ fun ConversationParticipantItem(
                 modifier = Modifier.padding(
                     start = dimensions().spacing8x
                 ),
-                type = uiParticipant.expiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithoutIndicators
+                type = uiParticipant.expiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithIndicators.RegularUser()
             )
         },
         titleStartPadding = dimensions().spacing0x,

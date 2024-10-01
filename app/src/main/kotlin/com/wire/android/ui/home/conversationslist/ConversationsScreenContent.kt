@@ -86,7 +86,7 @@ fun ConversationsScreenContent(
     conversationListViewModel: ConversationListViewModel =
         if (LocalInspectionMode.current) ConversationListViewModelPreview()
         else hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
-            key = conversationsSource.name,
+            key = "list_${conversationsSource.name}",
             creationCallback = { factory ->
                 factory.create(
                     conversationsSource = conversationsSource,
@@ -96,7 +96,9 @@ fun ConversationsScreenContent(
         ),
     conversationCallListViewModel: ConversationCallListViewModel =
         if (LocalInspectionMode.current) ConversationCallListViewModelPreview
-        else hiltViewModel<ConversationCallListViewModelImpl>(key = conversationsSource.name),
+        else hiltViewModel<ConversationCallListViewModelImpl>(
+            key = "call_${conversationsSource.name}"
+        ),
 ) {
     var currentConversationOptionNavigation by remember {
         mutableStateOf<ConversationOptionNavigation>(ConversationOptionNavigation.Home)

@@ -95,7 +95,7 @@ sealed class UserProfileAvatarType {
      * This avatar has indicators in the form of borders around the avatar.
      */
     sealed class WithIndicators : UserProfileAvatarType() {
-        data class RegularUser(val legalHoldIndicatorVisible: Boolean) : WithIndicators()
+        data class RegularUser(val legalHoldIndicatorVisible: Boolean = false) : WithIndicators()
         data class TemporaryUser(val expiresAt: Instant) : WithIndicators()
     }
 

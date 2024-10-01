@@ -15,17 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.home.conversationslist.search
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,54 +33,17 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.home.conversationslist.common.ConversationList
-import com.wire.android.ui.home.conversationslist.model.ConversationFolder
-import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
-import kotlinx.collections.immutable.ImmutableMap
 
 @Composable
-fun SearchConversationScreen(
-    searchQuery: String,
-    conversationSearchResult: ImmutableMap<ConversationFolder, List<ConversationItem>>,
-    onOpenNewConversation: () -> Unit,
-    onOpenConversation: (ConversationId) -> Unit,
-    onEditConversation: (ConversationItem) -> Unit,
-    onOpenUserProfile: (UserId) -> Unit,
-    onJoinCall: (ConversationId) -> Unit,
-    onAudioPermissionPermanentlyDenied: () -> Unit,
-    modifier: Modifier = Modifier,
-    lazyListState: LazyListState = rememberLazyListState(),
-) {
-    Box(modifier.fillMaxSize()) {
-        if (conversationSearchResult.values.isEmpty()) {
-            EmptySearchResult(onOpenNewConversation)
-        } else {
-            ConversationList(
-                conversationListItems = conversationSearchResult,
-                searchQuery = searchQuery,
-                onOpenConversation = onOpenConversation,
-                onEditConversation = onEditConversation,
-                onOpenUserProfile = onOpenUserProfile,
-                onJoinCall = onJoinCall,
-                onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
-                lazyListState = lazyListState,
-            )
-        }
-    }
-}
-
-@Composable
-private fun EmptySearchResult(onNewConversationCLick: () -> Unit) {
+fun SearchConversationsEmptyContent(onNewConversationCLick: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         VerticalSpace.x8()
         Column(
@@ -119,8 +78,6 @@ private fun EmptySearchResult(onNewConversationCLick: () -> Unit) {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewEmptySearchResult() {
-    WireTheme {
-        EmptySearchResult(onNewConversationCLick = {})
-    }
+fun PreviewSearchConversationsEmptyContent() = WireTheme {
+    SearchConversationsEmptyContent(onNewConversationCLick = {})
 }

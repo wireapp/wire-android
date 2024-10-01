@@ -32,7 +32,6 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
@@ -50,13 +49,11 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -66,164 +63,172 @@ import org.junit.jupiter.api.extension.ExtendWith
 // TODO write more tests
 class ConversationListViewModelTest {
 
-    private var conversationListViewModel: ConversationListViewModel
-
-    @MockK
-    lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
-
-    @MockK
-    lateinit var observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase
-
-    @MockK
-    lateinit var leaveConversation: LeaveConversationUseCase
-
-    @MockK
-    lateinit var deleteTeamConversationUseCase: DeleteTeamConversationUseCase
-
-    @MockK
-    lateinit var blockUser: BlockUserUseCase
-
-    @MockK
-    lateinit var unblockUser: UnblockUserUseCase
-
-    @MockK
-    lateinit var clearConversationContent: ClearConversationContentUseCase
-
-    @MockK
-    private lateinit var wireSessionImageLoader: WireSessionImageLoader
-
-    @MockK
-    private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
-
-    @MockK
-    private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
-
-    @MockK
-    private lateinit var refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
-
-    @MockK
-    private lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
-
-    private val dispatcher = StandardTestDispatcher()
-
-    init {
-        MockKAnnotations.init(this, relaxUnitFun = true)
-        Dispatchers.setMain(dispatcher)
-
-        coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
-        coEvery { observeConversationListDetailsUseCase.invoke(false) } returns flowOf(
-            listOf(
-                TestConversationDetails.CONNECTION,
-                TestConversationDetails.CONVERSATION_ONE_ONE,
-                TestConversationDetails.GROUP
-            )
-        )
-
-        mockUri()
-        conversationListViewModel =
-            ConversationListViewModel(
-                dispatcher = TestDispatcherProvider(),
-                updateConversationMutedStatus = updateConversationMutedStatus,
-                observeConversationListDetails = observeConversationListDetailsUseCase,
-                leaveConversation = leaveConversation,
-                deleteTeamConversation = deleteTeamConversationUseCase,
-                blockUserUseCase = blockUser,
-                unblockUserUseCase = unblockUser,
-                clearConversationContentUseCase = clearConversationContent,
-                wireSessionImageLoader = wireSessionImageLoader,
-                observeEstablishedCalls = observeEstablishedCalls,
-                refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
-                refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
-                userTypeMapper = UserTypeMapper(),
-                updateConversationArchivedStatus = updateConversationArchivedStatus
-            )
-    }
+    private val dispatcherProvider = TestDispatcherProvider()
 
     @Test
-    fun `given empty search query, when collecting, then update state with all conversations`() = runTest {
+    fun `given empty search query, when collecting, then update state with all conversations`() = runTest(dispatcherProvider.main()) {
         // Given
         val searchQueryText = ""
+        val (arrangement, conversationListViewModel) = Arrangement().arrange()
 
         // When
-        dispatcher.scheduler.advanceUntilIdle()
-        conversationListViewModel.searchQueryChanged(searchQueryText)
-        dispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
+        arrangement.searchQueryChanged(searchQueryText)
+        advanceUntilIdle()
 
         // Then
         assertEquals(
             3,
-            conversationListViewModel.conversationListState.conversationSearchResult[ConversationFolder.Predefined.Conversations]?.size,
+            conversationListViewModel.conversationListState.foldersWithConversations[ConversationFolder.Predefined.Conversations]?.size,
         )
         assertEquals(searchQueryText, conversationListViewModel.conversationListState.searchQuery)
     }
 
     @Test
-    fun `given non-empty search query, when collecting, then update state with filtered conversations`() = runTest {
+    fun `given non-empty search query, when collecting, then update state with filtered conversations`() = runTest(dispatcherProvider.main()) {
         // Given
         val searchQueryText = TestConversationDetails.CONVERSATION_ONE_ONE.conversation.name.orDefault("test")
+        val (arrangement, conversationListViewModel) = Arrangement().arrange()
 
         // When
-        dispatcher.scheduler.advanceUntilIdle()
-        conversationListViewModel.searchQueryChanged(searchQueryText)
-        dispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
+        arrangement.searchQueryChanged(searchQueryText)
+        advanceUntilIdle()
 
         // Then
         assertEquals(
             1,
-            conversationListViewModel.conversationListState.conversationSearchResult[ConversationFolder.Predefined.Conversations]?.size,
+            conversationListViewModel.conversationListState.foldersWithConversations[ConversationFolder.Predefined.Conversations]?.size,
         )
         assertEquals(searchQueryText, conversationListViewModel.conversationListState.searchQuery)
     }
 
     @Test
-    fun `given empty search query, when collecting archived conversations, then update state with only archived conversations`() = runTest {
+    fun `given a valid conversation muting state, when calling muteConversation, then should call with call the UseCase`() = runTest(dispatcherProvider.main()) {
         // Given
-        coEvery { observeConversationListDetailsUseCase.invoke(true) } returns flowOf(
-            listOf(
-                TestConversationDetails.CONVERSATION_ONE_ONE,
-                TestConversationDetails.GROUP
-            )
-        )
+        val (arrangement, conversationListViewModel) = Arrangement()
+            .updateConversationMutedStatusSuccess()
+            .arrange()
+
         // When
-        dispatcher.scheduler.advanceUntilIdle()
-        conversationListViewModel.updateConversationsSource(ConversationsSource.ARCHIVE)
-        dispatcher.scheduler.advanceUntilIdle()
-
-        // Then
-        assertEquals(
-            2,
-            conversationListViewModel.conversationListState.conversationSearchResult[ConversationFolder.WithoutHeader]?.size,
-        )
-        coVerify(exactly = 1) { observeConversationListDetailsUseCase.invoke(true) }
-    }
-
-    @Test
-    fun `given a valid conversation muting state, when calling muteConversation, then should call with call the UseCase`() = runTest {
-        coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         conversationListViewModel.muteConversation(conversationId, MutedConversationStatus.AllMuted)
 
-        coVerify(exactly = 1) { updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, any()) }
+        // Then
+        coVerify(exactly = 1) { arrangement.updateConversationMutedStatus(conversationId, MutedConversationStatus.AllMuted, any()) }
     }
 
     @Test
-    fun `given a valid conversation muting state, when calling block user, then should call BlockUserUseCase`() = runTest {
-        coEvery { blockUser(any()) } returns BlockUserResult.Success
-        conversationListViewModel.blockUser(
-            BlockUserDialogState(
-                userName = "someName",
-                userId = userId
-            )
+    fun `given a valid conversation muting state, when calling block user, then should call BlockUserUseCase`() = runTest(dispatcherProvider.main()) {
+        // Given
+        val (arrangement, conversationListViewModel) = Arrangement()
+            .blockUserSuccess()
+            .arrange()
+
+        // When
+        conversationListViewModel.blockUser(BlockUserDialogState(userName = "someName", userId = userId)
         )
 
-        coVerify(exactly = 1) { blockUser(userId) }
+        // Then
+        coVerify(exactly = 1) { arrangement.blockUser(userId) }
     }
 
     @Test
-    fun `given a valid conversation muting state, when calling unblock user, then should call BlockUserUseCase`() = runTest {
-        coEvery { unblockUser(any()) } returns UnblockUserResult.Success
+    fun `given a valid conversation muting state, when calling unblock user, then should call BlockUserUseCase`() = runTest(dispatcherProvider.main()) {
+        // Given
+        val (arrangement, conversationListViewModel) = Arrangement()
+            .unblockUserSuccess()
+            .arrange()
+
+        // When
         conversationListViewModel.unblockUser(userId)
 
-        coVerify(exactly = 1) { unblockUser(userId) }
+        // Then
+        coVerify(exactly = 1) { arrangement.unblockUser(userId) }
+    }
+
+    inner class Arrangement {
+        @MockK
+        lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
+
+        @MockK
+        lateinit var observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase
+
+        @MockK
+        lateinit var leaveConversation: LeaveConversationUseCase
+
+        @MockK
+        lateinit var deleteTeamConversationUseCase: DeleteTeamConversationUseCase
+
+        @MockK
+        lateinit var blockUser: BlockUserUseCase
+
+        @MockK
+        lateinit var unblockUser: UnblockUserUseCase
+
+        @MockK
+        lateinit var clearConversationContent: ClearConversationContentUseCase
+
+        @MockK
+        private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
+        @MockK
+        private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
+
+        @MockK
+        private lateinit var refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
+
+        @MockK
+        private lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
+
+        private val searchQueryFlow = MutableStateFlow("")
+
+        init {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+            coEvery { observeConversationListDetailsUseCase.invoke(false) } returns flowOf(
+                listOf(
+                    TestConversationDetails.CONNECTION,
+                    TestConversationDetails.CONVERSATION_ONE_ONE,
+                    TestConversationDetails.GROUP
+                )
+            )
+            mockUri()
+        }
+
+        fun searchQueryChanged(searchQuery: String) = apply {
+            searchQueryFlow.value = searchQuery
+        }
+
+        fun updateConversationMutedStatusSuccess() = apply {
+            coEvery {
+                updateConversationMutedStatus(any(), any(), any())
+            } returns ConversationUpdateStatusResult.Success
+        }
+
+        fun blockUserSuccess() = apply {
+            coEvery { blockUser(any()) } returns BlockUserResult.Success
+        }
+
+        fun unblockUserSuccess() = apply {
+            coEvery { unblockUser(any()) } returns UnblockUserResult.Success
+        }
+
+        fun arrange() = this to ConversationListViewModelImpl(
+            conversationsSource = ConversationsSource.MAIN,
+            dispatcher = dispatcherProvider,
+            updateConversationMutedStatus = updateConversationMutedStatus,
+            observeConversationListDetails = observeConversationListDetailsUseCase,
+            leaveConversation = leaveConversation,
+            deleteTeamConversation = deleteTeamConversationUseCase,
+            blockUserUseCase = blockUser,
+            unblockUserUseCase = unblockUser,
+            clearConversationContentUseCase = clearConversationContent,
+            wireSessionImageLoader = wireSessionImageLoader,
+            refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
+            refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
+            userTypeMapper = UserTypeMapper(),
+            updateConversationArchivedStatus = updateConversationArchivedStatus,
+            searchQueryFlow = searchQueryFlow
+        )
     }
 
     companion object {

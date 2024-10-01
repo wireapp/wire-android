@@ -262,7 +262,7 @@ fun ConversationScreen(
     // then ViewModel also detects it's removed and calls onNotFound which can execute navigateBack again and close the app
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
 
-    val activity = LocalActivity.current
+    val context = LocalContext.current
 
     LaunchedEffect(conversationScreenState.isAnySheetVisible) {
         with(messageComposerStateHolder) {
@@ -308,8 +308,8 @@ fun ConversationScreen(
                 onDismiss = ::dismissJoinCallAnywayDialog,
                 onConfirm = {
                     joinAnyway {
-                        getOngoingCallIntent(activity, it.toString()).run {
-                            activity.startActivity(this)
+                        getOngoingCallIntent(context, it.toString()).run {
+                            context.startActivity(this)
                         }
                         AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                     }
@@ -322,8 +322,8 @@ fun ConversationScreen(
         ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
             OngoingActiveCallDialog(onJoinAnyways = {
                 conversationListCallViewModel.endEstablishedCallIfAny {
-                    getOutgoingCallIntent(activity, conversationListCallViewModel.conversationId.toString()).run {
-                        activity.startActivity(this)
+                    getOutgoingCallIntent(context, conversationListCallViewModel.conversationId.toString()).run {
+                        context.startActivity(this)
                     }
                     AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
                 }
@@ -349,13 +349,13 @@ fun ConversationScreen(
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
                         onOpenOutgoingCallScreen = {
-                            getOutgoingCallIntent(activity, it.toString()).run {
-                                activity.startActivity(this)
+                            getOutgoingCallIntent(context, it.toString()).run {
+                                context.startActivity(this)
                             }
                         },
                         onOpenOngoingCallScreen = {
-                            getOngoingCallIntent(activity, it.toString()).run {
-                                activity.startActivity(this)
+                            getOngoingCallIntent(context, it.toString()).run {
+                                context.startActivity(this)
                             }
                         }
                     )
@@ -395,13 +395,13 @@ fun ConversationScreen(
                         coroutineScope,
                         conversationInfoViewModel.conversationInfoViewState.conversationType,
                         onOpenOutgoingCallScreen = {
-                            getOutgoingCallIntent(activity, it.toString()).run {
-                                activity.startActivity(this)
+                            getOutgoingCallIntent(context, it.toString()).run {
+                                context.startActivity(this)
                             }
                         },
                         onOpenOngoingCallScreen = {
-                            getOngoingCallIntent(activity, it.toString()).run {
-                                activity.startActivity(this)
+                            getOngoingCallIntent(context, it.toString()).run {
+                                context.startActivity(this)
                             }
                         }
                     )
@@ -480,13 +480,13 @@ fun ConversationScreen(
                 coroutineScope,
                 conversationInfoViewModel.conversationInfoViewState.conversationType,
                 onOpenOutgoingCallScreen = {
-                    getOutgoingCallIntent(activity, it.toString()).run {
-                        activity.startActivity(this)
+                    getOutgoingCallIntent(context, it.toString()).run {
+                        context.startActivity(this)
                     }
                 },
                 onOpenOngoingCallScreen = {
-                    getOngoingCallIntent(activity, it.toString()).run {
-                        activity.startActivity(this)
+                    getOngoingCallIntent(context, it.toString()).run {
+                        context.startActivity(this)
                     }
                 }
             )
@@ -494,8 +494,8 @@ fun ConversationScreen(
         onJoinCall = {
             conversationListCallViewModel.joinOngoingCall {
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                getOngoingCallIntent(activity, it.toString()).run {
-                    activity.startActivity(this)
+                getOngoingCallIntent(context, it.toString()).run {
+                    context.startActivity(this)
                 }
             }
         },

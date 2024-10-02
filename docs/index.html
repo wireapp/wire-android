@@ -265,6 +265,53 @@ requiring comprehensive testing and validation to ensure seamless integration.</
                 </div>
             </div>
             
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse5">5. Conversation list composables refactor</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse5" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>5. Conversation list composables refactor</h1>
+<p>Date: 2024-10-01</p>
+<h2>Status</h2>
+<p>Accepted</p>
+<h2>Context</h2>
+<p>Conversation-list-related composables and screens (all conversations, archive) are overly
+complicated and have many leftovers after bottom tabs and multiple refactors,
+so in order to implement pagination, it's better to make a cleanup first.</p>
+<h2>Decision</h2>
+<p>Simplify and unify composables related to creating screens that show conversation lists.
+Remove old, unused code, like things that were implemented in order to make the bottom tabs or code
+leftover from previous refactors, and update to make it more readable, reusable and maintainable.
+Make it more similar to what we have in other places - instead of having complicated &quot;routers&quot; or
+&quot;bridges&quot;, just create &quot;content&quot; composable that can be used on multiple screens,
+but with the intention that common <code>ViewModel</code>s are incorporated into this content composable,
+so that they do not have to be added each time, but make it possible to generate previews.
+Also, make use of <code>AssistedInject</code> to reduce the number of functions and <code>LaunchedEffect</code>s needed.</p>
+<h2>Consequences</h2>
+<ul>
+<li><code>ConversationRouterHomeBridge</code> is now replaced with simpler <code>ConversationsScreenContent</code>,
+which is a single composable to be used to create multiple screens that show conversation lists.</li>
+<li><code>ConversationListViewModel</code> uses <code>AssistedInject</code> to provide <code>ConversationsSource</code> and a <code>Flow</code>
+of search query <code>String</code>s directly in constructor instead of doing it using multiple functions.</li>
+<li><code>ConversationListViewModel</code> and <code>ConversationCallListViewModel</code> are injected using unique keys,
+so that for each <code>ConversationsSource</code> there is a separate <code>ViewModel</code>. Thanks to that, together
+with assisted injection, they are now dedicated to each type which makes it easier to maintain,
+debug and even use on the same screen if needed.</li>
+<li>Both mentioned <code>ViewModel</code>s are now also interfaces that are implemented by the respective
+<code>ConversationListViewModelImpl</code> and <code>ConversationCallListViewModelImpl</code> and &quot;preview&quot; versions
+of these interfaces are also created to make it possible to generate composable previews.</li>
+</ul>
+</div>
+                </div>
+            </div>
+            
         </div>
         <footer>
             Generated with &lt;3 using ADR Viewer

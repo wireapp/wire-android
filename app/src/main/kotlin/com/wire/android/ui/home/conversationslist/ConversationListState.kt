@@ -28,16 +28,8 @@ import kotlinx.collections.immutable.persistentMapOf
 data class ConversationListState(
     val searchQuery: String = "",
     val foldersWithConversations: ImmutableMap<ConversationFolder, List<ConversationItem>> = persistentMapOf(),
-    val hasNoConversations: Boolean = false,
-    val conversationSearchResult: ImmutableMap<ConversationFolder, List<ConversationItem>> = persistentMapOf(),
     val missedCalls: ImmutableList<ConversationItem> = persistentListOf(),
     val callHistory: ImmutableList<ConversationItem> = persistentListOf(),
     val unreadMentions: ImmutableList<ConversationItem> = persistentListOf(),
     val allMentions: ImmutableList<ConversationItem> = persistentListOf(),
-)
-
-data class ConversationListCallState(
-    val hasEstablishedCall: Boolean = false,
-    val shouldShowJoinAnywayDialog: Boolean = false,
-    val shouldShowCallingPermissionDialog: Boolean = false
 )

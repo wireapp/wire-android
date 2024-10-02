@@ -170,4 +170,29 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
             Log.w(TAG, "Calling isAnalyticsInitialized with a null recorder.")
             false
         }
+
+    override fun recordView(screen: String) {
+        coroutineScope.launch {
+            mutex.withLock {
+                if (!isAnonymousUsageDataEnabled) return@withLock
+                anonymousAnalyticsRecorder?.recordView(screen)
+            }
+        }
+    }
+
+    override fun stopView(screen: String) {
+        coroutineScope.launch {
+            mutex.withLock {
+                if (!isAnonymousUsageDataEnabled) return@withLock
+                anonymousAnalyticsRecorder?.stopView(screen)
+            }
+        }
+    }
+
+    override fun applicationOnCreate() {
+        if (!isAnonymousUsageDataEnabled) return
+
+        anonymousAnalyticsRecorder?.applicationOnCreate()
+            ?: Log.w(TAG, "Calling applicationOnCreate with a null recorder.")
+    }
 }

@@ -188,7 +188,7 @@ class WireActivityViewModelTest {
                 .withNoCurrentSession()
                 .withMigrationRequired()
                 .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
-                .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.Home("home")))
+                .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.Home))
                 .arrange()
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
@@ -503,7 +503,7 @@ class WireActivityViewModelTest {
             .withCurrentScreen(currentScreenFlow)
             .arrange()
 
-        currentScreenFlow.value = CurrentScreen.ImportMedia("import")
+        currentScreenFlow.value = CurrentScreen.ImportMedia
         newClientFlow.emit(NewClientResult.InCurrentAccount(listOf(TestClient.CLIENT), USER_ID))
 
         advanceUntilIdle()
@@ -520,7 +520,7 @@ class WireActivityViewModelTest {
             .withCurrentScreen(currentScreenFlow)
             .arrange()
 
-        currentScreenFlow.value = CurrentScreen.ImportMedia("import")
+        currentScreenFlow.value = CurrentScreen.ImportMedia
 
         assertEquals(null, viewModel.globalAppState.newClientDialog)
     }

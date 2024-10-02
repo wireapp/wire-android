@@ -144,23 +144,23 @@ class CurrentScreenManager @Inject constructor(
 sealed class CurrentScreen {
 
     // Home Screen is being displayed
-    data class Home(val route: String?) : CurrentScreen()
+    data object Home : CurrentScreen()
 
     // Some Conversation is opened
-    data class Conversation(val id: ConversationId, val route: String?) : CurrentScreen() {
+    data class Conversation(val id: ConversationId) : CurrentScreen() {
         override fun toString(): String = "Conversation(${id.toString().obfuscateId()})"
     }
 
     // Another User Profile Screen is opened
-    data class OtherUserProfile(val id: ConversationId, val route: String?) : CurrentScreen() {
+    data class OtherUserProfile(val id: ConversationId) : CurrentScreen() {
         override fun toString(): String = "OtherUserProfile(${id.toString().obfuscateId()})"
     }
 
     // Import media screen is opened
-    data class ImportMedia(val route: String?) : CurrentScreen()
+    data object ImportMedia : CurrentScreen()
 
     // SelfDevices screen is opened
-    data class DeviceManager(val route: String?) : CurrentScreen()
+    data object DeviceManager : CurrentScreen()
 
     // Auth related screen is opened
     data class AuthRelated(val route: String?) : CurrentScreen()
@@ -179,18 +179,16 @@ sealed class CurrentScreen {
                 return InBackground
             }
             return when (destination) {
-                is HomeScreenDestination -> Home(destination.baseRoute)
+                is HomeScreenDestination -> Home
                 is ConversationScreenDestination ->
-                    Conversation(destination.argsFrom(arguments).conversationId, destination.baseRoute)
+                    Conversation(destination.argsFrom(arguments).conversationId)
 
                 is OtherUserProfileScreenDestination ->
-                    destination.argsFrom(arguments).conversationId?.let { OtherUserProfile(it, destination.baseRoute) } ?: SomeOther(
-                        destination.baseRoute
-                    )
+                    destination.argsFrom(arguments).conversationId?.let { OtherUserProfile(it) } ?: SomeOther(destination.baseRoute)
 
-                is ImportMediaScreenDestination -> ImportMedia(destination.baseRoute)
+                is ImportMediaScreenDestination -> ImportMedia
 
-                is SelfDevicesScreenDestination -> DeviceManager(destination.baseRoute)
+                is SelfDevicesScreenDestination -> DeviceManager
 
                 is WelcomeScreenDestination,
                 is LoginScreenDestination,

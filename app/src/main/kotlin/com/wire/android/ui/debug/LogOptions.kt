@@ -50,9 +50,10 @@ fun LogOptions(
     isLoggingEnabled: Boolean,
     onLoggingEnabledChange: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
-    onShareLogs: () -> Unit
+    onShareLogs: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Column {
+    Column(modifier = modifier) {
         FolderHeader(stringResource(R.string.label_logs_option_title))
         EnableLoggingSwitch(
             isEnabled = isLoggingEnabled,
@@ -82,9 +83,9 @@ fun LogOptions(
 
 @Composable
 private fun EnableLoggingSwitch(
-    isEnabled: Boolean = false,
     onCheckedChange: ((Boolean) -> Unit)?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isEnabled: Boolean = false
 ) {
     SurfaceBackgroundWrapper {
         Column(Modifier.padding(dimensions().spacing16x)) {

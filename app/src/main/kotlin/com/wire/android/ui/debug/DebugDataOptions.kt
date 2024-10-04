@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
@@ -38,9 +39,12 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.snackbar.collectAndShowSnackbar
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -59,6 +63,7 @@ fun DebugDataOptions(
         hiltViewModelScoped<DebugDataOptionsViewModelImpl, DebugDataOptionsViewModel, DebugDataOptions>(DebugDataOptions),
     onManualMigrationPressed: (currentAccount: UserId) -> Unit
 ) {
+    LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
     DebugDataOptionsContent(
         state = viewModel.state(),
         appVersion = appVersion,
@@ -73,6 +78,7 @@ fun DebugDataOptions(
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         dismissCertificateDialog = viewModel::dismissCertificateDialog,
         checkCrlRevocationList = viewModel::checkCrlRevocationList,
+        onResendFCMToken = viewModel::forceSendFCMToken
     )
 }
 
@@ -92,8 +98,10 @@ fun DebugDataOptionsContent(
     handleE2EIEnrollmentResult: (Either<CoreFailure, E2EIEnrollmentResult>) -> Unit,
     dismissCertificateDialog: () -> Unit,
     checkCrlRevocationList: () -> Unit,
+    onResendFCMToken: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Column {
+    Column(modifier = modifier) {
 
         FolderHeader(stringResource(R.string.label_debug_data))
 
@@ -194,7 +202,8 @@ fun DebugDataOptionsContent(
                 onDisableEventProcessingChange = onDisableEventProcessingChange,
                 onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
-                checkCrlRevocationList = checkCrlRevocationList
+                checkCrlRevocationList = checkCrlRevocationList,
+                onResendFCMToken = onResendFCMToken,
             )
         }
 
@@ -357,13 +366,30 @@ private fun EnableEncryptedProteusStorageSwitch(
 //endregion
 
 //region Debug Tools
+
+@Preview
+@Composable
+private fun DebugToolsOptionsPreview() {
+    WireTheme {
+        DebugToolsOptions(
+            isEventProcessingEnabled = true,
+            onDisableEventProcessingChange = {},
+            onRestartSlowSyncForRecovery = {},
+            onForceUpdateApiVersions = {},
+            checkCrlRevocationList = {},
+            onResendFCMToken = {},
+        )
+    }
+}
+
 @Composable
 private fun DebugToolsOptions(
     isEventProcessingEnabled: Boolean,
     onDisableEventProcessingChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
-    checkCrlRevocationList: () -> Unit
+    checkCrlRevocationList: () -> Unit,
+    onResendFCMToken: () -> Unit,
 ) {
     FolderHeader(stringResource(R.string.label_debug_tools_title))
     Column {
@@ -434,6 +460,27 @@ private fun DebugToolsOptions(
                 )
             }
         )
+
+        RowItemTemplate(
+            modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = stringResource(R.string.debug_settings_register_fcm_push_token),
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            },
+            actions = {
+                WirePrimaryButton(
+                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                    onClick = onResendFCMToken,
+                    text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
+                    fillMaxWidth = false
+                )
+            }
+        )
     }
 }
 
@@ -469,7 +516,7 @@ private fun DisableEventProcessingSwitch(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewOtherDebugOptions() {
+fun PreviewOtherDebugOptions() = WireTheme {
     DebugDataOptionsContent(
         appVersion = "1.0.0",
         buildVariant = "debug",
@@ -492,5 +539,6 @@ fun PreviewOtherDebugOptions() {
         handleE2EIEnrollmentResult = {},
         dismissCertificateDialog = {},
         checkCrlRevocationList = {},
+        onResendFCMToken = {}
     )
 }

@@ -22,7 +22,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
-import com.wire.android.ui.destinations.AllConversationScreenDestination
+import com.wire.android.ui.destinations.AllConversationsScreenDestination
 import com.wire.android.ui.destinations.ArchiveScreenDestination
 import com.wire.android.ui.destinations.SettingsScreenDestination
 import com.wire.android.ui.destinations.VaultScreenDestination
@@ -43,7 +43,7 @@ sealed class HomeDestination(
         icon = R.drawable.ic_conversation,
         isSearchable = true,
         withNewConversationFab = true,
-        direction = AllConversationScreenDestination
+        direction = AllConversationsScreenDestination
     )
 
     data object Settings : HomeDestination(

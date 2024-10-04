@@ -231,7 +231,7 @@ class AnonymousAnalyticsManagerTest {
         advanceUntilIdle()
 
         // then
-        verify(exactly = 1) {
+        verify {
             arrangement.anonymousAnalyticsRecorder.onStart(activity)
         }
     }
@@ -263,6 +263,98 @@ class AnonymousAnalyticsManagerTest {
         }
     }
 
+    @Test
+    fun givenManagerInitialized_whenRecordingView_thenScreenIsRecorded() = runTest(dispatcher) {
+        // given
+        val (arrangement, manager) = Arrangement()
+            .withAnonymousAnalyticsRecorderConfigure()
+            .arrange()
+
+        val screen = "screen"
+        arrangement.withAnalyticsResult(Arrangement.existingIdentifierResult)
+
+        // when
+        manager.init(
+            context = arrangement.context,
+            analyticsSettings = Arrangement.analyticsSettings,
+            analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
+            anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
+            migrationHandler = arrangement.migrationHandler,
+            propagationHandler = arrangement.propagationHandler,
+            dispatcher = dispatcher
+        )
+        advanceUntilIdle()
+
+        manager.recordView(screen)
+        advanceUntilIdle()
+
+        // then
+        verify(exactly = 1) {
+            arrangement.anonymousAnalyticsRecorder.recordView(eq(screen))
+        }
+    }
+
+    @Test
+    fun givenManagerInitialized_whenStoppingView_thenScreenIsStoppedToRecord() = runTest(dispatcher) {
+        // given
+        val (arrangement, manager) = Arrangement()
+            .withAnonymousAnalyticsRecorderConfigure()
+            .arrange()
+
+        val screen = "screen"
+        arrangement.withAnalyticsResult(Arrangement.existingIdentifierResult)
+
+        // when
+        manager.init(
+            context = arrangement.context,
+            analyticsSettings = Arrangement.analyticsSettings,
+            analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
+            anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
+            migrationHandler = arrangement.migrationHandler,
+            propagationHandler = arrangement.propagationHandler,
+            dispatcher = dispatcher
+        )
+        advanceUntilIdle()
+
+        manager.stopView(screen)
+        advanceUntilIdle()
+
+        // then
+        verify(exactly = 1) {
+            arrangement.anonymousAnalyticsRecorder.stopView(eq(screen))
+        }
+    }
+
+    @Test
+    fun givenManagerInitialized_whenApplicationCreated_thenApplicationOnCreateIsRecorded() = runTest(dispatcher) {
+        // given
+        val (arrangement, manager) = Arrangement()
+            .withAnonymousAnalyticsRecorderConfigure()
+            .arrange()
+
+        arrangement.withAnalyticsResult(Arrangement.existingIdentifierResult)
+
+        // when
+        manager.init(
+            context = arrangement.context,
+            analyticsSettings = Arrangement.analyticsSettings,
+            analyticsResultFlow = arrangement.analyticsResultChannel.consumeAsFlow(),
+            anonymousAnalyticsRecorder = arrangement.anonymousAnalyticsRecorder,
+            migrationHandler = arrangement.migrationHandler,
+            propagationHandler = arrangement.propagationHandler,
+            dispatcher = dispatcher
+        )
+        advanceUntilIdle()
+
+        manager.applicationOnCreate()
+        advanceUntilIdle()
+
+        // then
+        verify(exactly = 1) {
+            arrangement.anonymousAnalyticsRecorder.applicationOnCreate()
+        }
+    }
+
     private class Arrangement {
         @MockK
         lateinit var context: Context
@@ -284,6 +376,9 @@ class AnonymousAnalyticsManagerTest {
             every { anonymousAnalyticsRecorder.onStop() } returns Unit
             every { anonymousAnalyticsRecorder.onStart(any()) } returns Unit
             every { anonymousAnalyticsRecorder.sendEvent(any()) } returns Unit
+            every { anonymousAnalyticsRecorder.recordView(any()) } returns Unit
+            every { anonymousAnalyticsRecorder.stopView(any()) } returns Unit
+            every { anonymousAnalyticsRecorder.applicationOnCreate() } returns Unit
             coEvery { anonymousAnalyticsRecorder.setTrackingIdentifierWithMerge(any(), any(), any()) } returns Unit
             coEvery { anonymousAnalyticsRecorder.setTrackingIdentifierWithoutMerge(any(), any(), any(), any()) } returns Unit
         }

@@ -223,6 +223,8 @@ class WireApplication : BaseApp() {
             dispatcher = Dispatchers.IO
         )
 
+        AnonymousAnalyticsManagerImpl.applicationOnCreate()
+
         // observe the app visibility state and send AppOpen event if the app goes from the background to the foreground
         globalAppScope.launch {
             currentScreenManager

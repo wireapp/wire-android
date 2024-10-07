@@ -24,18 +24,21 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
@@ -53,6 +56,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
@@ -321,14 +325,28 @@ fun QRCodeIcon(
     modifier: Modifier = Modifier,
     @StringRes contentDescriptionId: Int = R.string.user_profile_qr_code_share_link
 ) {
-    androidx.compose.material3.Icon(
-        imageVector = Icons.Filled.QrCode,
-        contentDescription = stringResource(contentDescriptionId),
-        modifier = modifier
-            .size(dimensions().spacing24x)
-            .clickable { onQrCodeClick() },
-        tint = colorsScheme().onBackground
-    )
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(dimensions().spacing16x))
+            .background(colorsScheme().surface)
+            .border(
+                width = dimensions().spacing1x,
+                color = colorsScheme().callingInActiveBorderIndicator,
+                shape = RoundedCornerShape(dimensions().spacing16x)
+            )
+            .size(height = dimensions().spacing32x, width = dimensions().spacing40x)
+            .padding(dimensions().spacing1x, dimensions().spacing1x)
+            .clickable { onQrCodeClick() }
+    ) {
+        androidx.compose.material3.Icon(
+            imageVector = Icons.Filled.QrCode,
+            contentDescription = stringResource(contentDescriptionId),
+            modifier = modifier
+                .fillMaxSize()
+                .padding(dimensions().spacing2x),
+            tint = Color.Black
+        )
+    }
 }
 
 @Composable

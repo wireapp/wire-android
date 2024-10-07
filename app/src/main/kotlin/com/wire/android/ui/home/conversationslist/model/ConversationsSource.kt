@@ -17,17 +17,4 @@
  */
 package com.wire.android.ui.home.conversationslist.model
 
-data class SearchQuery(val text: String, val source: ConversationsSource)
-
-sealed class SearchQueryUpdate {
-    data class UpdateQuery(val text: String) : SearchQueryUpdate()
-
-    data class UpdateConversationsSource(val source: ConversationsSource) : SearchQueryUpdate()
-}
-
-enum class ConversationsSource {
-    MAIN,
-    ARCHIVE
-}
-
-fun ConversationsSource.isArchive(): Boolean = this == ConversationsSource.ARCHIVE
+enum class ConversationsSource { MAIN, ARCHIVE; }

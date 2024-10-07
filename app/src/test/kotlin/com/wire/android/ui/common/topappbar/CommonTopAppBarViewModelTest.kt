@@ -164,7 +164,7 @@ class CommonTopAppBarViewModelTest {
                 .withOngoingCall(isMuted = false)
                 .withoutOutgoingCall()
                 .withoutIncomingCall()
-                .withCurrentScreen(CurrentScreen.SomeOther)
+                .withCurrentScreen(CurrentScreen.SomeOther())
                 .withSyncState(SyncState.Waiting)
                 .arrange()
 

@@ -461,26 +461,28 @@ private fun DebugToolsOptions(
             }
         )
 
-        RowItemTemplate(
-            modifier = Modifier.wrapContentWidth(),
-            title = {
-                Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    text = stringResource(R.string.debug_settings_register_fcm_push_token),
-                    modifier = Modifier.padding(start = dimensions().spacing8x)
-                )
-            },
-            actions = {
-                WirePrimaryButton(
-                    minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
-                    minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
-                    onClick = onResendFCMToken,
-                    text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
-                    fillMaxWidth = false
-                )
-            }
-        )
+        if (BuildConfig.PRIVATE_BUILD) {
+            RowItemTemplate(
+                modifier = Modifier.wrapContentWidth(),
+                title = {
+                    Text(
+                        style = MaterialTheme.wireTypography.body01,
+                        color = MaterialTheme.wireColorScheme.onBackground,
+                        text = stringResource(R.string.debug_settings_register_fcm_push_token),
+                        modifier = Modifier.padding(start = dimensions().spacing8x)
+                    )
+                },
+                actions = {
+                    WirePrimaryButton(
+                        minSize = MaterialTheme.wireDimensions.buttonMediumMinSize,
+                        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                        onClick = onResendFCMToken,
+                        text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
+                        fillMaxWidth = false
+                    )
+                }
+            )
+        }
     }
 }
 

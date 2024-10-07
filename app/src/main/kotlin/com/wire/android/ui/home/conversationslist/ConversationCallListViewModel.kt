@@ -18,12 +18,9 @@
 
 package com.wire.android.ui.home.conversationslist
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.model.SnackBarMessage
+import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -31,42 +28,37 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+interface ConversationCallListViewModel {
+    val joinCallDialogState: VisibilityState<ConversationId> get() = VisibilityState()
+    fun joinOngoingCall(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {}
+    fun joinAnyway(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {}
+}
+
+object ConversationCallListViewModelPreview : ConversationCallListViewModel
+
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
 @HiltViewModel
-class ConversationCallListViewModel @Inject constructor(
+class ConversationCallListViewModelImpl @Inject constructor(
     private val answerCall: AnswerCallUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase
-) : ViewModel() {
+) : ConversationCallListViewModel, ViewModel() {
 
-    var conversationListCallState by mutableStateOf(ConversationListCallState())
+    override val joinCallDialogState: VisibilityState<ConversationId> = VisibilityState()
 
-    private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
-    val infoMessage = _infoMessage.asSharedFlow()
-
-    var establishedCallConversationId: QualifiedID? = null
+    private var establishedCallConversationId: QualifiedID? = null
     private var conversationId: QualifiedID? = null
 
     private suspend fun observeEstablishedCall() {
         observeEstablishedCalls()
             .distinctUntilChanged()
             .collectLatest {
-                val hasEstablishedCall = it.isNotEmpty()
-                conversationListCallState = conversationListCallState.copy(
-                    hasEstablishedCall = hasEstablishedCall
-                )
-                establishedCallConversationId = if (it.isNotEmpty()) {
-                    it.first().conversationId
-                } else {
-                    null
-                }
+                establishedCallConversationId = it.firstOrNull()?.conversationId
             }
     }
 
@@ -76,7 +68,7 @@ class ConversationCallListViewModel @Inject constructor(
         }
     }
 
-    fun joinAnyway(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
+    override fun joinAnyway(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
@@ -86,27 +78,17 @@ class ConversationCallListViewModel @Inject constructor(
         }
     }
 
-    fun joinOngoingCall(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
+    override fun joinOngoingCall(conversationId: ConversationId, onJoined: (ConversationId) -> Unit) {
         this.conversationId = conversationId
-        if (conversationListCallState.hasEstablishedCall) {
-            showJoinCallAnywayDialog()
+        if (establishedCallConversationId != null) {
+            joinCallDialogState.show(conversationId)
         } else {
-            dismissJoinCallAnywayDialog()
+            joinCallDialogState.dismiss()
             viewModelScope.launch {
                 answerCall(conversationId = conversationId)
             }
             onJoined(conversationId)
         }
-    }
-
-    private fun showJoinCallAnywayDialog() {
-        conversationListCallState =
-            conversationListCallState.copy(shouldShowJoinAnywayDialog = true)
-    }
-
-    fun dismissJoinCallAnywayDialog() {
-        conversationListCallState =
-            conversationListCallState.copy(shouldShowJoinAnywayDialog = false)
     }
 
     companion object {

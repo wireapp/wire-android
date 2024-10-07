@@ -18,24 +18,26 @@
 
 package com.wire.android.ui.home.conversationslist
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.wire.android.ui.LocalActivity
+import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
@@ -43,12 +45,12 @@ import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationS
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
-import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
-import com.wire.android.ui.common.dialogs.UnblockUserDialogState
+import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.topappbar.search.SearchBarState
-import com.wire.android.ui.common.visbility.VisibilityState
+import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.NewConversationSearchPeopleScreenDestination
@@ -57,46 +59,56 @@ import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogS
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
-import com.wire.android.ui.home.conversationslist.all.AllConversationScreenContent
+import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
-import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.android.ui.home.conversationslist.model.isArchive
-import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
+import com.wire.android.ui.home.conversationslist.search.SearchConversationsEmptyContent
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.coroutines.flow.map
 
-// Since the HomeScreen is responsible for displaying the bottom sheet content,
-// we create a bridge that passes the content of the BottomSheet
-// also we expose the lambda which expands the BottomSheet from the HomeScreen
-@OptIn(ExperimentalMaterial3Api::class)
-@Suppress("ComplexMethod")
+/**
+ * This is a base for creating screens for displaying list of conversations.
+ * Can be used to create proper navigation destination for different sources of conversations, like archive.
+ */
+@Suppress("ComplexMethod", "NestedBlockDepth")
 @Composable
-fun ConversationRouterHomeBridge(
+fun ConversationsScreenContent(
     navigator: Navigator,
-    conversationItemType: ConversationItemType,
     searchBarState: SearchBarState,
-    conversationsSource: ConversationsSource = ConversationsSource.MAIN,
-    conversationListViewModel: ConversationListViewModel = hiltViewModel(),
-    conversationCallListViewModel: ConversationCallListViewModel = hiltViewModel(),
+    emptyListContent: @Composable () -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
+    conversationsSource: ConversationsSource = ConversationsSource.MAIN,
+    conversationListViewModel: ConversationListViewModel = when {
+        LocalInspectionMode.current -> ConversationListViewModelPreview()
+        else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
+            key = "list_${conversationsSource.name}",
+            creationCallback = { factory ->
+                factory.create(
+                    conversationsSource = conversationsSource,
+                    searchQueryFlow = searchBarState.searchQueryTextState.textAsFlow().map { it.toString() }
+                )
+            }
+        )
+    },
+    conversationCallListViewModel: ConversationCallListViewModel = when {
+        LocalInspectionMode.current -> ConversationCallListViewModelPreview
+        else -> hiltViewModel<ConversationCallListViewModelImpl>(key = "call_${conversationsSource.name}")
+    },
 ) {
     var currentConversationOptionNavigation by remember {
         mutableStateOf<ConversationOptionNavigation>(ConversationOptionNavigation.Home)
     }
 
     val sheetState = rememberWireModalSheetState<ConversationItem>()
+    val conversationsDialogsState = rememberConversationsDialogsState(conversationListViewModel.requestInProgress)
+    val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
-    val permissionPermanentlyDeniedDialogState =
-        rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
-
-    val activity = LocalActivity.current
-
-    LaunchedEffect(conversationsSource) {
-        conversationListViewModel.updateConversationsSource(conversationsSource)
-    }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         conversationListViewModel.infoMessage.collect {
@@ -110,23 +122,9 @@ fun ConversationRouterHomeBridge(
         }
     }
 
-    val conversationRouterHomeState = rememberConversationRouterState(
-        initialConversationItemType = conversationItemType,
-        requestInProgress = conversationListViewModel.requestInProgress
-    )
-
-    with(searchBarState) {
-        LaunchedEffect(isSearchActive) {
-            if (isSearchActive) {
-                conversationListViewModel.refreshMissingMetadata()
-                conversationRouterHomeState.openSearch()
-            } else {
-                conversationRouterHomeState.closeSearch()
-            }
-        }
-
-        LaunchedEffect(searchQueryTextState.text) {
-            conversationListViewModel.searchQueryChanged(searchQueryTextState.text.toString())
+    LaunchedEffect(searchBarState.isSearchActive) {
+        if (searchBarState.isSearchActive) {
+            conversationListViewModel.refreshMissingMetadata()
         }
     }
 
@@ -135,12 +133,12 @@ fun ConversationRouterHomeBridge(
             if (dialogState.isArchived) {
                 conversationListViewModel.moveConversationToArchive(dialogState)
             } else {
-                conversationRouterHomeState.archiveConversationDialogState.show(dialogState)
+                conversationsDialogsState.archiveConversationDialogState.show(dialogState)
             }
         }
     }
 
-    with(conversationRouterHomeState) {
+    with(conversationsDialogsState) {
         val onEditConversationItem: (ConversationItem) -> Unit = remember {
             {
                 sheetState.show(it)
@@ -149,62 +147,66 @@ fun ConversationRouterHomeBridge(
         }
 
         val onOpenConversation: (ConversationId) -> Unit = remember(navigator) {
-            { conversationId -> navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId))) }
+            {
+                navigator.navigate(NavigationCommand(ConversationScreenDestination(it)))
+            }
         }
         val onOpenUserProfile: (UserId) -> Unit = remember(navigator) {
-            { userId -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId))) }
+            {
+                navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(it)))
+            }
         }
         val onJoinedCall: (ConversationId) -> Unit = remember(navigator) {
             {
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                getOngoingCallIntent(activity, it.toString()).run {
-                    activity.startActivity(this)
+                getOngoingCallIntent(context, it.toString()).run {
+                    context.startActivity(this)
                 }
+            }
+        }
+        val onJoinCall: (ConversationId) -> Unit = remember {
+            {
+                conversationCallListViewModel.joinOngoingCall(it, onJoinedCall)
+            }
+        }
+        val onNewConversationClicked: () -> Unit = remember {
+            {
+                navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination))
             }
         }
 
         with(conversationListViewModel.conversationListState) {
-            when (conversationRouterHomeState.conversationItemType) {
-                ConversationItemType.ALL_CONVERSATIONS ->
-                    AllConversationScreenContent(
-                        conversations = foldersWithConversations,
-                        isFromArchive = conversationsSource.isArchive(),
-                        hasNoConversations = hasNoConversations,
-                        onEditConversation = onEditConversationItem,
-                        onOpenConversation = onOpenConversation,
-                        onOpenUserProfile = onOpenUserProfile,
-                        onJoinedCall = onJoinedCall,
-                        onAudioPermissionPermanentlyDenied = {
-                            permissionPermanentlyDeniedDialogState.show(
-                                PermissionPermanentlyDeniedDialogState.Visible(
-                                    R.string.app_permission_dialog_title,
-                                    R.string.call_permission_dialog_description
-                                )
+            when {
+                // when there is at least one conversation in any folder
+                foldersWithConversations.isNotEmpty() && foldersWithConversations.any { it.value.isNotEmpty() } -> ConversationList(
+                    lazyListState = lazyListState,
+                    conversationListItems = foldersWithConversations,
+                    searchQuery = searchQuery,
+                    onOpenConversation = onOpenConversation,
+                    onEditConversation = onEditConversationItem,
+                    onOpenUserProfile = onOpenUserProfile,
+                    onJoinCall = onJoinCall,
+                    onAudioPermissionPermanentlyDenied = {
+                        permissionPermanentlyDeniedDialogState.show(
+                            PermissionPermanentlyDeniedDialogState.Visible(
+                                R.string.app_permission_dialog_title,
+                                R.string.call_permission_dialog_description
                             )
-                        },
-                        conversationListCallState = conversationCallListViewModel.conversationListCallState,
-                        dismissJoinCallAnywayDialog = conversationCallListViewModel::dismissJoinCallAnywayDialog,
-                        joinCallAnyway = conversationCallListViewModel::joinAnyway,
-                        joinOngoingCall = conversationCallListViewModel::joinOngoingCall,
-                        lazyListState = lazyListState,
-                    )
-
-                ConversationItemType.SEARCH -> {
-                    SearchConversationScreen(
-                        searchQuery = searchQuery,
-                        conversationSearchResult = conversationSearchResult,
-                        onOpenNewConversation = { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) },
-                        onOpenConversation = onOpenConversation,
-                        onEditConversation = onEditConversationItem,
-                        onOpenUserProfile = onOpenUserProfile,
-                        onJoinCall = {
-                            conversationCallListViewModel.joinOngoingCall(it, onJoinedCall)
-                        },
-                        onAudioPermissionPermanentlyDenied = { },
-                        lazyListState = lazyListState,
-                    )
-                }
+                        )
+                    }
+                )
+                // when there is no conversation in any folder
+                searchQuery.isNotBlank() -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
+                else -> emptyListContent()
             }
+        }
+
+        VisibilityState(conversationCallListViewModel.joinCallDialogState) { callConversationId ->
+            appLogger.i("$TAG showing showJoinAnywayDialog..")
+            JoinAnywayDialog(
+                onDismiss = conversationCallListViewModel.joinCallDialogState::dismiss,
+                onConfirm = { conversationCallListViewModel.joinAnyway(callConversationId, onJoinedCall) }
+            )
         }
 
         PermissionPermanentlyDeniedDialog(
@@ -274,82 +276,15 @@ fun ConversationRouterHomeBridge(
                 )
             },
         )
-
-        BackHandler(conversationItemType == ConversationItemType.SEARCH) {
-            closeSearch()
-        }
     }
 
     SnackBarMessageHandler(infoMessages = conversationListViewModel.infoMessage)
 }
 
-@Suppress("LongParameterList")
-class ConversationRouterState(
-    private val initialItemType: ConversationItemType,
-    val leaveGroupDialogState: VisibilityState<GroupDialogState>,
-    val deleteGroupDialogState: VisibilityState<GroupDialogState>,
-    val blockUserDialogState: VisibilityState<BlockUserDialogState>,
-    val unblockUserDialogState: VisibilityState<UnblockUserDialogState>,
-    val clearContentDialogState: VisibilityState<DialogState>,
-    val archiveConversationDialogState: VisibilityState<DialogState>,
-    requestInProgress: Boolean
-) {
+private const val TAG = "BaseConversationsScreen"
 
-    var requestInProgress: Boolean by mutableStateOf(requestInProgress)
-
-    var conversationItemType: ConversationItemType by mutableStateOf(initialItemType)
-
-    fun openSearch() {
-        conversationItemType = ConversationItemType.SEARCH
-    }
-
-    fun closeSearch() {
-        conversationItemType = initialItemType
-    }
-}
-
+@PreviewMultipleThemes
 @Composable
-fun rememberConversationRouterState(
-    initialConversationItemType: ConversationItemType,
-    requestInProgress: Boolean
-): ConversationRouterState {
-
-    val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
-    val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
-    val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
-    val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
-    val clearContentDialogState = rememberVisibilityState<DialogState>()
-    val archiveConversationDialogState = rememberVisibilityState<DialogState>()
-
-    val conversationRouterState = remember(initialConversationItemType) {
-        ConversationRouterState(
-            initialConversationItemType,
-            leaveGroupDialogState,
-            deleteGroupDialogState,
-            blockUserDialogState,
-            unblockUserDialogState,
-            clearContentDialogState,
-            archiveConversationDialogState,
-            requestInProgress,
-        )
-    }
-
-    LaunchedEffect(requestInProgress) {
-        if (!requestInProgress) {
-            leaveGroupDialogState.dismiss()
-            deleteGroupDialogState.dismiss()
-            blockUserDialogState.dismiss()
-            unblockUserDialogState.dismiss()
-            clearContentDialogState.dismiss()
-            archiveConversationDialogState.dismiss()
-        }
-
-        conversationRouterState.requestInProgress = requestInProgress
-    }
-
-    return conversationRouterState
-}
-
-enum class ConversationItemType {
-    ALL_CONVERSATIONS, SEARCH;
+fun PreviewConversationsScreenContent() = WireTheme {
+    ConversationsScreenContent(navigator = rememberNavigator { }, searchBarState = rememberSearchbarState())
 }

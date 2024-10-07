@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.archive
+package com.wire.android.ui.home.conversationslist.all
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
@@ -33,53 +33,53 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.collections.immutable.persistentMapOf
 
-@HomeNavGraph
+@HomeNavGraph(start = true)
 @WireDestination
 @Composable
-fun ArchiveScreen(homeStateHolder: HomeStateHolder) {
+fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
     with(homeStateHolder) {
         ConversationsScreenContent(
             navigator = navigator,
             searchBarState = searchBarState,
-            conversationsSource = ConversationsSource.ARCHIVE,
+            conversationsSource = ConversationsSource.MAIN,
             lazyListState = currentLazyListState,
-            emptyListContent = { ArchiveEmptyContent() }
+            emptyListContent = { AllConversationsEmptyContent() }
         )
     }
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewArchiveEmptyScreen() = WireTheme {
+fun PreviewAllConversationsEmptyScreen() = WireTheme {
     ConversationsScreenContent(
         navigator = rememberNavigator {},
         searchBarState = rememberSearchbarState(),
-        conversationsSource = ConversationsSource.ARCHIVE,
-        emptyListContent = { ArchiveEmptyContent() },
+        conversationsSource = ConversationsSource.MAIN,
+        emptyListContent = { AllConversationsEmptyContent() },
         conversationListViewModel = ConversationListViewModelPreview(persistentMapOf()),
     )
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewArchiveEmptySearchScreen() = WireTheme {
+fun PreviewAllConversationsEmptySearchScreen() = WireTheme {
     ConversationsScreenContent(
         navigator = rememberNavigator {},
         searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
-        conversationsSource = ConversationsSource.ARCHIVE,
-        emptyListContent = { ArchiveEmptyContent() },
+        conversationsSource = ConversationsSource.MAIN,
+        emptyListContent = { AllConversationsEmptyContent() },
         conversationListViewModel = ConversationListViewModelPreview(persistentMapOf(), "er"),
     )
 }
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewArchiveScreen() = WireTheme {
+fun PreviewAllConversationsSearchScreen() = WireTheme {
     ConversationsScreenContent(
         navigator = rememberNavigator {},
         searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
-        conversationsSource = ConversationsSource.ARCHIVE,
-        emptyListContent = { ArchiveEmptyContent() },
+        conversationsSource = ConversationsSource.MAIN,
+        emptyListContent = { AllConversationsEmptyContent() },
         conversationListViewModel = ConversationListViewModelPreview(previewConversationFolders(), "er"),
     )
 }

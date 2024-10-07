@@ -48,5 +48,11 @@ interface AnonymousAnalyticsManager {
 
     fun onStop(activity: Activity)
 
+    fun applicationOnCreate()
+
     fun isAnalyticsInitialized(): Boolean
+
+    fun recordView(screen: String)
+
+    fun stopView(screen: String)
 }

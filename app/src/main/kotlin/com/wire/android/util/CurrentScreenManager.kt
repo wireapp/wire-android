@@ -20,6 +20,7 @@
 
 package com.wire.android.util
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -27,6 +28,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.wire.android.appLogger
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.navigation.toDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.CreateAccountDetailsScreenDestination
@@ -46,6 +48,7 @@ import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -67,7 +70,7 @@ class CurrentScreenManager @Inject constructor(
 ) : DefaultLifecycleObserver,
     NavController.OnDestinationChangedListener {
 
-    private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
+    private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther())
 
     /**
      * An integer that counts up when a screen appears, and counts down when
@@ -120,12 +123,17 @@ class CurrentScreenManager @Inject constructor(
     }
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
+        val currentView = currentScreenState.value.toString()
+        AnonymousAnalyticsManagerImpl.stopView(currentView)
         val currentItem = destination.toDestination()
         currentScreenState.value = CurrentScreen.fromDestination(
             currentItem,
             arguments,
             isApplicationVisibleFlow.value
         )
+
+        val newView = currentScreenState.value.toString()
+        AnonymousAnalyticsManagerImpl.recordView(newView)
     }
 
     companion object {
@@ -136,30 +144,35 @@ class CurrentScreenManager @Inject constructor(
 sealed class CurrentScreen {
 
     // Home Screen is being displayed
-    object Home : CurrentScreen()
+    data object Home : CurrentScreen()
 
     // Some Conversation is opened
-    data class Conversation(val id: ConversationId) : CurrentScreen()
+    data class Conversation(val id: ConversationId) : CurrentScreen() {
+        override fun toString(): String = "Conversation(${id.toString().obfuscateId()})"
+    }
 
     // Another User Profile Screen is opened
-    data class OtherUserProfile(val id: ConversationId) : CurrentScreen()
+    data class OtherUserProfile(val id: ConversationId) : CurrentScreen() {
+        override fun toString(): String = "OtherUserProfile(${id.toString().obfuscateId()})"
+    }
 
     // Import media screen is opened
-    object ImportMedia : CurrentScreen()
+    data object ImportMedia : CurrentScreen()
 
     // SelfDevices screen is opened
-    object DeviceManager : CurrentScreen()
+    data object DeviceManager : CurrentScreen()
 
     // Auth related screen is opened
-    object AuthRelated : CurrentScreen()
+    data class AuthRelated(val route: String?) : CurrentScreen()
 
     // Some other screen is opened, kinda "do nothing screen"
-    object SomeOther : CurrentScreen()
+    data class SomeOther(val route: String? = null) : CurrentScreen()
 
     // App is in background (screen is turned off, or covered by another app), non of the screens is visible
-    object InBackground : CurrentScreen()
+    data object InBackground : CurrentScreen()
 
     companion object {
+        @SuppressLint("RestrictedApi")
         @Suppress("ComplexMethod")
         fun fromDestination(destination: DestinationSpec<*>?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
             if (!isAppVisible) {
@@ -171,7 +184,7 @@ sealed class CurrentScreen {
                     Conversation(destination.argsFrom(arguments).conversationId)
 
                 is OtherUserProfileScreenDestination ->
-                    destination.argsFrom(arguments).conversationId?.let { OtherUserProfile(it) } ?: SomeOther
+                    destination.argsFrom(arguments).conversationId?.let { OtherUserProfile(it) } ?: SomeOther(destination.baseRoute)
 
                 is ImportMediaScreenDestination -> ImportMedia
 
@@ -189,9 +202,9 @@ sealed class CurrentScreen {
                 is E2EIEnrollmentScreenDestination,
                 is E2eiCertificateDetailsScreenDestination,
                 is RegisterDeviceScreenDestination,
-                is RemoveDeviceScreenDestination -> AuthRelated
+                is RemoveDeviceScreenDestination -> AuthRelated(destination.baseRoute)
 
-                else -> SomeOther
+                else -> SomeOther(destination?.baseRoute)
             }
         }
     }

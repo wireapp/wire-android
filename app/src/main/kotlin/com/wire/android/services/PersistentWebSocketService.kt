@@ -18,11 +18,13 @@
 
 package com.wire.android.services
 
+import android.app.ForegroundServiceStartNotAllowedException
 import android.app.Notification
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
@@ -73,6 +75,7 @@ class PersistentWebSocketService : Service() {
     override fun onCreate() {
         super.onCreate()
         isServiceStarted = true
+        println("cyka service onCreate")
         generateForegroundNotification()
     }
 
@@ -82,6 +85,7 @@ class PersistentWebSocketService : Service() {
          * so we need to check if service is already started and if not generate notification and call startForeground()
          * https://issuetracker.google.com/issues/307329994#comment100
          */
+        println("cyka service onStartCommand isStarted: $isServiceStarted ; intent: $intent")
         if (!isServiceStarted) {
             isServiceStarted = true
             generateForegroundNotification()
@@ -120,6 +124,7 @@ class PersistentWebSocketService : Service() {
     }
 
     private fun generateForegroundNotification() {
+        println("cyka service generateForegroundNotification")
         notificationChannelsManager.createRegularChannel(WEB_SOCKET_CHANNEL_ID, WEB_SOCKET_CHANNEL_NAME)
 
         val notification: Notification = NotificationCompat.Builder(this, WEB_SOCKET_CHANNEL_ID)
@@ -131,16 +136,32 @@ class PersistentWebSocketService : Service() {
             .setOngoing(true)
             .build()
 
-        ServiceCompat.startForeground(
-            this,
-            NotificationIds.PERSISTENT_NOTIFICATION_ID.ordinal,
-            notification,
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                ServiceCompat.startForeground(
+                    this,
+                    NotificationIds.PERSISTENT_NOTIFICATION_ID.ordinal,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                )
+            } catch (e: ForegroundServiceStartNotAllowedException) {
+                println("cyka service generateForegroundNotification EXCEPTION!!!")
+                stopSelf()
+            }
+        } else {
+            ServiceCompat.startForeground(
+                this,
+                NotificationIds.PERSISTENT_NOTIFICATION_ID.ordinal,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+            )
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        println("cyka service onDestroy")
         scope.cancel("PersistentWebSocketService was destroyed")
         isServiceStarted = false
     }

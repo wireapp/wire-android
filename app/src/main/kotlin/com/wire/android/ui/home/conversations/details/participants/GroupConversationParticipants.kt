@@ -125,13 +125,13 @@ fun MLSProgressIndicator(
 @PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationParticipants() = WireTheme {
-    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW)
+    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW, rememberLazyListState())
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationParticipantsAdandonedOneOnOne() = WireTheme {
-    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW)
+    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW, rememberLazyListState())
 }
 
 @PreviewMultipleThemes

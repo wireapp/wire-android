@@ -55,13 +55,9 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 fun GroupConversationParticipants(
     onProfilePressed: (UIParticipant) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
-<<<<<<< HEAD
     modifier: Modifier = Modifier,
-    lazyListState: LazyListState = rememberLazyListState()
-=======
     lazyListState: LazyListState = rememberLazyListState(),
     isAbandonedOneOnOneConversation: Boolean = false
->>>>>>> 0b5a43678 (fix(conversation): disable addMember on a one-on-one conversation with deleted account (WPB-10259) 🍒 (#3396))
 ) {
     val context = LocalContext.current
     Column(modifier = modifier) {

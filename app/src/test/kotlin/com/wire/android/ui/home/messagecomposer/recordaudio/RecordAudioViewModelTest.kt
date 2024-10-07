@@ -391,9 +391,7 @@ class RecordAudioViewModelTest {
             coEvery { generateAudioFileWithEffects(any(), any(), any()) } returns Unit
 
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(
-                CurrentScreen.Conversation(
-                    id = DUMMY_CALL.conversationId
-                )
+                CurrentScreen.Conversation(id = DUMMY_CALL.conversationId)
             )
 
             coEvery { recordAudioMessagePlayer.audioMessageStateFlow } returns flowOf(

@@ -18,9 +18,9 @@
 package com.wire.android.ui.calling.ongoing
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.PictureInPictureParams
 import android.app.RemoteAction
+import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Bundle
@@ -126,9 +126,9 @@ class OngoingCallActivity : CallActivity() {
 }
 
 fun getOngoingCallIntent(
-    activity: Activity,
+    context: Context,
     conversationId: String
-) = Intent(activity, OngoingCallActivity::class.java).apply {
+) = Intent(context, OngoingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
 }

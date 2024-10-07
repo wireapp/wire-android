@@ -566,15 +566,15 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun CurrentScreen.isGlobalDialogAllowed(): Boolean = when (this) {
-        CurrentScreen.ImportMedia,
-        CurrentScreen.DeviceManager -> false
+        is CurrentScreen.ImportMedia,
+        is CurrentScreen.DeviceManager -> false
 
-        CurrentScreen.InBackground,
+        is CurrentScreen.InBackground,
         is CurrentScreen.Conversation,
-        CurrentScreen.Home,
+        is CurrentScreen.Home,
         is CurrentScreen.OtherUserProfile,
-        CurrentScreen.AuthRelated,
-        CurrentScreen.SomeOther -> true
+        is CurrentScreen.AuthRelated,
+        is CurrentScreen.SomeOther -> true
     }
 }
 

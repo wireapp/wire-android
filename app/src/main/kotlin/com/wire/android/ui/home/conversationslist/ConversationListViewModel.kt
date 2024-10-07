@@ -35,6 +35,7 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackBarMessage
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
+import com.wire.android.ui.home.conversationslist.common.previewConversationFolders
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
@@ -43,8 +44,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.android.ui.home.conversationslist.model.SearchQuery
-import com.wire.android.ui.home.conversationslist.model.SearchQueryUpdate
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -56,12 +55,10 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
@@ -79,24 +76,57 @@ import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCa
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.util.DateTimeUtil
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.util.Date
-import javax.inject.Inject
+
+interface ConversationListViewModel {
+    val infoMessage: SharedFlow<SnackBarMessage> get() = MutableSharedFlow()
+    val closeBottomSheet: SharedFlow<Unit> get() = MutableSharedFlow()
+    val requestInProgress: Boolean get() = false
+    val conversationListState: ConversationListState get() = ConversationListState()
+    suspend fun refreshMissingMetadata() {}
+    fun moveConversationToArchive(
+        dialogState: DialogState,
+        timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds()
+    ) {}
+    fun blockUser(blockUserState: BlockUserDialogState) {}
+    fun unblockUser(userId: UserId) {}
+    fun deleteGroup(groupDialogState: GroupDialogState) {}
+    fun leaveGroup(leaveGroupState: GroupDialogState) {}
+    fun clearConversationContent(dialogState: DialogState) {}
+    fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {}
+    fun addConversationToFavourites() {}
+    fun moveConversationToFolder() {}
+}
+
+class ConversationListViewModelPreview(
+    foldersWithConversations: ImmutableMap<ConversationFolder, List<ConversationItem>> = previewConversationFolders(),
+    searchQuery: String = "",
+) : ConversationListViewModel {
+    override val conversationListState = ConversationListState(searchQuery, foldersWithConversations)
+}
 
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
-@HiltViewModel
-class ConversationListViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = ConversationListViewModelImpl.Factory::class)
+class ConversationListViewModelImpl @AssistedInject constructor(
+    @Assisted val conversationsSource: ConversationsSource,
+    @Assisted val searchQueryFlow: Flow<String>,
     private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
@@ -105,103 +135,66 @@ class ConversationListViewModel @Inject constructor(
     private val blockUserUseCase: BlockUserUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
-    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
-) : ViewModel() {
+) : ConversationListViewModel, ViewModel() {
 
-    var conversationListState by mutableStateOf(ConversationListState())
-    var conversationListCallState by mutableStateOf(ConversationListCallState())
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationsSource: ConversationsSource, searchQueryFlow: Flow<String>): ConversationListViewModelImpl
+    }
+
+    private var _conversationListState by mutableStateOf(ConversationListState())
+    override val conversationListState: ConversationListState get() = _conversationListState
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
-    val infoMessage = _infoMessage.asSharedFlow()
+    override val infoMessage = _infoMessage.asSharedFlow()
 
-    val closeBottomSheet = MutableSharedFlow<Unit>()
+    private var _requestInProgress: Boolean by mutableStateOf(false)
+    override val requestInProgress: Boolean get() = _requestInProgress
 
-    var requestInProgress: Boolean by mutableStateOf(false)
-
-    private val mutableSearchQueryFlow = MutableSharedFlow<SearchQueryUpdate>()
-
-    private val searchQueryFlow = mutableSearchQueryFlow
-        .scan(SearchQuery("", ConversationsSource.MAIN)) { currentSearchQuery, update ->
-            when (update) {
-                is SearchQueryUpdate.UpdateQuery -> currentSearchQuery.copy(text = update.text)
-                is SearchQueryUpdate.UpdateConversationsSource -> {
-                    if (currentSearchQuery.source != update.source) {
-                        currentSearchQuery.copy(
-                            text = "",
-                            source = update.source
-                        )
-                    } else {
-                        currentSearchQuery
-                    }
-                }
-            }
-        }
-        .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
-
-    var establishedCallConversationId: QualifiedID? = null
-    private var conversationId: QualifiedID? = null
-
-    private suspend fun observeEstablishedCall() {
-        observeEstablishedCalls()
-            .distinctUntilChanged()
-            .collectLatest {
-                val hasEstablishedCall = it.isNotEmpty()
-                conversationListCallState = conversationListCallState.copy(
-                    hasEstablishedCall = hasEstablishedCall
-                )
-                establishedCallConversationId = if (it.isNotEmpty()) {
-                    it.first().conversationId
-                } else {
-                    null
-                }
-            }
-    }
+    override val closeBottomSheet = MutableSharedFlow<Unit>()
 
     init {
         viewModelScope.launch {
-            observeEstablishedCall()
-        }
-        viewModelScope.launch {
-            searchQueryFlow.flatMapLatest { searchQuery ->
-                observeConversationListDetails(
-                    fromArchive = searchQuery.source == ConversationsSource.ARCHIVE
-                )
-                    .map {
+            searchQueryFlow
+                .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
+                .onStart { emit("") }
+                .distinctUntilChanged()
+                .flatMapLatest { searchQuery: String ->
+                    observeConversationListDetails(
+                        fromArchive = conversationsSource == ConversationsSource.ARCHIVE
+                    ).map {
                         it.map { conversationDetails ->
                             conversationDetails.toConversationItem(
-                                wireSessionImageLoader,
-                                userTypeMapper
+                                wireSessionImageLoader = wireSessionImageLoader,
+                                userTypeMapper = userTypeMapper
                             )
                         }
-                    }
-                    .map { conversationItems ->
-                        conversationItems.withFolders(source = searchQuery.source)
+                    }.map { conversationItems ->
+                        conversationItems.withFolders(source = conversationsSource)
                             .toImmutableMap() to searchQuery
                     }
-            }
+                }
                 .map { (conversationsWithFolders, searchQuery) ->
-                    conversationListState.copy(
-                        conversationSearchResult = if (searchQuery.text.isEmpty()) {
+                    _conversationListState.copy(
+                        foldersWithConversations = if (searchQuery.isEmpty()) {
                             conversationsWithFolders
                         } else {
                             searchConversation(
-                                conversationsWithFolders.values.flatten(),
-                                searchQuery.text
-                            ).withFolders(source = searchQuery.source).toImmutableMap()
+                                conversationDetails = conversationsWithFolders.values.flatten(),
+                                searchQuery = searchQuery
+                            ).withFolders(source = conversationsSource).toImmutableMap()
                         },
-                        hasNoConversations = conversationsWithFolders.isEmpty(),
-                        foldersWithConversations = conversationsWithFolders,
-                        searchQuery = searchQuery.text
+                        searchQuery = searchQuery
                     )
                 }
                 .flowOn(dispatcher.io())
                 .collect {
-                    conversationListState = it
+                    _conversationListState = it
                 }
         }
     }
@@ -233,7 +226,7 @@ class ConversationListViewModel @Inject constructor(
         return matchingConversations
     }
 
-    suspend fun refreshMissingMetadata() {
+    override suspend fun refreshMissingMetadata() {
         viewModelScope.launch {
             refreshUsersWithoutMetadata()
             refreshConversationsWithoutMetadata()
@@ -245,10 +238,9 @@ class ConversationListViewModel @Inject constructor(
         return when (source) {
             ConversationsSource.ARCHIVE -> {
                 buildMap {
-                    if (this@withFolders.isNotEmpty()) put(
-                        ConversationFolder.WithoutHeader,
-                        this@withFolders
-                    )
+                    if (this@withFolders.isNotEmpty()) {
+                        put(ConversationFolder.WithoutHeader, this@withFolders)
+                    }
                 }
             }
 
@@ -283,47 +275,36 @@ class ConversationListViewModel @Inject constructor(
                 val remainingConversations = this - unreadConversations.toSet()
 
                 buildMap {
-                    if (unreadConversations.isNotEmpty()) put(
-                        ConversationFolder.Predefined.NewActivities,
-                        unreadConversations
-                    )
-                    if (remainingConversations.isNotEmpty()) put(
-                        ConversationFolder.Predefined.Conversations,
-                        remainingConversations
-                    )
+                    if (unreadConversations.isNotEmpty()) {
+                        put(ConversationFolder.Predefined.NewActivities, unreadConversations)
+                    }
+                    if (remainingConversations.isNotEmpty()) {
+                        put(ConversationFolder.Predefined.Conversations, remainingConversations)
+                    }
                 }
             }
         }
     }
 
-    fun muteConversation(
+    override fun muteConversation(
         conversationId: ConversationId?,
         mutedConversationStatus: MutedConversationStatus
     ) {
         conversationId?.let {
             viewModelScope.launch {
-                when (updateConversationMutedStatus(
-                    conversationId,
-                    mutedConversationStatus,
-                    Date().time
-                )) {
-                    ConversationUpdateStatusResult.Failure -> _infoMessage.emit(
-                        HomeSnackBarMessage.MutingOperationError
-                    )
+                when (updateConversationMutedStatus(conversationId, mutedConversationStatus, Date().time)) {
+                    ConversationUpdateStatusResult.Failure -> _infoMessage.emit(HomeSnackBarMessage.MutingOperationError)
 
                     ConversationUpdateStatusResult.Success ->
-                        appLogger.d(
-                            "MutedStatus changed for conversation: " +
-                                    "$conversationId to $mutedConversationStatus"
-                        )
+                        appLogger.d("MutedStatus changed for conversation: $conversationId to $mutedConversationStatus")
                 }
             }
         }
     }
 
-    fun blockUser(blockUserState: BlockUserDialogState) {
+    override fun blockUser(blockUserState: BlockUserDialogState) {
         viewModelScope.launch {
-            requestInProgress = true
+            _requestInProgress = true
             val state = when (val result = blockUserUseCase(blockUserState.userId)) {
                 BlockUserResult.Success -> {
                     appLogger.d("User ${blockUserState.userId} was blocked")
@@ -339,13 +320,13 @@ class ConversationListViewModel @Inject constructor(
                 }
             }
             _infoMessage.emit(state)
-            requestInProgress = false
+            _requestInProgress = false
         }
     }
 
-    fun unblockUser(userId: UserId) {
+    override fun unblockUser(userId: UserId) {
         viewModelScope.launch {
-            requestInProgress = true
+            _requestInProgress = true
             when (val result = unblockUserUseCase(userId)) {
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
@@ -355,18 +336,18 @@ class ConversationListViewModel @Inject constructor(
                 is UnblockUserResult.Failure -> {
                     appLogger.e(
                         "Error while unblocking user $userId ;" +
-                            " Error ${result.coreFailure}"
+                                " Error ${result.coreFailure}"
                     )
                     _infoMessage.emit(HomeSnackBarMessage.UnblockingUserOperationError)
                 }
             }
-            requestInProgress = false
+            _requestInProgress = false
         }
     }
 
-    fun leaveGroup(leaveGroupState: GroupDialogState) {
+    override fun leaveGroup(leaveGroupState: GroupDialogState) {
         viewModelScope.launch {
-            requestInProgress = true
+            _requestInProgress = true
             val response = leaveConversation(leaveGroupState.conversationId)
             when (response) {
                 is RemoveMemberFromConversationUseCase.Result.Failure ->
@@ -376,13 +357,13 @@ class ConversationListViewModel @Inject constructor(
                     _infoMessage.emit(HomeSnackBarMessage.LeftConversationSuccess)
                 }
             }
-            requestInProgress = false
+            _requestInProgress = false
         }
     }
 
-    fun deleteGroup(groupDialogState: GroupDialogState) {
+    override fun deleteGroup(groupDialogState: GroupDialogState) {
         viewModelScope.launch {
-            requestInProgress = true
+            _requestInProgress = true
             when (deleteTeamConversation(groupDialogState.conversationId)) {
                 is Result.Failure.GenericFailure -> _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupError)
                 Result.Failure.NoTeamFailure -> _infoMessage.emit(HomeSnackBarMessage.DeleteConversationGroupError)
@@ -390,48 +371,33 @@ class ConversationListViewModel @Inject constructor(
                     HomeSnackBarMessage.DeletedConversationGroupSuccess(groupDialogState.conversationName)
                 )
             }
-            requestInProgress = false
-        }
-    }
-
-    fun searchQueryChanged(searchQuery: String) {
-        viewModelScope.launch {
-            mutableSearchQueryFlow.emit(SearchQueryUpdate.UpdateQuery(searchQuery))
-        }
-    }
-
-    fun updateConversationsSource(source: ConversationsSource) {
-        viewModelScope.launch {
-            mutableSearchQueryFlow.emit(SearchQueryUpdate.UpdateConversationsSource(source))
+            _requestInProgress = false
         }
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun addConversationToFavourites(id: String = "") {
+    override fun addConversationToFavourites() {
     }
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun moveConversationToFolder(id: String = "") {
+    override fun moveConversationToFolder() {
     }
 
-    fun moveConversationToArchive(
-        dialogState: DialogState,
-        timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds()
-    ) =
+    override fun moveConversationToArchive(dialogState: DialogState, timestamp: Long) {
         with(dialogState) {
             viewModelScope.launch {
                 val isArchiving = !isArchived
 
-                requestInProgress = true
+                _requestInProgress = true
                 val result = updateConversationArchivedStatus(
                     conversationId = conversationId,
                     shouldArchiveConversation = isArchiving,
                     onlyLocally = !dialogState.isMember,
                     archivedStatusTimestamp = timestamp
                 )
-                requestInProgress = false
+                _requestInProgress = false
                 when (result) {
                     is ArchiveStatusUpdateResult.Failure -> {
                         _infoMessage.emit(
@@ -451,13 +417,14 @@ class ConversationListViewModel @Inject constructor(
                 }
             }
         }
+    }
 
-    fun clearConversationContent(dialogState: DialogState) {
+    override fun clearConversationContent(dialogState: DialogState) {
         viewModelScope.launch {
-            requestInProgress = true
+            _requestInProgress = true
             with(dialogState) {
                 val result = clearConversationContentUseCase(conversationId)
-                requestInProgress = false
+                _requestInProgress = false
                 clearContentSnackbarResult(result, conversationTypeDetail)
             }
         }
@@ -479,10 +446,6 @@ class ConversationListViewModel @Inject constructor(
         } else {
             _infoMessage.emit(HomeSnackBarMessage.ClearConversationContentSuccess(isGroup))
         }
-    }
-
-    companion object {
-        const val DELAY_END_CALL = 200L
     }
 }
 

@@ -548,7 +548,7 @@ private fun ImportMediaContent(
             conversationListItems = persistentMapOf(
                 ConversationFolder.WithoutHeader to state.shareableConversationListState.searchResult
             ),
-            conversationsAddedToGroup = state.selectedConversationItem,
+            selectedConversations = state.selectedConversationItem,
             isSelectableList = true,
             onConversationSelectedOnRadioGroup = onConversationClicked,
             searchQuery = state.shareableConversationListState.searchQuery,

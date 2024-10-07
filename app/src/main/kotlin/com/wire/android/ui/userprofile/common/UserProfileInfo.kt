@@ -19,26 +19,21 @@
 package com.wire.android.ui.userprofile.common
 
 import android.annotation.SuppressLint
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
@@ -56,14 +51,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
@@ -78,12 +75,13 @@ import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserProfileAvatarType
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForUser
-import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
@@ -323,30 +321,17 @@ private fun createMiddleEllipsizeIfNeeded(
 fun QRCodeIcon(
     onQrCodeClick: () -> Unit,
     modifier: Modifier = Modifier,
-    @StringRes contentDescriptionId: Int = R.string.user_profile_qr_code_share_link
 ) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(dimensions().spacing16x))
-            .background(colorsScheme().surface)
-            .border(
-                width = dimensions().spacing1x,
-                color = colorsScheme().callingInActiveBorderIndicator,
-                shape = RoundedCornerShape(dimensions().spacing16x)
-            )
-            .size(height = dimensions().spacing32x, width = dimensions().spacing40x)
-            .padding(dimensions().spacing1x, dimensions().spacing1x)
-            .clickable { onQrCodeClick() }
-    ) {
-        androidx.compose.material3.Icon(
-            imageVector = Icons.Filled.QrCode,
-            contentDescription = stringResource(contentDescriptionId),
-            modifier = modifier
-                .fillMaxSize()
-                .padding(dimensions().spacing2x),
-            tint = Color.Black
-        )
-    }
+    val contentDescription = stringResource(id = R.string.user_profile_qr_code_share_link)
+    WireSecondaryButton(
+        modifier = modifier.semantics { this.contentDescription = contentDescription },
+        leadingIcon = Icons.Filled.QrCode.Icon(),
+        contentPadding = PaddingValues(0.dp),
+        onClick = onQrCodeClick,
+        fillMaxWidth = false,
+        minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
+        minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+    )
 }
 
 @Composable

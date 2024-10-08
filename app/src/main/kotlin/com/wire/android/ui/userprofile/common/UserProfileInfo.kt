@@ -232,15 +232,17 @@ fun UserProfileInfo(
 
             Column(
                 Modifier
-                    .padding(top = dimensions().spacing0x)
+                    .padding(top = dimensions().spacing0x, start = dimensions().spacing4x)
                     .constrainAs(qrIcon) {
-                        start.linkTo(displayName.end)
+                        start.linkTo(if (fullName.length > userName.length) displayName.end else username.end)
                         end.linkTo(parent.end)
                         top.linkTo(displayName.top)
                         bottom.linkTo(displayName.bottom)
                     }
             ) {
-                onQrCodeClick?.let { QRCodeIcon(it) }
+                if (isLoading.not()) {
+                    onQrCodeClick?.let { QRCodeIcon(it) }
+                }
             }
         }
         val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current

@@ -21,17 +21,13 @@ package com.wire.android.ui.userprofile.common
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
@@ -62,6 +58,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
@@ -181,37 +178,47 @@ fun UserProfileInfo(
             }
         }
 
-        Row(Modifier.animateContentSize()) {
-            if (onQrCodeClick != null && isLoading.not()) {
-                Spacer(
-                    modifier = Modifier
-                        .padding(start = dimensions().spacing16x)
-                        .width(dimensions().spacing24x)
+        ConstraintLayout(
+            modifier = Modifier
+                .padding(horizontal = dimensions().spacing32x)
+                .then(modifier)
+        ) {
+            val (displayName, username, qrIcon) = createRefs()
+
+            val (text, inlineContent: MutableMap<String, InlineTextContent>) =
+                processFullName(
+                    fullName = fullName,
+                    isLoading = isLoading,
+                    isProteusVerified = isProteusVerified,
+                    isMLSVerified = isMLSVerified
                 )
-            }
 
-            Column(horizontalAlignment = CenterHorizontally, modifier = Modifier.weight(1f)) {
-                Row(modifier = Modifier.padding(horizontal = dimensions().spacing16x)) {
-                    val (text, inlineContent: MutableMap<String, InlineTextContent>) =
-                        processFullName(
-                            fullName = fullName,
-                            isLoading = isLoading,
-                            isProteusVerified = isProteusVerified,
-                            isMLSVerified = isMLSVerified
-                        )
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = dimensions().spacing16x)
+                    .constrainAs(displayName) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                text = text,
+                // TODO. replace with MIDDLE_ELLIPSIS when available see https://issuetracker.google.com/issues/185418980
+                overflow = TextOverflow.Visible,
+                maxLines = 2,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.wireTypography.title02,
+                color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground
+                else MaterialTheme.wireColorScheme.labelText,
+                inlineContent = inlineContent
+            )
 
-                    Text(
-                        text = text,
-                        // TODO. replace with MIDDLE_ELLIPSIS when available see https://issuetracker.google.com/issues/185418980
-                        overflow = TextOverflow.Visible,
-                        maxLines = 2,
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.wireTypography.title02,
-                        color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground
-                        else MaterialTheme.wireColorScheme.labelText,
-                        inlineContent = inlineContent
-                    )
+            Column(
+                horizontalAlignment = CenterHorizontally,
+                modifier = Modifier.constrainAs(username) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    top.linkTo(displayName.bottom)
                 }
+            ) {
                 Text(
                     text = processUsername(userName, membership, expiresAt),
                     overflow = TextOverflow.Ellipsis,
@@ -223,10 +230,17 @@ fun UserProfileInfo(
                 UserBadge(membership, connection, topPadding = dimensions().spacing8x)
             }
 
-            if (onQrCodeClick != null && isLoading.not()) {
-                Column(Modifier.padding(end = dimensions().spacing16x)) {
-                    QRCodeIcon(onQrCodeClick)
-                }
+            Column(
+                Modifier
+                    .padding(top = dimensions().spacing0x)
+                    .constrainAs(qrIcon) {
+                        start.linkTo(displayName.end)
+                        end.linkTo(parent.end)
+                        top.linkTo(displayName.top)
+                        bottom.linkTo(displayName.bottom)
+                    }
+            ) {
+                QRCodeIcon(onQrCodeClick!!)
             }
         }
         val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current

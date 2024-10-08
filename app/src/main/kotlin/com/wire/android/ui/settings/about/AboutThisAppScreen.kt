@@ -159,7 +159,7 @@ private fun AboutThisAppContent(
             )
             SettingsItem(
                 title = stringResource(R.string.app_version),
-                text = BuildConfig.VERSION_NAME,
+                text = state.appName,
                 trailingIcon = R.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,
@@ -210,7 +210,7 @@ data class AboutThisAppContentState(
 @Composable
 private fun PreviewAboutThisAppScreen() = WireTheme {
     AboutThisAppContent(
-        state = AboutThisAppState(commitish = "abcd-1234"),
+        state = AboutThisAppState(commitish = "abcd-1234", appName = "4.1.9-1234-beta"),
         onBackPressed = { },
         onItemClicked = { }
     )

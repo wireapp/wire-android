@@ -240,7 +240,7 @@ fun UserProfileInfo(
                         bottom.linkTo(displayName.bottom)
                     }
             ) {
-                QRCodeIcon(onQrCodeClick!!)
+                onQrCodeClick?.let { QRCodeIcon(it) }
             }
         }
         val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current

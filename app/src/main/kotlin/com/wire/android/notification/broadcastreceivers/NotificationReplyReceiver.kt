@@ -71,10 +71,12 @@ class NotificationReplyReceiver : BroadcastReceiver() { // requires zero argumen
                                 { updateNotification(context, conversationId, qualifiedUserId, replyText) }
                             )
                     }
+
                     launch {
-                        conversations.updateConversationReadDateUseCase(
-                            qualifiedConversationId,
-                            Clock.System.now()
+                        conversations.updateConversationReadDateUseCase.invoke(
+                            conversationId = qualifiedConversationId,
+                            time = Clock.System.now(),
+                            shouldWaitUntilLive = false
                         )
                     }
                 }

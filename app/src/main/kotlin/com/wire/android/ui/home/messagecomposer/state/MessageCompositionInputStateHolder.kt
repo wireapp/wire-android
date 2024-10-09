@@ -26,7 +26,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -36,32 +38,25 @@ import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
-import com.wire.android.util.ui.KeyboardHeight
+import com.wire.android.util.isNotMarkdownBlank
 
 @Stable
-class MessageCompositionInputStateHolder(val messageTextState: TextFieldState) {
+class MessageCompositionInputStateHolder(
+    val messageTextState: TextFieldState,
+    private val keyboardController: SoftwareKeyboardController?,
+    val focusRequester: FocusRequester
+) {
     var inputFocused: Boolean by mutableStateOf(false)
-        private set
 
-    var keyboardHeight by mutableStateOf(KeyboardHeight.default)
-        private set
+    var keyboardHeight by mutableStateOf(0.dp)
 
     var optionsHeight by mutableStateOf(0.dp)
-        private set
-
-    var optionsVisible by mutableStateOf(false)
-        private set
-
-    var subOptionsVisible by mutableStateOf(false)
         private set
 
     var isTextExpanded by mutableStateOf(false)
         private set
 
-    var initialKeyboardHeight by mutableStateOf(0.dp)
-        private set
-
-    var previousOffset by mutableStateOf(0.dp)
+    var optionsVisible by mutableStateOf(false)
         private set
 
     private var compositionState: CompositionState by mutableStateOf(CompositionState.Composing)
@@ -69,55 +64,45 @@ class MessageCompositionInputStateHolder(val messageTextState: TextFieldState) {
     val inputType: InputType by derivedStateOf {
         when (val state = compositionState) {
             is CompositionState.Composing -> InputType.Composing(
-                isSendButtonEnabled = messageTextState.text.isNotEmpty()
+                isSendButtonEnabled = messageTextState.text.isNotMarkdownBlank()
             )
 
             is CompositionState.Editing -> InputType.Editing(
-                isEditButtonEnabled = messageTextState.text.toString() != state.originalMessageText
+                isEditButtonEnabled = messageTextState.text != state.originalMessageText && messageTextState.text.isNotMarkdownBlank()
             )
         }
     }
 
     fun handleImeOffsetChange(offset: Dp, navBarHeight: Dp, source: Dp, target: Dp) {
         val actualOffset = max(offset - navBarHeight, 0.dp)
+        val actualTarget = max(target - navBarHeight, 0.dp)
 
         // this check secures that if some additional space will be added to keyboard
         // like gifs search it will save initial keyboard height
-        if (source == target && source > 0.dp && initialKeyboardHeight == 0.dp) {
-            initialKeyboardHeight = source - navBarHeight
+        if (source == target && source > 0.dp) {
+            optionsHeight = actualOffset
         }
 
-        if (previousOffset < actualOffset) {
-
-            // only if the real goal of this ime offset increase is to really open the keyboard
-            // otherwise it can mean the keyboard is still in a process of hiding from the previous screen and ultimately won't be shown
-            // in this case we don't want to show and hide the options for a short time as it will only make unwanted blink effect
-            if (target > 0.dp) {
-                optionsVisible = true
-                if (!subOptionsVisible || optionsHeight <= actualOffset) {
-                    optionsHeight = actualOffset
-                    subOptionsVisible = false
+        if (source == target) {
+            if (source > 0.dp) {
+                if (keyboardHeight == 0.dp) {
+                    keyboardHeight = actualOffset
                 }
-            }
-        } else if (previousOffset > actualOffset) {
-            if (!subOptionsVisible) {
                 optionsHeight = actualOffset
-                if (actualOffset == 0.dp) {
-                    optionsVisible = false
-                    isTextExpanded = false
-                }
             }
         }
 
-        previousOffset = actualOffset
-
-        if (keyboardHeight == actualOffset) {
-            subOptionsVisible = false
+        if (actualTarget == 0.dp) {
+            if (keyboardHeight > 0.dp) {
+                optionsHeight = keyboardHeight
+            }
+            inputFocused = false
+            isTextExpanded = false
         }
+    }
 
-        if (keyboardHeight < actualOffset) {
-            keyboardHeight = actualOffset
-        }
+    fun showAttachments(showOptions: Boolean) {
+        optionsVisible = showOptions
     }
 
     fun toEdit(editMessageText: String) {
@@ -138,59 +123,47 @@ class MessageCompositionInputStateHolder(val messageTextState: TextFieldState) {
         isTextExpanded = false
     }
 
-    fun clearFocus() {
-        inputFocused = false
+    fun setFocused() {
+        inputFocused = true
+        keyboardController?.show()
     }
 
     fun requestFocus() {
-        inputFocused = true
-    }
-
-    fun showOptions() {
-        optionsVisible = true
-        subOptionsVisible = true
-        if (initialKeyboardHeight > 0.dp) {
-            optionsHeight = initialKeyboardHeight
-        } else {
-            optionsHeight = keyboardHeight
+        if (!inputFocused) {
+            focusRequester.requestFocus()
+            focusRequester.captureFocus() // TODO check
         }
-        clearFocus()
+        keyboardController?.show()
+        inputFocused = true
     }
 
     fun collapseComposer(additionalOptionsSubMenuState: AdditionalOptionSubMenuState? = null) {
         if (additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
-            optionsVisible = false
-            subOptionsVisible = false
             isTextExpanded = false
-            optionsHeight = 0.dp
-            inputFocused = false
         }
     }
 
     fun calculateOptionsMenuHeight(additionalOptionsSubMenuState: AdditionalOptionSubMenuState): Dp {
-        return optionsHeight + if (additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) 0.dp else composeTextHeight
+        return max(optionsHeight, 250.dp) + if (additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
+            0.dp
+        } else {
+            composeTextHeight
+        }
     }
 
     @Suppress("LongParameterList")
     @VisibleForTesting
     fun updateValuesForTesting(
-        keyboardHeight: Dp = KeyboardHeight.default,
-        previousOffset: Dp = 0.dp,
-        showSubOptions: Boolean = false,
+        keyboardHeight: Dp = 250.dp,
         optionsHeight: Dp = 0.dp,
-        showOptions: Boolean = false,
-        initialKeyboardHeight: Dp = 0.dp
+        inputFocused: Boolean = false
     ) {
         this.keyboardHeight = keyboardHeight
-        this.previousOffset = previousOffset
-        this.subOptionsVisible = showSubOptions
         this.optionsHeight = optionsHeight
-        this.optionsVisible = showOptions
-        this.initialKeyboardHeight = initialKeyboardHeight
+        this.inputFocused = inputFocused
     }
 
     companion object {
-
         /**
          * This height was based on the size of Input Text + Additional Options (Text Format, Ping, etc)
          */
@@ -198,6 +171,8 @@ class MessageCompositionInputStateHolder(val messageTextState: TextFieldState) {
 
         fun saver(
             messageTextState: TextFieldState,
+            keyboardController: SoftwareKeyboardController?,
+            focusRequester: FocusRequester,
             density: Density
         ): Saver<MessageCompositionInputStateHolder, *> = Saver(
             save = {
@@ -206,10 +181,7 @@ class MessageCompositionInputStateHolder(val messageTextState: TextFieldState) {
                         it.inputFocused,
                         it.keyboardHeight.toPx(),
                         it.optionsHeight.toPx(),
-                        it.optionsVisible,
-                        it.subOptionsVisible,
-                        it.isTextExpanded,
-                        it.previousOffset.toPx()
+                        it.isTextExpanded
                     )
                 }
             },
@@ -217,14 +189,13 @@ class MessageCompositionInputStateHolder(val messageTextState: TextFieldState) {
                 with(density) {
                     MessageCompositionInputStateHolder(
                         messageTextState = messageTextState,
+                        keyboardController = keyboardController,
+                        focusRequester = focusRequester
                     ).apply {
                         inputFocused = savedState[0] as Boolean
                         keyboardHeight = (savedState[1] as Float).toDp()
                         optionsHeight = (savedState[2] as Float).toDp()
-                        optionsVisible = savedState[3] as Boolean
-                        subOptionsVisible = savedState[4] as Boolean
-                        isTextExpanded = savedState[5] as Boolean
-                        previousOffset = (savedState[6] as Float).toDp()
+                        isTextExpanded = savedState[3] as Boolean
                     }
                 }
             }

@@ -164,7 +164,7 @@ class CommonTopAppBarViewModelTest {
                 .withOngoingCall(isMuted = false)
                 .withoutOutgoingCall()
                 .withoutIncomingCall()
-                .withCurrentScreen(CurrentScreen.SomeOther)
+                .withCurrentScreen(CurrentScreen.SomeOther())
                 .withSyncState(SyncState.Waiting)
                 .arrange()
 
@@ -304,8 +304,8 @@ class CommonTopAppBarViewModelTest {
 
         private val commonTopAppBarViewModel by lazy {
             CommonTopAppBarViewModel(
-                currentScreenManager,
-                coreLogic
+                currentScreenManager = currentScreenManager,
+                coreLogic = coreLogic
             )
         }
 
@@ -375,7 +375,7 @@ class CommonTopAppBarViewModelTest {
             true,
             false,
             false,
-            "caller-id",
+            UserId("caller", "domain"),
             "ONE_ON_ONE Name",
             Conversation.Type.ONE_ON_ONE,
             "otherUsername",

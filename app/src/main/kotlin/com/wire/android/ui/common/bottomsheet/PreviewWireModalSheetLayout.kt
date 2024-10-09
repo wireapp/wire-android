@@ -27,7 +27,7 @@ import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 @MultipleThemePreviews
 @Composable
 fun PreviewMenuModalSheetContentWithoutHeader() {
-    MenuModalSheetContent(
+    WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Gone,
         menuItems = listOf { ReactionOption({}) }
     )
@@ -36,7 +36,7 @@ fun PreviewMenuModalSheetContentWithoutHeader() {
 @MultipleThemePreviews
 @Composable
 fun PreviewMenuModalSheetContentWithHeader() {
-    MenuModalSheetContent(
+    WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(
             "Title",
             { GroupConversationAvatar(colorsScheme().primary) },

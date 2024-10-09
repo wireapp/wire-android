@@ -27,9 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -37,21 +35,23 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @HomeNavGraph
-@Destination
+@WireDestination
 @Composable
 fun SettingsScreen(
     homeStateHolder: HomeStateHolder,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val lazyListState: LazyListState = rememberLazyListState()
     val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
     val onAppLockSwitchClicked: (Boolean) -> Unit = remember {
         { isChecked ->
@@ -62,7 +62,7 @@ fun SettingsScreen(
 
     val context = LocalContext.current
     SettingsScreenContent(
-        lazyListState = lazyListState,
+        lazyListState = homeStateHolder.currentLazyListState,
         settingsState = viewModel.state,
         onItemClicked = remember {
             {
@@ -79,9 +79,10 @@ fun SettingsScreen(
 
 @Composable
 fun SettingsScreenContent(
-    lazyListState: LazyListState = rememberLazyListState(),
     settingsState: SettingsState,
     onItemClicked: (SettingsItem.DirectionItem) -> Unit,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
     onAppLockSwitchChanged: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
@@ -90,7 +91,7 @@ fun SettingsScreenContent(
     with(featureVisibilityFlags) {
         LazyColumn(
             state = lazyListState,
-            modifier = Modifier.fillMaxSize()
+            modifier = modifier.fillMaxSize()
         ) {
             folderWithElements(
                 header = context.getString(R.string.settings_account_settings_label),
@@ -177,8 +178,8 @@ private fun LazyListScope.folderWithElements(
     }
 }
 
-@Preview(showBackground = false)
+@PreviewMultipleThemes
 @Composable
-fun PreviewSettingsScreen() {
-    SettingsScreenContent(rememberLazyListState(), SettingsState(), {}, {})
+fun PreviewSettingsScreen() = WireTheme {
+    SettingsScreenContent(settingsState = SettingsState(), onItemClicked = {}, onAppLockSwitchChanged = {},)
 }

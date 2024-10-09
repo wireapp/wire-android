@@ -20,6 +20,7 @@ package com.wire.android.model
 
 import androidx.compose.runtime.Stable
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
@@ -28,5 +29,33 @@ data class UserAvatarData(
     val asset: ImageAsset.UserAvatarAsset? = null,
     val availabilityStatus: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
     val connectionState: ConnectionState? = null,
-    val membership: Membership = Membership.None
-)
+    val membership: Membership = Membership.None,
+    val nameBasedAvatar: NameBasedAvatar? = null
+) {
+
+    fun shouldPreferNameBasedAvatar(): Boolean {
+        return asset == null && nameBasedAvatar != null &&
+                nameBasedAvatar.initials.isEmpty().not() && membership != Membership.Service
+    }
+}
+
+/**
+ * Holder that can be used to generate an avatar based on the user's full name initials and accent color.
+ */
+data class NameBasedAvatar(val fullName: String?, val accentColor: Int) {
+    val initials: String
+        get() {
+            if (fullName.isNullOrEmpty()) return String.EMPTY
+            val names = fullName.split(EMPTY_REGEX).filter { it.isNotEmpty() }.map { it.uppercase() }
+            return when {
+                names.size > 1 -> {
+                    val initials = names.map { it.first() }
+                    initials.first().toString() + initials.last()
+                }
+
+                else -> names.first().take(2)
+            }
+        }
+}
+
+val EMPTY_REGEX = "\\s".toRegex()

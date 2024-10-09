@@ -20,12 +20,12 @@ package com.wire.android.ui.calling.incoming
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.media.CallRinger
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
@@ -37,7 +37,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -67,9 +66,6 @@ class IncomingCallViewModelTest {
         lateinit var acceptCall: AnswerCallUseCase
 
         @MockK
-        lateinit var callRinger: CallRinger
-
-        @MockK
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
         @MockK
@@ -87,8 +83,6 @@ class IncomingCallViewModelTest {
             // Default empty values
             coEvery { rejectCall(any()) } returns Unit
             coEvery { acceptCall(any()) } returns Unit
-            every { callRinger.ring(any(), any()) } returns Unit
-            every { callRinger.stop() } returns Unit
             coEvery { incomingCalls.invoke() } returns flowOf(listOf(provideCall()))
             coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
             coEvery { muteCall(any(), any()) } returns Unit
@@ -97,8 +91,13 @@ class IncomingCallViewModelTest {
         fun withAppNotLocked() = apply {
             every { lockCodeTimeManager.observeAppLock() } returns flowOf(false)
         }
+
         fun withAppLocked() = apply {
             every { lockCodeTimeManager.observeAppLock() } returns flowOf(true)
+        }
+
+        fun withLockStateLockedAndThenUnlocked() = apply {
+            every { lockCodeTimeManager.observeAppLock() } returns flowOf(true) andThen flowOf(false)
         }
 
         fun withEstablishedCalls(flow: Flow<List<Call>>) = apply {
@@ -114,7 +113,6 @@ class IncomingCallViewModelTest {
             incomingCalls = incomingCalls,
             rejectCall = rejectCall,
             acceptCall = acceptCall,
-            callRinger = callRinger,
             observeEstablishedCalls = observeEstablishedCalls,
             endCall = endCall,
             muteCall = muteCall,
@@ -131,7 +129,6 @@ class IncomingCallViewModelTest {
         viewModel.declineCall({}, {})
 
         coVerify(inverse = true) { arrangement.rejectCall(conversationId = any()) }
-        verify(inverse = true) { arrangement.callRinger.stop() }
     }
 
     @Test
@@ -143,7 +140,6 @@ class IncomingCallViewModelTest {
         viewModel.declineCall({}, {})
 
         coVerify(exactly = 1) { arrangement.rejectCall(conversationId = any()) }
-        verify(exactly = 1) { arrangement.callRinger.stop() }
         assertTrue { viewModel.incomingCallState.flowState is IncomingCallState.FlowState.CallClosed }
     }
 
@@ -156,7 +152,6 @@ class IncomingCallViewModelTest {
         viewModel.acceptCall({})
 
         coVerify(inverse = true) { arrangement.acceptCall(conversationId = any()) }
-        verify(inverse = true) { arrangement.callRinger.stop() }
     }
 
     @Test
@@ -169,7 +164,6 @@ class IncomingCallViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) { arrangement.acceptCall(conversationId = any()) }
-        verify(exactly = 1) { arrangement.callRinger.stop() }
         coVerify(inverse = true) { arrangement.endCall(any()) }
         assertEquals(false, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
         assertTrue { viewModel.incomingCallState.flowState is IncomingCallState.FlowState.CallAccepted }
@@ -187,7 +181,6 @@ class IncomingCallViewModelTest {
         assertTrue { viewModel.incomingCallState.flowState is IncomingCallState.FlowState.Default }
         assertEquals(true, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
         coVerify(inverse = true) { arrangement.acceptCall(conversationId = any()) }
-        verify(inverse = true) { arrangement.callRinger.stop() }
     }
 
     @Test
@@ -223,13 +216,46 @@ class IncomingCallViewModelTest {
         assertEquals(false, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
     }
 
+    @Test
+    fun `given app locked, when user tries to accept an incoming call, then do not accept the call until is unlocked`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLockStateLockedAndThenUnlocked()
+            .arrange()
+
+        viewModel.acceptCall({})
+
+        coVerify { arrangement.acceptCall(conversationId = any()) }
+    }
+
+    @Test
+    fun `given app locked, when user tries to accept an second incoming call, then do not accept the call until is unlocked`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLockStateLockedAndThenUnlocked()
+            .arrange()
+
+        viewModel.acceptCallAnyway({})
+
+        coVerify { arrangement.acceptCall(conversationId = any()) }
+    }
+
+    @Test
+    fun `given app Locked, when the user decline the call, then do not reject the call until is unlocked`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLockStateLockedAndThenUnlocked()
+            .arrange()
+
+        viewModel.declineCall({}, {})
+
+        coVerify { arrangement.rejectCall(conversationId = any()) }
+    }
+
     companion object {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
         private fun provideCall(id: ConversationId = dummyConversationId, status: CallStatus = CallStatus.INCOMING) = Call(
             conversationId = id,
             status = status,
-            callerId = "caller_id",
+            callerId = UserId("caller", "domain"),
             participants = listOf(),
             isMuted = false,
             isCameraOn = false,

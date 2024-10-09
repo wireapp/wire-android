@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.userprofile.self
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -48,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -59,6 +59,7 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
@@ -78,6 +79,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
 import com.wire.android.ui.destinations.AvatarPickerScreenDestination
+import com.wire.android.ui.destinations.SelfQRCodeScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
@@ -104,10 +106,11 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     style = PopUpNavigationAnimation::class,
 )
 @Composable
+@SuppressLint("ComposeModifierMissing")
 fun SelfUserProfileScreen(
     navigator: Navigator,
     avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>,
@@ -131,7 +134,10 @@ fun SelfUserProfileScreen(
         onLegalHoldAcceptClick = legalHoldRequestedViewModel::show,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
         onOtherAccountClick = { viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate)) },
-        isUserInCall = viewModelSelf::isUserInCall
+        onQrCodeClick = {
+            navigator.navigate(NavigationCommand(SelfQRCodeScreenDestination(viewModelSelf.userProfileState.userName)))
+        },
+        isUserInCall = viewModelSelf::isUserInCall,
     )
 
     avatarPickerResultRecipient.onNavResult { result ->
@@ -180,6 +186,7 @@ private fun SelfUserProfileContent(
     onLegalHoldAcceptClick: () -> Unit = {},
     onLegalHoldLearnMoreClick: () -> Unit = {},
     onOtherAccountClick: (UserId) -> Unit = {},
+    onQrCodeClick: () -> Unit = {},
     isUserInCall: () -> Boolean
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
@@ -229,19 +236,25 @@ private fun SelfUserProfileContent(
                             userName = userName,
                             teamName = teamName,
                             onUserProfileClick = onChangeUserProfilePicture,
-                            editableState = EditableState.IsEditable(onEditClick)
+                            editableState = EditableState.IsEditable(onEditClick),
+                            onQrCodeClick = onQrCodeClick,
+                            accentId = accentId
                         )
                     }
                     if (state.legalHoldStatus != LegalHoldUIState.None) {
                         stickyHeader {
                             Box(
                                 contentAlignment = Alignment.Center,
-                                modifier = Modifier.fillMaxWidth().padding(top = dimensions().spacing8x)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = dimensions().spacing8x)
                             ) {
                                 when (state.legalHoldStatus) {
                                     LegalHoldUIState.Active -> LegalHoldSubjectBanner(onLegalHoldLearnMoreClick)
                                     LegalHoldUIState.Pending -> LegalHoldPendingBanner(onLegalHoldAcceptClick)
-                                    LegalHoldUIState.None -> { /* no banner */ }
+                                    LegalHoldUIState.None -> {
+                                        /* no banner */
+                                    }
                                 }
                             }
                         }
@@ -426,7 +439,7 @@ private fun OtherAccountItem(
         },
         subtitle = {
             if (account.teamName != null) {
-                HighlightSubtitle(subTitle = account.teamName, suffix = "")
+                HighlightSubtitle(subTitle = account.teamName, prefix = "")
             }
         },
         actions = {

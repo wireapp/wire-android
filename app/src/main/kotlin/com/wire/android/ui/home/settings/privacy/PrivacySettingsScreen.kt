@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
@@ -33,6 +32,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
@@ -41,7 +41,7 @@ import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.WireTheme
 
 @RootNavGraph
-@Destination
+@WireDestination
 @Composable
 fun PrivacySettingsConfigScreen(
     navigator: Navigator,
@@ -49,7 +49,8 @@ fun PrivacySettingsConfigScreen(
 ) {
     with(viewModel) {
         PrivacySettingsScreenContent(
-            isAnonymousUsageDataEnabled = state.isAnonymousUsageDataEnabled,
+            isAnonymousUsageDataEnabled = state.isAnalyticsUsageEnabled,
+            shouldShowAnalyticsUsage = state.shouldShowAnalyticsUsage,
             areReadReceiptsEnabled = state.areReadReceiptsEnabled,
             setReadReceiptsState = ::setReadReceiptsState,
             isTypingIndicatorEnabled = state.isTypingIndicatorEnabled,
@@ -65,6 +66,7 @@ fun PrivacySettingsConfigScreen(
 @Composable
 fun PrivacySettingsScreenContent(
     isAnonymousUsageDataEnabled: Boolean,
+    shouldShowAnalyticsUsage: Boolean,
     areReadReceiptsEnabled: Boolean,
     setReadReceiptsState: (Boolean) -> Unit,
     isTypingIndicatorEnabled: Boolean,
@@ -90,12 +92,14 @@ fun PrivacySettingsScreenContent(
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            GroupConversationOptionsItem(
-                title = stringResource(id = R.string.settings_send_anonymous_usage_data_title),
-                switchState = SwitchState.Enabled(value = isAnonymousUsageDataEnabled, onCheckedChange = setAnonymousUsageDataEnabled),
-                arrowType = ArrowType.NONE,
-                subtitle = stringResource(id = R.string.settings_send_anonymous_usage_data_description)
-            )
+            if (shouldShowAnalyticsUsage) {
+                GroupConversationOptionsItem(
+                    title = stringResource(id = R.string.settings_send_anonymous_usage_data_title),
+                    switchState = SwitchState.Enabled(value = isAnonymousUsageDataEnabled, onCheckedChange = setAnonymousUsageDataEnabled),
+                    arrowType = ArrowType.NONE,
+                    subtitle = stringResource(id = R.string.settings_send_anonymous_usage_data_description)
+                )
+            }
             WireDivider(color = colorsScheme().outlineVariant)
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_send_read_receipts),
@@ -140,6 +144,7 @@ fun PrivacySettingsScreenContent(
 fun PreviewSendReadReceipts() = WireTheme {
     PrivacySettingsScreenContent(
         isAnonymousUsageDataEnabled = true,
+        shouldShowAnalyticsUsage = true,
         areReadReceiptsEnabled = true,
         setReadReceiptsState = {},
         isTypingIndicatorEnabled = true,

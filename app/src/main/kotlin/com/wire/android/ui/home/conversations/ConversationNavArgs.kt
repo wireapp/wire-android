@@ -17,13 +17,27 @@
  */
 package com.wire.android.ui.home.conversations
 
+import android.os.Parcel
+import android.os.Parcelable
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.serialization.Serializable
+import com.wire.kalium.logic.data.id.QualifiedID
+import kotlinx.parcelize.Parceler
+import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.TypeParceler
 
-@Serializable
+@Parcelize
+@TypeParceler<ConversationId, QualifiedIdParceler>()
 data class ConversationNavArgs(
     val conversationId: ConversationId,
     val searchedMessageId: String? = null,
-    val pendingBundles: ArrayList<AssetBundle>? = null
-)
+    val pendingBundles: ArrayList<AssetBundle>? = null,
+    val pendingTextBundle: String? = null
+) : Parcelable
+
+object QualifiedIdParceler : Parceler<QualifiedID> {
+    override fun create(parcel: Parcel) = parcel.readString().orEmpty().let {
+        QualifiedID(it.substringBeforeLast("@"), it.substringAfterLast("@"))
+    }
+    override fun QualifiedID.write(parcel: Parcel, flags: Int) = parcel.writeString(this.value + "@" + this.domain)
+}

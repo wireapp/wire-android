@@ -29,12 +29,14 @@ import com.wire.kalium.logic.data.id.FederatedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
+import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -473,4 +475,16 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): FetchConversationMLSVerificationStatusUseCase = coreLogic.getSessionScope(currentAccount).fetchConversationMLSVerificationStatus
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetCurrentAnalyticsTrackingIdentifierUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetCurrentAnalyticsTrackingIdentifierUseCase = coreLogic.getSessionScope(currentAccount).getCurrentAnalyticsTrackingIdentifier
+
+    @ViewModelScoped
+    @Provides
+    fun provideBreakSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): BreakSessionUseCase =
+        coreLogic.getSessionScope(currentAccount).debug.breakSession
 }

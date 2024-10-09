@@ -175,13 +175,14 @@ private fun OutgoingCallContent(
                 isCameraOn = callState.isCameraOn,
                 isCbrEnabled = callState.isCbrEnabled,
                 avatarAssetId = callState.avatarAssetId,
-                conversationType = callState.conversationType,
+                conversationTypeForCall = callState.conversationTypeForCall,
                 membership = callState.membership,
-                callingLabel = stringResource(id = R.string.calling_label_ringing_call),
+                groupCallerName = stringResource(id = R.string.calling_label_ringing_call),
                 protocolInfo = callState.protocolInfo,
                 mlsVerificationStatus = callState.mlsVerificationStatus,
                 proteusVerificationStatus = callState.proteusVerificationStatus,
-                onMinimiseScreen = onMinimiseScreen
+                onMinimiseScreen = onMinimiseScreen,
+                accentId = callState.accentId
             )
         }
     }

@@ -93,7 +93,7 @@ fun OtherUserProfileGroup(
                 value = AnnotatedString(state.groupState!!.role.name.asString()),
                 isSelfAdmin = state.groupState.isSelfAdmin,
                 openChangeRoleBottomSheet = openChangeRoleBottomSheet,
-                isRoleEditable = state.membership.allowsRoleEdition() && !state.isMetadataEmpty()
+                isRoleEditable = state.membership.allowsRoleEdition() && !state.isMetadataEmpty() && !state.isTemporaryUser()
             )
         }
     }

@@ -21,7 +21,6 @@ package com.wire.android.ui.home.newconversation
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
-import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -70,8 +69,6 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     lateinit var getDefaultProtocol: GetDefaultProtocolUseCase
-
-    private var groupOptionsState: GroupOptionState = GroupOptionState()
 
     private var createGroupState: CreateGroupState = CreateGroupState()
 
@@ -181,14 +178,6 @@ internal class NewConversationViewModelArrangement {
         ))
     }
 
-    fun withGuestEnabled(isGuestModeEnabled: Boolean) = apply {
-        groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = isGuestModeEnabled)
-    }
-
-    fun withServicesEnabled(areServicesEnabled: Boolean) = apply {
-        groupOptionsState = groupOptionsState.copy(isAllowServicesEnabled = areServicesEnabled)
-    }
-
     fun withDefaultProtocol(supportedProtocol: SupportedProtocol) = apply {
         every { getDefaultProtocol() } returns supportedProtocol
     }
@@ -198,7 +187,6 @@ internal class NewConversationViewModelArrangement {
         getSelfUser = getSelfUserUseCase,
         getDefaultProtocol = getDefaultProtocol
     ).also {
-        it.groupOptionsState = groupOptionsState
         it.createGroupState = createGroupState
     }
 }

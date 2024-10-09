@@ -32,13 +32,13 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.ClickableText
 import com.wire.android.ui.common.button.WireButtonState
@@ -56,6 +56,7 @@ import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.home.E2EIEnrollmentErrorWithDismissDialog
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.markdown.MarkdownConstants
+import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -65,7 +66,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.functional.Either
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     style = PopUpNavigationAnimation::class
 )
 @Composable
@@ -85,7 +86,13 @@ fun E2EIEnrollmentScreen(
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
         openCertificateDetails = {
-            navigator.navigate(NavigationCommand(E2eiCertificateDetailsScreenDestination(state.certificate)))
+            navigator.navigate(
+                NavigationCommand(
+                    E2eiCertificateDetailsScreenDestination(
+                        E2EICertificateDetails.DuringLoginCertificateDetails(state.certificate)
+                    )
+                )
+            )
         },
         onBackButtonClicked = viewModel::onBackButtonClicked,
         onCancelEnrollmentClicked = { viewModel.onCancelEnrollmentClicked(NavigationSwitchAccountActions(navigator::navigate)) },

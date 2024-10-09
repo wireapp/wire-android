@@ -47,6 +47,7 @@ import com.wire.android.util.ui.UIText
 
 @Composable
 fun WhatsNewItem(
+    modifier: Modifier = Modifier,
     title: String? = null,
     boldTitle: Boolean = false,
     text: String? = null,
@@ -93,7 +94,7 @@ fun WhatsNewItem(
             } ?: Icons.Filled.ChevronRight
         },
         clickable = onRowPressed,
-        modifier = Modifier.padding(vertical = dimensions().spacing4x)
+        modifier = modifier.padding(vertical = dimensions().spacing4x)
     )
 }
 
@@ -110,8 +111,10 @@ sealed class WhatsNewItem(
         direction = WelcomeToNewAndroidAppDestination
     )
 
-    data object AllAndroidReleaseNotes : WhatsNewItem(
-        id = "android_release_notes",
+    data class AllAndroidReleaseNotes(
+        override val id: String = "android_release_notes"
+    ) : WhatsNewItem(
+        id = id,
         title = UIText.StringResource(R.string.whats_new_android_release_notes_label),
         direction = AndroidReleaseNotesDestination
     )
@@ -119,8 +122,8 @@ sealed class WhatsNewItem(
     data class AndroidReleaseNotes(
         override val id: String,
         override val title: UIText,
-        override val boldTitle: Boolean,
-        override val text: UIText?,
+        override val boldTitle: Boolean = false,
+        override val text: UIText? = null,
         val url: String
     ) : WhatsNewItem(
         id = id,
@@ -141,7 +144,9 @@ fun PreviewFileRestrictionDialog() {
         WhatsNewItem(
             title = "What's new item",
             text = "This is the text of the item",
-            trailingIcon = R.drawable.ic_arrow_right
+            trailingIcon = R.drawable.ic_arrow_right,
+            isLoading = false,
+            onRowPressed = Clickable(enabled = true) {}
         )
     }
 }
@@ -155,6 +160,7 @@ fun PreviewFileRestrictionDialogLoading() {
             text = "This is the text of the item",
             trailingIcon = R.drawable.ic_arrow_right,
             isLoading = true,
+            onRowPressed = Clickable(enabled = false) {}
         )
     }
 }

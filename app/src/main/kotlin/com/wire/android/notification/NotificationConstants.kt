@@ -49,16 +49,6 @@ object NotificationConstants {
 
     private const val CHANNEL_GROUP_ID_PREFIX = "com.wire.notification_channel_group"
 
-    // Notification IDs (has to be unique!)
-    val CALL_INCOMING_NOTIFICATION_ID = "wire_incoming_call_notification".hashCode()
-    val CALL_OUTGOING_NOTIFICATION_ID = "wire_outgoing_call_notification".hashCode()
-    val CALL_ONGOING_NOTIFICATION_ID = "wire_ongoing_call_notification".hashCode()
-    val PERSISTENT_NOTIFICATION_ID = "wire_persistent_web_socket_notification".hashCode()
-    val MESSAGE_SYNC_NOTIFICATION_ID = "wire_notification_fetch_notification".hashCode()
-    val MIGRATION_NOTIFICATION_ID = "wire_migration_notification".hashCode()
-    val SINGLE_USER_MIGRATION_NOTIFICATION_ID = "wire_single_user_migration_notification".hashCode()
-    val MIGRATION_ERROR_NOTIFICATION_ID = "wire_migration_error_notification".hashCode()
-
     // MessagesSummaryNotification ID depends on User, use fun getMessagesSummaryId(userId: UserId) to get it
     private const val MESSAGE_SUMMARY_ID_STRING = "wire_messages_summary_notification"
 
@@ -78,4 +68,15 @@ object NotificationConstants {
      * one of [NotificationConstants.INCOMING_CALL_CHANNEL_ID], [NotificationConstants.MESSAGE_CHANNEL_ID].
      */
     private fun getChanelIdForUser(userId: UserId, channelIdPrefix: String): String = "$channelIdPrefix.$userId"
+}
+
+// Notification IDs (has to be unique!)
+enum class NotificationIds {
+    CALL_INCOMING_NOTIFICATION_ID,
+    CALL_OUTGOING_ONGOING_NOTIFICATION_ID,
+    PERSISTENT_NOTIFICATION_ID,
+    MESSAGE_SYNC_NOTIFICATION_ID,
+    MIGRATION_NOTIFICATION_ID,
+    SINGLE_USER_MIGRATION_NOTIFICATION_ID,
+    MIGRATION_ERROR_NOTIFICATION_ID
 }

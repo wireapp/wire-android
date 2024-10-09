@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,8 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
@@ -50,7 +51,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import com.wire.android.R
 import com.wire.android.ui.common.TextWithLearnMore
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
@@ -58,7 +58,6 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
-import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
@@ -68,20 +67,24 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
+import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlin.math.roundToInt
 
 @Composable
 fun MessageComposer(
     conversationId: ConversationId,
+    bottomSheetVisible: Boolean,
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onSendMessageBundle: (MessageBundle) -> Unit,
+    onPingOptionClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
+    onLocationClicked: () -> Unit,
     onClearMentionSearchResult: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
+    openDrawingCanvas: () -> Unit,
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     onImagesPicked: (List<Uri>) -> Unit
@@ -127,6 +130,7 @@ fun MessageComposer(
             InteractionAvailability.ENABLED -> {
                 EnabledMessageComposer(
                     conversationId = conversationId,
+                    bottomSheetVisible = bottomSheetVisible,
                     messageComposerStateHolder = messageComposerStateHolder,
                     messageListContent = messageListContent,
                     onSendButtonClicked = {
@@ -134,22 +138,15 @@ fun MessageComposer(
                         onClearMentionSearchResult()
                         clearMessage()
                     },
-                    onPingOptionClicked = { onSendMessageBundle(Ping(conversationId)) },
+                    onPingOptionClicked = onPingOptionClicked,
                     onImagesPicked = onImagesPicked,
                     onAttachmentPicked = { onSendMessageBundle(ComposableMessageBundle.UriPickedBundle(conversationId, it)) },
                     onAudioRecorded = { onSendMessageBundle(ComposableMessageBundle.AudioMessageBundle(conversationId, it)) },
-                    onLocationPicked = {
-                        onSendMessageBundle(
-                            ComposableMessageBundle.LocationBundle(
-                                conversationId,
-                                it.getFormattedAddress(),
-                                it.location
-                            )
-                        )
-                    },
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
+                    onLocationClicked = onLocationClicked,
                     onClearMentionSearchResult = onClearMentionSearchResult,
                     onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+                    openDrawingCanvas = openDrawingCanvas,
                     tempWritableVideoUri = tempWritableVideoUri,
                     tempWritableImageUri = tempWritableImageUri,
                 )
@@ -240,7 +237,6 @@ private fun DisabledInteractionMessageComposer(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BaseComposerPreview(
     interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
@@ -254,13 +250,17 @@ private fun BaseComposerPreview(
     }
     val messageTextState = rememberTextFieldState()
     val messageComposition = remember { mutableStateOf(MessageComposition(ConversationId("value", "domain"))) }
-
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
     MessageComposer(
         conversationId = ConversationId("value", "domain"),
+        bottomSheetVisible = false,
         messageComposerStateHolder = MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
                 messageTextState = messageTextState,
+                keyboardController = keyboardController,
+                focusRequester = focusRequester
             ),
             messageCompositionHolder = MessageCompositionHolder(
                 messageComposition = messageComposition,
@@ -271,15 +271,17 @@ private fun BaseComposerPreview(
                 onTypingEvent = {}
             ),
             additionalOptionStateHolder = AdditionalOptionStateHolder(),
-            modalBottomSheetState = WireModalSheetState()
         ),
+        onPingOptionClicked = { },
         messageListContent = { },
         onChangeSelfDeletionClicked = { },
+        onLocationClicked = {},
         onClearMentionSearchResult = { },
         onPermissionPermanentlyDenied = { },
         onSendMessageBundle = { },
         tempWritableVideoUri = null,
         tempWritableImageUri = null,
+        openDrawingCanvas = {},
         onImagesPicked = {}
     )
 }

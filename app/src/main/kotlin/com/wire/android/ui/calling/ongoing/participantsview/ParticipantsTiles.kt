@@ -19,7 +19,6 @@
 package com.wire.android.ui.calling.ongoing.participantsview
 
 import android.view.View
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,19 +40,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.wire.android.BuildConfig
+import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.gridview.GroupCallGrid
 import com.wire.android.ui.calling.ongoing.participantsview.horizentalview.CallingHorizontalView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 private const val MAX_TILES_PER_PAGE = 8
 private const val MAX_ITEMS_FOR_HORIZONTAL_VIEW = 3
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VerticalCallingPager(
     participants: List<UICallParticipant>,
@@ -63,10 +65,13 @@ fun VerticalCallingPager(
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
-    onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit
+    onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
+    val activity = LocalActivity.current
+
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(contentHeight)
     ) {
@@ -79,12 +84,19 @@ fun VerticalCallingPager(
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
                 if (participants.isNotEmpty()) {
-
-                    val participantsChunkedList = remember(participants) {
-                        participants.chunked(MAX_TILES_PER_PAGE)
+                    // if PiP is enabled and more than one participant is present,
+                    // we need to remove the first participant(self user) from the list
+                    val newParticipants =
+                        if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
+                            participants.subList(1, participants.size)
+                        } else {
+                            participants
+                        }
+                    val participantsChunkedList = remember(newParticipants) {
+                        newParticipants.chunked(MAX_TILES_PER_PAGE)
                     }
-                    val participantsWithCameraOn by rememberUpdatedState(participants.count { it.isCameraOn })
-                    val participantsWithScreenShareOn by rememberUpdatedState(participants.count { it.isSharingScreen })
+                    val participantsWithCameraOn by rememberUpdatedState(newParticipants.count { it.isCameraOn })
+                    val participantsWithScreenShareOn by rememberUpdatedState(newParticipants.count { it.isSharingScreen })
 
                     if (participantsChunkedList[pageIndex].size <= MAX_ITEMS_FOR_HORIZONTAL_VIEW) {
                         CallingHorizontalView(
@@ -119,8 +131,8 @@ fun VerticalCallingPager(
                     }
                 }
             }
-            // we don't need to display the indicator if we have one page
-            if (pagesCount(participants.size) > 1) {
+            // we don't need to display the indicator if we have one page and when it's in PiP mode
+            if (pagesCount(participants.size) > 1 && !activity.isInPictureInPictureMode) {
                 Surface(
                     shape = RoundedCornerShape(dimensions().corner16x),
                     modifier = Modifier
@@ -156,11 +168,10 @@ private fun pagesCount(size: Int): Int {
     } else pages
 }
 
-@PreviewMultipleThemes
 @Composable
-fun PreviewVerticalCallingPager() {
+private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
     VerticalCallingPager(
-        participants = listOf(),
+        participants = participants,
         isSelfUserMuted = false,
         isSelfUserCameraOn = false,
         contentHeight = 800.dp,
@@ -169,4 +180,20 @@ fun PreviewVerticalCallingPager() {
         requestVideoStreams = {},
         onDoubleTap = { }
     )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewVerticalCallingPagerHorizontalView() = WireTheme {
+    PreviewVerticalCallingPager(
+        participants = buildPreviewParticipantsList(
+            MAX_ITEMS_FOR_HORIZONTAL_VIEW
+        )
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewVerticalCallingPagerGrid() = WireTheme {
+    PreviewVerticalCallingPager(participants = buildPreviewParticipantsList(MAX_TILES_PER_PAGE))
 }

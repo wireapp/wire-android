@@ -38,12 +38,12 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -62,7 +62,7 @@ import com.wire.android.util.time.convertTimestampToDateTime
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @RootNavGraph
-@Destination
+@WireDestination
 @Composable
 fun BackupAndRestoreScreen(
     navigator: Navigator,

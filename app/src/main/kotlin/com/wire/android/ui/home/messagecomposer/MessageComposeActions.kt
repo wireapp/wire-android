@@ -50,6 +50,7 @@ import com.wire.kalium.logic.util.isPositiveNotNull
 fun MessageComposeActions(
     conversationId: ConversationId,
     isEditing: Boolean,
+    attachmentsVisible: Boolean,
     selectedOption: AdditionalOptionSelectItem,
     onMentionButtonClicked: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
@@ -57,28 +58,31 @@ fun MessageComposeActions(
     onSelfDeletionOptionButtonClicked: (SelfDeletionTimer) -> Unit,
     onGifButtonClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit,
+    isFileSharingEnabled: Boolean,
     isMentionActive: Boolean = true,
     onDrawingModeClicked: () -> Unit
 ) {
     if (isEditing) {
         EditingActions(
-            selectedOption,
-            isMentionActive,
-            onRichEditingButtonClicked,
-            onMentionButtonClicked
+            selectedOption = selectedOption,
+            isMentionActive = isMentionActive,
+            onRichEditingButtonClicked = onRichEditingButtonClicked,
+            onMentionButtonClicked = onMentionButtonClicked
         )
     } else {
         ComposingActions(
-            conversationId,
-            selectedOption,
-            isMentionActive,
-            onAdditionalOptionButtonClicked,
-            onRichEditingButtonClicked,
-            onGifButtonClicked,
-            onSelfDeletionOptionButtonClicked,
-            onPingButtonClicked,
-            onMentionButtonClicked,
-            onDrawingModeClicked
+            conversationId = conversationId,
+            selectedOption = selectedOption,
+            isMentionActive = isMentionActive,
+            attachmentsVisible = attachmentsVisible,
+            onAdditionalOptionButtonClicked = onAdditionalOptionButtonClicked,
+            onRichEditingButtonClicked = onRichEditingButtonClicked,
+            onGifButtonClicked = onGifButtonClicked,
+            onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
+            onPingButtonClicked = onPingButtonClicked,
+            onMentionButtonClicked = onMentionButtonClicked,
+            onDrawingModeClicked = onDrawingModeClicked,
+            isFileSharingEnabled = isFileSharingEnabled
         )
     }
 }
@@ -87,6 +91,8 @@ fun MessageComposeActions(
 private fun ComposingActions(
     conversationId: ConversationId,
     selectedOption: AdditionalOptionSelectItem,
+    isFileSharingEnabled: Boolean,
+    attachmentsVisible: Boolean,
     isMentionActive: Boolean,
     onAdditionalOptionButtonClicked: () -> Unit,
     onRichEditingButtonClicked: () -> Unit,
@@ -107,18 +113,15 @@ private fun ComposingActions(
     ) {
         with(localFeatureVisibilityFlags) {
             AdditionalOptionButton(
-                isSelected = selectedOption == AdditionalOptionSelectItem.AttachFile,
+                isSelected = attachmentsVisible,
                 onClick = onAdditionalOptionButtonClicked
             )
             RichTextEditingAction(
                 isSelected = selectedOption == AdditionalOptionSelectItem.RichTextEditing,
                 onRichEditingButtonClicked
             )
-            if (DrawingIcon) {
-                DrawingModeAction(
-                    isSelected = selectedOption == AdditionalOptionSelectItem.DrawingMode,
-                    onDrawingModeClicked
-                )
+            if (DrawingIcon && isFileSharingEnabled) {
+                DrawingModeAction(onDrawingModeClicked)
             }
             if (EmojiIcon) AddEmojiAction({})
             if (GifIcon) AddGifAction(onGifButtonClicked)
@@ -173,12 +176,12 @@ private fun RichTextEditingAction(isSelected: Boolean, onButtonClicked: () -> Un
 }
 
 @Composable
-private fun DrawingModeAction(isSelected: Boolean, onButtonClicked: () -> Unit) {
+private fun DrawingModeAction(onButtonClicked: () -> Unit) {
     WireSecondaryIconButton(
         onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_drawing,
-        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
+        state = WireButtonState.Default,
         contentDescription = R.string.content_description_conversation_enable_drawing_mode
     )
 }
@@ -291,10 +294,11 @@ fun PreviewMessageActionsBox() {
             .height(dimensions().spacing56x)
     ) {
         AdditionalOptionButton(isSelected = false, onClick = {})
-        RichTextEditingAction(true, { })
-        AddEmojiAction({})
-        AddGifAction({})
-        AddMentionAction(false, {})
+        DrawingModeAction {}
+        RichTextEditingAction(true) { }
+        AddEmojiAction {}
+        AddGifAction {}
+        AddMentionAction(false) {}
         PingAction {}
     }
 }

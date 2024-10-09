@@ -21,17 +21,15 @@ package com.wire.android.ui.home.messagecomposer
 import android.content.Context
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.focus.FocusRequester
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestConversation
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
-import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionStateHolder
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.InputType
@@ -40,6 +38,7 @@ import com.wire.android.ui.home.messagecomposer.state.MessageCompositionHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.util.EMPTY
 import io.mockk.MockKAnnotations
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -49,29 +48,37 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class MessageComposerStateHolderTest {
 
     @MockK
     lateinit var context: Context
 
+    @MockK
+    lateinit var focusRequester: FocusRequester
+
     private lateinit var messageComposerViewState: MutableState<MessageComposerViewState>
     private lateinit var messageComposition: MutableState<MessageComposition>
     private lateinit var messageCompositionInputStateHolder: MessageCompositionInputStateHolder
     private lateinit var messageCompositionHolder: MessageCompositionHolder
     private lateinit var additionalOptionStateHolder: AdditionalOptionStateHolder
-    private lateinit var modalBottomSheetState: WireModalSheetState
     private lateinit var state: MessageComposerStateHolder
     private lateinit var messageTextState: TextFieldState
 
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this, relaxUnitFun = true)
+        every { focusRequester.requestFocus() } returns Unit
+        every { focusRequester.captureFocus() } returns true
         messageComposerViewState = mutableStateOf(MessageComposerViewState())
         messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))
         messageTextState = TextFieldState()
-        messageCompositionInputStateHolder = MessageCompositionInputStateHolder(messageTextState = messageTextState)
+        messageCompositionInputStateHolder = MessageCompositionInputStateHolder(
+            messageTextState = messageTextState,
+            keyboardController = null,
+            focusRequester = focusRequester
+        )
         messageCompositionHolder = MessageCompositionHolder(
             messageComposition = messageComposition,
             messageTextState = messageTextState,
@@ -81,14 +88,12 @@ class MessageComposerStateHolderTest {
             onTypingEvent = {},
         )
         additionalOptionStateHolder = AdditionalOptionStateHolder()
-        modalBottomSheetState = WireModalSheetState()
 
         state = MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
             messageCompositionInputStateHolder = messageCompositionInputStateHolder,
             messageCompositionHolder = messageCompositionHolder,
             additionalOptionStateHolder = additionalOptionStateHolder,
-            modalBottomSheetState = modalBottomSheetState
         )
     }
 
@@ -159,29 +164,15 @@ class MessageComposerStateHolderTest {
     }
 
     @Test
-    fun `given state, when input focus change to false, then clear focus`() = runTest {
-        // given
-        // when
-        state.onInputFocusedChanged(onFocused = false)
-
-        // then
-        assertEquals(false, messageCompositionInputStateHolder.inputFocused)
-    }
-
-    @Test
     fun `given state, when requesting to show additional options menu, then additional options menu is shown`() =
         runTest {
             // given
             // when
-            state.showAdditionalOptionsMenu()
+            state.showAttachments(true)
 
             // then
             assertEquals(
-                AdditionalOptionSelectItem.AttachFile,
-                additionalOptionStateHolder.selectedOption
-            )
-            assertEquals(
-                AdditionalOptionSubMenuState.AttachFile,
+                AdditionalOptionSubMenuState.Default,
                 additionalOptionStateHolder.additionalOptionsSubMenuState
             )
             assertEquals(false, messageCompositionInputStateHolder.inputFocused)

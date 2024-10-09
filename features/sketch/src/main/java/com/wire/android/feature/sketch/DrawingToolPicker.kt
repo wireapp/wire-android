@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.sketch
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,40 +41,38 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconToggleButtonColors
 import androidx.compose.material3.OutlinedIconToggleButton
-import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireColorPalette
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DrawingToolPicker(
-    sheetState: WireModalSheetState,
+    sheetState: WireModalSheetState<Unit>,
     currentColor: Color,
     onColorSelected: (Color) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val scope = rememberCoroutineScope()
     val colorPalette = colorsScheme().sketchColorPalette
     WireModalSheetLayout(
+        modifier = modifier,
         dragHandle = null,
         sheetState = sheetState,
-        coroutineScope = scope,
     ) {
         Column(
             modifier = Modifier
@@ -90,7 +87,7 @@ fun DrawingToolPicker(
                     .background(color = colorsScheme().background, shape = RoundedCornerShape(size = dimensions().spacing2x))
 
             )
-            MenuModalSheetContent(
+            WireMenuModalSheetContent(
                 header = MenuModalSheetHeader.Visible(title = stringResource(id = R.string.title_color_picker)),
                 menuItems = listOf {
                     LazyVerticalGrid(
@@ -192,27 +189,13 @@ private const val GRID_CELLS = 6
 
 private fun Color.isWhite() = this == Color.White
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showSystemUi = true, device = Devices.NEXUS_5)
+@PreviewMultipleThemes
 @Composable
-fun PreviewDrawingToolPickerSelectedNonWhite() {
+fun PreviewDrawingToolPickerSelected() {
     WireTheme {
         DrawingToolPicker(
-            sheetState = WireModalSheetState(SheetValue.Expanded),
+            sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(Unit)),
             currentColor = WireColorPalette.LightBlue500,
-            onColorSelected = {}
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(uiMode = UI_MODE_NIGHT_YES)
-@Composable
-fun PreviewDrawingToolPickerSelectedWhite() {
-    WireTheme {
-        DrawingToolPicker(
-            sheetState = WireModalSheetState(SheetValue.Expanded),
-            currentColor = Color.White,
             onColorSelected = {}
         )
     }

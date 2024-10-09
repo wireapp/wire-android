@@ -21,9 +21,11 @@ package com.wire.android.ui.home.conversations.sendmessage
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.PingRinger
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.ImageUtil
@@ -138,6 +140,9 @@ internal class SendMessageViewModelArrangement {
 
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
+    @MockK
+    lateinit var analyticsManager: AnonymousAnalyticsManager
+
     private val viewModel by lazy {
         SendMessageViewModel(
             sendTextMessage = sendTextMessage,
@@ -148,7 +153,7 @@ internal class SendMessageViewModelArrangement {
             handleUriAsset = handleUriAssetUseCase,
             imageUtil = imageUtil,
             pingRinger = pingRinger,
-            sendKnockUseCase = sendKnockUseCase,
+            sendKnock = sendKnockUseCase,
             retryFailedMessage = retryFailedMessageUseCase,
             sendTypingEvent = sendTypingEvent,
             setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
@@ -157,7 +162,8 @@ internal class SendMessageViewModelArrangement {
             observeConversationUnderLegalHoldNotified = observeConversationUnderLegalHoldNotified,
             sendLocation = sendLocation,
             removeMessageDraft = removeMessageDraftUseCase,
-            savedStateHandle = savedStateHandle
+            savedStateHandle = savedStateHandle,
+            analyticsManager = analyticsManager
         )
     }
 
@@ -248,6 +254,20 @@ internal class SendMessageViewModelArrangement {
 
     fun withSuccessfulRetryFailedMessage() = apply {
         coEvery { retryFailedMessageUseCase(any(), any()) } returns Either.Right(Unit)
+    }
+
+    fun withPendingTextBundle(textToShare: String = "some text") = apply {
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(
+            conversationId = conversationId,
+            pendingTextBundle = textToShare
+        )
+    }
+
+    fun withPendingAssetBundle(vararg assetBundle: AssetBundle) = apply {
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(
+            conversationId = conversationId,
+            pendingBundles = arrayListOf(*assetBundle)
+        )
     }
 
     fun arrange() = this to viewModel

@@ -19,6 +19,7 @@
 package com.wire.android.mapper
 
 import com.wire.android.R
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
@@ -162,6 +163,7 @@ class MessageMapper @Inject constructor(
         },
         clientId = (message as? Message.Sendable)?.senderClientId,
         accent = sender?.accentId?.let { Accent.fromAccentId(it) } ?: Accent.Unknown,
+        guestExpiresAt = sender?.expiresAt
     )
 
     private fun getMessageStatus(message: Message.Standalone): MessageStatus {
@@ -169,7 +171,7 @@ class MessageMapper @Inject constructor(
 
         val content = message.content
         val flowStatus = if (content is MessageContent.FailedDecryption) {
-            MessageFlowStatus.Failure.Decryption(content.isDecryptionResolved)
+            MessageFlowStatus.Failure.Decryption(content.isDecryptionResolved, content.errorCode)
         } else {
             when (val status = message.status) {
                 Message.Status.Pending -> MessageFlowStatus.Sending
@@ -200,7 +202,9 @@ class MessageMapper @Inject constructor(
     private fun getUserAvatarData(sender: User?) = UserAvatarData(
         asset = sender?.previewAsset(wireSessionImageLoader),
         availabilityStatus = sender?.availabilityStatus ?: UserAvailabilityStatus.NONE,
-        connectionState = getConnectionState(sender)
+        membership = sender?.userType?.let { userTypeMapper.toMembership(it) } ?: Membership.None,
+        connectionState = getConnectionState(sender),
+        nameBasedAvatar = NameBasedAvatar(sender?.name, sender?.accentId ?: -1)
     )
 
     private fun getConnectionState(sender: User?) =

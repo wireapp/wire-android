@@ -22,34 +22,47 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.Dp
+import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.UILastMessageContent
+import com.wire.android.ui.home.conversationslist.model.BadgeEventType
+import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
+import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.extension.folderWithElements
+import com.wire.android.util.ui.KeepOnTopWhenNotScrolled
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.collections.immutable.toPersistentMap
 
 @Suppress("LongParameterList")
 @Composable
 fun ConversationList(
     conversationListItems: ImmutableMap<ConversationFolder, List<ConversationItem>>,
     searchQuery: String,
-    onOpenConversation: (ConversationId) -> Unit,
-    onEditConversation: (ConversationItem) -> Unit,
-    onOpenUserProfile: (UserId) -> Unit,
-    onJoinCall: (ConversationId) -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     isSelectableList: Boolean = false,
-    conversationsAddedToGroup: List<ConversationItem> = emptyList(),
+    selectedConversations: List<ConversationItem> = emptyList(),
+    onOpenConversation: (ConversationId) -> Unit = {},
+    onEditConversation: (ConversationItem) -> Unit = {},
+    onOpenUserProfile: (UserId) -> Unit = {},
+    onJoinCall: (ConversationId) -> Unit = {},
     onConversationSelectedOnRadioGroup: (ConversationId) -> Unit = {},
-    onAudioPermissionPermanentlyDenied: () -> Unit
+    onAudioPermissionPermanentlyDenied: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -57,19 +70,6 @@ fun ConversationList(
         state = lazyListState,
         modifier = modifier.fillMaxSize()
     ) {
-        /*
-     * When the list is scrolled to top and new items (e.g. new activity section) should appear on top of the list, it appears above
-     * all current items, scroll is preserved so the list still shows the same item as the first one on list so it scrolls
-     * automatically to that item and the newly added section on top is hidden above this previously top item, so for such situation
-     * when the list is scrolled to the top and we want the new section to appear at the top we need a dummy top item which will make
-     *  it so it wants to keep this dummy top item as the first one on list and show all other items below it.
-     */
-        item("empty-top-header") {
-            HorizontalDivider(
-                thickness = Dp.Hairline,
-                color = Color.Transparent
-            )
-        }
         conversationListItems.forEach { (conversationFolder, conversationList) ->
             folderWithElements(
                 header = when (conversationFolder) {
@@ -85,7 +85,7 @@ fun ConversationList(
                     searchQuery = searchQuery,
                     conversation = generalConversation,
                     isSelectableItem = isSelectableList,
-                    isChecked = conversationsAddedToGroup.contains(generalConversation),
+                    isChecked = selectedConversations.contains(generalConversation),
                     onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(generalConversation.conversationId) },
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,
@@ -96,4 +96,84 @@ fun ConversationList(
             }
         }
     }
+
+    KeepOnTopWhenNotScrolled(lazyListState)
+}
+
+fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = false) = buildList {
+    repeat(count) { index ->
+        val currentIndex = startIndex + index
+        when (index % 2) {
+            0 -> add(
+                ConversationItem.GroupConversation(
+                    groupName = "Conversation $currentIndex",
+                    conversationId = QualifiedID(currentIndex.toString(), "domain"),
+                    mutedStatus = MutedConversationStatus.AllAllowed,
+                    lastMessageContent = UILastMessageContent.TextMessage(MessageBody(UIText.DynamicString("Message"))),
+                    badgeEventType = if (unread) BadgeEventType.UnreadMessage(1) else BadgeEventType.None,
+                    selfMemberRole = null,
+                    teamId = null,
+                    hasOnGoingCall = false,
+                    isArchived = false,
+                    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+                    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+                )
+            )
+
+            1 -> add(
+                ConversationItem.PrivateConversation(
+                    userAvatarData = UserAvatarData(),
+                    conversationId = QualifiedID(currentIndex.toString(), "domain"),
+                    mutedStatus = MutedConversationStatus.AllAllowed,
+                    lastMessageContent = UILastMessageContent.TextMessage(MessageBody(UIText.DynamicString("Message"))),
+                    badgeEventType = if (unread) BadgeEventType.UnreadMessage(1) else BadgeEventType.None,
+                    conversationInfo = ConversationInfo("User $currentIndex"),
+                    blockingState = BlockingState.BLOCKED,
+                    teamId = null,
+                    userId = UserId("userId_$currentIndex", "domain"),
+                    isArchived = false,
+                    mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+                    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+                )
+            )
+        }
+    }
+}.toImmutableList()
+
+@Suppress("MagicNumber")
+fun previewConversationFolders() = buildMap<ConversationFolder, List<ConversationItem>> {
+    put(ConversationFolder.Predefined.NewActivities, previewConversationList(3, 0, true))
+    put(ConversationFolder.Predefined.Conversations, previewConversationList(6, 3, false))
+}.toImmutableMap()
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewConversationList() = WireTheme {
+    ConversationList(
+        conversationListItems = previewConversationFolders().toPersistentMap(),
+        searchQuery = "",
+        isSelectableList = false,
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewConversationListSearch() = WireTheme {
+    ConversationList(
+        conversationListItems = previewConversationFolders(),
+        searchQuery = "er",
+        isSelectableList = false,
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewConversationListSelect() = WireTheme {
+    val conversationFolders = previewConversationFolders()
+    ConversationList(
+        conversationListItems = conversationFolders,
+        searchQuery = "",
+        isSelectableList = true,
+        selectedConversations = conversationFolders.values.flatten().filterIndexed { index, _ -> index % 3 == 0 },
+    )
 }

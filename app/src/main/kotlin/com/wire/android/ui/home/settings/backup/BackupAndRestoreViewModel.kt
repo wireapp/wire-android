@@ -30,6 +30,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -124,6 +126,7 @@ class BackupAndRestoreViewModel
             is CreateBackupResult.Failure -> {
                 state = state.copy(backupCreationProgress = BackupCreationProgress.Failed)
                 appLogger.e("Failed to create backup: ${result.coreFailure}")
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupExportFailed)
             }
         }
     }
@@ -185,6 +188,7 @@ class BackupAndRestoreViewModel
                             importDatabase(importedBackupPath)
                         } else {
                             state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
+                            AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreFailed)
                         }
                     }
                 }
@@ -196,6 +200,8 @@ class BackupAndRestoreViewModel
                     is VerifyBackupResult.Failure.Generic -> result.error.toString()
                     VerifyBackupResult.Failure.InvalidBackupFile -> "No valid files found in the backup"
                 }
+
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreFailed)
                 appLogger.e("Failed to extract backup files: $errorMessage")
             }
         }
@@ -211,6 +217,7 @@ class BackupAndRestoreViewModel
                 updateCreationProgress(PROGRESS_75)
                 delay(SMALL_DELAY)
                 state = state.copy(backupRestoreProgress = BackupRestoreProgress.Finished)
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreSucceeded)
             }
 
             is RestoreBackupResult.Failure -> {
@@ -222,6 +229,7 @@ class BackupAndRestoreViewModel
                     restoreFileValidation = RestoreFileValidation.IncompatibleBackup,
                     backupRestoreProgress = BackupRestoreProgress.Failed
                 )
+                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreFailed)
             }
         }
     }
@@ -242,14 +250,17 @@ class BackupAndRestoreViewModel
                         restorePasswordValidation = PasswordValidation.Valid
                     )
                     restoreBackupPasswordState.clearText()
+                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreSucceeded)
                 }
 
                 is RestoreBackupResult.Failure -> {
                     mapBackupRestoreFailure(result.failure)
+                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreFailed)
                 }
             }
         } else {
             state = state.copy(backupRestoreProgress = BackupRestoreProgress.Failed)
+            AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.BackupRestoreFailed)
         }
     }
 

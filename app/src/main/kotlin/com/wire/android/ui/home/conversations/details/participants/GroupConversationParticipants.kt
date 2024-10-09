@@ -55,16 +55,17 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 fun GroupConversationParticipants(
     onProfilePressed: (UIParticipant) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
+    modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     val context = LocalContext.current
-    Column {
+    Column(modifier = modifier) {
         LazyColumn(
             state = lazyListState,
             modifier = Modifier.fillMaxSize()
         ) {
-            item(key = "participants_list_header") {
-                if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+            if (BuildConfig.MLS_SUPPORT_ENABLED && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                item(key = "participants_list_header") {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()

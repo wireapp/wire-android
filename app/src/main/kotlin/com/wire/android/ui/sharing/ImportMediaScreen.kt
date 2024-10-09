@@ -15,6 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.sharing
 
 import androidx.activity.compose.BackHandler
@@ -30,10 +33,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -49,17 +56,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -67,6 +77,7 @@ import com.wire.android.ui.common.error.ErrorIcon
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.remove.RemoveIcon
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
@@ -87,6 +98,8 @@ import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.getActivity
@@ -104,13 +117,19 @@ import kotlinx.coroutines.flow.SharedFlow
 import okio.Path.Companion.toPath
 
 @RootNavGraph
-@Destination
+@WireDestination
 @Composable
 fun ImportMediaScreen(
     navigator: Navigator,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
 ) {
     when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
+        FeatureFlagState.FileSharingState.Loading -> {
+            ImportMediaLoadingContent(
+                navigateBack = navigator.finish
+            )
+        }
+
         FeatureFlagState.FileSharingState.NoUser -> {
             ImportMediaLoggedOutContent(
                 fileSharingRestrictedState = fileSharingRestrictedState,
@@ -135,6 +154,37 @@ fun ImportMediaScreen(
 }
 
 @Composable
+private fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
+    WireScaffold(
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = dimensions().spacing0x,
+                onNavigationPressed = navigateBack,
+                navigationIconType = NavigationIconType.Close,
+                title = stringResource(id = R.string.import_media_content_title),
+            )
+        },
+        modifier = Modifier.background(colorsScheme().background),
+        content = { internalPadding ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(internalPadding)
+                    .padding(horizontal = dimensions().spacing48x)
+            ) {
+                WireCircularProgressIndicator(
+                    progressColor = MaterialTheme.wireColorScheme.onSurface,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    size = dimensions().spacing32x
+                )
+            }
+        }
+    )
+}
+
+@Composable
 private fun ImportMediaAuthenticatedContent(
     navigator: Navigator,
     isRestrictedInTeam: Boolean,
@@ -144,31 +194,36 @@ private fun ImportMediaAuthenticatedContent(
     if (isRestrictedInTeam) {
         ImportMediaRestrictedContent(
             importMediaAuthenticatedState = importMediaViewModel.importMediaState,
+            avatarAsset = null,
             navigateBack = navigator.finish
         )
     } else {
         ImportMediaRegularContent(
             importMediaAuthenticatedState = importMediaViewModel.importMediaState,
             searchQueryTextState = importMediaViewModel.searchQueryTextState,
+            avatarAsset = importMediaViewModel.avatarAsset,
             onConversationClicked = importMediaViewModel::onConversationClicked,
             checkRestrictionsAndSendImportedMedia = {
-                importMediaViewModel.importMediaState.selectedConversationItem.firstOrNull()?.let { conversationItem ->
-                    checkAssetRestrictionsViewModel.checkRestrictions(
-                        importedMediaList = importMediaViewModel.importMediaState.importedAssets,
-                        onSuccess = {
-                            navigator.navigate(
-                                NavigationCommand(
-                                    ConversationScreenDestination(
-                                        ConversationNavArgs(
-                                            conversationId = conversationItem.conversationId,
-                                            pendingBundles = ArrayList(it)
-                                        )
+                with(importMediaViewModel.importMediaState) {
+                    selectedConversationItem.firstOrNull()?.let { conversationItem ->
+                        checkAssetRestrictionsViewModel.checkRestrictions(
+                            importedMediaList = importedAssets,
+                            onSuccess = {
+                                navigator.navigate(
+                                    NavigationCommand(
+                                        ConversationScreenDestination(
+                                            ConversationNavArgs(
+                                                conversationId = conversationItem.conversationId,
+                                                pendingBundles = ArrayList(it),
+                                                pendingTextBundle = importedText
+                                            )
+                                        ),
+                                        BackStackMode.REMOVE_CURRENT_AND_REPLACE
                                     ),
-                                    BackStackMode.REMOVE_CURRENT_AND_REPLACE
-                                ),
-                            )
-                        }
-                    )
+                                )
+                            }
+                        )
+                    }
                 }
             },
             onNewSelfDeletionTimerPicked = importMediaViewModel::onNewSelfDeletionTimerPicked,
@@ -182,10 +237,12 @@ private fun ImportMediaAuthenticatedContent(
         )
 
         val context = LocalContext.current
-        LaunchedEffect(importMediaViewModel.importMediaState.importedAssets) {
-            if (importMediaViewModel.importMediaState.importedAssets.isEmpty()) {
-                context.getActivity()
-                    ?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
+        with(importMediaViewModel.importMediaState) {
+            LaunchedEffect(isImportingData()) {
+                if (importedAssets.isEmpty() || importedText.isNullOrEmpty()) {
+                    context.getActivity()
+                        ?.let { activity -> importMediaViewModel.handleReceivedDataFromSharingIntent(activity) }
+                }
             }
         }
     }
@@ -194,6 +251,7 @@ private fun ImportMediaAuthenticatedContent(
 @Composable
 fun ImportMediaRestrictedContent(
     importMediaAuthenticatedState: ImportMediaAuthenticatedState,
+    avatarAsset: ImageAsset.UserAvatarAsset?,
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -228,6 +286,7 @@ fun ImportMediaRestrictedContent(
 @Composable
 fun ImportMediaRegularContent(
     importMediaAuthenticatedState: ImportMediaAuthenticatedState,
+    avatarAsset: ImageAsset.UserAvatarAsset?,
     searchQueryTextState: TextFieldState,
     onConversationClicked: (conversationId: ConversationId) -> Unit,
     checkRestrictionsAndSendImportedMedia: () -> Unit,
@@ -239,12 +298,14 @@ fun ImportMediaRegularContent(
 ) {
 
     val importMediaScreenState = rememberImportMediaScreenState()
+    val lazyListState = rememberLazyListState()
+    val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
 
     with(importMediaAuthenticatedState) {
         WireScaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
-                    elevation = dimensions().spacing0x,
+                    elevation = lazyListState.topBarElevation(maxAppBarElevation),
                     onNavigationPressed = navigateBack,
                     navigationIconType = NavigationIconType.Close,
                     title = stringResource(id = R.string.import_media_content_title),
@@ -252,6 +313,14 @@ fun ImportMediaRegularContent(
                         UserProfileAvatar(
                             avatarData = UserAvatarData(avatarAsset),
                             clickable = remember { Clickable(enabled = false) { } }
+                        )
+                    },
+                    bottomContent = {
+                        ImportMediaTopBarContent(
+                            state = importMediaAuthenticatedState,
+                            searchBarState = importMediaScreenState.searchBarState,
+                            searchQueryTextState = searchQueryTextState,
+                            onRemoveAsset = onRemoveAsset,
                         )
                     }
                 )
@@ -261,10 +330,8 @@ fun ImportMediaRegularContent(
                 ImportMediaContent(
                     state = this,
                     internalPadding = internalPadding,
-                    searchQueryTextState = searchQueryTextState,
                     onConversationClicked = onConversationClicked,
-                    searchBarState = importMediaScreenState.searchBarState,
-                    onRemoveAsset = onRemoveAsset
+                    lazyListState = lazyListState,
                 )
             },
             bottomBar = {
@@ -275,14 +342,25 @@ fun ImportMediaRegularContent(
                 )
             }
         )
-        MenuModalSheetLayout(
-            menuItems = selfDeletionMenuItems(
-                currentlySelected = importMediaAuthenticatedState.selfDeletingTimer.duration.toSelfDeletionDuration(),
-                hideEditMessageMenu = importMediaScreenState::hideBottomSheetMenu,
-                onSelfDeletionDurationChanged = onNewSelfDeletionTimerPicked,
-            ),
+        BackHandler(enabled = importMediaScreenState.searchBarState.isSearchActive) {
+            importMediaScreenState.searchBarState.closeSearch()
+        }
+        WireModalSheetLayout(
             sheetState = importMediaScreenState.bottomSheetState,
-            coroutineScope = importMediaScreenState.coroutineScope
+            sheetContent = {
+                WireMenuModalSheetContent(
+                    menuItems = selfDeletionMenuItems(
+                        currentlySelected = importMediaAuthenticatedState.selfDeletingTimer.duration.toSelfDeletionDuration(),
+                        onSelfDeletionDurationChanged = remember {
+                            {
+                                importMediaScreenState.bottomSheetState.hide {
+                                    onNewSelfDeletionTimerPicked(it)
+                                }
+                            }
+                        },
+                    )
+                )
+            },
         )
     }
     SnackBarMessage(infoMessage, importMediaScreenState.snackbarHostState)
@@ -388,30 +466,21 @@ private fun ImportMediaBottomBar(
         count = buttonCount,
         onMainButtonClick = checkRestrictionsAndSendImportedMedia,
         selfDeletionTimer = selfDeletionTimer,
-        onSelfDeletionTimerClicked = importMediaScreenState::showBottomSheetMenu,
+        onSelfDeletionTimerClicked = importMediaScreenState.bottomSheetState::show,
     )
 }
 
 @Composable
-private fun ImportMediaContent(
+fun ImportMediaTopBarContent(
     state: ImportMediaAuthenticatedState,
-    internalPadding: PaddingValues,
+    searchBarState: SearchBarState,
     searchQueryTextState: TextFieldState,
-    onConversationClicked: (conversationId: ConversationId) -> Unit,
     onRemoveAsset: (index: Int) -> Unit,
-    searchBarState: SearchBarState
+    modifier: Modifier = Modifier,
 ) {
-    val importedItemsList: PersistentList<ImportedMediaAsset> = state.importedAssets
-    val itemsToImport = importedItemsList.size
+    val isMultipleImport = state.importedAssets.size != 1
 
-    val isMultipleImport = itemsToImport != 1
-
-    Column(
-        modifier = Modifier
-            .padding(internalPadding)
-            .fillMaxSize()
-    ) {
-        val lazyListState = rememberLazyListState()
+    Column(modifier = modifier) {
         if (state.isImporting) {
             Box(
                 Modifier
@@ -433,52 +502,15 @@ private fun ImportMediaContent(
             ) {
                 AssetTilePreview(
                     modifier = Modifier.fillMaxHeight(),
-                    assetBundle = importedItemsList.first().assetBundle,
+                    assetBundle = state.importedAssets.first().assetBundle,
                     showOnlyExtension = false,
                     onClick = {}
                 )
             }
         } else {
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dimensions().spacing120x),
-                contentPadding = PaddingValues(start = dimensions().spacing8x, end = dimensions().spacing8x)
-            ) {
-                items(
-                    count = importedItemsList.size,
-                ) { index ->
-                    Box(
-                        modifier = Modifier
-                            .width(dimensions().spacing120x)
-                            .fillMaxHeight()
-                    ) {
-                        val assetSize = dimensions().spacing120x - dimensions().spacing16x
-                        AssetTilePreview(
-                            modifier = Modifier
-                                .width(assetSize)
-                                .height(assetSize)
-                                .align(Alignment.Center),
-                            assetBundle = importedItemsList[index].assetBundle,
-                            showOnlyExtension = false,
-                            onClick = {}
-                        )
-
-                        if (importedItemsList.size > 1) {
-                            RemoveIcon(
-                                modifier = Modifier.align(Alignment.TopEnd),
-                                onClick = { onRemoveAsset(index) },
-                                contentDescription = stringResource(id = R.string.remove_asset_description)
-                            )
-                        }
-                        if (importedItemsList[index].assetSizeExceeded != null) {
-                            ErrorIcon(
-                                stringResource(id = R.string.asset_attention_description),
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                    }
-                }
+            when (state.importedText.isNullOrBlank()) {
+                true -> ImportAssetsCarrousel(state.importedAssets, onRemoveAsset)
+                false -> ImportText(state.importedText)
             }
         }
         HorizontalDivider(
@@ -486,24 +518,37 @@ private fun ImportMediaContent(
             thickness = 1.dp,
             modifier = Modifier.padding(top = dimensions().spacing12x)
         )
-        Box(Modifier.padding(dimensions().spacing6x)) {
-            SearchTopBar(
-                isSearchActive = searchBarState.isSearchActive,
-                searchBarHint = stringResource(
-                    R.string.search_bar_conversations_hint,
-                    stringResource(id = R.string.conversations_screen_title).lowercase()
-                ),
-                searchQueryTextState = searchQueryTextState,
-                onActiveChanged = searchBarState::searchActiveChanged,
-            )
-        }
+        SearchTopBar(
+            isSearchActive = searchBarState.isSearchActive,
+            searchBarHint = stringResource(
+                R.string.search_bar_conversations_hint,
+                stringResource(id = R.string.conversations_screen_title).lowercase()
+            ),
+            searchQueryTextState = searchQueryTextState,
+            onActiveChanged = searchBarState::searchActiveChanged,
+        )
+    }
+}
+
+@Composable
+private fun ImportMediaContent(
+    state: ImportMediaAuthenticatedState,
+    internalPadding: PaddingValues,
+    onConversationClicked: (conversationId: ConversationId) -> Unit,
+    lazyListState: LazyListState = rememberLazyListState(),
+) {
+    Column(
+        modifier = Modifier
+            .padding(internalPadding)
+            .fillMaxSize()
+    ) {
         ConversationList(
             modifier = Modifier.weight(1f),
             lazyListState = lazyListState,
             conversationListItems = persistentMapOf(
                 ConversationFolder.WithoutHeader to state.shareableConversationListState.searchResult
             ),
-            conversationsAddedToGroup = state.selectedConversationItem,
+            selectedConversations = state.selectedConversationItem,
             isSelectableList = true,
             onConversationSelectedOnRadioGroup = onConversationClicked,
             searchQuery = state.shareableConversationListState.searchQuery,
@@ -514,8 +559,72 @@ private fun ImportMediaContent(
             onAudioPermissionPermanentlyDenied = {}
         )
     }
-    BackHandler(enabled = searchBarState.isSearchActive) {
-        searchBarState.closeSearch()
+}
+
+@Composable
+private fun ImportText(importedText: String) {
+    val scrollState = rememberScrollState()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .wrapContentSize()
+            .height(dimensions().spacing120x)
+            .verticalScroll(scrollState)
+            .padding(vertical = dimensions().spacing8x, horizontal = dimensions().spacing16x),
+    ) {
+        Text(
+            text = importedText,
+            textAlign = TextAlign.Start,
+            style = MaterialTheme.wireTypography.body01,
+        )
+    }
+}
+
+@Composable
+private fun ImportAssetsCarrousel(
+    importedItemsList: PersistentList<ImportedMediaAsset>,
+    onRemoveAsset: (index: Int) -> Unit
+) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dimensions().spacing120x),
+        contentPadding = PaddingValues(start = dimensions().spacing8x, end = dimensions().spacing8x)
+    ) {
+        items(
+            count = importedItemsList.size,
+        ) { index ->
+            Box(
+                modifier = Modifier
+                    .width(dimensions().spacing120x)
+                    .fillMaxHeight()
+            ) {
+                val assetSize = dimensions().spacing120x - dimensions().spacing16x
+                AssetTilePreview(
+                    modifier = Modifier
+                        .width(assetSize)
+                        .height(assetSize)
+                        .align(Alignment.Center),
+                    assetBundle = importedItemsList[index].assetBundle,
+                    showOnlyExtension = false,
+                    onClick = {}
+                )
+
+                if (importedItemsList.size > 1) {
+                    RemoveIcon(
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        onClick = { onRemoveAsset(index) },
+                        contentDescription = stringResource(id = R.string.remove_asset_description)
+                    )
+                }
+                if (importedItemsList[index].assetSizeExceeded != null) {
+                    ErrorIcon(
+                        stringResource(id = R.string.asset_attention_description),
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -550,6 +659,7 @@ fun PreviewImportMediaScreenRestricted() {
     WireTheme {
         ImportMediaRestrictedContent(
             importMediaAuthenticatedState = ImportMediaAuthenticatedState(),
+            avatarAsset = null,
             navigateBack = {}
         )
     }
@@ -608,7 +718,30 @@ fun PreviewImportMediaScreenRegular() {
                     )
                 ),
             ),
+            avatarAsset = null,
             searchQueryTextState = rememberTextFieldState(),
+            onConversationClicked = {},
+            checkRestrictionsAndSendImportedMedia = {},
+            onNewSelfDeletionTimerPicked = {},
+            infoMessage = MutableSharedFlow(),
+            onRemoveAsset = { _ -> },
+            navigateBack = {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewImportMediaTextScreenRegular() {
+    WireTheme {
+        ImportMediaRegularContent(
+            importMediaAuthenticatedState = ImportMediaAuthenticatedState(
+                importedAssets = persistentListOf(),
+                importedText = "This is a shared text message \n" +
+                        "This is a second line with a veeeeeeeeeeeeeeeeeeeeeeeeeeery long shared text message"
+            ),
+            searchQueryTextState = rememberTextFieldState(),
+            avatarAsset = null,
             onConversationClicked = {},
             checkRestrictionsAndSendImportedMedia = {},
             onNewSelfDeletionTimerPicked = {},

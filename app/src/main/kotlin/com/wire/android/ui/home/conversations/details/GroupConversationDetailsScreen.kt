@@ -36,7 +36,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -58,7 +57,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -67,6 +65,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MLSVerifiedIcon
@@ -80,12 +79,12 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetCont
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.ArchiveConversationDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
@@ -126,7 +125,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = GroupConversationDetailsNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )
@@ -265,7 +264,7 @@ fun GroupConversationDetailsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GroupConversationDetailsContent(
     conversationSheetContent: ConversationSheetContent?,
@@ -289,18 +288,14 @@ private fun GroupConversationDetailsContent(
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.entries.map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex, pageCount = { GroupConversationDetailsTabItem.entries.size })
-    val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
-    val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
 
     val conversationSheetState = rememberConversationSheetState(conversationSheetContent)
 
-    val sheetState = rememberWireModalSheetState()
-    val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
+    val sheetState = rememberWireModalSheetState<Unit>()
     val closeBottomSheetAndShowSnackbarMessage: (UIText) -> Unit = remember {
         {
-            scope.launch {
-                sheetState.hide()
+            sheetState.hide {
                 snackbarHostState.showSnackbar(it.asString(resources))
             }
         }
@@ -332,7 +327,7 @@ private fun GroupConversationDetailsContent(
     CollapsingTopBarScaffold(
         topBarHeader = {
             WireCenterAlignedTopAppBar(
-                elevation = elevationState,
+                elevation = dimensions().spacing0x, // CollapsingTopBarScaffold already manages elevation
                 titleContent = {
                     WireTopAppBarTitle(
                         title = stringResource(R.string.conversation_details_title),
@@ -343,7 +338,7 @@ private fun GroupConversationDetailsContent(
                 },
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackPressed,
-                actions = { MoreOptionIcon(onButtonClicked = openBottomSheet) }
+                actions = { MoreOptionIcon(onButtonClicked = sheetState::show) }
             )
         },
         topBarCollapsing = {
@@ -356,7 +351,8 @@ private fun GroupConversationDetailsContent(
                     onSearchConversationMessagesClick = onSearchConversationMessagesClick,
                     onConversationMediaClick = onConversationMediaClick,
                     isUnderLegalHold = it.isUnderLegalHold,
-                    onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } }
+                    onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
+                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing16x)
                 )
             }
         },
@@ -365,8 +361,6 @@ private fun GroupConversationDetailsContent(
                 tabs = GroupConversationDetailsTabItem.entries,
                 selectedTabIndex = currentTabState,
                 onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
-                divider = {} // no divider
             )
         },
         bottomBar = {
@@ -381,6 +375,7 @@ private fun GroupConversationDetailsContent(
                 modifier = Modifier.fillMaxWidth()
             ) { currentTabState ->
                 Surface(
+                    shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
                     color = MaterialTheme.wireColorScheme.background,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
@@ -402,7 +397,8 @@ private fun GroupConversationDetailsContent(
                     }
                 }
             }
-        }
+        },
+        contentLazyListState = lazyListStates[currentTabState],
     ) {
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -442,7 +438,6 @@ private fun GroupConversationDetailsContent(
 
     WireModalSheetLayout(
         sheetState = sheetState,
-        coroutineScope = rememberCoroutineScope(),
         sheetContent = {
             ConversationSheetContent(
                 isBottomSheetVisible = getBottomSheetVisibility,

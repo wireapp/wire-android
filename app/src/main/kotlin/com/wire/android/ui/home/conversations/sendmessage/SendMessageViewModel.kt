@@ -25,6 +25,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.SavedStateViewModel
@@ -40,7 +42,6 @@ import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.navArgs
 import com.wire.android.ui.sharing.SendMessagesSnackbarMessages
-import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
@@ -66,6 +67,7 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.onFailure
+import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -87,7 +89,7 @@ class SendMessageViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem,
     private val handleUriAsset: HandleUriAssetUseCase,
-    private val sendKnockUseCase: SendKnockUseCase,
+    private val sendKnock: SendKnockUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
@@ -97,6 +99,7 @@ class SendMessageViewModel @Inject constructor(
     private val observeConversationUnderLegalHoldNotified: ObserveConversationUnderLegalHoldNotifiedUseCase,
     private val sendLocation: SendLocationUseCase,
     private val removeMessageDraft: RemoveMessageDraftUseCase,
+    private val analyticsManager: AnonymousAnalyticsManager
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -114,6 +117,9 @@ class SendMessageViewModel @Inject constructor(
     )
 
     init {
+        conversationNavArgs.pendingTextBundle?.let { text ->
+            trySendPendingMessageBundle(text)
+        }
         conversationNavArgs.pendingBundles?.let { assetBundles ->
             trySendMessages(
                 assetBundles.map { assetBundle ->
@@ -135,6 +141,12 @@ class SendMessageViewModel @Inject constructor(
 
     private suspend fun shouldInformAboutUnderLegalHoldBeforeSendingMessage(conversationId: ConversationId) =
         observeConversationUnderLegalHoldNotified(conversationId).first().let { !it }
+
+    private fun trySendPendingMessageBundle(pendingMessage: String) {
+        viewModelScope.launch {
+            sendMessage(ComposableMessageBundle.SendTextMessageBundle(conversationId, pendingMessage, emptyList()))
+        }
+    }
 
     fun trySendMessage(messageBundle: MessageBundle) {
         trySendMessages(listOf(messageBundle))
@@ -191,6 +203,7 @@ class SendMessageViewModel @Inject constructor(
                         mentions = newMentions.map { it.intoMessageMention() },
                     )
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                        .handleNonAssetContributionEvent(messageBundle)
                 }
             }
 
@@ -208,8 +221,7 @@ class SendMessageViewModel @Inject constructor(
             is ComposableMessageBundle.AudioMessageBundle -> {
                 handleAssetMessageBundle(
                     attachmentUri = messageBundle.attachmentUri,
-                    conversationId = messageBundle.conversationId,
-                    specifiedMimeType = SUPPORTED_AUDIO_MIME_TYPE,
+                    conversationId = messageBundle.conversationId
                 )
             }
 
@@ -224,6 +236,7 @@ class SendMessageViewModel @Inject constructor(
                         quotedMessageId = quotedMessageId
                     )
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                        .handleNonAssetContributionEvent(messageBundle)
                 }
             }
 
@@ -231,26 +244,27 @@ class SendMessageViewModel @Inject constructor(
                 with(messageBundle) {
                     sendLocation(conversationId, location.latitude.toFloat(), location.longitude.toFloat(), locationName, zoom)
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                        .handleNonAssetContributionEvent(messageBundle)
                 }
             }
 
             is Ping -> {
                 pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
-                sendKnockUseCase(conversationId = messageBundle.conversationId, hotKnock = false)
+                sendKnock(conversationId = messageBundle.conversationId, hotKnock = false)
                     .handleLegalHoldFailureAfterSendingMessage(messageBundle.conversationId)
+                    .handleNonAssetContributionEvent(messageBundle)
             }
         }
     }
 
     private suspend fun handleAssetMessageBundle(
         conversationId: ConversationId,
-        attachmentUri: UriAsset,
-        specifiedMimeType: String? = null, // specify a particular mimetype, otherwise it will be taken from the uri / file extension
+        attachmentUri: UriAsset
     ) {
         when (val result = handleUriAsset.invoke(
             uri = attachmentUri.uri,
             saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
-            specifiedMimeType = specifiedMimeType
+            specifiedMimeType = attachmentUri.mimeType
         )) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
                 assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
@@ -291,6 +305,7 @@ class SendMessageViewModel @Inject constructor(
                                 audioLengthInMs = 0L
                             )
                                 .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                                .handleAssetContributionEvent(assetType)
                         }
 
                         AttachmentType.VIDEO,
@@ -311,6 +326,7 @@ class SendMessageViewModel @Inject constructor(
                                     )
                                 )
                                     .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                                    .handleAssetContributionEvent(assetType)
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
@@ -319,6 +335,37 @@ class SendMessageViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    private fun Either<CoreFailure?, Unit>.handleAssetContributionEvent(
+        assetType: AttachmentType
+    ) = also {
+        onSuccess {
+            val event = when (assetType) {
+                AttachmentType.IMAGE -> AnalyticsEvent.Contributed.Photo
+                AttachmentType.VIDEO -> AnalyticsEvent.Contributed.Video
+                AttachmentType.GENERIC_FILE -> AnalyticsEvent.Contributed.File
+                AttachmentType.AUDIO -> AnalyticsEvent.Contributed.Audio
+            }
+            analyticsManager.sendEvent(event)
+        }
+    }
+
+    private fun Either<CoreFailure, Unit>.handleNonAssetContributionEvent(messageBundle: MessageBundle) = also {
+        onSuccess {
+            val event = when (messageBundle) {
+                // assets are not handled here, as they need extra processing
+                is ComposableMessageBundle.UriPickedBundle,
+                is ComposableMessageBundle.AudioMessageBundle,
+                is ComposableMessageBundle.AttachmentPickedBundle -> return@also
+
+                is ComposableMessageBundle.LocationBundle -> AnalyticsEvent.Contributed.Location
+                is Ping -> AnalyticsEvent.Contributed.Ping
+                is ComposableMessageBundle.EditMessageBundle,
+                is ComposableMessageBundle.SendTextMessageBundle -> AnalyticsEvent.Contributed.Text
+            }
+            analyticsManager.sendEvent(event)
         }
     }
 
@@ -413,6 +460,7 @@ class SendMessageViewModel @Inject constructor(
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
     }
+
     private companion object {
         const val MAX_LIMIT_MESSAGE_SEND = 20
     }

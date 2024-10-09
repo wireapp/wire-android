@@ -26,8 +26,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalDensity
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
@@ -39,7 +40,6 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 @Composable
 fun rememberMessageComposerStateHolder(
     messageComposerViewState: State<MessageComposerViewState>,
-    modalBottomSheetState: WireModalSheetState,
     draftMessageComposition: MessageComposition,
     onSaveDraft: (MessageDraft) -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
@@ -71,15 +71,23 @@ fun rememberMessageComposerStateHolder(
     LaunchedEffect(Unit) {
         messageCompositionHolder.handleMessageTextUpdates()
     }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember {
+        FocusRequester()
+    }
 
     val messageCompositionInputStateHolder = rememberSaveable(
         saver = MessageCompositionInputStateHolder.saver(
             messageTextState = messageTextState,
+            keyboardController = keyboardController,
+            focusRequester = focusRequester,
             density = density
         )
     ) {
         MessageCompositionInputStateHolder(
             messageTextState = messageTextState,
+            keyboardController = keyboardController,
+            focusRequester = focusRequester
         )
     }
 
@@ -92,7 +100,6 @@ fun rememberMessageComposerStateHolder(
     return remember {
         MessageComposerStateHolder(
             messageComposerViewState = messageComposerViewState,
-            modalBottomSheetState = modalBottomSheetState,
             messageCompositionInputStateHolder = messageCompositionInputStateHolder,
             messageCompositionHolder = messageCompositionHolder,
             additionalOptionStateHolder = additionalOptionStateHolder,
@@ -109,7 +116,6 @@ class MessageComposerStateHolder(
     val messageCompositionInputStateHolder: MessageCompositionInputStateHolder,
     val messageCompositionHolder: MessageCompositionHolder,
     val additionalOptionStateHolder: AdditionalOptionStateHolder,
-    val modalBottomSheetState: WireModalSheetState
 ) {
     val messageComposition = messageCompositionHolder.messageComposition
 
@@ -123,23 +129,13 @@ class MessageComposerStateHolder(
         messageCompositionInputStateHolder.toComposing()
     }
 
-    fun onInputFocusedChanged(onFocused: Boolean) {
-        if (onFocused) {
-            additionalOptionStateHolder.unselectAdditionalOptionsMenu()
-            messageCompositionInputStateHolder.requestFocus()
-        } else {
-            messageCompositionInputStateHolder.clearFocus()
-        }
+    fun onInputFocused() {
+        additionalOptionStateHolder.unselectAdditionalOptionsMenu()
+        messageCompositionInputStateHolder.setFocused()
     }
 
     fun toAudioRecording() {
-        messageCompositionInputStateHolder.showOptions()
         additionalOptionStateHolder.toAudioRecording()
-    }
-
-    fun toLocationPicker() {
-        messageCompositionInputStateHolder.showOptions()
-        additionalOptionStateHolder.toLocationPicker()
     }
 
     fun toInitialAttachmentOptions() {
@@ -151,9 +147,8 @@ class MessageComposerStateHolder(
         messageCompositionHolder.clearMessage()
     }
 
-    fun showAdditionalOptionsMenu() {
-        messageCompositionInputStateHolder.showOptions()
-        additionalOptionStateHolder.showAdditionalOptionsMenu()
+    fun showAttachments(showOptions: Boolean) {
+        messageCompositionInputStateHolder.showAttachments(showOptions)
     }
 
     fun clearMessage() {

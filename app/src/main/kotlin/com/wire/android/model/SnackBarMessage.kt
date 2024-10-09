@@ -25,4 +25,5 @@ import com.wire.android.util.ui.UIText
  */
 interface SnackBarMessage {
     val uiText: UIText
+    val actionLabel: UIText? get() = null
 }

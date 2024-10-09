@@ -40,6 +40,7 @@ import com.wire.android.ui.common.ProtocolLabel
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.UserProfileAvatarType.WithIndicators
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.search.HighlightName
@@ -49,26 +50,33 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.common.UsernameMapper.fromExpirationToHandle
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.uiReadReceiptDateTime
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.plus
 
 @Composable
 fun ConversationParticipantItem(
     uiParticipant: UIParticipant,
-    searchQuery: String = String.EMPTY,
     clickable: Clickable,
+    modifier: Modifier = Modifier,
+    searchQuery: String = String.EMPTY,
     showRightArrow: Boolean = true
 ) {
     RowItemTemplate(
+        modifier = modifier,
         leadingIcon = {
             UserProfileAvatar(
-                uiParticipant.avatarData,
+                avatarData = uiParticipant.avatarData,
                 modifier = Modifier.padding(
                     start = dimensions().spacing8x
-                )
+                ),
+                type = uiParticipant.expiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithIndicators.RegularUser()
             )
         },
         titleStartPadding = dimensions().spacing0x,
@@ -116,13 +124,9 @@ fun ConversationParticipantItem(
         },
         subtitle = {
             HighlightSubtitle(
-                subTitle = if (uiParticipant.unavailable) {
-                    uiParticipant.id.domain
-                } else uiParticipant.readReceiptDate?.let {
-                    it.uiReadReceiptDateTime()
-                } ?: uiParticipant.handle,
+                subTitle = processUsername(uiParticipant),
                 searchQuery = searchQuery,
-                suffix = uiParticipant.readReceiptDate?.let { "" } ?: "@"
+                prefix = processUsernamePrefix(uiParticipant)
             )
         },
         actions = {
@@ -138,6 +142,24 @@ fun ConversationParticipantItem(
         },
         clickable = clickable
     )
+}
+
+@Composable
+private fun processUsernamePrefix(uiParticipant: UIParticipant) = when {
+    uiParticipant.readReceiptDate != null || uiParticipant.expiresAt != null -> ""
+    else -> "@"
+}
+
+@Composable
+private fun processUsername(uiParticipant: UIParticipant) = when {
+    uiParticipant.unavailable -> uiParticipant.id.domain
+    uiParticipant.readReceiptDate != null -> uiParticipant.readReceiptDate.uiReadReceiptDateTime()
+    uiParticipant.expiresAt != null -> {
+        val expiresAtString = fromExpirationToHandle(uiParticipant.expiresAt)
+        stringResource(R.string.temporary_user_label, expiresAtString)
+    }
+
+    else -> uiParticipant.handle
 }
 
 @PreviewMultipleThemes
@@ -157,6 +179,54 @@ fun PreviewGroupConversationParticipantItem() {
                 isProteusVerified = true,
                 isUnderLegalHold = true,
                 supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS)
+            ),
+            clickable = Clickable(enabled = true) {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupConversationTemporaryParticipantItem() {
+    WireTheme {
+        ConversationParticipantItem(
+            UIParticipant(
+                UserId("0", ""),
+                "name",
+                "handle",
+                false,
+                false,
+                UserAvatarData(),
+                Membership.Guest,
+                isMLSVerified = true,
+                isProteusVerified = true,
+                isUnderLegalHold = true,
+                supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS),
+                expiresAt = Clock.System.now().plus(23, DateTimeUnit.HOUR)
+            ),
+            clickable = Clickable(enabled = true) {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupConversationReadReceiptItem() {
+    WireTheme {
+        ConversationParticipantItem(
+            UIParticipant(
+                UserId("0", ""),
+                "name",
+                "handle",
+                false,
+                false,
+                UserAvatarData(),
+                Membership.Guest,
+                isMLSVerified = true,
+                isProteusVerified = true,
+                isUnderLegalHold = true,
+                supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS),
+                readReceiptDate = Clock.System.now()
             ),
             clickable = Clickable(enabled = true) {}
         )

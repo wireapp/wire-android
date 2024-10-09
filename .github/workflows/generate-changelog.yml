@@ -48,12 +48,12 @@ jobs:
           npx generate-changelog@1.8.0 -t "$PREVIOUS_TAG...$CURRENT_TAG"
 
       - name: 'Attach changelog to tag'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2.0.8
         env:
-          GITHUB_TOKEN: ${{github.token}}
+          GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
         with:
           tag_name: ${{env.CURRENT_TAG}}
           name: ${{env.CURRENT_TAG}}
           body_path: ./CHANGELOG.md
-          draft: false
+          draft: true
           prerelease: false

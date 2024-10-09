@@ -35,4 +35,25 @@ interface AnonymousAnalyticsRecorder {
     fun sendEvent(event: AnalyticsEvent)
 
     fun halt()
+
+    suspend fun setTrackingIdentifierWithMerge(
+        identifier: String,
+        isTeamMember: Boolean,
+        migrationComplete: suspend () -> Unit
+    )
+
+    suspend fun setTrackingIdentifierWithoutMerge(
+        identifier: String,
+        shouldPropagateIdentifier: Boolean,
+        isTeamMember: Boolean,
+        propagateIdentifier: suspend () -> Unit
+    )
+
+    fun isAnalyticsInitialized(): Boolean
+
+    fun applicationOnCreate()
+
+    fun recordView(screen: String)
+
+    fun stopView(screen: String)
 }

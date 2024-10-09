@@ -32,4 +32,22 @@ open class AnonymousAnalyticsRecorderStub : AnonymousAnalyticsRecorder {
     override fun sendEvent(event: AnalyticsEvent) = Unit
 
     override fun halt() = Unit
+
+    override suspend fun setTrackingIdentifierWithMerge(
+        identifier: String,
+        isTeamMember: Boolean,
+        migrationComplete: suspend () -> Unit
+    ) = Unit
+
+    override suspend fun setTrackingIdentifierWithoutMerge(
+        identifier: String,
+        shouldPropagateIdentifier: Boolean,
+        isTeamMember: Boolean,
+        propagateIdentifier: suspend () -> Unit
+    ) = Unit
+
+    override fun isAnalyticsInitialized(): Boolean = false
+    override fun applicationOnCreate() = Unit
+    override fun recordView(screen: String) = Unit
+    override fun stopView(screen: String) = Unit
 }

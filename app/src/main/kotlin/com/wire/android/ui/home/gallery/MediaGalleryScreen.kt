@@ -18,27 +18,30 @@
 
 package com.wire.android.ui.home.gallery
 
-import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.WireSheetValue
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -46,12 +49,19 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
-import com.wire.android.ui.home.conversations.edit.assetEditMenuItems
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.edit.assetMessageOptionsMenuItems
+import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
+import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.openDownloadFolder
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = MediaGalleryNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )
@@ -66,12 +76,11 @@ fun MediaGalleryScreen(
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val viewModelState = mediaGalleryViewModel.mediaGalleryViewState
-    val mediaGalleryScreenState = rememberMediaGalleryScreenState()
-    val scope = rememberCoroutineScope()
+    val bottomSheetState: WireModalSheetState<Unit> = rememberWireModalSheetState()
     val context = LocalContext.current
     val onSaveImageWriteStorageRequest = rememberWriteStoragePermissionFlow(
         onPermissionGranted = {
-            mediaGalleryScreenState.showContextualMenu(false)
+            bottomSheetState.hide()
             mediaGalleryViewModel.saveImageToExternalStorage()
         },
         onPermissionDenied = { /** Nothing to do **/ },
@@ -90,131 +99,178 @@ fun MediaGalleryScreen(
         hideDialog = permissionPermanentlyDeniedDialogState::dismiss
     )
 
-    with(viewModelState) {
-        WireScaffold(
-            modifier = modifier,
-            topBar = {
-                MediaGalleryScreenTopAppBar(
-                    title = screenTitle
-                        ?: stringResource(R.string.media_gallery_default_title_name),
-                    onCloseClick = navigator::navigateBack,
-                    onOptionsClick = { mediaGalleryScreenState.showContextualMenu(true) }
+    DeleteMessageDialog(
+        state = viewModelState.deleteMessageDialogsState,
+        actions = mediaGalleryViewModel.deleteMessageHelper,
+        onDeleted = navigator::navigateBack
+    )
+
+    MediaGalleryContent(
+        state = viewModelState,
+        imageAsset = mediaGalleryViewModel.imageAsset,
+        onCloseClick = navigator::navigateBack,
+        onOptionsClick = bottomSheetState::show,
+        modifier = modifier,
+    )
+
+    MediaGalleryOptionsBottomSheetLayout(
+        sheetState = bottomSheetState,
+        isEphemeral = mediaGalleryViewModel.mediaGalleryViewState.isEphemeral,
+        messageBottomSheetOptionsEnabled = viewModelState.messageBottomSheetOptionsEnabled,
+        deleteAsset = mediaGalleryViewModel::deleteCurrentImage,
+        showDetails = {
+            resultNavigator.setResult(
+                MediaGalleryNavBackArgs(
+                    messageId = mediaGalleryViewModel.imageAsset.messageId,
+                    isSelfAsset = mediaGalleryViewModel.imageAsset.isSelfAsset,
+                    mediaGalleryActionType = MediaGalleryActionType.DETAIL
                 )
-            },
-            content = { internalPadding ->
-                Box(modifier = Modifier.padding(internalPadding)) {
-                    MediaGalleryContent(navigator, mediaGalleryViewModel, mediaGalleryScreenState)
-                }
-            }
-        )
-        MenuModalSheetLayout(
-            sheetState = mediaGalleryScreenState.modalBottomSheetState,
-            coroutineScope = scope,
-            menuItems = assetEditMenuItems(
-                messageOptionsEnabled = viewModelState.messageBottomSheetOptionsEnabled,
-                isEphemeral = viewModelState.isEphemeral,
-                onDeleteClick = {
-                    mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.deleteCurrentImage()
-                },
-                onDetailsClick = {
-                    mediaGalleryScreenState.showContextualMenu(false)
-                    resultNavigator.setResult(
-                        MediaGalleryNavBackArgs(
-                            messageId = mediaGalleryViewModel.imageAsset.messageId,
-                            isSelfAsset = mediaGalleryViewModel.imageAsset.isSelfAsset,
-                            mediaGalleryActionType = MediaGalleryActionType.DETAIL
-                        )
-                    )
-                    resultNavigator.navigateBack()
-                },
-                onShareAsset = {
-                    mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.shareAsset(context)
-                },
-                onDownloadAsset = onSaveImageWriteStorageRequest::launch,
-                onReplyClick = {
-                    mediaGalleryScreenState.showContextualMenu(false)
-                    resultNavigator.setResult(
-                        MediaGalleryNavBackArgs(
-                            messageId = mediaGalleryViewModel.imageAsset.messageId,
-                            mediaGalleryActionType = MediaGalleryActionType.REPLY
-                        )
-                    )
-                    resultNavigator.navigateBack()
-                },
-                onReactionClick = { emoji ->
-                    mediaGalleryScreenState.showContextualMenu(false)
-                    resultNavigator.setResult(
-                        MediaGalleryNavBackArgs(
-                            messageId = mediaGalleryViewModel.imageAsset.messageId,
-                            emoji = emoji,
-                            mediaGalleryActionType = MediaGalleryActionType.REACT
-                        )
-                    )
-                    resultNavigator.navigateBack()
-                },
-                onOpenAsset = null
             )
-        )
+            resultNavigator.navigateBack()
+        },
+        shareAsset = { mediaGalleryViewModel.shareAsset(context) },
+        reply = {
+            resultNavigator.setResult(
+                MediaGalleryNavBackArgs(
+                    messageId = mediaGalleryViewModel.imageAsset.messageId,
+                    mediaGalleryActionType = MediaGalleryActionType.REPLY
+                )
+            )
+            resultNavigator.navigateBack()
+        },
+        react = { emoji ->
+            resultNavigator.setResult(
+                MediaGalleryNavBackArgs(
+                    messageId = mediaGalleryViewModel.imageAsset.messageId,
+                    emoji = emoji,
+                    mediaGalleryActionType = MediaGalleryActionType.REACT
+                )
+            )
+            resultNavigator.navigateBack()
+        },
+        downloadAsset = onSaveImageWriteStorageRequest::launch
+    )
+
+    SnackBarMessageHandler(mediaGalleryViewModel.snackbarMessage) { messageCode ->
+        when (messageCode) {
+            is MediaGallerySnackbarMessages.OnImageDownloaded -> {
+                openDownloadFolder(context) // Show downloads folder when clicking on Snackbar cta button
+            }
+        }
     }
 }
 
 @Composable
-fun MediaGalleryContent(
-    navigator: Navigator,
-    viewModel: MediaGalleryViewModel,
-    mediaGalleryScreenState: MediaGalleryScreenState,
-    modifier: Modifier = Modifier
+private fun MediaGalleryContent(
+    state: MediaGalleryViewState,
+    imageAsset: ImageAsset.Remote,
+    onCloseClick: () -> Unit,
+    onOptionsClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
-    val uiState = viewModel.mediaGalleryViewState
-    suspend fun showSnackbarMessage(message: String, actionLabel: String?, messageCode: MediaGallerySnackbarMessages) {
-        val snackbarResult = mediaGalleryScreenState.snackbarHostState.showSnackbar(message = message, actionLabel = actionLabel)
-        when {
-            // Show downloads folder when clicking on Snackbar cta button
-            messageCode is MediaGallerySnackbarMessages.OnImageDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
-                openDownloadFolder(context)
+    WireScaffold(
+        modifier = modifier,
+        topBar = {
+            MediaGalleryScreenTopAppBar(
+                title = state.screenTitle
+                    ?: stringResource(R.string.media_gallery_default_title_name),
+                onCloseClick = onCloseClick,
+                onOptionsClick = onOptionsClick,
+            )
+        },
+        content = { internalPadding ->
+            Box(
+                modifier = Modifier
+                    .padding(internalPadding)
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .background(colorsScheme().surface)
+            ) {
+                ZoomableImage(
+                    imageAsset = imageAsset,
+                    contentDescription = stringResource(R.string.content_description_image_message)
+                )
             }
         }
-    }
-
-    // Snackbar logic
-    LaunchedEffect(Unit) {
-        viewModel.snackbarMessage.collect { messageCode ->
-            val (message, actionLabel) = getSnackbarMessage(messageCode, context.resources)
-            showSnackbarMessage(message, actionLabel, messageCode)
-        }
-    }
-
-    Box(
-        modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .background(colorsScheme().surface)
-    ) {
-        ZoomableImage(
-            imageAsset = viewModel.imageAsset,
-            contentDescription = stringResource(R.string.content_description_image_message)
-        )
-    }
-
-    DeleteMessageDialog(
-        state = uiState.deleteMessageDialogsState,
-        actions = viewModel.deleteMessageHelper,
-        onDeleted = navigator::navigateBack
     )
 }
 
-private fun getSnackbarMessage(messageCode: MediaGallerySnackbarMessages, resources: Resources): Pair<String, String?> {
-    val msg = when (messageCode) {
-        is MediaGallerySnackbarMessages.OnImageDownloaded -> resources.getString(R.string.media_gallery_on_image_downloaded)
-        is MediaGallerySnackbarMessages.OnImageDownloadError -> resources.getString(R.string.media_gallery_on_image_downloaded)
-        is MediaGallerySnackbarMessages.DeletingMessageError -> resources.getString(R.string.error_conversation_deleting_message)
-    }
-    val actionLabel = when (messageCode) {
-        is MediaGallerySnackbarMessages.OnImageDownloaded -> resources.getString(R.string.label_show)
-        else -> null
-    }
-    return msg to actionLabel
+@Composable
+private fun MediaGalleryOptionsBottomSheetLayout(
+    sheetState: WireModalSheetState<Unit>,
+    isEphemeral: Boolean,
+    messageBottomSheetOptionsEnabled: Boolean,
+    deleteAsset: () -> Unit,
+    showDetails: () -> Unit,
+    shareAsset: () -> Unit,
+    reply: () -> Unit,
+    react: (String) -> Unit,
+    downloadAsset: () -> Unit,
+) {
+    val onDeleteClick: () -> Unit = remember { { sheetState.hide(deleteAsset) } }
+    val onShowDetailsClick: () -> Unit = remember { { sheetState.hide(showDetails) } }
+    val onShareAssetClick: () -> Unit = remember { { sheetState.hide(shareAsset) } }
+    val onReplyClick: () -> Unit = remember { { sheetState.hide(reply) } }
+    val onReactClick: (String) -> Unit = remember { { emoji -> sheetState.hide { react(emoji) } } }
+    WireModalSheetLayout(
+        sheetState = sheetState,
+        sheetContent = {
+            WireMenuModalSheetContent(
+                menuItems = if (messageBottomSheetOptionsEnabled) {
+                    assetMessageOptionsMenuItems(
+                        isUploading = false,
+                        isEphemeral = isEphemeral,
+                        onReplyClick = onReplyClick,
+                        onReactionClick = onReactClick,
+                        onDetailsClick = onShowDetailsClick,
+                        onDeleteClick = onDeleteClick,
+                        onShareAsset = onShareAssetClick,
+                        onDownloadAsset = downloadAsset,
+                    )
+                } else {
+                    assetOptionsMenuItems(
+                        isUploading = false,
+                        isEphemeral = isEphemeral,
+                        onDeleteClick = onDeleteClick,
+                        onShareAsset = onShareAssetClick,
+                        onDownloadAsset = downloadAsset,
+                    )
+                }
+            )
+        }
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMediaGalleryScreen() = WireTheme {
+    MediaGalleryContent(
+        state = MediaGalleryViewState(
+            screenTitle = "Media Gallery",
+            messageBottomSheetOptionsEnabled = true,
+            deleteMessageDialogsState = DeleteMessageDialogsState.States(
+                forYourself = DeleteMessageDialogActiveState.Hidden,
+                forEveryone = DeleteMessageDialogActiveState.Hidden
+            )
+        ),
+        imageAsset = mockedPrivateAsset(),
+        onCloseClick = {},
+        onOptionsClick = {}
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMediaGalleryOptionsBottomSheetLayout() = WireTheme {
+     MediaGalleryOptionsBottomSheetLayout(
+        sheetState = rememberWireModalSheetState(initialValue = WireSheetValue.Expanded(Unit)),
+        isEphemeral = false,
+        messageBottomSheetOptionsEnabled = true,
+        deleteAsset = {},
+        showDetails = {},
+        shareAsset = {},
+        reply = {},
+        react = {},
+        downloadAsset = {}
+    )
 }

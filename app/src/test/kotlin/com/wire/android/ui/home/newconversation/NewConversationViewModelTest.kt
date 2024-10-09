@@ -128,10 +128,10 @@ class NewConversationViewModelTest {
         runTest {
             val (arrangement, viewModel) = NewConversationViewModelArrangement()
                 .withGetSelfUser(isTeamMember = true)
-                .withServicesEnabled(false)
-                .withGuestEnabled(true)
                 .arrange()
 
+            viewModel.onAllowServicesStatusChanged(false)
+            viewModel.onAllowGuestStatusChanged(true)
             viewModel.createGroup(arrangement.onGroupCreated)
             advanceUntilIdle()
 
@@ -158,32 +158,31 @@ class NewConversationViewModelTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withDefaultProtocol(SupportedProtocol.MLS)
             .withGetSelfUser(isTeamMember = true)
-            .withServicesEnabled(false)
-            .withGuestEnabled(true)
             .arrange()
 
         // when
         val result = viewModel.newGroupState.groupProtocol
+        val result2 = viewModel.groupOptionsState
 
         // then
-        assertEquals(
-            ConversationOptions.Protocol.MLS,
-            result
-        )
+        assertEquals(ConversationOptions.Protocol.MLS, result)
+        assertEquals(false, result2.isAllowServicesEnabled)
+        assertEquals(false, result2.isAllowServicesPossible)
     }
 
     @Test
     fun `given self is external team member, when creating group, then creating group should not be allowed`() = runTest {
-            // given
-            val (_, viewModel) = NewConversationViewModelArrangement()
-                .withGetSelfUser(isTeamMember = true, userType = UserType.EXTERNAL)
-                .arrange()
-            advanceUntilIdle()
-            // when
-            val result = viewModel.newGroupState.isGroupCreatingAllowed
-            // then
-            assertEquals(false, result)
-        }
+        // given
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true, userType = UserType.EXTERNAL)
+            .arrange()
+        advanceUntilIdle()
+        // when
+        val result = viewModel.newGroupState.isGroupCreatingAllowed
+        // then
+        assertEquals(false, result)
+    }
+
     @Test
     fun `given self is internal team member, when creating group, then creating group should be allowed`() = runTest {
         // given

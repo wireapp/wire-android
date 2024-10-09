@@ -40,13 +40,13 @@ import com.wire.android.appLogger
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallState
+import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
-import com.wire.android.ui.calling.openAppLockActivity
 import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -56,7 +56,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
-import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Suppress("ParameterWrapping")
@@ -247,9 +247,12 @@ private fun IncomingCallContent(
                 onVideoPreviewCreated = onVideoPreviewCreated,
                 onSelfClearVideoPreview = onSelfClearVideoPreview
             )
-            val isCallingString = if (callState.conversationType == ConversationType.Conference) {
-                stringResource(R.string.calling_label_incoming_call_someone_calling, callState.callerName ?: "")
-            } else stringResource(R.string.calling_label_incoming_call)
+
+            val groupCallerName = if (callState.conversationTypeForCall == ConversationTypeForCall.Conference) {
+                callState.callerName
+            } else {
+                null
+            }
 
             CallerDetails(
                 conversationId = callState.conversationId,
@@ -257,13 +260,14 @@ private fun IncomingCallContent(
                 isCameraOn = callState.isCameraOn,
                 isCbrEnabled = callState.isCbrEnabled,
                 avatarAssetId = callState.avatarAssetId,
-                conversationType = callState.conversationType,
+                conversationTypeForCall = callState.conversationTypeForCall,
                 membership = callState.membership,
-                callingLabel = isCallingString,
+                groupCallerName = groupCallerName,
                 protocolInfo = callState.protocolInfo,
                 mlsVerificationStatus = callState.mlsVerificationStatus,
                 proteusVerificationStatus = callState.proteusVerificationStatus,
-                onMinimiseScreen = onMinimiseScreen
+                onMinimiseScreen = onMinimiseScreen,
+                accentId = callState.accentId
             )
         }
     }
@@ -284,9 +288,34 @@ fun AudioPermissionCheckFlow(
 
 @Preview
 @Composable
-fun PreviewIncomingCallScreen() {
+fun PreviewIncomingOneOnOneCallScreen() {
     IncomingCallContent(
-        callState = CallState(ConversationId("value", "domain")),
+        callState = CallState(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = ConversationName.Known("Jon Doe"),
+            conversationTypeForCall = ConversationTypeForCall.OneOnOne
+        ),
+        toggleMute = { },
+        toggleVideo = { },
+        declineCall = { },
+        acceptCall = { },
+        onVideoPreviewCreated = { },
+        onSelfClearVideoPreview = { },
+        onCameraPermissionPermanentlyDenied = { },
+        onMinimiseScreen = { }
+    )
+}
+
+@Preview
+@Composable
+fun PreviewIncomingGroupCallScreen() {
+    IncomingCallContent(
+        callState = CallState(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = ConversationName.Known("Fake group name"),
+            callerName = "Jon Doe",
+            conversationTypeForCall = ConversationTypeForCall.Conference
+        ),
         toggleMute = { },
         toggleVideo = { },
         declineCall = { },

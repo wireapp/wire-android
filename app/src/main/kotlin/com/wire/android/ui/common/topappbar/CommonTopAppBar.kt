@@ -211,7 +211,7 @@ private fun StatusLabelWithValue(
     callerName: String?,
     color: Color = MaterialTheme.wireColorScheme.onPrimary
 ) {
-    val defaultCallerName = stringResource(R.string.calling_participant_tile_default_user_name)
+    val defaultCallerName = stringResource(R.string.username_unavailable_label)
     Text(
         text = stringResource(id = stringResource, callerName ?: defaultCallerName).uppercase(),
         color = color,

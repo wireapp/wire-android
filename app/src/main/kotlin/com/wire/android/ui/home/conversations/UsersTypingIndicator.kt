@@ -47,14 +47,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import com.wire.android.R
 import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.UserProfileAvatarType
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
@@ -82,11 +86,11 @@ fun UsersTypingIndicatorForConversation(
 }
 
 @Composable
-fun UsersTypingIndicator(usersTyping: List<UIParticipant>) {
+fun UsersTypingIndicator(usersTyping: List<UIParticipant>, modifier: Modifier = Modifier) {
     if (usersTyping.isNotEmpty()) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
+            modifier = modifier
                 .padding(bottom = dimensions().spacing4x)
                 .height(dimensions().typingIndicatorHeight)
                 .background(
@@ -96,7 +100,10 @@ fun UsersTypingIndicator(usersTyping: List<UIParticipant>) {
         ) {
             val rememberTransition =
                 rememberInfiniteTransition(label = stringResource(R.string.animation_label_typing_indicator_horizontal_transition))
-            UsersTypingAvatarPreviews(usersTyping)
+            UsersTypingAvatarPreviews(
+                usersTyping = usersTyping,
+                modifier = Modifier.padding(horizontal = dimensions().spacing4x)
+            )
             Text(
                 text = pluralStringResource(
                     R.plurals.typing_indicator_event_message,
@@ -120,16 +127,32 @@ fun UsersTypingIndicator(usersTyping: List<UIParticipant>) {
     }
 }
 
-@Suppress("MagicNumber")
 @Composable
-private fun UsersTypingAvatarPreviews(usersTyping: List<UIParticipant>, maxPreviewsDisplay: Int = MAX_PREVIEWS_DISPLAY) {
-    Row(horizontalArrangement = Arrangement.spacedBy((-14).dp)) {
+private fun UsersTypingAvatarPreviews(
+    usersTyping: List<UIParticipant>,
+    modifier: Modifier = Modifier,
+    maxPreviewsDisplay: Int = MAX_PREVIEWS_DISPLAY
+) {
+    val avatarSize = dimensions().spacing16x
+    val borderWidth = dimensions().spacing1x
+    val avatarWithBorderSize = avatarSize + 2 * borderWidth
+    val roundedCornersSize = avatarWithBorderSize / 2
+    val spacedBy = -(avatarSize / 2)
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(spacedBy)
+    ) {
         usersTyping.take(maxPreviewsDisplay).forEach { user ->
             UserProfileAvatar(
                 avatarData = user.avatarData,
                 size = dimensions().spacing16x,
-                padding = dimensions().spacing2x,
-                showStatusIndicator = false,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(roundedCornersSize))
+                    .size(avatarWithBorderSize)
+                    .background(colorsScheme().surfaceVariant),
+                padding = dimensions().spacing0x,
+                type = UserProfileAvatarType.WithoutIndicators,
             )
         }
     }
@@ -199,7 +222,7 @@ fun PreviewUsersTypingOne() = WireTheme {
                     handle = "alice",
                     isSelf = false,
                     isService = false,
-                    avatarData = UserAvatarData(),
+                    avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("Alice", -1)),
                     membership = Membership.None,
                     connectionState = null,
                     unavailable = false,

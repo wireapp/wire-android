@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.calling.ongoing.fullscreen
 
+import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -37,22 +38,31 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.calling.SharedCallingViewModel
+import com.wire.android.ui.calling.CallState
+import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel.Companion.DOUBLE_TAP_TOAST_DISPLAY_TIME
+import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.coroutines.delay
 
 @Composable
 fun FullScreenTile(
-    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
+    callState: CallState,
+    participants: PersistentList<UICallParticipant>,
     selectedParticipant: SelectedParticipant,
     height: Dp,
     closeFullScreen: (offset: Offset) -> Unit,
-    onBackButtonClicked: () -> Unit
+    onBackButtonClicked: () -> Unit,
+    setVideoPreview: (View) -> Unit,
+    clearVideoPreview: () -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: Dp = dimensions().spacing4x,
 ) {
     var shouldShowDoubleTapToast by remember { mutableStateOf(false) }
 
@@ -60,10 +70,10 @@ fun FullScreenTile(
         onBackButtonClicked()
     }
 
-    sharedCallingViewModel.callState.participants.find {
+    participants.find {
         it.id == selectedParticipant.userId && it.clientId == selectedParticipant.clientId
     }?.let {
-        Box {
+        Box(modifier = modifier) {
             ParticipantTile(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -74,26 +84,23 @@ fun FullScreenTile(
                         )
                     }
                     .height(height)
-                    .padding(
-                        start = dimensions().spacing4x,
-                        end = dimensions().spacing4x
-                    ),
+                    .padding(contentPadding),
                 participantTitleState = it,
                 isSelfUser = selectedParticipant.isSelfUser,
                 isSelfUserCameraOn = if (selectedParticipant.isSelfUser) {
-                    sharedCallingViewModel.callState.isCameraOn
+                    callState.isCameraOn
                 } else {
                     it.isCameraOn
                 },
                 isSelfUserMuted = if (selectedParticipant.isSelfUser) {
-                    sharedCallingViewModel.callState.isMuted!!
+                    callState.isMuted!!
                 } else {
                     it.isMuted
                 },
-                shouldFill = false,
+                shouldFillOthersVideoPreview = false,
                 isZoomingEnabled = true,
-                onSelfUserVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
-                onClearSelfUserVideoPreview = sharedCallingViewModel::clearVideoPreview
+                onSelfUserVideoPreviewCreated = setVideoPreview,
+                onClearSelfUserVideoPreview = clearVideoPreview
             )
             LaunchedEffect(Unit) {
                 delay(200)
@@ -116,11 +123,22 @@ fun FullScreenTile(
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewFullScreenVideoCall() {
+fun PreviewFullScreenTile() = WireTheme {
+    val participants = buildPreviewParticipantsList(1)
     FullScreenTile(
-        selectedParticipant = SelectedParticipant(),
-        height = 100.dp,
+        callState = CallState(
+            conversationId = ConversationId("id", "domain"),
+        ),
+        selectedParticipant = SelectedParticipant(
+            userId = participants.first().id,
+            clientId = participants.first().clientId,
+            isSelfUser = false,
+        ),
+        height = 800.dp,
         closeFullScreen = {},
-        onBackButtonClicked = {}
+        onBackButtonClicked = {},
+        setVideoPreview = {},
+        clearVideoPreview = {},
+        participants = participants,
     )
 }

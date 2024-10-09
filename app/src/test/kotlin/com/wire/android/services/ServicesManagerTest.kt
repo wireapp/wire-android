@@ -39,19 +39,35 @@ class ServicesManagerTest {
     val dispatcherProvider = TestDispatcherProvider()
 
     @Test
-    fun `given ongoing call service running, when stop comes instantly after start, then do not even start the service`() =
+    fun `given ongoing call service running, when stop comes instantly after start, then start the service and stop it after a while`() =
         runTest(dispatcherProvider.main()) {
             // given
             val (arrangement, servicesManager) = Arrangement()
-                .withServiceState(OngoingCallService.ServiceState.FOREGROUND)
+                .withServiceState(CallService.ServiceState.FOREGROUND)
                 .arrange()
             // when
-            servicesManager.startOngoingCallService()
-            advanceTimeBy((ServicesManager.DEBOUNCE_TIME - 50).milliseconds)
-            servicesManager.stopOngoingCallService()
+            servicesManager.startCallService()
+            servicesManager.stopCallService()
             // then
-            verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntent) }
-            verify(exactly = 1) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
+            verify(exactly = 1) { arrangement.context.startService(arrangement.callServiceIntent) }
+            advanceUntilIdle()
+            verify(exactly = 1) { arrangement.context.stopService(arrangement.callServiceIntent) }
+        }
+
+    @Test
+    fun `given call service running, when start comes instantly after stop, then do not stop the service`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val (arrangement, servicesManager) = Arrangement()
+                .withServiceState(CallService.ServiceState.FOREGROUND)
+                .arrange()
+            servicesManager.startCallService()
+            // when
+            servicesManager.stopCallService()
+            servicesManager.startCallService()
+            // then
+            verify(exactly = 1) { arrangement.context.startService(arrangement.callServiceIntent) }
+            verify(exactly = 0) { arrangement.context.stopService(arrangement.callServiceIntent) }
         }
 
     @Test
@@ -59,16 +75,17 @@ class ServicesManagerTest {
         runTest(dispatcherProvider.main()) {
             // given
             val (arrangement, servicesManager) = Arrangement()
-                .withServiceState(OngoingCallService.ServiceState.FOREGROUND)
+                .withServiceState(CallService.ServiceState.FOREGROUND)
                 .arrange()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.startOngoingCallService()
+            servicesManager.startCallService()
             advanceTimeBy((ServicesManager.DEBOUNCE_TIME + 50).milliseconds)
-            servicesManager.stopOngoingCallService()
+            servicesManager.stopCallService()
             // then
-            verify(exactly = 1) { arrangement.context.startService(arrangement.ongoingCallServiceIntent) }
-            verify(exactly = 1) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
+            verify(exactly = 1) { arrangement.context.startService(arrangement.callServiceIntent) }
+            advanceUntilIdle()
+            verify(exactly = 1) { arrangement.context.stopService(arrangement.callServiceIntent) }
         }
 
     @Test
@@ -76,16 +93,16 @@ class ServicesManagerTest {
         runTest(dispatcherProvider.main()) {
             // given
             val (arrangement, servicesManager) = Arrangement()
-                .withServiceState(OngoingCallService.ServiceState.FOREGROUND)
+                .withServiceState(CallService.ServiceState.FOREGROUND)
                 .arrange()
-            servicesManager.startOngoingCallService()
-            advanceUntilIdle()
+            servicesManager.startCallService()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.stopOngoingCallService()
+            servicesManager.stopCallService()
+            advanceUntilIdle()
             // then
             verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntentWithStopArgument) }
-            verify(exactly = 1) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
+            verify(exactly = 1) { arrangement.context.stopService(arrangement.callServiceIntent) }
         }
 
     @Test
@@ -93,16 +110,16 @@ class ServicesManagerTest {
         runTest(dispatcherProvider.main()) {
             // given
             val (arrangement, servicesManager) = Arrangement()
-                .withServiceState(OngoingCallService.ServiceState.STARTED)
+                .withServiceState(CallService.ServiceState.STARTED)
                 .arrange()
-            servicesManager.startOngoingCallService()
-            advanceUntilIdle()
+            servicesManager.startCallService()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.stopOngoingCallService()
+            servicesManager.stopCallService()
+            advanceUntilIdle()
             // then
             verify(exactly = 1) { arrangement.context.startService(arrangement.ongoingCallServiceIntentWithStopArgument) }
-            verify(exactly = 0) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
+            verify(exactly = 0) { arrangement.context.stopService(arrangement.callServiceIntent) }
         }
 
     @Test
@@ -110,16 +127,16 @@ class ServicesManagerTest {
         runTest(dispatcherProvider.main()) {
             // given
             val (arrangement, servicesManager) = Arrangement()
-                .withServiceState(OngoingCallService.ServiceState.NOT_STARTED)
+                .withServiceState(CallService.ServiceState.NOT_STARTED)
                 .arrange()
-            servicesManager.startOngoingCallService()
+            servicesManager.startCallService()
             advanceUntilIdle()
             arrangement.clearRecordedCallsForContext() // clear calls recorded when initializing the state
             // when
-            servicesManager.startOngoingCallService()
+            servicesManager.startCallService()
             // then
             verify(exactly = 0) { arrangement.context.startService(arrangement.ongoingCallServiceIntentWithStopArgument) }
-            verify(exactly = 0) { arrangement.context.stopService(arrangement.ongoingCallServiceIntent) }
+            verify(exactly = 0) { arrangement.context.stopService(arrangement.callServiceIntent) }
         }
 
     private inner class Arrangement {
@@ -130,16 +147,16 @@ class ServicesManagerTest {
         private val servicesManager: ServicesManager by lazy { ServicesManager(context, dispatcherProvider) }
 
         @MockK
-        lateinit var ongoingCallServiceIntent: Intent
+        lateinit var callServiceIntent: Intent
 
         @MockK
         lateinit var ongoingCallServiceIntentWithStopArgument: Intent
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            mockkObject(OngoingCallService.Companion)
-            every { OngoingCallService.Companion.newIntent(context) } returns ongoingCallServiceIntent
-            every { OngoingCallService.Companion.newIntentToStop(context) } returns ongoingCallServiceIntentWithStopArgument
+            mockkObject(CallService.Companion)
+            every { CallService.Companion.newIntent(context) } returns callServiceIntent
+            every { CallService.Companion.newIntentToStop(context) } returns ongoingCallServiceIntentWithStopArgument
         }
 
         fun clearRecordedCallsForContext() {
@@ -153,9 +170,9 @@ class ServicesManagerTest {
             )
         }
 
-        fun withServiceState(state: OngoingCallService.ServiceState) = apply {
-            every { OngoingCallService.Companion.serviceState.get() } returns state
-            every { OngoingCallService.serviceState.get() } returns state
+        fun withServiceState(state: CallService.ServiceState) = apply {
+            every { CallService.Companion.serviceState.get() } returns state
+            every { CallService.serviceState.get() } returns state
         }
 
         fun arrange() = this to servicesManager

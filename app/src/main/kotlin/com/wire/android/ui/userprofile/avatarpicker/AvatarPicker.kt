@@ -41,16 +41,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -72,7 +73,7 @@ import kotlinx.coroutines.withContext
 import okio.Path
 
 @RootNavGraph
-@Destination
+@WireDestination
 @Composable
 fun AvatarPickerScreen(
     navigator: Navigator,
@@ -190,37 +191,40 @@ private fun AvatarPickerContent(
         }
     }
 
-    MenuModalSheetLayout(
+    WireModalSheetLayout(
         sheetState = state.modalBottomSheetState,
-        coroutineScope = rememberCoroutineScope(),
-        header = MenuModalSheetHeader.Visible(title = stringResource(R.string.profile_image_modal_sheet_header_title)),
-        menuItems = listOf(
-            {
-                MenuBottomSheetItem(
-                    title = stringResource(R.string.profile_image_choose_from_gallery_menu_item),
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_gallery,
-                            contentDescription = stringResource(R.string.content_description_choose_from_gallery)
+        sheetContent = {
+            WireMenuModalSheetContent(
+                header = MenuModalSheetHeader.Visible(title = stringResource(R.string.profile_image_modal_sheet_header_title)),
+                menuItems = listOf(
+                    {
+                        MenuBottomSheetItem(
+                            title = stringResource(R.string.profile_image_choose_from_gallery_menu_item),
+                            icon = {
+                                MenuItemIcon(
+                                    id = R.drawable.ic_gallery,
+                                    contentDescription = stringResource(R.string.content_description_choose_from_gallery)
+                                )
+                            },
+                            action = { ArrowRightIcon() },
+                            onItemClick = state::openGallery
                         )
-                    },
-                    action = { ArrowRightIcon() },
-                    onItemClick = state::openGallery
-                )
-            }, {
-                MenuBottomSheetItem(
-                    title = stringResource(R.string.profile_image_take_a_picture_menu_item),
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_camera,
-                            contentDescription = stringResource(R.string.content_description_take_a_picture)
+                    }, {
+                        MenuBottomSheetItem(
+                            title = stringResource(R.string.profile_image_take_a_picture_menu_item),
+                            icon = {
+                                MenuItemIcon(
+                                    id = R.drawable.ic_camera,
+                                    contentDescription = stringResource(R.string.content_description_take_a_picture)
+                                )
+                            },
+                            action = { ArrowRightIcon() },
+                            onItemClick = state::openCamera
                         )
-                    },
-                    action = { ArrowRightIcon() },
-                    onItemClick = state::openCamera
+                    }
                 )
-            }
-        )
+            )
+        }
     )
 }
 

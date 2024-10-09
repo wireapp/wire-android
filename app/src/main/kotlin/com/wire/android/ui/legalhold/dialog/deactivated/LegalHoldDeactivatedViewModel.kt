@@ -42,7 +42,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LegalHoldDeactivatedViewModel @Inject constructor(
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    @KaliumCoreLogic private val coreLogic: CoreLogic
 ) : ViewModel() {
 
     var state: LegalHoldDeactivatedState by mutableStateOf(LegalHoldDeactivatedState.Hidden)

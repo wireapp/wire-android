@@ -58,10 +58,50 @@ fun WelcomeNewUserDialog(
     )
 }
 
+@Composable
+fun AnalyticsUsageDialog(
+    agreeOption: () -> Unit = {},
+    declineOption: () -> Unit = {},
+    context: Context = LocalContext.current
+) {
+    val privacyPolicyUrl = stringResource(id = R.string.url_privacy_policy)
+    WireDialog(
+        title = stringResource(id = R.string.analytics_usage_dialog_title),
+        text = stringResource(id = R.string.analytics_usage_dialog_text),
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = agreeOption,
+            text = stringResource(id = R.string.analytics_usage_dialog_button_agree),
+            type = WireDialogButtonType.Primary
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
+            onClick = {
+                CustomTabsHelper.launchUrl(context, privacyPolicyUrl)
+            },
+            text = stringResource(id = R.string.analytics_usage_dialog_button_privacy_policy),
+            type = WireDialogButtonType.Secondary
+        ),
+        dismissButtonProperties = WireDialogButtonProperties(
+            onClick = declineOption,
+            text = stringResource(id = R.string.analytics_usage_dialog_button_decline),
+            type = WireDialogButtonType.Secondary
+        ),
+        buttonsHorizontalAlignment = false,
+        onDismiss = {}
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
-fun previewWelcomeNewUserDialog() {
+fun PreviewWelcomeNewUserDialog() {
     WireTheme {
         WelcomeNewUserDialog({})
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewAnalyticsOptInDialog() {
+    WireTheme {
+        AnalyticsUsageDialog()
     }
 }

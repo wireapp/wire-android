@@ -169,6 +169,7 @@ class SelfUserProfileViewModel @Inject constructor(
                             otherAccounts = otherAccounts,
                             avatarAsset = userProfileState.avatarAsset,
                             isAvatarLoading = false,
+                            accentId = accentId
                         )
                     }
                 }
@@ -226,6 +227,7 @@ class SelfUserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             userProfileState = userProfileState.copy(isLoggingOut = true)
             launch {
+                // TODO instead of ending calls show toast that cannot logout during call
                 establishedCallsList.value.forEach { call ->
                     endCall(call.conversationId)
                 }

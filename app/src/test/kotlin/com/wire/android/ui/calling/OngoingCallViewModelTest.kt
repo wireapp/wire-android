@@ -240,7 +240,8 @@ class OngoingCallViewModelTest {
             isCameraOn = true,
             isSharingScreen = false,
             membership = Membership.None,
-            hasEstablishedAudio = true
+            hasEstablishedAudio = true,
+            accentId = -1
         )
         private val participant2 = UICallParticipant(
             id = QualifiedID("value2", "domain"),
@@ -251,7 +252,8 @@ class OngoingCallViewModelTest {
             isCameraOn = false,
             isSharingScreen = false,
             membership = Membership.None,
-            hasEstablishedAudio = true
+            hasEstablishedAudio = true,
+            accentId = -1
         )
         private val participant3 = UICallParticipant(
             id = QualifiedID("value3", "domain"),
@@ -262,7 +264,8 @@ class OngoingCallViewModelTest {
             isCameraOn = true,
             isSharingScreen = true,
             membership = Membership.None,
-            hasEstablishedAudio = true
+            hasEstablishedAudio = true,
+            accentId = -1
         )
         val participants = listOf(participant1, participant2, participant3)
     }
@@ -275,7 +278,7 @@ class OngoingCallViewModelTest {
     ) = Call(
         conversationId = id,
         status = CallStatus.ESTABLISHED,
-        callerId = "caller_id",
+        callerId = UserId("caller", "domain"),
         participants = listOf(),
         isMuted = false,
         isCameraOn = false,

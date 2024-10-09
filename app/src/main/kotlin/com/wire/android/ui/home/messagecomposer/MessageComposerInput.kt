@@ -39,9 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -52,8 +50,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -92,7 +88,7 @@ fun ActiveMessageComposerInput(
     messageTextState: TextFieldState,
     isTextExpanded: Boolean,
     inputType: InputType,
-    inputFocused: Boolean,
+    focusRequester: FocusRequester,
     onSendButtonClicked: () -> Unit,
     onEditButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
@@ -100,10 +96,11 @@ fun ActiveMessageComposerInput(
     onTextCollapse: () -> Unit,
     onCancelReply: () -> Unit,
     onCancelEdit: () -> Unit,
-    onInputFocusedChanged: (Boolean) -> Unit,
+    onFocused: () -> Unit,
     onSelectedLineIndexChanged: (Int) -> Unit,
     onLineBottomYCoordinateChanged: (Float) -> Unit,
     showOptions: Boolean,
+    optionsSelected: Boolean,
     onPlusClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -134,13 +131,14 @@ fun ActiveMessageComposerInput(
             messageTextState = messageTextState,
             isTextExpanded = isTextExpanded,
             inputType = inputType,
-            inputFocused = inputFocused,
+            focusRequester = focusRequester,
             onSendButtonClicked = onSendButtonClicked,
             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-            onInputFocusedChanged = onInputFocusedChanged,
+            onFocused = onFocused,
             onSelectedLineIndexChanged = onSelectedLineIndexChanged,
             onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
             showOptions = showOptions,
+            optionsSelected = optionsSelected,
             onPlusClick = onPlusClick,
             onTextCollapse = onTextCollapse,
             modifier = Modifier
@@ -170,13 +168,14 @@ private fun InputContent(
     messageTextState: TextFieldState,
     isTextExpanded: Boolean,
     inputType: InputType,
-    inputFocused: Boolean,
+    focusRequester: FocusRequester,
     onSendButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
-    onInputFocusedChanged: (Boolean) -> Unit,
+    onFocused: () -> Unit,
     onSelectedLineIndexChanged: (Int) -> Unit,
     onLineBottomYCoordinateChanged: (Float) -> Unit,
     showOptions: Boolean,
+    optionsSelected: Boolean,
     onPlusClick: () -> Unit,
     onTextCollapse: () -> Unit,
     modifier: Modifier = Modifier,
@@ -197,7 +196,7 @@ private fun InputContent(
         ) {
             if (!showOptions && inputType is InputType.Composing) {
                 AdditionalOptionButton(
-                    isSelected = false,
+                    isSelected = optionsSelected,
                     onClick = onPlusClick,
                     modifier = Modifier.padding(start = dimensions().spacing8x)
                 )
@@ -207,12 +206,12 @@ private fun InputContent(
         val collapsedMaxHeight = dimensions().messageComposerActiveInputMaxHeight
         MessageComposerTextInput(
             isTextExpanded = isTextExpanded,
-            inputFocused = inputFocused,
+            focusRequester = focusRequester,
             colors = inputType.inputTextColor(isSelfDeleting = viewModel.state().duration != null),
             messageTextState = messageTextState,
             placeHolderText = viewModel.state().duration?.let { stringResource(id = R.string.self_deleting_message_label) }
                 ?: inputType.labelText(),
-            onFocusChanged = onInputFocusedChanged,
+            onFocused = onFocused,
             onSelectedLineIndexChanged = onSelectedLineIndexChanged,
             onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
             onTextCollapse = onTextCollapse,
@@ -267,38 +266,22 @@ private fun InputContent(
 @Composable
 private fun MessageComposerTextInput(
     isTextExpanded: Boolean,
-    inputFocused: Boolean,
+    focusRequester: FocusRequester,
     colors: WireTextFieldColors,
     messageTextState: TextFieldState,
     placeHolderText: String,
     onTextCollapse: () -> Unit,
+    onFocused: () -> Unit,
     modifier: Modifier = Modifier,
-    onFocusChanged: (Boolean) -> Unit = {},
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { }
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusRequester = remember { FocusRequester() }
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    var isReadOnly by remember { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
-
-    LaunchedEffect(inputFocused) {
-        if (inputFocused) {
-            isReadOnly = false
-            keyboardController?.show()
-            focusRequester.requestFocus()
-        } else {
-            isReadOnly = true
-            focusManager.clearFocus()
-            keyboardController?.hide()
-        }
-    }
 
     LaunchedEffect(isPressed) {
         if (isPressed) {
-            onFocusChanged(true)
+            onFocused()
         }
     }
 
@@ -309,13 +292,13 @@ private fun MessageComposerTextInput(
         textStyle = MaterialTheme.wireTypography.body01,
         // Add an extra space so that the cursor is placed one space before "Type a message"
         placeholderText = " $placeHolderText",
-        state = if (isReadOnly) WireTextFieldState.ReadOnly else WireTextFieldState.Default,
+        state = WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions.DefaultText.copy(imeAction = ImeAction.None),
         modifier = modifier
             .focusRequester(focusRequester)
             .onFocusChanged { focusState ->
                 if (focusState.isFocused) {
-                    onFocusChanged(true)
+                    onFocused()
                 }
             }
             .onPreInterceptKeyBeforeSoftKeyboard { event ->
@@ -374,7 +357,7 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
         messageTextState = rememberTextFieldState("abc"),
         isTextExpanded = isTextExpanded,
         inputType = inputType,
-        inputFocused = false,
+        focusRequester = FocusRequester(),
         onSendButtonClicked = {},
         onEditButtonClicked = {},
         onChangeSelfDeletionClicked = {},
@@ -382,10 +365,11 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
         onTextCollapse = {},
         onCancelReply = {},
         onCancelEdit = {},
-        onInputFocusedChanged = {},
+        onFocused = {},
         onSelectedLineIndexChanged = {},
         onLineBottomYCoordinateChanged = {},
         showOptions = true,
+        optionsSelected = true,
         onPlusClick = {}
     )
 }

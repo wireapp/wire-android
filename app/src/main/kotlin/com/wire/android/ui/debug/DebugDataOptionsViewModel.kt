@@ -28,12 +28,12 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.migration.failure.UserMigrationStatus
-import com.wire.android.util.getDependenciesVersion
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
@@ -44,7 +44,6 @@ import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -75,7 +74,8 @@ class DebugDataOptionsViewModelImpl
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCount: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
-    private val checkCrlRevocationList: CheckCrlRevocationListUseCase
+    private val checkCrlRevocationList: CheckCrlRevocationListUseCase,
+    private val getCurrentAnalyticsTrackingIdentifier: GetCurrentAnalyticsTrackingIdentifierUseCase
 ) : ViewModel(), DebugDataOptionsViewModel {
 
     var state by mutableStateOf(
@@ -87,15 +87,16 @@ class DebugDataOptionsViewModelImpl
         observeMlsMetadata()
         checkIfCanTriggerManualMigration()
         setGitHashAndDeviceId()
-        checkDependenciesVersion()
+        setAnalyticsTrackingId()
     }
 
-    private fun checkDependenciesVersion() {
+    private fun setAnalyticsTrackingId() {
         viewModelScope.launch {
-            val dependencies = context.getDependenciesVersion().toImmutableMap()
-            state = state.copy(
-                dependencies = dependencies
-            )
+            getCurrentAnalyticsTrackingIdentifier()?.let { trackingId ->
+                state = state.copy(
+                    analyticsTrackingId = trackingId
+                )
+            }
         }
     }
 

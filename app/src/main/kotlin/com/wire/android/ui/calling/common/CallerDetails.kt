@@ -21,6 +21,8 @@ package com.wire.android.ui.calling.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -33,9 +35,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.common.ConversationVerificationIcons
@@ -47,30 +51,35 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.hasLabel
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import java.util.Locale
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CallerDetails(
     conversationId: ConversationId,
     conversationName: ConversationName?,
+    accentId: Int,
     isCameraOn: Boolean,
     isCbrEnabled: Boolean,
     avatarAssetId: ImageAsset.UserAvatarAsset?,
-    conversationType: ConversationType,
+    conversationTypeForCall: ConversationTypeForCall,
     membership: Membership,
-    callingLabel: String,
+    groupCallerName: String?,
     protocolInfo: Conversation.ProtocolInfo?,
     mlsVerificationStatus: Conversation.VerificationStatus?,
     proteusVerificationStatus: Conversation.VerificationStatus?,
     onMinimiseScreen: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(top = dimensions().spacing32x),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = dimensions().spacing32x),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -114,12 +123,44 @@ fun CallerDetails(
                 proteusVerificationStatus
             )
         }
-        Text(
-            text = callingLabel,
-            color = colorsScheme().onBackground,
-            style = MaterialTheme.wireTypography.body01,
-            modifier = Modifier.padding(top = dimensions().spacing8x)
-        )
+
+        FlowRow(
+            modifier = Modifier.padding(
+                top = dimensions().spacing8x,
+                start = dimensions().spacing24x,
+                end = dimensions().spacing24x
+            ),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            groupCallerName?.let { name ->
+                Text(
+                    text = name,
+                    color = colorsScheme().onBackground,
+                    style = MaterialTheme.wireTypography.body01,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            val isCallingLabel =
+                if (conversationTypeForCall == ConversationTypeForCall.Conference) {
+                    stringResource(R.string.calling_label_incoming_call_someone_calling)
+                } else {
+                    stringResource(R.string.calling_label_incoming_call)
+                }
+            Text(
+                modifier = Modifier.padding(
+                    start = dimensions().spacing2x,
+                ),
+                text = isCallingLabel,
+                color = colorsScheme().onBackground,
+                style = MaterialTheme.wireTypography.body01,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+
         if (membership.hasLabel()) {
             VerticalSpace.x16()
             MembershipQualifierLabel(membership)
@@ -130,9 +171,15 @@ fun CallerDetails(
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )
 
-        if (!isCameraOn && conversationType == ConversationType.OneOnOne) {
+        if (!isCameraOn && conversationTypeForCall == ConversationTypeForCall.OneOnOne) {
             UserProfileAvatar(
-                avatarData = UserAvatarData(avatarAssetId),
+                avatarData = UserAvatarData(
+                    asset = avatarAssetId,
+                    nameBasedAvatar = NameBasedAvatar(
+                        (conversationName as? ConversationName.Known)?.name,
+                        accentId
+                    )
+                ),
                 size = dimensions().outgoingCallUserAvatarSize,
                 modifier = Modifier.padding(top = dimensions().spacing16x)
             )
@@ -140,21 +187,68 @@ fun CallerDetails(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewMultipleThemes
 @Composable
-fun PreviewCallerDetails() {
-    CallerDetails(
-        conversationId = ConversationId("value", "domain"),
-        conversationName = ConversationName.Known("User"),
-        isCameraOn = false,
-        isCbrEnabled = false,
-        avatarAssetId = null,
-        conversationType = ConversationType.OneOnOne,
-        membership = Membership.Guest,
-        callingLabel = String.EMPTY,
-        protocolInfo = null,
-        mlsVerificationStatus = null,
-        proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
-        onMinimiseScreen = { }
-    )
+fun PreviewCallerDetailsOneOnOneCall() {
+    WireTheme {
+        CallerDetails(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = ConversationName.Known("Jon Doe"),
+            isCameraOn = false,
+            isCbrEnabled = false,
+            avatarAssetId = null,
+            conversationTypeForCall = ConversationTypeForCall.OneOnOne,
+            membership = Membership.Guest,
+            groupCallerName = null,
+            protocolInfo = null,
+            mlsVerificationStatus = null,
+            proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+            onMinimiseScreen = { },
+            accentId = -1
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCallerDetailsGroupCallWithLongName() {
+    WireTheme {
+        CallerDetails(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = ConversationName.Known("Some fake group name"),
+            isCameraOn = false,
+            isCbrEnabled = false,
+            avatarAssetId = null,
+            conversationTypeForCall = ConversationTypeForCall.Conference,
+            membership = Membership.Guest,
+            groupCallerName = "Caller name long name with lots of characters to make it a long name",
+            protocolInfo = null,
+            mlsVerificationStatus = null,
+            proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+            onMinimiseScreen = { },
+            accentId = -1
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewCallerDetailsGroupCallWithShortName() {
+    WireTheme {
+        CallerDetails(
+            conversationId = ConversationId("value", "domain"),
+            conversationName = ConversationName.Known("Some fake group name"),
+            isCameraOn = false,
+            isCbrEnabled = false,
+            avatarAssetId = null,
+            conversationTypeForCall = ConversationTypeForCall.Conference,
+            membership = Membership.Guest,
+            groupCallerName = "Caller name",
+            protocolInfo = null,
+            mlsVerificationStatus = null,
+            proteusVerificationStatus = Conversation.VerificationStatus.VERIFIED,
+            onMinimiseScreen = { },
+            accentId = -1
+        )
+    }
 }

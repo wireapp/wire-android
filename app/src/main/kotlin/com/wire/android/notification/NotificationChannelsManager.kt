@@ -28,6 +28,7 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationChannelGroupCompat
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.appLogger
+import com.wire.android.media.PingRinger
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
@@ -42,13 +43,6 @@ class NotificationChannelsManager @Inject constructor(
         Uri.parse(
             "${ContentResolver.SCHEME_ANDROID_RESOURCE}://" +
                     "${context.packageName}/raw/ringing_from_them"
-        )
-    }
-
-    private val outgoingCallSoundUri by lazy {
-        Uri.parse(
-            "${ContentResolver.SCHEME_ANDROID_RESOURCE}://" +
-                    "${context.packageName}/raw/ringing_from_me"
         )
     }
 
@@ -131,17 +125,11 @@ class NotificationChannelsManager @Inject constructor(
     }
 
     private fun createOutgoingCallChannel(groupId: String, userId: UserId) {
-        val audioAttributes = AudioAttributes.Builder()
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .setUsage(getAudioAttributeUsageByOsLevel())
-            .build()
-
         val channelId = NotificationConstants.getOutgoingChannelId(userId)
         val notificationChannel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
             .setName(NotificationConstants.OUTGOING_CALL_CHANNEL_NAME)
             .setImportance(NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            .setSound(outgoingCallSoundUri, audioAttributes)
             .setShowBadge(false)
             .setGroup(groupId)
             .build()
@@ -183,6 +171,7 @@ class NotificationChannelsManager @Inject constructor(
             .Builder(NotificationConstants.getPingsChannelId(userId), NotificationManagerCompat.IMPORTANCE_HIGH)
             .setName(NotificationConstants.PING_CHANNEL_NAME)
             .setGroup(channelGroupId)
+            .setVibrationPattern(PingRinger.VIBRATE_PATTERN)
             .setSound(knockSoundUri, audioAttributes)
             .build()
 

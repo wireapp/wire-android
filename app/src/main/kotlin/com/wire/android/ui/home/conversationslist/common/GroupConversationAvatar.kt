@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,20 +30,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun GroupConversationAvatar(
     color: Color,
+    modifier: Modifier = Modifier,
     size: Dp = MaterialTheme.wireDimensions.avatarDefaultSize,
     cornerRadius: Dp = MaterialTheme.wireDimensions.groupAvatarCornerRadius,
-    padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding
+    padding: Dp = MaterialTheme.wireDimensions.avatarClickablePadding,
+    borderWidth: Dp = dimensions().avatarBorderWidth,
+    borderColor: Color = colorsScheme().outline,
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .padding(padding)
-            .padding(MaterialTheme.wireDimensions.avatarStatusBorderSize) // to keep sizes consistent with UserProfileAvatar
-            .size(size)
+            .size(size + borderWidth * 2) // border exceeds the size to keep sizes consistent with UserProfileAvatar
+            .border(color = borderColor, width = borderWidth, shape = RoundedCornerShape(cornerRadius + borderWidth))
+            .padding(borderWidth)
             .background(color = color, shape = RoundedCornerShape(cornerRadius))
     )
 }

@@ -21,7 +21,11 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants
 import com.wire.android.framework.TestUser
+import com.wire.android.ui.analytics.IsAnalyticsAvailableUseCase
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.AppLockTeamConfig
@@ -297,6 +301,49 @@ class FeatureFlagNotificationViewModelTest {
         coVerify(exactly = 1) { arrangement.markNotifyForRevokedCertificateAsNotified() }
     }
 
+    @Test
+    fun givenARateCallIsDisplayed_whenSendingScore_thenInvokeEventForScoreWithValue() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
+            .arrange()
+
+        viewModel.rateCall(5, false)
+
+        coVerify(exactly = 1) {
+            arrangement.analyticsManager.sendEvent(
+                match {
+                    it is AnalyticsEvent.CallQualityFeedback.Answered && it.score == 5
+                }
+            )
+        }
+        coVerify(exactly = 1) {
+            arrangement.analyticsManager.sendEvent(
+                match {
+                    it is AnalyticsEvent.CallQualityFeedback && it.label ==
+                            AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_ANSWERED
+                }
+            )
+        }
+    }
+
+    @Test
+    fun givenARateCallIsDisplayed_whenDismissingIt_thenInvokeEventForDismiss() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain")))))
+            .arrange()
+
+        viewModel.skipCallFeedback(false)
+
+        coVerify(exactly = 1) {
+            arrangement.analyticsManager.sendEvent(
+                match {
+                    it is AnalyticsEvent.CallQualityFeedback && it.label ==
+                            AnalyticsEventConstants.CALLING_QUALITY_REVIEW_LABEL_DISMISSED
+                }
+            )
+        }
+    }
+
     private inner class Arrangement {
 
         @MockK
@@ -324,6 +371,12 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var globalDataStore: GlobalDataStore
 
         @MockK
+        lateinit var isAnalyticsAvailable: IsAnalyticsAvailableUseCase
+
+        @MockK
+        lateinit var analyticsManager: AnonymousAnalyticsManager
+
+        @MockK
         lateinit var markNotifyForRevokedCertificateAsNotified: MarkNotifyForRevokedCertificateAsNotifiedUseCase
 
         val viewModel: FeatureFlagNotificationViewModel by lazy {
@@ -331,9 +384,12 @@ class FeatureFlagNotificationViewModelTest {
                 coreLogic = coreLogic,
                 currentSessionFlow = currentSessionFlow,
                 globalDataStore = globalDataStore,
-                disableAppLockUseCase = disableAppLockUseCase
+                disableAppLockUseCase = disableAppLockUseCase,
+                isAnalyticsAvailable = isAnalyticsAvailable,
+                analyticsManager = analyticsManager
             )
         }
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
@@ -346,8 +402,10 @@ class FeatureFlagNotificationViewModelTest {
             coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired.invoke() } returns flowOf()
-            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDueToDegradationDialog() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).calls.observeAskCallFeedbackUseCase() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeShouldNotifyForRevokedCertificate() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).calls.updateNextTimeCallFeedback(any()) } returns Unit
             every { coreLogic.getSessionScope(any()).markNotifyForRevokedCertificateAsNotified } returns
                     markNotifyForRevokedCertificateAsNotified
             coEvery { ppLockTeamFeatureConfigObserver() } returns flowOf(null)
@@ -386,7 +444,7 @@ class FeatureFlagNotificationViewModelTest {
         }
 
         fun withEndCallDialog() = apply {
-            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDialog() } returns flowOf(Unit)
+            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDueToDegradationDialog() } returns flowOf(Unit)
         }
 
         fun withTeamAppLockEnforce(result: AppLockTeamConfig?) = apply {

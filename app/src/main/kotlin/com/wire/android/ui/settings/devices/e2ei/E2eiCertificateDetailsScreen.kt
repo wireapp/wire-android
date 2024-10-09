@@ -34,11 +34,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -53,18 +56,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @RootNavGraph
-@Destination(
+@WireDestination(
     navArgsDelegate = E2eiCertificateDetailsScreenNavArgs::class,
     style = PopUpNavigationAnimation::class,
 )
 @Composable
 fun E2eiCertificateDetailsScreen(
-    e2eiCertificateDetailsViewModel: E2eiCertificateDetailsViewModel = hiltViewModel(),
-    navigator: Navigator
+    navigator: Navigator,
+    e2eiCertificateDetailsViewModel: E2eiCertificateDetailsViewModel = hiltViewModel()
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
     val downloadedString = stringResource(id = R.string.media_gallery_on_image_downloaded)
+    val sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState()
 
     WireScaffold(
         topBar = {
@@ -74,9 +78,7 @@ fun E2eiCertificateDetailsScreen(
                 navigationIconType = NavigationIconType.Back,
                 actions = {
                     WireSecondaryIconButton(
-                        onButtonClicked = {
-                            e2eiCertificateDetailsViewModel.state.wireModalSheetState.show()
-                        },
+                        onButtonClicked = sheetState::show,
                         iconResource = R.drawable.ic_more,
                         contentDescription = R.string.content_description_more_options
                     )
@@ -95,11 +97,10 @@ fun E2eiCertificateDetailsScreen(
                 certificateString = getCertificate()
             )
             E2eiCertificateDetailsBottomSheet(
-                sheetState = state.wireModalSheetState,
+                sheetState = sheetState,
                 onCopyToClipboard = {
                     clipboardManager.copyLinkToClipboard(getCertificate())
-                    scope.launch {
-                        state.wireModalSheetState.hide()
+                    sheetState.hide {
                         snackbarHostState.showSnackbar(copiedToClipboardString)
                     }
                 },
@@ -111,8 +112,9 @@ fun E2eiCertificateDetailsScreen(
                                 content = getCertificate()
                             )
                         }
-                        state.wireModalSheetState.hide()
-                        snackbarHostState.showSnackbar(downloadedString)
+                        sheetState.hide {
+                            snackbarHostState.showSnackbar(downloadedString)
+                        }
                     }
                 }
             )
@@ -123,7 +125,8 @@ fun E2eiCertificateDetailsScreen(
 @Composable
 fun E2eiCertificateDetailsContent(
     padding: PaddingValues,
-    certificateString: String
+    certificateString: String,
+    modifier: Modifier = Modifier,
 ) {
     val textStyle = TextStyle(
         textAlign = TextAlign.Justify,
@@ -133,7 +136,7 @@ fun E2eiCertificateDetailsContent(
     )
     val scroll = rememberScrollState(0)
     Text(
-        modifier = Modifier
+        modifier = modifier
             .verticalScroll(scroll)
             .padding(
                 top = padding.calculateTopPadding() + dimensions().spacing16x,

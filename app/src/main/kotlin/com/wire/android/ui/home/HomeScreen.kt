@@ -21,12 +21,13 @@ package com.wire.android.ui.home
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -56,7 +57,6 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
-import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.result.NavResult
@@ -66,8 +66,10 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.NavGraphs
+import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
@@ -89,7 +91,7 @@ import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
 import kotlinx.coroutines.launch
 
 @RootNavGraph
-@Destination
+@WireDestination
 @Composable
 fun HomeScreen(
     navigator: Navigator,
@@ -97,7 +99,8 @@ fun HomeScreen(
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
     homeViewModel: HomeViewModel = hiltViewModel(),
     appSyncViewModel: AppSyncViewModel = hiltViewModel(),
-    homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel()
+    homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
+    analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel()
 ) {
     homeViewModel.checkRequirements { it.navigate(navigator::navigate) }
     val homeScreenState = rememberHomeScreenState(navigator)
@@ -114,7 +117,7 @@ fun HomeScreen(
         rememberShowNotificationsPermissionFlow(
             onPermissionGranted = { /* do nothing */ },
             onPermissionDenied = showNotificationsPermissionDeniedDialog,
-            onPermissionPermanentlyDenied = showNotificationsPermissionDeniedDialog,
+            onPermissionPermanentlyDenied = { /* do nothing */ },
         )
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -143,6 +146,13 @@ fun HomeScreen(
     if (homeViewModel.homeState.shouldDisplayWelcomeMessage) {
         WelcomeNewUserDialog(
             dismissDialog = homeViewModel::dismissWelcomeMessage
+        )
+    }
+
+    if (analyticsUsageViewModel.state.shouldDisplayDialog) {
+        AnalyticsUsageDialog(
+            agreeOption = analyticsUsageViewModel::agreeAnalyticsUsage,
+            declineOption = analyticsUsageViewModel::declineAnalyticsUsage
         )
     }
 
@@ -267,20 +277,21 @@ fun HomeContent(
             content = {
                 CollapsingTopBarScaffold(
                     snapOnFling = false,
-                    keepElevationWhenCollapsed = true,
-                    topBarHeader = { elevation ->
-                        Column(modifier = Modifier.animateContentSize()) {
-                            AnimatedVisibility(visible = !searchBarState.isSearchActive) {
-                                HomeTopBar(
-                                    avatarAsset = homeState.avatarAsset,
-                                    status = homeState.status,
-                                    title = stringResource(currentNavigationItem.title),
-                                    elevation = elevation,
-                                    withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,
-                                    onHamburgerMenuClick = ::openDrawer,
-                                    onNavigateToSelfUserProfile = onSelfUserClick
-                                )
-                            }
+                    topBarHeader = {
+                        AnimatedVisibility(
+                            modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                            visible = !searchBarState.isSearchActive,
+                            enter = fadeIn() + expandVertically(),
+                            exit = shrinkVertically() + fadeOut(),
+                        ) {
+                            HomeTopBar(
+                                userAvatarData = homeState.userAvatarData,
+                                title = stringResource(currentNavigationItem.title),
+                                elevation = dimensions().spacing0x, // CollapsingTopBarScaffold manages applied elevation
+                                withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,
+                                onHamburgerMenuClick = ::openDrawer,
+                                onNavigateToSelfUserProfile = onSelfUserClick,
+                            )
                         }
                     },
                     topBarCollapsing = {
@@ -293,7 +304,8 @@ fun HomeContent(
                             )
                         }
                     },
-                    isSwipeable = !searchBarState.isSearchActive,
+                    collapsingEnabled = !searchBarState.isSearchActive,
+                    contentLazyListState = homeStateHolder.currentLazyListState,
                     content = {
                         /**
                          * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.

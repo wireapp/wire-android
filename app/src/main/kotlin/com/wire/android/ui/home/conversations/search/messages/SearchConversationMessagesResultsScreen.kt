@@ -18,30 +18,34 @@
 package com.wire.android.ui.home.conversations.search.messages
 
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.messages.item.SwipableMessageConfiguration
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun SearchConversationMessagesResultsScreen(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
-    searchQuery: String = "",
-    onMessageClick: (messageId: String) -> Unit
+    onMessageClick: (messageId: String) -> Unit,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
+    searchQuery: String = ""
 ) {
-    LazyColumn {
+    LazyColumn(state = lazyListState, modifier = modifier) {
         items(
             count = lazyPagingMessages.itemCount,
             key = lazyPagingMessages.itemKey { it.header.messageId },
@@ -54,25 +58,18 @@ fun SearchConversationMessagesResultsScreen(
                 is UIMessage.Regular -> {
                     MessageContainerItem(
                         message = message,
-                        conversationDetailsData = ConversationDetailsData.None,
+                        conversationDetailsData = ConversationDetailsData.None(null),
                         searchQuery = searchQuery,
-                        audioMessagesState = persistentMapOf(),
-                        onLongClicked = { },
-                        onAssetMessageClicked = { },
-                        onAudioClick = { },
-                        onChangeAudioPosition = { _, _ -> },
-                        onImageMessageClicked = { _, _ -> },
-                        onOpenProfile = { },
-                        onReactionClicked = { _, _ -> },
-                        onResetSessionClicked = { _, _ -> },
+                        audioState = null,
+                        clickActions = MessageClickActions.FullItem(
+                            onFullMessageLongClicked = null,
+                            onFullMessageClicked = onMessageClick,
+                        ),
                         onSelfDeletingMessageRead = { },
-                        isContentClickable = true,
-                        onMessageClick = onMessageClick,
-                        defaultBackgroundColor = colorsScheme().backgroundVariant,
                         shouldDisplayMessageStatus = false,
                         shouldDisplayFooter = false,
-                        onReplyClickable = null,
-                        swipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable
+                        swipableMessageConfiguration = SwipableMessageConfiguration.NotSwipable,
+                        failureInteractionAvailable = false,
                     )
                 }
 
@@ -84,7 +81,7 @@ fun SearchConversationMessagesResultsScreen(
 
 @PreviewMultipleThemes
 @Composable
-fun previewSearchConversationMessagesResultsScreen() {
+fun PreviewSearchConversationMessagesResultsScreen() {
     WireTheme {
         SearchConversationMessagesResultsScreen(
             lazyPagingMessages = flowOf(

@@ -32,6 +32,7 @@ import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase.Result.Success
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
+import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.Called
@@ -224,11 +225,15 @@ class MyAccountViewModelTest {
         @MockK
         lateinit var isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 
+        @MockK
+        lateinit var isSelfATeamMember: IsSelfATeamMemberUseCase
+
         private val viewModel by lazy {
             MyAccountViewModel(
                 savedStateHandle,
                 getSelfUserUseCase,
                 getSelfTeamUseCase,
+                isSelfATeamMember,
                 selfServerConfigUseCase,
                 isPasswordRequiredUseCase,
                 isReadOnlyAccountUseCase,
@@ -242,6 +247,7 @@ class MyAccountViewModelTest {
             coEvery { getSelfUserUseCase() } returns flowOf(TestUser.SELF_USER.copy(teamId = TeamId(TestTeam.TEAM.id)))
             coEvery { getSelfTeamUseCase() } returns Either.Right(TestTeam.TEAM)
             coEvery { selfServerConfigUseCase() } returns SelfServerConfigUseCase.Result.Success(newServerConfig(1))
+            coEvery { isSelfATeamMember() } returns true
         }
 
         fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = Success(true)) = apply {

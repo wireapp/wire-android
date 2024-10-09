@@ -30,8 +30,6 @@ import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.messagecomposer.location.GeoLocatedAddress
-import com.wire.android.ui.home.messagecomposer.location.LocationPickerComponent
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem
@@ -46,8 +44,10 @@ fun AdditionalOptionsMenu(
     conversationId: ConversationId,
     additionalOptionsState: AdditionalOptionMenuState,
     selectedOption: AdditionalOptionSelectItem,
+    attachmentsVisible: Boolean,
     isEditing: Boolean,
     isMentionActive: Boolean,
+    isFileSharingEnabled: Boolean,
     onAdditionalOptionsMenuClicked: () -> Unit,
     onMentionButtonClicked: (() -> Unit),
     onPingOptionClicked: () -> Unit,
@@ -65,6 +65,7 @@ fun AdditionalOptionsMenu(
                 AttachmentAndAdditionalOptionsMenuItems(
                     conversationId = conversationId,
                     selectedOption = selectedOption,
+                    attachmentsVisible = attachmentsVisible,
                     isEditing = isEditing,
                     isMentionActive = isMentionActive,
                     onMentionButtonClicked = onMentionButtonClicked,
@@ -73,7 +74,8 @@ fun AdditionalOptionsMenu(
                     onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked ?: {},
                     onRichEditingButtonClicked = onRichEditingButtonClicked,
                     onPingClicked = onPingOptionClicked,
-                    onDrawingModeClicked = onDrawingModeClicked
+                    onDrawingModeClicked = onDrawingModeClicked,
+                    isFileSharingEnabled = isFileSharingEnabled
                 )
             }
 
@@ -85,8 +87,6 @@ fun AdditionalOptionsMenu(
                     onCloseRichTextEditingButtonClicked = onCloseRichEditingButtonClicked
                 )
             }
-
-            AdditionalOptionMenuState.Hidden -> {}
         }
     }
 }
@@ -94,6 +94,7 @@ fun AdditionalOptionsMenu(
 @Composable
 fun AdditionalOptionSubMenu(
     isFileSharingEnabled: Boolean,
+    optionsVisible: Boolean,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     onLocationPickerClicked: () -> Unit,
     onCloseAdditionalAttachment: () -> Unit,
@@ -102,44 +103,30 @@ fun AdditionalOptionSubMenu(
     onImagesPicked: (List<Uri>) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
-    onLocationPicked: (GeoLocatedAddress) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier) {
-        AttachmentOptionsComponent(
-            onImagesPicked = onImagesPicked,
-            onAttachmentPicked = onAttachmentPicked,
-            tempWritableImageUri = tempWritableImageUri,
-            tempWritableVideoUri = tempWritableVideoUri,
-            isFileSharingEnabled = isFileSharingEnabled,
-            onRecordAudioMessageClicked = onRecordAudioMessageClicked,
-            onLocationPickerClicked = onLocationPickerClicked,
-            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
-        )
-        when (additionalOptionsState) {
-            AdditionalOptionSubMenuState.AttachFile -> {
-                /* DO NOTHING, ALREADY DISPLAYED AS PARENT */
-            }
+    AttachmentOptionsComponent(
+        modifier = modifier,
+        optionsVisible = optionsVisible,
+        onImagesPicked = onImagesPicked,
+        onAttachmentPicked = onAttachmentPicked,
+        tempWritableImageUri = tempWritableImageUri,
+        tempWritableVideoUri = tempWritableVideoUri,
+        isFileSharingEnabled = isFileSharingEnabled,
+        onRecordAudioMessageClicked = onRecordAudioMessageClicked,
+        onLocationPickerClicked = onLocationPickerClicked,
+        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+    )
+    when (additionalOptionsState) {
+        AdditionalOptionSubMenuState.Default -> {}
 
-            AdditionalOptionSubMenuState.RecordAudio -> {
-                RecordAudioComponent(
-                    onAudioRecorded = onAudioRecorded,
-                    onCloseRecordAudio = onCloseAdditionalAttachment
-                )
-            }
-
-            AdditionalOptionSubMenuState.Location -> {
-                LocationPickerComponent(
-                    onLocationPicked = onLocationPicked,
-                    onLocationClosed = onCloseAdditionalAttachment
-                )
-            }
-            // non functional for now
-            AdditionalOptionSubMenuState.AttachImage -> {}
-            AdditionalOptionSubMenuState.Emoji -> {}
-            AdditionalOptionSubMenuState.Gif -> {}
+        AdditionalOptionSubMenuState.RecordAudio -> {
+            RecordAudioComponent(
+                onAudioRecorded = onAudioRecorded,
+                onCloseRecordAudio = onCloseAdditionalAttachment
+            )
         }
     }
 }
@@ -149,7 +136,9 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     conversationId: ConversationId,
     isEditing: Boolean,
     selectedOption: AdditionalOptionSelectItem,
+    attachmentsVisible: Boolean,
     isMentionActive: Boolean,
+    isFileSharingEnabled: Boolean,
     onMentionButtonClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: (SelfDeletionTimer) -> Unit,
     modifier: Modifier = Modifier,
@@ -164,6 +153,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
         MessageComposeActions(
             conversationId = conversationId,
             isEditing = isEditing,
+            attachmentsVisible = attachmentsVisible,
             selectedOption = selectedOption,
             isMentionActive = isMentionActive,
             onMentionButtonClicked = onMentionButtonClicked,
@@ -172,7 +162,8 @@ fun AttachmentAndAdditionalOptionsMenuItems(
             onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
             onGifButtonClicked = onGifButtonClicked,
             onRichEditingButtonClicked = onRichEditingButtonClicked,
-            onDrawingModeClicked = onDrawingModeClicked
+            onDrawingModeClicked = onDrawingModeClicked,
+            isFileSharingEnabled = isFileSharingEnabled
         )
     }
 }

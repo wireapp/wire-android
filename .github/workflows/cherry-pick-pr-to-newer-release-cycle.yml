@@ -40,7 +40,7 @@ jobs:
                   fetch-depth: 0
 
             - name: Cherry pick to `develop`
-              uses: wireapp/action-auto-cherry-pick@v1.0.1
+              uses: wireapp/action-auto-cherry-pick@v1.0.2
               with:
                   target-branch: develop
                   submodules-target-branch: develop

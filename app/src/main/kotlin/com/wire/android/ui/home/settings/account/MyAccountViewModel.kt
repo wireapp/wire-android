@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
+import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.functional.getOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -51,6 +52,7 @@ class MyAccountViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getSelf: GetSelfUserUseCase,
     private val getSelfTeam: GetUpdatedSelfTeamUseCase,
+    private val isSelfATeamMember: IsSelfATeamMemberUseCase,
     private val serverConfig: SelfServerConfigUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
@@ -71,6 +73,8 @@ class MyAccountViewModel @Inject constructor(
     var isE2EIEnabled by Delegates.notNull<Boolean>()
 
     init {
+        initScreenState()
+
         runBlocking {
             hasSAMLCred = when (val result = isPasswordRequired()) {
                 is IsPasswordRequiredUseCase.Result.Failure -> false
@@ -88,14 +92,23 @@ class MyAccountViewModel @Inject constructor(
             isEditNameAllowed = managedByWire && !isE2EIEnabled,
             isEditHandleAllowed = managedByWire && !isE2EIEnabled
         )
-        viewModelScope.launch {
-            fetchSelfUser()
-        }
 
         viewModelScope.launch {
             if (!hasSAMLCred) {
                 loadChangePasswordUrl()
             }
+        }
+    }
+
+    private fun initScreenState() {
+        viewModelScope.launch {
+            initCanDeleteAccountValue()
+        }
+        viewModelScope.launch {
+            fetchSelfUser()
+        }
+        viewModelScope.launch {
+            fetchSelfUserTeam()
         }
     }
 
@@ -112,7 +125,6 @@ class MyAccountViewModel @Inject constructor(
 
     private suspend fun fetchSelfUser() {
         viewModelScope.launch {
-            val selfTeam = getSelfTeam().getOrNull()
             val self = getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
 
             self.collect { user ->
@@ -120,11 +132,23 @@ class MyAccountViewModel @Inject constructor(
                     fullName = user.name.orEmpty(),
                     userName = user.handle.orEmpty(),
                     email = user.email.orEmpty(),
-                    teamName = selfTeam?.name.orEmpty(),
                     domain = user.id.domain
                 )
             }
         }
+    }
+
+    private suspend fun initCanDeleteAccountValue() {
+        myAccountState = myAccountState.copy(
+            canDeleteAccount = !isSelfATeamMember(),
+        )
+    }
+
+    private suspend fun fetchSelfUserTeam() {
+        val selfTeam = getSelfTeam().getOrNull()
+        myAccountState = myAccountState.copy(
+            teamName = selfTeam?.name.orEmpty(),
+        )
     }
 
     companion object {

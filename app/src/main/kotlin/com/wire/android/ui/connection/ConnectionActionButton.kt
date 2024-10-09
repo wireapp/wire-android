@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
@@ -55,6 +56,8 @@ import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+
+const val CONNECTION_ACTION_BUTTONS_TEST_TAG = "connection_buttons"
 
 @Composable
 fun ConnectionActionButton(
@@ -98,6 +101,7 @@ fun ConnectionActionButton(
             loading = viewModel.actionableState().isPerformingAction,
             onClick = viewModel::onCancelConnectionRequest,
             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+            modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
         )
 
         ConnectionState.ACCEPTED -> WirePrimaryButton(
@@ -108,6 +112,7 @@ fun ConnectionActionButton(
                     unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
                 }
             },
+            modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
         )
 
         ConnectionState.IGNORED -> WirePrimaryButton(
@@ -121,7 +126,8 @@ fun ConnectionActionButton(
                     contentDescription = stringResource(R.string.content_description_right_arrow),
                     modifier = Modifier.padding(dimensions().spacing8x)
                 )
-            }
+            },
+            modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
         )
 
         ConnectionState.PENDING -> Column {
@@ -136,7 +142,8 @@ fun ConnectionActionButton(
                         contentDescription = stringResource(R.string.content_description_right_arrow),
                         modifier = Modifier.padding(dimensions().spacing8x)
                     )
-                }
+                },
+                modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
             )
             Spacer(modifier = Modifier.height(dimensions().spacing8x))
             WirePrimaryButton(
@@ -155,7 +162,8 @@ fun ConnectionActionButton(
                         contentDescription = stringResource(R.string.content_description_right_arrow),
                         modifier = Modifier.padding(dimensions().spacing8x)
                     )
-                }
+                },
+                modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
             )
         }
 
@@ -172,6 +180,7 @@ fun ConnectionActionButton(
                     )
                 },
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
             )
         }
 
@@ -188,7 +197,8 @@ fun ConnectionActionButton(
                     contentDescription = stringResource(R.string.content_description_right_arrow),
                     modifier = Modifier.padding(dimensions().spacing8x)
                 )
-            }
+            },
+            modifier = Modifier.testTag(CONNECTION_ACTION_BUTTONS_TEST_TAG),
         )
     }
 }

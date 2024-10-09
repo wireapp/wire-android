@@ -35,7 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationCommand
@@ -164,7 +163,7 @@ private fun AboutThisAppContent(
                 onIconPressed = Clickable(
                     enabled = true,
                     onClick = {
-                        aboutThisAppContentState.copyToClipboard(BuildConfig.VERSION_NAME)
+                        aboutThisAppContentState.copyToClipboard(state.appName)
                     }
                 )
             )

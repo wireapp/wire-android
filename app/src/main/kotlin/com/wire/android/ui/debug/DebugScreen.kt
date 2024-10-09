@@ -48,6 +48,7 @@ import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MigrationScreenDestination
+import com.wire.android.util.AppNameUtil
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
@@ -103,7 +104,7 @@ internal fun UserDebugContent(
                     onShareLogs = debugContentState::shareLogs,
                 )
                 DebugDataOptions(
-                    appVersion = BuildConfig.VERSION_NAME,
+                    appVersion = AppNameUtil.createAppName(),
                     buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
                     onCopyText = debugContentState::copyToClipboard,
                     onManualMigrationPressed = onManualMigrationPressed

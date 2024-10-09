@@ -82,8 +82,8 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableMap
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.debounce
@@ -113,6 +113,7 @@ interface ConversationListViewModel {
     fun muteConversation(conversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {}
     fun addConversationToFavourites() {}
     fun moveConversationToFolder() {}
+    fun searchQueryChanged(searchQuery: String) {}
 }
 
 class ConversationListViewModelPreview(
@@ -126,7 +127,6 @@ class ConversationListViewModelPreview(
 @HiltViewModel(assistedFactory = ConversationListViewModelImpl.Factory::class)
 class ConversationListViewModelImpl @AssistedInject constructor(
     @Assisted val conversationsSource: ConversationsSource,
-    @Assisted val searchQueryFlow: Flow<String>,
     private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
@@ -144,7 +144,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(conversationsSource: ConversationsSource, searchQueryFlow: Flow<String>): ConversationListViewModelImpl
+        fun create(conversationsSource: ConversationsSource): ConversationListViewModelImpl
     }
 
     private var _conversationListState by mutableStateOf(ConversationListState())
@@ -157,6 +157,8 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     override val requestInProgress: Boolean get() = _requestInProgress
 
     override val closeBottomSheet = MutableSharedFlow<Unit>()
+
+    private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
 
     init {
         viewModelScope.launch {
@@ -196,6 +198,12 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                 .collect {
                     _conversationListState = it
                 }
+        }
+    }
+
+    override fun searchQueryChanged(searchQuery: String) {
+        viewModelScope.launch {
+            searchQueryFlow.emit(searchQuery)
         }
     }
 

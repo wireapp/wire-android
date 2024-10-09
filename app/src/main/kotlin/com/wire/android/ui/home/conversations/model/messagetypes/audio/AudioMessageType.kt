@@ -205,14 +205,14 @@ private fun RowScope.SuccessfulAudioMessageSlider(
         thumb = {
             SliderDefaults.Thumb(
                 interactionSource = remember { MutableInteractionSource() },
-                thumbSize = DpSize(20.dp, 20.dp)
+                thumbSize = DpSize(dimensions().spacing20x, dimensions().spacing20x)
             )
         },
         track = { sliderState ->
             SliderDefaults.Track(
-                modifier = Modifier.height(4.dp),
+                modifier = Modifier.height(dimensions().spacing4x),
                 sliderState = sliderState,
-                thumbTrackGapSize = 0.dp,
+                thumbTrackGapSize = dimensions().spacing0x,
                 drawStopIndicator = {
                     // nop we do not want to draw stop indicator at all.
                 }

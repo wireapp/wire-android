@@ -32,6 +32,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
@@ -53,6 +55,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import kotlin.time.Duration.Companion.days
 
 @Composable
 fun GroupConversationOptions(
@@ -105,15 +109,27 @@ fun GroupConversationSettings(
             )
         }
         if (state.areAccessOptionsAvailable) {
-            item { FolderHeader(name = stringResource(R.string.folder_label_access)) }
+            item {
+                val contentDescription = stringResource(id = R.string.content_description_conversation_details_accesses_header)
+                FolderHeader(
+                    name = stringResource(R.string.folder_label_access),
+                    modifier = Modifier.semantics { this.contentDescription = contentDescription }
+                )
+            }
 
             item {
+                val isOnText = stringResource(
+                    if (state.isGuestAllowed) R.string.label_system_message_receipt_mode_on
+                    else R.string.label_system_message_receipt_mode_off
+                )
+                val contentDescription = stringResource(id = R.string.content_description_conversation_details_guests_option, isOnText)
                 GroupConversationOptionsItem(
                     title = stringResource(id = R.string.conversation_options_guests_label),
                     subtitle = stringResource(id = R.string.conversation_details_guest_description),
                     switchState = SwitchState.TextOnly(value = state.isGuestAllowed),
                     arrowType = if (state.isUpdatingGuestAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
                     clickable = Clickable(enabled = state.isUpdatingGuestAllowed, onClick = onGuestItemClicked, onLongClick = {}),
+                    contentDescription = contentDescription
                 )
             }
 
@@ -128,9 +144,18 @@ fun GroupConversationSettings(
                 )
             }
         }
-        item { FolderHeader(name = stringResource(id = R.string.folder_label_messaging)) }
+        item {
+            val contentDescription = stringResource(id = R.string.content_description_conversation_details_messages_header)
+            FolderHeader(
+                name = stringResource(id = R.string.folder_label_messaging),
+                modifier = Modifier.semantics { this.contentDescription = contentDescription }
+            )
+        }
+
         if (!state.selfDeletionTimer.isDisabled) {
             item {
+                val isOnText = stringResource(R.string.label_system_message_receipt_mode_on)
+                val contentDescription = stringResource(R.string.content_description_conversation_details_self_deleting_option, isOnText)
                 GroupConversationOptionsItem(
                     title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
                     subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_description),
@@ -150,6 +175,7 @@ fun GroupConversationSettings(
                         onClick = onSelfDeletingClicked,
                         onLongClick = {}
                     ),
+                    contentDescription = contentDescription
                 )
             }
         }
@@ -213,6 +239,7 @@ private fun GroupNameItem(
     canBeChanged: Boolean,
     onClick: () -> Unit = {},
 ) {
+    val contentDescription = stringResource(id = R.string.content_description_conversation_details_group_name, groupName)
     GroupConversationOptionsItem(
         label = stringResource(id = R.string.conversation_details_options_group_name),
         title = groupName,
@@ -220,7 +247,8 @@ private fun GroupNameItem(
             enabled = canBeChanged,
             onClick = onClick,
             onLongClick = { /* not handled */ }),
-        arrowType = if (!canBeChanged) ArrowType.NONE else ArrowType.CENTER_ALIGNED
+        arrowType = if (!canBeChanged) ArrowType.NONE else ArrowType.CENTER_ALIGNED,
+        contentDescription = contentDescription
     )
     HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
 }
@@ -249,7 +277,9 @@ private fun ServicesOption(
         isLoading = isLoading,
         onClick = onCheckedChange,
         title = R.string.conversation_options_services_label,
-        subTitle = if (isSwitchEnabledAndVisible) R.string.conversation_options_services_description else null
+        subTitle = if (isSwitchEnabledAndVisible) R.string.conversation_options_services_description else null,
+        contentDescriptionRes = R.string.content_description_conversation_details_services_option,
+        switcherContentDescriptionRes = R.string.content_description_switch_btn
     )
 }
 
@@ -267,7 +297,9 @@ private fun ReadReceiptOption(
         isLoading = isLoading,
         onClick = onCheckedChange,
         title = R.string.conversation_options_read_receipt_label,
-        subTitle = R.string.conversation_options_read_receipt_description
+        subTitle = R.string.conversation_options_read_receipt_description,
+        contentDescriptionRes = R.string.content_description_conversation_details_read_receipts_option,
+        switcherContentDescriptionRes = R.string.content_description_switch_btn
     )
 }
 
@@ -279,17 +311,31 @@ fun GroupOptionWithSwitch(
     isLoading: Boolean,
     onClick: (Boolean) -> Unit,
     @StringRes title: Int,
-    @StringRes subTitle: Int?
+    @StringRes subTitle: Int?,
+    @StringRes contentDescriptionRes: Int,
+    @StringRes switcherContentDescriptionRes: Int
 ) {
+    val isOnText = stringResource(
+        if (switchState) R.string.label_system_message_receipt_mode_on
+        else R.string.label_system_message_receipt_mode_off
+    )
+    val contentDescription = stringResource(id = contentDescriptionRes, isOnText)
+    val switcherContentDescription = stringResource(id = switcherContentDescriptionRes, isOnText)
     GroupConversationOptionsItem(
         title = stringResource(id = title),
         subtitle = subTitle?.let { stringResource(id = it) },
         switchState = when {
             !switchVisible -> SwitchState.TextOnly(value = switchState)
-            switchClickable && !isLoading -> SwitchState.Enabled(value = switchState, onCheckedChange = onClick)
+            switchClickable && !isLoading -> SwitchState.Enabled(
+                value = switchState,
+                onCheckedChange = onClick,
+                contentDescription = switcherContentDescription
+            )
+
             else -> SwitchState.Disabled(value = switchState)
         },
-        arrowType = ArrowType.NONE
+        arrowType = ArrowType.NONE,
+        contentDescription = contentDescription
     )
     HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
 }
@@ -420,6 +466,21 @@ fun PreviewNormalGroupConversationOptions() = WireTheme {
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = false
+        ),
+        {}, {}, {}, {}, {}
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewNormalGroupConversationOptionsWithSelfDelet() = WireTheme {
+    GroupConversationSettings(
+        GroupConversationOptionsState(
+            conversationId = ConversationId("someValue", "someDomain"),
+            groupName = "Normal Group Conversation",
+            areAccessOptionsAvailable = false,
+            selfDeletionTimer = SelfDeletionTimer.Enabled(3.days),
+            isUpdatingSelfDeletingAllowed = true
         ),
         {}, {}, {}, {}, {}
     )

@@ -37,6 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.ClickBlockParams
@@ -56,6 +58,7 @@ fun MenuBottomSheetItem(
     itemProvidedColor: Color = MaterialTheme.colorScheme.secondary,
     onItemClick: () -> Unit = {},
     enabled: Boolean = true,
+    contentDescription: String? = null
 ) {
     CompositionLocalProvider(LocalContentColor provides itemProvidedColor) {
         val clickable = remember(onItemClick, clickBlockParams) {
@@ -72,6 +75,7 @@ fun MenuBottomSheetItem(
                 .fillMaxWidth()
                 .clickable(clickable)
                 .padding(MaterialTheme.wireDimensions.conversationBottomSheetItemPadding)
+                .semantics { this.contentDescription = contentDescription ?: title }
         ) {
             if (icon != null) {
                 icon()

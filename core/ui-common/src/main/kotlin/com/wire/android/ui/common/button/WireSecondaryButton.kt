@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.common.button
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -69,6 +70,7 @@ fun WireSecondaryButton(
         vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    @StringRes contentDescriptionRes: Int? = null,
     modifier: Modifier = Modifier,
 ) = WireButton(
     onClick = onClick,
@@ -90,6 +92,7 @@ fun WireSecondaryButton(
     borderWidth = borderWidth,
     contentPadding = contentPadding,
     interactionSource = interactionSource,
+    contentDescriptionRes = contentDescriptionRes,
     modifier = modifier
 )
 

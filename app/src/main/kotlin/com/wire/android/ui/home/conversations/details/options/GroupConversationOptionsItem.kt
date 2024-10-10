@@ -34,6 +34,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,10 +66,12 @@ fun GroupConversationOptionsItem(
     switchState: SwitchState = SwitchState.None,
     titleStyle: TextStyle = MaterialTheme.wireTypography.body02,
     arrowType: ArrowType = ArrowType.CENTER_ALIGNED,
+    contentDescription: String? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+            .semantics { contentDescription?.let { this.contentDescription = contentDescription } }
             .padding(
                 top = MaterialTheme.wireDimensions.spacing12x,
                 bottom = MaterialTheme.wireDimensions.spacing12x,

@@ -35,6 +35,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +52,7 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.theme.wireColorScheme
@@ -74,7 +77,9 @@ fun EditSelfDeletingMessagesScreen(
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 onNavigationPressed = navigator::navigateBack,
-                title = stringResource(id = R.string.self_deleting_messages_title)
+                title = stringResource(id = R.string.self_deleting_messages_title),
+                titleContentDescription = stringResource(id = R.string.content_description_edit_self_delete_title),
+                navigationIconType = NavigationIconType.Back(R.string.content_description_edit_self_delete_back_btn)
             )
         }) { internalPadding ->
         with(editSelfDeletingMessagesViewModel) {
@@ -138,17 +143,23 @@ fun SelectableSelfDeletingItem(
     isSelected: Boolean,
     onSelfDeletionDurationSelected: (SelfDeletionDuration) -> Unit
 ) {
+    val text = duration.longLabel.asString()
+    val contentDestinationSuffix = stringResource(
+        id = if (isSelected) R.string.content_description_selected_suffix
+        else R.string.content_description_not_selected_suffix
+    )
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .selectableBackground(isSelected, onClick = { onSelfDeletionDurationSelected(duration) })
             .background(color = MaterialTheme.wireColorScheme.surface)
             .padding(all = MaterialTheme.wireDimensions.spacing16x)
+            .semantics { contentDescription = "$text$contentDestinationSuffix" }
     ) {
         RadioButton(selected = isSelected, onClick = null)
         HorizontalSpace.x8()
         Text(
-            text = duration.longLabel.asString(),
+            text = text,
             style = MaterialTheme.wireTypography.body01,
             color = MaterialTheme.wireColorScheme.onBackground
         )

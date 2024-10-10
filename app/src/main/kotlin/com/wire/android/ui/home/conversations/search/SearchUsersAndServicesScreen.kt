@@ -114,9 +114,9 @@ fun SearchUsersAndServicesScreen(
                         elevation = dimensions().spacing0x, // CollapsingTopBarScaffold already manages elevation
                         title = searchTitle,
                         navigationIconType = when (screenType) {
-                            SearchPeopleScreenType.CONVERSATION_DETAILS -> NavigationIconType.Close
-                            SearchPeopleScreenType.NEW_CONVERSATION -> NavigationIconType.Close
-                            SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> NavigationIconType.Back
+                            SearchPeopleScreenType.CONVERSATION_DETAILS -> NavigationIconType.Close()
+                            SearchPeopleScreenType.NEW_CONVERSATION -> NavigationIconType.Close()
+                            SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> NavigationIconType.Back()
                         },
                         onNavigationPressed = onClose
                     )
@@ -221,6 +221,7 @@ enum class SearchPeopleTabItem(@StringRes val titleResId: Int) : TabItem {
     PEOPLE(R.string.label_add_member_people),
     SERVICES(R.string.label_add_member_services);
     override val title: UIText = UIText.StringResource(titleResId)
+    override val contentDescription: UIText? = null // TODO set contentDescription if needed
 }
 
 enum class SearchPeopleScreenType {

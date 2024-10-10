@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.common.button
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -49,6 +50,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -88,7 +92,8 @@ fun WireButton(
         horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,
         vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    @StringRes contentDescriptionRes: Int? = null
 ) {
     val border = when {
         borderWidth > 0.dp -> BorderStroke(width = borderWidth, color = colors.outlineColor(state).value)
@@ -102,12 +107,16 @@ fun WireButton(
         disabledContentColor = colors.rippleColor(state).value,
     )
     val onClickWithSyncObserver = rememberClickBlockAction(clickBlockParams, onClick)
+    val contentDescription = contentDescriptionRes?.let { stringResource(id = it) } ?: text
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides min(minClickableSize.width, minClickableSize.height)) {
         Button(
             onClick = onClickWithSyncObserver,
             modifier = modifier
                 .let { if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth() }
                 .sizeIn(minHeight = minSize.height, minWidth = minSize.width)
+                .semantics {
+                    contentDescription?.let { this.contentDescription = it }
+                }
                 .layout { measurable, constraints ->
                     val placeable = measurable.measure(constraints)
 

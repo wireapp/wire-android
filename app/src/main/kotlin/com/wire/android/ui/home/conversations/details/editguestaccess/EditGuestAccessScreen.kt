@@ -37,6 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -51,6 +53,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreatePasswordProtectedGuestLinkScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
@@ -103,8 +106,10 @@ fun EditGuestAccessScreen(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
+                navigationIconType = NavigationIconType.Back(R.string.content_description_edit_guests_option_back_btn),
                 onNavigationPressed = navigator::navigateBack,
-                title = stringResource(id = R.string.conversation_options_guests_label)
+                title = stringResource(id = R.string.conversation_options_guests_label),
+                titleContentDescription = stringResource(id = R.string.content_description_edit_guests_option_title)
             )
         }
     ) { internalPadding ->
@@ -128,14 +133,17 @@ fun EditGuestAccessScreen(
                     }
                 }
                 item {
+                    val contentDescription = stringResource(id = R.string.content_description_edit_guests_option_link_header)
                     FolderHeader(
                         name = stringResource(id = R.string.folder_label_guest_link),
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(MaterialTheme.wireColorScheme.background)
+                            .semantics { this.contentDescription = contentDescription }
                     )
                 }
                 item {
+                    val contentDestination = stringResource(id = R.string.content_description_edit_guests_option_link_description)
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -146,6 +154,7 @@ fun EditGuestAccessScreen(
                                 bottom = dimensions().spacing8x,
                                 top = dimensions().spacing8x,
                             )
+                            .semantics { this.contentDescription = contentDestination }
                     ) {
                         with(editGuestAccessViewModel) {
                             Text(

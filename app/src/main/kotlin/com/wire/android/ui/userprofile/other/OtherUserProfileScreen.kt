@@ -193,7 +193,7 @@ fun OtherUserProfileScreen(
         },
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
         navigateBack = navigator::navigateBack,
-        navigationIconType = NavigationIconType.Close,
+        navigationIconType = NavigationIconType.Close(),
         onConversationMediaClick = onConversationMediaClick,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
     )
@@ -597,6 +597,7 @@ enum class OtherUserProfileTabItem(@StringRes val titleResId: Int) : TabItem {
     DEVICES(R.string.user_profile_devices_tab);
 
     override val title: UIText = UIText.StringResource(titleResId)
+    override val contentDescription: UIText? = null // TODO set contentDescription if needed
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -610,7 +611,7 @@ fun PreviewOtherProfileScreenGroupMemberContent() {
                 connectionState = ConnectionState.ACCEPTED,
                 isUnderLegalHold = true,
             ),
-            navigationIconType = NavigationIconType.Back,
+            navigationIconType = NavigationIconType.Back(),
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
             openBottomSheet = {},
@@ -634,7 +635,7 @@ fun PreviewOtherProfileScreenContent() {
                 isUnderLegalHold = true,
                 groupState = null
             ),
-            navigationIconType = NavigationIconType.Back,
+            navigationIconType = NavigationIconType.Back(),
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
             openBottomSheet = {},
@@ -657,7 +658,7 @@ fun PreviewOtherProfileScreenContentNotConnected() {
                 connectionState = ConnectionState.CANCELLED,
                 isUnderLegalHold = true,
             ),
-            navigationIconType = NavigationIconType.Back,
+            navigationIconType = NavigationIconType.Back(),
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
             openBottomSheet = {},
@@ -682,7 +683,7 @@ fun PreviewOtherProfileScreenTempUser() {
                 isUnderLegalHold = true,
                 expiresAt = Instant.DISTANT_FUTURE
             ),
-            navigationIconType = NavigationIconType.Back,
+            navigationIconType = NavigationIconType.Back(),
             requestInProgress = false,
             sheetState = rememberWireModalSheetState(),
             openBottomSheet = {},

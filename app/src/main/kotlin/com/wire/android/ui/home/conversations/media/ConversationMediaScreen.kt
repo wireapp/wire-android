@@ -193,7 +193,7 @@ private fun Content(
             WireCenterAlignedTopAppBar(
                 elevation = elevationState,
                 title = stringResource(id = R.string.label_conversation_media),
-                navigationIconType = NavigationIconType.Back,
+                navigationIconType = NavigationIconType.Back(),
                 onNavigationPressed = onNavigationPressed,
                 bottomContent = {
                     WireTabRow(
@@ -271,6 +271,7 @@ enum class ConversationMediaScreenTabItem(@StringRes val titleResId: Int) : TabI
     FILES(R.string.label_conversation_files);
 
     override val title: UIText = UIText.StringResource(titleResId)
+    override val contentDescription: UIText? = null // TODO set contentDescription if needed
 }
 
 data class AssetOptionsData(val messageId: String, val isMyMessage: Boolean)

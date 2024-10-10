@@ -50,6 +50,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun WirePrimaryButton(
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     loading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
     leadingIconAlignment: IconAlignment = IconAlignment.Center,
@@ -71,8 +72,7 @@ fun WirePrimaryButton(
         vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    @StringRes contentDescriptionRes: Int? = null,
-    modifier: Modifier = Modifier,
+    @StringRes contentDescriptionRes: Int? = null
 ) = WireButton(
     onClick = onClick,
     loading = loading,

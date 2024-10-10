@@ -81,7 +81,8 @@ fun EditSelfDeletingMessagesScreen(
                 titleContentDescription = stringResource(id = R.string.content_description_edit_self_delete_title),
                 navigationIconType = NavigationIconType.Back(R.string.content_description_edit_self_delete_back_btn)
             )
-        }) { internalPadding ->
+        }
+    ) { internalPadding ->
         with(editSelfDeletingMessagesViewModel) {
             Column(modifier = Modifier.padding(internalPadding)) {
                 SelfDeletingMessageOption(
@@ -144,10 +145,12 @@ fun SelectableSelfDeletingItem(
     onSelfDeletionDurationSelected: (SelfDeletionDuration) -> Unit
 ) {
     val text = duration.longLabel.asString()
-    val contentDestinationSuffix = stringResource(
-        id = if (isSelected) R.string.content_description_selected_suffix
-        else R.string.content_description_not_selected_suffix
-    )
+    val contentDescriptionId = if (isSelected) {
+        R.string.content_description_selected_suffix
+    } else {
+        R.string.content_description_not_selected_suffix
+    }
+    val contentDestinationSuffix = stringResource(id = contentDescriptionId)
     Row(
         modifier = Modifier
             .fillMaxWidth()

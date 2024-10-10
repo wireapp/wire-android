@@ -26,7 +26,6 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.util.extension.folderWithElements
-import com.wire.android.util.ui.UIText
 
 fun LazyListScope.participantsFoldersWithElements(
     context: Context,

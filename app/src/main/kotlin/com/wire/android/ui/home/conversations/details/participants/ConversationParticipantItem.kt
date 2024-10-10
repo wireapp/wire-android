@@ -167,15 +167,21 @@ private fun processUsername(uiParticipant: UIParticipant) = when {
 
 @Composable
 private fun participantContentDescription(uiParticipant: UIParticipant): String {
-    val resId = if (uiParticipant.isSelf) R.string.content_description_conversation_details_member_self
-    else R.string.content_description_conversation_details_member
+    val resId = if (uiParticipant.isSelf) {
+        R.string.content_description_conversation_details_member_self
+    } else {
+        R.string.content_description_conversation_details_member
+    }
 
-    val membership = if (uiParticipant.membership.stringResourceId != -1) stringResource(id = uiParticipant.membership.stringResourceId)
-    else null
-    val mlsVerification = if (uiParticipant.isMLSVerified) stringResource(id = R.string.content_description_mls_verified)
-    else null
-    val proteusVerification = if (uiParticipant.isProteusVerified) stringResource(id = R.string.content_description_proteus_verified)
-    else null
+    val membership = uiParticipant.membership.stringResourceId.let {
+        if (it != -1) stringResource(id = it) else null
+    }
+    val mlsVerification = uiParticipant.isMLSVerified.let {
+        if (it) stringResource(id = R.string.content_description_mls_verified) else null
+    }
+    val proteusVerification = uiParticipant.isProteusVerified.let {
+        if (it) stringResource(id = R.string.content_description_proteus_verified) else null
+    }
     val membershipAndVerificationText = listOfNotNull(membership, mlsVerification, proteusVerification).joinToString(", ")
 
     return stringResource(id = resId, uiParticipant.name, uiParticipant.handle, membershipAndVerificationText)

@@ -29,9 +29,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.wire.android.ui.home.conversationslist.common.CollapsingFolderHeader
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
-import com.wire.android.util.ui.UIText
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "CyclomaticComplexMethod")
 inline fun <T, K : Any> LazyListScope.folderWithElements(
     header: String? = null,
     items: Map<K, T>,

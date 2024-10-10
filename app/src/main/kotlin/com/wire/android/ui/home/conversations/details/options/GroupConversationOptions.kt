@@ -110,7 +110,8 @@ fun GroupConversationSettings(
         }
         if (state.areAccessOptionsAvailable) {
             item {
-                val contentDescription = stringResource(id = R.string.content_description_conversation_details_accesses_header)
+                val contentDescription =
+                    stringResource(id = R.string.content_description_conversation_details_accesses_header)
                 FolderHeader(
                     name = stringResource(R.string.folder_label_access),
                     modifier = Modifier.semantics { this.contentDescription = contentDescription }
@@ -119,8 +120,11 @@ fun GroupConversationSettings(
 
             item {
                 val isOnText = stringResource(
-                    if (state.isGuestAllowed) R.string.label_system_message_receipt_mode_on
-                    else R.string.label_system_message_receipt_mode_off
+                    if (state.isGuestAllowed) {
+                        R.string.label_system_message_receipt_mode_on
+                    } else {
+                        R.string.label_system_message_receipt_mode_off
+                    }
                 )
                 val contentDescription = stringResource(id = R.string.content_description_conversation_details_guests_option, isOnText)
                 GroupConversationOptionsItem(
@@ -145,7 +149,8 @@ fun GroupConversationSettings(
             }
         }
         item {
-            val contentDescription = stringResource(id = R.string.content_description_conversation_details_messages_header)
+            val contentDescription =
+                stringResource(id = R.string.content_description_conversation_details_messages_header)
             FolderHeader(
                 name = stringResource(id = R.string.folder_label_messaging),
                 modifier = Modifier.semantics { this.contentDescription = contentDescription }
@@ -155,7 +160,8 @@ fun GroupConversationSettings(
         if (!state.selfDeletionTimer.isDisabled) {
             item {
                 val isOnText = stringResource(R.string.label_system_message_receipt_mode_on)
-                val contentDescription = stringResource(R.string.content_description_conversation_details_self_deleting_option, isOnText)
+                val contentDescription =
+                    stringResource(R.string.content_description_conversation_details_self_deleting_option, isOnText)
                 GroupConversationOptionsItem(
                     title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
                     subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_description),
@@ -239,7 +245,8 @@ private fun GroupNameItem(
     canBeChanged: Boolean,
     onClick: () -> Unit = {},
 ) {
-    val contentDescription = stringResource(id = R.string.content_description_conversation_details_group_name, groupName)
+    val contentDescription =
+        stringResource(id = R.string.content_description_conversation_details_group_name, groupName)
     GroupConversationOptionsItem(
         label = stringResource(id = R.string.conversation_details_options_group_name),
         title = groupName,
@@ -316,8 +323,7 @@ fun GroupOptionWithSwitch(
     @StringRes switcherContentDescriptionRes: Int
 ) {
     val isOnText = stringResource(
-        if (switchState) R.string.label_system_message_receipt_mode_on
-        else R.string.label_system_message_receipt_mode_off
+        if (switchState) R.string.label_system_message_receipt_mode_on else R.string.label_system_message_receipt_mode_off
     )
     val contentDescription = stringResource(id = contentDescriptionRes, isOnText)
     val switcherContentDescription = stringResource(id = switcherContentDescriptionRes, isOnText)
@@ -373,7 +379,7 @@ fun DisableConformationDialog(@StringRes title: Int, @StringRes text: Int, onCon
 @Composable
 fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
     GroupConversationSettings(
-        GroupConversationOptionsState(
+        state = GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Team Group Conversation",
             areAccessOptionsAvailable = true,
@@ -387,11 +393,11 @@ fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
             isReadReceiptAllowed = true,
             mlsEnabled = true
         ),
-        {},
-        {},
-        {},
-        {},
-        {}
+        onGuestItemClicked = {},
+        onSelfDeletingClicked = {},
+        onServiceSwitchClicked = {},
+        onReadReceiptSwitchClicked = {},
+        onEditGroupName = {},
     )
 }
 
@@ -399,7 +405,7 @@ fun PreviewAdminTeamGroupConversationOptions() = WireTheme {
 @Composable
 fun PreviewGuestAdminTeamGroupConversationOptions() = WireTheme {
     GroupConversationSettings(
-        GroupConversationOptionsState(
+        state = GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Team Group Conversation",
             areAccessOptionsAvailable = true,
@@ -412,7 +418,11 @@ fun PreviewGuestAdminTeamGroupConversationOptions() = WireTheme {
             isServicesAllowed = true,
             isReadReceiptAllowed = true,
         ),
-        {}, {}, {}, {}, {}
+        onGuestItemClicked = {},
+        onSelfDeletingClicked = {},
+        onServiceSwitchClicked = {},
+        onReadReceiptSwitchClicked = {},
+        onEditGroupName = {},
     )
 }
 
@@ -420,7 +430,7 @@ fun PreviewGuestAdminTeamGroupConversationOptions() = WireTheme {
 @Composable
 fun PreviewExternalMemberAdminTeamGroupConversationOptions() = WireTheme {
     GroupConversationSettings(
-        GroupConversationOptionsState(
+        state = GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Team Group Conversation",
             areAccessOptionsAvailable = true,
@@ -433,7 +443,11 @@ fun PreviewExternalMemberAdminTeamGroupConversationOptions() = WireTheme {
             isServicesAllowed = true,
             isReadReceiptAllowed = true,
         ),
-        {}, {}, {}, {}, {}
+        onGuestItemClicked = {},
+        onSelfDeletingClicked = {},
+        onServiceSwitchClicked = {},
+        onReadReceiptSwitchClicked = {},
+        onEditGroupName = {},
     )
 }
 
@@ -441,7 +455,7 @@ fun PreviewExternalMemberAdminTeamGroupConversationOptions() = WireTheme {
 @Composable
 fun PreviewMemberTeamGroupConversationOptions() = WireTheme {
     GroupConversationSettings(
-        GroupConversationOptionsState(
+        state = GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = true,
@@ -454,7 +468,11 @@ fun PreviewMemberTeamGroupConversationOptions() = WireTheme {
             isServicesAllowed = true,
             isReadReceiptAllowed = true,
         ),
-        {}, {}, {}, {}, {}
+        onGuestItemClicked = {},
+        onSelfDeletingClicked = {},
+        onServiceSwitchClicked = {},
+        onReadReceiptSwitchClicked = {},
+        onEditGroupName = {},
     )
 }
 
@@ -462,12 +480,16 @@ fun PreviewMemberTeamGroupConversationOptions() = WireTheme {
 @Composable
 fun PreviewNormalGroupConversationOptions() = WireTheme {
     GroupConversationSettings(
-        GroupConversationOptionsState(
+        state = GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = false
         ),
-        {}, {}, {}, {}, {}
+        onGuestItemClicked = {},
+        onSelfDeletingClicked = {},
+        onServiceSwitchClicked = {},
+        onReadReceiptSwitchClicked = {},
+        onEditGroupName = {},
     )
 }
 
@@ -475,13 +497,17 @@ fun PreviewNormalGroupConversationOptions() = WireTheme {
 @Composable
 fun PreviewNormalGroupConversationOptionsWithSelfDelet() = WireTheme {
     GroupConversationSettings(
-        GroupConversationOptionsState(
+        state = GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = false,
             selfDeletionTimer = SelfDeletionTimer.Enabled(3.days),
             isUpdatingSelfDeletingAllowed = true
         ),
-        {}, {}, {}, {}, {}
+        onGuestItemClicked = {},
+        onSelfDeletingClicked = {},
+        onServiceSwitchClicked = {},
+        onReadReceiptSwitchClicked = {},
+        onEditGroupName = {},
     )
 }

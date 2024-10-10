@@ -133,7 +133,8 @@ fun EditGuestAccessScreen(
                     }
                 }
                 item {
-                    val contentDescription = stringResource(id = R.string.content_description_edit_guests_option_link_header)
+                    val contentDescription =
+                        stringResource(id = R.string.content_description_edit_guests_option_link_header)
                     FolderHeader(
                         name = stringResource(id = R.string.folder_label_guest_link),
                         modifier = Modifier
@@ -143,7 +144,8 @@ fun EditGuestAccessScreen(
                     )
                 }
                 item {
-                    val contentDestination = stringResource(id = R.string.content_description_edit_guests_option_link_description)
+                    val contentDestination =
+                        stringResource(id = R.string.content_description_edit_guests_option_link_description)
                     Column(
                         modifier = Modifier
                             .fillMaxSize()

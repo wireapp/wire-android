@@ -41,7 +41,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -474,7 +473,6 @@ private fun OtherAccountItem(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoggingOutDialog(isLoggingOut: Boolean) {
     if (isLoggingOut) {
@@ -496,6 +494,29 @@ fun PreviewSelfUserProfileScreen() {
                 fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
                 userName = "userName_long_long_long_long_long_long_long_long_long_long",
                 teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
+                otherAccounts = listOf(
+                    OtherAccount(id = UserId("id1", "domain"), fullName = "Other Name", teamName = "team A"),
+                    OtherAccount(id = UserId("id2", "domain"), fullName = "New Name")
+                ),
+                statusDialogData = null,
+                legalHoldStatus = LegalHoldUIState.Active,
+            ),
+            isUserInCall = { false }
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PersonalSelfUserProfileScreenPreview() {
+    WireTheme {
+        SelfUserProfileContent(
+            SelfUserProfileState(
+                userId = UserId("value", "domain"),
+                status = UserAvailabilityStatus.BUSY,
+                fullName = "Some User",
+                userName = "some-user",
+                teamName = null,
                 otherAccounts = listOf(
                     OtherAccount(id = UserId("id1", "domain"), fullName = "Other Name", teamName = "team A"),
                     OtherAccount(id = UserId("id2", "domain"), fullName = "New Name")

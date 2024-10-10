@@ -389,6 +389,17 @@ fun PreviewUserProfileAvatarWithLegalHold() {
         )
     }
 }
+@PreviewMultipleThemes
+@Composable
+fun PreviewUserProfileAvatarWithInfoUnreadIndicator() {
+    WireTheme {
+        UserProfileAvatar(
+            avatarData = UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE),
+            type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = false),
+            shouldShowCreateTeamUnreadIndicator = true
+        )
+    }
+}
 
 @PreviewMultipleThemes
 @Composable

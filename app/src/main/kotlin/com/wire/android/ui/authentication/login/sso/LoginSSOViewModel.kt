@@ -33,7 +33,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
-import com.wire.android.ui.common.dialogs.CustomServerDialogState
+import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -190,7 +190,7 @@ class LoginSSOViewModel @Inject constructor(
                     }
 
                     is DomainLookupUseCase.Result.Success -> {
-                        loginState = loginState.copy(customServerDialogState = CustomServerDialogState(it.serverLinks))
+                        loginState = loginState.copy(customServerDialogState = CustomServerDetailsDialogState(it.serverLinks))
                         updateSSOFlowState(LoginState.Default)
                     }
                 }

@@ -49,7 +49,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
-internal fun CustomServerDialog(
+internal fun CustomServerDetailsDialog(
     serverLinks: ServerConfig.Links,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
@@ -163,12 +163,14 @@ private fun CustomServerPropertyInfo(
     VerticalSpace.x16()
 }
 
-data class CustomServerDialogState(val serverLinks: ServerConfig.Links)
+sealed class CustomServerDialogState
+
+data class CustomServerDetailsDialogState(val serverLinks: ServerConfig.Links) : CustomServerDialogState()
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewCustomServerDialog() = WireTheme {
-    CustomServerDialog(
+    CustomServerDetailsDialog(
         serverLinks = ServerConfig.DEFAULT,
         onConfirm = { },
         onDismiss = { }

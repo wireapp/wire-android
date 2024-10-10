@@ -45,8 +45,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
@@ -71,6 +69,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.textfield.DefaultEmailDone
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -173,7 +172,7 @@ private fun EmailContent(
                 labelText = stringResource(R.string.create_account_email_label),
                 state = if (state.error is CreateAccountEmailViewState.EmailError.None) WireTextFieldState.Default
                 else WireTextFieldState.Error(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
+                keyboardOptions = KeyboardOptions.DefaultEmailDone,
                 onKeyboardAction = { keyboardController?.hide() },
                 modifier = Modifier
                     .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)

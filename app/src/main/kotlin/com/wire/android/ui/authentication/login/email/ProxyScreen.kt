@@ -33,11 +33,11 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.textfield.DefaultEmailNext
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
@@ -107,25 +107,22 @@ fun ProxyScreen(
 
 @Composable
 private fun ProxyIdentifierInput(
-    modifier: Modifier,
     proxyIdentifierState: TextFieldState,
     error: String?,
+    modifier: Modifier = Modifier,
 ) {
     WireTextField(
         textState = proxyIdentifierState,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
         labelText = stringResource(R.string.login_proxy_identifier_label),
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+        keyboardOptions = KeyboardOptions.DefaultEmailNext,
         modifier = modifier.testTag("emailField")
     )
 }
 
 @Composable
-private fun ProxyPasswordInput(
-    modifier: Modifier,
-    proxyPasswordState: TextFieldState
-) {
+private fun ProxyPasswordInput(proxyPasswordState: TextFieldState, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = proxyPasswordState,

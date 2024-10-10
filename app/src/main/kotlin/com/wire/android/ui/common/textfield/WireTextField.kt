@@ -91,8 +91,19 @@ internal fun WireTextField(
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
     onTap: ((Offset) -> Unit)? = null,
-    testTag: String = String.EMPTY
+    testTag: String = String.EMPTY,
+    validateKeyboardOptions: Boolean = true,
 ) {
+    if(validateKeyboardOptions){
+        assert(keyboardOptions.keyboardType != KeyboardType.Email || keyboardOptions == KeyboardOptions.DefaultEmailDone || keyboardOptions == KeyboardOptions.DefaultEmailNext) {
+            "For email text fields use KeyboardOptions.DefaultEmailDone or KeyboardOptions.DefaultEmailNext. If you want to use a custom KeyboardOptions, set validateKeyboardOptions to false."
+        }
+
+        assert(keyboardOptions.keyboardType != KeyboardType.Password) {
+            "Use WirePasswordTextField for passwords. If you want to use a custom KeyboardOptions, set validateKeyboardOptions to false."
+        }
+    }
+
     WireTextFieldLayout(
         shouldShowPlaceholder = textState.text.isEmpty(),
         placeholderText = placeholderText,
@@ -108,13 +119,21 @@ internal fun WireTextField(
         inputMinHeight = inputMinHeight,
         shape = shape,
         colors = colors,
-        modifier = modifier.then(autoFillModifier(autoFillType, textState::setTextAndPlaceCursorAtEnd)),
+        modifier = modifier.then(
+            autoFillModifier(
+                autoFillType,
+                textState::setTextAndPlaceCursorAtEnd
+            )
+        ),
         onTap = onTap,
         testTag = testTag,
         innerBasicTextField = { decorator, textFieldModifier ->
             BasicTextField(
                 state = textState,
-                textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
+                textStyle = textStyle.copy(
+                    color = colors.textColor(state = state).value,
+                    textDirection = TextDirection.ContentOrLtr
+                ),
                 keyboardOptions = keyboardOptions,
                 onKeyboardAction = onKeyboardAction,
                 lineLimits = lineLimits,
@@ -127,7 +146,11 @@ internal fun WireTextField(
                 interactionSource = interactionSource,
                 modifier = textFieldModifier,
                 decorator = decorator,
-                onTextLayout = onTextLayout(textState, onSelectedLineIndexChanged, onLineBottomYCoordinateChanged)
+                onTextLayout = onTextLayout(
+                    textState,
+                    onSelectedLineIndexChanged,
+                    onLineBottomYCoordinateChanged
+                )
             )
         }
     )
@@ -156,13 +179,22 @@ val KeyboardOptions.Companion.DefaultText: KeyboardOptions
     )
 
 @Stable
-val KeyboardOptions.Companion.DefaultEmail: KeyboardOptions
-    get() = Default.copy(
+val KeyboardOptions.Companion.DefaultEmailDone: KeyboardOptions
+    get() = defaultEmail(ImeAction.Done)
+
+@Stable
+val KeyboardOptions.Companion.DefaultEmailNext: KeyboardOptions
+    get()  = defaultEmail(ImeAction.Next)
+
+@Stable
+private fun KeyboardOptions.Companion.defaultEmail(imeAction: ImeAction): KeyboardOptions {
+    return Default.copy(
         keyboardType = KeyboardType.Email,
-        imeAction = ImeAction.Done,
+        imeAction = imeAction,
         autoCorrectEnabled = false,
         capitalization = KeyboardCapitalization.None,
     )
+}
 
 @PreviewMultipleThemes
 @Composable
@@ -191,8 +223,16 @@ fun PreviewWireTextFieldDenseSearch() = WireTheme {
     WireTextField(
         textState = rememberTextFieldState("text"),
         placeholderText = "Search",
-        leadingIcon = { IconButton(modifier = Modifier.height(40.dp), onClick = {}) { Icon(Icons.Filled.Search, "") } },
-        trailingIcon = { IconButton(modifier = Modifier.height(40.dp), onClick = {}) { Icon(Icons.Filled.Close, "") } },
+        leadingIcon = {
+            IconButton(
+                modifier = Modifier.height(40.dp),
+                onClick = {}) { Icon(Icons.Filled.Search, "") }
+        },
+        trailingIcon = {
+            IconButton(
+                modifier = Modifier.height(40.dp),
+                onClick = {}) { Icon(Icons.Filled.Close, "") }
+        },
         inputMinHeight = 40.dp,
         modifier = Modifier.padding(16.dp)
     )

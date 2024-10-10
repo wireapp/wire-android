@@ -389,6 +389,7 @@ fun PreviewUserProfileAvatarWithLegalHold() {
         )
     }
 }
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewUserProfileAvatarWithInfoUnreadIndicator() {

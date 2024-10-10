@@ -4,7 +4,7 @@ androidJunit5 = "1.10.0.0"
 gradle = "8.8"
 
 # Kotlin
-grgitCore = "5.2.2"
+grgitCore = "5.3.0"
 kotlin = "1.9.23"
 
 # KotlinX

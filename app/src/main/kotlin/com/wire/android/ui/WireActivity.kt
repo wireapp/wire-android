@@ -210,13 +210,7 @@ class WireActivity : AppCompatActivity() {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
 
-            LaunchedEffect(viewModel.globalAppState.themeOption) {
-                when (viewModel.globalAppState.themeOption) {
-                    ThemeOption.SYSTEM -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                    ThemeOption.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    ThemeOption.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                }
-            }
+            HandleThemeChanges(viewModel.globalAppState.themeOption)
 
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
@@ -229,19 +223,30 @@ class WireActivity : AppCompatActivity() {
                     Column(modifier = Modifier.statusBarsPadding()) {
                         val navigator = rememberNavigator(this@WireActivity::finish)
                         CommonTopAppBar(
+                            themeOption = viewModel.globalAppState.themeOption,
                             commonTopAppBarState = commonTopAppBarViewModel.state,
                             onReturnToCallClick = { establishedCall ->
-                                getOngoingCallIntent(this@WireActivity, establishedCall.conversationId.toString()).run {
+                                getOngoingCallIntent(
+                                    this@WireActivity,
+                                    establishedCall.conversationId.toString()
+                                ).run {
                                     startActivity(this)
                                 }
                             },
                             onReturnToIncomingCallClick = {
-                                getIncomingCallIntent(this@WireActivity, it.conversationId.toString(), null).run {
+                                getIncomingCallIntent(
+                                    this@WireActivity,
+                                    it.conversationId.toString(),
+                                    null
+                                ).run {
                                     startActivity(this)
                                 }
                             },
                             onReturnToOutgoingCallClick = {
-                                getOutgoingCallIntent(this@WireActivity, it.conversationId.toString()).run {
+                                getOutgoingCallIntent(
+                                    this@WireActivity,
+                                    it.conversationId.toString()
+                                ).run {
                                     startActivity(this)
                                 }
                             }
@@ -260,6 +265,21 @@ class WireActivity : AppCompatActivity() {
                         HandleDialogs(navigator::navigate)
                     }
                 }
+            }
+        }
+    }
+
+    @Composable
+    private fun HandleThemeChanges(themeOption: ThemeOption) {
+        LaunchedEffect(themeOption) {
+            val themeNightMode = when (themeOption) {
+                ThemeOption.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                ThemeOption.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+                ThemeOption.DARK -> AppCompatDelegate.MODE_NIGHT_YES
+            }
+            val currentNightMode = AppCompatDelegate.getDefaultNightMode()
+            if (themeNightMode != currentNightMode) {
+                AppCompatDelegate.setDefaultNightMode(themeNightMode)
             }
         }
     }
@@ -291,14 +311,17 @@ class WireActivity : AppCompatActivity() {
         }
 
         DisposableEffect(navigator.navController) {
-            val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, _, _ ->
-                currentKeyboardController?.hide()
-            }
+            val updateScreenSettingsListener =
+                NavController.OnDestinationChangedListener { _, _, _ ->
+                    currentKeyboardController?.hide()
+                }
             navigator.navController.addOnDestinationChangedListener(updateScreenSettingsListener)
             navigator.navController.addOnDestinationChangedListener(currentScreenManager)
 
             onDispose {
-                navigator.navController.removeOnDestinationChangedListener(updateScreenSettingsListener)
+                navigator.navController.removeOnDestinationChangedListener(
+                    updateScreenSettingsListener
+                )
                 navigator.navController.removeOnDestinationChangedListener(currentScreenManager)
             }
         }
@@ -320,7 +343,9 @@ class WireActivity : AppCompatActivity() {
     private fun HandleDialogs(navigate: (NavigationCommand) -> Unit) {
         val context = LocalContext.current
         val callFeedbackSheetState =
-            rememberWireModalSheetState<Unit>(onDismissAction = { featureFlagNotificationViewModel.skipCallFeedback(false) })
+            rememberWireModalSheetState<Unit>(onDismissAction = {
+                featureFlagNotificationViewModel.skipCallFeedback(false)
+            })
         with(featureFlagNotificationViewModel.featureFlagState) {
             if (shouldShowTeamAppLockDialog) {
                 TeamAppLockFeatureFlagDialog(
@@ -400,7 +425,13 @@ class WireActivity : AppCompatActivity() {
 
                 if (shouldShowE2eiCertificateRevokedDialog) {
                     E2EICertificateRevokedDialog(
-                        onLogout = { logoutOptionsDialogState.show(LogoutOptionsDialogState(shouldWipeData = true)) },
+                        onLogout = {
+                            logoutOptionsDialogState.show(
+                                LogoutOptionsDialogState(
+                                    shouldWipeData = true
+                                )
+                            )
+                        },
                         onContinue = featureFlagNotificationViewModel::dismissE2EICertificateRevokedDialog,
                     )
                 }
@@ -495,7 +526,9 @@ class WireActivity : AppCompatActivity() {
 
             if (startGettingE2EICertificate) {
                 GetE2EICertificateUI(
-                    enrollmentResultHandler = { featureFlagNotificationViewModel.handleE2EIEnrollmentResult(it) },
+                    enrollmentResultHandler = {
+                        featureFlagNotificationViewModel.handleE2EIEnrollmentResult(it)
+                    },
                     isNewClient = false
                 )
             }
@@ -572,14 +605,25 @@ class WireActivity : AppCompatActivity() {
         ) {
             return
         } else {
-            val navigate: (NavigationCommand) -> Unit = { lifecycleScope.launch { navigationCommands.emit(it) } }
+            val navigate: (NavigationCommand) -> Unit =
+                { lifecycleScope.launch { navigationCommands.emit(it) } }
             viewModel.handleDeepLink(
                 intent = intent,
                 onOpenConversation = {
                     if (it.switchedAccount) {
-                        navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                        navigate(
+                            NavigationCommand(
+                                HomeScreenDestination,
+                                BackStackMode.CLEAR_WHOLE
+                            )
+                        )
                     }
-                    navigate(NavigationCommand(ConversationScreenDestination(it.conversationId), BackStackMode.UPDATE_EXISTED))
+                    navigate(
+                        NavigationCommand(
+                            ConversationScreenDestination(it.conversationId),
+                            BackStackMode.UPDATE_EXISTED
+                        )
+                    )
                 },
                 onIsSharingIntent = {
                     navigate(
@@ -608,16 +652,36 @@ class WireActivity : AppCompatActivity() {
                     }
                 },
                 onMigrationLogin = {
-                    navigate(NavigationCommand(LoginScreenDestination(it.userHandle), BackStackMode.UPDATE_EXISTED))
+                    navigate(
+                        NavigationCommand(
+                            LoginScreenDestination(it.userHandle),
+                            BackStackMode.UPDATE_EXISTED
+                        )
+                    )
                 },
                 onOpenOtherUserProfile = {
                     if (it.switchedAccount) {
-                        navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+                        navigate(
+                            NavigationCommand(
+                                HomeScreenDestination,
+                                BackStackMode.CLEAR_WHOLE
+                            )
+                        )
                     }
-                    navigate(NavigationCommand(OtherUserProfileScreenDestination(it.userId), BackStackMode.UPDATE_EXISTED))
+                    navigate(
+                        NavigationCommand(
+                            OtherUserProfileScreenDestination(it.userId),
+                            BackStackMode.UPDATE_EXISTED
+                        )
+                    )
                 },
                 onSSOLogin = {
-                    navigate(NavigationCommand(LoginScreenDestination(ssoLoginResult = it), BackStackMode.UPDATE_EXISTED))
+                    navigate(
+                        NavigationCommand(
+                            LoginScreenDestination(ssoLoginResult = it),
+                            BackStackMode.UPDATE_EXISTED
+                        )
+                    )
                 }
             )
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)

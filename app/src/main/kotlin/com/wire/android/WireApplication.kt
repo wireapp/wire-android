@@ -36,6 +36,7 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
 import com.wire.android.feature.analytics.globalAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsSettings
+import com.wire.android.util.AppNameUtil
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
@@ -240,7 +241,7 @@ class WireApplication : BaseApp() {
         appLogger.d(
             """
             > Device info: 
-                App version=${BuildConfig.VERSION_NAME} 
+                App version=${AppNameUtil.createAppName()} 
                 OS version=${Build.VERSION.SDK_INT}
                 Phone model=${Build.BRAND}/${Build.MODEL}
                 Commit hash=${applicationContext.getGitBuildId()}

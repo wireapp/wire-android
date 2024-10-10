@@ -21,8 +21,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.work.WorkManager
-import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.util.AppNameUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.enqueueMigrationWorker
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,7 +46,7 @@ class UpdateReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent?) {
-        appLogger.i("App updated to ${BuildConfig.VERSION_NAME}")
+        appLogger.i("App updated to ${AppNameUtil.createAppName()}")
         scope.launch {
             if (migrationManager.shouldMigrate()) {
                 appLogger.i("Migration worker enqueued")

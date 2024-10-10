@@ -18,5 +18,6 @@
 package com.wire.android.ui.settings.about
 
 data class AboutThisAppState(
-    val commitish: String = "null"
+    val commitish: String = "null",
+    val appName: String
 )

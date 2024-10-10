@@ -19,7 +19,6 @@
 package com.wire.android.util
 
 import android.os.Build
-import com.wire.android.BuildConfig
 import java.util.Date
 
 sealed interface EmailComposer {
@@ -52,7 +51,7 @@ sealed interface EmailComposer {
 
         private fun emailDebugHeader(deviceHash: String?, commitHash: String? = "unavailable"): String = """
         --- DO NOT EDIT---
-        App Version: ${BuildConfig.VERSION_NAME}
+        App Version: ${AppNameUtil.createAppName()}
         Device Hash: $deviceHash
         Device: ${Build.MANUFACTURER} - ${Build.MODEL}
         SDK: ${Build.VERSION.RELEASE}

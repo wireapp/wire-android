@@ -126,7 +126,8 @@ fun GroupConversationSettings(
                         R.string.label_system_message_receipt_mode_off
                     }
                 )
-                val contentDescription = stringResource(id = R.string.content_description_conversation_details_guests_option, isOnText)
+                val contentDescription =
+                    stringResource(id = R.string.content_description_conversation_details_guests_option, isOnText)
                 GroupConversationOptionsItem(
                     title = stringResource(id = R.string.conversation_options_guests_label),
                     subtitle = stringResource(id = R.string.conversation_details_guest_description),

@@ -24,21 +24,28 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.groupname.GroupMetadataState
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import io.mockk.coVerify
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.fail
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -212,5 +219,75 @@ class NewConversationViewModelTest {
         viewModel.newGroupNameTextState.clearText()
         advanceUntilIdle()
         assertEquals(GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError, viewModel.newGroupState.error)
+    }
+
+    @Test
+    fun `given conversation is created, when guest are selected and guests are disabled, then set the correct state`() = runTest {
+
+        val usersSelected = persistentSetOf(
+            Contact(
+                "id",
+                "domain",
+                "name",
+                "handle",
+                UserAvatarData(),
+                label = "label",
+                connectionState = ConnectionState.ACCEPTED,
+                membership = Membership.Guest
+            )
+        )
+
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .arrange()
+
+        viewModel.newGroupState = viewModel.newGroupState.copy(
+            selectedUsers = usersSelected
+        )
+
+        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowGuestEnabled = false)
+
+        viewModel.createGroup { _ -> fail("group should not be created") }
+
+        assertTrue(viewModel.groupOptionsState.showAllowGuestsDialog)
+
+        coVerify(exactly = 0) {
+            arrangement.createGroupConversation(any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `given conversation is created, when federated users are selected and guests are disabled, then set the correct state`() = runTest {
+
+        val usersSelected = persistentSetOf(
+            Contact(
+                "id",
+                "domain",
+                "name",
+                "handle",
+                UserAvatarData(),
+                label = "label",
+                connectionState = ConnectionState.ACCEPTED,
+                membership = Membership.Federated
+            )
+        )
+
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .arrange()
+
+        viewModel.newGroupState = viewModel.newGroupState.copy(
+            selectedUsers = usersSelected
+        )
+
+        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowGuestEnabled = false)
+
+        viewModel.createGroup { _ -> fail("group should not be created") }
+
+        assertTrue(viewModel.groupOptionsState.showAllowGuestsDialog)
+
+        coVerify(exactly = 0) {
+            arrangement.createGroupConversation(any(), any(), any())
+        }
     }
 }

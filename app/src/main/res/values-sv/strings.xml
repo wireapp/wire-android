@@ -621,4 +621,5 @@
     <!-- Call Feedback Dialog -->
     <string name="call_feedback_dialog_skip">Hoppa över</string>
     <string name="call_feedback_dialog_do_not_ask">Fråga inte igen</string>
+    <!-- Debug Settings -->
 </resources>

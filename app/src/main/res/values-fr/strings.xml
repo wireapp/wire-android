@@ -45,6 +45,7 @@
     <string name="label_message_edit_sent_remotely_failure">Le message n\'a pas pu être envoyé, car le serveur de %s n\'est pas joignable.</string>
     <string name="label_message_receive_failure">Erreur lors du téléchargement</string>
     <string name="label_message_decryption_failure_message">Le message n\'a pas pu être déchiffré.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">Le message n\'a pas pu être déchiffré (Erreur %s).</string>
     <string name="label_message_decryption_failure_informative_message">Essayez de réinitialiser la session pour générer de nouvelles clés de chiffrement.</string>
     <string name="label_system_message_self_user_knock">%s pinged</string>
     <string name="label_system_message_other_user_knock">%s pinged</string>
@@ -184,7 +185,6 @@
     <string name="settings_privacy_policy_label">Politique de confidentialité</string>
     <string name="settings_terms_of_use_label">Mentions légales</string>
     <string name="label_copyright">Droits d\'auteur</string>
-    <string name="debug_settings_screen_title">Paramètres de débogage</string>
     <string name="item_dependencies_title">Dépendances:</string>
     <string name="support_screen_title">Assistance</string>
     <string name="backup_and_restore_screen_title">Sauvegarder &amp; Restaurer les conversations</string>
@@ -193,11 +193,11 @@
     <!--Whats New -->
     <string name="whats_new_screen_title">Quoi de neuf</string>
     <string name="whats_new_release_notes_group_title">Notes de Version</string>
-    <string name="whats_new_android_release_notes_label">Toutes les notes de la version Android</string>
+    <string name="whats_new_android_release_notes_label">Toutes les notes de version d\'Android</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Sauvegardes</string>
     <string name="settings_other_group_title">Autre</string>
-    <string name="settings_backup_info">Créez une sauvegarde pour enregistrer votre historique de conversations. Vous pourrez utiliser celle-ci si vous perdez votre appareil ou si vous basculez vers un nouvel appareil.
+    <string name="settings_backup_info">Créez une sauvegarde pour enregistrer votre historique de conversations. Vous pourrez utiliser celle-ci si vous perdez votre appareil ou si vous en utilisez un nouveau.
  \n\nChoisissez un mot de passe fort pour protéger votre fichier de sauvegarde.</string>
     <string name="settings_backup_last_backup_title">Dernière sauvegarde</string>
     <string name="settings_backup_last_backup_date">La dernière sauvegarde de cet appareil a été créée sur %1$s à %2$s.</string>
@@ -213,7 +213,7 @@
     <string name="welcome_screen_carousel_item_message_4">Partage sécurisé de fichiers avec les équipes et les clients\u00A0</string>
     <string name="welcome_screen_carousel_item_message_5">Wire est audité indépendamment et conforme ISO, CCPA, GDPR, SOX </string>
     <string name="welcome_button_create_team">Créer une équipe</string>
-    <string name="server_details_dialog_title">Serveurs sur site</string>
+    <string name="server_details_dialog_title">Serveur dédié</string>
     <string name="welcome_migration_dialog_title">Bienvenue sur notre nouvelle application Android 👋</string>
     <string name="welcome_migration_dialog_continue">Commencez à utiliser Wire</string>
     <!-- API Versioning Dialogs -->
@@ -232,7 +232,7 @@
     <string name="migration_title_updated">Configuration de Wire</string>
     <string name="migration_login_required">Afin de migrer vos messages de l\'ancienne version de Wire, vous devez vous connecter à votre compte.</string>
     <string name="migration_login_required_specific_account">Afin de migrer vos messages de l\'ancienne version de Wire, vous devez vous connecter à votre compte.</string>
-    <string name="migration_login_required_specific_account_name">«%1$s (@%2$s)»</string>
+    <string name="migration_login_required_specific_account_name">«%1$s (@%2$s) »</string>
     <string name="migration_messages_failure">Malheureusement, tous les messages et conversations n\'ont pas pu être migrés en raison d\'une incompatibilité avec l\'ancienne version de Wire (code d\'erreur : %s)</string>
     <string name="migration_cancel_title">Annuler la migration</string>
     <string name="migration_cancel_message">Êtes-vous sûr de vouloir fermer l\'application et annuler la migration en cours ?</string>
@@ -398,14 +398,14 @@
     <string name="member_name_deleted_label">Compte supprimé</string>
     <string name="member_name_you_label_titlecase">Vous</string>
     <string name="member_name_you_label_lowercase">vous</string>
-    <string name="label_add_participants">Ajouter des Participants</string>
+    <string name="label_add_participants">Ajouter des participants</string>
     <string name="username_unavailable_label">Le nom n’est pas disponible</string>
     <string name="group_unavailable_label">Nom de groupe non disponible</string>
     <string name="conversation_details_title">Détails de la conversation</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
     <string name="conversation_details_options_group_name">NOM DU GROUPE</string>
-    <string name="conversation_details_group_admins">ADMINISTRATEURS DU GROUPE (%d)</string>
+    <string name="conversation_details_group_admins">ADMINISTRATEUR DU GROUPE (%d)</string>
     <string name="conversation_details_group_members">MEMBRES DU GROUPE (%d)</string>
     <string name="conversation_details_participants_info">Ce groupe a %s participants. \nJusqu\'à 500 personnes peuvent rejoindre un groupe de conversations.</string>
     <string name="conversation_details_participants_count">%s participants</string>
@@ -415,7 +415,7 @@
     <string name="conversation_participant_you_label">(Vous)</string>
     <string name="conversation_details_is_classified">NIVEAU DE SÉCURITÉ : VS-NfD</string>
     <string name="conversation_details_is_not_classified">NIVEAU DE SÉCURITÉ : INCLASSIFIÉ</string>
-    <string name="conversation_options_self_deleting_messages_label">Messages auto-supprimés</string>
+    <string name="conversation_options_self_deleting_messages_label">Messages éphémères</string>
     <string name="conversation_options_self_deleting_messages_description">Lorsque cette option est activée, tous les messages de ce groupe disparaîtront après un certain temps.</string>
     <string name="conversation_options_guests_label">Invités</string>
     <string name="conversation_details_guest_description">Lorsque cela est activé, des personnes extérieures à votre équipe peuvent rejoindre cette conversation</string>
@@ -475,9 +475,9 @@
     <string name="user_profile_status_available">Disponible</string>
     <string name="user_profile_status_busy">Occupé(e)</string>
     <string name="user_profile_status_away">Absent(e)</string>
-    <string name="user_profile_status_none">Aucun</string>
+    <string name="user_profile_status_none">Aucune</string>
     <string name="user_profile_new_account_text">Nouvelle équipe ou nouveau compte</string>
-    <string name="user_profile_details_tab">Détails</string>
+    <string name="user_profile_details_tab">Informations</string>
     <string name="user_profile_devices_tab">Appareils</string>
     <string name="user_profile_group_tab">Groupe</string>
     <string name="user_profile_group_member">Membre du groupe «%s»</string>
@@ -486,11 +486,11 @@
     <string name="user_profile_role_change_error">Il y a eu une erreur en essayant de modifier le rôle. Veuillez vérifier votre connexion internet et réessayer</string>
     <string name="user_profile_unblock_user">Débloquer l\'utilisateur</string>
     <string name="user_profile_group_remove_button">Supprimer du groupe</string>
-    <string name="user_profile_logging_out_progress">Deconnexion...</string>
+    <string name="user_profile_logging_out_progress">Déconnexion...</string>
     <!-- Remove Conversation Member Dialog -->
-    <string name="dialog_remove_conversation_member_title">Supprimer du groupe?</string>
+    <string name="dialog_remove_conversation_member_title">Supprimer du groupe ?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) ne pourra ni envoyer ni recevoir de message dans cette conversation.</string>
-    <string name="dialog_remove_conversation_member_error">Une erreur s\'est produite lors de la suppression de cet utilisateur du groupe</string>
+    <string name="dialog_remove_conversation_member_error">Une erreur s\'est produite lors de la suppression du participant du groupe</string>
     <string name="group_role_admin">Administrateur</string>
     <string name="group_role_member">Membre</string>
     <!-- Logout Wipe Data Dialog -->
@@ -498,18 +498,18 @@
     <string name="dialog_logout_wipe_data_checkbox">Supprime toutes vos informations personnelles et conversations de cet appareil</string>
     <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">Changer votre status à disponible</string>
-    <string name="user_profile_change_status_dialog_available_text">Vos contacts vous verront comme Disponible. Vous recevrez des notifications pour les appels entrants et pour les messages selon les paramètres Notifications dans chaque conversation.</string>
+    <string name="user_profile_change_status_dialog_available_text">Vos contacts vous verront comme Disponible. Vous recevrez des notifications pour les appels entrants et pour les messages selon les paramètres des notifications dans chaque conversation.</string>
     <string name="user_profile_change_status_dialog_busy_title">Changer votre status à occupé</string>
-    <string name="user_profile_change_status_dialog_busy_text">Vos contacts vous verront comme Occupé. Vous recevrez uniquement des notifications pour les mentions, les réponses et les appels dans les conversations qui ne sont pas mises en sourdine.</string>
+    <string name="user_profile_change_status_dialog_busy_text">Vos correspondants vous verront comme Occupé. Vous recevrez uniquement des notifications pour les mentions, les réponses et les appels dans les conversations qui ne sont pas mises en sourdine.</string>
     <string name="user_profile_change_status_dialog_away_title">Changer votre status à absent</string>
-    <string name="user_profile_change_status_dialog_away_text">Vos contacts vous verront comme Absent. Vous ne recevrez de notification pour aucun appel ou message entrants.</string>
+    <string name="user_profile_change_status_dialog_away_text">Vos correspondants vous verront comme Absent. Vous ne recevrez de notification pour aucun appel ou message entrants.</string>
     <string name="user_profile_change_status_dialog_none_title">Aucun statut définit</string>
     <string name="user_profile_change_status_dialog_none_text">Vous recevrez des notifications pour les appels entrants et pour les messages selon les paramètres de notification dans chaque conversation.</string>
     <string name="user_profile_change_status_dialog_checkbox_text">Ne Plus Afficher ce Message</string>
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Notifications</string>
     <string name="label_add_to_favourites">Ajouter aux favoris</string>
-    <string name="label_move_to_folder">Déplacer vers Dossier</string>
+    <string name="label_move_to_folder">Déplacer vers le dossier</string>
     <string name="label_move_to_archive">Déplacer vers les archives</string>
     <string name="label_unarchive">Restaurer</string>
     <string name="label_clear_content">Effacer le contenu…</string>
@@ -518,10 +518,10 @@
     <string name="label_leave_group">Quitter le groupe</string>
     <string name="label_delete_group">Supprimer le groupe</string>
     <!-- Muting options BottomSheet -->
-    <string name="muting_option_all_allowed_title">Tout</string>
-    <string name="muting_option_all_allowed_text">Recevoir des notifications pour cette conversation sur tout (appels audio et vidéo)</string>
+    <string name="muting_option_all_allowed_title">Toutes</string>
+    <string name="muting_option_all_allowed_text">Recevoir des notifications pour cette conversation sur tout (inclus les appels audio et vidéo)</string>
     <string name="muting_option_only_mentions_title">Appels, mentions et réponses</string>
-    <string name="muting_option_only_mentions_text">Recevoir des notifications pour cette conversation uniquement lorsque quelqu\'un appelle, vous mentionne ou vous répond</string>
+    <string name="muting_option_only_mentions_text">Recevoir des notifications pour cette conversation uniquement lorsque quelqu\'un vous appelle, mentionne ou vous répond</string>
     <string name="muting_option_all_muted_title">Aucune</string>
     <string name="muting_option_all_muted_text">Ne recevoir aucune notification pour cette conversation</string>
     <!--Profile image-->
@@ -529,7 +529,7 @@
     <string name="profile_image_modal_sheet_header_title">Changer l\'image</string>
     <string name="profile_image_choose_from_gallery_menu_item">Choisir dans la galerie</string>
     <string name="profile_image_take_a_picture_menu_item">Prendre une photo</string>
-    <string name="profile_image_change_image_button_label">Changer la photo…</string>
+    <string name="profile_image_change_image_button_label">Changez votre image de profil…</string>
     <!--Conversation-->
     <string name="label_message_details">Détails du Message</string>
     <string name="label_copy">Copier</string>
@@ -590,4 +590,6 @@
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Paramètres de débogage</string>
 </resources>

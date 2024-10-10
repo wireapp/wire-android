@@ -177,7 +177,6 @@
     <string name="app_settings_screen_title">Postavke aplikacije</string>
     <string name="give_feedback_screen_title">Daj povratnu informaciju</string>
     <string name="report_bug_screen_title">Prijavi grešku</string>
-    <string name="debug_settings_screen_title">Postavke za uklanjanje pogrešaka</string>
     <string name="support_screen_title">Podrška</string>
     <string name="backup_and_restore_screen_title">Sigurnosna kopija &amp; Vračanje Razgovora</string>
     <string name="search_bar_conversations_hint">Pretraži razgovore</string>
@@ -603,4 +602,6 @@
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Postavke za uklanjanje pogrešaka</string>
 </resources>

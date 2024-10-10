@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
@@ -45,6 +46,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val globalDataStore: GlobalDataStore,
+    private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
@@ -58,6 +60,7 @@ class HomeViewModel @Inject constructor(
     init {
         loadUserAvatar()
         observeLegalHoldStatus()
+        observeCreateTeamIndicator()
     }
 
     private fun observeLegalHoldStatus() {
@@ -67,6 +70,21 @@ class HomeViewModel @Inject constructor(
                     homeState =
                         homeState.copy(shouldDisplayLegalHoldIndicator = it != LegalHoldStateForSelfUser.Disabled)
                 }
+        }
+    }
+
+    private fun observeCreateTeamIndicator() {
+        viewModelScope.launch {
+            getSelf().first().let { selfUser ->
+                val isPersonalUser = selfUser.teamId == null
+                if (isPersonalUser) {
+                    dataStore.isCreateTeamNoticeRead().collect { idRead ->
+                        homeState = homeState.copy(
+                            shouldShowCreateTeamUnreadIndicator = !idRead
+                        )
+                    }
+                }
+            }
         }
     }
 

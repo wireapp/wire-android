@@ -18,7 +18,7 @@
 
 @file:Suppress("TooManyFunctions")
 
-package com.wire.android.ui.common
+package com.wire.android.ui.common.avatar
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -70,6 +70,9 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
@@ -85,6 +88,7 @@ import kotlin.time.Duration.Companion.hours
 
 const val MINUTES_IN_DAY = 60 * 24
 const val STATUS_INDICATOR_TEST_TAG = "status_indicator"
+const val UNREAD_INFO_TEST_TAG = "status_indicator"
 const val LEGAL_HOLD_INDICATOR_TEST_TAG = "legal_hold_indicator"
 const val TEMP_USER_INDICATOR_TEST_TAG = "temp_user_indicator"
 const val USER_AVATAR_TEST_TAG = "User avatar"
@@ -133,6 +137,7 @@ fun UserProfileAvatar(
     avatarBorderColor: Color = colorsScheme().outline,
     clickable: Clickable? = null,
     showPlaceholderIfNoAsset: Boolean = true,
+    shouldShowCreateTeamUnreadIndicator: Boolean = false,
     withCrossfadeAnimation: Boolean = false,
     type: UserProfileAvatarType = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = false),
 ) {
@@ -170,7 +175,11 @@ fun UserProfileAvatar(
                 modifier = Modifier
                     .padding(padding)
                     .clip(CircleShape)
-                    .border(width = avatarBorderWidth, shape = CircleShape, color = avatarBorderColor)
+                    .border(
+                        width = avatarBorderWidth,
+                        shape = CircleShape,
+                        color = avatarBorderColor
+                    )
                     .padding(avatarBorderWidth)
                     .size(size)
                     .testTag(USER_AVATAR_TEST_TAG),
@@ -201,6 +210,18 @@ fun UserProfileAvatar(
             val exactPointOnAvatarBorder = sqrt(2f) / 2f * ((size.value / 2f) + avatarBorderWidth.value)
             val maxOffset = (size.value / 2f) - (statusSize.value / 2f) - -statusBorderWidth.value
             val offsetToAlignWithAvatar = min(maxOffset, exactPointOnAvatarBorder)
+
+            if (shouldShowCreateTeamUnreadIndicator) {
+                UnreadInfoIndicator(
+                    modifier = Modifier
+                        .offset(x = offsetToAlignWithAvatar.dp, y = -offsetToAlignWithAvatar.dp)
+                        .onGloballyPositioned {
+                            userStatusIndicatorParams = it.size.toSize() to it.positionInParent()
+                        }
+                        .testTag(UNREAD_INFO_TEST_TAG)
+                )
+            }
+
             UserStatusIndicator(
                 status = avatarData.availabilityStatus,
                 size = statusSize,
@@ -209,7 +230,9 @@ fun UserProfileAvatar(
                 modifier = Modifier
                     .offset(x = offsetToAlignWithAvatar.dp, y = offsetToAlignWithAvatar.dp)
                     .clip(CircleShape)
-                    .onGloballyPositioned { userStatusIndicatorParams = it.size.toSize() to it.positionInParent() }
+                    .onGloballyPositioned {
+                        userStatusIndicatorParams = it.size.toSize() to it.positionInParent()
+                    }
                     .testTag(STATUS_INDICATOR_TEST_TAG)
             )
         }
@@ -255,7 +278,10 @@ private fun DefaultInitialsAvatar(
             .clip(CircleShape)
             .background(
                 if (type is UserProfileAvatarType.WithIndicators.TemporaryUser) {
-                    colorsScheme().wireAccentColors.getOrDefault(Accent.Unknown, colorsScheme().outline)
+                    colorsScheme().wireAccentColors.getOrDefault(
+                        Accent.Unknown,
+                        colorsScheme().outline
+                    )
                 } else {
                     colorsScheme().wireAccentColors.getOrDefault(
                         Accent.fromAccentId(nameBasedAvatar.accentColor),
@@ -283,9 +309,17 @@ private fun DefaultInitialsAvatar(
 private fun LegalHoldIndicator(borderWidth: Dp, innerSize: Dp, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .border(width = borderWidth / 2, shape = CircleShape, color = colorsScheme().error.copy(alpha = 0.3f))
+            .border(
+                width = borderWidth / 2,
+                shape = CircleShape,
+                color = colorsScheme().error.copy(alpha = 0.3f)
+            )
             .padding(borderWidth / 2)
-            .border(width = borderWidth / 2, shape = CircleShape, color = colorsScheme().error.copy(alpha = 1.0f))
+            .border(
+                width = borderWidth / 2,
+                shape = CircleShape,
+                color = colorsScheme().error.copy(alpha = 1.0f)
+            )
             .padding(borderWidth / 2)
             .size(innerSize)
     )

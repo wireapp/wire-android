@@ -63,8 +63,8 @@ import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.UserStatusIndicator
+import com.wire.android.ui.common.avatar.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserStatusIndicator
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.button.WireButtonState
@@ -137,6 +137,9 @@ fun SelfUserProfileScreen(
         onQrCodeClick = {
             navigator.navigate(NavigationCommand(SelfQRCodeScreenDestination(viewModelSelf.userProfileState.userName)))
         },
+        onCreateAccount = {
+            // TODO: open screen to create a team
+        },
         isUserInCall = viewModelSelf::isUserInCall,
     )
 
@@ -187,6 +190,7 @@ private fun SelfUserProfileContent(
     onLegalHoldLearnMoreClick: () -> Unit = {},
     onOtherAccountClick: (UserId) -> Unit = {},
     onQrCodeClick: () -> Unit = {},
+    onCreateAccount: () -> Unit = {},
     isUserInCall: () -> Boolean
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
@@ -227,6 +231,20 @@ private fun SelfUserProfileContent(
                         .fillMaxHeight()
                         .scrollable(state = scrollState, orientation = Orientation.Vertical)
                 ) {
+                    if (state.teamName == null) {
+                        stickyHeader {
+                            Column(
+                                modifier = Modifier
+                                    .padding(
+                                        top = dimensions().spacing16x,
+                                        start = dimensions().spacing16x,
+                                        end = dimensions().spacing16x
+                                    )
+                            ) {
+                                CreateTeamInfoCard(onCreateAccount)
+                            }
+                        }
+                    }
                     stickyHeader {
                         UserProfileInfo(
                             userId = state.userId,

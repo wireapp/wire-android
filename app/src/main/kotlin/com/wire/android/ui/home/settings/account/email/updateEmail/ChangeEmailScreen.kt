@@ -52,7 +52,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.textfield.DefaultEmail
+import com.wire.android.ui.common.textfield.DefaultEmailDone
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.patternWithCallback
@@ -75,8 +75,15 @@ fun ChangeEmailScreen(
     when (val flowState = viewModel.state.flowState) {
         is ChangeEmailState.FlowState.NoChange,
         is ChangeEmailState.FlowState.Error.SelfUserNotFound -> navigator.navigateBack()
+
         is ChangeEmailState.FlowState.Success ->
-            navigator.navigate(NavigationCommand(VerifyEmailScreenDestination(flowState.newEmail), BackStackMode.REMOVE_CURRENT))
+            navigator.navigate(
+                NavigationCommand(
+                    VerifyEmailScreenDestination(flowState.newEmail),
+                    BackStackMode.REMOVE_CURRENT
+                )
+            )
+
         else ->
             ChangeEmailContent(
                 textState = viewModel.textState,
@@ -93,9 +100,10 @@ fun ChangeEmailContent(
     state: ChangeEmailState,
     onSaveClicked: () -> Unit,
     onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
-    WireScaffold(topBar = {
+    WireScaffold(modifier = modifier, topBar = {
         WireCenterAlignedTopAppBar(
             elevation = scrollState.rememberTopBarElevationState().value,
             onNavigationPressed = onBackPressed,
@@ -133,9 +141,12 @@ fun ChangeEmailContent(
                         WireTextField(
                             textState = textState,
                             labelText = stringResource(R.string.email_label).uppercase(),
-                            inputTransformation = InputTransformation.patternWithCallback(Patterns.EMAIL_ADDRESS, animate),
+                            inputTransformation = InputTransformation.patternWithCallback(
+                                Patterns.EMAIL_ADDRESS,
+                                animate
+                            ),
                             state = computeEmailErrorState(state.flowState),
-                            keyboardOptions = KeyboardOptions.DefaultEmail,
+                            keyboardOptions = KeyboardOptions.DefaultEmailDone,
                             onKeyboardAction = { keyboardController?.hide() },
                             modifier = Modifier.padding(
                                 horizontal = MaterialTheme.wireDimensions.spacing16x

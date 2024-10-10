@@ -194,7 +194,6 @@
     <string name="settings_terms_of_use_label">Юридическая информация</string>
     <string name="settings_wire_website_label">Веб-сайт Wire</string>
     <string name="label_copyright">Авторское право</string>
-    <string name="debug_settings_screen_title">Параметры отладки</string>
     <string name="item_dependencies_title">Зависимости:</string>
     <string name="support_screen_title">Служба поддержки</string>
     <string name="backup_and_restore_screen_title">Резервное копирование и восстановление бесед</string>
@@ -1504,4 +1503,6 @@
     <string name="call_feedback_dialog_label_bad">Ужасно</string>
     <string name="call_feedback_dialog_label_fair">Приемлемо</string>
     <string name="call_feedback_dialog_label_excellent">Прекрасно</string>
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Параметры отладки</string>
 </resources>

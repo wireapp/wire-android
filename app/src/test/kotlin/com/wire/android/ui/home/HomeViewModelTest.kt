@@ -90,18 +90,25 @@ class HomeViewModelTest {
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
+
         @MockK
         lateinit var globalDataStore: GlobalDataStore
+
         @MockK
         lateinit var dataStore: UserDataStore
+
         @MockK
         lateinit var getSelf: GetSelfUserUseCase
+
         @MockK
         lateinit var needsToRegisterClient: NeedsToRegisterClientUseCase
+
         @MockK
         lateinit var observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase
+
         @MockK
         lateinit var wireSessionImageLoader: WireSessionImageLoader
+
         @MockK
         lateinit var shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase
 

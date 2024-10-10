@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.UserProfileAvatarType
+import com.wire.android.ui.common.avatar.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatarType
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
@@ -39,6 +39,7 @@ fun HomeTopBar(
     title: String,
     elevation: Dp,
     withLegalHoldIndicator: Boolean,
+    shouldShowCreateTeamUnreadIndicator: Boolean,
     onHamburgerMenuClick: () -> Unit,
     onNavigateToSelfUserProfile: () -> Unit
 ) {
@@ -51,6 +52,7 @@ fun HomeTopBar(
                 avatarData = userAvatarData,
                 clickable = remember { Clickable(enabled = true) { onNavigateToSelfUserProfile() } },
                 type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = withLegalHoldIndicator),
+                shouldShowCreateTeamUnreadIndicator = shouldShowCreateTeamUnreadIndicator
             )
         },
         elevation = elevation,
@@ -61,7 +63,15 @@ fun HomeTopBar(
 @Composable
 fun PreviewTopBar() {
     WireTheme {
-        HomeTopBar(UserAvatarData(null, UserAvailabilityStatus.AVAILABLE), "Title", 0.dp, false, {}, {})
+        HomeTopBar(
+            userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+            title = "Title",
+            elevation = 0.dp,
+            withLegalHoldIndicator = false,
+            shouldShowCreateTeamUnreadIndicator = false,
+            onHamburgerMenuClick = {},
+            onNavigateToSelfUserProfile = {}
+        )
     }
 }
 
@@ -70,7 +80,7 @@ fun PreviewTopBar() {
 fun PreviewTopBarWithNameBasedAvatar() {
     WireTheme {
         HomeTopBar(
-            UserAvatarData(
+            userAvatarData = UserAvatarData(
                 asset = null,
                 availabilityStatus = UserAvailabilityStatus.AVAILABLE,
                 nameBasedAvatar = NameBasedAvatar("Jon Doe", -1)
@@ -78,6 +88,7 @@ fun PreviewTopBarWithNameBasedAvatar() {
             title = "Title",
             elevation = 0.dp,
             withLegalHoldIndicator = false,
+            shouldShowCreateTeamUnreadIndicator = false,
             onHamburgerMenuClick = {},
             onNavigateToSelfUserProfile = {}
         )
@@ -88,6 +99,14 @@ fun PreviewTopBarWithNameBasedAvatar() {
 @Composable
 fun PreviewTopBarWithLegalHold() {
     WireTheme {
-        HomeTopBar(UserAvatarData(null, UserAvailabilityStatus.AVAILABLE), "Title", 0.dp, true, {}, {})
+        HomeTopBar(
+            userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+            title = "Title",
+            elevation = 0.dp,
+            withLegalHoldIndicator = true,
+            shouldShowCreateTeamUnreadIndicator = false,
+            onHamburgerMenuClick = {},
+            onNavigateToSelfUserProfile = {}
+        )
     }
 }

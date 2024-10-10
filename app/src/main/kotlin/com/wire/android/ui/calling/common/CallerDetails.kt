@@ -44,7 +44,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.MembershipQualifierLabel
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions

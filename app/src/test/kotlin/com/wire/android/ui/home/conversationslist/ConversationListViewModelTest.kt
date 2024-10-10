@@ -50,7 +50,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -69,11 +68,11 @@ class ConversationListViewModelTest {
     fun `given empty search query, when collecting, then update state with all conversations`() = runTest(dispatcherProvider.main()) {
         // Given
         val searchQueryText = ""
-        val (arrangement, conversationListViewModel) = Arrangement().arrange()
+        val (_, conversationListViewModel) = Arrangement().arrange()
 
         // When
         advanceUntilIdle()
-        arrangement.searchQueryChanged(searchQueryText)
+        conversationListViewModel.searchQueryChanged(searchQueryText)
         advanceUntilIdle()
 
         // Then
@@ -89,11 +88,11 @@ class ConversationListViewModelTest {
         runTest(dispatcherProvider.main()) {
         // Given
         val searchQueryText = TestConversationDetails.CONVERSATION_ONE_ONE.conversation.name.orDefault("test")
-        val (arrangement, conversationListViewModel) = Arrangement().arrange()
+        val (_, conversationListViewModel) = Arrangement().arrange()
 
         // When
         advanceUntilIdle()
-        arrangement.searchQueryChanged(searchQueryText)
+        conversationListViewModel.searchQueryChanged(searchQueryText)
         advanceUntilIdle()
 
         // Then
@@ -185,8 +184,6 @@ class ConversationListViewModelTest {
         @MockK
         private lateinit var updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase
 
-        private val searchQueryFlow = MutableStateFlow("")
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeConversationListDetailsUseCase.invoke(false) } returns flowOf(
@@ -197,10 +194,6 @@ class ConversationListViewModelTest {
                 )
             )
             mockUri()
-        }
-
-        fun searchQueryChanged(searchQuery: String) = apply {
-            searchQueryFlow.value = searchQuery
         }
 
         fun updateConversationMutedStatusSuccess() = apply {
@@ -232,7 +225,6 @@ class ConversationListViewModelTest {
             refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
             userTypeMapper = UserTypeMapper(),
             updateConversationArchivedStatus = updateConversationArchivedStatus,
-            searchQueryFlow = searchQueryFlow
         )
     }
 

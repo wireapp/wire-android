@@ -28,8 +28,10 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.migration.failure.UserMigrationStatus
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.E2EIFailure
 import com.wire.kalium.logic.data.user.UserId
@@ -38,20 +40,26 @@ import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
+import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
+import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
 @ViewModelScopedPreview
 interface DebugDataOptionsViewModel {
-
+    val infoMessage: SharedFlow<UIText> get() = MutableSharedFlow()
     fun state(): DebugDataOptionsState = DebugDataOptionsState()
     fun currentAccount(): UserId = UserId("value", "domain")
     fun checkCrlRevocationList() {}
@@ -62,6 +70,7 @@ interface DebugDataOptionsViewModel {
     fun dismissCertificateDialog() {}
     fun forceUpdateApiVersions() {}
     fun disableEventProcessing(disabled: Boolean) {}
+    fun forceSendFCMToken() {}
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -75,12 +84,17 @@ class DebugDataOptionsViewModelImpl
     private val mlsKeyPackageCount: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
     private val checkCrlRevocationList: CheckCrlRevocationListUseCase,
-    private val getCurrentAnalyticsTrackingIdentifier: GetCurrentAnalyticsTrackingIdentifierUseCase
+    private val getCurrentAnalyticsTrackingIdentifier: GetCurrentAnalyticsTrackingIdentifierUseCase,
+    private val sendFCMToken: SendFCMTokenUseCase,
+    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel(), DebugDataOptionsViewModel {
 
     var state by mutableStateOf(
         DebugDataOptionsState()
     )
+
+    private val _infoMessage = MutableSharedFlow<UIText>()
+    override val infoMessage = _infoMessage.asSharedFlow()
 
     init {
         observeEncryptedProteusStorageState()
@@ -178,6 +192,34 @@ class DebugDataOptionsViewModelImpl
         viewModelScope.launch {
             disableEventProcessing(disabled)
             state = state.copy(isEventProcessingDisabled = disabled)
+        }
+    }
+
+    override fun forceSendFCMToken() {
+        viewModelScope.launch {
+            withContext(dispatcherProvider.io()) {
+                val result = sendFCMToken()
+                result.fold(
+                    {
+                        when (it.status) {
+                            SendFCMTokenError.Reason.CANT_GET_CLIENT_ID -> {
+                                _infoMessage.emit(UIText.DynamicString("Can't get client ID, error: ${it.error}"))
+                            }
+
+                            SendFCMTokenError.Reason.CANT_GET_NOTIFICATION_TOKEN -> {
+                                _infoMessage.emit(UIText.DynamicString("Can't get notification token, error: ${it.error}"))
+                            }
+
+                            SendFCMTokenError.Reason.CANT_REGISTER_TOKEN -> {
+                                _infoMessage.emit(UIText.DynamicString("Can't register token, error: ${it.error}"))
+                            }
+                        }
+                    },
+                    {
+                        _infoMessage.emit(UIText.DynamicString("Token registered"))
+                    }
+                )
+            }
         }
     }
 

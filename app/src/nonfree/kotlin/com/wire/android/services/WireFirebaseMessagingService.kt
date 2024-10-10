@@ -105,11 +105,11 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
         return userIdValue
     }
 
-    override fun onNewToken(p0: String) {
-        super.onNewToken(p0)
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
         scope.launch {
             coreLogic.globalScope {
-                saveNotificationToken(p0, "GCM", BuildConfig.FIREBASE_PUSH_SENDER_ID)
+                saveNotificationToken(token, "GCM", BuildConfig.FIREBASE_PUSH_SENDER_ID)
             }.let { result ->
                 when (result) {
                     is Result.Failure.Generic ->

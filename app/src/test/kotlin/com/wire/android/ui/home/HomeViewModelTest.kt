@@ -20,6 +20,7 @@ package com.wire.android.ui.home
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.TestUser
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -92,6 +93,8 @@ class HomeViewModelTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
         @MockK
+        lateinit var dataStore: UserDataStore
+        @MockK
         lateinit var getSelf: GetSelfUserUseCase
         @MockK
         lateinit var needsToRegisterClient: NeedsToRegisterClientUseCase
@@ -106,6 +109,7 @@ class HomeViewModelTest {
             HomeViewModel(
                 savedStateHandle = savedStateHandle,
                 globalDataStore = globalDataStore,
+                dataStore = dataStore,
                 getSelf = getSelf,
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,

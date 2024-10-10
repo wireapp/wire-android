@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
@@ -42,12 +43,13 @@ import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.navigation.WireDestination
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.MigrationScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
@@ -61,7 +63,12 @@ fun DebugScreen(navigator: Navigator, userDebugViewModel: UserDebugViewModel = h
     UserDebugContent(
         onNavigationPressed = navigator::navigateBack,
         onManualMigrationPressed = {
-            navigator.navigate(NavigationCommand(MigrationScreenDestination(it), BackStackMode.CLEAR_WHOLE))
+            navigator.navigate(
+                NavigationCommand(
+                    MigrationScreenDestination(it),
+                    BackStackMode.CLEAR_WHOLE
+                )
+            )
         },
         state = userDebugViewModel.state,
         onLoggingEnabledChange = userDebugViewModel::setLoggingEnabledState,
@@ -146,7 +153,8 @@ data class DebugContentState(
 
     fun shareLogs() {
         val dir = File(logPath).parentFile
-        val fileUris = context.getUrisOfFilesInDirectory(dir)
+        val fileUris =
+            if (dir != null && dir.exists()) context.getUrisOfFilesInDirectory(dir) else arrayListOf()
         val intent = context.multipleFileSharingIntent(fileUris)
         // The first log file is simply text, not compressed. Get its mime type separately
         // and set it as the mime type for the intent.
@@ -156,4 +164,19 @@ data class DebugContentState(
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toSet().toTypedArray())
         context.startActivity(intent)
     }
+}
+
+@Preview(heightDp = 1400)
+@Composable
+internal fun PreviewUserDebugContent() = WireTheme {
+    UserDebugContent(
+        state = UserDebugState(
+            isLoggingEnabled = true,
+            logPath = "/data/user/0/com.wire.android/files/logs"
+        ),
+        onNavigationPressed = {},
+        onManualMigrationPressed = {},
+        onLoggingEnabledChange = {},
+        onDeleteLogs = {}
+    )
 }

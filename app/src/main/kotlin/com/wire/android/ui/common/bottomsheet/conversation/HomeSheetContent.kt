@@ -94,6 +94,10 @@ internal fun ConversationMainSheetContent(
         menuItems = buildList<@Composable () -> Unit> {
             if (conversationSheetContent.canEditNotifications() && !conversationSheetContent.isArchived) {
                 add {
+                    val contentDescription = stringResource(
+                        id = R.string.content_description_conversation_menu_notification_setting,
+                        conversationSheetContent.mutingConversationState.getMutedStatusTextResource()
+                    )
                     MenuBottomSheetItem(
                         title = stringResource(R.string.label_notifications),
                         icon = {
@@ -103,7 +107,8 @@ internal fun ConversationMainSheetContent(
                             )
                         },
                         action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
-                        onItemClick = navigateToNotification
+                        onItemClick = navigateToNotification,
+                        contentDescription = contentDescription
                     )
                 }
             }

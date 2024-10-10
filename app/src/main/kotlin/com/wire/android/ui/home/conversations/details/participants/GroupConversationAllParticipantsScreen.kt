@@ -85,7 +85,7 @@ private fun GroupConversationAllParticipantsContent(
             WireCenterAlignedTopAppBar(
                 elevation = lazyListState.rememberTopBarElevationState().value,
                 title = stringResource(R.string.conversation_details_group_participants_title),
-                navigationIconType = NavigationIconType.Back,
+                navigationIconType = NavigationIconType.Back(),
                 onNavigationPressed = onBackPressed
             ) {
                 // TODO add search bar

@@ -332,13 +332,19 @@ private fun GroupConversationDetailsContent(
                     WireTopAppBarTitle(
                         title = stringResource(R.string.conversation_details_title),
                         style = MaterialTheme.wireTypography.title01,
-                        maxLines = 2
+                        maxLines = 2,
+                        contentDescription = stringResource(id = R.string.content_description_conversation_details_header)
                     )
                     VerificationInfo(conversationSheetContent)
                 },
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = NavigationIconType.Close(R.string.content_description_conversation_details_close_btn),
                 onNavigationPressed = onBackPressed,
-                actions = { MoreOptionIcon(onButtonClicked = sheetState::show) }
+                actions = {
+                    MoreOptionIcon(
+                        contentDescription = R.string.content_description_conversation_details_more_btn,
+                        onButtonClicked = sheetState::show
+                    )
+                }
             )
         },
         topBarCollapsing = {
@@ -558,11 +564,21 @@ private fun VerifiedLabel(text: String, color: Color, icon: @Composable RowScope
     }
 }
 
-enum class GroupConversationDetailsTabItem(@StringRes val titleResId: Int) : TabItem {
-    OPTIONS(R.string.conversation_details_options_tab),
-    PARTICIPANTS(R.string.conversation_details_participants_tab);
+enum class GroupConversationDetailsTabItem(
+    @StringRes val titleResId: Int,
+    @StringRes val contentDescriptionResId: Int
+) : TabItem {
+    OPTIONS(
+        R.string.conversation_details_options_tab,
+        R.string.content_description_conversation_details_options_tab_header
+    ),
+    PARTICIPANTS(
+        R.string.conversation_details_participants_tab,
+        R.string.content_description_conversation_details_participants_tab_header
+    );
 
     override val title: UIText = UIText.StringResource(titleResId)
+    override val contentDescription: UIText? = UIText.StringResource(contentDescriptionResId)
 }
 
 @PreviewMultipleThemes

@@ -35,12 +35,20 @@ fun LazyListScope.participantsFoldersWithElements(
     folderWithElements(
         header = context.getString(R.string.conversation_details_group_admins, state.data.allAdminsCount),
         items = state.data.admins,
-        onRowItemClicked = onRowItemClicked
+        onRowItemClicked = onRowItemClicked,
+        folderContentDescription = context.getString(
+            R.string.content_description_conversation_details_admins_header,
+            state.data.allAdminsCount
+        )
     )
     folderWithElements(
         header = context.getString(R.string.conversation_details_group_members, state.data.allParticipantsCount),
         items = state.data.participants,
-        onRowItemClicked = onRowItemClicked
+        onRowItemClicked = onRowItemClicked,
+        folderContentDescription = context.getString(
+            R.string.content_description_conversation_details_members_header,
+            state.data.allAdminsCount
+        )
     )
 }
 
@@ -48,7 +56,8 @@ fun LazyListScope.folderWithElements(
     header: String,
     items: List<UIParticipant>,
     onRowItemClicked: (UIParticipant) -> Unit,
-    showRightArrow: Boolean = true
+    showRightArrow: Boolean = true,
+    folderContentDescription: String? = null
 ) = folderWithElements(
     header = header,
     items = items.associateBy { it.id.toString() },
@@ -60,14 +69,16 @@ fun LazyListScope.folderWithElements(
             showRightArrow = showRightArrow
         )
     },
-    divider = { WireDivider() }
+    divider = { WireDivider() },
+    folderContentDescription = folderContentDescription
 )
 
 fun LazyListScope.folderWithElements(
     header: String,
     items: Map<String, UIParticipant>,
     onRowItemClicked: (UIParticipant) -> Unit,
-    showRightArrow: Boolean = true
+    showRightArrow: Boolean = true,
+    folderContentDescription: String? = null
 ) = folderWithElements(
     header = header,
     items = items,
@@ -79,5 +90,6 @@ fun LazyListScope.folderWithElements(
             showRightArrow = showRightArrow
         )
     },
-    divider = { WireDivider() }
+    divider = { WireDivider() },
+    folderContentDescription = folderContentDescription
 )

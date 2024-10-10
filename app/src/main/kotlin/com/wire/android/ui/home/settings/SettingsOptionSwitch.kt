@@ -57,7 +57,8 @@ fun SettingsOptionSwitch(
                 WireSwitch(
                     checked = switchState.value,
                     enabled = switchState is SwitchState.Enabled,
-                    onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange
+                    onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange,
+                    contentDescription = (switchState as? SwitchState.Enabled)?.contentDescription
                 )
             }
         }
@@ -75,6 +76,7 @@ sealed class SwitchState {
     data class Enabled(
         override val value: Boolean = false,
         override val isOnOffVisible: Boolean = true,
+        val contentDescription: String? = null,
         val onCheckedChange: ((Boolean) -> Unit)?
     ) : Visible(value = value, isOnOffVisible = isOnOffVisible, isSwitchVisible = true)
 

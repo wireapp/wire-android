@@ -34,6 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireCheckIcon
@@ -53,7 +55,8 @@ fun SelectableMenuBottomSheetItem(
     subLine: String? = null,
     icon: @Composable () -> Unit = { },
     onItemClick: Clickable = Clickable(enabled = false) {},
-    state: RichMenuItemState = RichMenuItemState.DEFAULT
+    state: RichMenuItemState = RichMenuItemState.DEFAULT,
+    contentDescription: String? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -63,6 +66,7 @@ fun SelectableMenuBottomSheetItem(
             .defaultMinSize(minHeight = dimensions().spacing48x)
             .let { if (isSelectedItem(state)) it.background(MaterialTheme.wireColorScheme.secondaryButtonSelected) else it }
             .clickable(onItemClick)
+            .semantics { this.contentDescription = contentDescription ?: title }
             .padding(vertical = dimensions().spacing12x, horizontal = dimensions().spacing16x)
     ) {
         icon()

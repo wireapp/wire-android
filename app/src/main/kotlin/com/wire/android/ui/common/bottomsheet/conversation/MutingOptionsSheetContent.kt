@@ -52,6 +52,7 @@ internal fun MutingOptionsSheetContent(
                     title = stringResource(id = R.string.muting_option_all_allowed_title),
                     subLine = stringResource(id = R.string.muting_option_all_allowed_text),
                     onItemClick = Clickable { onMuteConversation(MutedConversationStatus.AllAllowed) },
+                    contentDescription = stringResource(id = R.string.content_description_muting_menu_everything),
                     state = if (mutingConversationState == MutedConversationStatus.AllAllowed) RichMenuItemState.SELECTED
                     else RichMenuItemState.DEFAULT
                 )
@@ -61,6 +62,7 @@ internal fun MutingOptionsSheetContent(
                     title = stringResource(id = R.string.muting_option_only_mentions_title),
                     subLine = stringResource(id = R.string.muting_option_only_mentions_text),
                     onItemClick = Clickable { onMuteConversation(MutedConversationStatus.OnlyMentionsAndRepliesAllowed) },
+                    contentDescription = stringResource(id = R.string.content_description_muting_menu_calls),
                     state = if (mutingConversationState == MutedConversationStatus.OnlyMentionsAndRepliesAllowed)
                         RichMenuItemState.SELECTED else RichMenuItemState.DEFAULT
                 )
@@ -70,6 +72,7 @@ internal fun MutingOptionsSheetContent(
                     title = stringResource(id = R.string.muting_option_all_muted_title),
                     subLine = stringResource(id = R.string.muting_option_all_muted_text),
                     onItemClick = Clickable { onMuteConversation(MutedConversationStatus.AllMuted) },
+                    contentDescription = stringResource(id = R.string.content_description_muting_menu_nothing),
                     state = if (mutingConversationState == MutedConversationStatus.AllMuted) RichMenuItemState.SELECTED
                     else RichMenuItemState.DEFAULT
                 )

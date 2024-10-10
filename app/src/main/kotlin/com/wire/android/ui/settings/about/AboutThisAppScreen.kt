@@ -85,7 +85,7 @@ private fun AboutThisAppContent(
             WireCenterAlignedTopAppBar(
                 title = stringResource(id = R.string.about_app_screen_title),
                 elevation = dimensions().spacing0x,
-                navigationIconType = NavigationIconType.Back,
+                navigationIconType = NavigationIconType.Back(),
                 onNavigationPressed = onBackPressed
             )
         }

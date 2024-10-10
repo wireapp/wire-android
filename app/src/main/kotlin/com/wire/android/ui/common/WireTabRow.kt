@@ -35,6 +35,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -70,8 +72,12 @@ fun WireTabRow(
             val text = tabItem.title.asString().let {
                 if (upperCaseTitles) it.uppercase() else it
             }
+            val contentDescription = tabItem.contentDescription?.asString()
 
             Tab(
+                modifier = Modifier.semantics {
+                    contentDescription?.let { this.contentDescription = contentDescription }
+                },
                 enabled = true,
                 text = {
                     Text(
@@ -108,4 +114,5 @@ fun PagerState.calculateCurrentTab() = // change the tab if we go over half the 
 
 interface TabItem {
     val title: UIText
+    val contentDescription: UIText?
 }

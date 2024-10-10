@@ -179,6 +179,39 @@
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
     <string name="content_description_jump_to_last_message">Scroll to end of conversation</string>
     <string name="content_description_location_icon">Location item</string>
+    <string name="content_description_conversation_details_header">Conversation details, heading</string>
+    <string name="content_description_conversation_details_more_btn">Open conversation options</string>
+    <string name="content_description_conversation_details_options_tab_header">Options, tab, 1 of 2, double-tap to select</string>
+    <string name="content_description_conversation_details_participants_tab_header">Participants, selected, tab, 2 of 2</string>
+    <string name="content_description_conversation_details_close_btn">Close conversation details</string>
+    <string name="content_description_conversation_details_add_participant_btn">Add participants</string>
+    <string name="content_description_conversation_details_admins_header">Group admins %d, in list</string>
+    <string name="content_description_conversation_details_members_header">Group members %d, in list</string>
+    <string name="content_description_conversation_details_member">%1$s, %2$s, %3$s, double tap to open profile</string>
+    <string name="content_description_conversation_details_member_self">%1$s, you, %2$s, %3$s, double tap to open profile</string>
+    <string name="content_description_conversation_details_group_name">%s, double-tap to edit </string>
+    <string name="content_description_conversation_details_accesses_header">Access, in list</string>
+    <string name="content_description_conversation_details_messages_header">Messaging, in list</string>
+    <string name="content_description_conversation_details_guests_option">Guests, %s, when this is on, people from outside your team can join this conversation, double-tap to adjust guest access</string>
+    <string name="content_description_conversation_details_services_option">Services, %s, turn this option on to open this conversation to services</string>
+    <string name="content_description_conversation_details_read_receipts_option">Read receipts, %s, when this is on, people can see when their messages in this conversation are read.</string>
+    <string name="content_description_conversation_details_self_deleting_option">Self-deleting messages, %s, when this is on, all messages in this group will disappear after a certain time, double-tap to adjust service access</string>
+    <string name="content_description_edit_guests_option">Guests, %s, turn this option on to open this conversation to people outside your team, even if they don\'t have Wire</string>
+    <string name="content_description_edit_guests_option_title">Guests, heading</string>
+    <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>
+    <string name="content_description_edit_guests_option_link_header">Guest link, in list</string>
+    <string name="content_description_edit_guests_option_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
+    <string name="content_description_edit_self_delete_title">Self-deleting messages, heading</string>
+    <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>
+    <string name="content_description_conversation_menu_notification_setting">Notifications, %s, double tap to open notification settings</string>
+    <string name="content_description_muting_menu_everything">Everything, receive notifications for this conversation about everything,including audio and video calls, selected </string>
+    <string name="content_description_muting_menu_calls">Calls, mentions and replies, only receive notifications for this conversation when someone calls, mentions you or replies to you, double tap to select</string>
+    <string name="content_description_muting_menu_nothing">Nothing, receive no notifications for this conversation at all, double tap to select</string>
+    <string name="content_description_selected_suffix">, selected</string>
+    <string name="content_description_not_selected_suffix">, double tab to select</string>
+    <string name="content_description_mls_verified">Verified (MLS)</string>
+    <string name="content_description_proteus_verified">Verified (Proteus)</string>
+    <string name="content_description_switch_btn">switch button, %s, double tap to toggle setting</string>
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
     <string name="url_android_release_notes_feed" translatable="false">https://medium.com/feed/wire-news/tagged/android</string>

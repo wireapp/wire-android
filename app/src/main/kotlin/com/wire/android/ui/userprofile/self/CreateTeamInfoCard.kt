@@ -30,7 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -38,7 +37,6 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -64,12 +62,13 @@ fun CreateTeamInfoCard(
             Icon(
                 painter = painterResource(id = R.drawable.ic_info),
                 contentDescription = null,
-                tint = Color.Black
+                tint = colorsScheme().onBackground
             )
             Text(
                 modifier = Modifier.padding(start = dimensions().spacing8x),
-                text = "Enjoy benefits of a team",
+                text = stringResource(R.string.user_profile_create_team_card),
                 style = MaterialTheme.wireTypography.label02,
+                color = colorsScheme().onBackground
             )
         }
         Text(
@@ -80,17 +79,18 @@ fun CreateTeamInfoCard(
             ),
             text = stringResource(R.string.user_profile_create_team_description_card),
             style = MaterialTheme.wireTypography.subline01,
+            color = colorsScheme().onBackground
         )
         WireSecondaryButton(
             modifier = Modifier
                 .padding(dimensions().spacing8x)
                 .width(dimensions().createTeamInfoCardButtonWidth)
                 .height(dimensions().createTeamInfoCardButtonHeight),
-            text = stringResource(R.string.user_profile_create_team_card),
+            text = stringResource(R.string.user_profile_create_team_card_button),
             onClick = onCreateAccount,
             fillMaxWidth = false,
-            minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
-            minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+            minSize = dimensions().buttonSmallMinSize,
+            minClickableSize = dimensions().buttonMinClickableSize,
         )
     }
 }

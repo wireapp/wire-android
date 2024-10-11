@@ -395,7 +395,7 @@ private val DarkWireColorScheme = WireColorScheme(
     onScrollToBottomButtonColor = Color.Black,
     validE2eiStatusColor = WireColorPalette.DarkGreen500,
     mlsVerificationTextColor = WireColorPalette.DarkGreen700,
-    createTeamInfoCardBackgroundColor = WireColorPalette.LightBlue50,
+    createTeamInfoCardBackgroundColor = WireColorPalette.DarkBlue800,
     createTeamInfoCardBorderColor = WireColorPalette.LightBlue500,
     wireAccentColors = WireAccentColors {
         when (it) {

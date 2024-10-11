@@ -47,7 +47,7 @@ import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.dialogs.CustomServerDialog
+import com.wire.android.ui.common.dialogs.CustomServerDetailsDialog
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
@@ -142,7 +142,7 @@ private fun LoginSSOContent(
     }
 
     if (loginSSOState.customServerDialogState != null) {
-        CustomServerDialog(
+        CustomServerDetailsDialog(
             serverLinks = loginSSOState.customServerDialogState.serverLinks,
             onDismiss = onCustomServerDialogDismiss,
             onConfirm = onCustomServerDialogConfirm

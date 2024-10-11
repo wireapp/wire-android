@@ -36,6 +36,8 @@ import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
+import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
+import com.wire.android.ui.common.dialogs.CustomServerInvalidJsonDialogState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModelTest
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.theme.ThemeOption
@@ -45,6 +47,7 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.data.call.Call
@@ -89,6 +92,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.`should be equal to`
+import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -134,6 +138,42 @@ class WireActivityViewModelTest {
     }
 
     @Test
+    fun `given Intent with malformed ServerConfig json, when currentSessions is present, then initialAppState is LOGGED_IN and customBackEndInvalidJson dialog is shown`() =
+        runTest {
+            val result = DeepLinkResult.CustomServerConfig("url")
+            val (arrangement, viewModel) = Arrangement()
+                .withSomeCurrentSession()
+                .withDeepLinkResult(result)
+                .withMalformedServerJson()
+                .withNoOngoingCall()
+                .arrange()
+
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+
+            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+            assertInstanceOf(CustomServerInvalidJsonDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+        }
+
+    @Test
+    fun `given Intent with malformed ServerConfig json, when currentSessions is present, then initialAppState is NOT_LOGGED_IN and customBackEndInvalidJson dialog is shown`() =
+        runTest {
+            val result = DeepLinkResult.CustomServerConfig("url")
+            val (arrangement, viewModel) = Arrangement()
+                .withNoCurrentSession()
+                .withDeepLinkResult(result)
+                .withMalformedServerJson()
+                .withNoOngoingCall()
+                .arrange()
+
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+
+            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+            assertInstanceOf(CustomServerInvalidJsonDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+        }
+
+    @Test
     fun `given Intent with ServerConfig, when currentSession is present, then initialAppState is LOGGED_IN and customBackEnd dialog is shown`() =
         runTest {
             val result = DeepLinkResult.CustomServerConfig("url")
@@ -147,7 +187,11 @@ class WireActivityViewModelTest {
 
             assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog!!.serverLinks)
+            assertInstanceOf(CustomServerDetailsDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+            assertEquals(
+                newServerConfig(1).links,
+                (viewModel.globalAppState.customBackendDialog as CustomServerDetailsDialogState).serverLinks
+            )
         }
 
     @Test
@@ -163,7 +207,11 @@ class WireActivityViewModelTest {
 
             assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
             verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
-            assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog!!.serverLinks)
+            assertInstanceOf(CustomServerDetailsDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+            assertEquals(
+                newServerConfig(1).links,
+                (viewModel.globalAppState.customBackendDialog as CustomServerDetailsDialogState).serverLinks
+            )
         }
 
     @Test
@@ -818,6 +866,11 @@ class WireActivityViewModelTest {
         fun withCurrentScreen(currentScreenFlow: StateFlow<CurrentScreen>) = apply {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns currentScreenFlow
             coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).observeIfE2EIRequiredDuringLogin() } returns flowOf(false)
+        }
+
+        fun withMalformedServerJson() = apply {
+            coEvery { getServerConfigUseCase(any()) } returns
+                    GetServerConfigResult.Failure.Generic(NetworkFailure.NoNetworkConnection(null))
         }
 
         suspend fun withScreenshotCensoringConfig(result: ObserveScreenshotCensoringConfigResult) = apply {

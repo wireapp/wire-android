@@ -94,9 +94,14 @@ internal fun WireTextField(
     testTag: String = String.EMPTY,
     validateKeyboardOptions: Boolean = true,
 ) {
-    if(validateKeyboardOptions){
-        assert(keyboardOptions.keyboardType != KeyboardType.Email || keyboardOptions == KeyboardOptions.DefaultEmailDone || keyboardOptions == KeyboardOptions.DefaultEmailNext) {
-            "For email text fields use KeyboardOptions.DefaultEmailDone or KeyboardOptions.DefaultEmailNext. If you want to use a custom KeyboardOptions, set validateKeyboardOptions to false."
+    if (validateKeyboardOptions) {
+        assert(
+            keyboardOptions.keyboardType != KeyboardType.Email ||
+                    keyboardOptions == KeyboardOptions.DefaultEmailDone ||
+                    keyboardOptions == KeyboardOptions.DefaultEmailNext
+        ) {
+            "For email text fields use KeyboardOptions.DefaultEmailDone or KeyboardOptions.DefaultEmailNext. " +
+                    "If you want to use a custom KeyboardOptions, set validateKeyboardOptions to false."
         }
 
         assert(keyboardOptions.keyboardType != KeyboardType.Password) {
@@ -184,7 +189,7 @@ val KeyboardOptions.Companion.DefaultEmailDone: KeyboardOptions
 
 @Stable
 val KeyboardOptions.Companion.DefaultEmailNext: KeyboardOptions
-    get()  = defaultEmail(ImeAction.Next)
+    get() = defaultEmail(ImeAction.Next)
 
 @Stable
 private fun KeyboardOptions.Companion.defaultEmail(imeAction: ImeAction): KeyboardOptions {
@@ -226,12 +231,14 @@ fun PreviewWireTextFieldDenseSearch() = WireTheme {
         leadingIcon = {
             IconButton(
                 modifier = Modifier.height(40.dp),
-                onClick = {}) { Icon(Icons.Filled.Search, "") }
+                onClick = {}
+            ) { Icon(Icons.Filled.Search, "") }
         },
         trailingIcon = {
             IconButton(
                 modifier = Modifier.height(40.dp),
-                onClick = {}) { Icon(Icons.Filled.Close, "") }
+                onClick = {}
+            ) { Icon(Icons.Filled.Close, "") }
         },
         inputMinHeight = 40.dp,
         modifier = Modifier.padding(16.dp)

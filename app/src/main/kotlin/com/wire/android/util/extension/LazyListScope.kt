@@ -25,8 +25,6 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import com.wire.android.ui.home.conversationslist.common.CollapsingFolderHeader
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 
@@ -36,7 +34,6 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
     items: Map<K, T>,
     animateItemPlacement: Boolean = true,
     folderType: FolderType = FolderType.Regular,
-    folderContentDescription: String? = null,
     crossinline divider: @Composable () -> Unit = {},
     crossinline factory: @Composable (T) -> Unit
 ) {
@@ -52,7 +49,6 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
                         name = header,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { folderContentDescription?.let { contentDescription = it } }
                             .let { if (animateItemPlacement) it.animateItem() else it }
                     )
 
@@ -60,7 +56,6 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
                         name = header,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { folderContentDescription?.let { contentDescription = it } }
                             .let { if (animateItemPlacement) it.animateItem() else it }
                     )
                 }

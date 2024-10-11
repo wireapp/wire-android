@@ -156,8 +156,7 @@ fun WireTopAppBarTitle(
             }.toDp()
         }
         Text(
-            modifier = Modifier
-                .width(width),
+            modifier = Modifier.width(width),
             text = title,
             style = style,
             maxLines = maxLines,

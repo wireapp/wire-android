@@ -32,8 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
@@ -110,31 +108,20 @@ fun GroupConversationSettings(
         }
         if (state.areAccessOptionsAvailable) {
             item {
-                val contentDescription =
-                    stringResource(id = R.string.content_description_conversation_details_accesses_header)
-                FolderHeader(
-                    name = stringResource(R.string.folder_label_access),
-                    modifier = Modifier.semantics { this.contentDescription = contentDescription }
-                )
+                FolderHeader(name = stringResource(R.string.folder_label_access))
             }
 
             item {
-                val isOnText = stringResource(
-                    if (state.isGuestAllowed) {
-                        R.string.label_system_message_receipt_mode_on
-                    } else {
-                        R.string.label_system_message_receipt_mode_off
-                    }
-                )
-                val contentDescription =
-                    stringResource(id = R.string.content_description_conversation_details_guests_option, isOnText)
                 GroupConversationOptionsItem(
                     title = stringResource(id = R.string.conversation_options_guests_label),
                     subtitle = stringResource(id = R.string.conversation_details_guest_description),
                     switchState = SwitchState.TextOnly(value = state.isGuestAllowed),
                     arrowType = if (state.isUpdatingGuestAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
-                    clickable = Clickable(enabled = state.isUpdatingGuestAllowed, onClick = onGuestItemClicked, onLongClick = {}),
-                    contentDescription = contentDescription
+                    clickable = Clickable(
+                        enabled = state.isUpdatingGuestAllowed,
+                        onClick = onGuestItemClicked,
+                        onClickDescription = stringResource(id = R.string.content_description_conversation_details_guests_action)
+                    ),
                 )
             }
 
@@ -150,19 +137,11 @@ fun GroupConversationSettings(
             }
         }
         item {
-            val contentDescription =
-                stringResource(id = R.string.content_description_conversation_details_messages_header)
-            FolderHeader(
-                name = stringResource(id = R.string.folder_label_messaging),
-                modifier = Modifier.semantics { this.contentDescription = contentDescription }
-            )
+            FolderHeader(name = stringResource(id = R.string.folder_label_messaging))
         }
 
         if (!state.selfDeletionTimer.isDisabled) {
             item {
-                val isOnText = stringResource(R.string.label_system_message_receipt_mode_on)
-                val contentDescription =
-                    stringResource(R.string.content_description_conversation_details_self_deleting_option, isOnText)
                 GroupConversationOptionsItem(
                     title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
                     subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_description),
@@ -180,9 +159,8 @@ fun GroupConversationSettings(
                     clickable = Clickable(
                         enabled = state.isUpdatingSelfDeletingAllowed && !state.selfDeletionTimer.isEnforcedByTeam,
                         onClick = onSelfDeletingClicked,
-                        onLongClick = {}
-                    ),
-                    contentDescription = contentDescription
+                        onClickDescription = stringResource(id = R.string.content_description_conversation_details_self_deleting_action)
+                    )
                 )
             }
         }
@@ -246,17 +224,15 @@ private fun GroupNameItem(
     canBeChanged: Boolean,
     onClick: () -> Unit = {},
 ) {
-    val contentDescription =
-        stringResource(id = R.string.content_description_conversation_details_group_name, groupName)
     GroupConversationOptionsItem(
         label = stringResource(id = R.string.conversation_details_options_group_name),
         title = groupName,
         clickable = Clickable(
             enabled = canBeChanged,
             onClick = onClick,
-            onLongClick = { /* not handled */ }),
+            onClickDescription = stringResource(id = R.string.content_description_edit_label)
+        ),
         arrowType = if (!canBeChanged) ArrowType.NONE else ArrowType.CENTER_ALIGNED,
-        contentDescription = contentDescription
     )
     HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
 }
@@ -285,9 +261,7 @@ private fun ServicesOption(
         isLoading = isLoading,
         onClick = onCheckedChange,
         title = R.string.conversation_options_services_label,
-        subTitle = if (isSwitchEnabledAndVisible) R.string.conversation_options_services_description else null,
-        contentDescriptionRes = R.string.content_description_conversation_details_services_option,
-        switcherContentDescriptionRes = R.string.content_description_switch_btn
+        subTitle = if (isSwitchEnabledAndVisible) R.string.conversation_options_services_description else null
     )
 }
 
@@ -305,9 +279,7 @@ private fun ReadReceiptOption(
         isLoading = isLoading,
         onClick = onCheckedChange,
         title = R.string.conversation_options_read_receipt_label,
-        subTitle = R.string.conversation_options_read_receipt_description,
-        contentDescriptionRes = R.string.content_description_conversation_details_read_receipts_option,
-        switcherContentDescriptionRes = R.string.content_description_switch_btn
+        subTitle = R.string.conversation_options_read_receipt_description
     )
 }
 
@@ -320,29 +292,16 @@ fun GroupOptionWithSwitch(
     onClick: (Boolean) -> Unit,
     @StringRes title: Int,
     @StringRes subTitle: Int?,
-    @StringRes contentDescriptionRes: Int,
-    @StringRes switcherContentDescriptionRes: Int
 ) {
-    val isOnText = stringResource(
-        if (switchState) R.string.label_system_message_receipt_mode_on else R.string.label_system_message_receipt_mode_off
-    )
-    val contentDescription = stringResource(id = contentDescriptionRes, isOnText)
-    val switcherContentDescription = stringResource(id = switcherContentDescriptionRes, isOnText)
     GroupConversationOptionsItem(
         title = stringResource(id = title),
         subtitle = subTitle?.let { stringResource(id = it) },
         switchState = when {
             !switchVisible -> SwitchState.TextOnly(value = switchState)
-            switchClickable && !isLoading -> SwitchState.Enabled(
-                value = switchState,
-                onCheckedChange = onClick,
-                contentDescription = switcherContentDescription
-            )
-
+            switchClickable && !isLoading -> SwitchState.Enabled(value = switchState, onCheckedChange = onClick)
             else -> SwitchState.Disabled(value = switchState)
         },
-        arrowType = ArrowType.NONE,
-        contentDescription = contentDescription
+        arrowType = ArrowType.NONE
     )
     HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
 }

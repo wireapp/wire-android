@@ -36,9 +36,7 @@ fun SelfDeletingMessageOption(
         onClick = onCheckedChange,
         isLoading = isLoading,
         title = R.string.self_deleting_messages_option,
-        subTitle = R.string.self_deleting_messages_option_description,
-        contentDescriptionRes = R.string.content_description_conversation_details_self_deleting_option,
-        switcherContentDescriptionRes = R.string.content_description_switch_btn
+        subTitle = R.string.self_deleting_messages_option_description
     )
 }
 

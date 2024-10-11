@@ -35,8 +35,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -73,10 +76,13 @@ fun WireTabRow(
                 if (upperCaseTitles) it.uppercase() else it
             }
             val contentDescription = tabItem.contentDescription?.asString()
+            val selectText = stringResource(id = com.wire.android.R.string.content_description_select_label)
 
             Tab(
-                modifier = Modifier.semantics {
-                    contentDescription?.let { this.contentDescription = contentDescription }
+                modifier = Modifier.semantics() {
+                    onClick(selectText) { false }
+                    this.contentDescription = "2"
+                    this.stateDescription = "1"
                 },
                 enabled = true,
                 text = {

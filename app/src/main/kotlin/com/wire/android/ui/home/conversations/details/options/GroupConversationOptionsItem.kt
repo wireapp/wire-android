@@ -34,15 +34,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.home.settings.SettingsOptionSwitch
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.wireColorScheme
@@ -52,11 +58,12 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun GroupConversationOptionsItem(
     title: String,
-    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ }),
+    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }),
     modifier: Modifier = Modifier
         .fillMaxWidth()
         .background(MaterialTheme.wireColorScheme.surface)
         .clickable(clickable)
+        .clickableDescriptions(clickable)
         .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight),
     subtitle: String? = null,
     label: String? = null,
@@ -130,7 +137,7 @@ private fun ArrowRight() {
             start = MaterialTheme.wireDimensions.spacing8x,
             end = MaterialTheme.wireDimensions.spacing8x
         )
-    ) { ArrowRightIcon() }
+    ) { ArrowRightIcon(contentDescription = R.string.content_description_empty) }
 }
 
 enum class ArrowType {

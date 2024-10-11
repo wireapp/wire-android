@@ -28,8 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -70,9 +68,8 @@ fun ConversationParticipantItem(
     searchQuery: String = String.EMPTY,
     showRightArrow: Boolean = true
 ) {
-    val contentDescription = participantContentDescription(uiParticipant)
     RowItemTemplate(
-        modifier = modifier.semantics { this.contentDescription = contentDescription },
+        modifier = modifier,
         leadingIcon = {
             UserProfileAvatar(
                 avatarData = uiParticipant.avatarData,
@@ -139,7 +136,10 @@ fun ConversationParticipantItem(
                         .wrapContentWidth()
                         .padding(end = MaterialTheme.wireDimensions.spacing8x)
                 ) {
-                    ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+                    ArrowRightIcon(
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        contentDescription = R.string.content_description_empty
+                    )
                 }
             }
         },
@@ -163,28 +163,6 @@ private fun processUsername(uiParticipant: UIParticipant) = when {
     }
 
     else -> uiParticipant.handle
-}
-
-@Composable
-private fun participantContentDescription(uiParticipant: UIParticipant): String {
-    val resId = if (uiParticipant.isSelf) {
-        R.string.content_description_conversation_details_member_self
-    } else {
-        R.string.content_description_conversation_details_member
-    }
-
-    val membership = uiParticipant.membership.stringResourceId.let {
-        if (it != -1) stringResource(id = it) else null
-    }
-    val mlsVerification = uiParticipant.isMLSVerified.let {
-        if (it) stringResource(id = R.string.content_description_mls_verified) else null
-    }
-    val proteusVerification = uiParticipant.isProteusVerified.let {
-        if (it) stringResource(id = R.string.content_description_proteus_verified) else null
-    }
-    val membershipAndVerificationText = listOfNotNull(membership, mlsVerification, proteusVerification).joinToString(", ")
-
-    return stringResource(id = resId, uiParticipant.name, uiParticipant.handle, membershipAndVerificationText)
 }
 
 @PreviewMultipleThemes

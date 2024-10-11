@@ -42,9 +42,7 @@ fun GuestOption(
             isSwitchEnabled -> R.string.conversation_options_guest_description
             isSwitchVisible -> R.string.conversation_options_guest_not_editable_description
             else -> null
-        },
-        contentDescriptionRes = R.string.content_description_edit_guests_option,
-        switcherContentDescriptionRes = R.string.content_description_switch_btn
+        }
     )
 }
 

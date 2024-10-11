@@ -142,6 +142,7 @@ fun UserProfileAvatar(
             .wrapContentSize()
             .clip(CircleShape)
             .clickable(clickable)
+            .clickableDescriptions(clickable)
     ) {
         var userStatusIndicatorParams by remember { mutableStateOf(Size.Zero to Offset.Zero) }
         Box(

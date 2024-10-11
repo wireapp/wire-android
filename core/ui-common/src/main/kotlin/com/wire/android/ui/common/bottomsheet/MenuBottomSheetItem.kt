@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -57,8 +58,7 @@ fun MenuBottomSheetItem(
     clickBlockParams: ClickBlockParams = ClickBlockParams(),
     itemProvidedColor: Color = MaterialTheme.colorScheme.secondary,
     onItemClick: () -> Unit = {},
-    enabled: Boolean = true,
-    contentDescription: String? = null
+    enabled: Boolean = true
 ) {
     CompositionLocalProvider(LocalContentColor provides itemProvidedColor) {
         val clickable = remember(onItemClick, clickBlockParams) {
@@ -74,8 +74,8 @@ fun MenuBottomSheetItem(
                 .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationBottomSheetItemHeight)
                 .fillMaxWidth()
                 .clickable(clickable)
+                .clickableDescriptions(clickable)
                 .padding(MaterialTheme.wireDimensions.conversationBottomSheetItemPadding)
-                .semantics { this.contentDescription = contentDescription ?: title }
         ) {
             if (icon != null) {
                 icon()
@@ -117,7 +117,7 @@ fun MenuItemTitle(
 @Composable
 fun MenuItemIcon(
     @DrawableRes id: Int,
-    contentDescription: String,
+    contentDescription: String?,
     size: Dp = MaterialTheme.wireDimensions.wireIconButtonSize,
     modifier: Modifier = Modifier
 ) {

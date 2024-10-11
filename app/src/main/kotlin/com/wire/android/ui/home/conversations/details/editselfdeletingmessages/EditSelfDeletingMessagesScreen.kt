@@ -35,8 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -144,25 +142,17 @@ fun SelectableSelfDeletingItem(
     isSelected: Boolean,
     onSelfDeletionDurationSelected: (SelfDeletionDuration) -> Unit
 ) {
-    val text = duration.longLabel.asString()
-    val contentDescriptionId = if (isSelected) {
-        R.string.content_description_selected_suffix
-    } else {
-        R.string.content_description_not_selected_suffix
-    }
-    val contentDestinationSuffix = stringResource(id = contentDescriptionId)
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .selectableBackground(isSelected, onClick = { onSelfDeletionDurationSelected(duration) })
             .background(color = MaterialTheme.wireColorScheme.surface)
             .padding(all = MaterialTheme.wireDimensions.spacing16x)
-            .semantics { contentDescription = "$text$contentDestinationSuffix" }
     ) {
         RadioButton(selected = isSelected, onClick = null)
         HorizontalSpace.x8()
         Text(
-            text = text,
+            text = duration.longLabel.asString(),
             style = MaterialTheme.wireTypography.body01,
             color = MaterialTheme.wireColorScheme.onBackground
         )

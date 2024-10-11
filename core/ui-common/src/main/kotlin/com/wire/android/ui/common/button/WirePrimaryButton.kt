@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.common.button
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -71,8 +70,7 @@ fun WirePrimaryButton(
         horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,
         vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    @StringRes contentDescriptionRes: Int? = null
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) = WireButton(
     onClick = onClick,
     loading = loading,
@@ -93,8 +91,7 @@ fun WirePrimaryButton(
     borderWidth = borderWidth,
     contentPadding = contentPadding,
     interactionSource = interactionSource,
-    modifier = modifier,
-    contentDescriptionRes = contentDescriptionRes
+    modifier = modifier
 )
 
 @Preview(name = "Default WirePrimaryButton")

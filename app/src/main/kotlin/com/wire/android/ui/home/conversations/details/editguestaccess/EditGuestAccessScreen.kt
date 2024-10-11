@@ -37,8 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -133,19 +131,14 @@ fun EditGuestAccessScreen(
                     }
                 }
                 item {
-                    val contentDescription =
-                        stringResource(id = R.string.content_description_edit_guests_option_link_header)
                     FolderHeader(
                         name = stringResource(id = R.string.folder_label_guest_link),
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(MaterialTheme.wireColorScheme.background)
-                            .semantics { this.contentDescription = contentDescription }
                     )
                 }
                 item {
-                    val contentDestination =
-                        stringResource(id = R.string.content_description_edit_guests_option_link_description)
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -156,7 +149,6 @@ fun EditGuestAccessScreen(
                                 bottom = dimensions().spacing8x,
                                 top = dimensions().spacing8x,
                             )
-                            .semantics { this.contentDescription = contentDestination }
                     ) {
                         with(editGuestAccessViewModel) {
                             Text(

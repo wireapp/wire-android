@@ -35,20 +35,12 @@ fun LazyListScope.participantsFoldersWithElements(
     folderWithElements(
         header = context.getString(R.string.conversation_details_group_admins, state.data.allAdminsCount),
         items = state.data.admins,
-        onRowItemClicked = onRowItemClicked,
-        folderContentDescription = context.getString(
-            R.string.content_description_conversation_details_admins_header,
-            state.data.allAdminsCount
-        )
+        onRowItemClicked = onRowItemClicked
     )
     folderWithElements(
         header = context.getString(R.string.conversation_details_group_members, state.data.allParticipantsCount),
         items = state.data.participants,
-        onRowItemClicked = onRowItemClicked,
-        folderContentDescription = context.getString(
-            R.string.content_description_conversation_details_members_header,
-            state.data.allAdminsCount
-        )
+        onRowItemClicked = onRowItemClicked
     )
 }
 
@@ -56,8 +48,7 @@ fun LazyListScope.folderWithElements(
     header: String,
     items: List<UIParticipant>,
     onRowItemClicked: (UIParticipant) -> Unit,
-    showRightArrow: Boolean = true,
-    folderContentDescription: String? = null
+    showRightArrow: Boolean = true
 ) = folderWithElements(
     header = header,
     items = items.associateBy { it.id.toString() },
@@ -69,8 +60,7 @@ fun LazyListScope.folderWithElements(
             showRightArrow = showRightArrow
         )
     },
-    divider = { WireDivider() },
-    folderContentDescription = folderContentDescription
+    divider = { WireDivider() }
 )
 
 fun LazyListScope.folderWithElements(
@@ -90,6 +80,5 @@ fun LazyListScope.folderWithElements(
             showRightArrow = showRightArrow
         )
     },
-    divider = { WireDivider() },
-    folderContentDescription = folderContentDescription
+    divider = { WireDivider() }
 )

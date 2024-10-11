@@ -94,21 +94,16 @@ internal fun ConversationMainSheetContent(
         menuItems = buildList<@Composable () -> Unit> {
             if (conversationSheetContent.canEditNotifications() && !conversationSheetContent.isArchived) {
                 add {
-                    val contentDescription = stringResource(
-                        id = R.string.content_description_conversation_menu_notification_setting,
-                        conversationSheetContent.mutingConversationState.getMutedStatusTextResource()
-                    )
                     MenuBottomSheetItem(
                         title = stringResource(R.string.label_notifications),
                         icon = {
                             MenuItemIcon(
                                 id = R.drawable.ic_mute,
-                                contentDescription = stringResource(R.string.content_description_muted_conversation),
+                                contentDescription = null,
                             )
                         },
                         action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
-                        onItemClick = navigateToNotification,
-                        contentDescription = contentDescription
+                        onItemClick = navigateToNotification
                     )
                 }
             }
@@ -144,10 +139,7 @@ internal fun ConversationMainSheetContent(
                     icon = {
                         MenuItemIcon(
                             id = R.drawable.ic_archive,
-                            contentDescription = stringResource(
-                                if (conversationSheetContent.isArchived) R.string.content_description_unarchive
-                                else R.string.content_description_move_to_archive
-                            ),
+                            contentDescription = null,
                         )
                     },
                     title = stringResource(
@@ -173,7 +165,7 @@ internal fun ConversationMainSheetContent(
                     icon = {
                         MenuItemIcon(
                             id = R.drawable.ic_erase,
-                            contentDescription = stringResource(R.string.content_description_clear_content),
+                            contentDescription = null,
                         )
                     },
                     title = stringResource(R.string.label_clear_content),
@@ -196,7 +188,7 @@ internal fun ConversationMainSheetContent(
                         icon = {
                             MenuItemIcon(
                                 id = R.drawable.ic_block,
-                                contentDescription = stringResource(R.string.content_description_block_the_user),
+                                contentDescription = null,
                             )
                         },
                         itemProvidedColor = MaterialTheme.colorScheme.error,
@@ -219,7 +211,7 @@ internal fun ConversationMainSheetContent(
                         icon = {
                             MenuItemIcon(
                                 id = R.drawable.ic_block,
-                                contentDescription = stringResource(R.string.content_description_unblock_the_user)
+                                contentDescription = null
                             )
                         },
                         itemProvidedColor = MaterialTheme.colorScheme.onBackground,
@@ -241,7 +233,7 @@ internal fun ConversationMainSheetContent(
                         icon = {
                             MenuItemIcon(
                                 id = R.drawable.ic_leave,
-                                contentDescription = stringResource(R.string.content_description_leave_the_group),
+                                contentDescription = null,
                             )
                         },
                         itemProvidedColor = MaterialTheme.colorScheme.error,
@@ -263,7 +255,7 @@ internal fun ConversationMainSheetContent(
                         icon = {
                             MenuItemIcon(
                                 id = R.drawable.ic_remove,
-                                contentDescription = stringResource(R.string.content_description_delete_the_group),
+                                contentDescription = null,
                             )
                         },
                         title = stringResource(R.string.label_delete_group),
@@ -298,6 +290,6 @@ fun NotificationsOptionsItemAction(
             modifier = Modifier.weight(weight = 1f, fill = false)
         )
         Spacer(modifier = Modifier.size(dimensions().spacing16x))
-        ArrowRightIcon()
+        ArrowRightIcon(contentDescription = R.string.content_description_empty)
     }
 }

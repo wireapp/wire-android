@@ -36,15 +36,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.wire.android.R
+import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -54,13 +55,16 @@ import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun CommonTopAppBar(
+    themeOption: ThemeOption,
     commonTopAppBarState: CommonTopAppBarState,
     onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit,
     onReturnToIncomingCallClick: (ConnectivityUIState.IncomingCall) -> Unit,
-    onReturnToOutgoingCallClick: (ConnectivityUIState.OutgoingCall) -> Unit
+    onReturnToOutgoingCallClick: (ConnectivityUIState.OutgoingCall) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Column {
+    Column(modifier = modifier) {
         ConnectivityStatusBar(
+            themeOption = themeOption,
             connectivityInfo = commonTopAppBarState.connectivityState,
             onReturnToCallClick = onReturnToCallClick,
             onReturnToIncomingCallClick = onReturnToIncomingCallClick,
@@ -82,6 +86,7 @@ fun getBackgroundColor(connectivityInfo: ConnectivityUIState): Color {
 
 @Composable
 private fun ConnectivityStatusBar(
+    themeOption: ThemeOption,
     connectivityInfo: ConnectivityUIState,
     onReturnToCallClick: (ConnectivityUIState.EstablishedCall) -> Unit,
     onReturnToIncomingCallClick: (ConnectivityUIState.IncomingCall) -> Unit,
@@ -89,16 +94,22 @@ private fun ConnectivityStatusBar(
 ) {
     val isVisible = connectivityInfo !is ConnectivityUIState.None
     val backgroundColor = getBackgroundColor(connectivityInfo)
-    if (!isVisible) {
-        clearStatusBarColor()
-    }
 
     if (isVisible) {
         val darkIcons = MaterialTheme.wireColorScheme.connectivityBarShouldUseDarkIcons
-        rememberSystemUiController().setStatusBarColor(
+        val systemUiController = rememberSystemUiController()
+        systemUiController.setStatusBarColor(
             color = backgroundColor,
             darkIcons = darkIcons
         )
+        LaunchedEffect(themeOption) {
+            systemUiController.setStatusBarColor(
+                color = backgroundColor,
+                darkIcons = darkIcons
+            )
+        }
+    } else {
+        ClearStatusBarColor()
     }
 
     val barModifier = Modifier
@@ -220,16 +231,6 @@ private fun StatusLabelWithValue(
 }
 
 @Composable
-fun StatusLabel(message: String, color: Color = MaterialTheme.wireColorScheme.onPrimary) {
-    Text(
-        text = message,
-        textAlign = TextAlign.Center,
-        color = color,
-        style = MaterialTheme.wireTypography.title03,
-    )
-}
-
-@Composable
 private fun CameraIcon(tint: Color = MaterialTheme.wireColorScheme.onPositive) {
     Icon(
         painter = painterResource(id = R.drawable.ic_camera_white_paused),
@@ -261,7 +262,7 @@ private fun MicrophoneIcon(
 }
 
 @Composable
-private fun clearStatusBarColor() {
+private fun ClearStatusBarColor() {
     val backgroundColor = MaterialTheme.wireColorScheme.background
     val darkIcons = MaterialTheme.wireColorScheme.useDarkSystemBarIcons
 
@@ -274,7 +275,7 @@ private fun clearStatusBarColor() {
 @Composable
 private fun PreviewCommonTopAppBar(connectivityUIState: ConnectivityUIState) {
     WireTheme {
-        CommonTopAppBar(CommonTopAppBarState(connectivityUIState), {}, {}, {})
+        CommonTopAppBar(ThemeOption.SYSTEM, CommonTopAppBarState(connectivityUIState), {}, {}, {})
     }
 }
 

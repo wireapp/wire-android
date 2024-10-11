@@ -383,10 +383,9 @@ fun isText(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("text/")
 }
 
-@Suppress("MagicNumber")
 fun Context.getDeviceIdString(): String? {
 
-    if (Build.VERSION.SDK_INT >= 26) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         return Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
     }
 

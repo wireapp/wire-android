@@ -161,7 +161,7 @@ private fun SuccessfulAudioMessage(
             onButtonClicked = onPlayButtonClick
         )
 
-        SuccessfulAudioMessageSlider(
+        AudioMessageSlider(
             audioDuration = audioDuration,
             totalTimeInMs = totalTimeInMs,
             onSliderPositionChange = onSliderPositionChange
@@ -193,7 +193,7 @@ private fun SuccessfulAudioMessage(
  */
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun RowScope.SuccessfulAudioMessageSlider(
+private fun RowScope.AudioMessageSlider(
     audioDuration: AudioDuration,
     totalTimeInMs: AudioState.TotalTimeInMs,
     onSliderPositionChange: (Float) -> Unit,

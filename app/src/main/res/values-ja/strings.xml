@@ -183,7 +183,6 @@
     <string name="app_settings_screen_title">アプリ設定</string>
     <string name="give_feedback_screen_title">フィードバックを送信</string>
     <string name="report_bug_screen_title">不具合の報告</string>
-    <string name="debug_settings_screen_title">デバッグ設定</string>
     <string name="support_screen_title">サポート</string>
     <string name="backup_and_restore_screen_title">会話のバックアップと復元</string>
     <string name="search_bar_conversations_hint">会話の検索</string>
@@ -382,4 +381,6 @@
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">デバッグ設定</string>
 </resources>

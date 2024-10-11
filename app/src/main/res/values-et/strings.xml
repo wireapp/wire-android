@@ -112,7 +112,6 @@
     <string name="app_settings_screen_title">Rakenduse seaded</string>
     <string name="give_feedback_screen_title">Anna tagasisidet</string>
     <string name="report_bug_screen_title">Teata veast</string>
-    <string name="debug_settings_screen_title">Silumise seaded</string>
     <string name="support_screen_title">Klienditugi</string>
     <string name="backup_and_restore_screen_title">Varunda ja taasta vestlusi</string>
     <string name="search_bar_conversations_hint">Otsi vestlusi</string>
@@ -456,4 +455,6 @@
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Silumise seaded</string>
 </resources>

@@ -183,7 +183,6 @@
     <string name="app_settings_screen_title">Impostazioni App</string>
     <string name="give_feedback_screen_title">Invia Feedback</string>
     <string name="report_bug_screen_title">Segnala un Problema</string>
-    <string name="debug_settings_screen_title">Impostazioni di Debug</string>
     <string name="support_screen_title">Supporto</string>
     <string name="backup_and_restore_screen_title">Backup e Ripristino Conversazioni</string>
     <string name="search_bar_conversations_hint">Cerca conversazioni</string>
@@ -1331,4 +1330,6 @@ registrato. Sei pregato di riprovare.</string>
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Impostazioni di Debug</string>
 </resources>

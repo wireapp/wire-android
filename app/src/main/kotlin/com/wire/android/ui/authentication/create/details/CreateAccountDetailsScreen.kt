@@ -147,7 +147,12 @@ private fun DetailsContent(
                 .padding(internalPadding)
                 .fillMaxHeight()
         ) {
-            val keyboardOptions = KeyboardOptions(KeyboardCapitalization.Words, true, KeyboardType.Text, ImeAction.Next)
+            val keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Words,
+                autoCorrectEnabled = true,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next,
+            )
             val keyboardController = LocalSoftwareKeyboardController.current
             val firstNameFocusRequester = remember { FocusRequester() }
 

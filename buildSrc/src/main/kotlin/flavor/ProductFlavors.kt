@@ -24,6 +24,7 @@ object FlavorDimensions {
 sealed class ProductFlavors(
     val buildName: String,
     val appName: String,
+    val versionNameSuffix: String = "-${buildName}",
     val dimensions: String = FlavorDimensions.DEFAULT,
     val shareduserId: String = ""
 ) {
@@ -35,7 +36,12 @@ sealed class ProductFlavors(
     object Beta : ProductFlavors("beta", "Wire Beta")
     object Internal : ProductFlavors("internal", "Wire Internal")
     object Production : ProductFlavors("prod", "Wire", shareduserId = "com.waz.userid")
-    object Fdroid : ProductFlavors("fdroid", "Wire", shareduserId = "com.waz.userid")
+    object Fdroid : ProductFlavors(
+        buildName = "fdroid",
+        appName = "Wire",
+        shareduserId = "com.waz.userid",
+        versionNameSuffix = ""
+    )
 
     companion object {
         val all: Collection<ProductFlavors> = setOf(

@@ -40,7 +40,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 applicationId = AndroidApp.id
                 defaultConfig.targetSdk = AndroidSdk.target
                 versionCode = AndroidApp.versionCode
-                versionName = "${AndroidApp.versionName}-${AndroidApp.leastSignificantVersionCode}"
+                versionName = AndroidApp.versionName
                 setProperty("archivesBaseName", "$applicationId-v$versionName")
             }
 

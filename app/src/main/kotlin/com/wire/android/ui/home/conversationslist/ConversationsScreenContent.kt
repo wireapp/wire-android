@@ -50,7 +50,6 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
-import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -71,7 +70,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.flow.map
 
 /**
  * This is a base for creating screens for displaying list of conversations.
@@ -91,10 +89,7 @@ fun ConversationsScreenContent(
         else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
             key = "list_${conversationsSource.name}",
             creationCallback = { factory ->
-                factory.create(
-                    conversationsSource = conversationsSource,
-                    searchQueryFlow = searchBarState.searchQueryTextState.textAsFlow().map { it.toString() }
-                )
+                factory.create(conversationsSource = conversationsSource)
             }
         )
     },
@@ -130,6 +125,10 @@ fun ConversationsScreenContent(
         if (searchBarState.isSearchActive) {
             conversationListViewModel.refreshMissingMetadata()
         }
+    }
+
+    LaunchedEffect(searchBarState.searchQueryTextState.text) {
+        conversationListViewModel.searchQueryChanged(searchBarState.searchQueryTextState.text.toString())
     }
 
     fun showConfirmationDialogOrUnarchive(): (DialogState) -> Unit {

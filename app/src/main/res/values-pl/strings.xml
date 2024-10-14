@@ -139,7 +139,6 @@
     <string name="app_settings_screen_title">Ustawienia Aplikacji</string>
     <string name="give_feedback_screen_title">Przeka&#380; Opini&#281;</string>
     <string name="report_bug_screen_title">Zg&#322;o&#347; B&#322;&#261;d</string>
-    <string name="debug_settings_screen_title">Ustawienia debugowania</string>
     <string name="support_screen_title">Pomoc</string>
     <string name="backup_and_restore_screen_title">Utw&#243;rz &amp; Przywr&#243;&#263; Kopi&#281; Zapasow&#261;</string>
     <string name="search_bar_conversations_hint">Szukaj rozm&#243;w</string>
@@ -901,4 +900,6 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Ustawienia debugowania</string>
 </resources>

@@ -28,7 +28,7 @@ import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestClient
 import com.wire.android.ui.authentication.login.LoginState
-import com.wire.android.ui.common.dialogs.CustomServerDialogState
+import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
@@ -423,7 +423,7 @@ class LoginSSOViewModelTest {
     @Test
     fun `given backend switch confirmed, then auth server provider is updated`() = runTest {
         val expected = newServerConfig(2).links
-        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(expected))
         coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success("ssoCode")
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Success("url")
 
@@ -440,7 +440,7 @@ class LoginSSOViewModelTest {
         coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success("ssoCode")
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Success("url")
 
-        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(expected))
 
         loginViewModel.onCustomServerDialogConfirm()
 
@@ -457,7 +457,7 @@ class LoginSSOViewModelTest {
         val expected = newServerConfig(2).links
         every { validateEmailUseCase(any()) } returns true
         coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success(null)
-        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(expected))
 
         loginViewModel.onCustomServerDialogConfirm()
 
@@ -473,7 +473,7 @@ class LoginSSOViewModelTest {
         val expected = newServerConfig(2).links
         every { validateEmailUseCase(any()) } returns true
         coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Failure(CoreFailure.Unknown(IOException()))
-        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDetailsDialogState(expected))
 
         loginViewModel.onCustomServerDialogConfirm()
 

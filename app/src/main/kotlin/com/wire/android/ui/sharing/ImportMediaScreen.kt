@@ -110,7 +110,6 @@ import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AttachmentType
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf

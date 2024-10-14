@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversationslist.common
 
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth

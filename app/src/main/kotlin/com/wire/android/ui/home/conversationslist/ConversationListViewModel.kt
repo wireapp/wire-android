@@ -63,7 +63,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -145,7 +144,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
                 .onStart { emit("") }
                 .distinctUntilChanged()
                 .mapLatest { searchQuery: String ->
-                    delay(1000)
                     _conversationListState.copy(
                         foldersWithConversations = getConversationsPaginated(
                             searchQuery = searchQuery,

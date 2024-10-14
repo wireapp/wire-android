@@ -58,6 +58,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.conversation.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
 import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
@@ -306,4 +307,9 @@ class ConversationModule {
     @Provides
     fun provideGetConversationProtocolInfoUseCase(conversationScope: ConversationScope): GetConversationProtocolInfoUseCase =
         conversationScope.getConversationProtocolInfo
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase(conversationScope: ConversationScope) =
+        conversationScope.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
 }

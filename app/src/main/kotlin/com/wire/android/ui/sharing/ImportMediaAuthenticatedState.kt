@@ -15,22 +15,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.sharing
 
-package com.wire.android.ui.home.conversationslist
-
+import androidx.compose.runtime.Stable
 import androidx.paging.PagingData
 import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import kotlinx.collections.immutable.ImmutableList
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
-data class ConversationListState(
+@Stable
+data class ImportMediaAuthenticatedState(
+    val importedAssets: PersistentList<ImportedMediaAsset> = persistentListOf(),
+    val importedText: String? = null,
+    val isImporting: Boolean = false,
+    val conversations: Flow<PagingData<ConversationFolderItem>> = emptyFlow(),
     val searchQuery: String = "",
-    val foldersWithConversations: Flow<PagingData<ConversationFolderItem>> = emptyFlow(),
-    val missedCalls: ImmutableList<ConversationItem> = persistentListOf(),
-    val callHistory: ImmutableList<ConversationItem> = persistentListOf(),
-    val unreadMentions: ImmutableList<ConversationItem> = persistentListOf(),
-    val allMentions: ImmutableList<ConversationItem> = persistentListOf(),
-)
+    val selectedConversationItem: List<ConversationItem> = persistentListOf(),
+    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
+) {
+    @Stable
+    fun isImportingData() {
+        importedText?.isNotEmpty() == true || importedAssets.isNotEmpty()
+    }
+}

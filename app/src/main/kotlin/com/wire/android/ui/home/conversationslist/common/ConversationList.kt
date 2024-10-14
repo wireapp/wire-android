@@ -18,50 +18,58 @@
 
 package com.wire.android.ui.home.conversationslist.common
 
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
+import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.extension.folderWithElements
-import com.wire.android.util.ui.KeepOnTopWhenNotScrolled
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.collections.immutable.toImmutableMap
-import kotlinx.collections.immutable.toPersistentMap
+import kotlinx.coroutines.flow.flowOf
 
 @Suppress("LongParameterList")
 @Composable
 fun ConversationList(
-    conversationListItems: ImmutableMap<ConversationFolder, List<ConversationItem>>,
+    lazyPagingConversations: LazyPagingItems<ConversationFolderItem>,
     searchQuery: String,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     isSelectableList: Boolean = false,
     selectedConversations: List<ConversationItem> = emptyList(),
-    onOpenConversation: (ConversationId) -> Unit = {},
+    onOpenConversation: (ConversationItem) -> Unit = {},
     onEditConversation: (ConversationItem) -> Unit = {},
     onOpenUserProfile: (UserId) -> Unit = {},
     onJoinCall: (ConversationId) -> Unit = {},
-    onConversationSelectedOnRadioGroup: (ConversationId) -> Unit = {},
+    onConversationSelectedOnRadioGroup: (ConversationItem) -> Unit = {},
     onAudioPermissionPermanentlyDenied: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -70,34 +78,59 @@ fun ConversationList(
         state = lazyListState,
         modifier = modifier.fillMaxSize()
     ) {
-        conversationListItems.forEach { (conversationFolder, conversationList) ->
-            folderWithElements(
-                header = when (conversationFolder) {
-                    is ConversationFolder.Predefined -> context.getString(conversationFolder.folderNameResId)
-                    is ConversationFolder.Custom -> conversationFolder.folderName
-                    is ConversationFolder.WithoutHeader -> null
-                },
-                items = conversationList.associateBy {
-                    it.conversationId.toString()
+        items(
+            count = lazyPagingConversations.itemCount,
+            key = lazyPagingConversations.itemKey {
+                when (it) {
+                    is ConversationFolder.Predefined -> "folder_predefined_${context.getString(it.folderNameResId)}"
+                    is ConversationFolder.Custom -> "folder_custom_${it.folderName}"
+                    is ConversationItem -> it.conversationId.toString()
                 }
-            ) { generalConversation ->
-                ConversationItemFactory(
-                    searchQuery = searchQuery,
-                    conversation = generalConversation,
-                    isSelectableItem = isSelectableList,
-                    isChecked = selectedConversations.contains(generalConversation),
-                    onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(generalConversation.conversationId) },
-                    openConversation = onOpenConversation,
-                    openMenu = onEditConversation,
-                    openUserProfile = onOpenUserProfile,
-                    joinCall = onJoinCall,
-                    onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
-                )
+            },
+            contentType = lazyPagingConversations.itemContentType {
+                when (it) {
+                    is ConversationFolder -> ConversationFolderItem::class.simpleName
+                    is ConversationItem -> ConversationItem::class.simpleName
+                }
+            }
+        ) { index ->
+            Box(
+                modifier = Modifier
+                .fillMaxWidth()
+                .let { // for some reasons animateItem doesn't work with LazyPagingItems and shows empty composables on previews
+                    if (LocalInspectionMode.current) it else it.animateItem()
+                }
+            ) {
+                when (val item = lazyPagingConversations[index]) {
+                    is ConversationFolder -> FolderHeader(
+                        name = when (item) {
+                            is ConversationFolder.Predefined -> context.getString(item.folderNameResId)
+                            is ConversationFolder.Custom -> item.folderName
+                        },
+                    )
+
+                    is ConversationItem ->
+                        ConversationItemFactory(
+                            searchQuery = searchQuery,
+                            conversation = item,
+                            isSelectableItem = isSelectableList,
+                            isChecked = selectedConversations.contains(item),
+                            onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(item) },
+                            openConversation = onOpenConversation,
+                            openMenu = onEditConversation,
+                            openUserProfile = onOpenUserProfile,
+                            joinCall = onJoinCall,
+                            onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
+                        )
+
+                    else -> {}
+                }
             }
         }
+        Snapshot.withoutReadObservation {
+            keepOnTopWhenNotScrolled(lazyListState)
+        }
     }
-
-    KeepOnTopWhenNotScrolled(lazyListState)
 }
 
 fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = false) = buildList {
@@ -140,17 +173,20 @@ fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = f
     }
 }.toImmutableList()
 
-@Suppress("MagicNumber")
-fun previewConversationFolders() = buildMap<ConversationFolder, List<ConversationItem>> {
-    put(ConversationFolder.Predefined.NewActivities, previewConversationList(3, 0, true))
-    put(ConversationFolder.Predefined.Conversations, previewConversationList(6, 3, false))
-}.toImmutableMap()
+fun previewConversationFoldersFlow(list: List<ConversationFolderItem> = previewConversationFolders()) = flowOf(PagingData.from(list))
+
+fun previewConversationFolders(withFolders: Boolean = true) = buildList {
+    if (withFolders) add(ConversationFolder.Predefined.NewActivities)
+    addAll(previewConversationList(3, 0, true))
+    if (withFolders) add(ConversationFolder.Predefined.Conversations)
+    addAll(previewConversationList(6, 3, false))
+}
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewConversationList() = WireTheme {
     ConversationList(
-        conversationListItems = previewConversationFolders().toPersistentMap(),
+        lazyPagingConversations = previewConversationFoldersFlow().collectAsLazyPagingItems(),
         searchQuery = "",
         isSelectableList = false,
     )
@@ -160,7 +196,7 @@ fun PreviewConversationList() = WireTheme {
 @Composable
 fun PreviewConversationListSearch() = WireTheme {
     ConversationList(
-        conversationListItems = previewConversationFolders(),
+        lazyPagingConversations = previewConversationFoldersFlow().collectAsLazyPagingItems(),
         searchQuery = "er",
         isSelectableList = false,
     )
@@ -171,9 +207,9 @@ fun PreviewConversationListSearch() = WireTheme {
 fun PreviewConversationListSelect() = WireTheme {
     val conversationFolders = previewConversationFolders()
     ConversationList(
-        conversationListItems = conversationFolders,
+        lazyPagingConversations = previewConversationFoldersFlow(conversationFolders).collectAsLazyPagingItems(),
         searchQuery = "",
         isSelectableList = true,
-        selectedConversations = conversationFolders.values.flatten().filterIndexed { index, _ -> index % 3 == 0 },
+        selectedConversations = conversationFolders.filterIsInstance<ConversationItem>().filterIndexed { index, _ -> index % 3 == 0 },
     )
 }

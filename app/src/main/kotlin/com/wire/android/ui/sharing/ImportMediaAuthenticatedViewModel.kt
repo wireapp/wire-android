@@ -22,7 +22,6 @@ import android.net.Uri
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,40 +29,30 @@ import androidx.core.app.ShareCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.map
 import com.wire.android.appLogger
-import com.wire.android.mapper.UserTypeMapper
-import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
+import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.wire.android.ui.home.conversationslist.model.BlockState
-import com.wire.android.ui.home.conversationslist.model.ConversationInfo
+import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.parseConversationEventType
-import com.wire.android.ui.home.conversationslist.parsePrivateConversationEventType
-import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.parcelableArrayList
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.conversation.InteractionAvailability
-import com.wire.kalium.logic.data.conversation.interactionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
-import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -73,9 +62,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,8 +75,7 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
-    private val userTypeMapper: UserTypeMapper,
-    private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
+    private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val handleUriAsset: HandleUriAssetUseCase,
     private val persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase,
     private val observeSelfDeletionSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
@@ -128,142 +116,48 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private suspend fun observeConversationWithSearch() = viewModelScope.launch {
         searchQueryTextState.textAsFlow()
             .distinctUntilChanged()
+            .map { it.toString() }
             .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
             .onStart { emit(String.EMPTY) }
-            .flatMapLatest { searchQuery ->
-                observeConversationListDetails(fromArchive = false)
-                    .map { conversationDetailsList ->
-                        val conversations = conversationDetailsList.mapNotNull { conversationDetails ->
-                            conversationDetails.toConversationItem(wireSessionImageLoader, userTypeMapper)
-                        }
-                        ShareableConversationListState(
-                            initialConversations = conversations,
-                            searchQuery = searchQuery.toString(),
-                            hasNoConversations = conversations.isEmpty(),
-                            searchResult = searchShareableConversation(conversations, searchQuery.toString())
-                        )
+            .mapLatest { searchQuery ->
+                getConversationsPaginated(
+                    searchQuery = searchQuery,
+                    fromArchive = false,
+                    onlyInteractionEnabled = true,
+                    newActivitiesOnTop = false,
+                ).map {
+                    it.map {
+                        it as ConversationFolderItem
                     }
+                } to searchQuery
             }
             .flowOn(dispatchers.io())
-            .collect { updatedState ->
+            .collect { (conversations, searchQuery) ->
                 withContext(dispatchers.main()) {
-                    importMediaState =
-                        importMediaState.copy(shareableConversationListState = updatedState)
+                    importMediaState = importMediaState.copy(conversations = conversations, searchQuery = searchQuery)
                 }
             }
     }
 
-    private fun addConversationItemToGroupSelection(conversation: ConversationItem) =
+    fun onConversationClicked(conversationItem: ConversationItem) {
         viewModelScope.launch {
-            // TODO: change this conversation item to a list of conversation items in case we want to support
-            // sharing to multiple conversations
-            importMediaState =
-                importMediaState.copy(selectedConversationItem = listOf(conversation))
-        }
-
-    fun onConversationClicked(conversationId: ConversationId) {
-        importMediaState.shareableConversationListState.initialConversations.find { it.conversationId == conversationId }
-            ?.let {
-                addConversationItemToGroupSelection(it)
-            }
-        onNewConversationPicked(conversationId)
-    }
-
-    @Suppress("LongMethod")
-    private fun ConversationDetails.toConversationItem(
-        wireSessionImageLoader: WireSessionImageLoader,
-        userTypeMapper: UserTypeMapper
-    ): ConversationItem? {
-        // remove all conversations that self user can not interact with
-        if (this.interactionAvailability() != InteractionAvailability.ENABLED) {
-            return null
-        }
-        return when (this) {
-            is ConversationDetails.Group -> {
-                ConversationItem.GroupConversation(
-                    groupName = conversation.name.orEmpty(),
-                    conversationId = conversation.id,
-                    mutedStatus = conversation.mutedStatus,
-                    isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
-                    lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
-                    badgeEventType = parseConversationEventType(
-                        conversation.mutedStatus,
-                        unreadEventCount
-                    ),
-                    hasOnGoingCall = hasOngoingCall,
-                    isSelfUserCreator = isSelfUserCreator,
-                    isSelfUserMember = isSelfUserMember,
-                    teamId = conversation.teamId,
-                    selfMemberRole = selfRole,
-                    isArchived = conversation.archived,
-                    mlsVerificationStatus = conversation.mlsVerificationStatus,
-                    proteusVerificationStatus = conversation.proteusVerificationStatus
-                )
-            }
-
-            is ConversationDetails.OneOne -> {
-                ConversationItem.PrivateConversation(
-                    userAvatarData = UserAvatarData(
-                        otherUser.previewPicture?.let {
-                            ImageAsset.UserAvatarAsset(
-                                wireSessionImageLoader,
-                                it
+            with(conversationItem) {
+                importMediaState = importMediaState.copy(
+                    selectedConversationItem = listOf(this),
+                    selfDeletingTimer = observeSelfDeletionSettingsForConversation(
+                        conversationId = conversationId,
+                        considerSelfUserSettings = true
+                    ).first().also { timer ->
+                        if (timer !is SelfDeletionTimer.Disabled) {
+                            val logMap = timer.toLogString(
+                                "User timer update for conversationId=${conversationId.toLogString()} on ImportMediaScreen"
                             )
-                        },
-                        otherUser.availabilityStatus,
-                        otherUser.connectionStatus
-                    ),
-                    conversationInfo = ConversationInfo(
-                        name = otherUser.name.orEmpty(),
-                        membership = userTypeMapper.toMembership(userType),
-                        isSenderUnavailable = otherUser.isUnavailableUser
-                    ),
-                    conversationId = conversation.id,
-                    mutedStatus = conversation.mutedStatus,
-                    isLegalHold = conversation.legalHoldStatus.showLegalHoldIndicator(),
-                    lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
-                    badgeEventType = parsePrivateConversationEventType(
-                        otherUser.connectionStatus,
-                        otherUser.deleted,
-                        parseConversationEventType(
-                            conversation.mutedStatus,
-                            unreadEventCount
-                        )
-                    ),
-                    userId = otherUser.id,
-                    blockingState = otherUser.BlockState,
-                    teamId = otherUser.teamId,
-                    isArchived = conversation.archived,
-                    mlsVerificationStatus = conversation.mlsVerificationStatus,
-                    proteusVerificationStatus = conversation.proteusVerificationStatus
+                            appLogger.d("$SELF_DELETION_LOG_TAG: $logMap")
+                        }
+                    }
                 )
             }
-
-            else -> null // We don't care about connection requests
         }
-    }
-
-    private fun searchShareableConversation(
-        conversationDetails: List<ConversationItem>,
-        searchQuery: String
-    ): List<ConversationItem> {
-        val matchingConversations =
-            conversationDetails.filter { details ->
-                when (details) {
-                    is ConversationItem.GroupConversation -> details.groupName.contains(
-                        searchQuery,
-                        true
-                    )
-
-                    is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(
-                        searchQuery,
-                        true
-                    )
-
-                    is ConversationItem.ConnectionConversation -> false
-                } or searchQuery.isBlank()
-            }
-        return matchingConversations
     }
 
     suspend fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
@@ -335,36 +229,21 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
     }
 
-    fun onNewConversationPicked(conversationId: ConversationId) = viewModelScope.launch {
-        importMediaState = importMediaState.copy(
-            selfDeletingTimer = observeSelfDeletionSettingsForConversation(
-                conversationId = conversationId,
-                considerSelfUserSettings = true
-            ).first().also { timer ->
-                if (timer !is SelfDeletionTimer.Disabled) {
-                    val logMap = timer.toLogString(
-                        "User timer update for conversationId=${conversationId.toLogString()} on ImportMediaScreen"
-                    )
-                    appLogger.d("$SELF_DELETION_LOG_TAG: $logMap")
-                }
-            }
-        )
-    }
-
     fun onNewSelfDeletionTimerPicked(selfDeletionDuration: SelfDeletionDuration) =
         viewModelScope.launch {
-            val conversationId = importMediaState.selectedConversationItem.first().conversationId
-            importMediaState = importMediaState.copy(
-                selfDeletingTimer = SelfDeletionTimer.Enabled(selfDeletionDuration.value)
-            )
-            val logMap = importMediaState.selfDeletingTimer.toLogString(
-                "user timer update for conversationId=${conversationId.toLogString()} on ImportMediaScreen"
-            )
-            appLogger.d("$SELF_DELETION_LOG_TAG: $logMap")
-            persistNewSelfDeletionTimerUseCase(
-                conversationId = conversationId,
-                newSelfDeletionTimer = importMediaState.selfDeletingTimer
-            )
+            importMediaState.selectedConversationItem.first().let {
+                importMediaState = importMediaState.copy(
+                    selfDeletingTimer = SelfDeletionTimer.Enabled(selfDeletionDuration.value)
+                )
+                val logMap = importMediaState.selfDeletingTimer.toLogString(
+                    "user timer update for conversationId=${it.conversationId.toLogString()} on ImportMediaScreen"
+                )
+                appLogger.d("$SELF_DELETION_LOG_TAG: $logMap")
+                persistNewSelfDeletionTimerUseCase(
+                    conversationId = it.conversationId,
+                    newSelfDeletionTimer = importMediaState.selfDeletingTimer
+                )
+            }
         }
 
     private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? = withContext(dispatchers.io()) {
@@ -378,20 +257,5 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
-    }
-}
-
-@Stable
-data class ImportMediaAuthenticatedState(
-    val importedAssets: PersistentList<ImportedMediaAsset> = persistentListOf(),
-    val importedText: String? = null,
-    val isImporting: Boolean = false,
-    val shareableConversationListState: ShareableConversationListState = ShareableConversationListState(),
-    val selectedConversationItem: List<ConversationItem> = emptyList(),
-    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
-) {
-    @Stable
-    fun isImportingData() {
-        importedText?.isNotEmpty() == true || importedAssets.isNotEmpty()
     }
 }

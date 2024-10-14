@@ -29,6 +29,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
@@ -82,6 +84,7 @@ fun ConversationsScreenContent(
     searchBarState: SearchBarState,
     emptyListContent: @Composable () -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
+    loadingListContent: @Composable (LazyListState) -> Unit = { ConversationListLoadingContent(it) },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
@@ -107,6 +110,7 @@ fun ConversationsScreenContent(
     val sheetState = rememberWireModalSheetState<ConversationItem>()
     val conversationsDialogsState = rememberConversationsDialogsState(conversationListViewModel.requestInProgress)
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
+    var shouldShowLoadingScreen by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
 
@@ -146,9 +150,9 @@ fun ConversationsScreenContent(
             }
         }
 
-        val onOpenConversation: (ConversationId) -> Unit = remember(navigator) {
+        val onOpenConversation: (ConversationItem) -> Unit = remember(navigator) {
             {
-                navigator.navigate(NavigationCommand(ConversationScreenDestination(it)))
+                navigator.navigate(NavigationCommand(ConversationScreenDestination(it.conversationId)))
             }
         }
         val onOpenUserProfile: (UserId) -> Unit = remember(navigator) {
@@ -176,11 +180,18 @@ fun ConversationsScreenContent(
         }
 
         with(conversationListViewModel.conversationListState) {
+            val lazyPagingConversations = foldersWithConversations.collectAsLazyPagingItems()
+            if (lazyPagingConversations.loadState.refresh is LoadState.NotLoading && shouldShowLoadingScreen) {
+                shouldShowLoadingScreen = false
+            }
+
             when {
-                // when there is at least one conversation in any folder
-                foldersWithConversations.isNotEmpty() && foldersWithConversations.any { it.value.isNotEmpty() } -> ConversationList(
+                // when conversation list is not yet fetched, show loading indicator
+                shouldShowLoadingScreen -> loadingListContent(lazyListState)
+                // when there is at least one conversation
+                lazyPagingConversations.itemCount > 0 -> ConversationList(
                     lazyListState = lazyListState,
-                    conversationListItems = foldersWithConversations,
+                    lazyPagingConversations = lazyPagingConversations,
                     searchQuery = searchQuery,
                     onOpenConversation = onOpenConversation,
                     onEditConversation = onEditConversationItem,

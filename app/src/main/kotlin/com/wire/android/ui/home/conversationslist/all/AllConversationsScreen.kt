@@ -27,11 +27,11 @@ import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
 import com.wire.android.ui.home.conversationslist.ConversationsScreenContent
-import com.wire.android.ui.home.conversationslist.common.previewConversationFolders
+import com.wire.android.ui.home.conversationslist.common.previewConversationFoldersFlow
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.flow.flowOf
 
 @HomeNavGraph(start = true)
 @WireDestination
@@ -56,7 +56,7 @@ fun PreviewAllConversationsEmptyScreen() = WireTheme {
         searchBarState = rememberSearchbarState(),
         conversationsSource = ConversationsSource.MAIN,
         emptyListContent = { AllConversationsEmptyContent() },
-        conversationListViewModel = ConversationListViewModelPreview(persistentMapOf()),
+        conversationListViewModel = ConversationListViewModelPreview(flowOf()),
     )
 }
 
@@ -68,7 +68,7 @@ fun PreviewAllConversationsEmptySearchScreen() = WireTheme {
         searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
         emptyListContent = { AllConversationsEmptyContent() },
-        conversationListViewModel = ConversationListViewModelPreview(persistentMapOf(), "er"),
+        conversationListViewModel = ConversationListViewModelPreview(flowOf(), "er"),
     )
 }
 
@@ -80,6 +80,6 @@ fun PreviewAllConversationsSearchScreen() = WireTheme {
         searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
         emptyListContent = { AllConversationsEmptyContent() },
-        conversationListViewModel = ConversationListViewModelPreview(previewConversationFolders(), "er"),
+        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(), "er"),
     )
 }

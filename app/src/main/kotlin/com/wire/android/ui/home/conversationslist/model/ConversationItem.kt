@@ -30,7 +30,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.isTeammate
 
-sealed class ConversationItem {
+sealed class ConversationItem : ConversationFolderItem {
     abstract val conversationId: ConversationId
     abstract val mutedStatus: MutedConversationStatus
     abstract val isLegalHold: Boolean
@@ -40,6 +40,7 @@ sealed class ConversationItem {
     abstract val isArchived: Boolean
     abstract val mlsVerificationStatus: Conversation.VerificationStatus
     abstract val proteusVerificationStatus: Conversation.VerificationStatus
+    abstract val hasNewActivitiesToShow: Boolean
 
     val isTeamConversation get() = teamId != null
 
@@ -57,7 +58,8 @@ sealed class ConversationItem {
         override val teamId: TeamId?,
         override val isArchived: Boolean,
         override val mlsVerificationStatus: Conversation.VerificationStatus,
-        override val proteusVerificationStatus: Conversation.VerificationStatus
+        override val proteusVerificationStatus: Conversation.VerificationStatus,
+        override val hasNewActivitiesToShow: Boolean = false,
     ) : ConversationItem()
 
     data class PrivateConversation(
@@ -73,7 +75,8 @@ sealed class ConversationItem {
         override val teamId: TeamId?,
         override val isArchived: Boolean,
         override val mlsVerificationStatus: Conversation.VerificationStatus,
-        override val proteusVerificationStatus: Conversation.VerificationStatus
+        override val proteusVerificationStatus: Conversation.VerificationStatus,
+        override val hasNewActivitiesToShow: Boolean = false,
     ) : ConversationItem()
 
     data class ConnectionConversation(
@@ -85,6 +88,7 @@ sealed class ConversationItem {
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
         override val isArchived: Boolean = false,
+        override val hasNewActivitiesToShow: Boolean = false,
     ) : ConversationItem() {
         override val teamId: TeamId? = null
         override val mlsVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED

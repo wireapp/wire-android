@@ -204,8 +204,6 @@ internal fun withMockConversationDetailsOneOnOne(
         every { accentId } returns 0
     },
     userType = UserType.INTERNAL,
-    lastMessage = null,
-    unreadEventCount = emptyMap()
 )
 
 internal fun mockConversationDetailsGroup(
@@ -215,10 +213,8 @@ internal fun mockConversationDetailsGroup(
     conversation = TestConversation.GROUP()
         .copy(name = conversationName, id = mockedConversationId),
     hasOngoingCall = false,
-    lastMessage = null,
     isSelfUserCreator = true,
     isSelfUserMember = true,
-    unreadEventCount = emptyMap(),
     selfRole = Conversation.Member.Role.Member
 )
 

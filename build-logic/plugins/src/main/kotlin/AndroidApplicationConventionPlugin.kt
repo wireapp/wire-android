@@ -32,15 +32,25 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
         extensions.configure<ApplicationExtension> {
             // TODO: Handle flavors. Currently implemented in `variants.gradle.kts` script
+
             namespace = AndroidApp.id
             configureKotlinAndroid(this)
+
+            val isFDroidRelease = (project.properties["isFDroidRelease"] as? String)?.toBoolean() ?: false
+
             defaultConfig {
-                AndroidApp.setRootDir(projectDir)
+                AndroidApp.setRootDir(project.projectDir)
+
+                val versionNameBasedOnFDroid = if (isFDroidRelease) {
+                    AndroidApp.versionName
+                } else {
+                    "${AndroidApp.versionName}-${AndroidApp.leastSignificantVersionCode}"
+                }
 
                 applicationId = AndroidApp.id
                 defaultConfig.targetSdk = AndroidSdk.target
                 versionCode = AndroidApp.versionCode
-                versionName = AndroidApp.versionName
+                versionName = versionNameBasedOnFDroid
                 setProperty("archivesBaseName", "$applicationId-v$versionName")
             }
 

@@ -21,8 +21,21 @@ import com.wire.android.BuildConfig
 
 internal object AppNameUtil {
 
+    /**
+     * We are supporting two different versions of app name:
+     * - fDroid - this contains only version ie. 4.1.0 and we need to add leastSignificantVersionCode and build flavor
+     * - other - this contains version and leastSignificantVersionCode - in this case we add only flavor
+     *
+     * We can simply distinguish those by checking if current [BuildConfig.VERSION_NAME] contains `-` char.
+     */
     fun createAppName(): String {
-        return "${BuildConfig.VERSION_NAME}-${leastSignificantVersionCode()}-${BuildConfig.FLAVOR}"
+        val currentAppName = BuildConfig.VERSION_NAME
+
+        return if (currentAppName.contains("-")) {
+            "$currentAppName-${BuildConfig.FLAVOR}"
+        } else {
+            "${BuildConfig.VERSION_NAME}-${leastSignificantVersionCode()}-${BuildConfig.FLAVOR}"
+        }
     }
 
     /**

@@ -92,9 +92,10 @@ class AvatarPickerViewModel @Inject constructor(
                     val avatarRawPath = (getAvatarAsset(assetKey = qualifiedAsset) as PublicAssetResult.Success).assetPath
                     val currentAvatarUri = avatarImageManager.getWritableAvatarUri(avatarRawPath)
                     initialPictureLoadingState = InitialPictureLoadingState.Loaded(currentAvatarUri)
-                    if (pictureState is PictureState.Empty) {
-                        pictureState = PictureState.Initial(currentAvatarUri)
-                    }
+                    pictureState = PictureState.Initial(currentAvatarUri)
+                } ?: run {
+                    initialPictureLoadingState = InitialPictureLoadingState.None
+                    pictureState = PictureState.Empty
                 }
             } catch (e: Exception) {
                 appLogger.e("There was an error loading the user avatar", e)

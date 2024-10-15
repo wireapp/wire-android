@@ -674,6 +674,10 @@ private fun MessageContent(
             }
         }
 
+        is UIMessageContent.IncompleteAssetMessage -> {
+            PartialDeliveryInformation(DeliveryStatusContent.PartialDelivery())
+        }
+
         is UIMessageContent.RestrictedAsset -> {
             Column {
                 when {

@@ -235,6 +235,7 @@ fun ConversationScreen(
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
         draftMessageComposition = messageDraftViewModel.state.value,
+        onClearDraft = { messageDraftViewModel.clearDraft() },
         onSaveDraft = messageComposerViewModel::saveDraft,
         onSearchMentionQueryChanged = messageComposerViewModel::searchMembersToMention,
         onTypingEvent = messageComposerViewModel::sendTypingEvent,
@@ -1366,6 +1367,7 @@ fun PreviewConversationScreen() = WireTheme {
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
         draftMessageComposition = messageCompositionState.value,
+        onClearDraft = {},
         onSaveDraft = {},
         onTypingEvent = {},
         onSearchMentionQueryChanged = {},

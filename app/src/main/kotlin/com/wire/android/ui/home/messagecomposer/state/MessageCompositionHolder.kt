@@ -54,6 +54,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 class MessageCompositionHolder(
     val messageComposition: MutableState<MessageComposition>,
     val messageTextState: TextFieldState,
+    val onClearDraft: () -> Unit,
     private val onSaveDraft: (MessageDraft) -> Unit,
     private val onSearchMentionQueryChanged: (String) -> Unit,
     private val onClearMentionSearchResult: () -> Unit,

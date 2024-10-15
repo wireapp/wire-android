@@ -50,7 +50,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 applicationId = AndroidApp.id
                 defaultConfig.targetSdk = AndroidSdk.target
                 versionCode = AndroidApp.versionCode
-                versionName = versionNameBasedOnFDroid
+                versionName = resolvedVersionName
                 setProperty("archivesBaseName", "$applicationId-v$versionName")
             }
 

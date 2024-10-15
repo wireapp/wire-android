@@ -159,7 +159,6 @@
     <string name="app_settings_screen_title">Configuraci&#243;n de la aplicaci&#243;n</string>
     <string name="give_feedback_screen_title">Enviar comentarios</string>
     <string name="report_bug_screen_title">Informar de un error</string>
-    <string name="debug_settings_screen_title">Configuraci&#243;n de depuraci&#243;n</string>
     <string name="support_screen_title">Soporte</string>
     <string name="backup_and_restore_screen_title">Copia de seguridad y restauraci&#243;n de conversaciones</string>
     <string name="search_bar_conversations_hint">Buscar conversaciones</string>
@@ -1027,4 +1026,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Configuraci&#243;n de depuraci&#243;n</string>
 </resources>

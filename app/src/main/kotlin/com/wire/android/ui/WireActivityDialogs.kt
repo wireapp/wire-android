@@ -55,8 +55,10 @@ import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.ui.common.dialogs.CustomServerDialog
-import com.wire.android.ui.common.dialogs.CustomServerDialogState
+import com.wire.android.ui.common.dialogs.CustomServerDetailsDialog
+import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
+import com.wire.android.ui.common.dialogs.CustomServerInvalidJsonDialog
+import com.wire.android.ui.common.dialogs.CustomServerInvalidJsonDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountAllowedDialogContent
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
@@ -244,12 +246,24 @@ fun CustomBackendDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
-    if (globalAppState.customBackendDialog != null) {
-        CustomServerDialog(
-            serverLinks = globalAppState.customBackendDialog.serverLinks,
-            onDismiss = onDismiss,
-            onConfirm = onConfirm
-        )
+    when (globalAppState.customBackendDialog) {
+        is CustomServerDetailsDialogState -> {
+            CustomServerDetailsDialog(
+                serverLinks = globalAppState.customBackendDialog.serverLinks,
+                onDismiss = onDismiss,
+                onConfirm = onConfirm
+            )
+        }
+
+        is CustomServerInvalidJsonDialogState -> {
+            CustomServerInvalidJsonDialog(
+                onDismiss = onDismiss
+            )
+        }
+
+        else -> {
+            // nop
+        }
     }
 }
 
@@ -562,10 +576,13 @@ fun PreviewCustomBackendDialog() {
     WireTheme {
         CustomBackendDialog(
             GlobalAppState(
-                customBackendDialog = CustomServerDialogState(
+                customBackendDialog = CustomServerDetailsDialogState(
                     ServerConfig.STAGING
                 )
-            ), {}, {})
+            ),
+            {},
+            {}
+        )
     }
 }
 

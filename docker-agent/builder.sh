@@ -30,7 +30,7 @@ fi
 
 if [ "$BUILD_CLIENT" = true ] ; then
     echo "Compiling the client with Flavor:${CUSTOM_FLAVOR} and BuildType:${BUILD_TYPE}"
-    ./gradlew ${buildOption}assemble${FLAVOR_TYPE}${BUILD_TYPE}
+    ./gradlew ${buildOption}assemble${FLAVOR_TYPE}${BUILD_TYPE} -PisFDroidRelease=true
 else
     echo "Building the client will be skipped"
 fi

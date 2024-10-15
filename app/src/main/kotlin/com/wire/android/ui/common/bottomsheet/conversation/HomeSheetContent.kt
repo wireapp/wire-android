@@ -103,7 +103,8 @@ internal fun ConversationMainSheetContent(
                             )
                         },
                         action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
-                        onItemClick = navigateToNotification
+                        onItemClick = navigateToNotification,
+                        onItemClickDescription = stringResource(id = R.string.content_description_open_notification_settings_label)
                     )
                 }
             }

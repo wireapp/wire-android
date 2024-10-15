@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversations.details.participants
 import android.content.Context
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.divider.WireDivider
@@ -54,9 +55,10 @@ fun LazyListScope.folderWithElements(
     items = items.associateBy { it.id.toString() },
     animateItemPlacement = false,
     factory = {
+        val onClickDescription = stringResource(id = R.string.content_description_open_user_profile_label)
         ConversationParticipantItem(
             uiParticipant = it,
-            clickable = remember { Clickable(enabled = true) { onRowItemClicked(it) } },
+            clickable = remember { Clickable(enabled = true, onClickDescription = onClickDescription) { onRowItemClicked(it) } },
             showRightArrow = showRightArrow
         )
     },
@@ -67,16 +69,16 @@ fun LazyListScope.folderWithElements(
     header: String,
     items: Map<String, UIParticipant>,
     onRowItemClicked: (UIParticipant) -> Unit,
-    showRightArrow: Boolean = true,
-    folderContentDescription: String? = null
+    showRightArrow: Boolean = true
 ) = folderWithElements(
     header = header,
     items = items,
     animateItemPlacement = false,
     factory = {
+        val onClickDescription = stringResource(id = R.string.content_description_open_user_profile_label)
         ConversationParticipantItem(
             uiParticipant = it,
-            clickable = remember { Clickable(enabled = true) { onRowItemClicked(it) } },
+            clickable = remember { Clickable(enabled = true, onClickDescription = onClickDescription) { onRowItemClicked(it) } },
             showRightArrow = showRightArrow
         )
     },

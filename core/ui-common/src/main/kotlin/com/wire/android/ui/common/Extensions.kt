@@ -80,13 +80,13 @@ fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
         )
     } else {
         // even though element is disabled we want to merge all inner elements into one for TalkBack
-        this.semantics(mergeDescendants = true) {  }
+        this.semantics(mergeDescendants = true) { }
     }
 } ?: this
 
 @SuppressLint("ComposeComposableModifier")
 @Composable
-fun Modifier.clickableDescriptions(clickable: Clickable?) = clickable?.let {
+fun Modifier.clickableDescriptions(clickable: Clickable?) = if (clickable?.enabled == true) {
     this.semantics {
         clickable.onClickDescription?.let {
             this@semantics.onClick(it) { true }
@@ -95,4 +95,6 @@ fun Modifier.clickableDescriptions(clickable: Clickable?) = clickable?.let {
             this@semantics.onLongClick(it) { true }
         }
     }
-} ?: this
+} else {
+    this
+}

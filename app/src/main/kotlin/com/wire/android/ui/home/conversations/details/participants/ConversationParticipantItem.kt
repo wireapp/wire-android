@@ -76,6 +76,7 @@ fun ConversationParticipantItem(
                 modifier = Modifier.padding(
                     start = dimensions().spacing8x
                 ),
+                contentDescription = null,
                 type = uiParticipant.expiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithIndicators.RegularUser()
             )
         },

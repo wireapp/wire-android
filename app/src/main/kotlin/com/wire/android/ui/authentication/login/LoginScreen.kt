@@ -344,7 +344,6 @@ enum class LoginTabItem(@StringRes val titleResId: Int) : TabItem {
     EMAIL(R.string.login_tab_email),
     SSO(R.string.login_tab_sso);
     override val title: UIText = UIText.StringResource(titleResId)
-    override val contentDescription: UIText? = null // TODO set contentDescription if needed
 }
 
 @PreviewMultipleThemes

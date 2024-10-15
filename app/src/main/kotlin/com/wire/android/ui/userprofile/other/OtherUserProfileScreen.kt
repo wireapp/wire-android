@@ -597,7 +597,6 @@ enum class OtherUserProfileTabItem(@StringRes val titleResId: Int) : TabItem {
     DEVICES(R.string.user_profile_devices_tab);
 
     override val title: UIText = UIText.StringResource(titleResId)
-    override val contentDescription: UIText? = null // TODO set contentDescription if needed
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

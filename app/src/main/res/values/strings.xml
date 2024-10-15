@@ -188,11 +188,14 @@
     <string name="content_description_conversation_details_self_deleting_action">adjust self-deleting time</string>
     <string name="content_description_edit_label">edit</string>
     <string name="content_description_select_label">select</string>
+    <string name="content_description_selected_label">selected</string>
     <string name="content_description_toggle_setting_label">toggle setting</string>
     <string name="content_description_edit_guests_option_title">Guests, heading</string>
     <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>
     <string name="content_description_edit_self_delete_title">Self-deleting messages, heading</string>
     <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>
+    <string name="content_description_open_user_profile_label">open profile</string>
+    <string name="content_description_open_notification_settings_label">open notification settings</string>
     <string name="content_description_empty"> </string>
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>

@@ -221,7 +221,6 @@ enum class SearchPeopleTabItem(@StringRes val titleResId: Int) : TabItem {
     PEOPLE(R.string.label_add_member_people),
     SERVICES(R.string.label_add_member_services);
     override val title: UIText = UIText.StringResource(titleResId)
-    override val contentDescription: UIText? = null // TODO set contentDescription if needed
 }
 
 enum class SearchPeopleScreenType {

@@ -184,6 +184,4 @@ sealed class MessageDetailsTabItem(@StringRes val titleResId: Int, argument: Str
 
     data class Reactions(val count: Int) : MessageDetailsTabItem(R.string.message_details_reactions_tab, "$count")
     data class ReadReceipts(val count: Int) : MessageDetailsTabItem(R.string.message_details_read_receipts_tab, "$count")
-
-    override val contentDescription: UIText? = null // TODO set contentDescription if needed
 }

@@ -564,21 +564,11 @@ private fun VerifiedLabel(text: String, color: Color, icon: @Composable RowScope
     }
 }
 
-enum class GroupConversationDetailsTabItem(
-    @StringRes val titleResId: Int,
-    @StringRes val contentDescriptionResId: Int
-) : TabItem {
-    OPTIONS(
-        R.string.conversation_details_options_tab,
-        R.string.content_description_conversation_details_options_tab_header
-    ),
-    PARTICIPANTS(
-        R.string.conversation_details_participants_tab,
-        R.string.content_description_conversation_details_participants_tab_header
-    );
+enum class GroupConversationDetailsTabItem(@StringRes val titleResId: Int) : TabItem {
+    OPTIONS(R.string.conversation_details_options_tab),
+    PARTICIPANTS(R.string.conversation_details_participants_tab);
 
     override val title: UIText = UIText.StringResource(titleResId)
-    override val contentDescription: UIText? = UIText.StringResource(contentDescriptionResId)
 }
 
 @PreviewMultipleThemes

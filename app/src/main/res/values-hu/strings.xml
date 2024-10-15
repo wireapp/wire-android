@@ -188,7 +188,6 @@
     <string name="about_app_screen_title">Az alkalmazás névjegye</string>
     <string name="settings_privacy_policy_label">Adatvédelmi irányelvek</string>
     <string name="label_copyright">Szerzői jogok</string>
-    <string name="debug_settings_screen_title">Hibakeresési beállítások</string>
     <string name="item_dependencies_title">Függőségek:</string>
     <string name="support_screen_title">Ügyfélszolgálat</string>
     <string name="backup_and_restore_screen_title">Beszélgetések mentése &amp; visszaállítása</string>
@@ -1288,4 +1287,6 @@ Kérjük, próbálja meg újra.</string>
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Hibakeresési beállítások</string>
 </resources>

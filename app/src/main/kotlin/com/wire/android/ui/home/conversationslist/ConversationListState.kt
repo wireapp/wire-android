@@ -18,19 +18,13 @@
 
 package com.wire.android.ui.home.conversationslist
 
+import androidx.compose.runtime.Stable
 import androidx.paging.PagingData
 import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
-import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
+@Stable
 data class ConversationListState(
-    val searchQuery: String = "",
     val foldersWithConversations: Flow<PagingData<ConversationFolderItem>> = emptyFlow(),
-    val missedCalls: ImmutableList<ConversationItem> = persistentListOf(),
-    val callHistory: ImmutableList<ConversationItem> = persistentListOf(),
-    val unreadMentions: ImmutableList<ConversationItem> = persistentListOf(),
-    val allMentions: ImmutableList<ConversationItem> = persistentListOf(),
 )

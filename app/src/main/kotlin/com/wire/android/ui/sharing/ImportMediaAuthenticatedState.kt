@@ -33,7 +33,6 @@ data class ImportMediaAuthenticatedState(
     val importedText: String? = null,
     val isImporting: Boolean = false,
     val conversations: Flow<PagingData<ConversationFolderItem>> = emptyFlow(),
-    val searchQuery: String = "",
     val selectedConversationItem: List<ConversationItem> = persistentListOf(),
     val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
 ) {

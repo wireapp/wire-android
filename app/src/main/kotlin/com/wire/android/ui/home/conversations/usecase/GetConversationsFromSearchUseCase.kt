@@ -62,7 +62,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
             startingOffset = 0L,
         ).map { pagingData ->
             pagingData.map {
-                it.toConversationItem(wireSessionImageLoader, userTypeMapper)
+                it.toConversationItem(wireSessionImageLoader, userTypeMapper, searchQuery)
             }
         }.flowOn(dispatchers.io())
     }

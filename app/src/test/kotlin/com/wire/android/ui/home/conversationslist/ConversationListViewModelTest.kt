@@ -20,6 +20,7 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.paging.PagingData
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -61,38 +62,58 @@ class ConversationListViewModelTest {
     private val dispatcherProvider = TestDispatcherProvider()
 
     @Test
-    fun `given non-empty search query, when collecting conversations, then call use case with proper params`() =
+    fun `given initial empty search query, when collecting conversations, then call use case with proper params`() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
+
+            // When
+            conversationListViewModel.conversationListState.foldersWithConversations.test {
+                // Then
+                coVerify(exactly = 1) {
+                    arrangement.getConversationsPaginated("", false, true, false)
+                }
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `given updated non-empty search query, when collecting conversations, then call use case with proper params`() =
         runTest(dispatcherProvider.main()) {
         // Given
         val searchQueryText = "search"
-        val (_, _) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
+        val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
 
         // When
-        advanceUntilIdle()
-        conversationListViewModel.searchQueryChanged(searchQueryText)
-        advanceUntilIdle()
+        conversationListViewModel.conversationListState.foldersWithConversations.test {
+            conversationListViewModel.searchQueryChanged(searchQueryText)
+            advanceUntilIdle()
 
-        // Then
-        coVerify(exactly = 1) {
-            arrangement.getConversationsPaginated(searchQueryText, false, true, false,)
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.getConversationsPaginated(searchQueryText, false, true, false)
+            }
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `given non-empty search query, when collecting archived, then call use case with proper params`() =
+    fun `given updated non-empty search query, when collecting archived, then call use case with proper params`() =
         runTest(dispatcherProvider.main()) {
         // Given
         val searchQueryText = "search"
-        val (_, _) = Arrangement(conversationsSource = ConversationsSource.ARCHIVE).arrange()
+        val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.ARCHIVE).arrange()
 
         // When
-        advanceUntilIdle()
-        conversationListViewModel.searchQueryChanged(searchQueryText)
-        advanceUntilIdle()
+        conversationListViewModel.conversationListState.foldersWithConversations.test {
+            conversationListViewModel.searchQueryChanged(searchQueryText)
+            advanceUntilIdle()
 
-        // Then
-        coVerify(exactly = 1) {
-            arrangement.getConversationsPaginated(searchQueryText, true, true, false,)
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.getConversationsPaginated(searchQueryText, true, false, false)
+            }
+            cancelAndIgnoreRemainingEvents()
         }
     }
 

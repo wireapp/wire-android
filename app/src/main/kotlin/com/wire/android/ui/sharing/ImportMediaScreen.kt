@@ -551,7 +551,6 @@ private fun ImportMediaContent(
             selectedConversations = state.selectedConversationItem,
             isSelectableList = true,
             onConversationSelectedOnRadioGroup = onConversationClicked,
-            searchQuery = state.searchQuery,
             onOpenConversation = onConversationClicked,
             onEditConversation = {},
             onOpenUserProfile = {},
@@ -737,7 +736,7 @@ fun PreviewImportMediaTextScreenRegular() {
     WireTheme {
         ImportMediaRegularContent(
             importMediaAuthenticatedState = ImportMediaAuthenticatedState(
-                conversations = previewConversationFoldersFlow(previewConversationFolders(withFolders = false)),
+                conversations = previewConversationFoldersFlow(list = previewConversationFolders(withFolders = false)),
                 importedAssets = persistentListOf(),
                 importedText = "This is a shared text message \n" +
                         "This is a second line with a veeeeeeeeeeeeeeeeeeeeeeeeeeery long shared text message"

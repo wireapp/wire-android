@@ -19,6 +19,7 @@ package com.wire.android.ui.sharing
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.paging.PagingData
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -52,18 +53,20 @@ class ImportMediaAuthenticatedViewModelTest {
         // Given
         val searchQueryText = "search"
         val (arrangement, viewModel) = Arrangement().arrange()
-        // When
-        advanceUntilIdle()
-        viewModel.searchQueryTextState.setTextAndPlaceCursorAtEnd(searchQueryText)
-        advanceUntilIdle()
-        // Then
-        coVerify(exactly = 1) {
-            arrangement.getConversationsPaginated(
-                searchQuery = searchQueryText,
-                fromArchive = false,
-                newActivitiesOnTop = false,
-                onlyInteractionEnabled = true,
-            )
+        viewModel.importMediaState.conversations.test {
+            // When
+            viewModel.searchQueryTextState.setTextAndPlaceCursorAtEnd(searchQueryText)
+            advanceUntilIdle()
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.getConversationsPaginated(
+                    searchQuery = searchQueryText,
+                    fromArchive = false,
+                    newActivitiesOnTop = false,
+                    onlyInteractionEnabled = true,
+                )
+            }
+            cancelAndIgnoreRemainingEvents()
         }
     }
 

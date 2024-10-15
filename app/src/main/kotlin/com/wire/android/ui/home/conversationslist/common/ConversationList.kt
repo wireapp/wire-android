@@ -59,7 +59,6 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 fun ConversationList(
     lazyPagingConversations: LazyPagingItems<ConversationFolderItem>,
-    searchQuery: String,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     isSelectableList: Boolean = false,
@@ -110,7 +109,6 @@ fun ConversationList(
 
                     is ConversationItem ->
                         ConversationItemFactory(
-                            searchQuery = searchQuery,
                             conversation = item,
                             isSelectableItem = isSelectableList,
                             isChecked = selectedConversations.contains(item),
@@ -132,7 +130,7 @@ fun ConversationList(
     }
 }
 
-fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = false) = buildList {
+fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = false, searchQuery: String = "") = buildList {
     repeat(count) { index ->
         val currentIndex = startIndex + index
         when (index % 2) {
@@ -148,7 +146,8 @@ fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = f
                     hasOnGoingCall = false,
                     isArchived = false,
                     mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-                    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+                    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+                    searchQuery = searchQuery,
                 )
             )
 
@@ -165,20 +164,24 @@ fun previewConversationList(count: Int, startIndex: Int = 0, unread: Boolean = f
                     userId = UserId("userId_$currentIndex", "domain"),
                     isArchived = false,
                     mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
-                    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
+                    proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
+                    searchQuery = searchQuery,
                 )
             )
         }
     }
 }.toImmutableList()
 
-fun previewConversationFoldersFlow(list: List<ConversationFolderItem> = previewConversationFolders()) = flowOf(PagingData.from(list))
+fun previewConversationFoldersFlow(
+    searchQuery: String = "",
+    list: List<ConversationFolderItem> = previewConversationFolders(searchQuery = searchQuery)
+) = flowOf(PagingData.from(list))
 
-fun previewConversationFolders(withFolders: Boolean = true) = buildList {
+fun previewConversationFolders(withFolders: Boolean = true, searchQuery: String = "") = buildList {
     if (withFolders) add(ConversationFolder.Predefined.NewActivities)
-    addAll(previewConversationList(3, 0, true))
+    addAll(previewConversationList(3, 0, true, searchQuery))
     if (withFolders) add(ConversationFolder.Predefined.Conversations)
-    addAll(previewConversationList(6, 3, false))
+    addAll(previewConversationList(6, 3, false, searchQuery))
 }
 
 @PreviewMultipleThemes
@@ -186,7 +189,6 @@ fun previewConversationFolders(withFolders: Boolean = true) = buildList {
 fun PreviewConversationList() = WireTheme {
     ConversationList(
         lazyPagingConversations = previewConversationFoldersFlow().collectAsLazyPagingItems(),
-        searchQuery = "",
         isSelectableList = false,
     )
 }
@@ -196,7 +198,6 @@ fun PreviewConversationList() = WireTheme {
 fun PreviewConversationListSearch() = WireTheme {
     ConversationList(
         lazyPagingConversations = previewConversationFoldersFlow().collectAsLazyPagingItems(),
-        searchQuery = "er",
         isSelectableList = false,
     )
 }
@@ -206,8 +207,7 @@ fun PreviewConversationListSearch() = WireTheme {
 fun PreviewConversationListSelect() = WireTheme {
     val conversationFolders = previewConversationFolders()
     ConversationList(
-        lazyPagingConversations = previewConversationFoldersFlow(conversationFolders).collectAsLazyPagingItems(),
-        searchQuery = "",
+        lazyPagingConversations = previewConversationFoldersFlow(list = conversationFolders).collectAsLazyPagingItems(),
         isSelectableList = true,
         selectedConversations = conversationFolders.filterIsInstance<ConversationItem>().filterIndexed { index, _ -> index % 3 == 0 },
     )

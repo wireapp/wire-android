@@ -41,6 +41,7 @@ sealed class ConversationItem : ConversationFolderItem {
     abstract val mlsVerificationStatus: Conversation.VerificationStatus
     abstract val proteusVerificationStatus: Conversation.VerificationStatus
     abstract val hasNewActivitiesToShow: Boolean
+    abstract val searchQuery: String
 
     val isTeamConversation get() = teamId != null
 
@@ -60,6 +61,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val mlsVerificationStatus: Conversation.VerificationStatus,
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
+        override val searchQuery: String = "",
     ) : ConversationItem()
 
     data class PrivateConversation(
@@ -77,6 +79,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val mlsVerificationStatus: Conversation.VerificationStatus,
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
+        override val searchQuery: String = "",
     ) : ConversationItem()
 
     data class ConnectionConversation(
@@ -89,6 +92,7 @@ sealed class ConversationItem : ConversationFolderItem {
         override val badgeEventType: BadgeEventType,
         override val isArchived: Boolean = false,
         override val hasNewActivitiesToShow: Boolean = false,
+        override val searchQuery: String = "",
     ) : ConversationItem() {
         override val teamId: TeamId? = null
         override val mlsVerificationStatus: Conversation.VerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED

@@ -29,6 +29,7 @@ import androidx.core.app.ShareCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.map
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
@@ -55,16 +56,16 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -83,7 +84,25 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     val dispatchers: DispatcherProvider,
 ) : ViewModel() {
     val searchQueryTextState: TextFieldState = TextFieldState()
-    var importMediaState by mutableStateOf(ImportMediaAuthenticatedState())
+    private val conversationsFlow: Flow<PagingData<ConversationFolderItem>> = searchQueryTextState.textAsFlow()
+        .distinctUntilChanged()
+        .map { it.toString() }
+        .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
+        .onStart { emit(String.EMPTY) }
+        .flatMapLatest { searchQuery ->
+            getConversationsPaginated(
+                searchQuery = searchQuery,
+                fromArchive = false,
+                onlyInteractionEnabled = true,
+                newActivitiesOnTop = false,
+            ).map {
+                it.map {
+                    it as ConversationFolderItem
+                }
+            }
+        }
+        .flowOn(dispatchers.io())
+    var importMediaState by mutableStateOf(ImportMediaAuthenticatedState(conversations = conversationsFlow))
         private set
     var avatarAsset by mutableStateOf<ImageAsset.UserAvatarAsset?>(null)
         private set
@@ -94,7 +113,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             loadUserAvatar()
-            observeConversationWithSearch()
         }
     }
 
@@ -110,33 +128,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun observeConversationWithSearch() = viewModelScope.launch {
-        searchQueryTextState.textAsFlow()
-            .distinctUntilChanged()
-            .map { it.toString() }
-            .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
-            .onStart { emit(String.EMPTY) }
-            .mapLatest { searchQuery ->
-                getConversationsPaginated(
-                    searchQuery = searchQuery,
-                    fromArchive = false,
-                    onlyInteractionEnabled = true,
-                    newActivitiesOnTop = false,
-                ).map {
-                    it.map {
-                        it as ConversationFolderItem
-                    }
-                } to searchQuery
-            }
-            .flowOn(dispatchers.io())
-            .collect { (conversations, searchQuery) ->
-                withContext(dispatchers.main()) {
-                    importMediaState = importMediaState.copy(conversations = conversations, searchQuery = searchQuery)
-                }
-            }
     }
 
     fun onConversationClicked(conversationItem: ConversationItem) {

@@ -41,7 +41,8 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 @Suppress("LongMethod")
 fun ConversationDetailsWithEvents.toConversationItem(
     wireSessionImageLoader: WireSessionImageLoader,
-    userTypeMapper: UserTypeMapper
+    userTypeMapper: UserTypeMapper,
+    searchQuery: String,
 ): ConversationItem = when (val conversationDetails = this.conversationDetails) {
     is Group -> {
         ConversationItem.GroupConversation(
@@ -63,6 +64,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
+            searchQuery = searchQuery,
         )
     }
 
@@ -98,6 +100,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
+            searchQuery = searchQuery,
         )
     }
 
@@ -121,6 +124,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
+            searchQuery = searchQuery,
         )
     }
 

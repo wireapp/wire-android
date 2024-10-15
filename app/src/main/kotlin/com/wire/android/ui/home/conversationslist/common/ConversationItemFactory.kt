@@ -63,7 +63,6 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun ConversationItemFactory(
     conversation: ConversationItem,
-    searchQuery: String,
     modifier: Modifier = Modifier,
     isSelectableItem: Boolean = false,
     isChecked: Boolean = false,
@@ -94,7 +93,6 @@ fun ConversationItemFactory(
     GeneralConversationItem(
         modifier = modifier,
         conversation = conversation,
-        searchQuery = searchQuery,
         isSelectable = isSelectableItem,
         isChecked = isChecked,
         selectOnRadioGroup = onConversationSelectedOnRadioGroup,
@@ -127,7 +125,6 @@ fun ConversationItemFactory(
 @Suppress("ComplexMethod")
 @Composable
 private fun GeneralConversationItem(
-    searchQuery: String,
     conversation: ConversationItem,
     isChecked: Boolean,
     isSelectable: Boolean,
@@ -309,7 +306,6 @@ fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
-        searchQuery = "",
         modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
@@ -335,7 +331,6 @@ fun PreviewGroupConversationItemWithNoBadges() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
-        searchQuery = "",
         modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
@@ -363,7 +358,6 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
-        searchQuery = "",
         modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
@@ -389,7 +383,6 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() = WireThem
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
-        searchQuery = "",
         modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
@@ -416,7 +409,6 @@ fun PreviewGroupConversationItemWithOngoingCall() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
-        searchQuery = "",
         modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
@@ -436,7 +428,6 @@ fun PreviewConnectionConversationItemWithReceivedConnectionRequestBadge() = Wire
             badgeEventType = BadgeEventType.ReceivedConnectionRequest,
             conversationInfo = ConversationInfo("Name")
         ),
-        searchQuery = "",
         modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
@@ -456,7 +447,6 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadge() = WireTheme {
             badgeEventType = BadgeEventType.SentConnectRequest,
             conversationInfo = ConversationInfo("Name")
         ),
-        searchQuery = "",
         modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
@@ -476,7 +466,6 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadgeWithUnknownSende
             badgeEventType = BadgeEventType.SentConnectRequest,
             conversationInfo = ConversationInfo("", isSenderUnavailable = true)
         ),
-        searchQuery = "",
         modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
@@ -502,7 +491,6 @@ fun PreviewPrivateConversationItemWithBlockedBadge() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED
         ),
-        searchQuery = "",
         modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,

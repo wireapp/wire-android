@@ -84,6 +84,7 @@ fun ConversationsScreenContent(
     lazyListState: LazyListState = rememberLazyListState(),
     loadingListContent: @Composable (LazyListState) -> Unit = { ConversationListLoadingContent(it) },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
+    initiallyLoaded: Boolean = LocalInspectionMode.current,
     conversationListViewModel: ConversationListViewModel = when {
         LocalInspectionMode.current -> ConversationListViewModelPreview()
         else -> hiltViewModel<ConversationListViewModelImpl, ConversationListViewModelImpl.Factory>(
@@ -105,7 +106,6 @@ fun ConversationsScreenContent(
     val sheetState = rememberWireModalSheetState<ConversationItem>()
     val conversationsDialogsState = rememberConversationsDialogsState(conversationListViewModel.requestInProgress)
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
-    var shouldShowLoadingScreen by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
 
@@ -179,19 +179,19 @@ fun ConversationsScreenContent(
         }
 
         with(conversationListViewModel.conversationListState) {
-            val lazyPagingConversations = foldersWithConversations.collectAsLazyPagingItems()
-            if (lazyPagingConversations.loadState.refresh is LoadState.NotLoading && shouldShowLoadingScreen) {
-                shouldShowLoadingScreen = false
+            val lazyPagingItems = foldersWithConversations.collectAsLazyPagingItems()
+            var showLoading by remember { mutableStateOf(!initiallyLoaded) }
+            if (lazyPagingItems.loadState.refresh != LoadState.Loading && showLoading) {
+                showLoading = false
             }
 
             when {
                 // when conversation list is not yet fetched, show loading indicator
-                shouldShowLoadingScreen -> loadingListContent(lazyListState)
+                showLoading -> loadingListContent(lazyListState)
                 // when there is at least one conversation
-                lazyPagingConversations.itemCount > 0 -> ConversationList(
+                lazyPagingItems.itemCount > 0 -> ConversationList(
+                    lazyPagingConversations = lazyPagingItems,
                     lazyListState = lazyListState,
-                    lazyPagingConversations = lazyPagingConversations,
-                    searchQuery = searchQuery,
                     onOpenConversation = onOpenConversation,
                     onEditConversation = onEditConversationItem,
                     onOpenUserProfile = onOpenUserProfile,
@@ -206,7 +206,7 @@ fun ConversationsScreenContent(
                     }
                 )
                 // when there is no conversation in any folder
-                searchQuery.isNotBlank() -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
+                searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
                 else -> emptyListContent()
             }
         }

@@ -68,7 +68,7 @@ fun PreviewArchiveEmptySearchScreen() = WireTheme {
         searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
-        conversationListViewModel = ConversationListViewModelPreview(flowOf(), "er"),
+        conversationListViewModel = ConversationListViewModelPreview(flowOf()),
     )
 }
 
@@ -80,6 +80,6 @@ fun PreviewArchiveScreen() = WireTheme {
         searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
-        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(), "er"),
+        conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow(searchQuery = "er")),
     )
 }

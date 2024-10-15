@@ -70,9 +70,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -100,9 +100,8 @@ interface ConversationListViewModel {
 
 class ConversationListViewModelPreview(
     foldersWithConversations: Flow<PagingData<ConversationFolderItem>> = previewConversationFoldersFlow(),
-    searchQuery: String = "",
 ) : ConversationListViewModel {
-    override val conversationListState = ConversationListState(searchQuery, foldersWithConversations)
+    override val conversationListState = ConversationListState(foldersWithConversations)
 }
 
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
@@ -127,9 +126,6 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         fun create(conversationsSource: ConversationsSource): ConversationListViewModelImpl
     }
 
-    private var _conversationListState by mutableStateOf(ConversationListState())
-    override val conversationListState: ConversationListState get() = _conversationListState
-
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     override val infoMessage = _infoMessage.asSharedFlow()
 
@@ -140,47 +136,43 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
 
-    init {
-        viewModelScope.launch {
-            searchQueryFlow
-                .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
-                .onStart { emit("") }
-                .distinctUntilChanged()
-                .mapLatest { searchQuery: String ->
-                    _conversationListState.copy(
-                        foldersWithConversations = getConversationsPaginated(
-                            searchQuery = searchQuery,
-                            fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
-                            onlyInteractionEnabled = false,
-                            newActivitiesOnTop = true,
-                        ).map {
-                            it.insertSeparators { before, after ->
-                                when {
-                                    before == null && after != null && after.hasNewActivitiesToShow ->
-                                        // list starts with items with "new activities"
-                                        ConversationFolder.Predefined.NewActivities
+    private val containsNewActivitiesSection = conversationsSource == ConversationsSource.MAIN
+    private val conversationsFlow: Flow<PagingData<ConversationFolderItem>> = searchQueryFlow
+        .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
+        .onStart { emit("") }
+        .distinctUntilChanged()
+        .flatMapLatest { searchQuery ->
+            getConversationsPaginated(
+                searchQuery = searchQuery,
+                fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
+                onlyInteractionEnabled = false,
+                newActivitiesOnTop = containsNewActivitiesSection,
+            ).map {
+                it.insertSeparators { before, after ->
+                    when {
+                        // do not add separators if the list shouldn't show conversations grouped into different folders
+                        !containsNewActivitiesSection -> null
 
-                                    before == null && after != null && !after.hasNewActivitiesToShow ->
-                                        // list doesn't contain any items with "new activities"
-                                        ConversationFolder.Predefined.Conversations
+                        before == null && after != null && after.hasNewActivitiesToShow ->
+                            // list starts with items with "new activities"
+                            ConversationFolder.Predefined.NewActivities
 
-                                    before != null && before.hasNewActivitiesToShow && after != null && !after.hasNewActivitiesToShow ->
-                                        // end of "new activities" section and beginning of "conversations" section
-                                        ConversationFolder.Predefined.Conversations
+                        before == null && after != null && !after.hasNewActivitiesToShow ->
+                            // list doesn't contain any items with "new activities"
+                            ConversationFolder.Predefined.Conversations
 
-                                    else -> null
-                                }
-                            }
-                        },
-                        searchQuery = searchQuery
-                    )
+                        before != null && before.hasNewActivitiesToShow && after != null && !after.hasNewActivitiesToShow ->
+                            // end of "new activities" section and beginning of "conversations" section
+                            ConversationFolder.Predefined.Conversations
+
+                        else -> null
+                    }
                 }
-                .flowOn(dispatcher.io())
-                .collect {
-                    _conversationListState = it
-                }
+            }
         }
-    }
+        .flowOn(dispatcher.io())
+
+    override val conversationListState: ConversationListState = ConversationListState(foldersWithConversations = conversationsFlow)
 
     override fun searchQueryChanged(searchQuery: String) {
         viewModelScope.launch {

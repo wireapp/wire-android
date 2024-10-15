@@ -253,7 +253,7 @@ sealed class UIMessageContent {
      * Sometimes client receives two events about the same asset, first one with only part of the data ("preview" type from web),
      * so such asset shouldn't be shown until all the required data is received.
      */
-    object IncompleteAssetMessage : Regular()
+    object IncompleteAssetMessage : UIMessageContent()
 
     interface PartialDeliverable {
         val deliveryStatus: DeliveryStatusContent

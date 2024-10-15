@@ -41,7 +41,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             defaultConfig {
                 AndroidApp.setRootDir(project.projectDir)
 
-                val versionNameBasedOnFDroid = if (isFDroidRelease) {
+                val resolvedVersionName = if (isFDroidRelease) {
                     AndroidApp.versionName
                 } else {
                     "${AndroidApp.versionName}-${AndroidApp.leastSignificantVersionCode}"

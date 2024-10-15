@@ -534,7 +534,7 @@ private fun DescriptionText(
             append(" ")
             withStyle(
                 style = SpanStyle(
-                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                    color = MaterialTheme.wireColorScheme.onBackground,
                     fontWeight = MaterialTheme.wireTypography.label05.fontWeight,
                     fontSize = MaterialTheme.wireTypography.label05.fontSize,
                     textDecoration = TextDecoration.Underline

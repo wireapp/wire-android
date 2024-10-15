@@ -68,7 +68,7 @@ fun EmptySearchQueryScreen() {
                 text = stringResource(R.string.label_learn_more_searching_user),
                 style = MaterialTheme.wireTypography.body02.copy(
                     textDecoration = TextDecoration.Underline,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onBackground
                 ),
                 modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, aboutSearchUrl) }
             )

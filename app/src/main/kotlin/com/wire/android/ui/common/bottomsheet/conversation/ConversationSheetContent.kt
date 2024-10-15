@@ -150,4 +150,6 @@ data class ConversationSheetContent(
     fun canAddToFavourite(): Boolean =
         (conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState != BlockingState.BLOCKED)
                 || conversationTypeDetail is ConversationTypeDetail.Group
+
+    fun isAbandonedOneOnOneConversation(participantsCount: Int): Boolean = title.isEmpty() && participantsCount == 1
 }

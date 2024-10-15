@@ -239,7 +239,11 @@ fun GroupConversationDetailsScreen(
         },
         isLoading = viewModel.requestInProgress,
         onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-        onConversationMediaClick = onConversationMediaClick
+        onConversationMediaClick = onConversationMediaClick,
+        isAbandonedOneOnOneConversation = viewModel.conversationSheetContent?.isAbandonedOneOnOneConversation(
+            viewModel.groupParticipantsState.data.allCount
+        ) ?: false
+
     )
 
     val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
@@ -279,6 +283,7 @@ private fun GroupConversationDetailsContent(
     onDeleteGroup: (GroupDialogState) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
+    isAbandonedOneOnOneConversation: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit
 ) {
@@ -385,7 +390,7 @@ private fun GroupConversationDetailsContent(
                         }
 
                         GroupConversationDetailsTabItem.PARTICIPANTS -> {
-                            if (groupParticipantsState.addParticipantsEnabled) {
+                            if (groupParticipantsState.addParticipantsEnabled && !isAbandonedOneOnOneConversation) {
                                 Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                                     WirePrimaryButton(
                                         text = stringResource(R.string.conversation_details_group_participants_add),
@@ -601,7 +606,8 @@ fun PreviewGroupConversationDetails() {
             onEditSelfDeletingMessages = {},
             onEditGuestAccess = {},
             onSearchConversationMessagesClick = {},
-            onConversationMediaClick = {}
+            onConversationMediaClick = {},
+            isAbandonedOneOnOneConversation = false
         )
     }
 }

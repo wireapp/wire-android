@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.common.topappbar
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandIn
@@ -229,7 +228,6 @@ private fun WaitingStatusLabelInternal(
                 // This is used to make sure the text fits in the available space
                 // so no needed information is cut off. It introduces a small delay in the text
                 // rendering but it is not important as this code is only used in the debug version
-                Log.e("KD", "onTextLayout: ${it.hasVisualOverflow}")
                 if (it.hasVisualOverflow) {
                     fontSize *= 0.9f
                 }

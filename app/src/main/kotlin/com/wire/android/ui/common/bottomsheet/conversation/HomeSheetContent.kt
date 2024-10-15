@@ -159,7 +159,8 @@ internal fun ConversationMainSheetContent(
                                 )
                             )
                         }
-                    })
+                    }
+                )
             }
             add {
                 MenuBottomSheetItem(

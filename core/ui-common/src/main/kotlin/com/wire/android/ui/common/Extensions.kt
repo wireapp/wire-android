@@ -91,8 +91,10 @@ fun Modifier.clickableDescriptions(clickable: Clickable?) = if (clickable?.enabl
         clickable.onClickDescription?.let {
             this@semantics.onClick(it) { true }
         }
-        if (clickable.onLongClick != null) clickable.onLongClickDescription?.let {
-            this@semantics.onLongClick(it) { true }
+        if (clickable.onLongClick != null) {
+            clickable.onLongClickDescription?.let {
+                this@semantics.onLongClick(it) { true }
+            }
         }
     }
 } else {

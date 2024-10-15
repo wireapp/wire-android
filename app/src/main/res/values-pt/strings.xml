@@ -170,7 +170,6 @@
     <string name="report_bug_screen_title">Reportar um bug</string>
     <string name="about_app_screen_title">Sobre o aplicativo</string>
     <string name="settings_privacy_policy_label">Política de Privacidade</string>
-    <string name="debug_settings_screen_title">Configurações de depuração</string>
     <string name="item_dependencies_title">Dependências:</string>
     <string name="support_screen_title">Suporte</string>
     <string name="backup_and_restore_screen_title">Fazer backup e restaurar conversas</string>
@@ -1093,4 +1092,6 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Configurações de depuração</string>
 </resources>

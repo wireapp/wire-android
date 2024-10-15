@@ -108,7 +108,7 @@ class ConversationListViewModelPreview(
 @HiltViewModel(assistedFactory = ConversationListViewModelImpl.Factory::class)
 class ConversationListViewModelImpl @AssistedInject constructor(
     @Assisted val conversationsSource: ConversationsSource,
-    private val dispatcher: DispatcherProvider,
+    dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val leaveConversation: LeaveConversationUseCase,
@@ -172,7 +172,9 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         }
         .flowOn(dispatcher.io())
 
-    override val conversationListState: ConversationListState = ConversationListState(foldersWithConversations = conversationsFlow)
+    override val conversationListState: ConversationListState = ConversationListState(
+        foldersWithConversations = conversationsFlow
+    )
 
     override fun searchQueryChanged(searchQuery: String) {
         viewModelScope.launch {

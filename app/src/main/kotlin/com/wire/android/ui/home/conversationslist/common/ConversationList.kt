@@ -94,10 +94,10 @@ fun ConversationList(
         ) { index ->
             Box(
                 modifier = Modifier
-                .fillMaxWidth()
-                .let { // for some reasons animateItem doesn't work with LazyPagingItems and shows empty composables on previews
-                    if (LocalInspectionMode.current) it else it.animateItem()
-                }
+                    .fillMaxWidth()
+                    .let { // for some reasons animateItem doesn't work with LazyPagingItems and shows empty composables on previews
+                        if (LocalInspectionMode.current) it else it.animateItem()
+                    }
             ) {
                 when (val item = lazyPagingConversations[index]) {
                     is ConversationFolder -> FolderHeader(
@@ -177,12 +177,13 @@ fun previewConversationFoldersFlow(
     list: List<ConversationFolderItem> = previewConversationFolders(searchQuery = searchQuery)
 ) = flowOf(PagingData.from(list))
 
-fun previewConversationFolders(withFolders: Boolean = true, searchQuery: String = "") = buildList {
-    if (withFolders) add(ConversationFolder.Predefined.NewActivities)
-    addAll(previewConversationList(3, 0, true, searchQuery))
-    if (withFolders) add(ConversationFolder.Predefined.Conversations)
-    addAll(previewConversationList(6, 3, false, searchQuery))
-}
+fun previewConversationFolders(withFolders: Boolean = true, searchQuery: String = "", unreadCount: Int = 3, readCount: Int = 6) =
+    buildList {
+        if (withFolders) add(ConversationFolder.Predefined.NewActivities)
+        addAll(previewConversationList(unreadCount, 0, true, searchQuery))
+        if (withFolders) add(ConversationFolder.Predefined.Conversations)
+        addAll(previewConversationList(readCount, unreadCount, false, searchQuery))
+    }
 
 @PreviewMultipleThemes
 @Composable

@@ -262,20 +262,21 @@ fun LoadingConversationItem(modifier: Modifier = Modifier) {
             )
         },
         title = {
-            Box(modifier = Modifier
-                .height(dimensions().spacing16x)
-                .padding(vertical = dimensions().spacing1x)
-                .shimmerPlaceholder(visible = true)
-                .fillMaxWidth(0.75f)
-
+            Box(
+                modifier = Modifier
+                    .height(dimensions().spacing16x)
+                    .padding(vertical = dimensions().spacing1x)
+                    .shimmerPlaceholder(visible = true)
+                    .fillMaxWidth(0.75f)
             )
         },
         subTitle = {
-            Box(modifier = Modifier
-                .padding(top = dimensions().spacing8x)
+            Box(
+                modifier = Modifier
+                    .padding(top = dimensions().spacing8x)
                     .shimmerPlaceholder(visible = true)
                     .fillMaxWidth(0.5f)
-                .height(dimensions().spacing6x)
+                    .height(dimensions().spacing6x)
             )
         },
         clickable = remember { Clickable(false) },

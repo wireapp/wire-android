@@ -112,7 +112,6 @@ class MessageCompositionHolder(
         snapshotFlow { messageTextState.text to messageTextState.selection }
             .distinctUntilChanged()
             .collectLatest { (messageText, selection) ->
-                println("KBX handleMessageTextUpdates: $messageText")
                 updateTypingEvent(messageText.toString())
                 updateMentionsIfNeeded(messageText.toString())
                 requestMentionSuggestionIfNeeded(messageText.toString(), selection)

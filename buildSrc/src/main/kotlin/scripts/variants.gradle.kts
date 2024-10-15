@@ -62,6 +62,7 @@ fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(
     create(flavour.buildName) {
         dimension = flavour.dimensions
         applicationId = flavorApplicationId
+        versionNameSuffix = flavour.versionNameSuffix
         resValue("string", "app_name", flavour.appName)
         manifestPlaceholders["sharedUserId"] = sharedUserId
         manifestPlaceholders["appAuthRedirectScheme"] = flavorApplicationId

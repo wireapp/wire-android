@@ -1,0 +1,96 @@
+/*
+ * Wire
+ * Copyright (C) 2024 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+package com.wire.android.ui.userprofile.teammigration
+
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
+import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.navigation.dependency
+import com.wire.android.R
+import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.TeamMigrationDestination
+import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.rememberTrackingAnimatedNavController
+import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.NavGraphs
+
+@OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
+@RootNavGraph
+@WireDestination(
+    style = PopUpNavigationAnimation::class,
+)
+@Composable
+fun TeamMigrationScreen(
+    navigator: Navigator,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        IconButton(
+            modifier = Modifier.align(alignment = Alignment.End),
+            onClick = {
+                // TODO(next PR): show dialog to confirm exit before navigating back
+                navigator.navigateBack()
+            }
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_close),
+                contentDescription = "close team migration flow"
+            )
+        }
+        if (LocalLifecycleOwner.current.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+            val navHostEngine = rememberAnimatedNavHostEngine(
+                rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
+            )
+            val navController = rememberTrackingAnimatedNavController {
+                TeamMigrationDestination.fromRoute(it)?.itemName
+            }
+
+            DestinationsNavHost(
+                navGraph = NavGraphs.personalToTeamMigration,
+                engine = navHostEngine,
+                navController = navController,
+                dependenciesContainerBuilder = {
+                    dependency(navigator)
+                    dependency(NavGraphs.personalToTeamMigration) {
+                        val parentEntry = remember(navBackStackEntry) {
+                            navController.getBackStackEntry(NavGraphs.personalToTeamMigration.route)
+                        }
+                        hiltViewModel<TeamMigrationViewModel>(parentEntry)
+                    }
+                }
+            )
+        }
+    }
+}

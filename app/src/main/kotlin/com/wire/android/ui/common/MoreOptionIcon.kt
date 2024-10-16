@@ -28,9 +28,9 @@ import com.wire.android.ui.common.button.WireSecondaryIconButton
 @Composable
 fun MoreOptionIcon(
     onButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier,
     state: WireButtonState = WireButtonState.Default,
-    @StringRes contentDescription: Int = R.string.content_description_show_more_options,
-    modifier: Modifier = Modifier
+    @StringRes contentDescription: Int = R.string.content_description_show_more_options
 ) {
     WireSecondaryIconButton(
         onButtonClicked = onButtonClicked,

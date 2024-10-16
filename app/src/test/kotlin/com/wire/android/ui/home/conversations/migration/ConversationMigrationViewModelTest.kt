@@ -51,8 +51,6 @@ class ConversationMigrationViewModelTest {
                     conversation = TestConversation.ONE_ON_ONE,
                     otherUser = TestUser.OTHER_USER.copy(activeOneOnOneConversationId = conversationId),
                     userType = UserType.NONE,
-                    unreadEventCount = mapOf(),
-                    lastMessage = null
                 )
             )
         }
@@ -69,8 +67,6 @@ class ConversationMigrationViewModelTest {
                     conversation = TestConversation.ONE_ON_ONE,
                     otherUser = TestUser.OTHER_USER.copy(activeOneOnOneConversationId = expectedActiveOneOnOneId),
                     userType = UserType.NONE,
-                    unreadEventCount = mapOf(),
-                    lastMessage = null
                 )
             )
         }

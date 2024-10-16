@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,7 +52,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.extension.FolderType
 import com.wire.android.util.extension.folderWithElements
-import com.wire.android.util.ui.KeepOnTopWhenNotScrolled
+import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -184,7 +185,9 @@ private fun SearchResult(
             }
         }
 
-        KeepOnTopWhenNotScrolled(lazyListState)
+        SideEffect {
+            keepOnTopWhenNotScrolled(lazyListState)
+        }
     }
 }
 

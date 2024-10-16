@@ -76,6 +76,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.FileNotFoundException
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -290,22 +291,27 @@ class SendMessageViewModel @Inject constructor(
                 attachmentBundle?.run {
                     when (assetType) {
                         AttachmentType.IMAGE -> {
-                            val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
-                                kaliumFileSystem,
-                                attachmentBundle.dataPath
-                            )
-                            sendAssetMessage(
-                                conversationId = conversationId,
-                                assetDataPath = dataPath,
-                                assetName = fileName,
-                                assetWidth = imgWidth,
-                                assetHeight = imgHeight,
-                                assetDataSize = dataSize,
-                                assetMimeType = mimeType,
-                                audioLengthInMs = 0L
-                            )
-                                .handleLegalHoldFailureAfterSendingMessage(conversationId)
-                                .handleAssetContributionEvent(assetType)
+                            try {
+                                val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
+                                    kaliumFileSystem,
+                                    attachmentBundle.dataPath
+                                )
+                                sendAssetMessage(
+                                    conversationId = conversationId,
+                                    assetDataPath = dataPath,
+                                    assetName = fileName,
+                                    assetWidth = imgWidth,
+                                    assetHeight = imgHeight,
+                                    assetDataSize = dataSize,
+                                    assetMimeType = mimeType,
+                                    audioLengthInMs = 0L
+                                )
+                                    .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                                    .handleAssetContributionEvent(assetType)
+                            } catch (e: FileNotFoundException) {
+                                appLogger.e("There was an FileNotFoundException error while sending image asset")
+                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+                            }
                         }
 
                         AttachmentType.VIDEO,

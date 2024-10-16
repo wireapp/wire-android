@@ -60,7 +60,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -76,7 +76,7 @@ import kotlinx.coroutines.launch
 
 @RootNavGraph
 @WireDestination(
-    style = PopUpNavigationAnimation::class,
+    style = SlideNavigationAnimation::class,
     navArgsDelegate = SelfQrCodeNavArgs::class
 )
 @Composable

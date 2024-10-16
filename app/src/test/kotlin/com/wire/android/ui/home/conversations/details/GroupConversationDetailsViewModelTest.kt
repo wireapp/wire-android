@@ -682,10 +682,8 @@ class GroupConversationDetailsViewModelTest {
                 legalHoldStatus = Conversation.LegalHoldStatus.ENABLED
             ),
             hasOngoingCall = false,
-            lastMessage = null,
             isSelfUserCreator = false,
             isSelfUserMember = true,
-            unreadEventCount = emptyMap(),
             selfRole = Conversation.Member.Role.Member
         )
     }

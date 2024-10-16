@@ -45,8 +45,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
@@ -71,6 +69,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.textfield.DefaultEmailDone
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -173,7 +172,7 @@ private fun EmailContent(
                 labelText = stringResource(R.string.create_account_email_label),
                 state = if (state.error is CreateAccountEmailViewState.EmailError.None) WireTextFieldState.Default
                 else WireTextFieldState.Error(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
+                keyboardOptions = KeyboardOptions.DefaultEmailDone,
                 onKeyboardAction = { keyboardController?.hide() },
                 modifier = Modifier
                     .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
@@ -230,7 +229,7 @@ private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
             pushStringAnnotation(tag = learnMoreTag, annotation = learnMoreUrl)
             withStyle(
                 style = SpanStyle(
-                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                    color = MaterialTheme.wireColorScheme.onBackground,
                     fontWeight = MaterialTheme.wireTypography.label05.fontWeight,
                     fontSize = MaterialTheme.wireTypography.label05.fontSize,
                     textDecoration = TextDecoration.Underline
@@ -258,37 +257,39 @@ private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
 
 @Composable
 private fun EmailFooter(state: CreateAccountEmailViewState, onLoginPressed: () -> Unit, onContinuePressed: () -> Unit) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
-    ) {
-        Text(
-            text = "${stringResource(R.string.create_account_email_footer_text)} ",
-            style = MaterialTheme.wireTypography.body02,
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            text = stringResource(R.string.label_login),
-            style = MaterialTheme.wireTypography.body02.copy(textDecoration = TextDecoration.Underline),
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onLoginPressed
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+        ) {
+            Text(
+                text = "${stringResource(R.string.create_account_email_footer_text)} ",
+                style = MaterialTheme.wireTypography.body02,
+                textAlign = TextAlign.Center,
             )
+            Text(
+                text = stringResource(R.string.label_login),
+                style = MaterialTheme.wireTypography.body02.copy(textDecoration = TextDecoration.Underline),
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onLoginPressed
+                )
+            )
+        }
+        WirePrimaryButton(
+            text = stringResource(R.string.label_continue),
+            onClick = onContinuePressed,
+            fillMaxWidth = true,
+            loading = state.loading,
+            state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(MaterialTheme.wireDimensions.spacing16x)
         )
     }
-    WirePrimaryButton(
-        text = stringResource(R.string.label_continue),
-        onClick = onContinuePressed,
-        fillMaxWidth = true,
-        loading = state.loading,
-        state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(MaterialTheme.wireDimensions.spacing16x)
-    )
 }
 
 @Composable

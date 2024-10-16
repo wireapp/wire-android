@@ -41,16 +41,12 @@ object TestConversationDetails {
         TestConversation.ONE_ON_ONE,
         TestUser.OTHER_USER,
         UserType.EXTERNAL,
-        lastMessage = null,
-        unreadEventCount = emptyMap()
     )
 
     val GROUP = ConversationDetails.Group(
         TestConversation.ONE_ON_ONE,
-        lastMessage = null,
         isSelfUserCreator = true,
         isSelfUserMember = true,
-        unreadEventCount = emptyMap(),
         selfRole = Conversation.Member.Role.Member
     )
 }

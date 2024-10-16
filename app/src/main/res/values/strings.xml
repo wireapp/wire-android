@@ -1080,6 +1080,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="custom_backend_dialog_body_backend_accounts">Accounts URL:</string>
     <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
     <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
+    <string name="custom_backend_invalid_deeplink_data_title">An error occurred</string>
+    <string name="custom_backend_invalid_deeplink_data_body">Redirecting to an on-premises backend was not possible, as there was an invalid configuration in the JSON file.\n\nContact your admin or check the deeplink that brought you here.</string>
     <string name="label_fetching_your_messages">Receiving new messages</string>
     <string name="label_text_copied">Text copied to clipboard</string>
     <string name="label_logs_option_title">Logs</string>

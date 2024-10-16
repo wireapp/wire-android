@@ -54,13 +54,11 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun GroupConversationOptionsItem(
     title: String,
-    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }),
     modifier: Modifier = Modifier
         .fillMaxWidth()
         .background(MaterialTheme.wireColorScheme.surface)
-        .clickable(clickable)
-        .clickableDescriptions(clickable)
         .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight),
+    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }),
     subtitle: String? = null,
     label: String? = null,
     trailingOnText: String? = null,
@@ -74,6 +72,8 @@ fun GroupConversationOptionsItem(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+            .clickable(clickable)
+            .clickableDescriptions(clickable)
             .semantics { contentDescription?.let { this.contentDescription = contentDescription } }
             .padding(
                 top = MaterialTheme.wireDimensions.spacing12x,
@@ -83,8 +83,7 @@ fun GroupConversationOptionsItem(
             )
     ) {
         Column(
-            modifier = Modifier
-                .weight(1f)
+            modifier = Modifier.weight(1f)
         ) {
             if (label != null) {
                 Text(

@@ -290,6 +290,13 @@ fun ConversationScreen(
             )
         }
     }
+    // set message composer input to reply mode when quotedMessage is not null from MessageDraft
+    LaunchedEffect(messageDraftViewModel.state.value.quotedMessageId) {
+        val compositionState = messageDraftViewModel.state.value
+        if (compositionState.quotedMessage != null) {
+            messageComposerStateHolder.messageCompositionHolder.updateQuote(compositionState.quotedMessage)
+        }
+    }
 
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
         navigator.navigate(

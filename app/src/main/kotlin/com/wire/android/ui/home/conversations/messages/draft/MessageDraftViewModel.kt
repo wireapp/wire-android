@@ -57,26 +57,20 @@ class MessageDraftViewModel @Inject constructor(
             val draftResult = getMessageDraft(conversationId)
 
             draftResult?.let { draft ->
+                val quotedData = draftResult.quotedMessageId?.let { quotedMessageId ->
+                    when (val quotedData = getQuotedMessage(conversationId, quotedMessageId)) {
+                        is UIQuotedMessage.UIQuotedData -> quotedData
+                        UIQuotedMessage.UnavailableData -> null
+                    }
+                }
                 state.update { messageComposition ->
                     messageComposition.copy(
                         draftText = draft.text,
                         selectedMentions = draft.selectedMentionList.mapNotNull { it.toUiMention(draft.text) },
-                        editMessageId = draft.editMessageId
+                        editMessageId = draft.editMessageId,
+                        quotedMessage = quotedData,
+                        quotedMessageId = quotedData?.messageId
                     )
-                }
-            }
-            draftResult?.quotedMessageId?.let { quotedMessageId ->
-                when (val quotedData = getQuotedMessage(conversationId, quotedMessageId)) {
-                    is UIQuotedMessage.UIQuotedData -> {
-                        state.update {
-                            it.copy(
-                                quotedMessage = quotedData,
-                                quotedMessageId = quotedMessageId
-                            )
-                        }
-                    }
-
-                    UIQuotedMessage.UnavailableData -> {}
                 }
             }
         }

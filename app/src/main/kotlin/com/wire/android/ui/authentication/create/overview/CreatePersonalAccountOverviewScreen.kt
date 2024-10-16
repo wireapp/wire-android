@@ -53,6 +53,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.destinations.CreateAccountEmailScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -62,8 +63,8 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @WireDestination
 @Composable
 fun CreatePersonalAccountOverviewScreen(
-    viewModel: CreateAccountOverviewViewModel = hiltViewModel(),
-    navigator: Navigator
+    navigator: Navigator,
+    viewModel: CreateAccountOverviewViewModel = hiltViewModel()
 ) {
     with(CreateAccountFlowType.CreatePersonalAccount) {
         fun navigateToEmailScreen() =
@@ -89,8 +90,8 @@ fun CreatePersonalAccountOverviewScreen(
 @WireDestination
 @Composable
 fun CreateTeamAccountOverviewScreen(
-    viewModel: CreateAccountOverviewViewModel = hiltViewModel(),
-    navigator: Navigator
+    navigator: Navigator,
+    viewModel: CreateAccountOverviewViewModel = hiltViewModel()
 ) {
     with(CreateAccountFlowType.CreateTeam) {
         fun navigateToEmailScreen() =
@@ -167,7 +168,11 @@ private fun OverviewContent(
 }
 
 @Composable
-private fun OverviewTexts(overviewParams: CreateAccountOverviewParams, modifier: Modifier, onLearnMoreClick: () -> Unit) {
+private fun OverviewTexts(
+    overviewParams: CreateAccountOverviewParams,
+    modifier: Modifier = Modifier,
+    onLearnMoreClick: () -> Unit
+) {
     Column(modifier = modifier) {
         if (overviewParams.contentTitle.isNotEmpty()) {
             Text(
@@ -188,8 +193,7 @@ private fun OverviewTexts(overviewParams: CreateAccountOverviewParams, modifier:
         Text(
             text = overviewParams.learnMoreText,
             style = MaterialTheme.wireTypography.body02.copy(
-                textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colorScheme.primary
+                textDecoration = TextDecoration.Underline
             ),
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -205,7 +209,7 @@ private fun OverviewTexts(overviewParams: CreateAccountOverviewParams, modifier:
 
 @Composable
 @Preview
-fun PreviewCreateAccountOverviewScreen() {
+fun PreviewCreateAccountOverviewScreen() = WireTheme {
     OverviewContent(
         onBackPressed = { },
         onContinuePressed = { },

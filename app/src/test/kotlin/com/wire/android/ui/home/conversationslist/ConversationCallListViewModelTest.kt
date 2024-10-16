@@ -22,7 +22,6 @@ package com.wire.android.ui.home.conversationslist
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
-import com.wire.android.framework.TestConversationDetails
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -31,7 +30,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -129,8 +127,6 @@ class ConversationCallListViewModelTest {
     }
 
     inner class Arrangement {
-        @MockK
-        lateinit var observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase
 
         @MockK
         lateinit var answerCall: AnswerCallUseCase
@@ -147,13 +143,6 @@ class ConversationCallListViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
-            coEvery { observeConversationListDetailsUseCase.invoke(false) } returns flowOf(
-                listOf(
-                    TestConversationDetails.CONNECTION,
-                    TestConversationDetails.CONVERSATION_ONE_ONE,
-                    TestConversationDetails.GROUP
-                )
-            )
             mockUri()
         }
 

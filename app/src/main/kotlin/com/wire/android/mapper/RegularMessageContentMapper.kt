@@ -38,6 +38,7 @@ import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.MessageContent.Asset
+import com.wire.kalium.logic.data.message.hasValidData
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
@@ -239,7 +240,8 @@ class RegularMessageMapper @Inject constructor(
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
                 // If some of image data are still missing, we mark it as incomplete which won't be shown until we get missing data
-                assetMessageContentMetadata.isIncompleteImage() -> {
+                // But we check if its not ours image, it its ours its probably an issue with sending, in that case we want to see it in chat
+                assetMessageContentMetadata.isIncompleteImage() && message.sender != sender -> {
                     UIMessageContent.IncompleteAssetMessage
                 }
 
@@ -306,7 +308,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
 
     // Sometimes client receives two events for the same asset, first one with only part of the data ("preview" type from web),
     // so such asset shouldn't be shown until all the required data is received.
-    fun isIncompleteImage(): Boolean = isDisplayableImage() && !assetMessageContent.hasValidRemoteData()
+    fun isIncompleteImage(): Boolean = isDisplayableImage() && !assetMessageContent.remoteData.hasValidData()
 }
 
 private fun String?.orUnknownName(): UIText = when {

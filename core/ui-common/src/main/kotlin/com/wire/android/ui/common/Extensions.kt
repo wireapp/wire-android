@@ -84,7 +84,7 @@ fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
     }
 } ?: this
 
-@SuppressLint("ComposeComposableModifier")
+@SuppressLint("ComposeComposableModifier", "ComposeModifierWithoutDefault")
 @Composable
 fun Modifier.clickableDescriptions(clickable: Clickable?) = if (clickable?.enabled == true) {
     this.semantics {

@@ -118,8 +118,8 @@ fun MenuItemTitle(
 fun MenuItemIcon(
     @DrawableRes id: Int,
     contentDescription: String?,
-    size: Dp = MaterialTheme.wireDimensions.wireIconButtonSize,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    size: Dp = MaterialTheme.wireDimensions.wireIconButtonSize
 ) {
     Icon(
         painter = painterResource(id = id),

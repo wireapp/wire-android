@@ -42,7 +42,6 @@ import com.wire.kalium.logic.data.message.hasValidData
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
-import com.wire.kalium.logic.sync.receiver.conversation.message.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
@@ -240,7 +239,7 @@ class RegularMessageMapper @Inject constructor(
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
                 // If some of image data are still missing, we mark it as incomplete which won't be shown until we get missing data
-                // But we check if its not ours image, it its ours its probably an issue with sending, in that case we want to see it in chat
+                // But we also check if isnt our own message, if its our own, most likely the there was an error sending the image.
                 assetMessageContentMetadata.isIncompleteImage() && message.sender != sender -> {
                     UIMessageContent.IncompleteAssetMessage
                 }

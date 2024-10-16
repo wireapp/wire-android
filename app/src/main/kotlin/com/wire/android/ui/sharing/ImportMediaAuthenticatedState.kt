@@ -15,16 +15,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
-package com.wire.android.ui.home.conversationslist
+package com.wire.android.ui.sharing
 
 import androidx.compose.runtime.Stable
 import androidx.paging.PagingData
 import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
 @Stable
-data class ConversationListState(
-    val foldersWithConversations: Flow<PagingData<ConversationFolderItem>> = emptyFlow(),
-)
+data class ImportMediaAuthenticatedState(
+    val importedAssets: PersistentList<ImportedMediaAsset> = persistentListOf(),
+    val importedText: String? = null,
+    val isImporting: Boolean = false,
+    val conversations: Flow<PagingData<ConversationFolderItem>> = emptyFlow(),
+    val selectedConversationItem: List<ConversationItem> = persistentListOf(),
+    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
+) {
+    @Stable
+    fun isImportingData() {
+        importedText?.isNotEmpty() == true || importedAssets.isNotEmpty()
+    }
+}

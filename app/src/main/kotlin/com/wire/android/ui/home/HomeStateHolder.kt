@@ -24,8 +24,6 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,15 +42,12 @@ class HomeStateHolder(
     val coroutineScope: CoroutineScope,
     val navController: NavHostController,
     val drawerState: DrawerState,
+    val currentNavigationItem: HomeDestination,
     val searchBarState: SearchBarState,
     val navigator: Navigator,
-    private val currentNavigationItemState: State<HomeDestination>,
-    private val lazyListStates: Map<HomeDestination, LazyListState>,
+    lazyListStates: Map<HomeDestination, LazyListState>,
 ) {
-    val currentNavigationItem: HomeDestination
-        get() = currentNavigationItemState.value
-    val currentLazyListState: LazyListState
-        get() = lazyListStates[currentNavigationItem] ?: error("No LazyListState found for $currentNavigationItem")
+    val currentLazyListState = lazyListStates[currentNavigationItem] ?: error("No LazyListState found for $currentNavigationItem")
 
     fun closeDrawer() {
         coroutineScope.launch {
@@ -78,22 +73,23 @@ fun rememberHomeScreenState(
 ): HomeStateHolder {
     val searchBarState = rememberSearchbarState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentNavigationItemState = remember {
-        derivedStateOf {
-            navBackStackEntry?.destination?.route?.let { HomeDestination.fromRoute(it) } ?: HomeDestination.Conversations
-        }
-    }
+    val currentRoute = navBackStackEntry?.destination?.route
+    val currentNavigationItem = currentRoute?.let { HomeDestination.fromRoute(it) } ?: HomeDestination.Conversations
     val lazyListStates = HomeDestination.values().associateWith { rememberLazyListState() }
 
-    return remember {
+    val homeState = remember(
+        currentNavigationItem
+    ) {
         HomeStateHolder(
-            coroutineScope = coroutineScope,
-            navController = navController,
-            drawerState = drawerState,
-            currentNavigationItemState = currentNavigationItemState,
-            searchBarState = searchBarState,
-            navigator = navigator,
-            lazyListStates = lazyListStates
+            coroutineScope,
+            navController,
+            drawerState,
+            currentNavigationItem,
+            searchBarState,
+            navigator,
+            lazyListStates
         )
     }
+
+    return homeState
 }

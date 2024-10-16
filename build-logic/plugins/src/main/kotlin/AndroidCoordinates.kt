@@ -26,7 +26,7 @@ object AndroidSdk {
 
 object AndroidApp {
     const val id = "com.wire.android"
-    const val versionName = "4.9.0"
+    const val versionName = "4.10.0"
     val versionCode by lazy {
         Versionizer(_rootDir).versionCode
     }
@@ -34,5 +34,24 @@ object AndroidApp {
     private lateinit var _rootDir: File
     fun setRootDir(rootDir: File) {
         this._rootDir = rootDir
+    }
+
+    /**
+     * The last 5 digits of the VersionCode. From 0 to 99_999.
+     * It's an [Int], so it can be less than 5 digits when doing [toString], of course.
+     * Considering versionCode bumps every 5min, these are
+     * 288 per day
+     * 8640 per month
+     * 51840 per semester
+     * 103_680 per year. ~99_999
+     *
+     * So it takes almost a whole year until it rotates back.
+     * It's very unlikely that two APKs with the same version (_e.g._ 4.8.0)
+     * will have the same [leastSignificantVersionCode],
+     * unless they are build almost one year apart.
+     */
+    @Suppress("MagicNumber")
+    val leastSignificantVersionCode by lazy {
+        versionCode % 100_000
     }
 }

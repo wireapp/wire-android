@@ -19,16 +19,15 @@
 
 package com.wire.android.ui.home.conversationslist
 
+import androidx.paging.PagingData
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
-import com.wire.android.framework.TestConversationDetails
-import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.framework.TestConversationItem
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.home.conversationslist.model.ConversationFolder
+import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
-import com.wire.android.util.orDefault
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -39,7 +38,6 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -53,7 +51,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -65,42 +62,59 @@ class ConversationListViewModelTest {
     private val dispatcherProvider = TestDispatcherProvider()
 
     @Test
-    fun `given empty search query, when collecting, then update state with all conversations`() = runTest(dispatcherProvider.main()) {
+    fun `given initial empty search query, when collecting conversations, then call use case with proper params`() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
+
+            // When
+            conversationListViewModel.conversationListState.foldersWithConversations.test {
+                // Then
+                coVerify(exactly = 1) {
+                    arrangement.getConversationsPaginated("", false, true, false)
+                }
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `given updated non-empty search query, when collecting conversations, then call use case with proper params`() =
+        runTest(dispatcherProvider.main()) {
         // Given
-        val searchQueryText = ""
-        val (_, conversationListViewModel) = Arrangement().arrange()
+        val searchQueryText = "search"
+        val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.MAIN).arrange()
 
         // When
-        advanceUntilIdle()
-        conversationListViewModel.searchQueryChanged(searchQueryText)
-        advanceUntilIdle()
+        conversationListViewModel.conversationListState.foldersWithConversations.test {
+            conversationListViewModel.searchQueryChanged(searchQueryText)
+            advanceUntilIdle()
 
-        // Then
-        assertEquals(
-            3,
-            conversationListViewModel.conversationListState.foldersWithConversations[ConversationFolder.Predefined.Conversations]?.size,
-        )
-        assertEquals(searchQueryText, conversationListViewModel.conversationListState.searchQuery)
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.getConversationsPaginated(searchQueryText, false, true, false)
+            }
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     @Test
-    fun `given non-empty search query, when collecting, then update state with filtered conversations`() =
+    fun `given updated non-empty search query, when collecting archived, then call use case with proper params`() =
         runTest(dispatcherProvider.main()) {
         // Given
-        val searchQueryText = TestConversationDetails.CONVERSATION_ONE_ONE.conversation.name.orDefault("test")
-        val (_, conversationListViewModel) = Arrangement().arrange()
+        val searchQueryText = "search"
+        val (arrangement, conversationListViewModel) = Arrangement(conversationsSource = ConversationsSource.ARCHIVE).arrange()
 
         // When
-        advanceUntilIdle()
-        conversationListViewModel.searchQueryChanged(searchQueryText)
-        advanceUntilIdle()
+        conversationListViewModel.conversationListState.foldersWithConversations.test {
+            conversationListViewModel.searchQueryChanged(searchQueryText)
+            advanceUntilIdle()
 
-        // Then
-        assertEquals(
-            1,
-            conversationListViewModel.conversationListState.foldersWithConversations[ConversationFolder.Predefined.Conversations]?.size,
-        )
-        assertEquals(searchQueryText, conversationListViewModel.conversationListState.searchQuery)
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.getConversationsPaginated(searchQueryText, true, false, false)
+            }
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     @Test
@@ -150,12 +164,12 @@ class ConversationListViewModelTest {
         coVerify(exactly = 1) { arrangement.unblockUser(userId) }
     }
 
-    inner class Arrangement {
+    inner class Arrangement(val conversationsSource: ConversationsSource = ConversationsSource.MAIN) {
         @MockK
         lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
         @MockK
-        lateinit var observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase
+        lateinit var getConversationsPaginated: GetConversationsFromSearchUseCase
 
         @MockK
         lateinit var leaveConversation: LeaveConversationUseCase
@@ -173,9 +187,6 @@ class ConversationListViewModelTest {
         lateinit var clearConversationContent: ClearConversationContentUseCase
 
         @MockK
-        private lateinit var wireSessionImageLoader: WireSessionImageLoader
-
-        @MockK
         private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
 
         @MockK
@@ -186,12 +197,10 @@ class ConversationListViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { observeConversationListDetailsUseCase.invoke(false) } returns flowOf(
-                listOf(
-                    TestConversationDetails.CONNECTION,
-                    TestConversationDetails.CONVERSATION_ONE_ONE,
-                    TestConversationDetails.GROUP
-                )
+            coEvery {
+                getConversationsPaginated.invoke(any(), any(), any(), any())
+            } returns flowOf(
+                PagingData.from(listOf(TestConversationItem.CONNECTION, TestConversationItem.PRIVATE, TestConversationItem.GROUP))
             )
             mockUri()
         }
@@ -211,19 +220,17 @@ class ConversationListViewModelTest {
         }
 
         fun arrange() = this to ConversationListViewModelImpl(
-            conversationsSource = ConversationsSource.MAIN,
+            conversationsSource = conversationsSource,
             dispatcher = dispatcherProvider,
             updateConversationMutedStatus = updateConversationMutedStatus,
-            observeConversationListDetails = observeConversationListDetailsUseCase,
+            getConversationsPaginated = getConversationsPaginated,
             leaveConversation = leaveConversation,
             deleteTeamConversation = deleteTeamConversationUseCase,
             blockUserUseCase = blockUser,
             unblockUserUseCase = unblockUser,
             clearConversationContentUseCase = clearConversationContent,
-            wireSessionImageLoader = wireSessionImageLoader,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
-            userTypeMapper = UserTypeMapper(),
             updateConversationArchivedStatus = updateConversationArchivedStatus,
         )
     }

@@ -55,8 +55,8 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 fun GroupConversationParticipants(
     onProfilePressed: (UIParticipant) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
-    modifier: Modifier = Modifier,
-    lazyListState: LazyListState = rememberLazyListState()
+    lazyListState: LazyListState,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     Column(modifier = modifier) {
@@ -125,7 +125,13 @@ fun MLSProgressIndicator(
 @PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationParticipants() = WireTheme {
-    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW)
+    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW, rememberLazyListState())
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewGroupConversationParticipantsAdandonedOneOnOne() = WireTheme {
+    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW, rememberLazyListState())
 }
 
 @PreviewMultipleThemes

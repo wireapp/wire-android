@@ -107,9 +107,7 @@ fun GroupConversationSettings(
             )
         }
         if (state.areAccessOptionsAvailable) {
-            item {
-                FolderHeader(name = stringResource(R.string.folder_label_access))
-            }
+            item { FolderHeader(name = stringResource(R.string.folder_label_access)) }
 
             item {
                 GroupConversationOptionsItem(
@@ -136,9 +134,7 @@ fun GroupConversationSettings(
                 )
             }
         }
-        item {
-            FolderHeader(name = stringResource(id = R.string.folder_label_messaging))
-        }
+        item { FolderHeader(name = stringResource(id = R.string.folder_label_messaging)) }
 
         if (!state.selfDeletionTimer.isDisabled) {
             item {

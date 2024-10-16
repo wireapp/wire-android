@@ -139,6 +139,30 @@ class AvatarPickerViewModelTest {
         assertInstanceOf(AvatarPickerViewModel.PictureState.Initial::class.java, avatarPickerViewModel.pictureState)
     }
 
+    @Test
+    fun `given current avatar present, when new avatar is picked and cancel button pressed, then set state to Initial`() = runTest {
+        val (arrangement, avatarPickerViewModel) = Arrangement()
+            .withSuccessfulInitialAvatarLoad()
+            .arrange()
+
+        avatarPickerViewModel.updatePickedAvatarUri(arrangement.mockUri)
+        assertInstanceOf(AvatarPickerViewModel.PictureState.Picked::class.java, avatarPickerViewModel.pictureState)
+        avatarPickerViewModel.loadInitialAvatarState()
+        assertInstanceOf(AvatarPickerViewModel.PictureState.Initial::class.java, avatarPickerViewModel.pictureState)
+    }
+
+    @Test
+    fun `given no avatar is present, when new avatar is picked and cancel button pressed, then set state to Empty`() = runTest {
+        val (arrangement, avatarPickerViewModel) = Arrangement()
+            .withNoInitialAvatar()
+            .arrange()
+
+        avatarPickerViewModel.updatePickedAvatarUri(arrangement.mockUri)
+        assertInstanceOf(AvatarPickerViewModel.PictureState.Picked::class.java, avatarPickerViewModel.pictureState)
+        avatarPickerViewModel.loadInitialAvatarState()
+        assertInstanceOf(AvatarPickerViewModel.PictureState.Empty::class.java, avatarPickerViewModel.pictureState)
+    }
+
     private class Arrangement {
 
         val userDataStore = mockk<UserDataStore>()
@@ -171,7 +195,7 @@ class AvatarPickerViewModelTest {
             )
         }
 
-        private val mockUri = mockk<Uri>()
+        val mockUri = mockk<Uri>()
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -205,6 +229,13 @@ class AvatarPickerViewModelTest {
             coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockUri
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")
+
+            return this
+        }
+
+        fun withNoInitialAvatar(): Arrangement {
+            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockUri
+            every { userDataStore.avatarAssetId } returns flow { emit(null) }
 
             return this
         }

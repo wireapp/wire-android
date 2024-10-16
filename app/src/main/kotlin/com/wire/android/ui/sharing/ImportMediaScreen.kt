@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -93,7 +94,9 @@ import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuItems
 import com.wire.android.ui.home.conversationslist.common.ConversationList
-import com.wire.android.ui.home.conversationslist.model.ConversationFolder
+import com.wire.android.ui.home.conversationslist.common.previewConversationFolders
+import com.wire.android.ui.home.conversationslist.common.previewConversationFoldersFlow
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
@@ -107,11 +110,9 @@ import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AttachmentType
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.util.isPositiveNotNull
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import okio.Path.Companion.toPath
@@ -288,7 +289,7 @@ fun ImportMediaRegularContent(
     importMediaAuthenticatedState: ImportMediaAuthenticatedState,
     avatarAsset: ImageAsset.UserAvatarAsset?,
     searchQueryTextState: TextFieldState,
-    onConversationClicked: (conversationId: ConversationId) -> Unit,
+    onConversationClicked: (conversationItem: ConversationItem) -> Unit,
     checkRestrictionsAndSendImportedMedia: () -> Unit,
     onNewSelfDeletionTimerPicked: (selfDeletionDuration: SelfDeletionDuration) -> Unit,
     infoMessage: SharedFlow<SnackBarMessage>,
@@ -534,7 +535,7 @@ fun ImportMediaTopBarContent(
 private fun ImportMediaContent(
     state: ImportMediaAuthenticatedState,
     internalPadding: PaddingValues,
-    onConversationClicked: (conversationId: ConversationId) -> Unit,
+    onConversationClicked: (conversationItem: ConversationItem) -> Unit,
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
     Column(
@@ -542,16 +543,14 @@ private fun ImportMediaContent(
             .padding(internalPadding)
             .fillMaxSize()
     ) {
+        val lazyPagingConversations = state.conversations.collectAsLazyPagingItems()
         ConversationList(
             modifier = Modifier.weight(1f),
             lazyListState = lazyListState,
-            conversationListItems = persistentMapOf(
-                ConversationFolder.WithoutHeader to state.shareableConversationListState.searchResult
-            ),
+            lazyPagingConversations = lazyPagingConversations,
             selectedConversations = state.selectedConversationItem,
             isSelectableList = true,
             onConversationSelectedOnRadioGroup = onConversationClicked,
-            searchQuery = state.shareableConversationListState.searchQuery,
             onOpenConversation = onConversationClicked,
             onEditConversation = {},
             onOpenUserProfile = {},
@@ -671,6 +670,7 @@ fun PreviewImportMediaScreenRegular() {
     WireTheme {
         ImportMediaRegularContent(
             importMediaAuthenticatedState = ImportMediaAuthenticatedState(
+                conversations = previewConversationFoldersFlow(),
                 importedAssets = persistentListOf(
                     ImportedMediaAsset(
                         AssetBundle(
@@ -736,6 +736,7 @@ fun PreviewImportMediaTextScreenRegular() {
     WireTheme {
         ImportMediaRegularContent(
             importMediaAuthenticatedState = ImportMediaAuthenticatedState(
+                conversations = previewConversationFoldersFlow(list = previewConversationFolders(withFolders = false)),
                 importedAssets = persistentListOf(),
                 importedText = "This is a shared text message \n" +
                         "This is a second line with a veeeeeeeeeeeeeeeeeeeeeeeeeeery long shared text message"

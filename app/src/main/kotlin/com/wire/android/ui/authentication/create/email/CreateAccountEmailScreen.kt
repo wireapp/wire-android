@@ -229,7 +229,7 @@ private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
             pushStringAnnotation(tag = learnMoreTag, annotation = learnMoreUrl)
             withStyle(
                 style = SpanStyle(
-                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                    color = MaterialTheme.wireColorScheme.onBackground,
                     fontWeight = MaterialTheme.wireTypography.label05.fontWeight,
                     fontSize = MaterialTheme.wireTypography.label05.fontSize,
                     textDecoration = TextDecoration.Underline
@@ -257,37 +257,39 @@ private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
 
 @Composable
 private fun EmailFooter(state: CreateAccountEmailViewState, onLoginPressed: () -> Unit, onContinuePressed: () -> Unit) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
-    ) {
-        Text(
-            text = "${stringResource(R.string.create_account_email_footer_text)} ",
-            style = MaterialTheme.wireTypography.body02,
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            text = stringResource(R.string.label_login),
-            style = MaterialTheme.wireTypography.body02.copy(textDecoration = TextDecoration.Underline),
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onLoginPressed
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+        ) {
+            Text(
+                text = "${stringResource(R.string.create_account_email_footer_text)} ",
+                style = MaterialTheme.wireTypography.body02,
+                textAlign = TextAlign.Center,
             )
+            Text(
+                text = stringResource(R.string.label_login),
+                style = MaterialTheme.wireTypography.body02.copy(textDecoration = TextDecoration.Underline),
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onLoginPressed
+                )
+            )
+        }
+        WirePrimaryButton(
+            text = stringResource(R.string.label_continue),
+            onClick = onContinuePressed,
+            fillMaxWidth = true,
+            loading = state.loading,
+            state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(MaterialTheme.wireDimensions.spacing16x)
         )
     }
-    WirePrimaryButton(
-        text = stringResource(R.string.label_continue),
-        onClick = onContinuePressed,
-        fillMaxWidth = true,
-        loading = state.loading,
-        state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(MaterialTheme.wireDimensions.spacing16x)
-    )
 }
 
 @Composable

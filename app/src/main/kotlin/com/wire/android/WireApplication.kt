@@ -39,6 +39,7 @@ import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
+import com.wire.android.util.LifecycleLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
@@ -89,6 +90,9 @@ class WireApplication : BaseApp() {
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager
 
+    @Inject
+    lateinit var applicationLifecycleLogger: LifecycleLogger
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(wireWorkerFactory.get())
@@ -107,7 +111,9 @@ class WireApplication : BaseApp() {
 
             appLogger.i("$TAG app lifecycle")
             withContext(Dispatchers.Main) {
-                ProcessLifecycleOwner.get().lifecycle.addObserver(currentScreenManager)
+                val lifecycle = ProcessLifecycleOwner.get().lifecycle
+                lifecycle.addObserver(currentScreenManager)
+                lifecycle.addObserver(applicationLifecycleLogger)
             }
             connectionPolicyManager.get().startObservingAppLifecycle()
 
@@ -148,11 +154,13 @@ class WireApplication : BaseApp() {
             override fun onActivityStarted(activity: Activity) {
                 globalAnalyticsManager.onStart(activity)
             }
+
             override fun onActivityResumed(activity: Activity) {}
             override fun onActivityPaused(activity: Activity) {}
             override fun onActivityStopped(activity: Activity) {
                 globalAnalyticsManager.onStop(activity)
             }
+
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
             override fun onActivityDestroyed(activity: Activity) {}
         })

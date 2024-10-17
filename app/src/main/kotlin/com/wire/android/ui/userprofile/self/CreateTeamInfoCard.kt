@@ -50,7 +50,7 @@ fun CreateTeamInfoCard(
         colors = CardDefaults.cardColors(
             containerColor = colorsScheme().createTeamInfoCardBackgroundColor
         ),
-        border = BorderStroke(1.dp, colorsScheme().createTeamInfoCardBorderColor),
+        border = BorderStroke(dimensions().spacing1x, colorsScheme().createTeamInfoCardBorderColor),
     ) {
         Row(
             modifier = Modifier.padding(

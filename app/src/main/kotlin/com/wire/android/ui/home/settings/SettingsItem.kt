@@ -40,6 +40,7 @@ import com.wire.android.navigation.TermsOfUseScreenDestination
 import com.wire.android.navigation.WireWebsiteScreenDestination
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.AboutThisAppScreenDestination
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
@@ -95,6 +96,7 @@ fun SettingsItem(
                         .defaultMinSize(dimensions().wireIconButtonSize)
                         .padding(end = dimensions().spacing8x)
                         .clickable(onIconPressed)
+                        .clickableDescriptions(onIconPressed)
                 )
             } ?: Icons.Filled.ChevronRight
         },

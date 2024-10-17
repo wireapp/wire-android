@@ -196,7 +196,7 @@ internal fun DrawingTopBar(
 ) {
     WireCenterAlignedTopAppBar(
         title = conversationTitle,
-        navigationIconType = NavigationIconType.Close,
+        navigationIconType = NavigationIconType.Close(),
         onNavigationPressed = dismissAction,
         actions = {
             WireSecondaryIconButton(

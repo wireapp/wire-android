@@ -145,7 +145,7 @@ private fun Content(
         topBar = {
             WireCenterAlignedTopAppBar(
                 title = previewState.conversationName,
-                navigationIconType = NavigationIconType.Back,
+                navigationIconType = NavigationIconType.Back(),
                 onNavigationPressed = onNavigationPressed,
             )
         },

@@ -76,7 +76,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.FileNotFoundException
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -291,7 +290,7 @@ class SendMessageViewModel @Inject constructor(
                 attachmentBundle?.run {
                     when (assetType) {
                         AttachmentType.IMAGE -> {
-                            try {
+                            if (kaliumFileSystem.exists(attachmentBundle.dataPath)) {
                                 val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
                                     kaliumFileSystem,
                                     attachmentBundle.dataPath
@@ -308,7 +307,7 @@ class SendMessageViewModel @Inject constructor(
                                 )
                                     .handleLegalHoldFailureAfterSendingMessage(conversationId)
                                     .handleAssetContributionEvent(assetType)
-                            } catch (e: FileNotFoundException) {
+                            } else {
                                 appLogger.e("There was an FileNotFoundException error while sending image asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
                             }

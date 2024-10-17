@@ -26,7 +26,6 @@ import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.framework.TestTeam
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.OtherAccountMapper
-import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -82,8 +81,6 @@ class SelfUserProfileViewModelArrangement {
     @MockK
     lateinit var isReadOnlyAccount: IsReadOnlyAccountUseCase
     @MockK
-    lateinit var notificationChannelsManager: NotificationChannelsManager
-    @MockK
     lateinit var notificationManager: WireNotificationManager
     @MockK
     lateinit var globalDataStore: GlobalDataStore
@@ -109,7 +106,6 @@ class SelfUserProfileViewModelArrangement {
             accountSwitch = accountSwitch,
             endCall = endCall,
             isReadOnlyAccount = isReadOnlyAccount,
-            notificationChannelsManager = notificationChannelsManager,
             notificationManager = notificationManager,
             globalDataStore = globalDataStore,
             qualifiedIdMapper = qualifiedIdMapper

@@ -33,7 +33,7 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader

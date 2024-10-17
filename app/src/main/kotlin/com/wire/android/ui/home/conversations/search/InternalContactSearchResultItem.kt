@@ -34,7 +34,7 @@ import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.ConnectPendingRequestBadge

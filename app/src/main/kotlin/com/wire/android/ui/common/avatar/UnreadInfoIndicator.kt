@@ -15,14 +15,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.common.avatar
 
-package com.wire.android.ui.home.conversationslist.common
-
+import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
-import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.avatar.UserProfileAvatar
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import com.wire.android.R
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun ConversationUserAvatar(avatarData: UserAvatarData) {
-    UserProfileAvatar(avatarData)
+fun UnreadInfoIndicator(
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(id = R.drawable.ic_info_unread),
+        contentDescription = null,
+        modifier = modifier,
+        tint = Color.Unspecified
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewUserInfoUnreadIndicator() {
+    UnreadInfoIndicator()
 }

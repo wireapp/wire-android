@@ -186,6 +186,10 @@
     <string name="content_description_conversation_details_close_btn">Close conversation details</string>
     <string name="content_description_conversation_details_guests_action">adjust guest access</string>
     <string name="content_description_conversation_details_self_deleting_action">adjust self-deleting time</string>
+    <string name="content_description_user_profile_heading">User Profile, heading</string>
+    <string name="content_description_user_profile_more_btn">Open conversation options</string>
+    <string name="content_description_user_profile_close_btn">Go back to conversation details</string>
+    <string name="content_description_user_profile_edit_role_btn">Edit role</string>
     <string name="content_description_edit_label">edit</string>
     <string name="content_description_select_label">select</string>
     <string name="content_description_selected_label">selected</string>

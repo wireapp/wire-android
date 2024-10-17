@@ -17,9 +17,10 @@
  */
 @file:Suppress("TooManyFunctions")
 
-package com.wire.android.ui.home.conversations.messages.item
+package com.wire.android.kotlin.ui.home.conversations.messages.item
 
 import androidx.compose.runtime.Composable
+import com.wire.android.ui.home.conversations.messages.item.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
 import com.wire.android.ui.home.conversations.mock.mockUsersUITexts
 import com.wire.android.ui.home.conversations.model.UIMessageContent

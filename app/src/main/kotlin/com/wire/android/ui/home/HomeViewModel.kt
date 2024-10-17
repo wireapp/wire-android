@@ -78,9 +78,9 @@ class HomeViewModel @Inject constructor(
             getSelf().first().let { selfUser ->
                 val isPersonalUser = selfUser.teamId == null
                 if (isPersonalUser) {
-                    dataStore.isCreateTeamNoticeRead().collect { idRead ->
+                    dataStore.isCreateTeamNoticeRead().collect { isRead ->
                         homeState = homeState.copy(
-                            shouldShowCreateTeamUnreadIndicator = !idRead
+                            shouldShowCreateTeamUnreadIndicator = !isRead
                         )
                     }
                 }

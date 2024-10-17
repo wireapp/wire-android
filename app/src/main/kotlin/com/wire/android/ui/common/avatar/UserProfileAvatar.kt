@@ -133,13 +133,16 @@ fun UserProfileAvatar(
     temporaryUserBorderWidth: Dp = dimensions().avatarTemporaryUserBorderWidth,
     statusBorderWidth: Dp = dimensions().avatarStatusBorderWidth,
     statusSize: Dp = dimensions().avatarStatusSize,
+    unReadIndicatorSize: Dp = dimensions().unReadIndicatorSize,
     avatarBorderWidth: Dp = dimensions().avatarBorderWidth,
     avatarBorderColor: Color = colorsScheme().outline,
     clickable: Clickable? = null,
     showPlaceholderIfNoAsset: Boolean = true,
     shouldShowCreateTeamUnreadIndicator: Boolean = false,
     withCrossfadeAnimation: Boolean = false,
-    type: UserProfileAvatarType = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = false),
+    type: UserProfileAvatarType = UserProfileAvatarType.WithIndicators.RegularUser(
+        legalHoldIndicatorVisible = false
+    ),
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -149,6 +152,7 @@ fun UserProfileAvatar(
             .clickable(clickable)
     ) {
         var userStatusIndicatorParams by remember { mutableStateOf(Size.Zero to Offset.Zero) }
+        var userUnreadIndicatorParams by remember { mutableStateOf(Size.Zero to Offset.Zero) }
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -194,7 +198,10 @@ fun UserProfileAvatar(
             if (type is UserProfileAvatarType.WithIndicators.TemporaryUser) {
                 CircularProgressIndicator(
                     progress = (type.expiresAt.minus(Clock.System.now()).inWholeMinutes.toFloat() / MINUTES_IN_DAY.toFloat()).absoluteValue,
-                    color = colorsScheme().wireAccentColors.getOrDefault(Accent.Blue, colorsScheme().primary),
+                    color = colorsScheme().wireAccentColors.getOrDefault(
+                        Accent.Blue,
+                        colorsScheme().primary
+                    ),
                     strokeWidth = temporaryUserBorderWidth,
                     modifier = Modifier
                         .size(size)
@@ -207,16 +214,23 @@ fun UserProfileAvatar(
 
         if (type is UserProfileAvatarType.WithIndicators.RegularUser) {
             // calculated using the trigonometry so that the status is always in the right place according to the avatar
-            val exactPointOnAvatarBorder = sqrt(2f) / 2f * ((size.value / 2f) + avatarBorderWidth.value)
+            val exactPointOnAvatarBorder =
+                sqrt(2f) / 2f * ((size.value / 2f) + avatarBorderWidth.value)
             val maxOffset = (size.value / 2f) - (statusSize.value / 2f) - -statusBorderWidth.value
+            val maxOffsetUnreadIndicator = (size.value / 2f) - (unReadIndicatorSize.value / 3f)
             val offsetToAlignWithAvatar = min(maxOffset, exactPointOnAvatarBorder)
+            val offsetToAlignUnreadIndicatorWithAvatar =
+                min(maxOffsetUnreadIndicator, exactPointOnAvatarBorder)
 
             if (shouldShowCreateTeamUnreadIndicator) {
                 UnreadInfoIndicator(
                     modifier = Modifier
-                        .offset(x = offsetToAlignWithAvatar.dp, y = -offsetToAlignWithAvatar.dp)
+                        .offset(
+                            x = offsetToAlignUnreadIndicatorWithAvatar.dp,
+                            y = -offsetToAlignUnreadIndicatorWithAvatar.dp
+                        )
                         .onGloballyPositioned {
-                            userStatusIndicatorParams = it.size.toSize() to it.positionInParent()
+                            userUnreadIndicatorParams = it.size.toSize() to it.positionInParent()
                         }
                         .testTag(UNREAD_INFO_TEST_TAG)
                 )
@@ -249,7 +263,12 @@ private fun UserAvatar(
     modifier: Modifier = Modifier,
 ) {
     if (avatarData.shouldPreferNameBasedAvatar()) {
-        DefaultInitialsAvatar(nameBasedAvatar = avatarData.nameBasedAvatar!!, type = type, size = size, modifier = modifier)
+        DefaultInitialsAvatar(
+            nameBasedAvatar = avatarData.nameBasedAvatar!!,
+            type = type,
+            size = size,
+            modifier = modifier
+        )
     } else {
         val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
         Image(
@@ -349,7 +368,10 @@ private fun painter(
     }
 
     else -> {
-        data.asset.paint(getDefaultAvatarResourceId(membership = data.membership), withCrossfadeAnimation)
+        data.asset.paint(
+            getDefaultAvatarResourceId(membership = data.membership),
+            withCrossfadeAnimation
+        )
     }
 }
 
@@ -432,11 +454,18 @@ fun PreviewUserProfileAvatarWithoutIndicators() {
 fun PreviewTempUserBig() {
     WireTheme {
         UserProfileAvatar(
-            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("Juan Roman Riquelme", -1)),
+            avatarData = UserAvatarData(
+                nameBasedAvatar = NameBasedAvatar(
+                    "Juan Roman Riquelme",
+                    -1
+                )
+            ),
             padding = 4.dp,
             size = dimensions().avatarDefaultBigSize,
             temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,
-            type = UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt = Clock.System.now().plus(1.hours)),
+            type = UserProfileAvatarType.WithIndicators.TemporaryUser(
+                expiresAt = Clock.System.now().plus(1.hours)
+            ),
         )
     }
 }
@@ -446,10 +475,17 @@ fun PreviewTempUserBig() {
 fun PreviewTempUserSmall() {
     WireTheme {
         UserProfileAvatar(
-            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("Juan Roman Riquelme", -1)),
+            avatarData = UserAvatarData(
+                nameBasedAvatar = NameBasedAvatar(
+                    "Juan Roman Riquelme",
+                    -1
+                )
+            ),
             size = dimensions().spacing24x,
             padding = dimensions().spacing0x,
-            type = UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt = Clock.System.now().plus(10.hours)),
+            type = UserProfileAvatarType.WithIndicators.TemporaryUser(
+                expiresAt = Clock.System.now().plus(10.hours)
+            ),
         )
     }
 }
@@ -459,7 +495,12 @@ fun PreviewTempUserSmall() {
 fun PreviewUserProfileAvatarWithInitialsBig() {
     WireTheme {
         UserProfileAvatar(
-            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("Juan Roman Riquelme", -1)),
+            avatarData = UserAvatarData(
+                nameBasedAvatar = NameBasedAvatar(
+                    "Juan Roman Riquelme",
+                    -1
+                )
+            ),
             padding = 4.dp,
             size = dimensions().avatarDefaultBigSize,
             temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,

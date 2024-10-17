@@ -36,11 +36,11 @@ jobs:
       - name: Fetch All Branches
         run: git fetch --all
 
-      - name: Merge Develop into develop/screenshot-tests
+      - name: Merge Develop into screenshot-tests
         run: |
-          git checkout develop/screenshot-tests
+          git checkout screenshot-tests
           git merge origin/develop --no-edit
-          git push origin develop/screenshot-tests
+          git push origin screenshot-tests
 
       - name: Verify Screenshot Tests
         run: ./gradlew validateInternalDebugScreenshotTest
@@ -72,7 +72,7 @@ jobs:
         with:
           token: ${{ env.GITHUB_TOKEN }}
           branch: $BRANCH_NAME
-          base: develop/screenshot-tests
+          base: screenshot-tests
           title: "Update Screenshot Tests"
           body: "Automated PR to update screenshot tests."
 

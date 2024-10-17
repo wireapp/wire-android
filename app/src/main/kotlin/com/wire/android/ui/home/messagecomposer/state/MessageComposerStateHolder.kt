@@ -41,6 +41,7 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 fun rememberMessageComposerStateHolder(
     messageComposerViewState: State<MessageComposerViewState>,
     draftMessageComposition: MessageComposition,
+    onClearDraft: () -> Unit,
     onSaveDraft: (MessageDraft) -> Unit,
     onSearchMentionQueryChanged: (String) -> Unit,
     onClearMentionSearchResult: () -> Unit,
@@ -62,6 +63,7 @@ fun rememberMessageComposerStateHolder(
         MessageCompositionHolder(
             messageComposition = messageComposition,
             messageTextState = messageTextState,
+            onClearDraft = onClearDraft,
             onSaveDraft = onSaveDraft,
             onSearchMentionQueryChanged = onSearchMentionQueryChanged,
             onClearMentionSearchResult = onClearMentionSearchResult,

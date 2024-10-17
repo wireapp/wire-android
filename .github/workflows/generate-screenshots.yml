@@ -1,7 +1,10 @@
 name: "Generate and Verify Screenshot Tests"
 
 on:
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/screenshot-tests
 
 permissions:
   contents: write

@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -85,7 +86,7 @@ fun TeamMigrationScreen(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_close),
-                contentDescription = "close team migration flow"
+                contentDescription = stringResource(R.string.personal_to_team_migration_close_icon_content_description)
             )
         }
         if (LocalLifecycleOwner.current.lifecycle.currentState != Lifecycle.State.DESTROYED) {

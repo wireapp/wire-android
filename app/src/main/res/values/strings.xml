@@ -1495,6 +1495,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>
     <string name="personal_to_team_migration_back_to_wire_button">Back to Wire</string>
     <string name="personal_to_team_migration_back_button_label">Back</string>
+    <string name="personal_to_team_migration_close_icon_content_description">Close team migration flow</string>
 
     <string name="personal_to_team_migration_team_plan_step">Team Account</string>
     <string name="personal_to_team_migration_team_plan_description">Transform your personal account into a team account to get more out of your collaboration.</string>

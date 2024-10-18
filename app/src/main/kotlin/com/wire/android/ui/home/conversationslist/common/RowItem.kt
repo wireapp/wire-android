@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
@@ -46,6 +47,7 @@ fun RowItem(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .clickable(clickable)
+                .clickableDescriptions(clickable)
                 .then(
                     modifier
                         .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationItemRowHeight)

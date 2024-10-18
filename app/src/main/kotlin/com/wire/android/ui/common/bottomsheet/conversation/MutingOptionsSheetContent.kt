@@ -25,10 +25,10 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowLeftIcon
-import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
-import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
+import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
+import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.dimensions
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
@@ -51,7 +51,9 @@ internal fun MutingOptionsSheetContent(
                 SelectableMenuBottomSheetItem(
                     title = stringResource(id = R.string.muting_option_all_allowed_title),
                     subLine = stringResource(id = R.string.muting_option_all_allowed_text),
-                    onItemClick = Clickable { onMuteConversation(MutedConversationStatus.AllAllowed) },
+                    onItemClick = Clickable(onClickDescription = stringResource(id = R.string.content_description_select_label)) {
+                        onMuteConversation(MutedConversationStatus.AllAllowed)
+                    },
                     state = if (mutingConversationState == MutedConversationStatus.AllAllowed) RichMenuItemState.SELECTED
                     else RichMenuItemState.DEFAULT
                 )
@@ -60,7 +62,9 @@ internal fun MutingOptionsSheetContent(
                 SelectableMenuBottomSheetItem(
                     title = stringResource(id = R.string.muting_option_only_mentions_title),
                     subLine = stringResource(id = R.string.muting_option_only_mentions_text),
-                    onItemClick = Clickable { onMuteConversation(MutedConversationStatus.OnlyMentionsAndRepliesAllowed) },
+                    onItemClick = Clickable(onClickDescription = stringResource(id = R.string.content_description_select_label)) {
+                        onMuteConversation(MutedConversationStatus.OnlyMentionsAndRepliesAllowed)
+                    },
                     state = if (mutingConversationState == MutedConversationStatus.OnlyMentionsAndRepliesAllowed)
                         RichMenuItemState.SELECTED else RichMenuItemState.DEFAULT
                 )
@@ -69,7 +73,9 @@ internal fun MutingOptionsSheetContent(
                 SelectableMenuBottomSheetItem(
                     title = stringResource(id = R.string.muting_option_all_muted_title),
                     subLine = stringResource(id = R.string.muting_option_all_muted_text),
-                    onItemClick = Clickable { onMuteConversation(MutedConversationStatus.AllMuted) },
+                    onItemClick = Clickable(onClickDescription = stringResource(id = R.string.content_description_select_label)) {
+                        onMuteConversation(MutedConversationStatus.AllMuted)
+                    },
                     state = if (mutingConversationState == MutedConversationStatus.AllMuted) RichMenuItemState.SELECTED
                     else RichMenuItemState.DEFAULT
                 )

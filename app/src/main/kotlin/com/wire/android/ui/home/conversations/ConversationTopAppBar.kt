@@ -154,7 +154,7 @@ private fun ConversationScreenTopAppBarContent(
             }
         },
         navigationIcon = {
-            NavigationIconButton(NavigationIconType.Back, onBackButtonClick)
+            NavigationIconButton(NavigationIconType.Back(), onBackButtonClick)
         },
         actions = {
             Row(

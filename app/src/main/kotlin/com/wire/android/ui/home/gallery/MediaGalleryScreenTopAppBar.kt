@@ -34,7 +34,7 @@ fun MediaGalleryScreenTopAppBar(
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onCloseClick,
         title = title,
-        navigationIconType = NavigationIconType.Close,
+        navigationIconType = NavigationIconType.Close(),
         elevation = 0.dp,
         actions = {
             WireSecondaryIconButton(

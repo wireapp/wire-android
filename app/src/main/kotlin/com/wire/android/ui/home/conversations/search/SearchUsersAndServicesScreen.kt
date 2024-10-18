@@ -114,9 +114,9 @@ fun SearchUsersAndServicesScreen(
                         elevation = dimensions().spacing0x, // CollapsingTopBarScaffold already manages elevation
                         title = searchTitle,
                         navigationIconType = when (screenType) {
-                            SearchPeopleScreenType.CONVERSATION_DETAILS -> NavigationIconType.Close
-                            SearchPeopleScreenType.NEW_CONVERSATION -> NavigationIconType.Close
-                            SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> NavigationIconType.Back
+                            SearchPeopleScreenType.CONVERSATION_DETAILS -> NavigationIconType.Close()
+                            SearchPeopleScreenType.NEW_CONVERSATION -> NavigationIconType.Close()
+                            SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> NavigationIconType.Back()
                         },
                         onNavigationPressed = onClose
                     )

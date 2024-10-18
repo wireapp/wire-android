@@ -75,7 +75,7 @@ fun E2eiCertificateDetailsScreen(
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = navigator::navigateBack,
                 title = stringResource(R.string.e2ei_certificate_details_screen_title),
-                navigationIconType = NavigationIconType.Back,
+                navigationIconType = NavigationIconType.Back(),
                 actions = {
                     WireSecondaryIconButton(
                         onButtonClicked = sheetState::show,

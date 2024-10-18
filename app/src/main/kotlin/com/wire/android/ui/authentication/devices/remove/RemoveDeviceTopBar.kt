@@ -39,7 +39,7 @@ fun RemoveDeviceTopBar(elevation: Dp, onBackButtonClicked: () -> Unit) {
     WireCenterAlignedTopAppBar(
         elevation = elevation,
         title = stringResource(R.string.remove_device_title),
-        navigationIconType = NavigationIconType.Close,
+        navigationIconType = NavigationIconType.Close(),
         onNavigationPressed = onBackButtonClicked
     ) {
         Text(

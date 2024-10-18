@@ -134,6 +134,7 @@ fun UserProfileAvatar(
     clickable: Clickable? = null,
     showPlaceholderIfNoAsset: Boolean = true,
     withCrossfadeAnimation: Boolean = false,
+    contentDescription: String? = null,
     type: UserProfileAvatarType = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = false),
 ) {
     Box(
@@ -142,6 +143,7 @@ fun UserProfileAvatar(
             .wrapContentSize()
             .clip(CircleShape)
             .clickable(clickable)
+            .clickableDescriptions(clickable)
     ) {
         var userStatusIndicatorParams by remember { mutableStateOf(Size.Zero to Offset.Zero) }
         Box(
@@ -167,6 +169,7 @@ fun UserProfileAvatar(
                 withCrossfadeAnimation = withCrossfadeAnimation,
                 type = type,
                 size = size,
+                contentDescription = contentDescription,
                 modifier = Modifier
                     .padding(padding)
                     .clip(CircleShape)
@@ -224,6 +227,7 @@ private fun UserAvatar(
     type: UserProfileAvatarType,
     size: Dp,
     modifier: Modifier = Modifier,
+    contentDescription: String? = stringResource(R.string.content_description_user_avatar)
 ) {
     if (avatarData.shouldPreferNameBasedAvatar()) {
         DefaultInitialsAvatar(nameBasedAvatar = avatarData.nameBasedAvatar!!, type = type, size = size, modifier = modifier)
@@ -231,7 +235,7 @@ private fun UserAvatar(
         val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
         Image(
             painter = painter,
-            contentDescription = stringResource(R.string.content_description_user_avatar),
+            contentDescription = contentDescription,
             contentScale = ContentScale.Crop,
             modifier = modifier,
         )

@@ -172,7 +172,7 @@ private fun GroupOptionState.ReadReceiptsOptions(onReadReceiptChanged: (Boolean)
             isOnOffVisible = false,
             onCheckedChange = { onReadReceiptChanged.invoke(it) }),
         arrowType = ArrowType.NONE,
-        clickable = Clickable(enabled = false, onClick = {}, onLongClick = {}),
+        clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
@@ -198,7 +198,7 @@ private fun GroupOptionState.AllowServicesOptions(onAllowServicesChanged: (Boole
             isOnOffVisible = false,
             onCheckedChange = { onAllowServicesChanged.invoke(it) }),
         arrowType = ArrowType.NONE,
-        clickable = Clickable(enabled = false, onClick = {}, onLongClick = {}),
+        clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
@@ -222,7 +222,7 @@ private fun GroupOptionState.AllowGuestsOptions(onAllowGuestChanged: (Boolean) -
             isOnOffVisible = false,
             onCheckedChange = { onAllowGuestChanged.invoke(it) }),
         arrowType = ArrowType.NONE,
-        clickable = Clickable(enabled = false, onClick = {}, onLongClick = {}),
+        clickable = Clickable(enabled = false, onClick = {}),
         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
     )
 

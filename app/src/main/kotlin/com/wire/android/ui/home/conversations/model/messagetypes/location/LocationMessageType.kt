@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -61,6 +62,7 @@ fun LocationMessageContent(
     Column(
         modifier = Modifier
             .clickable(onLocationClick)
+            .clickableDescriptions(onLocationClick)
             .padding(top = dimensions().spacing4x)
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
             .border(

@@ -92,7 +92,7 @@ internal fun UserDebugContent(
             WireCenterAlignedTopAppBar(
                 title = stringResource(R.string.label_debug_title),
                 elevation = dimensions().spacing0x,
-                navigationIconType = NavigationIconType.Back,
+                navigationIconType = NavigationIconType.Back(),
                 onNavigationPressed = onNavigationPressed
             )
         }

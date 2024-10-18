@@ -93,10 +93,12 @@ jobs:
           PR_BRANCH: ${{ env.BRANCH_NAME }}
         run: |
           gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base screenshot-tests --head "$PR_BRANCH" --label "screenshot-test"
+          PR_NUMBER=$(gh pr view --json number -q .number)
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
 
       - name: Add comment with test report link
         run: |
-          gh issue comment ${{ github.event.pull_request.number }} --body "Screenshot test results have been generated. [Download the report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)"
+          gh issue comment "${{ env.PR_NUMBER }}" --body "Screenshot test results have been generated. [Download the report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)"
 
       - name: Cleanup Gradle Cache
         run: |

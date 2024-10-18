@@ -82,6 +82,7 @@ class MessageComposerStateHolderTest {
         messageCompositionHolder = MessageCompositionHolder(
             messageComposition = messageComposition,
             messageTextState = messageTextState,
+            onClearDraft = {},
             onSaveDraft = {},
             onSearchMentionQueryChanged = {},
             onClearMentionSearchResult = {},

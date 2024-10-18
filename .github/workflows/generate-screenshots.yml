@@ -67,6 +67,9 @@ jobs:
           name: screenshot-test-report
           path: screenshot-test-report.zip
 
+      - name: Setup GitHub Actions Bot for Git
+        uses: fregante/setup-git-user@v2
+
       - name: Create New Branch
         run: |
           BRANCH_NAME="test/screenshots-update-$(date +%Y%m%d%H%M%S)"

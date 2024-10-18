@@ -160,7 +160,7 @@ class NewConversationViewModel @Inject constructor(
     private fun checkIfGuestAdded(): Boolean {
         if (groupOptionsState.isAllowGuestEnabled) return false
 
-        val isGuestSelected = newGroupState.selectedUsers.none {
+        val isGuestSelected = !newGroupState.selectedUsers.none {
             it.membership == Membership.Guest ||
                     it.membership == Membership.Federated
         }

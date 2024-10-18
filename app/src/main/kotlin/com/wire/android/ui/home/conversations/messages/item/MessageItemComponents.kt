@@ -248,7 +248,7 @@ internal fun MessageDecryptionFailure(
                     .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
                 style = LocalTextStyle.current,
                 textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                color = MaterialTheme.wireColorScheme.onBackground,
                 text = stringResource(R.string.label_learn_more)
             )
             VerticalSpace.x4()
@@ -339,7 +339,7 @@ internal fun OfflineBackendsLearnMoreLink(context: Context = LocalContext.curren
     Text(
         modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
         style = LocalTextStyle.current.copy(
-            color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+            color = MaterialTheme.wireColorScheme.onBackground,
             textDecoration = TextDecoration.Underline
         ),
         text = stringResource(R.string.label_learn_more)

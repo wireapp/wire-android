@@ -38,8 +38,8 @@ import com.wire.android.util.ui.toSpanStyle
 fun TextWithLearnMore(
     textAnnotatedString: AnnotatedString,
     learnMoreLink: String,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
     modifier: Modifier = Modifier,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
     val context = LocalContext.current
     val learnMoreText = stringResource(id = R.string.label_learn_more).replace(" ", "\u00A0") // non-breaking space
@@ -47,7 +47,7 @@ fun TextWithLearnMore(
         append(learnMoreText)
         addStyle(
             style = SpanStyle(
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onBackground,
                 textDecoration = TextDecoration.Underline
             ),
             start = 0,

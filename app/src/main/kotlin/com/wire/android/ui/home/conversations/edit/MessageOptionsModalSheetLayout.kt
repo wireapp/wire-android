@@ -56,15 +56,16 @@ fun MessageOptionsModalSheetLayout(
             val isUploading = message.isPending
             val isDeleted = message.isDeleted
             val isMyMessage = message.isMyMessage
+            val isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable
             WireMenuModalSheetContent(
                 header = MenuModalSheetHeader.Gone,
                 menuItems = messageOptionsMenuItems(
                     isAssetMessage = message.isAssetMessage,
                     isUploading = message.isPending,
                     isComposite = message.messageContent is UIMessageContent.Composite,
-                    isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
+                    isEphemeral = isEphemeral,
                     isEditable = !isUploading && !isDeleted && message.messageContent is UIMessageContent.TextMessage && isMyMessage,
-                    isCopyable = !isUploading && !isDeleted && message.messageContent is Copyable,
+                    isCopyable = !isUploading && !isDeleted && !isEphemeral && message.messageContent is Copyable,
                     isOpenable = true,
                     onCopyClick = remember(message.messageContent) {
                         (message.messageContent as? Copyable)?.textToCopy(context.resources)?.let {

@@ -17,11 +17,9 @@
  */
 package com.wire.android.navigation.style
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import com.ramcosta.composedestinations.animations.defaults.NestedNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 
-@OptIn(ExperimentalAnimationApi::class)
 val DefaultRootNavGraphAnimations = RootNavGraphDefaultAnimations(
     enterTransition = { with(DefaultNavigationAnimation) { enterTransition() } },
     exitTransition = { with(DefaultNavigationAnimation) { exitTransition() } },
@@ -29,7 +27,6 @@ val DefaultRootNavGraphAnimations = RootNavGraphDefaultAnimations(
     popExitTransition = { with(DefaultNavigationAnimation) { popExitTransition() } },
 )
 
-@OptIn(ExperimentalAnimationApi::class)
 val DefaultNestedNavGraphAnimations = NestedNavGraphDefaultAnimations(
     enterTransition = { with(DefaultNavigationAnimation) { enterTransition() } },
     exitTransition = { with(DefaultNavigationAnimation) { exitTransition() } },

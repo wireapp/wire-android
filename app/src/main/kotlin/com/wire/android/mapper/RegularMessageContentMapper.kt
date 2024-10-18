@@ -240,7 +240,7 @@ class RegularMessageMapper @Inject constructor(
             when {
                 // If some of image data are still missing, we mark it as incomplete which won't be shown until we get missing data
                 // But we also check if isnt our own message, if its our own, most likely the there was an error sending the image.
-                assetMessageContentMetadata.isIncompleteImage() && message.sender != sender -> {
+                assetMessageContentMetadata.isIncompleteImage() && sender !is SelfUser -> {
                     UIMessageContent.IncompleteAssetMessage
                 }
 

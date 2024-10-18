@@ -55,9 +55,6 @@ jobs:
         run: ./gradlew validateInternalDebugScreenshotTest
         continue-on-error: true # Ensure this task doesn't fail the build
 
-      - name: Update Screenshot Reference Images
-        run: ./gradlew updateInternalDebugScreenshotTest
-
       - name: Copy test results to simplified directory
         run: |
           mkdir -p screenshotTest
@@ -68,10 +65,19 @@ jobs:
           zip -r screenshot-test-report.zip screenshotTest/
 
       - name: Upload Screenshot Test Report
+        id: upload_artifact
         uses: actions/upload-artifact@v4
         with:
           name: screenshot-test-report
           path: screenshot-test-report.zip
+
+      - name: Clear changes before generating new screenshots
+        run: |
+          git reset --hard HEAD
+          git clean -fd        
+
+      - name: Update Screenshot Reference Images
+        run: ./gradlew updateInternalDebugScreenshotTest
 
       - name: Setup GitHub Actions Bot for Git
         uses: fregante/setup-git-user@v2
@@ -88,7 +94,7 @@ jobs:
 
       - name: Create PR
         env:
-          PR_TITLE: "Update Screenshot Tests"
+          PR_TITLE: "test: Update Screenshot Tests"
           PR_BODY: "Automated PR to update screenshot tests with the latest reference images."
           PR_BRANCH: ${{ env.BRANCH_NAME }}
         run: |
@@ -98,7 +104,8 @@ jobs:
 
       - name: Add comment with test report link
         run: |
-          gh issue comment "${{ env.PR_NUMBER }}" --body "Screenshot test results have been generated. [Download the report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)"
+          ARTIFACT_ID=${{ steps.upload_artifact.outputs.artifact-id }}
+          gh issue comment "${{ env.PR_NUMBER }}" --body "Screenshot test results have been generated. [Download the report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/$ARTIFACT_ID)"
 
       - name: Cleanup Gradle Cache
         run: |

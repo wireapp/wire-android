@@ -88,19 +88,13 @@ jobs:
           title: "Update Screenshot Tests"
           body: "Automated PR to update screenshot tests."
 
-      - name: Add Comment with Test Report Link
-        uses: actions/github-script@v6
+      - name: Create comment with test report link
+        uses: peter-evans/create-or-update-comment@v4
         with:
-          github-token: ${{ env.GITHUB_TOKEN }}
-          script: |
-            const prNumber = ${{ steps.create_pr.outputs.pull_request_number }};
-            const artifactUrl = `${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts`;
-            github.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              body: `Screenshot test results have been generated. [Download the report](artifactUrl).`
-            });
+          token: ${{ env.GITHUB_TOKEN }}
+          issue-number: ${{ steps.create_pr.outputs.pull_request_number }}
+          body: |
+            Screenshot test results have been generated. [Download the report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)
 
       - name: Cleanup Gradle Cache
         run: |

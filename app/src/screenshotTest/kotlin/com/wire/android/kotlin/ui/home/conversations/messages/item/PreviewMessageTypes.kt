@@ -408,7 +408,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                     )
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
-                showAuthor = false,
+                showAuthor = true,
                 audioState = null,
                 clickActions = MessageClickActions.Content(),
             )

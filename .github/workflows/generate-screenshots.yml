@@ -86,23 +86,17 @@ jobs:
           git commit -m "test: update screenshot tests"
           git push origin "$BRANCH_NAME"
 
-      - name: Create Pull Request
-        id: create_pr
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ env.GITHUB_TOKEN }}
-          branch: ${{ env.BRANCH_NAME }}
-          base: screenshot-tests
-          title: "test: Update Screenshot Tests"
-          body: "Automated PR to update screenshot tests."
+      - name: Create PR
+        env:
+          PR_TITLE: "Update Screenshot Tests"
+          PR_BODY: "Automated PR to update screenshot tests with the latest reference images."
+          PR_BRANCH: ${{ env.BRANCH_NAME }}
+        run: |
+          gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base screenshot-tests --head "$PR_BRANCH" --label "screenshot-test"
 
-      - name: Create comment with test report link
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ env.GITHUB_TOKEN }}
-          issue-number: ${{ steps.create_pr.outputs.pull_request_number }}
-          body: |
-            Screenshot test results have been generated. [Download the report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)
+      - name: Add comment with test report link
+        run: |
+          gh issue comment ${{ github.event.pull_request.number }} --body "Screenshot test results have been generated. [Download the report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)"
 
       - name: Cleanup Gradle Cache
         run: |

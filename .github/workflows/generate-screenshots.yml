@@ -71,21 +71,23 @@ jobs:
         uses: fregante/setup-git-user@v2
 
       - name: Create New Branch
+        id: create_branch
         run: |
           BRANCH_NAME="test/screenshots-update-$(date +%Y%m%d%H%M%S)"
-          git checkout -b $BRANCH_NAME
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          git checkout -b "$BRANCH_NAME"
           git add .
           git commit -m "test: update screenshot tests"
-          git push origin $BRANCH_NAME
+          git push origin "$BRANCH_NAME"
 
       - name: Create Pull Request
         id: create_pr
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ env.GITHUB_TOKEN }}
-          branch: $BRANCH_NAME
+          branch: ${{ env.BRANCH_NAME }}
           base: screenshot-tests
-          title: "Update Screenshot Tests"
+          title: "test: Update Screenshot Tests"
           body: "Automated PR to update screenshot tests."
 
       - name: Create comment with test report link

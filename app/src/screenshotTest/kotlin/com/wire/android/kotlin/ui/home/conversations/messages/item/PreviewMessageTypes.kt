@@ -16,9 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-@file:Suppress("TooManyFunctions")
-
-package com.wire.android.ui.home.conversations.messages.item
+package com.wire.android.kotlin.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
@@ -27,6 +25,9 @@ import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
+import com.wire.android.ui.home.conversations.messages.item.RegularMessageItem
+import com.wire.android.ui.home.conversations.messages.item.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetAudioMessage
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockFooter
@@ -336,15 +337,15 @@ fun PreviewMessageWithSystemMessage() {
             SystemMessageItem(
                 mockMessageWithKnock.copy(
                     messageContent = UIMessageContent.SystemMessage.MissedCall.YouCalled(
-                        UIText.DynamicString("You")
+                        UIText.DynamicString("ME")
                     )
                 )
             )
             SystemMessageItem(
                 mockMessageWithKnock.copy(
                     messageContent = UIMessageContent.SystemMessage.MemberAdded(
-                        UIText.DynamicString("You"),
-                        listOf(UIText.DynamicString("Adam Smith"))
+                        UIText.DynamicString("ME"),
+                        listOf(UIText.DynamicString("John Smith"))
                     )
                 )
             )

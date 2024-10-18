@@ -1,0 +1,99 @@
+name: "Generate and Verify Screenshot Tests"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/screenshot-tests
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  GITHUB_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
+
+jobs:
+  generate-screenshots:
+    runs-on: buildjet-8vcpu-ubuntu-2204
+
+    if: github.ref == 'refs/heads/feat/screenshot-tests'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: buildjet/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Fetch All Branches
+        run: git fetch --all
+
+      - name: Merge Develop into screenshot-tests
+        run: |
+          git checkout screenshot-tests
+          git merge origin/develop --no-edit
+          git push origin screenshot-tests
+
+      - name: Verify Screenshot Tests
+        run: ./gradlew validateInternalDebugScreenshotTest
+
+      - name: Update Screenshot Reference Images
+        run: ./gradlew updateInternalDebugScreenshotTest
+
+      - name: Zip Screenshot Test Reports
+        run: |
+          zip -r screenshot-test-report.zip build/reports/screenshotTest/preview/debug/internal/*
+
+      - name: Upload Screenshot Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-test-report
+          path: screenshot-test-report.zip
+
+      - name: Create New Branch
+        run: |
+          BRANCH_NAME="test/screenshots-update-$(date +%Y%m%d%H%M%S)"
+          git checkout -b $BRANCH_NAME
+          git add .
+          git commit -m "test: update screenshot tests"
+          git push origin $BRANCH_NAME
+
+      - name: Create Pull Request
+        id: create_pr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ env.GITHUB_TOKEN }}
+          branch: $BRANCH_NAME
+          base: screenshot-tests
+          title: "Update Screenshot Tests"
+          body: "Automated PR to update screenshot tests."
+
+      - name: Add Comment with Test Report Link
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ env.GITHUB_TOKEN }}
+          script: |
+            const prNumber = ${{ steps.create_pr.outputs.pull_request_number }};
+            const artifactUrl = `${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts`;
+            github.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: `Screenshot test results have been generated. [Download the report](artifactUrl).`
+            });
+
+      - name: Cleanup Gradle Cache
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties

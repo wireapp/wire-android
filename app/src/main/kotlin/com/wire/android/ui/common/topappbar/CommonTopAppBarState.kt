@@ -17,6 +17,9 @@
  */
 package com.wire.android.ui.common.topappbar
 
+import com.wire.kalium.network.NetworkState
+
 data class CommonTopAppBarState(
     val connectivityState: ConnectivityUIState = ConnectivityUIState.None,
+    val networkState: NetworkState = NetworkState.NotConnected,
 )

@@ -18,6 +18,11 @@
 
 package com.wire.android.ui.common.topappbar
 
-enum class Connectivity {
-    WAITING_CONNECTION, CONNECTING, CONNECTED
+import com.wire.kalium.logic.CoreFailure
+import kotlin.time.Duration
+
+sealed interface Connectivity {
+    data class WaitingConnection(val cause: CoreFailure?, val retryDelay: Duration?) : Connectivity
+    data object Connecting : Connectivity
+    data object Connected : Connectivity
 }

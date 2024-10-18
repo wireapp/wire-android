@@ -61,9 +61,10 @@ class CommonTopAppBarViewModel @Inject constructor(
         coreLogic.sessionScope(userId) {
             observeSyncState().map {
                 when (it) {
-                    is SyncState.Failed, SyncState.Waiting -> Connectivity.WAITING_CONNECTION
-                    SyncState.GatheringPendingEvents, SyncState.SlowSync -> Connectivity.CONNECTING
-                    SyncState.Live -> Connectivity.CONNECTED
+                    SyncState.Waiting -> Connectivity.WaitingConnection(null, null)
+                    is SyncState.Failed -> Connectivity.WaitingConnection(it.cause, it.retryDelay)
+                    SyncState.GatheringPendingEvents, SyncState.SlowSync -> Connectivity.Connecting
+                    SyncState.Live -> Connectivity.Connected
                 }
             }
         }
@@ -117,6 +118,9 @@ class CommonTopAppBarViewModel @Inject constructor(
                     state = state.copy(connectivityState = connectivityUIState)
                 }
             }
+            coreLogic.networkStateObserver.observeNetworkState().collectLatest {
+                state = state.copy(networkState = it)
+            }
         }
     }
 
@@ -129,20 +133,38 @@ class CommonTopAppBarViewModel @Inject constructor(
         val canDisplayConnectivityIssues = currentScreen !is CurrentScreen.AuthRelated
 
         if (activeCall != null) {
-            return if (activeCall.status == CallStatus.INCOMING) {
-                ConnectivityUIState.IncomingCall(activeCall.conversationId, activeCall.callerName)
-            } else if (activeCall.status == CallStatus.STARTED) {
-                ConnectivityUIState.OutgoingCall(activeCall.conversationId, activeCall.conversationName)
-            } else {
-                ConnectivityUIState.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
+            return when (activeCall.status) {
+                CallStatus.INCOMING -> {
+                    ConnectivityUIState.IncomingCall(
+                        activeCall.conversationId,
+                        activeCall.callerName
+                    )
+                }
+
+                CallStatus.STARTED -> {
+                    ConnectivityUIState.OutgoingCall(
+                        activeCall.conversationId,
+                        activeCall.conversationName
+                    )
+                }
+
+                else -> {
+                    ConnectivityUIState.EstablishedCall(
+                        activeCall.conversationId,
+                        activeCall.isMuted
+                    )
+                }
             }
         }
 
         return if (canDisplayConnectivityIssues) {
             when (connectivity) {
-                Connectivity.WAITING_CONNECTION -> ConnectivityUIState.WaitingConnection
-                Connectivity.CONNECTING -> ConnectivityUIState.Connecting
-                Connectivity.CONNECTED -> ConnectivityUIState.None
+                Connectivity.Connecting -> ConnectivityUIState.Connecting
+                Connectivity.Connected -> ConnectivityUIState.None
+                is Connectivity.WaitingConnection -> ConnectivityUIState.WaitingConnection(
+                    connectivity.cause,
+                    connectivity.retryDelay,
+                )
             }
         } else {
             ConnectivityUIState.None

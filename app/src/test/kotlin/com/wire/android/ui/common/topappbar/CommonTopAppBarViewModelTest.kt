@@ -35,6 +35,8 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -264,6 +266,9 @@ class CommonTopAppBarViewModelTest {
         @MockK
         private lateinit var globalKaliumScope: GlobalKaliumScope
 
+        @MockK
+        private lateinit var networkStateObserver: NetworkStateObserver
+
         init {
             MockKAnnotations.init(this)
             every {
@@ -293,6 +298,14 @@ class CommonTopAppBarViewModelTest {
             every {
                 coreLogic.getGlobalScope()
             } returns globalKaliumScope
+
+            every {
+                coreLogic.networkStateObserver
+            } returns networkStateObserver
+
+            every {
+                networkStateObserver.observeNetworkState()
+            } returns MutableStateFlow(NetworkState.ConnectedWithInternet)
 
             every {
                 globalKaliumScope.session.currentSessionFlow()

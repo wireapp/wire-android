@@ -29,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -110,6 +111,7 @@ private fun SuccessServicesList(
             folderWithElements(
                 items = services.associateBy { it.id }
             ) {
+                val clickDescription = stringResource(id = R.string.content_description_open_service_label)
                 RowItemTemplate(
                     leadingIcon = {
                         Row {
@@ -132,7 +134,7 @@ private fun SuccessServicesList(
                         }
                     },
                     actions = {},
-                    clickable = remember(it) { Clickable(enabled = true) { onServiceClicked(it) } },
+                    clickable = remember(it) { Clickable(onClickDescription = clickDescription) { onServiceClicked(it) } },
                     modifier = Modifier.padding(start = dimensions().spacing8x)
                 )
             }

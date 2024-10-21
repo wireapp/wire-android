@@ -190,8 +190,20 @@
     <string name="content_description_user_profile_more_btn">Open conversation options</string>
     <string name="content_description_user_profile_close_btn">Go back to conversation details</string>
     <string name="content_description_user_profile_edit_role_btn">Edit role</string>
+    <string name="content_description_user_profile_copy_phone_btn">Copy phone</string>
+    <string name="content_description_user_profile_copy_email_btn">Copy email</string>
+    <string name="content_description_user_profile_open_device_btn">open device details</string>
+    <string name="content_description_search_text_in_conversation_btn">Search text messages</string>
+    <string name="content_description_see_media_in_conversation_btn">Open overview of pictures and files</string>
+    <string name="content_description_add_participants_heading">Add participant, heading</string>
+    <string name="content_description_add_participants_close">Close add partipants view</string>
+    <string name="content_description_add_participants_search_field">Search people by name or username</string>
+    <string name="content_description_add_participants_back_btn">Go back to add participants view</string>
+    <string name="content_description_collapse_label">collapse</string>
+    <string name="content_description_expand_label">expand</string>
     <string name="content_description_edit_label">edit</string>
     <string name="content_description_select_label">select</string>
+    <string name="content_description_unselect_label">unselect</string>
     <string name="content_description_selected_label">selected</string>
     <string name="content_description_toggle_setting_label">toggle setting</string>
     <string name="content_description_edit_guests_option_title">Guests, heading</string>
@@ -199,6 +211,7 @@
     <string name="content_description_edit_self_delete_title">Self-deleting messages, heading</string>
     <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>
     <string name="content_description_open_user_profile_label">open profile</string>
+    <string name="content_description_open_service_label">open service</string>
     <string name="content_description_open_notification_settings_label">open notification settings</string>
     <string name="content_description_empty"> </string>
     <!-- Non translatable strings-->

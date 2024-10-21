@@ -35,6 +35,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
@@ -66,17 +68,20 @@ fun CollapsingFolderHeader(
     arrowHorizontalPadding: Dp = dimensions().avatarClickablePadding,
 ) {
     val arrowRotation: Float by animateFloatAsState(if (expanded) 180f else 90f, label = "CollapsingArrowRotationAnimation")
+    val expandDescription = stringResource(
+        id = if (expanded) R.string.content_description_collapse_label
+        else R.string.content_description_expand_label
+    )
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .clickable {
-                onClicked(!expanded)
-            }
+            .semantics { onClick(expandDescription) { false } }
+            .clickable { onClicked(!expanded) }
             .padding(horizontal = dimensions().spacing8x, vertical = dimensions().spacing16x)
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_collapse),
-            contentDescription = stringResource(R.string.change),
+            contentDescription = null,
             tint = MaterialTheme.wireColorScheme.labelText,
             modifier = Modifier
                 .padding(horizontal = arrowHorizontalPadding)

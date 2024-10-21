@@ -40,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
@@ -59,7 +61,8 @@ fun SearchBarInput(
     placeholderAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = LocalTextStyle.current,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    semanticDescription: String? = null
 ) {
 
     WireTextField(
@@ -108,6 +111,7 @@ fun SearchBarInput(
         placeholderAlignment = placeholderAlignment,
         placeholderText = placeholderText,
         lineLimits = TextFieldLineLimits.SingleLine,
+        semanticDescription = semanticDescription
     )
 }
 

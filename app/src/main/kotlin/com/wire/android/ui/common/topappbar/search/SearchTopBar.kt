@@ -56,6 +56,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
 import com.wire.android.ui.common.SearchBarInput
@@ -71,6 +73,7 @@ fun SearchTopBar(
     searchQueryTextState: TextFieldState,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
+    searchBarDescription: String? = null,
     onCloseSearchClicked: (() -> Unit)? = null,
     onActiveChanged: (isActive: Boolean) -> Unit = {},
     bottomContent: @Composable ColumnScope.() -> Unit = {}
@@ -107,6 +110,7 @@ fun SearchTopBar(
 
         SearchBarInput(
             placeholderText = searchBarHint,
+            semanticDescription = searchBarDescription,
             textState = searchQueryTextState,
             isLoading = isLoading,
             leadingIcon = {
@@ -118,7 +122,7 @@ fun SearchTopBar(
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_search),
-                                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                                contentDescription = null,
                                 tint = MaterialTheme.wireColorScheme.onBackground,
                             )
                         }
@@ -129,7 +133,7 @@ fun SearchTopBar(
                         ) {
                             Icon(
                                 painter = rememberVectorPainter(image = Icons.Filled.ArrowBack),
-                                contentDescription = stringResource(R.string.content_description_back_button),
+                                contentDescription = stringResource(id = R.string.content_description_add_participants_back_btn),
                                 tint = MaterialTheme.wireColorScheme.onBackground,
                             )
                         }

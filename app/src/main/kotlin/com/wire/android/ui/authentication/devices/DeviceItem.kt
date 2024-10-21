@@ -42,6 +42,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
@@ -101,6 +103,8 @@ private fun DeviceItemContent(
     shouldShowE2EIInfo: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val openDetailsDescription = stringResource(id = R.string.content_description_user_profile_open_device_btn)
+
     Row(
         verticalAlignment = Alignment.Top,
         modifier = modifier
@@ -108,6 +112,9 @@ private fun DeviceItemContent(
                 if (isWholeItemClickable) {
                     onClickAction?.invoke(device)
                 }
+            }
+            .semantics {
+                if (isWholeItemClickable) onClick(openDetailsDescription) { false }
             }
     ) {
         Row(
@@ -118,7 +125,7 @@ private fun DeviceItemContent(
             Icon(
                 modifier = Modifier.shimmerPlaceholder(visible = placeholder),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_devices),
-                contentDescription = stringResource(R.string.content_description_remove_devices_screen_device_item_icon)
+                contentDescription = null
             )
             Column(
                 horizontalAlignment = Alignment.Start,
@@ -199,7 +206,8 @@ private fun ColumnScope.DeviceItemTexts(
                 ProteusVerifiedIcon(
                     Modifier
                         .wrapContentWidth()
-                        .align(Alignment.CenterVertically))
+                        .align(Alignment.CenterVertically)
+                )
             }
         }
     }

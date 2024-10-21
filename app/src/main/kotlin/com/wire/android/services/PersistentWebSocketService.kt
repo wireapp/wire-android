@@ -75,7 +75,6 @@ class PersistentWebSocketService : Service() {
     override fun onCreate() {
         super.onCreate()
         isServiceStarted = true
-        println("cyka service onCreate")
         generateForegroundNotification()
     }
 
@@ -85,7 +84,6 @@ class PersistentWebSocketService : Service() {
          * so we need to check if service is already started and if not generate notification and call startForeground()
          * https://issuetracker.google.com/issues/307329994#comment100
          */
-        println("cyka service onStartCommand isStarted: $isServiceStarted ; intent: $intent")
         if (!isServiceStarted) {
             isServiceStarted = true
             generateForegroundNotification()
@@ -124,7 +122,6 @@ class PersistentWebSocketService : Service() {
     }
 
     private fun generateForegroundNotification() {
-        println("cyka service generateForegroundNotification")
         notificationChannelsManager.createRegularChannel(WEB_SOCKET_CHANNEL_ID, WEB_SOCKET_CHANNEL_NAME)
 
         val notification: Notification = NotificationCompat.Builder(this, WEB_SOCKET_CHANNEL_ID)
@@ -136,7 +133,6 @@ class PersistentWebSocketService : Service() {
             .setOngoing(true)
             .build()
 
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             try {
                 ServiceCompat.startForeground(
@@ -146,7 +142,10 @@ class PersistentWebSocketService : Service() {
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
                 )
             } catch (e: ForegroundServiceStartNotAllowedException) {
-                println("cyka service generateForegroundNotification EXCEPTION!!!")
+                // ForegroundServiceStartNotAllowedException may be thrown on restarting service from the background.
+                // this is the only suggested workaround from google for now.
+                // https://issuetracker.google.com/issues/307329994#comment86
+                appLogger.e("Failure while starting foreground: $e")
                 stopSelf()
             }
         } else {
@@ -161,7 +160,6 @@ class PersistentWebSocketService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        println("cyka service onDestroy")
         scope.cancel("PersistentWebSocketService was destroyed")
         isServiceStarted = false
     }

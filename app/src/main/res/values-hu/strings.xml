@@ -46,6 +46,7 @@
     <string name="label_message_edit_sent_remotely_failure">A szerkesztett üzenetet nem sikerült elküldeni, mivel a(z) %s kiszolgálót nem sikerült elérni.</string>
     <string name="label_message_receive_failure">Letöltési hiba</string>
     <string name="label_message_decryption_failure_message">Az üzenetet nem sikerült dekódolni.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">Az üzenetet nem sikerült dekódolni (%s hiba).</string>
     <string name="label_message_decryption_failure_informative_message">Próbálja meg újraindítani a munkamenetet, hogy új titkosítási kulcsot generáljon.</string>
     <string name="label_system_message_self_user_knock">%s kopogott</string>
     <string name="label_system_message_other_user_knock">%s kopogott</string>
@@ -172,6 +173,7 @@
     <string name="content_description_record_audio_button_send">Hangüzenet küldése</string>
     <string name="content_description_mls_certificate_valid">Minden résztvevő összes készülékének van érvényes MLS tanúsítványa</string>
     <string name="content_description_proteus_certificate_valid">Minden résztvevő ellenőrzött (Proteus)</string>
+    <string name="content_description_jump_to_last_message">Ugrás a beszélgetés végére</string>
     <string name="content_description_location_icon">Hely elem</string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
@@ -187,6 +189,8 @@
     <string name="report_bug_screen_title">Hiba jelentése</string>
     <string name="about_app_screen_title">Az alkalmazás névjegye</string>
     <string name="settings_privacy_policy_label">Adatvédelmi irányelvek</string>
+    <string name="settings_terms_of_use_label">Jogi nyilatkozat</string>
+    <string name="settings_wire_website_label">Wire weboldala</string>
     <string name="label_copyright">Szerzői jogok</string>
     <string name="item_dependencies_title">Függőségek:</string>
     <string name="support_screen_title">Ügyfélszolgálat</string>
@@ -195,6 +199,7 @@
     <string name="search_no_results">Nincs találat</string>
     <!--Whats New -->
     <string name="whats_new_screen_title">Újdonságok</string>
+    <string name="whats_new_welcome_to_new_android_app_label">👋 Üdvözöljük a Wire új androidos alkalmazásában!</string>
     <string name="whats_new_release_notes_group_title">Kiadási megjegyzések</string>
     <string name="whats_new_android_release_notes_label">Az összes androidos kiadási megjegyzés</string>
     <!-- Settings -->
@@ -220,6 +225,7 @@
     <string name="server_details_dialog_body_with_proxy">Kiszolgáló neve:\n%1$s\n\nKiszolgáló URL-jre:\n%2$s\n\nProxy URL-je:\n%3$s\n\nProxy hitelesítés:\n%4$s</string>
     <string name="server_details_dialog_title">Helyszíni kiszolgáló</string>
     <string name="welcome_migration_dialog_title">Üdvözöljük az új androidos alkalmazásunkban 👋</string>
+    <string name="welcome_migration_dialog_content">Átdolgoztuk az alkalmazást, hogy még használhatóbbá tegyük mindenki számára.\n\nTudjon meg többet a Wire áttervezett applikációjáról—új opciók és fejlettebb hozzáférhetőség, ugyanolyan erős biztonság mellett.</string>
     <string name="welcome_migration_dialog_continue">Kezdje el használni a Wire-t</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Frissítés szükséges</string>
@@ -399,6 +405,8 @@
     <string name="empty_group_name_error">Adja meg a csoport nevét</string>
     <string name="group_name_exceeded_limit_error">A csoport neve nem lehet 64 karakternél hosszabb
     </string>
+    <string name="group_can_not_be_created_title">A csoportot nem lehet létrehozni</string>
+    <string name="group_can_not_be_created_federation_conflict_description">Felhasználók a(z) %1$s és a(z) %2$s kiszolgálóról nem csatlakoztathatók egyazon csoportos beszélgetésbe.\n\nA csoport létrehozásához távolítsa el az érintett résztvevőket.</string>
     <string name="group_can_not_be_created_edit_participiant_list">Résztvevők listájának szerkesztése</string>
     <string name="group_can_not_be_created_discard_group_creation">Csoport létrehozásának elvetése</string>
     <string name="asset_message_tap_to_download_text">Érintse meg a letöltéshez</string>
@@ -418,6 +426,7 @@
     <string name="member_name_you_label_lowercase">ön</string>
     <string name="label_add_participants">Résztvevők hozzáadása</string>
     <string name="username_unavailable_label">A név nem elérhető</string>
+    <string name="temporary_user_label">%s kilépett</string>
     <string name="group_unavailable_label">A csoportnév nem elérhető</string>
     <string name="conversation_details_title">Beszélgetés részletei</string>
     <string name="conversation_details_options_tab">LEHETŐSÉGEK</string>
@@ -505,6 +514,11 @@
     <string name="user_profile_unblock_user">Felhasználótiltás feloldása</string>
     <string name="user_profile_group_remove_button">Eltávolítás a csoportból</string>
     <string name="user_profile_logging_out_progress">Kijelentkezés...</string>
+    <string name="user_profile_qr_code">QR-kód megnyitása</string>
+    <string name="user_profile_qr_code_title">Profil megosztása</string>
+    <string name="user_profile_qr_code_share_link">Profil megosztása linkkel</string>
+    <string name="user_profile_qr_code_share_image_link">Megosztás QR-kóddal</string>
+    <string name="user_profile_qr_code_description">Ossza meg profilját, hogy könnyedén kapcsolatba léphessen másokkal. A kommunikáció így is csak akkor kezdődik el, ha Ön elfogadja a kapcsolódási kérelmet.</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Eltávolítja a csoportból?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) ezután nem fog tudni üzenetet küldeni és fogadni ebben a beszélgetésben.</string>
@@ -555,6 +569,9 @@
     <string name="label_edit">Szerkesztés</string>
     <string name="label_delete">Törlés</string>
     <string name="info_message_copied">Üzenet másolva</string>
+    <string name="conversation_banner_externals">külsősök</string>
+    <string name="conversation_banner_guests">vendégek</string>
+    <string name="conversation_banner_services">szolgáltatások</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Szövetségesek, külsősök, vendégek és szolgáltatások is vannak itt</string>
     <string name="conversation_banner_federated_externals_guests_present">Szövetségesek, külsősök és vendégek is vannak itt</string>
     <string name="conversation_banner_federated_externals_services_present">Szövetségesek, külsősök és szolgáltatások is vannak itt</string>
@@ -608,6 +625,7 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s **ki**kapcsolta az önmegsemmisítő üzenetek időzítőjét mindenki számára</string>
     <string name="label_system_message_deactivated">deaktivált</string>
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Régóta nem frissítette ezt az eszköz. Időközben a sztenderd üzenetprotokoll Proteus helyett Messaging Layer Security (MLS) lett. Ezen változás miatt néhány üzenet esetleg nem jelenik itt meg.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Ön nem frissítette idejében az applikációt. Néhány üzenet hiányozhat innen.</string>
     <string name="label_system_message_conversation_protocol_changed_proteus">A titkosítási eljárás megváltoztatása törölve.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Az MLS-re átállás miatt gondok lehetnek a jelenlegi hívással. Ha ez áll fenn, fejezze be azt, majd indítson új hívást.</string>
@@ -645,6 +663,10 @@
     <plurals name="last_message_self_removed_users">
         <item quantity="one">Eltávolított 1 személyt a beszélgetésből</item>
         <item quantity="other">Eltávolított %1$d személyt a beszélgetésből</item>
+    </plurals>
+    <plurals name="last_message_team_member_removed">
+        <item quantity="one">1 személy el lett távolítva a csapatból</item>
+        <item quantity="other">%1$d személy el lett távolítva a csapatból</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">Ön el lett távolítva a beszélgetésből</string>
     <plurals name="last_message_other_removed_self_user_and_others">
@@ -721,6 +743,8 @@
     <string name="label_conversation_pictures_empty">Ebben a beszélgetésben még senki nem osztott meg képet 🥲</string>
     <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
     <!-- Search Contact-->
+    <string name="label_selected">Kiválasztva</string>
+    <string name="label_contacts">Névjegyek</string>
     <string name="label_new_group">Új csoport</string>
     <string name="label_create_new_group">Új csoport létrehozása</string>
     <plurals name="label_x_participants">
@@ -729,6 +753,7 @@
     </plurals>
     <string name="label_new_conversation">Új beszélgetés</string>
     <string name="label_search_people">Személyek keresése</string>
+    <string name="label_public_wire">Nyilvános Wire</string>
     <string name="label_search_people_instruction">Személyek keresése profilnév vagy @felhasználónév alapján</string>
     <string name="label_learn_more_searching_user">További információ</string>
     <string name="label_no_results_found">Nincs találat. Kérjük, próbálja újra.</string>
@@ -819,6 +844,7 @@
     <string name="calling_decline_call">Hívás elutasítása</string>
     <string name="calling_label_ringing_call">Kicseng…</string>
     <string name="calling_label_incoming_call">Hívás…</string>
+    <string name="calling_label_incoming_call_someone_calling">hívja…</string>
     <string name="calling_label_default_caller_name">Bejövő hívás</string>
     <string name="calling_label_constant_bit_rate">ÁLLANDÓ BITSEBESSÉG (CBR)</string>
     <string name="calling_minimize_view">Összecsukott nézet</string>
@@ -865,6 +891,7 @@
     <string name="connection_label_received_unverified_warning">Ellenőrizze a személyazonosságot mielőtt elfogadja a kapcsolódási kérelmet.</string>
     <!-- Missing keyPackages dialog -->
     <string name="missing_keypackage_dialog_title">Nem sikerült elindítani a beszélgetést</string>
+    <string name="missing_keypackage_dialog_body">Nem tud beszélgetést kezdeni %1$s felhasználóval. %1$s részéről szükséges, hogy előbb megnyissa a Wire-t vagy bejelentkezzen. Próbálja újra később.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Média galéria</string>
     <string name="media_gallery_on_image_downloaded">Mentve a Letöltések mappába</string>
@@ -911,6 +938,7 @@
     <string name="disable_guests_dialog_button">Vendégek nem engedélyezettek</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Letiltja a felhasználót?</string>
+    <string name="block_user_dialog_body">%1$s nem tudja majd Önt elérni vagy hozzáadni csoportos beszélgetésekhez. Erről ő nem kap értesítést.</string>
     <string name="block_user_dialog_confirm_button">Letiltás</string>
     <string name="other_user_devices_description">A Wire minden eszköznek egyedi ujjlenyomatot ad. Hasonlítsa össze őket %1$s partnerrel, és ellenőrizze a beszélgetést.</string>
     <!--Settings -->
@@ -951,12 +979,17 @@
     <string name="settings_myaccount_handle_updated">Profilneve megváltozott</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Olvasási visszaigazolás küldése</string>
+    <string name="settings_send_read_receipts_description">Ha ez be van kapcsolva, mások láthatják, hogy Ön elolvasta-e az üzeneteiket.
+Csoportos beszélgetésekben a csoportadmin felülírhatja ezt a beállítást.</string>
     <string name="settings_censor_screenshots">Képernyőmentések cenzúrázása</string>
     <string name="settings_censor_screenshots_description">Ha ez aktív, az üzenetek tartalma nem lesz látható a képernyőmentésen vagy -rögzítésen.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">Ezt az önmegsemmisítő üzenet csapatbeállítás kényszeríti ki, nem megváltoztatható.\nAz üzenetek tartalma nem lesz látható a képernyőmentésen vagy -rögzítésen.</string>
     <string name="settings_show_typing_indicator_title">Gépelésjelző</string>
+    <string name="settings_show_typing_indicator_description">Ha ez be van kapcsolva, látni fogja, ha mások éppen üzenetet írnak, és mások is értesülnek arról, ha Ön gépel.
+Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</string>
     <string name="settings_app_lock_title">Lezárás jelkóddal</string>
     <string name="settings_send_anonymous_usage_data_title">Anonimizált használati adatok küldése</string>
+    <string name="settings_send_anonymous_usage_data_description">Segítse az alkalmazás fejlesztését a használati adatok megosztásával. Az adatállomány névtelen, és nem szerepel benne kommunikációjának semmilyen tartalma (mint üzenetek, fájlok, helyek vagy hívások).</string>
     <!--Privacy Settings, App lock -->
     <string name="settings_set_lock_screen_title">Az alkalmazászár jelkódjának beállítása</string>
     <string name="settings_set_lock_screen_description">Az alkalmazás %1$s tétlenség után zárolja önmagát. Az alkalmazás feloldásához be kell írnia a titkos jelkódot, vagy biometrikus azonosítást kell használnia.\n\nJól jegyezze meg ezt a jelkódot, mert nincs lehetőség a visszanyerésére.</string>
@@ -1002,6 +1035,7 @@
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Profil megnyitása</string>
     <string name="cant_switch_account_in_call">Nem válthat fiókot hívás közben</string>
+    <string name="deeplink_authorization_needed">A művelet elvégzéséhez be kell jelentkeznie</string>
     <string name="custom_backend_dialog_title">Átirányítja egy helyi kiszolgálóra?</string>
     <string name="custom_backend_dialog_body">Ha folytatja, a kliense átirányítára kerül a következő helyi kiszolgálóra:</string>
     <string name="custom_backend_dialog_body_backend_name">Kiszolgáló neve:</string>
@@ -1013,6 +1047,7 @@
     <string name="custom_backend_dialog_body_backend_accounts">Fiókok URL:</string>
     <string name="custom_backend_dialog_body_backend_website">Honlap URL:</string>
     <string name="custom_backend_dialog_body_backend_websocket">Kiszolgáló WSURL:</string>
+    <string name="custom_backend_invalid_deeplink_data_title">Hiba történt</string>
     <string name="label_fetching_your_messages">Új üzenetek lekérdezése</string>
     <string name="label_text_copied">Szöveg a vágólapra másolva</string>
     <string name="label_logs_option_title">Naplók</string>
@@ -1104,6 +1139,11 @@
     <string name="cancel_login_dialog_description">Ha mégsem lép be, kijelentkezve marad.</string>
     <string name="cancel_login_dialog_title">Biztos benne, hogy mégsem lép be?</string>
     <!-- Analytics Usage dialog -->
+    <string name="analytics_usage_dialog_title">Hozzájárulás a felhasználási adatok megosztásához</string>
+    <string name="analytics_usage_dialog_text">Segítse a Wire fejlesztését felhasználási adatai álnéven történő megosztásával. Az adatállomány az Ön személyes adataival nincs összekapcsolva, és a Wire Group-on kívüli harmadik féllel sem kerül megosztásra. Tartalmazza például az egyes funkciók használatának gyakoriságát, az alkalmazás verzióját, az eszköz típusát és operációs rendszerét. Az adatok legkésőbb 365 nap után törlésre kerülnek.\n\nTovábbi részletek az Adatvédelmi Szabályzatban. Hozzájárulását bármikor visszavonhatja.</string>
+    <string name="analytics_usage_dialog_button_agree">Elfogad</string>
+    <string name="analytics_usage_dialog_button_decline">Elutasít</string>
+    <string name="analytics_usage_dialog_button_privacy_policy">Adatvédelmi Szabályzat</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s nem tudta visszafejteni néhány üzenetét, de megoldotta a problémát. Ez érintette az összes közös beszélgetésüket.</string>
     <string name="label_manual_migration_title">Átlépés a 3.82.38-as verzióról</string>
@@ -1132,6 +1172,7 @@
     <string name="invalid_link_dialog_body">A linket nem sikerült megnyitni</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Vendég link</string>
+    <string name="guest_link_description">Hívjon meg másokat a beszélgetésbe egy hivatkozással. Ezzel bárki csatlakozhat a beszélgetéshez, még ha nincs is Wire-e.</string>
     <string name="guest_link_button_create_link">Hivatkozás létrehozása</string>
     <string name="guest_link_button_copy_link">Hivatkozás másolása</string>
     <string name="guest_link_button_share_link">Hivatkozás megosztása</string>
@@ -1160,6 +1201,8 @@
     <string name="label_client_verified">Ellenőrizve</string>
     <string name="label_client_unverified">Nincs ellenőrizve</string>
     <string name="label_self_client_verification_description">Saját eszköze ellenőrzéséhez vesse össze ezt a kulcs ujjlenyomatot egy másik eszközön található azonos kulcs ujjlenyomattal.</string>
+    <string name="label_client_verification_description">Ellenőrizze, hogy ez az eszköz ujjlenyomat egyezik-e a(z) %s eszközén látható ujjlenyomattal.</string>
+    <string name="label_fingerprint_description">Ha az ujjlenyomatok nem egyeznek, indítsa újra a munkamenet, így mindkét oldalon új titkosítási kulcsok jönnek létre.</string>
     <string name="label_self_fingerprint_description">Ossza meg ezt a kulcs ujjlenyomatot a beszélgetés többi résztvevőjével, így ők ellenőrizhetik azt, és meggyőződhetnek arról, hogy a beszélgetés biztonságos.</string>
     <string name="unknown_user_name">ismeretlen</string>
     <string name="device_name_unknown">Ismeretlen eszköz</string>
@@ -1245,14 +1288,19 @@ Kérjük, próbálja meg újra.</string>
     <string name="notification_obfuscated_message_title">Valaki</string>
     <string name="notification_obfuscated_message_content">Önmegsemmisítő üzenetet küldött</string>
     <string name="settings_licenses_settings_label">Licenc információ</string>
+    <string name="settings_dependencies_label">Függőségek</string>
     <string name="settings_myaccount_logout">Fiók törlése</string>
     <string name="delete_acount_dialog_title">Fiók törlése</string>
     <string name="delete_acount_dialog_text">Ha továbblép, küldünk egy e-mailt. Fiókja végleges törléséhez nyissa meg a kapott linket.</string>
     <string name="end_to_end_identity_required_dialog_title">Végpontok közötti azonosító tanúsítvány</string>
+    <string name="end_to_end_identity_required_dialog_text">Mostantól az Ön csapata végpontok közötti azonosítást alkalmaz, hogy a Wire használatát még biztonságosabbá tegye.\n\nA következő lépésben adja meg az azonosítószolgáltatójához használt azonosítóit, így automatikusan megkapja az azonosító tanúsítványt ehhez az eszközhöz.</string>
+    <string name="end_to_end_identity_required_dialog_text_no_snooze">Az Ön csapata már végpontok közötti azonosítást alkalmaz, hogy a Wire használatát még biztonságosabbá tegye.\n\nA következő lépésben adja meg az azonosítószolgáltatójához használt azonosítóit, így automatikusan megkapja az azonosító tanúsítványt ehhez az eszközhöz.</string>
     <string name="end_to_end_identity_required_dialog_positive_button">Tanúsítvány beszerzése</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Emlékeztessen később</string>
     <string name="end_to_end_identity_snooze_dialog_text">Az azonosító tanúsítvány beszerzésére rendelkezésre álló idő %1$s.\nA Beállításokban nyissa meg az Eszközök menüt, és válassza az Azonosító tanúsítvány beszerzése ehhez az eszközhöz lehetőséget. </string>
     <string name="end_to_end_identity_renew_dialog_title">Tanúsítvány frissítése</string>
+    <string name="end_to_end_identity_renew_dialog_text">A végpontok közötti azonosításhoz ezen eszközön használt tanúsítvány hamarosan lejár. Kommunikációja biztonságának megőrzése érdekében frissítse tanúsítványát.\n\nA következő lépésben adja meg az azonosítószolgáltatójához használt azonosítóit, így automatikusan frissíti az azonosító tanúsítványt ehhez az eszközhöz.</string>
+    <string name="end_to_end_identity_renew_dialog_text_no_snooze">A végpontok közötti azonosításhoz ezen eszközön használt tanúsítvány lejárt.\n\nA következő lépésben adja meg az azonosítószolgáltatójához használt azonosítóit, így automatikusan frissíti az azonosító tanúsítványt ehhez az eszközhöz.</string>
     <string name="end_to_end_identity_renew_dialog_positive_button">Tanúsítvány frissítése</string>
     <string name="end_to_end_identity_renew_error_dialog_title">A tanúsítványt nem sikerült frissíteni.</string>
     <string name="end_to_end_identity_renew_error_dialog_text">Megpróbálhatja újra a tanúsítvány frissítését most, vagy kap majd róla emlékeztetőt.</string>
@@ -1260,6 +1308,7 @@ Kérjük, próbálja meg újra.</string>
     <string name="end_to_end_identity_renew_success_dialog_title">A tanúsítvány frissült</string>
     <string name="end_to_end_identity_renew_success_dialog_text">A tanúsítvány frissült, és az eszköze ellenőrzött.</string>
     <string name="end_to_end_identity_renew_success_dialog_second_button">Tanúsítvány részletei</string>
+    <string name="end_to_end_identity_enrollment_error_dialog_title">A tanúsítványt nem sikerült kibocsátani</string>
     <string name="end_to_end_identity_enrollment_error_dialog_text">Próbálja újra, vagy forduljon a csapatadminisztrátorhoz.</string>
     <string name="end_to_end_identity_ceritifcate">Tanúsítvány részletei</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">Végpontok közötti tanúsítvány visszavonva</string>
@@ -1269,24 +1318,100 @@ Kérjük, próbálja meg újra.</string>
     <!-- Record Audio -->
     <string name="record_audio_start_label">Hangfelvétel indítása</string>
     <string name="record_audio_recording_label">Hang felvétele…</string>
+    <string name="record_audio_encoding_label">Hang kódolása…</string>
     <string name="record_audio_send_label">Hangüzenet küldése</string>
     <string name="record_audio_apply_filter_label">Hangszűrő használata</string>
     <string name="record_audio_discard_dialog_title">Eldobja a hangüzenetet?</string>
     <string name="record_audio_discard_dialog_text">A hangüzenet törlésre kerül, és nem lehet elküldeni.</string>
     <string name="record_audio_discard_dialog_discard_button">Eldobás</string>
     <string name="record_audio_permission_denied_dialog_title">Hozzáférés a mikrofonhoz</string>
+    <string name="record_audio_permission_denied_dialog_text">A Wire-nek a mikrofon használatára vonatkozó engedélyre van szüksége, hogy hangüzeneteket rögzíthessen. Adjon hozzáférést eszköze beállításaiban.</string>
+    <string name="record_audio_permission_denied_dialog_settings_button">Beállítások</string>
+    <string name="record_audio_max_file_size_reached_title">Felvétel leállítva</string>
+    <string name="record_audio_max_file_size_reached_text">A hangüzenetek fájlméretének felső korlátja %1$d MB.</string>
+    <string name="record_audio_unable_due_to_ongoing_call">Hívás közben nem rögzíthet hangüzenetet.</string>
+    <string name="record_audio_unable_due_to_error">Hiba történt a hangüzenet rögzítése közben. Próbálja újra.</string>
+    <string name="label_not_now">Most nem</string>
+    <string name="join_conversation_dialog_password_label">Beszélgetés jelszava</string>
+    <string name="join_conversation_dialog_password_placeholder">Adja meg a jelszót</string>
+    <string name="participant_tile_call_connecting_label">Csatlakozás…</string>
+    <string name="create_guest_link">Vendéglink létrehozása</string>
+    <string name="create_guest_link_with_password">Jelszóvédett link létrehozása</string>
+    <string name="create_guest_link_without_password_title">Jelszó nélküli link létrehozása</string>
+    <string name="conversation_options_create_password_protected_guest_link_title">Jelszóvédett link létrehozása</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption">A beszélgetéshez vendéglinken keresztül csatlakozni kívánóknak először meg kell adniuk ezt a jelszót.</string>
+    <string name="conversation_options_create_password_protected_guest_link_discrption_2">A jelszót a továbbiakban nem lehet megváltoztatni. Jegyezze fel, és őrizze meg.</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_label">JELSZÓBEÁLLÍTÁS</string>
+    <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">ERŐSÍTSE MEG A JELSZÓT</string>
+    <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Adja meg a jelszót</string>
     <string name="generate_password_button_text">Jelszógenerálás</string>
+    <string name="password_protected_link_banner_description">A beszélgetéshez vendéglinken keresztül csatlakozni kívánóknak először meg kell adniuk ezt a jelszót.\nElfelejtette a jelszót? Vonja vissza a linket, és hozzon létre újat.</string>
+    <string name="password_protected_link_banner_title">A link jelszóvédett</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_copied">A jelszó a vágólapra másolva</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_description">Használjon legalább 8 karaktert, legyen benne minimum 1 kisbetű, 1 nagybetű, 1 szám és 1 speciális karakter is.</string>
+    <string name="conversation_options_create_password_protected_guest_link_password_generated">Új jelszó generálva</string>
     <!--    biometrics-->
+    <string name="biometrics_prompt_dialog_title">Biometrikus azonosítás</string>
+    <string name="biometrics_prompt_dialog_subtitle">Wire feloldása</string>
+    <string name="biometrics_use_passcode_button">Jelkód használata</string>
+    <string name="biometrics_app_unlock_too_many_attempts">Túl sok kísérlet történt a biometrikus módszerrel. Feloldás jelkóddal.</string>
     <!--    e2ei-->
+    <string name="e2ei_certificate_details_screen_title">Tanúsítvány részletei</string>
+    <string name="e2ei_certificate_details_copy_to_clipboard">Másolás a vágólapra</string>
+    <string name="e2ei_certificate_details_download">Letöltés</string>
+    <string name="e2ei_certificate_details_certificate_copied_to_clipboard">Tanúsítvány a vágólapra másolva</string>
+    <string name="call_ended_because_of_verification_title">A beszélgetés többé nem ellenőrzött</string>
+    <string name="call_ended_because_of_verification_message">A hívás megszakadt, mert legalább az egyik résztvevő nem ellenőrzött kapcsolat többé.</string>
     <!-- legal hold -->
+    <string name="legal_hold_requested_dialog_enter_password">A megerősítéshez adja meg jelszavát.</string>
+    <string name="legal_hold_requested_dialog_accept_button">Elfogadás</string>
+    <string name="legal_hold_requested_dialog_not_now_button">Most nem</string>
+    <string name="legal_hold_deactivated_dialog_description">A jövőbeli üzenetek nem lesznek rögzítve.</string>
     <!-- Sure want to send message Dialog -->
+    <string name="sure_about_messaging_dialog_title">A beszélgetés többé nem ellenőrzött</string>
+    <string name="sure_about_messaging_dialog_body">Legalább egy résztvevő új eszközt kezdett használni, vagy érvénytelen a tanúsítványa.\n\nMégis el kívánja küldeni az üzenetet?</string>
+    <string name="sure_about_messaging_dialog_positiv_button">Küldés mindenképpen</string>
     <!-- Sure want to call Dialog -->
+    <string name="sure_about_calling_in_degraded_dialog_title">A beszélgetés többé nem ellenőrzött</string>
+    <string name="sure_about_calling_in_degraded_dialog_body">Legalább egy résztvevő új eszközt kezdett használni, vagy érvénytelen a tanúsítványa.\n\nMégis kezdeményezni kívánja a hívást?</string>
+    <string name="sure_about_calling_in_degraded_dialog_positiv_button">Hívás mindenképpen</string>
     <!-- Go to app settings permissions dialog -->
+    <string name="app_permission_dialog_title">Alkalmazásengedélyek</string>
+    <string name="app_permission_dialog_settings_positive_button">Beállítások</string>
+    <string name="app_permission_dialog_settings_negative_button">Most nem</string>
+    <string name="notifications_permission_dialog_description">Az alkalmazás teljeskörű használatához, üzenetek és hívások fogadásához engedélyezze a Wire számára, hogy értesítéseket jeleníthessen meg.</string>
+    <string name="call_permission_dialog_description">Hanghíváshoz engedélyezze az eszköze beállításaiban, hogy a Wire használhassa mikrofonját.</string>
+    <string name="record_video_permission_dialog_description">Videórögzítéshez engedélyezze az eszköze beállításaiban, hogy a Wire használhassa kameráját.</string>
+    <string name="take_picture_permission_dialog_description">Fényképkészítéshez engedélyezze az eszköze beállításaiban, hogy a Wire használhassa kameráját.</string>
+    <string name="open_gallery_permission_dialog_description">Képküldéshez engedélyezze az eszköze beállításaiban, hogy a Wire hozzáférhessen a Fotókhoz.</string>
+    <string name="attach_file_permission_dialog_description">Fájlküldéshez engedélyezze az eszköze beállításaiban, hogy a Wire hozzáférhessen a fájljaihoz.</string>
+    <string name="save_permission_dialog_description">Fájlmentéshez engedélyezze az eszköze beállításaiban, hogy a Wire hozzáférhessen a Letöltések mappához.</string>
+    <string name="save_backup_file_permission_dialog_description">A biztonsági másolat mentéséhez engedélyezze az eszköze beállításaiban, hogy a Wire hozzáférhessen a Letöltések mappához.</string>
+    <string name="restore_backup_permission_dialog_description">A beszélgetések visszaállításához engedélyezze az eszköze beállításaiban, hogy a Wire hozzáférhessen a fájljaihoz.</string>
+    <string name="camera_permission_dialog_description">A kamera bekapcsolásához engedélyezze az eszköze beállításaiban, hogy a Wire használhassa kameráját.</string>
     <!-- Share Location -->
+    <string name="location_attachment_share_title">Helyzet megosztása</string>
+    <string name="location_app_permission_dialog_body">Helyzete elküldéséhez engedélyezze a Wire számára az eszköz helyzetéhez való hozzáférést.</string>
+    <string name="location_loading_label">Kérem, várjon...</string>
+    <string name="location_could_not_be_shared">A helyzetét nem sikerült megosztani</string>
     <!-- Asset Preview -->
     <!-- No Activity Errors -->
+    <string name="no_camera_app">A művelet végrehajtásához szükséges kameraalkalmazás nem található.</string>
+    <string name="no_gallery_app">A művelet végrehajtásához szükséges galériaalkalmazás nem található.</string>
+    <string name="no_file_manager_app">A művelet végrehajtásához szükséges fájlkezelő-alkalmazás nem található.</string>
+    <string name="restricted_asset_error_toast_message">Fájlok küldése a céges korlátozások értelmében tilos</string>
     <!--    Ping dialog-->
+    <string name="ping_confirm_sending_title_dialog">Kopogás küldése</string>
+    <string name="ping_confirm_sending_description_dialog">Biztosan kopogni akar nála/náluk: %1$s?</string>
+    <string name="ping_confirm_sending_action_dialog">Kopogás</string>
     <!-- Call Feedback Dialog -->
+    <string name="call_feedback_dialog_title">Hívásminőség értékelése</string>
+    <string name="call_feedback_dialog_message">Hogyan értékeli a hívás minőségét összességében?</string>
+    <string name="call_feedback_dialog_skip">Kihagyás</string>
+    <string name="call_feedback_dialog_do_not_ask">Ne kérdezze meg többé</string>
+    <string name="call_feedback_dialog_label_bad">Rossz</string>
+    <string name="call_feedback_dialog_label_fair">Megfelelő</string>
+    <string name="call_feedback_dialog_label_excellent">Kiváló</string>
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Hibakeresési beállítások</string>
 </resources>

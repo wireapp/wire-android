@@ -289,6 +289,7 @@ fun HomeContent(
                                 title = stringResource(currentNavigationItem.title),
                                 elevation = dimensions().spacing0x, // CollapsingTopBarScaffold manages applied elevation
                                 withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,
+                                shouldShowCreateTeamUnreadIndicator = homeState.shouldShowCreateTeamUnreadIndicator,
                                 onHamburgerMenuClick = ::openDrawer,
                                 onNavigateToSelfUserProfile = onSelfUserClick,
                             )

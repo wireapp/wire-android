@@ -21,8 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.UserProfileAvatarType.WithIndicators
+import com.wire.android.ui.common.avatar.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatarType.WithIndicators
 import com.wire.android.ui.home.conversations.model.MessageHeader
 
 @Composable

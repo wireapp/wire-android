@@ -35,7 +35,6 @@ import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
@@ -100,7 +99,6 @@ class SelfUserProfileViewModel @Inject constructor(
     private val accountSwitch: AccountSwitchUseCase,
     private val endCall: EndCallUseCase,
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
-    private val notificationChannelsManager: NotificationChannelsManager,
     private val notificationManager: WireNotificationManager,
     private val globalDataStore: GlobalDataStore,
     private val qualifiedIdMapper: QualifiedIdMapper
@@ -117,6 +115,7 @@ class SelfUserProfileViewModel @Inject constructor(
             observeEstablishedCall()
             fetchIsReadOnlyAccount()
             observeLegalHoldStatus()
+            markCreateTeamNoticeAsRead()
         }
     }
 
@@ -131,6 +130,14 @@ class SelfUserProfileViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .flowOn(dispatchers.io())
                 .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        }
+    }
+
+    private fun markCreateTeamNoticeAsRead() {
+        viewModelScope.launch {
+            if (getSelf().first().teamId == null && !dataStore.isCreateTeamNoticeRead().first()) {
+                dataStore.setIsCreateTeamNoticeRead(true)
+            }
         }
     }
 

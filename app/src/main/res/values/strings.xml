@@ -1105,7 +1105,7 @@
     <!--    report bug-->
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
     <string name="send_bug_report_subject">Bug Report</string>
-    <string name="send_bug__report_email">wire-newandroid@wearezeta.zendesk.com</string>
+    <string name="send_bug_report_email" translatable="false" >wire-newandroid@wearezeta.zendesk.com</string>
 
     <string name="backup_dialog_create_backup_save">Save File</string>
     <string name="backup_dialog_create_backup_share">Share File</string>

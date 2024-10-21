@@ -308,8 +308,8 @@ class SendMessageViewModel @Inject constructor(
                                     .handleLegalHoldFailureAfterSendingMessage(conversationId)
                                     .handleAssetContributionEvent(assetType)
                             } else {
-                                appLogger.e("There was an FileNotFoundException error while sending image asset")
-                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+                                appLogger.e("There was a FileNotFoundException error while sending image asset")
+                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
                             }
                         }
 

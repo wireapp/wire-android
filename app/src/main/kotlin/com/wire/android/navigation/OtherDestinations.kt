@@ -95,8 +95,8 @@ object ReportBugDestination : IntentDirection {
         val dir = LogFileWriter.logsDirectory(context)
         val logsUris = context.getUrisOfFilesInDirectory(dir)
         val intent = context.multipleFileSharingIntent(logsUris)
-        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - Wire Beta")
+        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(context.getString(R.string.send_bug__report_email)))
+        intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.send_bug_report_subject))
         intent.putExtra(
             Intent.EXTRA_TEXT,
             EmailComposer.reportBugEmailTemplate(

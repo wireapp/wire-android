@@ -39,6 +39,7 @@ data class WireDimensions(
     val avatarClickablePadding: Dp,
     val avatarBorderWidth: Dp,
     val avatarStatusSize: Dp,
+    val unReadIndicatorSize: Dp,
     val avatarStatusBorderWidth: Dp,
     val avatarLegalHoldIndicatorBorderWidth: Dp,
     val avatarTemporaryUserBorderWidth: Dp,
@@ -114,6 +115,8 @@ data class WireDimensions(
     val dialogCardMargin: Dp,
     // UserProfile
     val userProfileOtherAccItemHeight: Dp,
+    val createTeamInfoCardButtonWidth: Dp,
+    val createTeamInfoCardButtonHeight: Dp,
     // Profile Image
     val imagePreviewHeight: Dp,
     // Welcome
@@ -217,7 +220,10 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     avatarClickablePadding = 8.dp,
     avatarBorderWidth = 1.dp,
     avatarStatusSize = 14.dp,
+    unReadIndicatorSize = 16.dp,
     avatarStatusBorderWidth = 2.dp,
+    createTeamInfoCardButtonWidth = 120.dp,
+    createTeamInfoCardButtonHeight = 32.dp,
     avatarTemporaryUserBorderWidth = 2.dp,
     avatarBigTemporaryUserBorderWidth = 4.dp,
     avatarLegalHoldIndicatorBorderWidth = 4.dp,

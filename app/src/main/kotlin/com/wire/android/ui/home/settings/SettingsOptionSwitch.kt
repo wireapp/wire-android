@@ -57,7 +57,8 @@ fun SettingsOptionSwitch(
                 WireSwitch(
                     checked = switchState.value,
                     enabled = switchState is SwitchState.Enabled,
-                    onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange
+                    onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange,
+                    toggleActionDescription = stringResource(id = R.string.content_description_toggle_setting_label)
                 )
             }
         }

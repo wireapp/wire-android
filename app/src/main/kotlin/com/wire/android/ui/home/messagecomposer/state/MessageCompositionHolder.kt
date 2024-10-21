@@ -63,6 +63,17 @@ class MessageCompositionHolder(
         const val RICH_TEXT_MARKDOWN_MULTIPLIER = 2
     }
 
+    fun updateQuote(quotedMessage: UIQuotedMessage.UIQuotedData) {
+        messageComposition.update {
+            it.copy(
+                quotedMessage = quotedMessage,
+                quotedMessageId = quotedMessage.messageId,
+                editMessageId = null
+            )
+        }
+        onSaveDraft(messageComposition.value.toDraft(messageTextState.text.toString()))
+    }
+
     fun setReply(message: UIMessage.Regular) {
         val senderId = message.header.userId ?: return
 

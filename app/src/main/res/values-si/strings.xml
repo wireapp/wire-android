@@ -188,7 +188,6 @@
     <string name="settings_privacy_policy_label">රහස්‍යතා ප්‍රතිපත්තිය</string>
     <string name="settings_terms_of_use_label">නීතිමය</string>
     <string name="label_copyright">ප්‍රකාශන අයිතිය</string>
-    <string name="debug_settings_screen_title">නිදොස්කරණ සැකසුම්</string>
     <string name="item_dependencies_title">පරායත්ත:</string>
     <string name="support_screen_title">සහාය</string>
     <string name="backup_and_restore_screen_title">සංවාද උපස්ථය හෝ ප්‍රත්‍යර්පණය</string>
@@ -1343,4 +1342,6 @@
     <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">නිදොස්කරණ සැකසුම්</string>
 </resources>

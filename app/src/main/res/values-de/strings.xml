@@ -154,7 +154,6 @@
     <string name="settings_terms_of_use_label">Datenschutz und AGB</string>
     <string name="settings_wire_website_label">Wire-Webseite</string>
     <string name="label_copyright">Urheberrecht</string>
-    <string name="debug_settings_screen_title">Einstellungen zur Fehlerbehebung</string>
     <string name="item_dependencies_title">Abhängigkeiten:</string>
     <string name="support_screen_title">Hilfe</string>
     <string name="backup_and_restore_screen_title">Unterhaltungen sichern &amp; wiederherstellen</string>
@@ -1377,4 +1376,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="call_feedback_dialog_label_bad">Schlecht</string>
     <string name="call_feedback_dialog_label_fair">Befriedigend</string>
     <string name="call_feedback_dialog_label_excellent">Sehr Gut</string>
+    <!-- Debug Settings -->
+    <string name="debug_settings_screen_title">Einstellungen zur Fehlerbehebung</string>
 </resources>

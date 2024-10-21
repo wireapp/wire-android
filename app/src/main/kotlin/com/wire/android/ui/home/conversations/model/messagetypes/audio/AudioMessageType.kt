@@ -19,9 +19,11 @@ package com.wire.android.ui.home.conversations.model.messagetypes.audio
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,6 +31,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -43,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
@@ -157,14 +161,10 @@ private fun SuccessfulAudioMessage(
             onButtonClicked = onPlayButtonClick
         )
 
-        Slider(
-            value = audioDuration.currentPositionInMs.toFloat(),
-            onValueChange = onSliderPositionChange,
-            valueRange = 0f..if (totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f,
-            colors = SliderDefaults.colors(
-                inactiveTrackColor = colorsScheme().secondaryButtonDisabledOutline
-            ),
-            modifier = Modifier.weight(1f)
+        AudioMessageSlider(
+            audioDuration = audioDuration,
+            totalTimeInMs = totalTimeInMs,
+            onSliderPositionChange = onSliderPositionChange
         )
 
         if (audioMediaPlayingState is AudioMediaPlayingState.Fetching) {
@@ -180,6 +180,49 @@ private fun SuccessfulAudioMessage(
             )
         }
     }
+}
+
+/**
+ * Material3 version 1.3.0 introduced several modifications to the Slider component.
+ * These changes may require adjustments to maintain the desired appearance and behavior in your app:
+ * - Thumb size changed to 4dp x 44dp - changed back to old 20dp x 20dp.
+ * - Thumb requires interactionSource - it must be different than Slider to not update thumb appearance during drag.
+ * - Track now draws stop indicator by default - turned off.
+ * - Track adds thumbTrackGapSize - set back to 0dp.
+ * - Track has different height than previously - changed back to old 4.dp.
+ */
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun RowScope.AudioMessageSlider(
+    audioDuration: AudioDuration,
+    totalTimeInMs: AudioState.TotalTimeInMs,
+    onSliderPositionChange: (Float) -> Unit,
+) {
+    Slider(
+        value = audioDuration.currentPositionInMs.toFloat(),
+        onValueChange = onSliderPositionChange,
+        valueRange = 0f..if (totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f,
+        thumb = {
+            SliderDefaults.Thumb(
+                interactionSource = remember { MutableInteractionSource() },
+                thumbSize = DpSize(dimensions().spacing20x, dimensions().spacing20x)
+            )
+        },
+        track = { sliderState ->
+            SliderDefaults.Track(
+                modifier = Modifier.height(dimensions().spacing4x),
+                sliderState = sliderState,
+                thumbTrackGapSize = dimensions().spacing0x,
+                drawStopIndicator = {
+                    // nop we do not want to draw stop indicator at all.
+                }
+            )
+        },
+        colors = SliderDefaults.colors(
+            inactiveTrackColor = colorsScheme().secondaryButtonDisabledOutline
+        ),
+        modifier = Modifier.weight(1f)
+    )
 }
 
 @Composable

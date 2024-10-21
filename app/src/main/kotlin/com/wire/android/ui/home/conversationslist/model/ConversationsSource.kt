@@ -15,15 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.sharing
+package com.wire.android.ui.home.conversationslist.model
 
-import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import kotlinx.collections.immutable.persistentListOf
-
-data class ShareableConversationListState(
-    val initialConversations: List<ConversationItem> = persistentListOf(),
-    val searchQuery: String = "",
-    val hasNoConversations: Boolean = false,
-    val searchResult: List<ConversationItem> = persistentListOf(),
-    val conversationsAddedToGroup: List<ConversationItem> = persistentListOf(),
-)
+enum class ConversationsSource { MAIN, ARCHIVE; }

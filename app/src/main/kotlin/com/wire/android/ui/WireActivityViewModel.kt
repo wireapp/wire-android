@@ -40,7 +40,9 @@ import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
+import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
+import com.wire.android.ui.common.dialogs.CustomServerInvalidJsonDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.CurrentScreen
@@ -378,10 +380,11 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun customBackendDialogProceedButtonClicked(onProceed: () -> Unit) {
-        if (globalAppState.customBackendDialog != null) {
+        val backendDialogState = globalAppState.customBackendDialog
+        if (backendDialogState is CustomServerDetailsDialogState) {
             viewModelScope.launch {
                 authServerConfigProvider.get()
-                    .updateAuthServer(globalAppState.customBackendDialog!!.serverLinks)
+                    .updateAuthServer(backendDialogState.serverLinks)
                 dismissCustomBackendDialog()
                 if (checkNumberOfSessions() >= BuildConfig.MAX_ACCOUNTS) {
                     globalAppState = globalAppState.copy(maxAccountDialog = true)
@@ -456,7 +459,6 @@ class WireActivityViewModel @Inject constructor(
     private suspend fun loadServerConfig(url: String): ServerConfig.Links? =
         when (val result = getServerConfigUseCase.get().invoke(url)) {
             is GetServerConfigResult.Success -> result.serverConfigLinks
-            // TODO: show error message on failure
             is GetServerConfigResult.Failure.Generic -> {
                 appLogger.e("something went wrong during handling the custom server deep link: ${result.genericFailure}")
                 null
@@ -464,13 +466,12 @@ class WireActivityViewModel @Inject constructor(
         }
 
     private suspend fun onCustomServerConfig(result: DeepLinkResult.CustomServerConfig) {
-        loadServerConfig(result.url)?.let { serverLinks ->
-            globalAppState = globalAppState.copy(
-                customBackendDialog = CustomServerDialogState(
-                    serverLinks = serverLinks
-                )
-            )
-        }
+        val customBackendDialogData = loadServerConfig(result.url)?.let { serverLinks ->
+            CustomServerDetailsDialogState(serverLinks = serverLinks)
+        } ?: CustomServerInvalidJsonDialogState
+        globalAppState = globalAppState.copy(
+            customBackendDialog = customBackendDialogData
+        )
     }
 
     private suspend fun onConversationInviteDeepLink(
@@ -566,15 +567,15 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun CurrentScreen.isGlobalDialogAllowed(): Boolean = when (this) {
-        CurrentScreen.ImportMedia,
-        CurrentScreen.DeviceManager -> false
+        is CurrentScreen.ImportMedia,
+        is CurrentScreen.DeviceManager -> false
 
-        CurrentScreen.InBackground,
+        is CurrentScreen.InBackground,
         is CurrentScreen.Conversation,
-        CurrentScreen.Home,
+        is CurrentScreen.Home,
         is CurrentScreen.OtherUserProfile,
-        CurrentScreen.AuthRelated,
-        CurrentScreen.SomeOther -> true
+        is CurrentScreen.AuthRelated,
+        is CurrentScreen.SomeOther -> true
     }
 }
 

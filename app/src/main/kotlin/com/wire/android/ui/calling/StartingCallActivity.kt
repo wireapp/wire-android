@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.calling
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -148,9 +147,9 @@ class StartingCallActivity : CallActivity() {
 }
 
 fun getOutgoingCallIntent(
-    activity: Activity,
+    context: Context,
     conversationId: String
-) = Intent(activity, StartingCallActivity::class.java).apply {
+) = Intent(context, StartingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
     putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Outgoing.name)

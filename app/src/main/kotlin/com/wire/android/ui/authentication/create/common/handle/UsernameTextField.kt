@@ -31,7 +31,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.ShakeAnimation
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
-import com.wire.android.ui.common.textfield.DefaultEmail
+import com.wire.android.ui.common.textfield.DefaultEmailDone
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.forceLowercase
@@ -45,6 +45,7 @@ fun UsernameTextField(
     errorState: HandleUpdateErrorState,
     username: TextFieldState,
     onErrorDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     if (errorState is HandleUpdateErrorState.DialogError.GenericError) {
         CoreFailureErrorDialog(errorState.coreFailure, onErrorDismiss)
@@ -78,9 +79,9 @@ fun UsernameTextField(
                     WireTextFieldState.Error(stringResource(id = R.string.create_account_username_description))
             } else WireTextFieldState.Default,
             descriptionText = stringResource(id = R.string.create_account_username_description),
-            keyboardOptions = KeyboardOptions.DefaultEmail,
+            keyboardOptions = KeyboardOptions.DefaultEmailDone,
             onKeyboardAction = { keyboardController?.hide() },
-            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+            modifier = modifier.then(Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x))
         )
     }
 }

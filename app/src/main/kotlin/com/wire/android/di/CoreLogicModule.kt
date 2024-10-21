@@ -487,4 +487,9 @@ class UseCaseModule {
     @Provides
     fun provideBreakSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): BreakSessionUseCase =
         coreLogic.getSessionScope(currentAccount).debug.breakSession
+
+    @ViewModelScoped
+    @Provides
+    fun provideSendFCMTokenToAPIUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).debug.sendFCMTokenToServer
 }

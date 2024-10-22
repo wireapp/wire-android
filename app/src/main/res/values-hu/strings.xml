@@ -569,6 +569,7 @@
     <string name="label_edit">Szerkesztés</string>
     <string name="label_delete">Törlés</string>
     <string name="info_message_copied">Üzenet másolva</string>
+    <string name="conversation_banner_federated">szövetséges felhasználók</string>
     <string name="conversation_banner_externals">külsősök</string>
     <string name="conversation_banner_guests">vendégek</string>
     <string name="conversation_banner_services">szolgáltatások</string>
@@ -623,7 +624,7 @@
     <string name="label_system_message_activated">aktivált</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s **ki**kapcsolta az önmegsemmisítő üzenetek időzítőjét mindenki számára</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s **ki**kapcsolta az önmegsemmisítő üzenetek időzítőjét mindenki számára</string>
-    <string name="label_system_message_deactivated">deaktivált</string>
+    <string name="label_system_message_deactivated">kikapcsolva</string>
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
     <string name="label_system_message_conversation_mls_wrong_epoch_error_handled">Régóta nem frissítette ezt az eszköz. Időközben a sztenderd üzenetprotokoll Proteus helyett Messaging Layer Security (MLS) lett. Ezen változás miatt néhány üzenet esetleg nem jelenik itt meg.</string>
     <string name="label_system_message_conversation_history_lost_protocol_changed">Ön nem frissítette idejében az applikációt. Néhány üzenet hiányozhat innen.</string>
@@ -1020,6 +1021,7 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="devices_title">Saját eszközei</string>
     <string name="current_device_label">Ez az eszköz</string>
     <string name="other_devices_label">Egyéb eszközök</string>
+    <string name="devices_loading_error">Hiba lépett fel az eszközlista letöltése közben. Ellenőrizze internetkapcsolatát, és próbálja újra.</string>
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Feloldja a felhasználótiltást?</string>
     <string name="unblock_user_dialog_body">%1$s kapcsolatba tud lépni Önnel, és hozzáadhatja csoportos beszélgetésekhez. Lehetővé válik négyszemközti beszélgetés vele.</string>
@@ -1048,6 +1050,7 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="custom_backend_dialog_body_backend_website">Honlap URL:</string>
     <string name="custom_backend_dialog_body_backend_websocket">Kiszolgáló WSURL:</string>
     <string name="custom_backend_invalid_deeplink_data_title">Hiba történt</string>
+    <string name="custom_backend_invalid_deeplink_data_body">A saját kiszolgálóra történő átirányítás nem volt lehetséges, mivel a JSON fájl érvénytelen beállítást tartalmazott.\n\nLépjen kapcsolatba a rendszergazdával, vagy ellenőrizze a mélylinket, ami ide vezette.</string>
     <string name="label_fetching_your_messages">Új üzenetek lekérdezése</string>
     <string name="label_text_copied">Szöveg a vágólapra másolva</string>
     <string name="label_logs_option_title">Naplók</string>
@@ -1220,9 +1223,11 @@ Kérjük, próbálja meg újra.</string>
     <string name="title_video_could_not_be_sent">A videót nem sikerült elküldeni</string>
     <string name="title_image_could_not_be_sent">A képet nem sikerült elküldeni</string>
     <string name="title_file_could_not_be_sent">A fájlt nem sikerült elküldeni</string>
+    <string name="title_assets_could_not_be_sent">Az állományokat nem sikerült elküldeni</string>
     <string name="label_shared_video_too_large">Legfeljebb %d MB méretű videót oszthat meg.</string>
     <string name="label_shared_image_too_large">Legfeljebb %d MB méretű képet oszthat meg.</string>
     <string name="label_shared_file_too_large">Legfeljebb %d MB méretű fájlt oszthat meg.</string>
+    <string name="label_shared_multiple_assets_error">Távolítsa el a jelölt állományokat, és próbálja újra</string>
     <string name="label_file_saved_to_device">A fájl mentve az eszközére.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Önmegsemmisítő üzenet • %1$s</string>
@@ -1332,6 +1337,7 @@ Kérjük, próbálja meg újra.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Hívás közben nem rögzíthet hangüzenetet.</string>
     <string name="record_audio_unable_due_to_error">Hiba történt a hangüzenet rögzítése közben. Próbálja újra.</string>
     <string name="label_not_now">Most nem</string>
+    <string name="last_message_composite_with_missing_text">interaktív üzenet elküldve</string>
     <string name="join_conversation_dialog_password_label">Beszélgetés jelszava</string>
     <string name="join_conversation_dialog_password_placeholder">Adja meg a jelszót</string>
     <string name="participant_tile_call_connecting_label">Csatlakozás…</string>
@@ -1363,10 +1369,37 @@ Kérjük, próbálja meg újra.</string>
     <string name="call_ended_because_of_verification_title">A beszélgetés többé nem ellenőrzött</string>
     <string name="call_ended_because_of_verification_message">A hívás megszakadt, mert legalább az egyik résztvevő nem ellenőrzött kapcsolat többé.</string>
     <!-- legal hold -->
+    <string name="legal_hold_requested_dialog_title">Dokumentum-megőrzési kötelezettség kérvényezve</string>
+    <string name="legal_hold_requested_dialog_description_device">Minden jövőbeni üzenet rögzítésre kerül az ezen ujjlenyomatú eszközzel:</string>
+    <string name="legal_hold_requested_dialog_description_includes">Ez vonatkozik a törölt, szerkesztett és önmegsemmisítő üzenetekre is az összes beszélgetésben.</string>
     <string name="legal_hold_requested_dialog_enter_password">A megerősítéshez adja meg jelszavát.</string>
     <string name="legal_hold_requested_dialog_accept_button">Elfogadás</string>
     <string name="legal_hold_requested_dialog_not_now_button">Most nem</string>
+    <string name="legal_hold_learn_more_button">Tudjon meg többet a dokumentum-megőrzési kötelezettségről</string>
+    <string name="legal_hold_deactivated_dialog_title">Dokumentum-megőrzési kötelezettség kikapcsolva</string>
     <string name="legal_hold_deactivated_dialog_description">A jövőbeli üzenetek nem lesznek rögzítve.</string>
+    <string name="legal_hold_subject_dialog_title">%1$s dokumentum-megőrzésre kötelezett</string>
+    <string name="legal_hold_subject_conversation_dialog_title">A beszélgetésre dokumentum-megőrzési kötelezettség vonatkozik</string>
+    <string name="legal_hold_subject_self_dialog_title">Ön dokumentum-megőrzésre kötelezett</string>
+    <string name="legal_hold_subject_dialog_description">Minden üzenet, kép és dokumentum megőrzésre kerül a jövőbeni hozzáférhetőség érdekében. Ez vonatkozik a törölt, szerkesztett és önmegsemmisítő üzenetekre is.</string>
+    <string name="legal_hold_subject_dialog_description_group">A beszélgetés legalább egy résztvevője dokumentum-megőrzésre kötelezett.</string>
+    <string name="legal_hold_subject_dialog_message_title">A beszélgetésre ezentúl dokumentum-megőrzési kötelezettség vonatkozik</string>
+    <string name="legal_hold_subject_dialog_description_message">Még így is el szeretné küldeni üzenetét?</string>
+    <string name="legal_hold_subject_dialog_send_anyway_button">Küldés mindenképpen</string>
+    <string name="legal_hold_connection_failed_dialog_title">Nem lehet kapcsolódni</string>
+    <string name="legal_hold_connection_failed_dialog_description">Nem kapcsolódhat ehhez a felhasználóhoz a dokumentum-megőrzési kötelezettség miatt.</string>
+    <string name="legal_hold_subject_to">%1$s alá tartozik.</string>
+    <string name="legal_hold_label">dokumentum-megőrzési kötelezettség</string>
+    <string name="legal_hold_is_active_label">Dokumentum-megőrzési kötelezettség érvényben</string>
+    <string name="legal_hold_is_pending_label">Dokumentum-megőrzési kötelezettség függőben</string>
+    <string name="legal_hold_accept">Elfogadás</string>
+    <string name="legal_hold_system_message_enabled_self">Ön mostantól dokumentum-megőrzésre kötelezett.</string>
+    <string name="legal_hold_system_message_enabled_others">Dokumentum-megőrzési kötelezettség érvényben %1$s számára.</string>
+    <string name="legal_hold_system_message_disabled_self">Ön többé nem kötelezett dokumentum-megőrzésre.</string>
+    <string name="legal_hold_system_message_disabled_others">A dokumentum-megőrzési kötelezettség kikapcsolva %1$s számára.</string>
+    <string name="legal_hold_system_message_disabled_conversation">A beszélgetésre ezentúl nincs érvényben dokumentum-megőrzési kötelezettség.</string>
+    <string name="legal_hold_system_message_enabled_conversation">A beszélgetésre mostantól dokumentum-megőrzési kötelezettség van érvényben.</string>
+    <string name="legal_hold_system_message_interaction_disabled">Nem tud üzenetet váltani ezzel a felhasználóval, mivel nem egy csapatba tartoznak, és valamelyikük dokumentum-megőrzésre kötelezett. Amint e kötelezettség megszűnik, ismét írhat.</string>
     <!-- Sure want to send message Dialog -->
     <string name="sure_about_messaging_dialog_title">A beszélgetés többé nem ellenőrzött</string>
     <string name="sure_about_messaging_dialog_body">Legalább egy résztvevő új eszközt kezdett használni, vagy érvénytelen a tanúsítványa.\n\nMégis el kívánja küldeni az üzenetet?</string>
@@ -1395,6 +1428,8 @@ Kérjük, próbálja meg újra.</string>
     <string name="location_loading_label">Kérem, várjon...</string>
     <string name="location_could_not_be_shared">A helyzetét nem sikerült megosztani</string>
     <!-- Asset Preview -->
+    <string name="remove_asset_description">Állomány eltávolítása</string>
+    <string name="asset_attention_description">Állományfigyelés</string>
     <!-- No Activity Errors -->
     <string name="no_camera_app">A művelet végrehajtásához szükséges kameraalkalmazás nem található.</string>
     <string name="no_gallery_app">A művelet végrehajtásához szükséges galériaalkalmazás nem található.</string>

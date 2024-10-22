@@ -18,7 +18,7 @@
 
 @file:Suppress("TooManyFunctions")
 
-package com.wire.android.ui.common
+package com.wire.android.ui.common.avatar
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -70,6 +70,10 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.clickableDescriptions
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
@@ -85,6 +89,7 @@ import kotlin.time.Duration.Companion.hours
 
 const val MINUTES_IN_DAY = 60 * 24
 const val STATUS_INDICATOR_TEST_TAG = "status_indicator"
+const val UNREAD_INFO_TEST_TAG = "status_indicator"
 const val LEGAL_HOLD_INDICATOR_TEST_TAG = "legal_hold_indicator"
 const val TEMP_USER_INDICATOR_TEST_TAG = "temp_user_indicator"
 const val USER_AVATAR_TEST_TAG = "User avatar"
@@ -129,12 +134,17 @@ fun UserProfileAvatar(
     temporaryUserBorderWidth: Dp = dimensions().avatarTemporaryUserBorderWidth,
     statusBorderWidth: Dp = dimensions().avatarStatusBorderWidth,
     statusSize: Dp = dimensions().avatarStatusSize,
+    unReadIndicatorSize: Dp = dimensions().unReadIndicatorSize,
     avatarBorderWidth: Dp = dimensions().avatarBorderWidth,
     avatarBorderColor: Color = colorsScheme().outline,
     clickable: Clickable? = null,
     showPlaceholderIfNoAsset: Boolean = true,
+    shouldShowCreateTeamUnreadIndicator: Boolean = false,
     withCrossfadeAnimation: Boolean = false,
-    type: UserProfileAvatarType = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = false),
+    contentDescription: String? = null,
+    type: UserProfileAvatarType = UserProfileAvatarType.WithIndicators.RegularUser(
+        legalHoldIndicatorVisible = false
+    ),
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -142,8 +152,10 @@ fun UserProfileAvatar(
             .wrapContentSize()
             .clip(CircleShape)
             .clickable(clickable)
+            .clickableDescriptions(clickable)
     ) {
         var userStatusIndicatorParams by remember { mutableStateOf(Size.Zero to Offset.Zero) }
+        var userUnreadIndicatorParams by remember { mutableStateOf(Size.Zero to Offset.Zero) }
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -167,10 +179,15 @@ fun UserProfileAvatar(
                 withCrossfadeAnimation = withCrossfadeAnimation,
                 type = type,
                 size = size,
+                contentDescription = contentDescription,
                 modifier = Modifier
                     .padding(padding)
                     .clip(CircleShape)
-                    .border(width = avatarBorderWidth, shape = CircleShape, color = avatarBorderColor)
+                    .border(
+                        width = avatarBorderWidth,
+                        shape = CircleShape,
+                        color = avatarBorderColor
+                    )
                     .padding(avatarBorderWidth)
                     .size(size)
                     .testTag(USER_AVATAR_TEST_TAG),
@@ -185,7 +202,10 @@ fun UserProfileAvatar(
             if (type is UserProfileAvatarType.WithIndicators.TemporaryUser) {
                 CircularProgressIndicator(
                     progress = (type.expiresAt.minus(Clock.System.now()).inWholeMinutes.toFloat() / MINUTES_IN_DAY.toFloat()).absoluteValue,
-                    color = colorsScheme().wireAccentColors.getOrDefault(Accent.Blue, colorsScheme().primary),
+                    color = colorsScheme().wireAccentColors.getOrDefault(
+                        Accent.Blue,
+                        colorsScheme().primary
+                    ),
                     strokeWidth = temporaryUserBorderWidth,
                     modifier = Modifier
                         .size(size)
@@ -198,9 +218,28 @@ fun UserProfileAvatar(
 
         if (type is UserProfileAvatarType.WithIndicators.RegularUser) {
             // calculated using the trigonometry so that the status is always in the right place according to the avatar
-            val exactPointOnAvatarBorder = sqrt(2f) / 2f * ((size.value / 2f) + avatarBorderWidth.value)
+            val exactPointOnAvatarBorder =
+                sqrt(2f) / 2f * ((size.value / 2f) + avatarBorderWidth.value)
             val maxOffset = (size.value / 2f) - (statusSize.value / 2f) - -statusBorderWidth.value
+            val maxOffsetUnreadIndicator = (size.value / 2f) - (unReadIndicatorSize.value / 3f)
             val offsetToAlignWithAvatar = min(maxOffset, exactPointOnAvatarBorder)
+            val offsetToAlignUnreadIndicatorWithAvatar =
+                min(maxOffsetUnreadIndicator, exactPointOnAvatarBorder)
+
+            if (shouldShowCreateTeamUnreadIndicator) {
+                UnreadInfoIndicator(
+                    modifier = Modifier
+                        .offset(
+                            x = offsetToAlignUnreadIndicatorWithAvatar.dp,
+                            y = -offsetToAlignUnreadIndicatorWithAvatar.dp
+                        )
+                        .onGloballyPositioned {
+                            userUnreadIndicatorParams = it.size.toSize() to it.positionInParent()
+                        }
+                        .testTag(UNREAD_INFO_TEST_TAG)
+                )
+            }
+
             UserStatusIndicator(
                 status = avatarData.availabilityStatus,
                 size = statusSize,
@@ -209,7 +248,9 @@ fun UserProfileAvatar(
                 modifier = Modifier
                     .offset(x = offsetToAlignWithAvatar.dp, y = offsetToAlignWithAvatar.dp)
                     .clip(CircleShape)
-                    .onGloballyPositioned { userStatusIndicatorParams = it.size.toSize() to it.positionInParent() }
+                    .onGloballyPositioned {
+                        userStatusIndicatorParams = it.size.toSize() to it.positionInParent()
+                    }
                     .testTag(STATUS_INDICATOR_TEST_TAG)
             )
         }
@@ -224,14 +265,20 @@ private fun UserAvatar(
     type: UserProfileAvatarType,
     size: Dp,
     modifier: Modifier = Modifier,
+    contentDescription: String? = stringResource(R.string.content_description_user_avatar)
 ) {
     if (avatarData.shouldPreferNameBasedAvatar()) {
-        DefaultInitialsAvatar(nameBasedAvatar = avatarData.nameBasedAvatar!!, type = type, size = size, modifier = modifier)
+        DefaultInitialsAvatar(
+            nameBasedAvatar = avatarData.nameBasedAvatar!!,
+            type = type,
+            size = size,
+            modifier = modifier
+        )
     } else {
         val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
         Image(
             painter = painter,
-            contentDescription = stringResource(R.string.content_description_user_avatar),
+            contentDescription = contentDescription,
             contentScale = ContentScale.Crop,
             modifier = modifier,
         )
@@ -255,7 +302,10 @@ private fun DefaultInitialsAvatar(
             .clip(CircleShape)
             .background(
                 if (type is UserProfileAvatarType.WithIndicators.TemporaryUser) {
-                    colorsScheme().wireAccentColors.getOrDefault(Accent.Unknown, colorsScheme().outline)
+                    colorsScheme().wireAccentColors.getOrDefault(
+                        Accent.Unknown,
+                        colorsScheme().outline
+                    )
                 } else {
                     colorsScheme().wireAccentColors.getOrDefault(
                         Accent.fromAccentId(nameBasedAvatar.accentColor),
@@ -283,9 +333,17 @@ private fun DefaultInitialsAvatar(
 private fun LegalHoldIndicator(borderWidth: Dp, innerSize: Dp, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .border(width = borderWidth / 2, shape = CircleShape, color = colorsScheme().error.copy(alpha = 0.3f))
+            .border(
+                width = borderWidth / 2,
+                shape = CircleShape,
+                color = colorsScheme().error.copy(alpha = 0.3f)
+            )
             .padding(borderWidth / 2)
-            .border(width = borderWidth / 2, shape = CircleShape, color = colorsScheme().error.copy(alpha = 1.0f))
+            .border(
+                width = borderWidth / 2,
+                shape = CircleShape,
+                color = colorsScheme().error.copy(alpha = 1.0f)
+            )
             .padding(borderWidth / 2)
             .size(innerSize)
     )
@@ -315,7 +373,10 @@ private fun painter(
     }
 
     else -> {
-        data.asset.paint(getDefaultAvatarResourceId(membership = data.membership), withCrossfadeAnimation)
+        data.asset.paint(
+            getDefaultAvatarResourceId(membership = data.membership),
+            withCrossfadeAnimation
+        )
     }
 }
 
@@ -358,6 +419,18 @@ fun PreviewUserProfileAvatarWithLegalHold() {
 
 @PreviewMultipleThemes
 @Composable
+fun PreviewUserProfileAvatarWithInfoUnreadIndicator() {
+    WireTheme {
+        UserProfileAvatar(
+            avatarData = UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE),
+            type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = false),
+            shouldShowCreateTeamUnreadIndicator = true
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
 fun PreviewLargeUserProfileAvatarWithLegalHold() {
     WireTheme {
         UserProfileAvatar(
@@ -386,11 +459,18 @@ fun PreviewUserProfileAvatarWithoutIndicators() {
 fun PreviewTempUserBig() {
     WireTheme {
         UserProfileAvatar(
-            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("Juan Roman Riquelme", -1)),
+            avatarData = UserAvatarData(
+                nameBasedAvatar = NameBasedAvatar(
+                    "Juan Roman Riquelme",
+                    -1
+                )
+            ),
             padding = 4.dp,
             size = dimensions().avatarDefaultBigSize,
             temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,
-            type = UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt = Clock.System.now().plus(1.hours)),
+            type = UserProfileAvatarType.WithIndicators.TemporaryUser(
+                expiresAt = Clock.System.now().plus(1.hours)
+            ),
         )
     }
 }
@@ -400,10 +480,17 @@ fun PreviewTempUserBig() {
 fun PreviewTempUserSmall() {
     WireTheme {
         UserProfileAvatar(
-            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("Juan Roman Riquelme", -1)),
+            avatarData = UserAvatarData(
+                nameBasedAvatar = NameBasedAvatar(
+                    "Juan Roman Riquelme",
+                    -1
+                )
+            ),
             size = dimensions().spacing24x,
             padding = dimensions().spacing0x,
-            type = UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt = Clock.System.now().plus(10.hours)),
+            type = UserProfileAvatarType.WithIndicators.TemporaryUser(
+                expiresAt = Clock.System.now().plus(10.hours)
+            ),
         )
     }
 }
@@ -413,7 +500,12 @@ fun PreviewTempUserSmall() {
 fun PreviewUserProfileAvatarWithInitialsBig() {
     WireTheme {
         UserProfileAvatar(
-            avatarData = UserAvatarData(nameBasedAvatar = NameBasedAvatar("Juan Roman Riquelme", -1)),
+            avatarData = UserAvatarData(
+                nameBasedAvatar = NameBasedAvatar(
+                    "Juan Roman Riquelme",
+                    -1
+                )
+            ),
             padding = 4.dp,
             size = dimensions().avatarDefaultBigSize,
             temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,

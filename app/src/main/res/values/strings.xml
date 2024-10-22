@@ -179,6 +179,24 @@
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
     <string name="content_description_jump_to_last_message">Scroll to end of conversation</string>
     <string name="content_description_location_icon">Location item</string>
+    <string name="content_description_conversation_details_header">Conversation details, heading</string>
+    <string name="content_description_conversation_details_more_btn">Open conversation options</string>
+    <string name="content_description_conversation_details_options_tab_header">Options</string>
+    <string name="content_description_conversation_details_participants_tab_header">Participants</string>
+    <string name="content_description_conversation_details_close_btn">Close conversation details</string>
+    <string name="content_description_conversation_details_guests_action">adjust guest access</string>
+    <string name="content_description_conversation_details_self_deleting_action">adjust self-deleting time</string>
+    <string name="content_description_edit_label">edit</string>
+    <string name="content_description_select_label">select</string>
+    <string name="content_description_selected_label">selected</string>
+    <string name="content_description_toggle_setting_label">toggle setting</string>
+    <string name="content_description_edit_guests_option_title">Guests, heading</string>
+    <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>
+    <string name="content_description_edit_self_delete_title">Self-deleting messages, heading</string>
+    <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>
+    <string name="content_description_open_user_profile_label">open profile</string>
+    <string name="content_description_open_notification_settings_label">open notification settings</string>
+    <string name="content_description_empty"> </string>
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
     <string name="url_android_release_notes_feed" translatable="false">https://medium.com/feed/wire-news/tagged/android</string>
@@ -545,7 +563,10 @@
     <string name="user_profile_qr_code_title">Share Profile</string>
     <string name="user_profile_qr_code_share_link">Share Profile Link</string>
     <string name="user_profile_qr_code_share_image_link">Share QR Code</string>
+    <string name="user_profile_create_team_card">Enjoy benefits of a team</string>
     <string name="user_profile_qr_code_description">Share your profile to connect easily with other people. You must still accept a connection request before you two can start communicating.</string>
+    <string name="user_profile_create_team_card_button">Create a Team</string>
+    <string name="user_profile_create_team_description_card">Explore extra features for free with the same level of security.</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remove from group?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>

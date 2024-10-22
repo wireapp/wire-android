@@ -115,7 +115,7 @@ fun SetLockCodeScreenContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onBackPress,
-                navigationIconType = if (state.isEditable) NavigationIconType.Back else null,
+                navigationIconType = if (state.isEditable) NavigationIconType.Back() else null,
                 elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.settings_set_lock_screen_title)
             )

@@ -67,7 +67,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.show
@@ -161,7 +161,7 @@ private fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
             WireCenterAlignedTopAppBar(
                 elevation = dimensions().spacing0x,
                 onNavigationPressed = navigateBack,
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = NavigationIconType.Close(),
                 title = stringResource(id = R.string.import_media_content_title),
             )
         },
@@ -262,7 +262,7 @@ fun ImportMediaRestrictedContent(
                 WireCenterAlignedTopAppBar(
                     elevation = dimensions().spacing0x,
                     onNavigationPressed = navigateBack,
-                    navigationIconType = NavigationIconType.Close,
+                    navigationIconType = NavigationIconType.Close(),
                     title = stringResource(id = R.string.import_media_content_title),
                     actions = {
                         UserProfileAvatar(
@@ -308,7 +308,7 @@ fun ImportMediaRegularContent(
                 WireCenterAlignedTopAppBar(
                     elevation = lazyListState.topBarElevation(maxAppBarElevation),
                     onNavigationPressed = navigateBack,
-                    navigationIconType = NavigationIconType.Close,
+                    navigationIconType = NavigationIconType.Close(),
                     title = stringResource(id = R.string.import_media_content_title),
                     actions = {
                         UserProfileAvatar(
@@ -379,7 +379,7 @@ fun ImportMediaLoggedOutContent(
             WireCenterAlignedTopAppBar(
                 elevation = dimensions().spacing0x,
                 onNavigationPressed = navigateBack,
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = NavigationIconType.Close(),
                 title = stringResource(id = R.string.import_media_content_title),
             )
         },

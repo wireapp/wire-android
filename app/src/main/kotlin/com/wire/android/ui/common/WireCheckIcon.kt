@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.common
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,10 +31,10 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun WireCheckIcon() {
+fun WireCheckIcon(@StringRes contentDescription: Int = R.string.content_description_check) {
     Icon(
         painter = painterResource(id = R.drawable.ic_check_circle),
-        contentDescription = stringResource(R.string.content_description_check),
+        contentDescription = stringResource(contentDescription),
         modifier = Modifier.size(MaterialTheme.wireDimensions.wireIconButtonSize),
         tint = MaterialTheme.wireColorScheme.positive
     )

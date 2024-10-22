@@ -479,16 +479,14 @@ class WireActivity : AppCompatActivity() {
                 )
                 CustomBackendDialog(
                     viewModel.globalAppState,
-                    viewModel::dismissCustomBackendDialog
-                ) {
-                    viewModel.customBackendDialogProceedButtonClicked {
-                        navigate(
-                            NavigationCommand(
-                                WelcomeScreenDestination
-                            )
-                        )
-                    }
-                }
+                    viewModel::dismissCustomBackendDialog,
+                    onConfirm = {
+                        viewModel.customBackendDialogProceedButtonClicked {
+                            navigate(NavigationCommand(WelcomeScreenDestination))
+                        }
+                    },
+                    onTryAgain = viewModel::onCustomServerConfig
+                )
                 MaxAccountDialog(
                     shouldShow = viewModel.globalAppState.maxAccountDialog,
                     onConfirm = {

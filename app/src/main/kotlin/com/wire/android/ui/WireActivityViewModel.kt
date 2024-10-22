@@ -43,6 +43,7 @@ import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.dialogs.CustomServerInvalidJsonDialogState
+import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.CurrentScreen
@@ -77,6 +78,8 @@ import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -122,7 +125,8 @@ class WireActivityViewModel @Inject constructor(
     private val observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
-    private val workManager: Lazy<WorkManager>
+    private val workManager: Lazy<WorkManager>,
+    private val networkStateObserver: Lazy<NetworkStateObserver>
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -356,7 +360,7 @@ class WireActivityViewModel @Inject constructor(
             when (val result = deepLinkProcessor.get().invoke(intent?.data, isSharingIntent)) {
                 DeepLinkResult.AuthorizationNeeded -> onAuthorizationNeeded()
                 is DeepLinkResult.SSOLogin -> onSSOLogin(result)
-                is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
+                is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result.url)
                 is DeepLinkResult.Failure.OngoingCall -> onCannotLoginDuringACall()
                 is DeepLinkResult.Failure.Unknown -> appLogger.e("unknown deeplink failure")
                 is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(
@@ -465,13 +469,21 @@ class WireActivityViewModel @Inject constructor(
             }
         }
 
-    private suspend fun onCustomServerConfig(result: DeepLinkResult.CustomServerConfig) {
-        val customBackendDialogData = loadServerConfig(result.url)?.let { serverLinks ->
-            CustomServerDetailsDialogState(serverLinks = serverLinks)
-        } ?: CustomServerInvalidJsonDialogState
-        globalAppState = globalAppState.copy(
-            customBackendDialog = customBackendDialogData
-        )
+    fun onCustomServerConfig(customServerUrl: String) {
+        viewModelScope.launch(dispatchers.io()) {
+            val customBackendDialogData =
+                if (networkStateObserver.get().observeNetworkState().value != NetworkState.ConnectedWithInternet) {
+                    CustomServerNoNetworkDialogState(customServerUrl)
+                } else {
+                    loadServerConfig(customServerUrl)
+                        ?.let { serverLinks -> CustomServerDetailsDialogState(serverLinks = serverLinks) }
+                        ?: CustomServerInvalidJsonDialogState
+                }
+
+            globalAppState = globalAppState.copy(
+                customBackendDialog = customBackendDialogData
+            )
+        }
     }
 
     private suspend fun onConversationInviteDeepLink(

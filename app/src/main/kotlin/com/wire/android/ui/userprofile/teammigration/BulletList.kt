@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
@@ -52,12 +53,14 @@ fun BulletList(messages: List<String>, modifier: Modifier = Modifier) {
 
 @PreviewMultipleThemes
 @Composable
-fun BulletListPreview() {
-    BulletList(
-        messages = listOf(
-            "Item 1",
-            "Item 2",
-            "Item 3"
+private fun BulletListPreview() {
+    WireTheme {
+        BulletList(
+            messages = listOf(
+                "Item 1",
+                "Item 2",
+                "Item 3"
+            )
         )
-    )
+    }
 }

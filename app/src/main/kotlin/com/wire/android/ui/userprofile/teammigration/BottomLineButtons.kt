@@ -33,6 +33,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.theme.WireTheme
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -82,8 +83,10 @@ fun BottomLineButtons(
 
 @MultipleThemePreviews
 @Composable
-fun BottomLineButtonsPreview() {
-    BottomLineButtons(
-        isContinueButtonEnabled = true
-    )
+private fun BottomLineButtonsPreview() {
+    WireTheme {
+        BottomLineButtons(
+            isContinueButtonEnabled = true
+        )
+    }
 }

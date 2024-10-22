@@ -41,6 +41,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.destinations.TeamMigrationConfirmationStepScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
@@ -152,8 +153,10 @@ private fun TeamNameInput(
 
 @PreviewMultipleThemes
 @Composable
-fun TeamMigrationTeamNameStepScreenPreview() {
-    TeamMigrationTeamNameStepScreenContent(
-        teamNameTextFieldState = rememberTextFieldState("Your Team")
-    )
+private fun TeamMigrationTeamNameStepScreenPreview() {
+    WireTheme {
+        TeamMigrationTeamNameStepScreenContent(
+            teamNameTextFieldState = rememberTextFieldState("Your Team")
+        )
+    }
 }

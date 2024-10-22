@@ -58,7 +58,7 @@ import com.wire.android.ui.common.dimensions
 @Composable
 fun TeamMigrationScreen(
     navigator: Navigator,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val activity = LocalActivity.current
     activity.window.setBackgroundDrawable(

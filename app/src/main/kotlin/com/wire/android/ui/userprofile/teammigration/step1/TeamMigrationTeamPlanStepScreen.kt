@@ -51,6 +51,7 @@ import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.TeamMigrationTeamNameStepScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
@@ -128,7 +129,7 @@ private fun TeamMigrationTeamPlanStepScreenContent(
 }
 
 @Composable
-fun LearnMoreWirePlans(
+private fun LearnMoreWirePlans(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -161,7 +162,7 @@ fun LearnMoreWirePlans(
 }
 
 @Composable
-fun AdvantagesList(
+private fun AdvantagesList(
     modifier: Modifier = Modifier
 ) {
     val texts = listOf(
@@ -234,6 +235,8 @@ private fun AdvantageRow(
 
 @PreviewMultipleThemes
 @Composable
-fun TeamMigrationTeamPlanStepScreenPreview() {
-    TeamMigrationTeamPlanStepScreenContent()
+private fun TeamMigrationTeamPlanStepScreenPreview() {
+    WireTheme {
+        TeamMigrationTeamPlanStepScreenContent()
+    }
 }

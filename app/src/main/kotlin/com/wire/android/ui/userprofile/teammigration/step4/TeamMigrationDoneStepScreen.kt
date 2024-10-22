@@ -43,6 +43,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace.x32
 import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.BulletList
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
@@ -81,7 +82,7 @@ fun TeamMigrationDoneStepScreen(
 }
 
 @Composable
-fun TeamMigrationDoneStepContent(
+private fun TeamMigrationDoneStepContent(
     onBackToWireClicked: () -> Unit,
     onOpenTeamManagementClicked: () -> Unit,
     teamName: String,
@@ -171,6 +172,8 @@ fun TeamMigrationDoneStepContent(
 
 @PreviewMultipleThemes
 @Composable
-fun TeamMigrationDoneStepScreenPreview() {
-    TeamMigrationDoneStepContent({}, {}, teamName = "teamName")
+private fun TeamMigrationDoneStepScreenPreview() {
+    WireTheme {
+        TeamMigrationDoneStepContent({}, {}, teamName = "teamName")
+    }
 }

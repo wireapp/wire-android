@@ -54,6 +54,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.destinations.TeamMigrationDoneStepScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.BulletList
@@ -228,8 +229,10 @@ private fun PasswordInput(
 
 @PreviewMultipleThemes
 @Composable
-fun TeamMigrationConfirmationStepPreview() {
-    TeamMigrationConfirmationStepScreenContent(
-        passwordTextState = rememberTextFieldState()
-    )
+private fun TeamMigrationConfirmationStepPreview() {
+    WireTheme {
+        TeamMigrationConfirmationStepScreenContent(
+            passwordTextState = rememberTextFieldState()
+        )
+    }
 }

@@ -235,7 +235,7 @@ fun ConversationScreen(
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
         messageComposerViewState = messageComposerViewState,
         draftMessageComposition = messageDraftViewModel.state.value,
-        onClearDraft = { messageDraftViewModel.clearDraft() },
+        onClearDraft = messageDraftViewModel::clearDraft,
         onSaveDraft = messageComposerViewModel::saveDraft,
         onSearchMentionQueryChanged = messageComposerViewModel::searchMembersToMention,
         onTypingEvent = messageComposerViewModel::sendTypingEvent,

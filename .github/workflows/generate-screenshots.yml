@@ -2,9 +2,6 @@ name: "Generate and Verify Screenshot Tests"
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feat/screenshot-tests
 
 permissions:
   contents: write
@@ -17,7 +14,7 @@ jobs:
   generate-screenshots:
     runs-on: buildjet-8vcpu-ubuntu-2204
 
-    if: github.ref == 'refs/heads/feat/screenshot-tests'
+    if: github.ref == 'refs/heads/develop'
 
     steps:
       - name: Checkout
@@ -40,10 +37,7 @@ jobs:
         run: |
           git lfs install
           git lfs fetch --all
-          git lfs checkout  
-
-      - name: Fetch All Branches
-        run: git fetch --all
+          git lfs checkout
 
       - name: Merge Develop into screenshot-tests
         run: |
@@ -94,7 +88,7 @@ jobs:
 
       - name: Create PR
         env:
-          PR_TITLE: "test: Update Screenshot Tests"
+          PR_TITLE: "test: Update Screenshot Tests [WPB-983]"
           PR_BODY: "Automated PR to update screenshot tests with the latest reference images."
           PR_BRANCH: ${{ env.BRANCH_NAME }}
         run: |

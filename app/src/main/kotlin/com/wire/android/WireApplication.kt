@@ -39,7 +39,6 @@ import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
-import com.wire.android.util.LifecycleLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
@@ -90,9 +89,6 @@ class WireApplication : BaseApp() {
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager
 
-    @Inject
-    lateinit var applicationLifecycleLogger: LifecycleLogger
-
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(wireWorkerFactory.get())
@@ -111,9 +107,7 @@ class WireApplication : BaseApp() {
 
             appLogger.i("$TAG app lifecycle")
             withContext(Dispatchers.Main) {
-                val lifecycle = ProcessLifecycleOwner.get().lifecycle
-                lifecycle.addObserver(currentScreenManager)
-                lifecycle.addObserver(applicationLifecycleLogger)
+                ProcessLifecycleOwner.get().lifecycle.addObserver(currentScreenManager)
             }
             connectionPolicyManager.get().startObservingAppLifecycle()
 
@@ -286,7 +280,7 @@ class WireApplication : BaseApp() {
 
             companion object {
                 fun byLevel(value: Int) =
-                    values().firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
+                    entries.firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
             }
         }
 

@@ -137,6 +137,7 @@ fun MessageComposer(
                         onSendMessageBundle(messageCompositionHolder.toMessageBundle(conversationId))
                         onClearMentionSearchResult()
                         clearMessage()
+                        messageCompositionHolder.onClearDraft()
                     },
                     onPingOptionClicked = onPingOptionClicked,
                     onImagesPicked = onImagesPicked,
@@ -265,6 +266,7 @@ private fun BaseComposerPreview(
             messageCompositionHolder = MessageCompositionHolder(
                 messageComposition = messageComposition,
                 messageTextState = messageTextState,
+                onClearDraft = {},
                 onSaveDraft = {},
                 onSearchMentionQueryChanged = {},
                 onClearMentionSearchResult = {},

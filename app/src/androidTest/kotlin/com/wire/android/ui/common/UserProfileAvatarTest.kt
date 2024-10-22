@@ -23,6 +23,11 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.WireTestTheme
+import com.wire.android.ui.common.avatar.LEGAL_HOLD_INDICATOR_TEST_TAG
+import com.wire.android.ui.common.avatar.STATUS_INDICATOR_TEST_TAG
+import com.wire.android.ui.common.avatar.TEMP_USER_INDICATOR_TEST_TAG
+import com.wire.android.ui.common.avatar.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatarType
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock

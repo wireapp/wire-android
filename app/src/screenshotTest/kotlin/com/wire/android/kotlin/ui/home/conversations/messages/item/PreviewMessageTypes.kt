@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.kotlin.ui.home.conversations.messages.item
 
 import androidx.compose.foundation.layout.Column
@@ -137,7 +139,8 @@ fun PreviewDeletedMessage() {
                 it.copy(
                     header = it.header.copy(
                         messageStatus = MessageStatus(
-                            flowStatus = MessageFlowStatus.Delivered, isDeleted = true,
+                            flowStatus = MessageFlowStatus.Delivered,
+                            isDeleted = true,
                             expirationStatus = ExpirationStatus.NotExpirable
                         )
                     )

@@ -69,8 +69,7 @@ fun CollapsingFolderHeader(
 ) {
     val arrowRotation: Float by animateFloatAsState(if (expanded) 180f else 90f, label = "CollapsingArrowRotationAnimation")
     val expandDescription = stringResource(
-        id = if (expanded) R.string.content_description_collapse_label
-        else R.string.content_description_expand_label
+        id = if (expanded) R.string.content_description_collapse_label else R.string.content_description_expand_label
     )
     Row(
         verticalAlignment = Alignment.CenterVertically,

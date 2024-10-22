@@ -288,8 +288,7 @@ private fun LazyListScope.internalSuccessItem(
         ) { (contact, isSelected) ->
             with(contact) {
                 val onCheckDescription = stringResource(
-                    id = if (isSelected) R.string.content_description_unselect_label
-                    else R.string.content_description_select_label
+                    id = if (isSelected) R.string.content_description_unselect_label else R.string.content_description_select_label
                 )
                 val clickDescription = stringResource(id = R.string.content_description_open_user_profile_label)
                 val onCheckClickable = remember(isSelected) {

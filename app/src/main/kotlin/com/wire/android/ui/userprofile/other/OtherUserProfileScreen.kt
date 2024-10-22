@@ -396,8 +396,11 @@ private fun TopBarHeader(
     onNavigateBack: () -> Unit,
     openConversationBottomSheet: () -> Unit
 ) {
-    val navigationIconType = if (state.groupState == null) NavigationIconType.Close()
-    else NavigationIconType.Close(R.string.content_description_user_profile_close_btn)
+    val navigationIconType = if (state.groupState == null) {
+        NavigationIconType.Close()
+    } else {
+        NavigationIconType.Close(R.string.content_description_user_profile_close_btn)
+    }
 
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,

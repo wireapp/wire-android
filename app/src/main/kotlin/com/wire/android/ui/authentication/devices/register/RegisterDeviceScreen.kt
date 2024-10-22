@@ -146,7 +146,7 @@ private fun RegisterDeviceContent(
             WireCenterAlignedTopAppBar(
                 elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.register_device_title),
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = NavigationIconType.Close(),
                 onNavigationPressed = onBackButtonClicked
             )
         },

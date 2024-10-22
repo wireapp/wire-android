@@ -346,7 +346,7 @@ private fun SelfUserProfileTopBar(
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onCloseClick,
         title = stringResource(id = R.string.user_profile_title),
-        navigationIconType = NavigationIconType.Close,
+        navigationIconType = NavigationIconType.Close(),
         elevation = 0.dp,
         actions = {
             WireSecondaryButton(

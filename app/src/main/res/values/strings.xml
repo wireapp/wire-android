@@ -563,7 +563,10 @@
     <string name="user_profile_qr_code_title">Share Profile</string>
     <string name="user_profile_qr_code_share_link">Share Profile Link</string>
     <string name="user_profile_qr_code_share_image_link">Share QR Code</string>
+    <string name="user_profile_create_team_card">Enjoy benefits of a team</string>
     <string name="user_profile_qr_code_description">Share your profile to connect easily with other people. You must still accept a connection request before you two can start communicating.</string>
+    <string name="user_profile_create_team_card_button">Create a Team</string>
+    <string name="user_profile_create_team_description_card">Explore extra features for free with the same level of security.</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remove from group?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>

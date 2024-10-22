@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.common
+package com.wire.android.ui.common.avatar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -28,6 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes

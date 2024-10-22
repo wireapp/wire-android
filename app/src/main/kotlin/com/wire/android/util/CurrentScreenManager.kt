@@ -104,7 +104,7 @@ class CurrentScreenManager @Inject constructor(
 
     override fun onStart(owner: LifecycleOwner) {
         super.onStart(owner)
-        appLogger.i("${TAG}: onStart called")
+        appLogger.i("${TAG}: app onStart called")
         visibilityCount.getAndUpdate { currentValue ->
             val newValue = maxOf(0, currentValue + 1)
             isApplicationVisibleFlow.value = newValue > 0
@@ -114,7 +114,7 @@ class CurrentScreenManager @Inject constructor(
 
     override fun onStop(owner: LifecycleOwner) {
         super.onStop(owner)
-        appLogger.i("${TAG}: onStop called")
+        appLogger.i("${TAG}: app onStop called")
         visibilityCount.getAndUpdate { currentValue ->
             val newValue = maxOf(0, currentValue - 1)
             isApplicationVisibleFlow.value = newValue > 0
@@ -134,6 +134,26 @@ class CurrentScreenManager @Inject constructor(
 
         val newView = currentScreenState.value.toString()
         AnonymousAnalyticsManagerImpl.recordView(newView)
+    }
+
+    override fun onCreate(owner: LifecycleOwner) {
+        super.onCreate(owner)
+        appLogger.i("$TAG app onCreate called")
+    }
+
+    override fun onResume(owner: LifecycleOwner) {
+        super.onResume(owner)
+        appLogger.i("$TAG app onResume called")
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+        super.onPause(owner)
+        appLogger.i("$TAG app onPause called")
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        super.onDestroy(owner)
+        appLogger.i("$TAG app onDestroy called")
     }
 
     companion object {

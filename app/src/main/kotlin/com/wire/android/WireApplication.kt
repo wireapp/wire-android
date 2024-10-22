@@ -148,11 +148,13 @@ class WireApplication : BaseApp() {
             override fun onActivityStarted(activity: Activity) {
                 globalAnalyticsManager.onStart(activity)
             }
+
             override fun onActivityResumed(activity: Activity) {}
             override fun onActivityPaused(activity: Activity) {}
             override fun onActivityStopped(activity: Activity) {
                 globalAnalyticsManager.onStop(activity)
             }
+
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
             override fun onActivityDestroyed(activity: Activity) {}
         })
@@ -278,7 +280,7 @@ class WireApplication : BaseApp() {
 
             companion object {
                 fun byLevel(value: Int) =
-                    values().firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
+                    entries.firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
             }
         }
 

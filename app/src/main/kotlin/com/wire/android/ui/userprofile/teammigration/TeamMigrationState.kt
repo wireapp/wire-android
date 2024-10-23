@@ -17,9 +17,10 @@
  */
 package com.wire.android.ui.userprofile.teammigration
 
-import com.ramcosta.composedestinations.annotation.NavGraph
+import androidx.compose.foundation.text.input.TextFieldState
 
-@NavGraph
-annotation class PersonalToTeamMigrationNavGraph(
-    val start: Boolean = false
+data class TeamMigrationState(
+    val teamNameTextState: TextFieldState = TextFieldState(),
+    val passwordTextState: TextFieldState = TextFieldState(),
+    val shouldShowMigrationLeaveDialog: Boolean = false
 )

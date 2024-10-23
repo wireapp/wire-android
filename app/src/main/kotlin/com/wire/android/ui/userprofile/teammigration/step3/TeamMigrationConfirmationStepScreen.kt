@@ -31,6 +31,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -72,6 +73,7 @@ fun TeamMigrationConfirmationStepScreen(
     navigator: DestinationsNavigator,
     teamMigrationViewModel: TeamMigrationViewModel
 ) {
+
     TeamMigrationConfirmationStepScreenContent(
         onContinueButtonClicked = {
             // TODO: call the API to migrate the user to the team, if successful navigate to next screen
@@ -80,8 +82,11 @@ fun TeamMigrationConfirmationStepScreen(
         onBackPressed = {
             navigator.popBackStack()
         },
-        passwordTextState = teamMigrationViewModel.passwordTextState
+        passwordTextState = teamMigrationViewModel.teamMigrationState.passwordTextState
     )
+    LaunchedEffect(Unit) {
+        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(3)
+    }
 }
 
 @Composable

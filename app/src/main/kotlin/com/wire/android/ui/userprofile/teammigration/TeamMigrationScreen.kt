@@ -35,8 +35,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
@@ -58,12 +56,20 @@ import com.wire.android.ui.common.dimensions
 @Composable
 fun TeamMigrationScreen(
     navigator: Navigator,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    teamMigrationViewModel: TeamMigrationViewModel = hiltViewModel()
 ) {
     val activity = LocalActivity.current
     activity.window.setBackgroundDrawable(
         ColorDrawable(colorsScheme().windowPersonalToTeamMigration.toArgb())
     )
+
+    val navHostEngine = rememberAnimatedNavHostEngine(
+        rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
+    )
+    val navController = rememberTrackingAnimatedNavController {
+        TeamMigrationDestination.fromRoute(it)?.itemName
+    }
 
     Column(
         modifier = modifier
@@ -80,8 +86,12 @@ fun TeamMigrationScreen(
         IconButton(
             modifier = Modifier.align(alignment = Alignment.End),
             onClick = {
-                // TODO(next PR): show dialog to confirm exit before navigating back
-                navigator.navigateBack()
+                if (navController.currentDestination?.route == NavGraphs.personalToTeamMigration.destinations.last().route) {
+                    navigator.navigateBack()
+                } else {
+                    teamMigrationViewModel.sendPersonalToTeamMigrationDismissed()
+                    teamMigrationViewModel.showMigrationLeaveDialog()
+                }
             }
         ) {
             Icon(
@@ -89,28 +99,37 @@ fun TeamMigrationScreen(
                 contentDescription = stringResource(R.string.personal_to_team_migration_close_icon_content_description)
             )
         }
-        if (LocalLifecycleOwner.current.lifecycle.currentState != Lifecycle.State.DESTROYED) {
-            val navHostEngine = rememberAnimatedNavHostEngine(
-                rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
-            )
-            val navController = rememberTrackingAnimatedNavController {
-                TeamMigrationDestination.fromRoute(it)?.itemName
-            }
 
-            DestinationsNavHost(
-                navGraph = NavGraphs.personalToTeamMigration,
-                engine = navHostEngine,
-                navController = navController,
-                dependenciesContainerBuilder = {
-                    dependency(navigator)
-                    dependency(NavGraphs.personalToTeamMigration) {
-                        val parentEntry = remember(navBackStackEntry) {
-                            navController.getBackStackEntry(NavGraphs.personalToTeamMigration.route)
-                        }
-                        hiltViewModel<TeamMigrationViewModel>(parentEntry)
+        DestinationsNavHost(
+            navGraph = NavGraphs.personalToTeamMigration,
+            engine = navHostEngine,
+            navController = navController,
+            dependenciesContainerBuilder = {
+                dependency(navigator)
+                dependency(NavGraphs.personalToTeamMigration) {
+                    val parentEntry = remember(navBackStackEntry) {
+                        navController.getBackStackEntry(NavGraphs.personalToTeamMigration.route)
                     }
+                    hiltViewModel<TeamMigrationViewModel>(parentEntry)
                 }
+            }
+        )
+    }
+
+    if (teamMigrationViewModel.teamMigrationState.shouldShowMigrationLeaveDialog) {
+        ConfirmMigrationLeaveDialog(
+            onContinue = {
+                teamMigrationViewModel.sendPersonalTeamCreationFlowCanceledEvent(
+                    modalContinueClicked = true
+                )
+                teamMigrationViewModel.hideMigrationLeaveDialog()
+            }
+        ) {
+            teamMigrationViewModel.hideMigrationLeaveDialog()
+            teamMigrationViewModel.sendPersonalTeamCreationFlowCanceledEvent(
+                modalLeaveClicked = true
             )
+            navigator.navigateBack()
         }
     }
 }

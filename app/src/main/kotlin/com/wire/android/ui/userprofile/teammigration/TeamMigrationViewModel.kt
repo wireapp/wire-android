@@ -17,13 +17,68 @@
  */
 package com.wire.android.ui.userprofile.teammigration
 
-import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class TeamMigrationViewModel @Inject constructor() : ViewModel() {
-    val teamNameTextState: TextFieldState = TextFieldState()
-    val passwordTextState: TextFieldState = TextFieldState()
+class TeamMigrationViewModel @Inject constructor(
+    private val analyticsManager: AnonymousAnalyticsManager
+) : ViewModel() {
+
+    var teamMigrationState by mutableStateOf(TeamMigrationState())
+        private set
+
+    fun showMigrationLeaveDialog() {
+        teamMigrationState = teamMigrationState.copy(shouldShowMigrationLeaveDialog = true)
+    }
+
+    fun hideMigrationLeaveDialog() {
+        teamMigrationState = teamMigrationState.copy(shouldShowMigrationLeaveDialog = false)
+    }
+
+    fun sendPersonalToTeamMigrationDismissed() {
+        analyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
+                dismissCreateTeamButtonClicked = true
+            )
+        )
+    }
+
+    fun sendPersonalTeamCreationFlowStartedEvent(step: Int) {
+        analyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(step)
+        )
+    }
+
+    fun sendPersonalTeamCreationFlowCanceledEvent(
+        modalLeaveClicked: Boolean = false,
+        modalContinueClicked: Boolean = false
+    ) {
+        analyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
+                teamName = teamMigrationState.teamNameTextState.text.toString(),
+                modalLeaveClicked = modalLeaveClicked,
+                modalContinueClicked = modalContinueClicked
+            )
+        )
+    }
+
+    fun sendPersonalTeamCreationFlowCompletedEvent(
+        modalOpenTeamManagementButtonClicked: Boolean = false,
+        backToWireButtonClicked: Boolean = false
+    ) {
+        analyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
+                teamName = teamMigrationState.teamNameTextState.text.toString(),
+                modalOpenTeamManagementButtonClicked = modalOpenTeamManagementButtonClicked,
+                backToWireButtonClicked = backToWireButtonClicked
+            )
+        )
+    }
 }

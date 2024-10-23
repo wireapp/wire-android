@@ -28,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -64,8 +65,11 @@ fun TeamMigrationTeamNameStepScreen(
         onBackButtonClicked = {
             navigator.popBackStack()
         },
-        teamNameTextFieldState = teamMigrationViewModel.teamNameTextState
+        teamNameTextFieldState = teamMigrationViewModel.teamMigrationState.teamNameTextState
     )
+    LaunchedEffect(Unit) {
+        teamMigrationViewModel.sendPersonalTeamCreationFlowStartedEvent(2)
+    }
 }
 
 @Composable

@@ -33,6 +33,8 @@ import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.notification.WireNotificationManager
@@ -101,7 +103,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
     private val notificationManager: WireNotificationManager,
     private val globalDataStore: GlobalDataStore,
-    private val qualifiedIdMapper: QualifiedIdMapper
+    private val qualifiedIdMapper: QualifiedIdMapper,
+    private val analyticsManager: AnonymousAnalyticsManager
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
@@ -336,6 +339,14 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun clearErrorMessage() {
         userProfileState = userProfileState.copy(errorMessageCode = null)
+    }
+
+    fun sendPersonalToTeamMigrationEvent() {
+        analyticsManager.sendEvent(
+            AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
+                createTeamButtonClicked = true
+            )
+        )
     }
 
     sealed class ErrorCodes {

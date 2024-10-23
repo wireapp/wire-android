@@ -17,8 +17,6 @@
  */
 package com.wire.android.feature
 
-import android.content.ComponentName
-import android.content.Context
 import com.wire.android.services.ServicesManager
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery

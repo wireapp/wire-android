@@ -18,7 +18,6 @@
 
 package com.wire.android.services
 
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -34,7 +33,6 @@ import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.reflect.KClass
 
 /**
  * This is helper class that should be used for starting/stopping any services.

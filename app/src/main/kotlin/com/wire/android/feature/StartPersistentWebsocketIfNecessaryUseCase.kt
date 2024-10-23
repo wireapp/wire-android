@@ -19,13 +19,8 @@
 
 package com.wire.android.feature
 
-import android.content.Context
-import android.content.Intent
-import android.os.Build
 import com.wire.android.appLogger
-import com.wire.android.services.PersistentWebSocketService
 import com.wire.android.services.ServicesManager
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 

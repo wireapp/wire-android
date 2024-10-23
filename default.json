@@ -122,5 +122,6 @@
     "team_app_lock": false,
     "team_app_lock_timeout": 60,
     "max_remote_search_result_count": 30,
-    "limit_team_members_fetch_during_slow_sync": 2000
+    "limit_team_members_fetch_during_slow_sync": 2000,
+    "should_display_release_notes": true
 }

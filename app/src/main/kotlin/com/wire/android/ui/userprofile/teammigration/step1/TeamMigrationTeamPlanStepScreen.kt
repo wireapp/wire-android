@@ -45,7 +45,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
-import androidx.navigation.NavController
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.wire.android.R
 import com.wire.android.navigation.WireDestination

@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,12 +45,15 @@ import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.TeamMigrationDestination
 import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.rememberNavigator
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.theme.WireTheme
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
 @WireDestination(style = PopUpNavigationAnimation::class)
@@ -59,16 +63,20 @@ fun TeamMigrationScreen(
     modifier: Modifier = Modifier,
     teamMigrationViewModel: TeamMigrationViewModel = hiltViewModel()
 ) {
-    val activity = LocalActivity.current
-    activity.window.setBackgroundDrawable(
-        ColorDrawable(colorsScheme().windowPersonalToTeamMigration.toArgb())
-    )
-
     val navHostEngine = rememberAnimatedNavHostEngine(
         rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
     )
     val navController = rememberTrackingAnimatedNavController {
         TeamMigrationDestination.fromRoute(it)?.itemName
+    }
+
+    val isRunInPreview = LocalInspectionMode.current
+
+    if (!isRunInPreview) {
+        val activity = LocalActivity.current
+        activity.window.setBackgroundDrawable(
+            ColorDrawable(colorsScheme().windowPersonalToTeamMigration.toArgb())
+        )
     }
 
     Column(
@@ -131,5 +139,13 @@ fun TeamMigrationScreen(
             )
             navigator.navigateBack()
         }
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+private fun TeamMigrationScreenPreview() {
+    WireTheme {
+        TeamMigrationScreen(navigator = rememberNavigator { })
     }
 }

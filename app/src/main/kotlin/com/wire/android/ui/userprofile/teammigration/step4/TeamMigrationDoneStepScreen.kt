@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.userprofile.teammigration.step4
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -62,8 +61,7 @@ fun TeamMigrationDoneStepScreen(
     teamMigrationViewModel: TeamMigrationViewModel
 ) {
     val context = LocalContext.current
-    val navController = navigator.navController
-    Log.d("destination", "TeamMigrationDoneStepScreen: navController: $navController")
+
     val teamManagementUrl = stringResource(R.string.url_team_management)
     TeamMigrationDoneStepContent(
         onBackToWireClicked = {

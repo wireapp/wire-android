@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.userprofile.teammigration.step1
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,7 +71,6 @@ fun TeamMigrationTeamPlanStepScreen(
     navController: NavController,
     teamMigrationViewModel: TeamMigrationViewModel
 ) {
-    Log.d("destination", "TeamMigrationTeamPlanStepScreen: navController: $navController")
     TeamMigrationTeamPlanStepScreenContent(
         onContinueButtonClicked = {
             navigator.navigate(TeamMigrationTeamNameStepScreenDestination)

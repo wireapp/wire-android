@@ -18,25 +18,9 @@
 package com.wire.android.ui.userprofile.teammigration
 
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
-@HiltViewModel
-class TeamMigrationViewModel @Inject constructor() : ViewModel() {
-    val passwordTextState: TextFieldState = TextFieldState()
-
-    var teamMigrationState by mutableStateOf(TeamMigrationState())
-        private set
-
-    fun showMigrationLeaveDialog() {
-        teamMigrationState = teamMigrationState.copy(shouldShowMigrationLeaveDialog = true)
-    }
-
-    fun hideMigrationLeaveDialog() {
-        teamMigrationState = teamMigrationState.copy(shouldShowMigrationLeaveDialog = false)
-    }
-}
+data class TeamMigrationState(
+    val teamNameTextState: TextFieldState = TextFieldState(),
+    val passwordTextState: TextFieldState = TextFieldState(),
+    val shouldShowMigrationLeaveDialog: Boolean = false
+)

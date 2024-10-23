@@ -32,11 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
@@ -46,12 +45,15 @@ import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.TeamMigrationDestination
 import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.rememberNavigator
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.theme.WireTheme
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
 @WireDestination(style = PopUpNavigationAnimation::class)
@@ -60,10 +62,21 @@ fun TeamMigrationScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier
 ) {
-    val activity = LocalActivity.current
-    activity.window.setBackgroundDrawable(
-        ColorDrawable(colorsScheme().windowPersonalToTeamMigration.toArgb())
+    val navHostEngine = rememberAnimatedNavHostEngine(
+        rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
     )
+    val navController = rememberTrackingAnimatedNavController {
+        TeamMigrationDestination.fromRoute(it)?.itemName
+    }
+    
+    val isRunInPreview = LocalInspectionMode.current
+
+    if (!isRunInPreview) {
+        val activity = LocalActivity.current
+        activity.window.setBackgroundDrawable(
+            ColorDrawable(colorsScheme().windowPersonalToTeamMigration.toArgb())
+        )
+    }
 
     Column(
         modifier = modifier
@@ -89,28 +102,28 @@ fun TeamMigrationScreen(
                 contentDescription = stringResource(R.string.personal_to_team_migration_close_icon_content_description)
             )
         }
-        if (LocalLifecycleOwner.current.lifecycle.currentState != Lifecycle.State.DESTROYED) {
-            val navHostEngine = rememberAnimatedNavHostEngine(
-                rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
-            )
-            val navController = rememberTrackingAnimatedNavController {
-                TeamMigrationDestination.fromRoute(it)?.itemName
-            }
 
-            DestinationsNavHost(
-                navGraph = NavGraphs.personalToTeamMigration,
-                engine = navHostEngine,
-                navController = navController,
-                dependenciesContainerBuilder = {
-                    dependency(navigator)
-                    dependency(NavGraphs.personalToTeamMigration) {
-                        val parentEntry = remember(navBackStackEntry) {
-                            navController.getBackStackEntry(NavGraphs.personalToTeamMigration.route)
-                        }
-                        hiltViewModel<TeamMigrationViewModel>(parentEntry)
+        DestinationsNavHost(
+            navGraph = NavGraphs.personalToTeamMigration,
+            engine = navHostEngine,
+            navController = navController,
+            dependenciesContainerBuilder = {
+                dependency(navigator)
+                dependency(NavGraphs.personalToTeamMigration) {
+                    val parentEntry = remember(navBackStackEntry) {
+                        navController.getBackStackEntry(NavGraphs.personalToTeamMigration.route)
                     }
+                    hiltViewModel<TeamMigrationViewModel>(parentEntry)
                 }
-            )
-        }
+            }
+        )
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewTeamMigrationScreen() {
+    WireTheme {
+        TeamMigrationScreen(navigator = rememberNavigator { })
     }
 }

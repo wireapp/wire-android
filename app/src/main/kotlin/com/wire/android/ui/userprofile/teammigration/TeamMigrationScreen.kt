@@ -68,7 +68,7 @@ fun TeamMigrationScreen(
     val navController = rememberTrackingAnimatedNavController {
         TeamMigrationDestination.fromRoute(it)?.itemName
     }
-    
+
     val isRunInPreview = LocalInspectionMode.current
 
     if (!isRunInPreview) {
@@ -122,7 +122,7 @@ fun TeamMigrationScreen(
 
 @MultipleThemePreviews
 @Composable
-fun PreviewTeamMigrationScreen() {
+private fun TeamMigrationScreenPreview() {
     WireTheme {
         TeamMigrationScreen(navigator = rememberNavigator { })
     }

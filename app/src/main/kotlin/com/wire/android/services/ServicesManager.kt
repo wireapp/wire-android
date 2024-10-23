@@ -102,11 +102,15 @@ class ServicesManager @Inject constructor(
 
     // Persistent WebSocket
     fun startPersistentWebSocketService() {
-        startService(PersistentWebSocketService.newIntent(context))
+        if (PersistentWebSocketService.isServiceStarted) {
+            appLogger.i("ServicesManager: PersistentWebsocketService already started, not starting again")
+        } else {
+            startService(PersistentWebSocketService.newIntent(context))
+        }
     }
 
     fun stopPersistentWebSocketService() {
-        stopService(PersistentWebSocketService::class)
+        stopService(PersistentWebSocketService.newIntent(context))
     }
 
     fun isPersistentWebSocketServiceRunning(): Boolean =
@@ -121,8 +125,9 @@ class ServicesManager @Inject constructor(
         }
     }
 
-    private fun stopService(serviceClass: KClass<out Service>) {
-        context.stopService(Intent(context, serviceClass.java))
+    private fun stopService(intent: Intent) {
+        appLogger.i("ServicesManager: stopping service for $intent")
+        context.stopService(intent)
     }
 
     companion object {

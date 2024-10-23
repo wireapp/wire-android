@@ -117,7 +117,7 @@
     <string name="content_description_conversation_send_emoticon">Send Emoticon button</string>
     <string name="content_description_conversation_send_gif">Send GIF button</string>
     <string name="content_description_conversation_mention_someone">Mention someone</string>
-    <string name="content_description_new_conversation">Start a new conversation</string>
+    <string name="content_description_new_conversation">Search for people or create a new group</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_send_button">Send</string>
     <string name="content_description_timed_message_button">Self-deleting messages, button</string>
@@ -186,6 +186,9 @@
     <string name="content_description_conversation_details_close_btn">Close conversation details</string>
     <string name="content_description_conversation_details_guests_action">adjust guest access</string>
     <string name="content_description_conversation_details_self_deleting_action">adjust self-deleting time</string>
+    <string name="content_description_home_header">Conversations, heading</string>
+    <string name="content_description_home_profile_btn">Your profile</string>
+    <string name="content_description_open_label">open</string>
     <string name="content_description_edit_label">edit</string>
     <string name="content_description_select_label">select</string>
     <string name="content_description_selected_label">selected</string>

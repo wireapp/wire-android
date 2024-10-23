@@ -118,7 +118,7 @@ fun SearchTopBar(
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_search),
-                                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                                contentDescription = null,
                                 tint = MaterialTheme.wireColorScheme.onBackground,
                             )
                         }

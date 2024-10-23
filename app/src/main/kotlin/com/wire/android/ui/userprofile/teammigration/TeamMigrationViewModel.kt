@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.userprofile.teammigration
 
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,7 +26,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TeamMigrationViewModel @Inject constructor() : ViewModel() {
-    val passwordTextState: TextFieldState = TextFieldState()
 
     var teamMigrationState by mutableStateOf(TeamMigrationState())
         private set

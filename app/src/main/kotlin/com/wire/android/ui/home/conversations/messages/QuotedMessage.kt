@@ -57,6 +57,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
@@ -226,7 +227,7 @@ private fun QuotedMessageContent(
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .let {
-                if (clickable != null) it.clickable(clickable) else it
+                if (clickable != null) it.clickable(clickable).clickableDescriptions(clickable) else it
             }
     ) {
         Box(modifier = Modifier.padding(start = dimensions().spacing4x)) {
@@ -449,7 +450,7 @@ private fun AutosizeContainer(
             .fillMaxWidth()
             .padding(dimensions().spacing8x)
             .let {
-                if (clickable != null) it.clickable(clickable) else it
+                if (clickable != null) it.clickable(clickable).clickableDescriptions(clickable) else it
             }
     ) {
         val (leftSide, rightSide) = createRefs()

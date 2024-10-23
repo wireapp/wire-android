@@ -41,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
-import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -52,6 +51,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.user.UserId
 
 private const val MAX_TILES_PER_PAGE = 8
 private const val MAX_ITEMS_FOR_HORIZONTAL_VIEW = 3
@@ -61,15 +61,15 @@ fun VerticalCallingPager(
     participants: List<UICallParticipant>,
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
+    isInPictureInPictureMode: Boolean,
     contentHeight: Dp,
+    currentUserId: UserId,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val activity = LocalActivity.current
-
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -101,13 +101,13 @@ fun VerticalCallingPager(
                     if (participantsChunkedList[pageIndex].size <= MAX_ITEMS_FOR_HORIZONTAL_VIEW) {
                         CallingHorizontalView(
                             participants = participantsChunkedList[pageIndex],
-                            pageIndex = pageIndex,
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
                             contentHeight = contentHeight,
                             onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
-                            onDoubleTap = onDoubleTap
+                            onDoubleTap = onDoubleTap,
+                            currentUserId = currentUserId,
                         )
                     } else {
                         GroupCallGrid(
@@ -118,7 +118,8 @@ fun VerticalCallingPager(
                             contentHeight = contentHeight,
                             onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                             onSelfClearVideoPreview = onSelfClearVideoPreview,
-                            onDoubleTap = onDoubleTap
+                            onDoubleTap = onDoubleTap,
+                            currentUserId = currentUserId,
                         )
                     }
 
@@ -132,7 +133,7 @@ fun VerticalCallingPager(
                 }
             }
             // we don't need to display the indicator if we have one page and when it's in PiP mode
-            if (pagesCount(participants.size) > 1 && !activity.isInPictureInPictureMode) {
+            if (pagesCount(participants.size) > 1 && !isInPictureInPictureMode) {
                 Surface(
                     shape = RoundedCornerShape(dimensions().corner16x),
                     modifier = Modifier
@@ -165,7 +166,9 @@ private fun pagesCount(size: Int): Int {
     val pages = size / MAX_TILES_PER_PAGE
     return if (size % MAX_TILES_PER_PAGE > 0) {
         pages + 1
-    } else pages
+    } else {
+        pages
+    }
 }
 
 @Composable
@@ -178,7 +181,9 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
         onSelfVideoPreviewCreated = {},
         onSelfClearVideoPreview = {},
         requestVideoStreams = {},
-        onDoubleTap = { }
+        onDoubleTap = { },
+        isInPictureInPictureMode = false,
+        currentUserId = UserId("id", "domain")
     )
 }
 

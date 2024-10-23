@@ -34,7 +34,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import com.wire.android.BuildConfig
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -42,14 +41,15 @@ import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun CallingHorizontalView(
     participants: List<UICallParticipant>,
-    pageIndex: Int,
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     contentHeight: Dp,
+    currentUserId: UserId,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
@@ -58,7 +58,8 @@ fun CallingHorizontalView(
     spacedBy: Dp = dimensions().spacing2x,
 ) {
     val tileHeight = remember(participants.size, contentHeight, contentPadding, spacedBy) {
-        val heightAvailableForItems = contentHeight - 2 * contentPadding - (participants.size - 1) * spacedBy
+        val heightAvailableForItems =
+            contentHeight - 2 * contentPadding - (participants.size - 1) * spacedBy
         heightAvailableForItems / participants.size
     }
     LazyColumn(
@@ -68,11 +69,8 @@ fun CallingHorizontalView(
         verticalArrangement = Arrangement.spacedBy(spacedBy)
     ) {
         items(items = participants, key = { it.id.toString() + it.clientId }) { participant ->
-            // since we are getting participants by chunk of 8 items,
-            // we need to check that we are on first page for self user
-            val isSelfUser = remember(pageIndex, participants.first()) {
-                pageIndex == 0 && participants.first() == participant && !BuildConfig.PICTURE_IN_PICTURE_ENABLED
-            }
+            // API returns only id.value, without domain, till this get changed compare only id.value
+            val isSelfUser = participant.id.equalsIgnoringBlankDomain(currentUserId)
             ParticipantTile(
                 modifier = Modifier
                     .pointerInput(Unit) {
@@ -96,24 +94,27 @@ fun CallingHorizontalView(
                 isSelfUserMuted = isSelfUserMuted,
                 isSelfUserCameraOn = isSelfUserCameraOn,
                 onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
-                onClearSelfUserVideoPreview = onSelfClearVideoPreview
+                onClearSelfUserVideoPreview = onSelfClearVideoPreview,
             )
         }
     }
 }
 
 @Composable
-fun PreviewCallingHorizontalView(participants: List<UICallParticipant>, modifier: Modifier = Modifier) {
+fun PreviewCallingHorizontalView(
+    participants: List<UICallParticipant>,
+    modifier: Modifier = Modifier,
+) {
     Box(modifier = modifier.height(800.dp)) {
         CallingHorizontalView(
             participants = participants,
-            pageIndex = 0,
             isSelfUserMuted = true,
             isSelfUserCameraOn = false,
             contentHeight = 800.dp,
+            currentUserId = UserId("id", "domain"),
             onSelfVideoPreviewCreated = {},
             onSelfClearVideoPreview = {},
-            onDoubleTap = { }
+            onDoubleTap = { },
         )
     }
 }

@@ -30,7 +30,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.validate
-import java.io.OutputStream
 
 class ViewModelScopedPreviewProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor =
@@ -85,8 +84,7 @@ internal class ViewModelScopedPreviewProcessor(private val codeGenerator: CodeGe
                 items.joinToString("\n") { "import ${it.packageName.asString()}.${it.previewName()}" } + "\n\n" +
                 "val $name = listOf(\n\t" + items.joinToString(",\n\t") { it.previewName() } + "\n)"
         val dependencies = Dependencies(aggregating = true, *items.mapNotNull { it.containingFile }.toTypedArray())
-        val file: OutputStream = codeGenerator.createNewFile(dependencies, packageName, name, "kt")
-        file.write(content.toByteArray())
-        file.close()
+        codeGenerator.createNewFile(dependencies, packageName, name, "kt")
+        .use { it.write(content.toByteArray()) }
     }
 }

@@ -221,6 +221,8 @@
     <string name="url_system_message_learn_more_about_mls" translatable="false">https://support.wire.com/hc/articles/12434725011485</string>
     <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/articles/6655706999581</string>
     <string name="url_why_verify_conversation" translatable="false">https://support.wire.com/hc/articles/207859815</string>
+    <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
+    <string name="url_team_management" translatable="false">https://teams.wire.com/</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -1514,4 +1516,45 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
     <string name="debug_settings_break_session" translatable="false">⚠️ Break Session</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
+
+    <!--    Personal to team migration screen-->
+    <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>
+    <string name="personal_to_team_migration_back_to_wire_button">Back to Wire</string>
+    <string name="personal_to_team_migration_back_button_label">Back</string>
+    <string name="personal_to_team_migration_close_icon_content_description">Close team migration flow</string>
+
+    <string name="personal_to_team_migration_team_plan_step">Team Account</string>
+    <string name="personal_to_team_migration_team_plan_description">Transform your personal account into a team account to get more out of your collaboration.</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_label">Admin Console:</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_details">Invite team members and manage settings.</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_label">Effortless Collaboration:</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_details">Communicate with guests and external parties.</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_label">Larger Meetings:</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_details">Join video conferences up to 150 participants.</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_label">Availability status:</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_details">Let your team know if you’re available, busy or away.</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_label">Upgrade to Enterprise:</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_description">Get additional features and premium support.</string>
+    <string name="personal_to_team_migration_team_plan_learn_more_about_wire_plan">Learn more about Wire\’s plans</string>
+
+    <string name="personal_to_team_migration_team_name_step">Team Name</string>
+    <string name="personal_to_team_migration_team_name_description">Select a name for your team. You can change it at any time.</string>
+    <string name="personal_to_team_migration_team_name_text_field_placeholder">Your Team</string>
+
+    <string name="personal_to_team_migration_confirmation_step">Confirmation</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_first_item">You create a team and transfer your personal account into a team account</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_second_item">As the team owner you can invite and remove team members and  manage team settings</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_third_item">This change is permanent and irrevocable</string>
+    <string name="personal_to_team_migration_confirmation_step_terms">I agree to the migration terms and understand that this change is irreversible.</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_accept_label">I accept</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_label">Wire\’s Terms of Use.</string>
+    <string name="personal_to_team_migration_confirmation_step_password_field_label">Password of your personal account</string>
+    <string name="personal_to_team_migration_confirmation_step_password_field_placeholder">Enter password</string>
+
+    <string name="personal_to_team_migration_done_step">Congratulations %1$s!</string>
+    <string name="personal_to_team_migration_done_step_now_team_member_label">You\’re now the owner of the team %1$s.</string>
+    <string name="personal_to_team_migration_done_step_go_to_team_label">Go to Team Management to:</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_first_item">Invite your first team members, and start working together</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_second_item">Customize your team settings</string>
+
 </resources>

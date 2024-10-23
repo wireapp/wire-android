@@ -56,6 +56,12 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import io.github.esentsov.PackagePrivate
 
+/**
+ * Priority in which fields are used for SemanticContentDescription:
+ * [semanticDescription] -> [labelText] -> [placeholderText] -> [descriptionText].
+ * If you need to make empty SemanticContentDescription (which is definitely bad idea for TextView)
+ * set [semanticDescription] = ""
+ */
 @PackagePrivate
 @Composable
 internal fun WireTextFieldLayout(

@@ -68,7 +68,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun TeamMigrationTeamPlanStepScreen(
     navigator: DestinationsNavigator,
-    navController: NavController,
     teamMigrationViewModel: TeamMigrationViewModel
 ) {
     TeamMigrationTeamPlanStepScreenContent(

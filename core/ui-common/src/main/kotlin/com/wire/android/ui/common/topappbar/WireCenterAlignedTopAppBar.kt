@@ -34,6 +34,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -56,8 +58,9 @@ fun WireCenterAlignedTopAppBar(
     maxLines: Int = 2,
     subtitleContent: @Composable ColumnScope.() -> Unit = {},
     onNavigationPressed: () -> Unit = {},
-    navigationIconType: NavigationIconType? = NavigationIconType.Back,
+    navigationIconType: NavigationIconType? = NavigationIconType.Back(),
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
+    titleContentDescription: String? = null,
     actions: @Composable RowScope.() -> Unit = {},
     bottomContent: @Composable ColumnScope.() -> Unit = {}
 ) {
@@ -66,7 +69,8 @@ fun WireCenterAlignedTopAppBar(
             WireTopAppBarTitle(
                 title = title,
                 style = titleStyle,
-                maxLines = maxLines
+                maxLines = maxLines,
+                contentDescription = titleContentDescription
             )
         },
         subtitleContent = subtitleContent,
@@ -86,7 +90,7 @@ fun WireCenterAlignedTopAppBar(
     modifier: Modifier = Modifier,
     subtitleContent: @Composable ColumnScope.() -> Unit = {},
     onNavigationPressed: () -> Unit = {},
-    navigationIconType: NavigationIconType? = NavigationIconType.Back,
+    navigationIconType: NavigationIconType? = NavigationIconType.Back(),
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     actions: @Composable RowScope.() -> Unit = {},
     bottomContent: @Composable ColumnScope.() -> Unit = {}
@@ -118,7 +122,8 @@ fun WireTopAppBarTitle(
     title: String,
     style: TextStyle,
     modifier: Modifier = Modifier,
-    maxLines: Int = 2
+    maxLines: Int = 2,
+    contentDescription: String? = null
 ) {
     // There's an ongoing issue about multiline text taking all width available instead of wrapping visible text.
     // https://issuetracker.google.com/issues/206039942
@@ -127,6 +132,9 @@ fun WireTopAppBarTitle(
     // This workaround is based on this: https://stackoverflow.com/a/69947555, but instead of using SubcomposeLayout, we just measure text.
     BoxWithConstraints(
         modifier = modifier
+            .semantics {
+                contentDescription?.let { this.contentDescription = contentDescription }
+            }
             .padding(horizontal = dimensions().spacing6x)
     ) {
         val textMeasurer = rememberTextMeasurer()
@@ -148,8 +156,7 @@ fun WireTopAppBarTitle(
             }.toDp()
         }
         Text(
-            modifier = Modifier
-                .width(width),
+            modifier = Modifier.width(width),
             text = title,
             style = style,
             maxLines = maxLines,

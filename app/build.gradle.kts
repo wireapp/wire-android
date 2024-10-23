@@ -38,6 +38,7 @@ plugins {
     id(ScriptPlugins.testing)
     id(libs.plugins.wire.kover.get().pluginId)
     id(libs.plugins.wire.versionizer.get().pluginId)
+    alias(libs.plugins.screenshot)
 }
 
 repositories {
@@ -82,6 +83,13 @@ android {
         jniLibs.pickFirsts.add("**/libsodium.so")
     }
     android.buildFeatures.buildConfig = true
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
+
+    testOptions {
+        screenshotTests {
+            imageDifferenceThreshold = 0.0001f // 0.01%
+        }
+    }
 
     sourceSets {
         allFlavors.forEach { flavor ->
@@ -239,6 +247,9 @@ dependencies {
     implementation(libs.aboutLibraries.core)
     implementation(libs.aboutLibraries.ui)
     implementation(libs.compose.qr.code)
+
+    // screenshot testing
+    screenshotTestImplementation(libs.compose.ui.tooling)
 
     // Unit/Android tests dependencies
     testImplementation(libs.androidx.test.archCore)

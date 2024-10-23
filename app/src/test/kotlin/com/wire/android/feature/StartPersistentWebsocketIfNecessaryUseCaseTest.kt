@@ -17,8 +17,7 @@
  */
 package com.wire.android.feature
 
-import android.content.ComponentName
-import android.content.Context
+import com.wire.android.services.ServicesManager
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -41,7 +40,7 @@ class StartPersistentWebsocketIfNecessaryUseCaseTest {
             sut.invoke()
 
             // then
-            verify(exactly = 1) { arrangement.applicationContext.startService(any()) }
+            verify(exactly = 1) { arrangement.servicesManager.startPersistentWebSocketService() }
         }
 
     @Test
@@ -56,7 +55,7 @@ class StartPersistentWebsocketIfNecessaryUseCaseTest {
             sut.invoke()
 
             // then
-            verify(exactly = 0) { arrangement.applicationContext.startService(any()) }
+            verify(exactly = 0) { arrangement.servicesManager.startPersistentWebSocketService() }
         }
 
     inner class Arrangement {
@@ -65,16 +64,16 @@ class StartPersistentWebsocketIfNecessaryUseCaseTest {
         lateinit var shouldStartPersistentWebSocketServiceUseCase: ShouldStartPersistentWebSocketServiceUseCase
 
         @MockK
-        lateinit var applicationContext: Context
+        lateinit var servicesManager: ServicesManager
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { applicationContext.startService(any()) } returns ComponentName.createRelative("dummy", "class")
-            every { applicationContext.stopService(any()) } returns true
+            every { servicesManager.startPersistentWebSocketService() } returns Unit
+            every { servicesManager.stopPersistentWebSocketService() } returns Unit
         }
 
         fun arrange() = this to StartPersistentWebsocketIfNecessaryUseCase(
-            applicationContext,
+            servicesManager,
             shouldStartPersistentWebSocketServiceUseCase
         )
 

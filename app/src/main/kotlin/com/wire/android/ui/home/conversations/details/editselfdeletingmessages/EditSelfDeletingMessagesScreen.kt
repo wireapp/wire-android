@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -50,6 +51,7 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.theme.wireColorScheme
@@ -74,9 +76,12 @@ fun EditSelfDeletingMessagesScreen(
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 onNavigationPressed = navigator::navigateBack,
-                title = stringResource(id = R.string.self_deleting_messages_title)
+                title = stringResource(id = R.string.self_deleting_messages_title),
+                titleContentDescription = stringResource(id = R.string.content_description_edit_self_delete_title),
+                navigationIconType = NavigationIconType.Back(R.string.content_description_edit_self_delete_back_btn)
             )
-        }) { internalPadding ->
+        }
+    ) { internalPadding ->
         with(editSelfDeletingMessagesViewModel) {
             Column(modifier = Modifier.padding(internalPadding)) {
                 SelfDeletingMessageOption(
@@ -148,6 +153,7 @@ fun SelectableSelfDeletingItem(
         RadioButton(selected = isSelected, onClick = null)
         HorizontalSpace.x8()
         Text(
+            modifier = Modifier.align(Alignment.CenterVertically),
             text = duration.longLabel.asString(),
             style = MaterialTheme.wireTypography.body01,
             color = MaterialTheme.wireColorScheme.onBackground
@@ -159,4 +165,10 @@ fun SelectableSelfDeletingItem(
 @Composable
 fun PreviewEditSelfDeletingMessagesScreen() {
     EditSelfDeletingMessagesScreen(rememberNavigator {})
+}
+
+@Preview
+@Composable
+fun PreviewSelectableSelfDeletingItem() {
+    SelectableSelfDeletingItem(SelfDeletionDuration.FiveMinutes, true) { _ -> }
 }

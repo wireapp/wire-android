@@ -129,7 +129,7 @@ private fun MessageDetailsScreenContent(
             WireCenterAlignedTopAppBar(
                 elevation = elevationState,
                 title = stringResource(R.string.message_details_title),
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = NavigationIconType.Close(),
                 onNavigationPressed = onBackPressed
             ) {
                 WireTabRow(

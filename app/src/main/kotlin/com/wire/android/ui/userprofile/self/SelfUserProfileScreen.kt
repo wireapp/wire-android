@@ -79,6 +79,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
 import com.wire.android.ui.destinations.AvatarPickerScreenDestination
 import com.wire.android.ui.destinations.SelfQRCodeScreenDestination
+import com.wire.android.ui.destinations.TeamMigrationScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
@@ -137,7 +138,7 @@ fun SelfUserProfileScreen(
             navigator.navigate(NavigationCommand(SelfQRCodeScreenDestination(viewModelSelf.userProfileState.userName)))
         },
         onCreateAccount = {
-            // TODO: open screen to create a team
+            navigator.navigate(NavigationCommand(TeamMigrationScreenDestination))
         },
         isUserInCall = viewModelSelf::isUserInCall,
     )
@@ -346,7 +347,7 @@ private fun SelfUserProfileTopBar(
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onCloseClick,
         title = stringResource(id = R.string.user_profile_title),
-        navigationIconType = NavigationIconType.Close,
+        navigationIconType = NavigationIconType.Close(),
         elevation = 0.dp,
         actions = {
             WireSecondaryButton(

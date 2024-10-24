@@ -20,7 +20,7 @@ package com.wire.android.ui.common.topappbar
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
@@ -40,11 +40,17 @@ fun NavigationIconButton(iconType: NavigationIconType, onClick: () -> Unit, modi
 }
 
 @Composable
-fun BackNavigationIconButton(onBackButtonClick: () -> Unit) { NavigationIconButton(NavigationIconType.Back, onBackButtonClick) }
+fun BackNavigationIconButton(onBackButtonClick: () -> Unit) {
+    NavigationIconButton(NavigationIconType.Back(), onBackButtonClick)
+}
 
-enum class NavigationIconType(val icon: ImageVector, @StringRes val contentDescription: Int) {
-    Back(Icons.Filled.ArrowBack, R.string.content_description_back_button),
-    Close(Icons.Filled.Close, R.string.content_description_close_button),
-    Menu(Icons.Filled.Menu, R.string.content_description_menu_button),
-    Collapse(Icons.Filled.KeyboardArrowDown, R.string.content_description_drop_down_icon)
+sealed class NavigationIconType(val icon: ImageVector, @StringRes open val contentDescription: Int) {
+    data class Back(@StringRes override val contentDescription: Int = R.string.content_description_back_button) :
+        NavigationIconType(Icons.AutoMirrored.Filled.ArrowBack, contentDescription)
+
+    data class Close(@StringRes override val contentDescription: Int = R.string.content_description_close_button) :
+        NavigationIconType(Icons.Filled.Close, contentDescription)
+
+    data object Menu : NavigationIconType(Icons.Filled.Menu, R.string.content_description_menu_button)
+    data object Collapse : NavigationIconType(Icons.Filled.KeyboardArrowDown, R.string.content_description_drop_down_icon)
 }

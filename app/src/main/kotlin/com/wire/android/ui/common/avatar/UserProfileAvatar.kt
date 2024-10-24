@@ -71,6 +71,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -140,6 +141,7 @@ fun UserProfileAvatar(
     showPlaceholderIfNoAsset: Boolean = true,
     shouldShowCreateTeamUnreadIndicator: Boolean = false,
     withCrossfadeAnimation: Boolean = false,
+    contentDescription: String? = null,
     type: UserProfileAvatarType = UserProfileAvatarType.WithIndicators.RegularUser(
         legalHoldIndicatorVisible = false
     ),
@@ -150,6 +152,7 @@ fun UserProfileAvatar(
             .wrapContentSize()
             .clip(CircleShape)
             .clickable(clickable)
+            .clickableDescriptions(clickable)
     ) {
         var userStatusIndicatorParams by remember { mutableStateOf(Size.Zero to Offset.Zero) }
         var userUnreadIndicatorParams by remember { mutableStateOf(Size.Zero to Offset.Zero) }
@@ -176,6 +179,7 @@ fun UserProfileAvatar(
                 withCrossfadeAnimation = withCrossfadeAnimation,
                 type = type,
                 size = size,
+                contentDescription = contentDescription,
                 modifier = Modifier
                     .padding(padding)
                     .clip(CircleShape)
@@ -261,6 +265,7 @@ private fun UserAvatar(
     type: UserProfileAvatarType,
     size: Dp,
     modifier: Modifier = Modifier,
+    contentDescription: String? = stringResource(R.string.content_description_user_avatar)
 ) {
     if (avatarData.shouldPreferNameBasedAvatar()) {
         DefaultInitialsAvatar(
@@ -273,7 +278,7 @@ private fun UserAvatar(
         val painter = painter(avatarData, showPlaceholderIfNoAsset, withCrossfadeAnimation)
         Image(
             painter = painter,
-            contentDescription = stringResource(R.string.content_description_user_avatar),
+            contentDescription = contentDescription,
             contentScale = ContentScale.Crop,
             modifier = modifier,
         )

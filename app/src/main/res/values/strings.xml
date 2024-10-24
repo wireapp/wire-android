@@ -179,6 +179,24 @@
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
     <string name="content_description_jump_to_last_message">Scroll to end of conversation</string>
     <string name="content_description_location_icon">Location item</string>
+    <string name="content_description_conversation_details_header">Conversation details, heading</string>
+    <string name="content_description_conversation_details_more_btn">Open conversation options</string>
+    <string name="content_description_conversation_details_options_tab_header">Options</string>
+    <string name="content_description_conversation_details_participants_tab_header">Participants</string>
+    <string name="content_description_conversation_details_close_btn">Close conversation details</string>
+    <string name="content_description_conversation_details_guests_action">adjust guest access</string>
+    <string name="content_description_conversation_details_self_deleting_action">adjust self-deleting time</string>
+    <string name="content_description_edit_label">edit</string>
+    <string name="content_description_select_label">select</string>
+    <string name="content_description_selected_label">selected</string>
+    <string name="content_description_toggle_setting_label">toggle setting</string>
+    <string name="content_description_edit_guests_option_title">Guests, heading</string>
+    <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>
+    <string name="content_description_edit_self_delete_title">Self-deleting messages, heading</string>
+    <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>
+    <string name="content_description_open_user_profile_label">open profile</string>
+    <string name="content_description_open_notification_settings_label">open notification settings</string>
+    <string name="content_description_empty"> </string>
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
     <string name="url_android_release_notes_feed" translatable="false">https://medium.com/feed/wire-news/tagged/android</string>
@@ -204,6 +222,8 @@
     <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/articles/6655706999581</string>
     <string name="url_why_verify_conversation" translatable="false">https://support.wire.com/hc/articles/207859815</string>
     <string name="url_how_to_add_favorites" translatable="false">https://support.wire.com/hc/articles/360002855557</string>
+    <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
+    <string name="url_team_management" translatable="false">https://teams.wire.com/</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -1152,7 +1172,12 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
     <string name="backup_label_enter_password">Enter password</string>
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
+
+    <!--    report bug-->
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
+    <string name="send_bug_report_subject">Bug Report</string>
+    <string name="send_bug_report_email" translatable="false" >wire-newandroid@wearezeta.zendesk.com</string>
+
     <string name="backup_dialog_create_backup_save">Save File</string>
     <string name="backup_dialog_create_backup_share">Share File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Incompatible backup</string>
@@ -1503,4 +1528,50 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
     <string name="debug_settings_break_session" translatable="false">⚠️ Break Session</string>
     <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Update</string>
+
+    <!--    Personal to team migration screen-->
+    <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>
+    <string name="personal_to_team_migration_back_to_wire_button">Back to Wire</string>
+    <string name="personal_to_team_migration_back_button_label">Back</string>
+    <string name="personal_to_team_migration_close_icon_content_description">Close team migration flow</string>
+
+    <string name="personal_to_team_migration_team_plan_step">Team Account</string>
+    <string name="personal_to_team_migration_team_plan_description">Transform your personal account into a team account to get more out of your collaboration.</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_label">Admin Console:</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_details">Invite team members and manage settings.</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_label">Effortless Collaboration:</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_details">Communicate with guests and external parties.</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_label">Larger Meetings:</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_details">Join video conferences up to 150 participants.</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_label">Availability status:</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_details">Let your team know if you’re available, busy or away.</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_label">Upgrade to Enterprise:</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_description">Get additional features and premium support.</string>
+    <string name="personal_to_team_migration_team_plan_learn_more_about_wire_plan">Learn more about Wire\’s plans</string>
+
+    <string name="personal_to_team_migration_team_name_step">Team Name</string>
+    <string name="personal_to_team_migration_team_name_description">Select a name for your team. You can change it at any time.</string>
+    <string name="personal_to_team_migration_team_name_text_field_placeholder">Your Team</string>
+
+    <string name="personal_to_team_migration_confirmation_step">Confirmation</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_first_item">You create a team and transfer your personal account into a team account</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_second_item">As the team owner you can invite and remove team members and  manage team settings</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_third_item">This change is permanent and irrevocable</string>
+    <string name="personal_to_team_migration_confirmation_step_terms">I agree to the migration terms and understand that this change is irreversible.</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_accept_label">I accept</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_label">Wire\’s Terms of Use.</string>
+    <string name="personal_to_team_migration_confirmation_step_password_field_label">Password of your personal account</string>
+    <string name="personal_to_team_migration_confirmation_step_password_field_placeholder">Enter password</string>
+
+    <string name="personal_to_team_migration_done_step">Congratulations %1$s!</string>
+    <string name="personal_to_team_migration_done_step_now_team_member_label">You\’re now the owner of the team %1$s.</string>
+    <string name="personal_to_team_migration_done_step_go_to_team_label">Go to Team Management to:</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_first_item">Invite your first team members, and start working together</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_second_item">Customize your team settings</string>
+
+    <string name="personal_to_team_migration_confirm_leave_dialog_title">Leave without saving?</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_description">When you leave now, you lose your progress and need to restart the team creation.</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_continue_button">Continue Team Creation</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_leave_button">Leave Without Saving</string>
+
 </resources>

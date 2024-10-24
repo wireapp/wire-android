@@ -38,6 +38,7 @@ import com.wire.android.migration.MigrationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerInvalidJsonDialogState
+import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModelTest
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.theme.ThemeOption
@@ -74,6 +75,8 @@ import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotC
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -138,6 +141,44 @@ class WireActivityViewModelTest {
     }
 
     @Test
+    fun `given intent with correct ServerConfig json, when no network is present, then initialAppState is LOGGED_IN and No network dialog is shown`() =
+        runTest {
+            val result = DeepLinkResult.CustomServerConfig("url")
+            val (arrangement, viewModel) = Arrangement()
+                .withSomeCurrentSession()
+                .withDeepLinkResult(result)
+                .withMalformedServerJson()
+                .withNoOngoingCall()
+                .withNetworkState(MutableStateFlow<NetworkState>(NetworkState.NotConnected))
+                .arrange()
+
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+
+            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+            assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+        }
+
+    @Test
+    fun `given Intent with correct ServerConfig json, when currentSessions is absent, then initialAppState is NOT_LOGGED_IN and No network dialog is shown`() =
+        runTest {
+            val result = DeepLinkResult.CustomServerConfig("url")
+            val (arrangement, viewModel) = Arrangement()
+                .withNoCurrentSession()
+                .withDeepLinkResult(result)
+                .withMalformedServerJson()
+                .withNoOngoingCall()
+                .withNetworkState(MutableStateFlow<NetworkState>(NetworkState.NotConnected))
+                .arrange()
+
+            viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
+
+            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+            verify(exactly = 0) { arrangement.onDeepLinkResult(any()) }
+            assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
+        }
+
+    @Test
     fun `given Intent with malformed ServerConfig json, when currentSessions is present, then initialAppState is LOGGED_IN and customBackEndInvalidJson dialog is shown`() =
         runTest {
             val result = DeepLinkResult.CustomServerConfig("url")
@@ -146,6 +187,7 @@ class WireActivityViewModelTest {
                 .withDeepLinkResult(result)
                 .withMalformedServerJson()
                 .withNoOngoingCall()
+                .withNetworkState(MutableStateFlow<NetworkState>(NetworkState.ConnectedWithInternet))
                 .arrange()
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
@@ -156,7 +198,7 @@ class WireActivityViewModelTest {
         }
 
     @Test
-    fun `given Intent with malformed ServerConfig json, when currentSessions is present, then initialAppState is NOT_LOGGED_IN and customBackEndInvalidJson dialog is shown`() =
+    fun `given Intent with malformed ServerConfig json, when currentSessions is absent, then initialAppState is NOT_LOGGED_IN and customBackEndInvalidJson dialog is shown`() =
         runTest {
             val result = DeepLinkResult.CustomServerConfig("url")
             val (arrangement, viewModel) = Arrangement()
@@ -164,6 +206,7 @@ class WireActivityViewModelTest {
                 .withDeepLinkResult(result)
                 .withMalformedServerJson()
                 .withNoOngoingCall()
+                .withNetworkState(MutableStateFlow<NetworkState>(NetworkState.ConnectedWithInternet))
                 .arrange()
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
@@ -181,6 +224,7 @@ class WireActivityViewModelTest {
                 .withSomeCurrentSession()
                 .withDeepLinkResult(result)
                 .withNoOngoingCall()
+                .withNetworkState(MutableStateFlow<NetworkState>(NetworkState.ConnectedWithInternet))
                 .arrange()
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
@@ -201,6 +245,7 @@ class WireActivityViewModelTest {
                 .withNoCurrentSession()
                 .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
                 .withNoOngoingCall()
+                .withNetworkState(MutableStateFlow<NetworkState>(NetworkState.ConnectedWithInternet))
                 .arrange()
 
             viewModel.handleDeepLink(mockedIntent(), {}, {}, arrangement.onDeepLinkResult, {}, {}, {}, {})
@@ -749,6 +794,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
+        @MockK
+        lateinit var networkStateObserver: NetworkStateObserver
+
         @MockK(relaxed = true)
         lateinit var onDeepLinkResult: (DeepLinkResult) -> Unit
 
@@ -779,7 +827,8 @@ class WireActivityViewModelTest {
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
                 globalDataStore = { globalDataStore },
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
-                workManager = { workManager }
+                workManager = { workManager },
+                networkStateObserver = { networkStateObserver }
             )
         }
 
@@ -871,6 +920,10 @@ class WireActivityViewModelTest {
         fun withMalformedServerJson() = apply {
             coEvery { getServerConfigUseCase(any()) } returns
                     GetServerConfigResult.Failure.Generic(NetworkFailure.NoNetworkConnection(null))
+        }
+
+        fun withNetworkState(networkStateFlow: StateFlow<NetworkState>) = apply {
+            coEvery { networkStateObserver.observeNetworkState() } returns networkStateFlow
         }
 
         suspend fun withScreenshotCensoringConfig(result: ObserveScreenshotCensoringConfigResult) = apply {

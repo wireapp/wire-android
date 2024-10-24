@@ -59,6 +59,8 @@ import com.wire.android.ui.common.dialogs.CustomServerDetailsDialog
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerInvalidJsonDialog
 import com.wire.android.ui.common.dialogs.CustomServerInvalidJsonDialogState
+import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialog
+import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountAllowedDialogContent
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
@@ -244,7 +246,8 @@ fun JoinConversationDialog(
 fun CustomBackendDialog(
     globalAppState: GlobalAppState,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
+    onTryAgain: (String) -> Unit
 ) {
     when (globalAppState.customBackendDialog) {
         is CustomServerDetailsDialogState -> {
@@ -257,6 +260,13 @@ fun CustomBackendDialog(
 
         is CustomServerInvalidJsonDialogState -> {
             CustomServerInvalidJsonDialog(
+                onDismiss = onDismiss
+            )
+        }
+
+        is CustomServerNoNetworkDialogState -> {
+            CustomServerNoNetworkDialog(
+                onTryAgain = { onTryAgain(globalAppState.customBackendDialog.customServerUrl) },
                 onDismiss = onDismiss
             )
         }
@@ -580,6 +590,7 @@ fun PreviewCustomBackendDialog() {
                     ServerConfig.STAGING
                 )
             ),
+            {},
             {},
             {}
         )

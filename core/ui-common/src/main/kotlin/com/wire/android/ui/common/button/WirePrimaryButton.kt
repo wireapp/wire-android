@@ -70,7 +70,8 @@ fun WirePrimaryButton(
         horizontal = MaterialTheme.wireDimensions.buttonHorizontalContentPadding,
         vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
     ),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    onClickDescription: String? = null
 ) = WireButton(
     onClick = onClick,
     loading = loading,
@@ -91,7 +92,8 @@ fun WirePrimaryButton(
     borderWidth = borderWidth,
     contentPadding = contentPadding,
     interactionSource = interactionSource,
-    modifier = modifier
+    modifier = modifier,
+    onClickDescription = onClickDescription
 )
 
 @Preview(name = "Default WirePrimaryButton")

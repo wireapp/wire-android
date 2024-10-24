@@ -43,10 +43,11 @@ fun ConversationMediaButton(
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_gallery),
-                contentDescription = stringResource(R.string.label_conversation_media),
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(end = dimensions().spacing8x)
             )
-        }
+        },
+        onClickDescription = stringResource(id = R.string.content_description_see_media_in_conversation_btn)
     )
 }

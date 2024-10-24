@@ -114,11 +114,14 @@ fun SearchUsersAndServicesScreen(
                         elevation = dimensions().spacing0x, // CollapsingTopBarScaffold already manages elevation
                         title = searchTitle,
                         navigationIconType = when (screenType) {
-                            SearchPeopleScreenType.CONVERSATION_DETAILS -> NavigationIconType.Close()
+                            SearchPeopleScreenType.CONVERSATION_DETAILS ->
+                                NavigationIconType.Close(R.string.content_description_add_participants_close)
+
                             SearchPeopleScreenType.NEW_CONVERSATION -> NavigationIconType.Close()
                             SearchPeopleScreenType.NEW_GROUP_CONVERSATION -> NavigationIconType.Back()
                         },
-                        onNavigationPressed = onClose
+                        onNavigationPressed = onClose,
+                        titleContentDescription = stringResource(id = R.string.content_description_add_participants_heading)
                     )
                 }
             }
@@ -127,6 +130,7 @@ fun SearchUsersAndServicesScreen(
             SearchTopBar(
                 isSearchActive = searchBarState.isSearchActive,
                 searchBarHint = stringResource(R.string.label_search_people),
+                searchBarDescription = stringResource(R.string.content_description_add_participants_search_field),
                 searchQueryTextState = searchBarState.searchQueryTextState,
                 onActiveChanged = searchBarState::searchActiveChanged,
             )
@@ -220,6 +224,7 @@ fun SearchUsersAndServicesScreen(
 enum class SearchPeopleTabItem(@StringRes val titleResId: Int) : TabItem {
     PEOPLE(R.string.label_add_member_people),
     SERVICES(R.string.label_add_member_services);
+
     override val title: UIText = UIText.StringResource(titleResId)
 }
 

@@ -522,7 +522,10 @@
     <string name="user_profile_qr_code_title">Поделиться профилем</string>
     <string name="user_profile_qr_code_share_link">Поделиться ссылкой на профиль</string>
     <string name="user_profile_qr_code_share_image_link">Поделиться QR-кодом</string>
+    <string name="user_profile_create_team_card">Наслаждайтесь преимуществами команды</string>
     <string name="user_profile_qr_code_description">Поделитесь своим профилем, чтобы было проще связаться с другими людьми. Вы должны принять запрос на подключение, прежде чем начнете общаться.</string>
+    <string name="user_profile_create_team_card_button">Создать команду</string>
+    <string name="user_profile_create_team_description_card">Познакомьтесь с дополнительными возможностями бесплатно, сохранив тот же уровень безопасности.</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Удалить из группы?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) не сможет отправлять или получать сообщения в этой беседе.</string>

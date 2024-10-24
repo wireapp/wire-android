@@ -29,13 +29,13 @@ import com.wire.android.ui.common.button.WireSecondaryIconButton
 fun CopyButton(
     onCopyClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    @StringRes contentDescription: Int? = null,
+    @StringRes contentDescription: Int = R.string.content_description_copy,
     state: WireButtonState = WireButtonState.Default
 ) {
     WireSecondaryIconButton(
         onButtonClicked = onCopyClicked,
         iconResource = R.drawable.ic_copy,
-        contentDescription = contentDescription ?: R.string.content_description_copy,
+        contentDescription = contentDescription,
         state = state,
         modifier = modifier
     )

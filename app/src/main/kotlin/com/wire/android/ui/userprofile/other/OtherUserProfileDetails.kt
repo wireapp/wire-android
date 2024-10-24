@@ -108,7 +108,7 @@ private fun UserDetailInformation(
             onCopy?.let {
                 CopyButton(
                     onCopyClicked = { onCopy(value) },
-                    contentDescription = copyBtnContentDescription
+                    contentDescription = copyBtnContentDescription ?: R.string.content_description_copy
                 )
             }
         },

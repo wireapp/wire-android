@@ -51,42 +51,61 @@ import kotlinx.coroutines.flow.flowOf
 class SelfUserProfileViewModelArrangement {
     @MockK
     lateinit var userDataStore: UserDataStore
+
     @MockK
     lateinit var getSelf: GetSelfUserUseCase
+
     @MockK
     lateinit var getSelfTeam: GetUpdatedSelfTeamUseCase
+
     @MockK
     lateinit var observeValidAccounts: ObserveValidAccountsUseCase
+
     @MockK
     lateinit var updateStatus: UpdateSelfAvailabilityStatusUseCase
+
     @MockK
     lateinit var logout: LogoutUseCase
+
     @MockK
     lateinit var observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase
+
     @MockK
     lateinit var dispatchers: DispatcherProvider
+
     @MockK
     lateinit var wireSessionImageLoader: WireSessionImageLoader
+
     @MockK
     lateinit var authServerConfigProvider: AuthServerConfigProvider
+
     @MockK
     lateinit var selfServerLinks: SelfServerConfigUseCase
+
     @MockK
     lateinit var otherAccountMapper: OtherAccountMapper
+
     @MockK
     lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+
     @MockK
     lateinit var accountSwitch: AccountSwitchUseCase
+
     @MockK
     lateinit var endCall: EndCallUseCase
+
     @MockK
     lateinit var isReadOnlyAccount: IsReadOnlyAccountUseCase
+
     @MockK
     lateinit var notificationManager: WireNotificationManager
+
     @MockK
     lateinit var globalDataStore: GlobalDataStore
+
     @MockK
     lateinit var qualifiedIdMapper: QualifiedIdMapper
+
     @MockK
     lateinit var analyticsManager: AnonymousAnalyticsManager
 
@@ -126,8 +145,10 @@ class SelfUserProfileViewModelArrangement {
         coEvery { isReadOnlyAccount.invoke() } returns false
         coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
     }
+
     fun withLegalHoldStatus(result: LegalHoldStateForSelfUser) = apply {
         coEvery { observeLegalHoldStatusForSelfUser.invoke() } returns flowOf(result)
     }
+
     fun arrange() = this to viewModel
 }

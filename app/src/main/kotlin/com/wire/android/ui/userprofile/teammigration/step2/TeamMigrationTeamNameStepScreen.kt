@@ -43,7 +43,7 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.destinations.TeamMigrationConfirmationStepScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.teammigration.BottomLineButtons
+import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -64,7 +64,7 @@ fun TeamMigrationTeamNameStepScreen(
         onBackButtonClicked = {
             navigator.popBackStack()
         },
-        teamNameTextFieldState = teamMigrationViewModel.teamNameTextState
+        teamNameTextFieldState = teamMigrationViewModel.teamMigrationState.teamNameTextState
     )
 }
 

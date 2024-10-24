@@ -1557,4 +1557,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_done_step_bullet_list_first_item">Invite your first team members, and start working together</string>
     <string name="personal_to_team_migration_done_step_bullet_list_second_item">Customize your team settings</string>
 
+    <string name="personal_to_team_migration_confirm_leave_dialog_title">Leave without saving?</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_description">When you leave now, you lose your progress and need to restart the team creation.</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_continue_button">Continue Team Creation</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_leave_button">Leave Without Saving</string>
+
 </resources>

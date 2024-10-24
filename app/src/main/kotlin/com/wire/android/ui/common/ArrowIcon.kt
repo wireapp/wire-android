@@ -32,11 +32,12 @@ import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun ArrowRightIcon(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    @StringRes contentDescription: Int = R.string.content_description_right_arrow,
 ) {
     ArrowIcon(
         arrowIcon = R.drawable.ic_arrow_right,
-        contentDescription = R.string.content_description_right_arrow,
+        contentDescription = contentDescription,
         modifier = modifier
     )
 }

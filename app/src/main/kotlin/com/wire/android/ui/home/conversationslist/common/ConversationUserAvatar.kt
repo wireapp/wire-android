@@ -20,7 +20,7 @@ package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.runtime.Composable
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatar
 
 @Composable
 fun ConversationUserAvatar(avatarData: UserAvatarData) {

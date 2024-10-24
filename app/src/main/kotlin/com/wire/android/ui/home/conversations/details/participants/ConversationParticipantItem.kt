@@ -39,8 +39,8 @@ import com.wire.android.ui.common.ProteusVerifiedIcon
 import com.wire.android.ui.common.ProtocolLabel
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
-import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.UserProfileAvatarType.WithIndicators
+import com.wire.android.ui.common.avatar.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserProfileAvatarType.WithIndicators
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.search.HighlightName
@@ -76,6 +76,7 @@ fun ConversationParticipantItem(
                 modifier = Modifier.padding(
                     start = dimensions().spacing8x
                 ),
+                contentDescription = null,
                 type = uiParticipant.expiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithIndicators.RegularUser()
             )
         },
@@ -136,7 +137,10 @@ fun ConversationParticipantItem(
                         .wrapContentWidth()
                         .padding(end = MaterialTheme.wireDimensions.spacing8x)
                 ) {
-                    ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+                    ArrowRightIcon(
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        contentDescription = R.string.content_description_empty
+                    )
                 }
             }
         },

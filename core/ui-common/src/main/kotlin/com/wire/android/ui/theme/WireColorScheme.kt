@@ -61,6 +61,8 @@ data class WireColorScheme(
     val switchEnabledChecked: Color, val switchDisabledChecked: Color,
     val switchEnabledUnchecked: Color, val switchDisabledUnchecked: Color,
     val divider: Color,
+    val dividerPersonalToTeamMigration: Color,
+    val windowPersonalToTeamMigration: Color,
     val secondaryText: Color,
     val outline: Color,
     val outlineVariant: Color,
@@ -106,6 +108,8 @@ data class WireColorScheme(
     val onScrollToBottomButtonColor: Color,
     val validE2eiStatusColor: Color,
     val mlsVerificationTextColor: Color,
+    val createTeamInfoCardBackgroundColor: Color,
+    val createTeamInfoCardBorderColor: Color,
     val wireAccentColors: WireAccentColors,
     val checkboxTextDisabled: Color,
     val sketchColorPalette: List<Color>
@@ -173,6 +177,8 @@ private val LightWireColorScheme = WireColorScheme(
     switchEnabledChecked = WireColorPalette.LightGreen500, switchDisabledChecked = WireColorPalette.LightGreen200,
     switchEnabledUnchecked = WireColorPalette.Gray70, switchDisabledUnchecked = WireColorPalette.Gray50,
     divider = WireColorPalette.Gray20,
+    dividerPersonalToTeamMigration = WireColorPalette.Gray40,
+    windowPersonalToTeamMigration = WireColorPalette.Gray100,
     secondaryText = WireColorPalette.Gray70,
     outline = WireColorPalette.Gray40,
     outlineVariant = WireColorPalette.Gray20,
@@ -247,6 +253,8 @@ private val LightWireColorScheme = WireColorScheme(
     onScrollToBottomButtonColor = Color.White,
     validE2eiStatusColor = WireColorPalette.LightGreen550,
     mlsVerificationTextColor = WireColorPalette.DarkGreen700,
+    createTeamInfoCardBackgroundColor = WireColorPalette.LightBlue50,
+    createTeamInfoCardBorderColor = WireColorPalette.LightBlue500,
     wireAccentColors = WireAccentColors {
         when (it) {
             Accent.Amber -> WireColorPalette.LightAmber500
@@ -317,6 +325,8 @@ private val DarkWireColorScheme = WireColorScheme(
     switchEnabledChecked = WireColorPalette.DarkGreen500, switchDisabledChecked = WireColorPalette.DarkGreen200,
     switchEnabledUnchecked = WireColorPalette.Gray40, switchDisabledUnchecked = WireColorPalette.Gray60,
     divider = WireColorPalette.Gray100,
+    dividerPersonalToTeamMigration = WireColorPalette.Gray90,
+    windowPersonalToTeamMigration = WireColorPalette.Gray100,
     secondaryText = WireColorPalette.Gray60,
     outline = WireColorPalette.Gray90,
     outlineVariant = WireColorPalette.Gray100,
@@ -391,6 +401,8 @@ private val DarkWireColorScheme = WireColorScheme(
     onScrollToBottomButtonColor = Color.Black,
     validE2eiStatusColor = WireColorPalette.DarkGreen500,
     mlsVerificationTextColor = WireColorPalette.DarkGreen700,
+    createTeamInfoCardBackgroundColor = WireColorPalette.DarkBlue800,
+    createTeamInfoCardBorderColor = WireColorPalette.LightBlue500,
     wireAccentColors = WireAccentColors {
         when (it) {
             Accent.Amber -> WireColorPalette.DarkAmber500

@@ -41,7 +41,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -63,8 +62,8 @@ import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.UserStatusIndicator
+import com.wire.android.ui.common.avatar.UserProfileAvatar
+import com.wire.android.ui.common.avatar.UserStatusIndicator
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.button.WireButtonState
@@ -80,6 +79,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.destinations.AppSettingsScreenDestination
 import com.wire.android.ui.destinations.AvatarPickerScreenDestination
 import com.wire.android.ui.destinations.SelfQRCodeScreenDestination
+import com.wire.android.ui.destinations.TeamMigrationScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
@@ -137,6 +137,9 @@ fun SelfUserProfileScreen(
         onQrCodeClick = {
             navigator.navigate(NavigationCommand(SelfQRCodeScreenDestination(viewModelSelf.userProfileState.userName)))
         },
+        onCreateAccount = {
+            navigator.navigate(NavigationCommand(TeamMigrationScreenDestination))
+        },
         isUserInCall = viewModelSelf::isUserInCall,
     )
 
@@ -187,6 +190,7 @@ private fun SelfUserProfileContent(
     onLegalHoldLearnMoreClick: () -> Unit = {},
     onOtherAccountClick: (UserId) -> Unit = {},
     onQrCodeClick: () -> Unit = {},
+    onCreateAccount: () -> Unit = {},
     isUserInCall: () -> Boolean
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
@@ -227,6 +231,20 @@ private fun SelfUserProfileContent(
                         .fillMaxHeight()
                         .scrollable(state = scrollState, orientation = Orientation.Vertical)
                 ) {
+                    if (state.teamName == null) {
+                        stickyHeader {
+                            Column(
+                                modifier = Modifier
+                                    .padding(
+                                        top = dimensions().spacing16x,
+                                        start = dimensions().spacing16x,
+                                        end = dimensions().spacing16x
+                                    )
+                            ) {
+                                CreateTeamInfoCard(onCreateAccount)
+                            }
+                        }
+                    }
                     stickyHeader {
                         UserProfileInfo(
                             userId = state.userId,
@@ -329,7 +347,7 @@ private fun SelfUserProfileTopBar(
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onCloseClick,
         title = stringResource(id = R.string.user_profile_title),
-        navigationIconType = NavigationIconType.Close,
+        navigationIconType = NavigationIconType.Close(),
         elevation = 0.dp,
         actions = {
             WireSecondaryButton(
@@ -456,7 +474,6 @@ private fun OtherAccountItem(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoggingOutDialog(isLoggingOut: Boolean) {
     if (isLoggingOut) {
@@ -478,6 +495,29 @@ fun PreviewSelfUserProfileScreen() {
                 fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
                 userName = "userName_long_long_long_long_long_long_long_long_long_long",
                 teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
+                otherAccounts = listOf(
+                    OtherAccount(id = UserId("id1", "domain"), fullName = "Other Name", teamName = "team A"),
+                    OtherAccount(id = UserId("id2", "domain"), fullName = "New Name")
+                ),
+                statusDialogData = null,
+                legalHoldStatus = LegalHoldUIState.Active,
+            ),
+            isUserInCall = { false }
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PersonalSelfUserProfileScreenPreview() {
+    WireTheme {
+        SelfUserProfileContent(
+            SelfUserProfileState(
+                userId = UserId("value", "domain"),
+                status = UserAvailabilityStatus.BUSY,
+                fullName = "Some User",
+                userName = "some-user",
+                teamName = null,
                 otherAccounts = listOf(
                     OtherAccount(id = UserId("id1", "domain"), fullName = "Other Name", teamName = "team A"),
                     OtherAccount(id = UserId("id2", "domain"), fullName = "New Name")

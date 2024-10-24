@@ -337,13 +337,19 @@ private fun GroupConversationDetailsContent(
                     WireTopAppBarTitle(
                         title = stringResource(R.string.conversation_details_title),
                         style = MaterialTheme.wireTypography.title01,
-                        maxLines = 2
+                        maxLines = 2,
+                        contentDescription = stringResource(id = R.string.content_description_conversation_details_header)
                     )
                     VerificationInfo(conversationSheetContent)
                 },
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = NavigationIconType.Close(R.string.content_description_conversation_details_close_btn),
                 onNavigationPressed = onBackPressed,
-                actions = { MoreOptionIcon(onButtonClicked = sheetState::show) }
+                actions = {
+                    MoreOptionIcon(
+                        contentDescription = R.string.content_description_conversation_details_more_btn,
+                        onButtonClicked = sheetState::show
+                    )
+                }
             )
         },
         topBarCollapsing = {

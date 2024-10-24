@@ -33,7 +33,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MIGRATIO
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_BACK_TO_WIRE_CLICKED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_CONTINUE_CLICKED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_LEAVE_CLICKED
-import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_OPEN_TM_CLICKED
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_OPEN_TEAM_MANAGEMENT_CLICKED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MODAL_TEAM_NAME
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_CANCELLED
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.PERSONAL_TEAM_CREATION_FLOW_COMPLETED
@@ -266,7 +266,7 @@ interface AnalyticsEvent {
                 return mapOf(
                     MODAL_TEAM_NAME to teamName,
                     MODAL_BACK_TO_WIRE_CLICKED to backToWireButtonClicked,
-                    MODAL_OPEN_TM_CLICKED to modalOpenTeamManagementButtonClicked
+                    MODAL_OPEN_TEAM_MANAGEMENT_CLICKED to modalOpenTeamManagementButtonClicked
                 )
             }
         }
@@ -339,5 +339,5 @@ object AnalyticsEventConstants {
     const val MODAL_CONTINUE_CLICKED = "modal_continue-clicked"
     const val MODAL_LEAVE_CLICKED = "modal_leave-clicked"
     const val MODAL_BACK_TO_WIRE_CLICKED = "modal_back-to-wire-clicked"
-    const val MODAL_OPEN_TM_CLICKED = "modal_open-tm-clicked"
+    const val MODAL_OPEN_TEAM_MANAGEMENT_CLICKED = "modal_open-tm-clicked"
 }

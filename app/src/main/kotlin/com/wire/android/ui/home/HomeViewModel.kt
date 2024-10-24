@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -57,6 +58,7 @@ class HomeViewModel @Inject constructor(
     private val analyticsManager: AnonymousAnalyticsManager
 ) : SavedStateViewModel(savedStateHandle) {
 
+    @VisibleForTesting
     var homeState by mutableStateOf(HomeState())
         private set
 

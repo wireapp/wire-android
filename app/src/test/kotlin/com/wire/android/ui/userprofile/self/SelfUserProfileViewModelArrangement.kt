@@ -23,6 +23,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.TestTeam
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.OtherAccountMapper
@@ -86,6 +87,8 @@ class SelfUserProfileViewModelArrangement {
     lateinit var globalDataStore: GlobalDataStore
     @MockK
     lateinit var qualifiedIdMapper: QualifiedIdMapper
+    @MockK
+    lateinit var analyticsManager: AnonymousAnalyticsManager
 
     private val viewModel by lazy {
         SelfUserProfileViewModel(
@@ -108,7 +111,8 @@ class SelfUserProfileViewModelArrangement {
             isReadOnlyAccount = isReadOnlyAccount,
             notificationManager = notificationManager,
             globalDataStore = globalDataStore,
-            qualifiedIdMapper = qualifiedIdMapper
+            qualifiedIdMapper = qualifiedIdMapper,
+            analyticsManager = analyticsManager
         )
     }
 

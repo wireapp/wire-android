@@ -350,6 +350,6 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     sealed class ErrorCodes {
-        object DownloadUserInfoError : ErrorCodes()
+        data object DownloadUserInfoError : ErrorCodes()
     }
 }

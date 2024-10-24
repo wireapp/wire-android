@@ -40,14 +40,14 @@ fun HighlightSubtitle(
         return
     }
 
-    val queryWithoutSuffix = searchQuery.removeQueryPrefix()
+    val subtitleWithPrefix = "$prefix$subTitle"
 
     val highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
-        matchText = queryWithoutSuffix,
-        text = subTitle
+        matchText = searchQuery,
+        text = subtitleWithPrefix
     )
 
-    if (queryWithoutSuffix != String.EMPTY && highlightIndexes.isNotEmpty()) {
+    if (searchQuery != String.EMPTY && highlightIndexes.isNotEmpty()) {
         Text(
             buildAnnotatedString {
                 withStyle(
@@ -59,7 +59,7 @@ fun HighlightSubtitle(
                         fontStyle = MaterialTheme.wireTypography.subline01.fontStyle
                     )
                 ) {
-                    append("$prefix$subTitle")
+                    append(subtitleWithPrefix)
                 }
 
                 highlightIndexes
@@ -70,8 +70,8 @@ fun HighlightSubtitle(
                                     background = MaterialTheme.wireColorScheme.highlight,
                                     color = MaterialTheme.wireColorScheme.onHighlight,
                                 ),
-                                start = highLightIndex.startIndex + prefix.length,
-                                end = highLightIndex.endIndex + prefix.length
+                                start = highLightIndex.startIndex,
+                                end = highLightIndex.endIndex
                             )
                         }
                     }
@@ -81,7 +81,7 @@ fun HighlightSubtitle(
         )
     } else {
         Text(
-            text = "$prefix$subTitle",
+            text = subtitleWithPrefix,
             style = MaterialTheme.wireTypography.subline01,
             color = MaterialTheme.wireColorScheme.secondaryText,
             maxLines = 1,

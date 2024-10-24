@@ -54,13 +54,15 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.userprofile.teammigration.common.ConfirmMigrationLeaveDialog
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
 @WireDestination(style = PopUpNavigationAnimation::class)
 @Composable
 fun TeamMigrationScreen(
     navigator: Navigator,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    teamMigrationViewModel: TeamMigrationViewModel = hiltViewModel()
 ) {
     val navHostEngine = rememberAnimatedNavHostEngine(
         rootDefaultAnimations = RootNavGraphDefaultAnimations.ACCOMPANIST_FADING
@@ -93,8 +95,12 @@ fun TeamMigrationScreen(
         IconButton(
             modifier = Modifier.align(alignment = Alignment.End),
             onClick = {
-                // TODO(next PR): show dialog to confirm exit before navigating back
-                navigator.navigateBack()
+                // If the user completed team migration, we don't need to show the dialog
+                if (navController.currentDestination?.route == NavGraphs.personalToTeamMigration.destinations.last().route) {
+                    navigator.navigateBack()
+                } else {
+                    teamMigrationViewModel.showMigrationLeaveDialog()
+                }
             }
         ) {
             Icon(
@@ -117,6 +123,17 @@ fun TeamMigrationScreen(
                 }
             }
         )
+    }
+
+    if (teamMigrationViewModel.teamMigrationState.shouldShowMigrationLeaveDialog) {
+        ConfirmMigrationLeaveDialog(
+            onContinue = {
+                teamMigrationViewModel.hideMigrationLeaveDialog()
+            }
+        ) {
+            teamMigrationViewModel.hideMigrationLeaveDialog()
+            navigator.navigateBack()
+        }
     }
 }
 

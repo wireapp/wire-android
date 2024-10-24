@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversationslist.common.previewConversationFold
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import kotlinx.coroutines.flow.flowOf
 
 @HomeNavGraph(start = true)
@@ -43,7 +44,52 @@ fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.MAIN,
             lazyListState = currentLazyListState,
-            emptyListContent = { AllConversationsEmptyContent() }
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.NONE) }
+        )
+    }
+}
+
+@HomeNavGraph()
+@WireDestination
+@Composable
+fun FavoritesConversationsScreen(homeStateHolder: HomeStateHolder) {
+    with(homeStateHolder) {
+        ConversationsScreenContent(
+            navigator = navigator,
+            searchBarState = searchBarState,
+            conversationsSource = ConversationsSource.FAVORITES,
+            lazyListState = currentLazyListState,
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.FAVORITES) }
+        )
+    }
+}
+
+@HomeNavGraph()
+@WireDestination
+@Composable
+fun GroupConversationsScreen(homeStateHolder: HomeStateHolder) {
+    with(homeStateHolder) {
+        ConversationsScreenContent(
+            navigator = navigator,
+            searchBarState = searchBarState,
+            conversationsSource = ConversationsSource.GROUPS,
+            lazyListState = currentLazyListState,
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.GROUPS) }
+        )
+    }
+}
+
+@HomeNavGraph()
+@WireDestination
+@Composable
+fun OneOnOneConversationsScreen(homeStateHolder: HomeStateHolder) {
+    with(homeStateHolder) {
+        ConversationsScreenContent(
+            navigator = navigator,
+            searchBarState = searchBarState,
+            conversationsSource = ConversationsSource.ONE_ON_ONE,
+            lazyListState = currentLazyListState,
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.ONE_ON_ONE, domain = it) }
         )
     }
 }
@@ -55,7 +101,7 @@ fun PreviewAllConversationsEmptyScreen() = WireTheme {
         navigator = rememberNavigator {},
         searchBarState = rememberSearchbarState(),
         conversationsSource = ConversationsSource.MAIN,
-        emptyListContent = { AllConversationsEmptyContent() },
+        emptyListContent = { ConversationsEmptyContent() },
         conversationListViewModel = ConversationListViewModelPreview(flowOf()),
     )
 }
@@ -67,7 +113,7 @@ fun PreviewAllConversationsEmptySearchScreen() = WireTheme {
         navigator = rememberNavigator {},
         searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
-        emptyListContent = { AllConversationsEmptyContent() },
+        emptyListContent = { ConversationsEmptyContent() },
         conversationListViewModel = ConversationListViewModelPreview(flowOf()),
     )
 }
@@ -79,7 +125,7 @@ fun PreviewAllConversationsSearchScreen() = WireTheme {
         navigator = rememberNavigator {},
         searchBarState = rememberSearchbarState(searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
-        emptyListContent = { AllConversationsEmptyContent() },
+        emptyListContent = { ConversationsEmptyContent() },
         conversationListViewModel = ConversationListViewModelPreview(previewConversationFoldersFlow("er")),
     )
 }

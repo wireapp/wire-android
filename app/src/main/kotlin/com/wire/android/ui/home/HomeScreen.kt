@@ -67,11 +67,15 @@ import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
+import com.wire.android.navigation.currentFilter
 import com.wire.android.navigation.handleNavigation
+import com.wire.android.navigation.toDestination
 import com.wire.android.ui.NavGraphs
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -84,10 +88,12 @@ import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
+import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetContent
 import com.wire.android.ui.home.drawer.HomeDrawer
 import com.wire.android.ui.home.drawer.HomeDrawerState
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import kotlinx.coroutines.launch
 
 @RootNavGraph
@@ -234,6 +240,8 @@ fun HomeContent(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val filterSheetState = rememberWireModalSheetState<ConversationFilter>()
+
     with(homeStateHolder) {
         fun openHomeDestination(item: HomeDestination) {
             item.direction.handleNavigation(
@@ -285,13 +293,14 @@ fun HomeContent(
                             exit = shrinkVertically() + fadeOut(),
                         ) {
                             HomeTopBar(
+                                navigationItem = currentNavigationItem,
                                 userAvatarData = homeState.userAvatarData,
-                                title = stringResource(currentNavigationItem.title),
                                 elevation = dimensions().spacing0x, // CollapsingTopBarScaffold manages applied elevation
                                 withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,
                                 shouldShowCreateTeamUnreadIndicator = homeState.shouldShowCreateTeamUnreadIndicator,
                                 onHamburgerMenuClick = ::openDrawer,
                                 onNavigateToSelfUserProfile = onSelfUserClick,
+                                onOpenConversationFilter = { filterSheetState.show(it) }
                             )
                         }
                     },
@@ -355,6 +364,19 @@ fun HomeContent(
                                 onClick = onNewConversationClick
                             )
                         }
+                    }
+                )
+            }
+        )
+        WireModalSheetLayout(
+            sheetState = filterSheetState,
+            sheetContent = {
+                ConversationFilterSheetContent(
+                    currentFilter = currentNavigationItem.currentFilter(),
+                    onChangeFilter = { filter ->
+                        println("KBX navigate to filter: $filter")
+                        filterSheetState.hide()
+                        openHomeDestination(filter.toDestination())
                     }
                 )
             }

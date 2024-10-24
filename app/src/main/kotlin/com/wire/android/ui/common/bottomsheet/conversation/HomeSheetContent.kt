@@ -96,13 +96,13 @@ internal fun ConversationMainSheetContent(
                 add {
                     MenuBottomSheetItem(
                         title = stringResource(R.string.label_notifications),
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_mute,
                                 contentDescription = stringResource(R.string.content_description_muted_conversation),
                             )
                         },
-                        action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
+                        trailing = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
                         onItemClick = navigateToNotification
                     )
                 }
@@ -136,7 +136,7 @@ internal fun ConversationMainSheetContent(
 //            }
             add {
                 MenuBottomSheetItem(
-                    icon = {
+                    leading = {
                         MenuItemIcon(
                             id = R.drawable.ic_archive,
                             contentDescription = stringResource(
@@ -161,11 +161,12 @@ internal fun ConversationMainSheetContent(
                                 )
                             )
                         }
-                    })
+                    }
+                )
             }
             add {
                 MenuBottomSheetItem(
-                    icon = {
+                    leading = {
                         MenuItemIcon(
                             id = R.drawable.ic_erase,
                             contentDescription = stringResource(R.string.content_description_clear_content),
@@ -188,7 +189,7 @@ internal fun ConversationMainSheetContent(
             if (conversationSheetContent.canBlockUser()) {
                 add {
                     MenuBottomSheetItem(
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_block,
                                 contentDescription = stringResource(R.string.content_description_block_the_user),
@@ -211,7 +212,7 @@ internal fun ConversationMainSheetContent(
             if (conversationSheetContent.canUnblockUser()) {
                 add {
                     MenuBottomSheetItem(
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_block,
                                 contentDescription = stringResource(R.string.content_description_unblock_the_user)
@@ -233,7 +234,7 @@ internal fun ConversationMainSheetContent(
             if (conversationSheetContent.canLeaveTheGroup()) {
                 add {
                     MenuBottomSheetItem(
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_leave,
                                 contentDescription = stringResource(R.string.content_description_leave_the_group),
@@ -255,7 +256,7 @@ internal fun ConversationMainSheetContent(
             if (conversationSheetContent.canDeleteGroup()) {
                 add {
                     MenuBottomSheetItem(
-                        icon = {
+                        leading = {
                             MenuItemIcon(
                                 id = R.drawable.ic_remove,
                                 contentDescription = stringResource(R.string.content_description_delete_the_group),

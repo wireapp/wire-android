@@ -26,6 +26,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
 import com.wire.android.appLogger
+import com.wire.android.di.CurrentAccount
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -40,6 +41,7 @@ import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -86,7 +88,9 @@ interface ConversationListViewModel {
     fun moveConversationToArchive(
         dialogState: DialogState,
         timestamp: Long = DateTimeUtil.currentInstant().toEpochMilliseconds()
-    ) {}
+    ) {
+    }
+
     fun blockUser(blockUserState: BlockUserDialogState) {}
     fun unblockUser(userId: UserId) {}
     fun deleteGroup(groupDialogState: GroupDialogState) {}
@@ -119,6 +123,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
+    @CurrentAccount val currentAccount: UserId,
 ) : ConversationListViewModel, ViewModel() {
 
     @AssistedFactory
@@ -136,7 +141,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
 
-    private val containsNewActivitiesSection = conversationsSource == ConversationsSource.MAIN
+    private val containsNewActivitiesSection = conversationsSource != ConversationsSource.ARCHIVE
     private val conversationsFlow: Flow<PagingData<ConversationFolderItem>> = searchQueryFlow
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
         .onStart { emit("") }
@@ -145,6 +150,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
             getConversationsPaginated(
                 searchQuery = searchQuery,
                 fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
+                conversationFilter = conversationsSource.toFilter(),
                 onlyInteractionEnabled = false,
                 newActivitiesOnTop = containsNewActivitiesSection,
             ).map {
@@ -173,7 +179,8 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         .flowOn(dispatcher.io())
 
     override val conversationListState: ConversationListState = ConversationListState(
-        foldersWithConversations = conversationsFlow
+        foldersWithConversations = conversationsFlow,
+        domain = currentAccount.domain
     )
 
     override fun searchQueryChanged(searchQuery: String) {
@@ -353,3 +360,11 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 }
 
 fun Conversation.LegalHoldStatus.showLegalHoldIndicator() = this == Conversation.LegalHoldStatus.ENABLED
+
+private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
+    ConversationsSource.MAIN -> ConversationFilter.NONE
+    ConversationsSource.ARCHIVE -> ConversationFilter.NONE
+    ConversationsSource.GROUPS -> ConversationFilter.GROUPS
+    ConversationsSource.FAVORITES -> ConversationFilter.FAVORITES
+    ConversationsSource.ONE_ON_ONE -> ConversationFilter.ONE_ON_ONE
+}

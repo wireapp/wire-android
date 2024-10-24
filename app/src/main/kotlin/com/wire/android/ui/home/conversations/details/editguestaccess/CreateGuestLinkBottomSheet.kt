@@ -69,7 +69,7 @@ private fun CreateInviteLinkSheetItem(
     MenuBottomSheetItem(
         title = title,
         onItemClick = onClicked,
-        action = {
+        trailing = {
             ArrowRightIcon()
         },
         enabled = enabled

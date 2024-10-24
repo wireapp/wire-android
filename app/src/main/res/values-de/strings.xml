@@ -137,6 +137,7 @@
     <string name="content_description_record_audio_button_stop">Aufnahme stoppen</string>
     <string name="content_description_record_audio_button_send">Audionachricht senden</string>
     <string name="content_description_jump_to_last_message">Zum Ende der Unterhaltung scrollen</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -1051,6 +1052,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="backup_dialog_choose_backup_file_option">Backup-Datei auswählen</string>
     <string name="backup_label_enter_password">Passwort eingeben</string>
     <string name="backup_dialog_restore_backup_password_message">Dieses Backup ist passwortgeschützt.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">\"E-Mail-Anbieter auswählen:\"</string>
     <string name="backup_dialog_create_backup_save">Datei speichern</string>
     <string name="backup_dialog_create_backup_share">Datei teilen</string>
@@ -1378,4 +1380,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="call_feedback_dialog_label_excellent">Sehr Gut</string>
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Einstellungen zur Fehlerbehebung</string>
+    <!--    Personal to team migration screen-->
 </resources>

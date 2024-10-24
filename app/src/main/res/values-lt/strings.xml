@@ -48,6 +48,7 @@
     <string name="label_message_status_edited_with_date">Pakeista %s</string>
     <string name="label_disable">Išjungti</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -107,6 +108,7 @@
     <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--create and restore backup-->
+    <!--    report bug-->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->
@@ -131,4 +133,5 @@
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
+    <!--    Personal to team migration screen-->
 </resources>

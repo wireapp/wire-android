@@ -149,6 +149,7 @@
     <string name="content_description_more_emojis">M&#225;s emojis</string>
     <string name="content_description_self_deletion_selector_button">Cambiar modo de autoborrado, botón</string>
     <string name="content_description_location_icon">Compartir ubicación</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -848,6 +849,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="backup_dialog_choose_backup_file_option">Seleccionar archivo de copia de seguridad</string>
     <string name="backup_label_enter_password">Ingresa una contrase&#241;a</string>
     <string name="backup_dialog_restore_backup_password_message">Esta copia de seguridad est&#225; protegida por contrase&#241;a.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">Selecciona un proveedor de correo electr&#243;nico:</string>
     <string name="backup_dialog_create_backup_save">Guardar archivo</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Copia de seguridad incompatible</string>
@@ -1028,4 +1030,5 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Configuraci&#243;n de depuraci&#243;n</string>
+    <!--    Personal to team migration screen-->
 </resources>

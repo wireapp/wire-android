@@ -172,6 +172,7 @@
     <string name="content_description_mls_certificate_valid">Tüm katılımcıların tüm cihazları geçerli bir MLS sertifikasına sahiptir</string>
     <string name="content_description_proteus_certificate_valid">Tüm katılımcıların tamamı doğrulanmıştır (Proteus)</string>
     <string name="content_description_location_icon">Konum öğesi</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -276,6 +277,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--create and restore backup-->
+    <!--    report bug-->
     <!-- Update App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->
@@ -302,4 +304,5 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Hata Ayıklama Günlüğü Ayarları</string>
+    <!--    Personal to team migration screen-->
 </resources>

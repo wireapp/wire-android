@@ -175,6 +175,7 @@
     <string name="content_description_proteus_certificate_valid">Minden résztvevő ellenőrzött (Proteus)</string>
     <string name="content_description_jump_to_last_message">Ugrás a beszélgetés végére</string>
     <string name="content_description_location_icon">Hely elem</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -1107,6 +1108,7 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="backup_dialog_choose_backup_file_option">Válasszon biztonsági másolatot</string>
     <string name="backup_label_enter_password">Adja meg a jelszót</string>
     <string name="backup_dialog_restore_backup_password_message">Ez a biztonsági másolat jelszóvédett.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">\"Válasszon e-mail szolgáltatót:\"</string>
     <string name="backup_dialog_create_backup_save">Fájl mentése</string>
     <string name="backup_dialog_create_backup_share">Fájl megosztása</string>
@@ -1449,4 +1451,5 @@ Kérjük, próbálja meg újra.</string>
     <string name="call_feedback_dialog_label_excellent">Kiváló</string>
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Hibakeresési beállítások</string>
+    <!--    Personal to team migration screen-->
 </resources>

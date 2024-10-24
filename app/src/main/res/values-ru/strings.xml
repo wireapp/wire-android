@@ -177,6 +177,24 @@
     <string name="content_description_proteus_certificate_valid">Все участники верифицированы (Proteus)</string>
     <string name="content_description_jump_to_last_message">Перейти к концу беседы</string>
     <string name="content_description_location_icon">Элемент местоположения</string>
+    <string name="content_description_conversation_details_header">Сведения о беседе, заголовок</string>
+    <string name="content_description_conversation_details_more_btn">Открыть параметры беседы</string>
+    <string name="content_description_conversation_details_options_tab_header">Настройки</string>
+    <string name="content_description_conversation_details_participants_tab_header">Участники</string>
+    <string name="content_description_conversation_details_close_btn">Закрыть информацию о беседе</string>
+    <string name="content_description_conversation_details_guests_action">настройка гостевого доступа</string>
+    <string name="content_description_conversation_details_self_deleting_action">настройка времени самоудаления</string>
+    <string name="content_description_edit_label">редактировать</string>
+    <string name="content_description_select_label">выбрать</string>
+    <string name="content_description_selected_label">выбрано</string>
+    <string name="content_description_toggle_setting_label">переключить настройку</string>
+    <string name="content_description_edit_guests_option_title">Гости, заголовок</string>
+    <string name="content_description_edit_guests_option_back_btn">Вернуться к сведениям о беседе</string>
+    <string name="content_description_edit_self_delete_title">Самоудаляющиеся сообщения, заголовок</string>
+    <string name="content_description_edit_self_delete_back_btn">Вернуться к сведениям о беседе</string>
+    <string name="content_description_open_user_profile_label">открыть профиль</string>
+    <string name="content_description_open_notification_settings_label">открыть настройки уведомлений</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -1148,7 +1166,9 @@
     <string name="backup_dialog_choose_backup_file_option">Выберите резервную копию</string>
     <string name="backup_label_enter_password">Введите пароль</string>
     <string name="backup_dialog_restore_backup_password_message">Эта резервная копия защищена паролем.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">\"Выберите поставщика почты:\"</string>
+    <string name="send_bug_report_subject">Отчет об ошибке</string>
     <string name="backup_dialog_create_backup_save">Сохранить файл</string>
     <string name="backup_dialog_create_backup_share">Поделиться файлом</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Несовместимая резервная копия</string>
@@ -1510,4 +1530,43 @@
     <string name="call_feedback_dialog_label_excellent">Прекрасно</string>
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Параметры отладки</string>
+    <!--    Personal to team migration screen-->
+    <string name="personal_to_team_migration_step_label">Шаг %1$d из 4</string>
+    <string name="personal_to_team_migration_back_to_wire_button">Вернуться в Wire</string>
+    <string name="personal_to_team_migration_back_button_label">Назад</string>
+    <string name="personal_to_team_migration_close_icon_content_description">Закрыть процесс миграции команды</string>
+    <string name="personal_to_team_migration_team_plan_step">Аккаунт команды</string>
+    <string name="personal_to_team_migration_team_plan_description">Трансформируйте свой персональный аккаунт в командный, чтобы получить больше пользы от совместной работы.</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_label">Консоль администратора:</string>
+    <string name="personal_to_team_migration_team_plan_admin_console_details">Пригласите членов команды и управляйте настройками.</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_label">Эффективная совместная работа:</string>
+    <string name="personal_to_team_migration_team_plan_effortless_collaboration_details">Общайтесь с гостями и внешними участниками.</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_label">Большие встречи:</string>
+    <string name="personal_to_team_migration_team_plan_larger_meetings_details">Присоединяйтесь к видеоконференциям с числом участников до 150 человек.</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_label">Статус доступности:</string>
+    <string name="personal_to_team_migration_team_plan_availability_status_details">Сообщите своей команде, если вы свободны, заняты или находитесь в отъезде.</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_label">Перейти на Enterprise:</string>
+    <string name="personal_to_team_migration_team_plan_upgrade_to_enterprise_description">Получите дополнительные возможности и премиум-поддержку.</string>
+    <string name="personal_to_team_migration_team_plan_learn_more_about_wire_plan">Узнайте больше о тарифах Wire</string>
+    <string name="personal_to_team_migration_team_name_step">Название команды</string>
+    <string name="personal_to_team_migration_team_name_description">Выберите название для своей команды. Вы можете изменить его в любое время.</string>
+    <string name="personal_to_team_migration_team_name_text_field_placeholder">Ваша команда</string>
+    <string name="personal_to_team_migration_confirmation_step">Подтверждение</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_first_item">Вы создаете команду и преобразуете свой персональный аккаунт в командный</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_second_item">Как владелец команды вы можете приглашать и удалять членов команды, а также управлять ее настройками</string>
+    <string name="personal_to_team_migration_confirmation_step_bullet_list_third_item">Это изменение является постоянным и необратимым</string>
+    <string name="personal_to_team_migration_confirmation_step_terms">Я согласен с условиями миграции и понимаю, что это изменение необратимо.</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_accept_label">Я принимаю</string>
+    <string name="personal_to_team_migration_confirmation_step_wire_terms_of_use_label">Условия использования Wire.</string>
+    <string name="personal_to_team_migration_confirmation_step_password_field_label">Пароль вашего аккаунта</string>
+    <string name="personal_to_team_migration_confirmation_step_password_field_placeholder">Введите пароль</string>
+    <string name="personal_to_team_migration_done_step">Поздравляем %1$s!</string>
+    <string name="personal_to_team_migration_done_step_now_team_member_label">Вы теперь владелец команды %1$s.</string>
+    <string name="personal_to_team_migration_done_step_go_to_team_label">Перейдите к Управление командой:</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_first_item">Пригласите первых членов своей команды и начните совместную работу</string>
+    <string name="personal_to_team_migration_done_step_bullet_list_second_item">Настройте параметры своей команды</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_title">Выйти без сохранения?</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_description">Если вы выйдете, информация не сохранится и вам придется заново создавать команду.</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_continue_button">Продолжить создание команды</string>
+    <string name="personal_to_team_migration_confirm_leave_dialog_leave_button">Выйти без сохранения</string>
 </resources>

@@ -156,6 +156,7 @@
     <string name="content_description_record_audio_button_stop">Parar Gravação de Áudio</string>
     <string name="content_description_record_audio_button_send">Enviar Mensagem de Áudio</string>
     <string name="content_description_mls_certificate_valid">Todos os dispositivos de todos os participantes têm um certificado MLS válido</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -909,6 +910,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="backup_dialog_choose_backup_file_option">Escolha o arquivo de backup</string>
     <string name="backup_label_enter_password">Insira a senha</string>
     <string name="backup_dialog_restore_backup_password_message">Este backup está protegido por senha.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">Selecione um provedor de e-mail:</string>
     <string name="backup_dialog_create_backup_save">Salvar arquivo</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Backup incompatível</string>
@@ -1094,4 +1096,5 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Configurações de depuração</string>
+    <!--    Personal to team migration screen-->
 </resources>

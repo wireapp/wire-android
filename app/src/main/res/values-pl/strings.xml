@@ -129,6 +129,7 @@
     <string name="content_description_calling_call_unmuted">Po&#322;&#261;czenie nie wyciszone</string>
     <string name="content_description_calling_call_paused_camera">Kamera zatrzymana</string>
     <string name="content_description_more_emojis">Wi&#281;cej emotikon&#243;w</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -812,6 +813,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="backup_dialog_choose_backup_file_option">Wybierz plik kopii zapasowej</string>
     <string name="backup_label_enter_password">Wprowad&#378; has&#322;o</string>
     <string name="backup_dialog_restore_backup_password_message">Ta kopia zapasowa jest chroniona has&#322;em.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">Wybierz dostawc&#281; poczty elektronicznej:</string>
     <string name="backup_dialog_create_backup_save">Zapisz plik</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Niekompatybilna kopia zapasowa</string>
@@ -902,4 +904,5 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Ustawienia debugowania</string>
+    <!--    Personal to team migration screen-->
 </resources>

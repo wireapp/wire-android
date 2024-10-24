@@ -124,6 +124,7 @@
     <string name="content_description_show_more_options">Visa fler alternativ</string>
     <string name="content_description_reply_to_messge">Svara på meddelandet</string>
     <string name="content_description_edit">Redigera</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -510,6 +511,7 @@
     <string name="backup_label_wrong_password">Felaktigt lösenord</string>
     <string name="backup_label_enter_password">Ange lösenord</string>
     <string name="backup_dialog_restore_backup_password_message">Denna säkerhetskopia är lösenordsskyddad.</string>
+    <!--    report bug-->
     <string name="backup_dialog_create_backup_save">Spara fil</string>
     <string name="backup_dialog_create_backup_share">Dela fil</string>
     <string name="group_label">grupp</string>
@@ -622,4 +624,5 @@
     <string name="call_feedback_dialog_skip">Hoppa över</string>
     <string name="call_feedback_dialog_do_not_ask">Fråga inte igen</string>
     <!-- Debug Settings -->
+    <!--    Personal to team migration screen-->
 </resources>

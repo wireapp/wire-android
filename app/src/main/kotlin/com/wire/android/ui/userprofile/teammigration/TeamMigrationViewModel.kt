@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TeamMigrationViewModel @Inject constructor(
-    private val analyticsManager: AnonymousAnalyticsManager
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager
 ) : ViewModel() {
 
     var teamMigrationState by mutableStateOf(TeamMigrationState())
@@ -43,7 +43,7 @@ class TeamMigrationViewModel @Inject constructor(
     }
 
     fun sendPersonalToTeamMigrationDismissed() {
-        analyticsManager.sendEvent(
+        anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
                 dismissCreateTeamButtonClicked = true
             )
@@ -51,7 +51,7 @@ class TeamMigrationViewModel @Inject constructor(
     }
 
     fun sendPersonalTeamCreationFlowStartedEvent(step: Int) {
-        analyticsManager.sendEvent(
+        anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowStarted(step)
         )
     }
@@ -60,7 +60,7 @@ class TeamMigrationViewModel @Inject constructor(
         modalLeaveClicked: Boolean = false,
         modalContinueClicked: Boolean = false
     ) {
-        analyticsManager.sendEvent(
+        anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
                 teamName = teamMigrationState.teamNameTextState.text.toString(),
                 modalLeaveClicked = modalLeaveClicked,
@@ -73,7 +73,7 @@ class TeamMigrationViewModel @Inject constructor(
         modalOpenTeamManagementButtonClicked: Boolean = false,
         backToWireButtonClicked: Boolean = false
     ) {
-        analyticsManager.sendEvent(
+        anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
                 teamName = teamMigrationState.teamNameTextState.text.toString(),
                 modalOpenTeamManagementButtonClicked = modalOpenTeamManagementButtonClicked,

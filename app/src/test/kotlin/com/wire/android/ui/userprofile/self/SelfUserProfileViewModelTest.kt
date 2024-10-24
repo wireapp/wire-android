@@ -75,7 +75,7 @@ class SelfUserProfileViewModelTest {
             viewModel.sendPersonalToTeamMigrationEvent()
 
             verify(exactly = 1) {
-                arrangement.analyticsManager.sendEvent(
+                arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
                         createTeamButtonClicked = true
                     )

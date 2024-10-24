@@ -107,7 +107,7 @@ class SelfUserProfileViewModelArrangement {
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
-    lateinit var analyticsManager: AnonymousAnalyticsManager
+    lateinit var anonymousAnalyticsManager: AnonymousAnalyticsManager
 
     private val viewModel by lazy {
         SelfUserProfileViewModel(
@@ -131,7 +131,7 @@ class SelfUserProfileViewModelArrangement {
             notificationManager = notificationManager,
             globalDataStore = globalDataStore,
             qualifiedIdMapper = qualifiedIdMapper,
-            analyticsManager = analyticsManager
+            anonymousAnalyticsManager = anonymousAnalyticsManager
         )
     }
 

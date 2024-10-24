@@ -104,7 +104,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val notificationManager: WireNotificationManager,
     private val globalDataStore: GlobalDataStore,
     private val qualifiedIdMapper: QualifiedIdMapper,
-    private val analyticsManager: AnonymousAnalyticsManager
+    private val anonymousAnalyticsManager: AnonymousAnalyticsManager
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
@@ -342,7 +342,7 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     fun sendPersonalToTeamMigrationEvent() {
-        analyticsManager.sendEvent(
+        anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(
                 createTeamButtonClicked = true
             )

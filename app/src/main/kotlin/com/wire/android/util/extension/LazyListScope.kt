@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
 import com.wire.android.ui.home.conversationslist.common.CollapsingFolderHeader
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "CyclomaticComplexMethod")
 inline fun <T, K : Any> LazyListScope.folderWithElements(
     header: String? = null,
     items: Map<K, T>,
@@ -51,6 +51,7 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
                             .fillMaxWidth()
                             .let { if (animateItemPlacement) it.animateItem() else it }
                     )
+
                     is FolderType.Regular -> FolderHeader(
                         name = header,
                         modifier = Modifier

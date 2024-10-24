@@ -290,22 +290,27 @@ class SendMessageViewModel @Inject constructor(
                 attachmentBundle?.run {
                     when (assetType) {
                         AttachmentType.IMAGE -> {
-                            val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
-                                kaliumFileSystem,
-                                attachmentBundle.dataPath
-                            )
-                            sendAssetMessage(
-                                conversationId = conversationId,
-                                assetDataPath = dataPath,
-                                assetName = fileName,
-                                assetWidth = imgWidth,
-                                assetHeight = imgHeight,
-                                assetDataSize = dataSize,
-                                assetMimeType = mimeType,
-                                audioLengthInMs = 0L
-                            )
-                                .handleLegalHoldFailureAfterSendingMessage(conversationId)
-                                .handleAssetContributionEvent(assetType)
+                            if (kaliumFileSystem.exists(attachmentBundle.dataPath)) {
+                                val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
+                                    kaliumFileSystem,
+                                    attachmentBundle.dataPath
+                                )
+                                sendAssetMessage(
+                                    conversationId = conversationId,
+                                    assetDataPath = dataPath,
+                                    assetName = fileName,
+                                    assetWidth = imgWidth,
+                                    assetHeight = imgHeight,
+                                    assetDataSize = dataSize,
+                                    assetMimeType = mimeType,
+                                    audioLengthInMs = 0L
+                                )
+                                    .handleLegalHoldFailureAfterSendingMessage(conversationId)
+                                    .handleAssetContributionEvent(assetType)
+                            } else {
+                                appLogger.e("There was a FileNotFoundException error while sending image asset")
+                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
+                            }
                         }
 
                         AttachmentType.VIDEO,

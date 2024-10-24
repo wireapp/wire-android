@@ -45,7 +45,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace.x32
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.teammigration.BulletList
+import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.util.CustomTabsHelper
@@ -75,7 +75,7 @@ fun TeamMigrationDoneStepScreen(
         onOpenTeamManagementClicked = {
             CustomTabsHelper.launchUrl(context, teamManagementUrl)
         },
-        teamName = teamMigrationViewModel.teamNameTextState.text.toString()
+        teamName = teamMigrationViewModel.teamMigrationState.teamNameTextState.text.toString()
     )
 
     BackHandler { }

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.userprofile.teammigration
+package com.wire.android.ui.userprofile.teammigration.common
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

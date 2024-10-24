@@ -38,7 +38,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -161,7 +160,10 @@ fun HomeScreen(
         homeDrawerState = homeDrawerViewModel.drawerState,
         homeStateHolder = homeScreenState,
         onNewConversationClick = { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) },
-        onSelfUserClick = remember(navigator) { { navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination)) } }
+        onSelfUserClick = {
+            homeViewModel.sendOpenProfileEvent()
+            navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+        }
     )
 
     BackHandler(homeScreenState.drawerState.isOpen) {

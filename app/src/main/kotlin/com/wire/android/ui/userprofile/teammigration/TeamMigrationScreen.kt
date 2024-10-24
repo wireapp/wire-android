@@ -54,6 +54,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.userprofile.teammigration.common.ConfirmMigrationLeaveDialog
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalAnimationApi::class)
 @WireDestination(style = PopUpNavigationAnimation::class)
@@ -94,6 +95,7 @@ fun TeamMigrationScreen(
         IconButton(
             modifier = Modifier.align(alignment = Alignment.End),
             onClick = {
+                // If the user completed team migration, we don't need to show the dialog
                 if (navController.currentDestination?.route == NavGraphs.personalToTeamMigration.destinations.last().route) {
                     navigator.navigateBack()
                 } else {

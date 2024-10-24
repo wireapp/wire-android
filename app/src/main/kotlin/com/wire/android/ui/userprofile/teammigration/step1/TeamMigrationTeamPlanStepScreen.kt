@@ -54,7 +54,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.destinations.TeamMigrationTeamNameStepScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.teammigration.BottomLineButtons
+import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.PersonalToTeamMigrationNavGraph
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.android.util.CustomTabsHelper

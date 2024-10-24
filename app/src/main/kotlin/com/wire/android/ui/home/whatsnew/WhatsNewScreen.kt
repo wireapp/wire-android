@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.HomeNavGraph
@@ -73,13 +74,15 @@ fun WhatsNewScreenContent(
         state = lazyListState,
         modifier = modifier.fillMaxSize()
     ) {
-        folderWithElements(
-            items = buildList {
-                add(WhatsNewItem.WelcomeToNewAndroidApp)
-            },
-            onItemClicked = onItemClicked,
-            isLoading = false,
-        )
+        if (BuildConfig.SHOULD_DISPLAY_RELEASE_NOTES) {
+            folderWithElements(
+                items = buildList {
+                    add(WhatsNewItem.WelcomeToNewAndroidApp)
+                },
+                onItemClicked = onItemClicked,
+                isLoading = false,
+            )
+        }
 
         folderWithElements(
             header = context.getString(R.string.whats_new_release_notes_group_title),
@@ -99,16 +102,18 @@ fun WhatsNewScreenContent(
                     }
                     add(WhatsNewItem.AllAndroidReleaseNotes(id = "placeholder_all"))
                 } else {
-                    state.releaseNotesItems.forEach {
-                        add(
-                            WhatsNewItem.AndroidReleaseNotes(
-                                id = it.id,
-                                title = UIText.DynamicString(it.title),
-                                boldTitle = true,
-                                text = UIText.DynamicString(it.publishDate),
-                                url = it.link,
+                    if (BuildConfig.SHOULD_DISPLAY_RELEASE_NOTES) {
+                        state.releaseNotesItems.forEach {
+                            add(
+                                WhatsNewItem.AndroidReleaseNotes(
+                                    id = it.id,
+                                    title = UIText.DynamicString(it.title),
+                                    boldTitle = true,
+                                    text = UIText.DynamicString(it.publishDate),
+                                    url = it.link,
+                                )
                             )
-                        )
+                        }
                     }
                     add(WhatsNewItem.AllAndroidReleaseNotes())
                 }

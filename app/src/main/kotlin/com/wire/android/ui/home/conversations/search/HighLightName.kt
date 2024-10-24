@@ -40,14 +40,12 @@ fun HighlightName(
     modifier: Modifier = Modifier
 ) {
 
-    val queryWithoutSuffix = searchQuery.removeQueryPrefix()
-
     val highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
-        matchText = queryWithoutSuffix,
+        matchText = searchQuery,
         text = name
     )
 
-    if (queryWithoutSuffix != String.EMPTY && highlightIndexes.isNotEmpty()) {
+    if (searchQuery != String.EMPTY && highlightIndexes.isNotEmpty()) {
         Text(
             buildAnnotatedString {
                 withStyle(

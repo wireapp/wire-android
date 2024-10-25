@@ -41,6 +41,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -55,6 +56,12 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import io.github.esentsov.PackagePrivate
 
+/**
+ * Priority in which fields are used for SemanticContentDescription:
+ * [semanticDescription] -> [labelText] -> [placeholderText] -> [descriptionText].
+ * If you need to make empty SemanticContentDescription (which is definitely bad idea for TextView)
+ * set [semanticDescription] = ""
+ */
 @PackagePrivate
 @Composable
 internal fun WireTextFieldLayout(
@@ -65,6 +72,7 @@ internal fun WireTextFieldLayout(
     labelText: String? = null,
     labelMandatoryIcon: Boolean = false,
     descriptionText: String? = null,
+    semanticDescription: String? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     state: WireTextFieldState = WireTextFieldState.Default,
@@ -101,8 +109,8 @@ internal fun WireTextFieldLayout(
                 .fillMaxWidth()
                 .background(color = colors.backgroundColor(state).value, shape = shape)
                 .border(width = dimensions().spacing1x, color = colors.borderColor(state, interactionSource).value, shape = shape)
-                .semantics {
-                    (labelText ?: placeholderText ?: descriptionText)?.let {
+                .semantics(mergeDescendants = true) {
+                    (semanticDescription ?: labelText ?: placeholderText ?: descriptionText)?.let {
                         contentDescription = it
                     }
                 }
@@ -178,7 +186,9 @@ private fun InnerTextLayout(
                     text = placeholderText,
                     style = placeholderTextStyle,
                     color = colors.placeholderColor(style).value,
-                    modifier = Modifier.align(placeholderAlignment.toAlignment())
+                    modifier = Modifier
+                        .align(placeholderAlignment.toAlignment())
+                        .clearAndSetSemantics {}
                 )
             }
             Box(

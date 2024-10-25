@@ -26,6 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.model.ItemActionType
@@ -53,16 +57,15 @@ fun InternalContactSearchResultItem(
     membership: Membership,
     searchQuery: String,
     connectionState: ConnectionState,
-    onCheckChange: (Boolean) -> Unit,
+    onCheckClickable: Clickable,
     isSelected: Boolean,
     clickable: Clickable,
     actionType: ItemActionType,
     modifier: Modifier = Modifier
 ) {
+    val selectedDescription = stringResource(id = R.string.content_description_selected_label)
     RowItemTemplate(
-        leadingIcon = {
-                UserProfileAvatar(avatarData)
-        },
+        leadingIcon = { UserProfileAvatar(avatarData) },
         titleStartPadding = dimensions().spacing0x,
         title = {
             Row(verticalAlignment = CenterVertically) {
@@ -101,14 +104,16 @@ fun InternalContactSearchResultItem(
             }
         },
         clickable =
-            if (actionType.clickable) {
-                clickable
-            } else {
-                Clickable {
-                    onCheckChange(!isSelected)
-                }
-            },
-        modifier = modifier.padding(start = dimensions().spacing8x)
+        if (actionType.clickable) {
+            clickable
+        } else {
+            onCheckClickable
+        },
+        modifier = modifier
+            .padding(start = dimensions().spacing8x)
+            .semantics {
+                if (actionType.checkable && isSelected) stateDescription = selectedDescription
+            }
     )
 }
 
@@ -155,15 +160,20 @@ fun ExternalContactSearchResultItem(
             when (connectionState) {
                 ConnectionState.NOT_CONNECTED, ConnectionState.CANCELLED ->
                     AddContactButton(userId, name)
+
                 ConnectionState.PENDING, ConnectionState.IGNORED ->
                     Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectRequestBadge() }
+
                 ConnectionState.SENT ->
                     Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectPendingRequestBadge() }
+
                 ConnectionState.BLOCKED -> {
                 }
+
                 ConnectionState.MISSING_LEGALHOLD_CONSENT -> {
                     appLogger.e("Unhandled ConnectionState.MISSING_LEGALHOLD_CONSENT in ExternalContactSearchResultItem")
                 }
+
                 ConnectionState.ACCEPTED -> {
                     appLogger.e("ConnectionState.ACCEPTED should not appear in ExternalContactSearchResultItem")
                 }
@@ -184,12 +194,13 @@ fun PreviewInternalContactSearchResultItemCheckable() = WireTheme {
         membership = Membership.None,
         searchQuery = "",
         connectionState = ConnectionState.ACCEPTED,
-        onCheckChange = {},
+        onCheckClickable = Clickable {},
         isSelected = false,
         clickable = Clickable {},
         actionType = ItemActionType.CHECK,
     )
 }
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewInternalContactSearchResultItemClickable() = WireTheme {
@@ -200,7 +211,7 @@ fun PreviewInternalContactSearchResultItemClickable() = WireTheme {
         membership = Membership.None,
         searchQuery = "",
         connectionState = ConnectionState.ACCEPTED,
-        onCheckChange = {},
+        onCheckClickable = Clickable {},
         isSelected = false,
         clickable = Clickable {},
         actionType = ItemActionType.CLICK,

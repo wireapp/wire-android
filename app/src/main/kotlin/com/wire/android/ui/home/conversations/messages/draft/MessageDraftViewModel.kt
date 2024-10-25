@@ -52,6 +52,14 @@ class MessageDraftViewModel @Inject constructor(
         loadMessageDraft()
     }
 
+    fun clearDraft() {
+        viewModelScope.launch {
+            state.update {
+                MessageComposition(conversationId, String.EMPTY)
+            }
+        }
+    }
+
     private fun loadMessageDraft() {
         viewModelScope.launch {
             val draftResult = getMessageDraft(conversationId)

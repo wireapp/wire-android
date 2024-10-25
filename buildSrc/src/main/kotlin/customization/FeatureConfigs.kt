@@ -99,6 +99,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     IS_PASSWORD_PROTECTED_GUEST_LINK_ENABLED("is_password_protected_guest_link_enabled", ConfigType.BOOLEAN),
 
+    SHOULD_DISPLAY_RELEASE_NOTES("should_display_release_notes", ConfigType.BOOLEAN),
+
     MAX_REMOTE_SEARCH_RESULT_COUNT("max_remote_search_result_count", ConfigType.INT),
     LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC("limit_team_members_fetch_during_slow_sync", ConfigType.INT),
 

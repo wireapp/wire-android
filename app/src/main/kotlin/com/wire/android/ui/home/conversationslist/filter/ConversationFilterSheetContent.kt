@@ -54,6 +54,7 @@ fun ConversationFilterSheetContent(
                             }
                         },
                         onItemClick = { onChangeFilter(filter) },
+                        onItemClickDescription = stringResource(R.string.content_description_select_label)
                     )
                 }
             }

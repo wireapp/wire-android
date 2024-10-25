@@ -57,10 +57,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
 
-private const val testTimeInSeconds: Long = 1729837498
+private const val MOCK_TIME_IN_SECONDS: Long = 1729837498
 val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
 val mockEmptyFooter = MessageFooter("", emptyMap(), emptySet())
-val mockMessageTime = MessageTime(Instant.fromEpochSeconds(testTimeInSeconds))
+val mockMessageTime = MessageTime(Instant.fromEpochSeconds(MOCK_TIME_IN_SECONDS))
 
 val mockHeader = MessageHeader(
     username = UIText.DynamicString("John Doe"),

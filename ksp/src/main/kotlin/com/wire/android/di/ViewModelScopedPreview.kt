@@ -51,7 +51,6 @@ internal class ViewModelScopedPreviewProcessor(private val codeGenerator: CodeGe
             require(!preview.getAllFunctions().any(KSFunctionDeclaration::isAbstract)) {
                     "ViewModelScopedPreview can only be applied to interfaces with default implementations, " +
                             "but ${preview.qualifiedName?.asString()} is abstract"
-
             }
             require(!preview.getAllProperties().any(KSPropertyDeclaration::isAbstract)) {
                     "ViewModelScopedPreview can only be applied to interfaces with default implementations, " +

@@ -374,7 +374,6 @@ fun HomeContent(
                 ConversationFilterSheetContent(
                     currentFilter = currentNavigationItem.currentFilter(),
                     onChangeFilter = { filter ->
-                        println("KBX navigate to filter: $filter")
                         filterSheetState.hide()
                         openHomeDestination(filter.toDestination())
                     }

@@ -46,7 +46,7 @@ androidx-compose-runtime = "1.7.1"
 compose-qr = "1.0.1"
 
 # Compose
-composeBom = "2024.09.01"
+composeBom = "2024.10.00"
 compose-activity = "1.9.2"
 compose-compiler = "1.5.13"
 compose-constraint = "1.0.1"

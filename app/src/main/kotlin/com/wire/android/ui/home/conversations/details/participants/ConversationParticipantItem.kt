@@ -76,6 +76,7 @@ fun ConversationParticipantItem(
                 modifier = Modifier.padding(
                     start = dimensions().spacing8x
                 ),
+                contentDescription = null,
                 type = uiParticipant.expiresAt?.let { WithIndicators.TemporaryUser(it) } ?: WithIndicators.RegularUser()
             )
         },
@@ -136,7 +137,10 @@ fun ConversationParticipantItem(
                         .wrapContentWidth()
                         .padding(end = MaterialTheme.wireDimensions.spacing8x)
                 ) {
-                    ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+                    ArrowRightIcon(
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        contentDescription = R.string.content_description_empty
+                    )
                 }
             }
         },

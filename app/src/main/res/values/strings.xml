@@ -179,6 +179,24 @@
     <string name="content_description_proteus_certificate_valid">All of all participants are verified (Proteus)</string>
     <string name="content_description_jump_to_last_message">Scroll to end of conversation</string>
     <string name="content_description_location_icon">Location item</string>
+    <string name="content_description_conversation_details_header">Conversation details, heading</string>
+    <string name="content_description_conversation_details_more_btn">Open conversation options</string>
+    <string name="content_description_conversation_details_options_tab_header">Options</string>
+    <string name="content_description_conversation_details_participants_tab_header">Participants</string>
+    <string name="content_description_conversation_details_close_btn">Close conversation details</string>
+    <string name="content_description_conversation_details_guests_action">adjust guest access</string>
+    <string name="content_description_conversation_details_self_deleting_action">adjust self-deleting time</string>
+    <string name="content_description_edit_label">edit</string>
+    <string name="content_description_select_label">select</string>
+    <string name="content_description_selected_label">selected</string>
+    <string name="content_description_toggle_setting_label">toggle setting</string>
+    <string name="content_description_edit_guests_option_title">Guests, heading</string>
+    <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>
+    <string name="content_description_edit_self_delete_title">Self-deleting messages, heading</string>
+    <string name="content_description_edit_self_delete_back_btn">Go back to conversation details</string>
+    <string name="content_description_open_user_profile_label">open profile</string>
+    <string name="content_description_open_notification_settings_label">open notification settings</string>
+    <string name="content_description_empty"> </string>
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>
     <string name="url_android_release_notes_feed" translatable="false">https://medium.com/feed/wire-news/tagged/android</string>
@@ -1137,7 +1155,12 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
     <string name="backup_label_enter_password">Enter password</string>
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
+
+    <!--    report bug-->
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
+    <string name="send_bug_report_subject">Bug Report</string>
+    <string name="send_bug_report_email" translatable="false" >wire-newandroid@wearezeta.zendesk.com</string>
+
     <string name="backup_dialog_create_backup_save">Save File</string>
     <string name="backup_dialog_create_backup_share">Share File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Incompatible backup</string>

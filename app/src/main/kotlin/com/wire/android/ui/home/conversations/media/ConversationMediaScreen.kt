@@ -193,7 +193,7 @@ private fun Content(
             WireCenterAlignedTopAppBar(
                 elevation = elevationState,
                 title = stringResource(id = R.string.label_conversation_media),
-                navigationIconType = NavigationIconType.Back,
+                navigationIconType = NavigationIconType.Back(),
                 onNavigationPressed = onNavigationPressed,
                 bottomContent = {
                     WireTabRow(

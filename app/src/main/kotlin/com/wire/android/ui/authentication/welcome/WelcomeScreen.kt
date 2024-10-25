@@ -135,7 +135,7 @@ private fun WelcomeContent(
             WireCenterAlignedTopAppBar(
                 elevation = dimensions().spacing0x,
                 title = "",
-                navigationIconType = NavigationIconType.Close,
+                navigationIconType = NavigationIconType.Close(),
                 onNavigationPressed = navigateBack
             )
         } else {

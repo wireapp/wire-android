@@ -54,13 +54,13 @@ import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
 
+private const val testTimeInSeconds: Long = 1729837498
 val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
 val mockEmptyFooter = MessageFooter("", emptyMap(), emptySet())
-val mockMessageTime = MessageTime(Instant.fromEpochSeconds(1729837498))
+val mockMessageTime = MessageTime(Instant.fromEpochSeconds(testTimeInSeconds))
 
 val mockHeader = MessageHeader(
     username = UIText.DynamicString("John Doe"),
@@ -327,6 +327,7 @@ fun mockAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = U
     messageFooter = mockEmptyFooter,
     source = MessageSource.Self
 )
+
 fun mockAssetAudioMessage(assetId: String = "asset1", messageId: String = "msg1") = UIMessage.Regular(
     conversationId = ConversationId("value", "domain"),
     userAvatarData = UserAvatarData(

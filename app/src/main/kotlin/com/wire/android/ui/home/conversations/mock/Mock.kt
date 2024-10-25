@@ -54,18 +54,19 @@ import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
 
+private const val MOCK_TIME_IN_SECONDS: Long = 1729837498
 val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
 val mockEmptyFooter = MessageFooter("", emptyMap(), emptySet())
+val mockMessageTime = MessageTime(Instant.fromEpochSeconds(MOCK_TIME_IN_SECONDS))
 
 val mockHeader = MessageHeader(
     username = UIText.DynamicString("John Doe"),
     membership = Membership.Guest,
     isLegalHold = true,
-    messageTime = MessageTime(Clock.System.now()),
+    messageTime = mockMessageTime,
     messageStatus = MessageStatus(
         flowStatus = MessageFlowStatus.Sent,
         expirationStatus = ExpirationStatus.NotExpirable
@@ -307,7 +308,7 @@ fun mockAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = U
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
         isLegalHold = true,
-        messageTime = MessageTime(Clock.System.now()),
+        messageTime = mockMessageTime,
         messageStatus = MessageStatus(
             flowStatus = MessageFlowStatus.Sent,
             expirationStatus = ExpirationStatus.NotExpirable
@@ -326,6 +327,7 @@ fun mockAssetMessage(assetId: String = "asset1", messageId: String = "msg1") = U
     messageFooter = mockEmptyFooter,
     source = MessageSource.Self
 )
+
 fun mockAssetAudioMessage(assetId: String = "asset1", messageId: String = "msg1") = UIMessage.Regular(
     conversationId = ConversationId("value", "domain"),
     userAvatarData = UserAvatarData(
@@ -336,7 +338,7 @@ fun mockAssetAudioMessage(assetId: String = "asset1", messageId: String = "msg1"
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
         isLegalHold = true,
-        messageTime = MessageTime(Clock.System.now()),
+        messageTime = mockMessageTime,
         messageStatus = MessageStatus(
             flowStatus = MessageFlowStatus.Sent,
             expirationStatus = ExpirationStatus.NotExpirable
@@ -395,7 +397,7 @@ fun mockedImageUIMessage(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.External,
         isLegalHold = false,
-        messageTime = MessageTime(Clock.System.now()),
+        messageTime = mockMessageTime,
         messageStatus = messageStatus,
         messageId = messageId,
         connectionState = ConnectionState.ACCEPTED,
@@ -416,7 +418,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
             isLegalHold = true,
-            messageTime = MessageTime(Clock.System.now()),
+            messageTime = mockMessageTime,
             messageStatus = MessageStatus(
                 flowStatus = MessageFlowStatus.Sent,
                 expirationStatus = ExpirationStatus.NotExpirable
@@ -446,7 +448,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
             isLegalHold = true,
-            messageTime = MessageTime(Clock.System.now()),
+            messageTime = mockMessageTime,
             messageStatus = MessageStatus(
                 flowStatus = MessageFlowStatus.Delivered, isDeleted = true,
                 expirationStatus = ExpirationStatus.NotExpirable
@@ -467,7 +469,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            messageTime = MessageTime(Clock.System.now()),
+            messageTime = mockMessageTime,
             messageStatus = MessageStatus(
                 flowStatus = MessageFlowStatus.Sent,
                 editStatus = MessageEditStatus.Edited("May 31, 2022 12.24pm"),
@@ -489,7 +491,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            messageTime = MessageTime(Clock.System.now()),
+            messageTime = mockMessageTime,
             messageStatus = MessageStatus(
                 flowStatus = MessageFlowStatus.Sent,
                 editStatus = MessageEditStatus.Edited("May 31, 2022 12.24pm"),
@@ -511,7 +513,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            messageTime = MessageTime(Clock.System.now()),
+            messageTime = mockMessageTime,
             messageStatus = MessageStatus(
                 flowStatus = MessageFlowStatus.Delivered,
                 isDeleted = true,
@@ -542,7 +544,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            messageTime = MessageTime(Clock.System.now()),
+            messageTime = mockMessageTime,
             messageStatus = MessageStatus(
                 flowStatus = MessageFlowStatus.Sent,
                 editStatus = MessageEditStatus.Edited("May 31, 2022 12.24pm"),
@@ -564,7 +566,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            messageTime = MessageTime(Clock.System.now()),
+            messageTime = mockMessageTime,
             messageStatus = MessageStatus(
                 flowStatus = MessageFlowStatus.Sent,
                 editStatus = MessageEditStatus.Edited("May 31, 2022 12.24pm"),

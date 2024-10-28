@@ -45,7 +45,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
         fromArchive: Boolean = false,
         newActivitiesOnTop: Boolean = false,
         onlyInteractionEnabled: Boolean = false,
-        conversationFilter: ConversationFilter = ConversationFilter.NONE
+        conversationFilter: ConversationFilter = ConversationFilter.ALL
     ): Flow<PagingData<ConversationItem>> {
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,

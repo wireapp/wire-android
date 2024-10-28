@@ -63,7 +63,7 @@ fun ConversationFilterSheetContent(
 }
 
 private fun ConversationFilter.getResource(): Int = when (this) {
-    ConversationFilter.NONE -> R.string.label_filter_all
+    ConversationFilter.ALL -> R.string.label_filter_all
     ConversationFilter.FAVORITES -> R.string.label_filter_favorites
     ConversationFilter.GROUPS -> R.string.label_filter_group
     ConversationFilter.ONE_ON_ONE -> R.string.label_filter_one_on_one

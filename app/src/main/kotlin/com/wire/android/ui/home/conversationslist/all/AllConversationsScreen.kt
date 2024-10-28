@@ -44,7 +44,7 @@ fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.MAIN,
             lazyListState = currentLazyListState,
-            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.NONE) }
+            emptyListContent = { ConversationsEmptyContent(filter = ConversationFilter.ALL) }
         )
     }
 }

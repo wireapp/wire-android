@@ -59,7 +59,7 @@ fun HomeTopBar(
             WireTertiaryIconButton(
                 iconResource = R.drawable.ic_filter,
                 contentDescription = R.string.label_filter_conversations,
-                state = if (navigationItem.currentFilter() == ConversationFilter.NONE) {
+                state = if (navigationItem.currentFilter() == ConversationFilter.ALL) {
                     WireButtonState.Default
                 } else {
                     WireButtonState.Selected

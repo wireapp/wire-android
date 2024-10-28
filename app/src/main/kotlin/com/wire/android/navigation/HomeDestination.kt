@@ -117,7 +117,7 @@ sealed class HomeDestination(
 
 fun HomeDestination.currentFilter(): ConversationFilter {
     return when (this) {
-        HomeDestination.Conversations -> ConversationFilter.NONE
+        HomeDestination.Conversations -> ConversationFilter.ALL
         HomeDestination.Favorites -> ConversationFilter.FAVORITES
         HomeDestination.Group -> ConversationFilter.GROUPS
         HomeDestination.OneOnOne -> ConversationFilter.ONE_ON_ONE
@@ -125,13 +125,13 @@ fun HomeDestination.currentFilter(): ConversationFilter {
         HomeDestination.Settings,
         HomeDestination.Support,
         HomeDestination.Vault,
-        HomeDestination.WhatsNew -> ConversationFilter.NONE
+        HomeDestination.WhatsNew -> ConversationFilter.ALL
     }
 }
 
 fun ConversationFilter.toDestination(): HomeDestination {
     return when (this) {
-        ConversationFilter.NONE -> HomeDestination.Conversations
+        ConversationFilter.ALL -> HomeDestination.Conversations
         ConversationFilter.FAVORITES -> HomeDestination.Favorites
         ConversationFilter.GROUPS -> HomeDestination.Group
         ConversationFilter.ONE_ON_ONE -> HomeDestination.OneOnOne

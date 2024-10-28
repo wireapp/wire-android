@@ -362,8 +362,8 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 fun Conversation.LegalHoldStatus.showLegalHoldIndicator() = this == Conversation.LegalHoldStatus.ENABLED
 
 private fun ConversationsSource.toFilter(): ConversationFilter = when (this) {
-    ConversationsSource.MAIN -> ConversationFilter.NONE
-    ConversationsSource.ARCHIVE -> ConversationFilter.NONE
+    ConversationsSource.MAIN -> ConversationFilter.ALL
+    ConversationsSource.ARCHIVE -> ConversationFilter.ALL
     ConversationsSource.GROUPS -> ConversationFilter.GROUPS
     ConversationsSource.FAVORITES -> ConversationFilter.FAVORITES
     ConversationsSource.ONE_ON_ONE -> ConversationFilter.ONE_ON_ONE

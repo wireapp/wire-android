@@ -45,7 +45,7 @@ import com.wire.kalium.logic.data.conversation.ConversationFilter
 @Composable
 fun ConversationsEmptyContent(
     modifier: Modifier = Modifier,
-    filter: ConversationFilter = ConversationFilter.NONE,
+    filter: ConversationFilter = ConversationFilter.ALL,
     domain: String = "wire.com"
 ) {
     val context = LocalContext.current
@@ -58,7 +58,7 @@ fun ConversationsEmptyContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (filter == ConversationFilter.NONE) {
+        if (filter == ConversationFilter.ALL) {
             Text(
                 modifier = Modifier.padding(
                     bottom = dimensions().spacing24x,
@@ -103,7 +103,7 @@ fun ConversationsEmptyContent(
 
 @Composable
 private fun ConversationFilter.emptyDescription(backendName: String): String = when (this) {
-    ConversationFilter.NONE -> stringResource(R.string.conversation_empty_list_description)
+    ConversationFilter.ALL -> stringResource(R.string.conversation_empty_list_description)
     ConversationFilter.FAVORITES -> stringResource(R.string.favorites_empty_list_description)
     ConversationFilter.GROUPS -> stringResource(R.string.group_empty_list_description)
     ConversationFilter.ONE_ON_ONE -> stringResource(R.string.one_on_one_empty_list_description, backendName)
@@ -112,7 +112,7 @@ private fun ConversationFilter.emptyDescription(backendName: String): String = w
 @PreviewMultipleThemes
 @Composable
 fun PreviewAllConversationsEmptyContent() = WireTheme {
-    ConversationsEmptyContent(filter = ConversationFilter.NONE)
+    ConversationsEmptyContent(filter = ConversationFilter.ALL)
 }
 
 @PreviewMultipleThemes

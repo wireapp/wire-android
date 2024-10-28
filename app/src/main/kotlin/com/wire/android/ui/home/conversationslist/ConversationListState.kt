@@ -28,6 +28,6 @@ import kotlinx.coroutines.flow.emptyFlow
 @Stable
 data class ConversationListState(
     val foldersWithConversations: Flow<PagingData<ConversationFolderItem>> = emptyFlow(),
-    val filter: ConversationFilter = ConversationFilter.NONE,
+    val filter: ConversationFilter = ConversationFilter.ALL,
     val domain: String = ""
 )

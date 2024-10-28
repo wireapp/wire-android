@@ -26,6 +26,8 @@ import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CALLING_QUALITY_REVIEW_SCORE_KEY
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.CONTRIBUTED_LOCATION
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.MESSAGE_ACTION_KEY
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL
+import com.wire.android.feature.analytics.model.AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE_TEAM
 
 interface AnalyticsEvent {
     /**
@@ -183,6 +185,42 @@ interface AnalyticsEvent {
             override val messageAction: String = AnalyticsEventConstants.CONTRIBUTED_AUDIO
         }
     }
+
+    sealed class QrCode : AnalyticsEvent {
+        data class Click(val isTeam: Boolean) : QrCode() {
+            override val key: String = AnalyticsEventConstants.QR_CODE_CLICK
+
+            override fun toSegmentation(): Map<String, Any> {
+                val userType = if (isTeam) {
+                    QR_CODE_SEGMENTATION_USER_TYPE_TEAM
+                } else {
+                    QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL
+                }
+
+                return mapOf(
+                    AnalyticsEventConstants.QR_CODE_SEGMENTATION_USER_TYPE to userType
+                )
+            }
+        }
+
+        sealed class Modal : QrCode() {
+            data object Displayed : Modal() {
+                override val key: String = AnalyticsEventConstants.QR_CODE_MODAL
+            }
+
+            data object Back : Modal() {
+                override val key: String = AnalyticsEventConstants.QR_CODE_MODAL_BACK
+            }
+
+            data object ShareProfileLink : Modal() {
+                override val key: String = AnalyticsEventConstants.QR_CODE_SHARE_PROFILE_LINK
+            }
+
+            data object ShareQrCode : Modal() {
+                override val key: String = AnalyticsEventConstants.QR_CODE_SHARE_QR_CODE
+            }
+        }
+    }
 }
 
 object AnalyticsEventConstants {
@@ -230,4 +268,17 @@ object AnalyticsEventConstants {
     const val CONTRIBUTED_VIDEO = "video"
     const val CONTRIBUTED_AUDIO = "audio"
     const val CONTRIBUTED_LOCATION = "location"
+
+    /**
+     * Qr code
+     */
+    const val QR_CODE_CLICK = "ui.QR-click"
+    const val QR_CODE_MODAL = "ui.share.profile"
+    const val QR_CODE_MODAL_BACK = "user.back.share-profile"
+    const val QR_CODE_SHARE_PROFILE_LINK = "user.share-profile"
+    const val QR_CODE_SHARE_QR_CODE = "user.QR-code"
+
+    const val QR_CODE_SEGMENTATION_USER_TYPE = "user_type"
+    const val QR_CODE_SEGMENTATION_USER_TYPE_PERSONAL = "personal"
+    const val QR_CODE_SEGMENTATION_USER_TYPE_TEAM = "team"
 }

@@ -67,7 +67,8 @@ fun JoinButton(
         contentPadding = PaddingValues(
             horizontal = dimensions().spacing8x,
             vertical = dimensions().spacing4x
-        )
+        ),
+        onClickDescription = stringResource(R.string.content_description_join_call_label)
     )
 }
 

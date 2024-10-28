@@ -46,7 +46,6 @@ fun HomeTopBar(
 ) {
     WireCenterAlignedTopAppBar(
         title = title,
-        titleContentDescription = stringResource(R.string.content_description_home_header),
         onNavigationPressed = onHamburgerMenuClick,
         navigationIconType = NavigationIconType.Menu,
         actions = {

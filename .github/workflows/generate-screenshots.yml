@@ -39,6 +39,9 @@ jobs:
           git lfs fetch --all
           git lfs checkout
 
+      - name: Setup GitHub Actions Bot for Git
+        uses: fregante/setup-git-user@v2
+
       - name: Merge Develop into screenshot-tests
         run: |
           git checkout screenshot-tests
@@ -72,9 +75,6 @@ jobs:
 
       - name: Update Screenshot Reference Images
         run: ./gradlew updateInternalDebugScreenshotTest
-
-      - name: Setup GitHub Actions Bot for Git
-        uses: fregante/setup-git-user@v2
 
       - name: Create New Branch
         id: create_branch

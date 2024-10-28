@@ -27,6 +27,7 @@ import android.os.CancellationSignal
 import androidx.annotation.VisibleForTesting
 import androidx.core.location.LocationManagerCompat
 import com.wire.android.AppJsonStyledLogger
+import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.ui.home.appLock.CurrentTimestampProvider
 import com.wire.kalium.logger.KaliumLogLevel
@@ -118,8 +119,16 @@ class LocationPickerHelper @Inject constructor(
     }
 
     internal fun isLocationServicesEnabled(): Boolean {
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return LocationManagerCompat.isLocationEnabled(locationManager)
+        return try {
+            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            LocationManagerCompat.isLocationEnabled(locationManager)
+        } catch (e: Exception) {
+            appLogger.i(
+                message = "Checking for location services availability failed",
+                throwable = e
+            )
+            false
+        }
     }
 }
 

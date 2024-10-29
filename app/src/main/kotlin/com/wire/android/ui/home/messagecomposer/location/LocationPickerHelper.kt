@@ -118,6 +118,7 @@ class LocationPickerHelper @Inject constructor(
         timeoutJob.start()
     }
 
+    @Suppress("TooGenericExceptionCaught")
     internal fun isLocationServicesEnabled(): Boolean {
         return try {
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager

@@ -102,12 +102,12 @@ fun EditGuestAccessScreen(
     WireScaffold(
         modifier = modifier,
         topBar = {
+            val title = stringResource(id = R.string.conversation_options_guests_label)
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 navigationIconType = NavigationIconType.Back(R.string.content_description_edit_guests_option_back_btn),
                 onNavigationPressed = navigator::navigateBack,
-                title = stringResource(id = R.string.conversation_options_guests_label),
-                titleContentDescription = stringResource(id = R.string.content_description_edit_guests_option_title)
+                title = title
             )
         }
     ) { internalPadding ->

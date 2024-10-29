@@ -276,7 +276,7 @@ private fun SelfUserProfileContent(
                             items = otherAccounts,
                             itemContent = { account ->
                                 OtherAccountItem(
-                                    account,
+                                    account = account,
                                     clickable = remember {
                                         Clickable(enabled = true, onClickDescription = selectLabel, onClick = {
                                             if (isUserInCall()) {
@@ -289,7 +289,8 @@ private fun SelfUserProfileContent(
                                                 onOtherAccountClick(account.id)
                                             }
                                         })
-                                    })
+                                    }
+                                )
                             }
                         )
                     }

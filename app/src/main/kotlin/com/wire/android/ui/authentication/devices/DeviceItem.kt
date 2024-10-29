@@ -104,7 +104,10 @@ private fun DeviceItemContent(
     Row(
         verticalAlignment = Alignment.Top,
         modifier = modifier
-            .clickable(enabled = isWholeItemClickable, onClickLabel = stringResource(id = R.string.content_description_user_profile_open_device_btn)) {
+            .clickable(
+                enabled = isWholeItemClickable,
+                onClickLabel = stringResource(id = R.string.content_description_user_profile_open_device_btn)
+            ) {
                 if (isWholeItemClickable) {
                     onClickAction?.invoke(device)
                 }

@@ -196,7 +196,8 @@ fun UserProfileInfo(
                     isMLSVerified = isMLSVerified
                 )
 
-            val profileNameDescription = stringResource(R.string.content_description_self_profile_profile_name, fullName)
+            val profileNameDescription =
+                stringResource(R.string.content_description_self_profile_profile_name, fullName)
             Text(
                 modifier = Modifier
                     .padding(horizontal = dimensions().spacing16x)
@@ -224,7 +225,8 @@ fun UserProfileInfo(
                     top.linkTo(displayName.bottom)
                 }
             ) {
-                val usernameDescription = stringResource(R.string.content_description_self_profile_username, userName)
+                val usernameDescription =
+                    stringResource(R.string.content_description_self_profile_username, userName)
                 Text(
                     text = processUsername(userName, membership, expiresAt),
                     overflow = TextOverflow.Ellipsis,

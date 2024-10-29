@@ -56,16 +56,18 @@ fun HomeTopBar(
         onNavigationPressed = onHamburgerMenuClick,
         navigationIconType = NavigationIconType.Menu,
         actions = {
-            WireTertiaryIconButton(
-                iconResource = R.drawable.ic_filter,
-                contentDescription = R.string.label_filter_conversations,
-                state = if (navigationItem.currentFilter() == ConversationFilter.ALL) {
-                    WireButtonState.Default
-                } else {
-                    WireButtonState.Selected
-                },
-                onButtonClicked = { onOpenConversationFilter(navigationItem.currentFilter()) }
-            )
+            if (navigationItem.withNewConversationFab) {
+                WireTertiaryIconButton(
+                    iconResource = R.drawable.ic_filter,
+                    contentDescription = R.string.label_filter_conversations,
+                    state = if (navigationItem.currentFilter() == ConversationFilter.ALL) {
+                        WireButtonState.Default
+                    } else {
+                        WireButtonState.Selected
+                    },
+                    onButtonClicked = { onOpenConversationFilter(navigationItem.currentFilter()) }
+                )
+            }
             UserProfileAvatar(
                 avatarData = userAvatarData,
                 clickable = remember { Clickable(enabled = true) { onNavigateToSelfUserProfile() } },

@@ -217,6 +217,10 @@
     <string name="content_description_open_user_profile_label">open profile</string>
     <string name="content_description_open_conversation_label">open conversation</string>
     <string name="content_description_open_service_label">open service</string>
+    <string name="content_description_change_it_label">change it</string>
+    <string name="content_description_open_link_label">open link</string>
+    <string name="content_description_alert">Alert</string>
+    <string name="content_description_close_dropdown">close dropdown</string>
     <string name="content_description_open_notification_settings_label">open notification settings</string>
     <string name="content_description_new_conversation_name_back_btn">Go back to new conversation view</string>
     <string name="content_description_new_conversation_name_heading">New group, heading</string>
@@ -224,6 +228,20 @@
     <string name="content_description_new_conversation_options_heading">Conversation options, heading</string>
     <string name="content_description_new_conversation_options_back_btn">Go back to new group creation</string>
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
+    <string name="content_description_self_profile_close">Close your profile</string>
+    <string name="content_description_self_profile_heading">Your profile, heading</string>
+    <string name="content_description_self_profile_avatar">Your profile picture</string>
+    <string name="content_description_self_profile_profile_name">Profile name, %s</string>
+    <string name="content_description_self_profile_username">Username, %s</string>
+    <string name="content_description_self_profile_team">Team name, %s</string>
+    <string name="content_description_self_profile_change_status">change availability status</string>
+    <string name="content_description_self_profile_new_account_btn">Create a new team or personal account or log in</string>
+    <string name="content_description_change_picture_back_btn">Go back to your profile overview</string>
+    <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
+    <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
+    <string name="content_description_login_email_field">enter your email or username</string>
+    <string name="content_description_login_password_field">enter your password</string>
+    <string name="content_description_login_sso_code_field">enter your SSO code or Wire email</string>
     <string name="content_description_empty"> </string>
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>

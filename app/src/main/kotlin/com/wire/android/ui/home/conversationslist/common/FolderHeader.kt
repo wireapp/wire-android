@@ -74,8 +74,7 @@ fun CollapsingFolderHeader(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .semantics { onClick(expandDescription) { false } }
-            .clickable { onClicked(!expanded) }
+            .clickable(onClickLabel = expandDescription) { onClicked(!expanded) }
             .padding(horizontal = dimensions().spacing8x, vertical = dimensions().spacing16x)
     ) {
         Icon(

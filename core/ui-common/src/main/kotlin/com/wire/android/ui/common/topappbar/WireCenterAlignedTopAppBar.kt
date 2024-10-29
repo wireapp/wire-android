@@ -132,13 +132,7 @@ fun WireTopAppBarTitle(
     // It's very noticeable on TopAppBar because due to that issue, the title is not centered, even if there are large enough empty spaces
     // on both sides and all lines of text are actually shorter and could fit at the center.
     // This workaround is based on this: https://stackoverflow.com/a/69947555, but instead of using SubcomposeLayout, we just measure text.
-    BoxWithConstraints(
-        modifier = modifier
-            .semantics {
-                contentDescription?.let { this.contentDescription = contentDescription }
-            }
-            .padding(horizontal = dimensions().spacing6x)
-    ) {
+    BoxWithConstraints(modifier = modifier.padding(horizontal = dimensions().spacing6x)) {
         val textMeasurer = rememberTextMeasurer()
         val textLayoutResult: TextLayoutResult = textMeasurer.measure(
             text = title,
@@ -158,7 +152,9 @@ fun WireTopAppBarTitle(
             }.toDp()
         }
         Text(
-            modifier = Modifier.width(width),
+            modifier = Modifier
+                .width(width)
+                .semantics { this.contentDescription = contentDescription ?: "" },
             text = title,
             style = style,
             maxLines = maxLines,

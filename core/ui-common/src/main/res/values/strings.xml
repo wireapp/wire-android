@@ -25,4 +25,5 @@
     <string name="content_description_drop_down_icon">Drop down arrow</string>
     <string name="content_description_heading_suffix">%s, heading</string>
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
+    <string name="content_description_alert">Alert</string>
 </resources>

@@ -145,6 +145,7 @@ fun UserProfileInfo(
                 targetState = userAvatarData to showPlaceholderIfNoAsset.value,
                 label = "UserProfileInfoAvatar"
             ) { (userAvatarData, showPlaceholderIfNoAsset) ->
+                val onAvatarClickDescription = stringResource(R.string.content_description_change_it_label)
                 UserProfileAvatar(
                     size = dimensions().avatarDefaultBigSize,
                     temporaryUserBorderWidth = dimensions().avatarBigTemporaryUserBorderWidth,
@@ -153,12 +154,14 @@ fun UserProfileInfo(
                         Clickable(
                             enabled = editableState is EditableState.IsEditable,
                             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                            onClickDescription = onAvatarClickDescription,
                         ) { onUserProfileClick?.invoke() }
                     },
                     showPlaceholderIfNoAsset = showPlaceholderIfNoAsset,
                     withCrossfadeAnimation = true,
                     type = expiresAt?.let { UserProfileAvatarType.WithIndicators.TemporaryUser(expiresAt) }
-                        ?: UserProfileAvatarType.WithoutIndicators
+                        ?: UserProfileAvatarType.WithoutIndicators,
+                    contentDescription = stringResource(R.string.content_description_self_profile_avatar)
                 )
             }
             this@Column.AnimatedVisibility(visible = isLoading) {
@@ -193,13 +196,15 @@ fun UserProfileInfo(
                     isMLSVerified = isMLSVerified
                 )
 
+            val profileNameDescription = stringResource(R.string.content_description_self_profile_profile_name, fullName)
             Text(
                 modifier = Modifier
                     .padding(horizontal = dimensions().spacing16x)
                     .constrainAs(displayName) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                    },
+                    }
+                    .semantics(mergeDescendants = true) { contentDescription = profileNameDescription },
                 text = text,
                 // TODO. replace with MIDDLE_ELLIPSIS when available see https://issuetracker.google.com/issues/185418980
                 overflow = TextOverflow.Visible,
@@ -219,13 +224,15 @@ fun UserProfileInfo(
                     top.linkTo(displayName.bottom)
                 }
             ) {
+                val usernameDescription = stringResource(R.string.content_description_self_profile_username, userName)
                 Text(
                     text = processUsername(userName, membership, expiresAt),
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.wireTypography.body02,
                     maxLines = 2,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.wireColorScheme.labelText
+                    color = MaterialTheme.wireColorScheme.labelText,
+                    modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = usernameDescription }
                 )
                 UserBadge(membership, connection, topPadding = dimensions().spacing8x)
             }
@@ -258,10 +265,12 @@ fun UserProfileInfo(
         }
 
         if (teamName != null) {
+            val teamDescription = stringResource(R.string.content_description_self_profile_team, teamName)
             TeamInformation(
                 modifier = Modifier
                     .padding(top = dimensions().spacing8x)
-                    .padding(horizontal = dimensions().spacing16x),
+                    .padding(horizontal = dimensions().spacing16x)
+                    .semantics(mergeDescendants = true) { contentDescription = teamDescription },
                 teamName = teamName
             )
         }

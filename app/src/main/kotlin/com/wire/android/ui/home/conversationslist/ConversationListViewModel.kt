@@ -141,7 +141,15 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
 
-    private val containsNewActivitiesSection = conversationsSource != ConversationsSource.ARCHIVE
+    private val containsNewActivitiesSection = when (conversationsSource) {
+        ConversationsSource.MAIN,
+        ConversationsSource.FAVORITES,
+        ConversationsSource.GROUPS,
+        ConversationsSource.ONE_ON_ONE -> true
+
+        ConversationsSource.ARCHIVE -> false
+    }
+
     private val conversationsFlow: Flow<PagingData<ConversationFolderItem>> = searchQueryFlow
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
         .onStart { emit("") }

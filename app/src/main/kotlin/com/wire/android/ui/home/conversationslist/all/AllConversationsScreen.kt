@@ -49,7 +49,7 @@ fun AllConversationsScreen(homeStateHolder: HomeStateHolder) {
     }
 }
 
-@HomeNavGraph()
+@HomeNavGraph
 @WireDestination
 @Composable
 fun FavoritesConversationsScreen(homeStateHolder: HomeStateHolder) {
@@ -64,7 +64,7 @@ fun FavoritesConversationsScreen(homeStateHolder: HomeStateHolder) {
     }
 }
 
-@HomeNavGraph()
+@HomeNavGraph
 @WireDestination
 @Composable
 fun GroupConversationsScreen(homeStateHolder: HomeStateHolder) {
@@ -79,7 +79,7 @@ fun GroupConversationsScreen(homeStateHolder: HomeStateHolder) {
     }
 }
 
-@HomeNavGraph()
+@HomeNavGraph
 @WireDestination
 @Composable
 fun OneOnOneConversationsScreen(homeStateHolder: HomeStateHolder) {

@@ -88,8 +88,7 @@ fun ConversationsEmptyContent(
                     CustomTabsHelper.launchUrl(context, supportUrl)
                 }
             )
-        }
-        if (filter != ConversationFilter.FAVORITES) {
+        } else {
             Image(
                 modifier = Modifier.padding(start = dimensions().spacing100x),
                 painter = painterResource(

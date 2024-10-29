@@ -20,8 +20,10 @@ package com.wire.android.ui.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -48,11 +50,18 @@ fun HomeTopBar(
         onNavigationPressed = onHamburgerMenuClick,
         navigationIconType = NavigationIconType.Menu,
         actions = {
+            val openLabel = stringResource(R.string.content_description_open_label)
             UserProfileAvatar(
                 avatarData = userAvatarData,
-                clickable = remember { Clickable(enabled = true) { onNavigateToSelfUserProfile() } },
+                clickable = remember {
+                    Clickable(enabled = true, onClickDescription = openLabel) { onNavigateToSelfUserProfile() }
+                },
                 type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = withLegalHoldIndicator),
+<<<<<<< HEAD
                 shouldShowCreateTeamUnreadIndicator = shouldShowCreateTeamUnreadIndicator
+=======
+                contentDescription = stringResource(R.string.content_description_home_profile_btn)
+>>>>>>> 175d83b8d (feat: Add accessibility string to ConversationList [WPB-9789] (#3561))
             )
         },
         elevation = elevation,

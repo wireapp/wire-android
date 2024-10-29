@@ -73,23 +73,29 @@ fun ConversationItemFactory(
     joinCall: (ConversationId) -> Unit = {},
     onAudioPermissionPermanentlyDenied: () -> Unit = {}
 ) {
+    val openConversationOptionDescription = stringResource(R.string.content_description_conversation_details_more_btn)
+    val openUserProfileDescription = stringResource(R.string.content_description_open_user_profile_label)
+    val openConversationDescription = stringResource(R.string.content_description_open_conversation_label)
     val onConversationItemClick = remember(conversation) {
-        Clickable(
-            enabled = true,
-            onClick = {
-                when (val lastEvent = conversation.lastMessageContent) {
-                    is UILastMessageContent.Connection -> openUserProfile(lastEvent.userId)
-                    else -> openConversation(conversation)
-                }
-            },
-            onLongClick = {
-                when (conversation.lastMessageContent) {
-                    is UILastMessageContent.Connection -> {}
-                    else -> openMenu(conversation)
-                }
-            }
-        )
+        when (val lastEvent = conversation.lastMessageContent) {
+            is UILastMessageContent.Connection -> Clickable(
+                enabled = true,
+                onClick = { openUserProfile(lastEvent.userId) },
+                onLongClick = null,
+                onClickDescription = openUserProfileDescription,
+                onLongClickDescription = null
+            )
+
+            else -> Clickable(
+                enabled = true,
+                onClick = { openConversation(conversation) },
+                onLongClick = { openMenu(conversation) },
+                onClickDescription = openConversationDescription,
+                onLongClickDescription = openConversationOptionDescription,
+            )
+        }
     }
+
     GeneralConversationItem(
         modifier = modifier,
         conversation = conversation,

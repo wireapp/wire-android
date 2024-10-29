@@ -80,7 +80,7 @@ import com.wire.kalium.logic.data.user.UserId
 fun ConversationsScreenContent(
     navigator: Navigator,
     searchBarState: SearchBarState,
-    emptyListContent: @Composable () -> Unit = {},
+    emptyListContent: @Composable (domain: String) -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
     loadingListContent: @Composable (LazyListState) -> Unit = { ConversationListLoadingContent(it) },
     conversationsSource: ConversationsSource = ConversationsSource.MAIN,
@@ -207,7 +207,7 @@ fun ConversationsScreenContent(
                 )
                 // when there is no conversation in any folder
                 searchBarState.isSearchActive -> SearchConversationsEmptyContent(onNewConversationClicked = onNewConversationClicked)
-                else -> emptyListContent()
+                else -> emptyListContent(conversationListViewModel.conversationListState.domain)
             }
         }
 

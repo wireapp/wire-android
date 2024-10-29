@@ -52,8 +52,8 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.extension.FolderType
 import com.wire.android.util.extension.folderWithElements
-import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableList
@@ -287,7 +287,13 @@ private fun LazyListScope.internalSuccessItem(
             folderType = FolderType.Collapsing(expanded = expanded, onChanged = onExpansionChanged),
         ) { (contact, isSelected) ->
             with(contact) {
-                val onClick = remember { { isChecked: Boolean -> onChecked(isChecked, this) } }
+                val onCheckDescription = stringResource(
+                    id = if (isSelected) R.string.content_description_unselect_label else R.string.content_description_select_label
+                )
+                val clickDescription = stringResource(id = R.string.content_description_open_user_profile_label)
+                val onCheckClickable = remember(isSelected) {
+                    Clickable(onClickDescription = onCheckDescription) { onChecked(!isSelected, this) }
+                }
                 InternalContactSearchResultItem(
                     avatarData = avatarData,
                     name = name,
@@ -296,9 +302,9 @@ private fun LazyListScope.internalSuccessItem(
                     searchQuery = searchQuery,
                     connectionState = connectionState,
                     isSelected = isSelected,
-                    onCheckChange = onClick,
+                    onCheckClickable = onCheckClickable,
                     actionType = actionType,
-                    clickable = remember { Clickable(enabled = true) { onOpenUserProfile(contact) } }
+                    clickable = remember { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } }
                 )
             }
         }
@@ -344,6 +350,7 @@ private fun LazyListScope.externalSuccessItem(
         folderType = FolderType.Collapsing(expanded = expanded, onChanged = onExpansionChanged),
     ) { contact ->
         with(contact) {
+            val clickDescription = stringResource(id = R.string.content_description_open_user_profile_label)
             ExternalContactSearchResultItem(
                 avatarData = avatarData,
                 userId = UserId(id, domain),
@@ -352,7 +359,7 @@ private fun LazyListScope.externalSuccessItem(
                 membership = membership,
                 connectionState = connectionState,
                 searchQuery = searchQuery,
-                clickable = remember { Clickable(enabled = true) { onOpenUserProfile(contact) } }
+                clickable = remember { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } }
             )
         }
     }

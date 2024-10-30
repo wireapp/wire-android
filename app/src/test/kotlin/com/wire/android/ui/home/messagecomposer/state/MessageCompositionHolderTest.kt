@@ -19,16 +19,23 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.TextRange
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
+import com.wire.kalium.logic.data.message.draft.MessageDraft
+import io.mockk.Called
 import io.mockk.MockKAnnotations
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -44,6 +51,9 @@ class MessageCompositionHolderTest {
     @MockK
     lateinit var context: Context
 
+    @MockK
+    lateinit var onSaveDraft: (MessageDraft) -> Unit
+
     private lateinit var state: MessageCompositionHolder
 
     private lateinit var messageComposition: MutableState<MessageComposition>
@@ -55,13 +65,15 @@ class MessageCompositionHolderTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
         Dispatchers.setMain(dispatcher)
 
+        every { onSaveDraft(any()) } returns Unit
+
         messageComposition = mutableStateOf(MessageComposition(TestConversation.ID))
         messageTextState = TextFieldState()
         state = MessageCompositionHolder(
             messageComposition = messageComposition,
             messageTextState = messageTextState,
             onClearDraft = {},
-            onSaveDraft = {},
+            onSaveDraft = onSaveDraft,
             onSearchMentionQueryChanged = {},
             onClearMentionSearchResult = {},
             onTypingEvent = {},
@@ -173,5 +185,51 @@ class MessageCompositionHolderTest {
             "_italic_",
             state.messageTextState.text.toString()
         )
+    }
+
+    @Test
+    fun `given initial empty text, when handling text updates, then do not update draft with empty text`() = runTest {
+        state.messageTextState.setTextAndPlaceCursorAtEnd("")
+        val job = launch {
+            state.handleMessageTextUpdates()
+        }
+        advanceUntilIdle()
+
+        verify { onSaveDraft wasNot Called }
+
+        job.cancel()
+    }
+
+    @Test
+    fun `given updated non-empty text, when handling text updates, then update draft with that non-empty text`() = runTest {
+        state.messageTextState.setTextAndPlaceCursorAtEnd("")
+        val job = launch {
+            state.handleMessageTextUpdates()
+        }
+        state.messageTextState.setTextAndPlaceCursorAtEnd("text")
+        advanceUntilIdle()
+        verify { onSaveDraft(match { it.text == "text" }) }
+
+        job.cancel()
+    }
+
+    @Test
+    fun `given cleared non-empty text, when handling text updates, then update draft with empty text`() = runTest {
+        // given
+        state.messageTextState.setTextAndPlaceCursorAtEnd("")
+
+        // when
+        val job = launch {
+            state.handleMessageTextUpdates()
+        }
+        state.messageTextState.setTextAndPlaceCursorAtEnd("text")
+        advanceUntilIdle()
+        verify { onSaveDraft(match { it.text == "text" }) }
+
+        state.messageTextState.setTextAndPlaceCursorAtEnd("")
+        advanceUntilIdle()
+        verify { onSaveDraft(match { it.text == "" }) }
+
+        job.cancel()
     }
 }

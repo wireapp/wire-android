@@ -171,6 +171,7 @@
     <string name="content_description_mls_certificate_valid">Tutti i dispositivi di tutti i partecipanti hanno un certificato MLS valido</string>
     <string name="content_description_proteus_certificate_valid">Tutti i partecipanti sono verificati (Proteus)</string>
     <string name="content_description_location_icon">Elemento di posizione</string>
+    <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
     <!-- Navigation -->
@@ -511,6 +512,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_unblock">Sblocca</string>
     <string name="label_leave_group">Lascia il gruppo</string>
     <string name="label_delete_group">Elimina il gruppo</string>
+    <!-- Conversation filter BottomSheet -->
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Tutto</string>
     <string name="muting_option_all_allowed_text">Ricevi le notifiche per questa conversazione su tutto (inclusi audio e video chiamate)</string>
@@ -1029,6 +1031,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="backup_dialog_choose_backup_file_option">Scegli file di backup</string>
     <string name="backup_label_enter_password">Inserisci la password</string>
     <string name="backup_dialog_restore_backup_password_message">Questo backup &#232; protetto da password.</string>
+    <!--    report bug-->
     <string name="send_feedback_choose_email">Seleziona il provider di email:</string>
     <string name="backup_dialog_create_backup_save">Salva file</string>
     <string name="backup_dialog_create_backup_share">Condividi file</string>
@@ -1332,4 +1335,5 @@ registrato. Sei pregato di riprovare.</string>
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->
     <string name="debug_settings_screen_title">Impostazioni di Debug</string>
+    <!--    Personal to team migration screen-->
 </resources>

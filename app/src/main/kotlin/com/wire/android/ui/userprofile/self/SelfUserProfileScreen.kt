@@ -220,6 +220,7 @@ private fun SelfUserProfileContent(
                     .background(MaterialTheme.colorScheme.background)
                     .padding(internalPadding)
             ) {
+                val selectLabel = stringResource(R.string.content_description_select_label)
                 LazyColumn(
                     modifier = Modifier
                         .weight(1F)
@@ -275,9 +276,9 @@ private fun SelfUserProfileContent(
                             items = otherAccounts,
                             itemContent = { account ->
                                 OtherAccountItem(
-                                    account,
+                                    account = account,
                                     clickable = remember {
-                                        Clickable(enabled = true, onClick = {
+                                        Clickable(enabled = true, onClickDescription = selectLabel, onClick = {
                                             if (isUserInCall()) {
                                                 Toast.makeText(
                                                     context,
@@ -288,7 +289,8 @@ private fun SelfUserProfileContent(
                                                 onOtherAccountClick(account.id)
                                             }
                                         })
-                                    })
+                                    }
+                                )
                             }
                         )
                     }
@@ -329,7 +331,8 @@ private fun SelfUserProfileTopBar(
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onCloseClick,
         title = stringResource(id = R.string.user_profile_title),
-        navigationIconType = NavigationIconType.Close(),
+        navigationIconType = NavigationIconType.Close(R.string.content_description_self_profile_close),
+        titleContentDescription = stringResource(R.string.content_description_self_profile_heading),
         elevation = 0.dp,
         actions = {
             WireSecondaryButton(
@@ -378,7 +381,8 @@ private fun CurrentSelfUserStatus(
             ),
             autoUpdateSelection = false,
             showDefaultTextIndicator = false,
-            leadingCompose = { index -> UserStatusIndicator(items[index]) }
+            leadingCompose = { index -> UserStatusIndicator(items[index]) },
+            onChangeClickDescription = stringResource(R.string.content_description_self_profile_change_status)
         ) { selectedIndex ->
             onStatusClicked(items[selectedIndex])
         }
@@ -403,6 +407,7 @@ private fun NewTeamButton(
                 .padding(dimensions().spacing16x)
                 .testTag("New Team or Account"),
             text = stringResource(R.string.user_profile_new_account_text),
+            onClickDescription = stringResource(R.string.content_description_self_profile_new_account_btn),
             onClick = remember {
                 {
                     if (isUserIdCall()) {
@@ -448,7 +453,7 @@ private fun OtherAccountItem(
                     .wrapContentWidth()
                     .padding(end = MaterialTheme.wireDimensions.spacing8x)
             ) {
-                ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+                ArrowRightIcon(Modifier.align(Alignment.TopEnd), R.string.content_description_empty)
             }
         },
         clickable = clickable,

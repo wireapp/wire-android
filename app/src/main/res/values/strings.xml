@@ -117,12 +117,8 @@
     <string name="content_description_conversation_send_emoticon">Send Emoticon button</string>
     <string name="content_description_conversation_send_gif">Send GIF button</string>
     <string name="content_description_conversation_mention_someone">Mention someone</string>
-<<<<<<< HEAD
-    <string name="content_description_new_conversation">Start a new conversation</string>
-=======
     <string name="content_description_conversation_back_btn">Go back to conversation list</string>
     <string name="content_description_new_conversation">Search for people or create a new group</string>
->>>>>>> 175d83b8d (feat: Add accessibility string to ConversationList [WPB-9789] (#3561))
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_send_button">Send</string>
     <string name="content_description_timed_message_button">Self-deleting messages, button</string>
@@ -222,15 +218,12 @@
     <string name="content_description_open_conversation_label">open conversation</string>
     <string name="content_description_open_service_label">open service</string>
     <string name="content_description_open_notification_settings_label">open notification settings</string>
-<<<<<<< HEAD
-=======
     <string name="content_description_new_conversation_name_back_btn">Go back to new conversation view</string>
     <string name="content_description_new_conversation_name_heading">New group, heading</string>
     <string name="content_description_new_conversation_name_field">Type group name</string>
     <string name="content_description_new_conversation_options_heading">Conversation options, heading</string>
     <string name="content_description_new_conversation_options_back_btn">Go back to new group creation</string>
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
->>>>>>> 175d83b8d (feat: Add accessibility string to ConversationList [WPB-9789] (#3561))
     <string name="content_description_empty"> </string>
     <!-- Non translatable strings-->
     <string name="url_android_release_notes" translatable="false">https://medium.com/wire-news/android-updates/home</string>

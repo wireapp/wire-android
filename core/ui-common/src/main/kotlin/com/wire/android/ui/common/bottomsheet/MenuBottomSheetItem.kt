@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.clickable
-import com.wire.android.ui.common.clickableDescriptions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -74,7 +73,6 @@ fun MenuBottomSheetItem(
                 .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationBottomSheetItemHeight)
                 .fillMaxWidth()
                 .clickable(clickable)
-                .clickableDescriptions(clickable)
                 .padding(MaterialTheme.wireDimensions.conversationBottomSheetItemPadding)
         ) {
             if (icon != null) {

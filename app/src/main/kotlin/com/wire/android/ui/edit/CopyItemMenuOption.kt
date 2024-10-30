@@ -26,7 +26,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 @Composable
 fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
     MenuBottomSheetItem(
-        icon = {
+        leading = {
             MenuItemIcon(
                 id = R.drawable.ic_copy,
                 contentDescription = stringResource(R.string.content_description_copy_the_message),

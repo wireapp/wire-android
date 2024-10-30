@@ -69,7 +69,6 @@ fun Modifier.selectableBackground(isSelected: Boolean, onClick: () -> Unit): Mod
 
     return this
         .clickable(onItemClick)
-        .clickableDescriptions(onItemClick)
         .semantics { stateDescription = if (isSelected) selectedDescription else "" }
 }
 

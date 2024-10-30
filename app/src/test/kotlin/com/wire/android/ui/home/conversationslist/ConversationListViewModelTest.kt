@@ -25,6 +25,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestConversationItem
+import com.wire.android.framework.TestUser
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
@@ -232,6 +233,7 @@ class ConversationListViewModelTest {
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
             updateConversationArchivedStatus = updateConversationArchivedStatus,
+            currentAccount = TestUser.SELF_USER_ID
         )
     }
 

@@ -27,7 +27,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 @Composable
 fun DownloadAssetExternallyOption(onDownloadClick: () -> Unit) =
     MenuBottomSheetItem(
-        icon = {
+        leading = {
             MenuItemIcon(
                 id = R.drawable.ic_download,
                 contentDescription = stringResource(R.string.content_description_download_icon),

@@ -26,7 +26,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 @Composable
 fun EditMessageMenuOption(onEditItemClick: () -> Unit) {
     MenuBottomSheetItem(
-        icon = {
+        leading = {
             MenuItemIcon(
                 id = R.drawable.ic_edit,
                 contentDescription = stringResource(R.string.content_description_edit_the_message)

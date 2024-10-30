@@ -59,6 +59,7 @@ import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
@@ -281,6 +282,7 @@ private fun AvatarPickerActionButtons(
 private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onCloseClick,
+        navigationIconType = NavigationIconType.Back(R.string.content_description_change_picture_back_btn),
         title = stringResource(R.string.profile_image_top_bar_label),
     )
 }

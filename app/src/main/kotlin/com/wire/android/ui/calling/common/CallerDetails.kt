@@ -143,7 +143,7 @@ fun CallerDetails(
                 )
             }
             val isCallingLabel =
-                if (conversationTypeForCall == ConversationTypeForCall.Conference) {
+                if (conversationTypeForCall == ConversationTypeForCall.Conference && groupCallerName != null) {
                     stringResource(R.string.calling_label_incoming_call_someone_calling)
                 } else {
                     stringResource(R.string.calling_label_incoming_call)

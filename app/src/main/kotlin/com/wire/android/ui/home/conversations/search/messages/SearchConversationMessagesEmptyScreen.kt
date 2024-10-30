@@ -79,7 +79,7 @@ fun SearchConversationMessagesEmptyScreen(modifier: Modifier = Modifier) {
 
 @PreviewMultipleThemes
 @Composable
-fun previewSearchConversationMessagesEmptyScreen() {
+fun PreviewSearchConversationMessagesEmptyScreen() {
     WireTheme {
         SearchConversationMessagesEmptyScreen()
     }

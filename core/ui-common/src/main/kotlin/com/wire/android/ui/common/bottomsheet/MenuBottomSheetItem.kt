@@ -51,8 +51,9 @@ import io.github.esentsov.PackagePrivate
 @Composable
 fun MenuBottomSheetItem(
     title: String,
-    icon: (@Composable () -> Unit)? = null,
-    action: (@Composable () -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    leading: (@Composable () -> Unit)? = null,
+    trailing: (@Composable () -> Unit)? = null,
     clickBlockParams: ClickBlockParams = ClickBlockParams(),
     itemProvidedColor: Color = MaterialTheme.colorScheme.secondary,
     onItemClick: () -> Unit = {},
@@ -70,29 +71,29 @@ fun MenuBottomSheetItem(
         }
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
+            modifier = modifier
                 .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationBottomSheetItemHeight)
                 .fillMaxWidth()
                 .clickable(clickable)
                 .clickableDescriptions(clickable)
                 .padding(MaterialTheme.wireDimensions.conversationBottomSheetItemPadding)
         ) {
-            if (icon != null) {
-                icon()
+            if (leading != null) {
+                leading()
                 Spacer(modifier = Modifier.width(12.dp))
             }
             MenuItemTitle(title = title)
-            if (action != null) {
+            if (trailing != null) {
                 Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing12x))
                 Spacer(modifier = Modifier.weight(1f)) // combining both in one modifier doesn't work
-                action()
+                trailing()
             }
         }
     }
 }
 
 @Composable
-fun buildMenuSheetItems(items: List<@Composable () -> Unit>) {
+fun BuildMenuSheetItems(items: List<@Composable () -> Unit>) {
     items.forEach { itemBuilder ->
         // Make sure that every item added to this list is actually not empty. Otherwise, the divider will be still drawn and give the
         // impression that it has extra thickness
@@ -119,10 +120,12 @@ fun MenuItemIcon(
     @DrawableRes id: Int,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    size: Dp = MaterialTheme.wireDimensions.wireIconButtonSize
+    size: Dp = MaterialTheme.wireDimensions.wireIconButtonSize,
+    tint: Color = LocalContentColor.current
 ) {
     Icon(
         painter = painterResource(id = id),
+        tint = tint,
         contentDescription = contentDescription,
         modifier = Modifier
             .size(size)

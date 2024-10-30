@@ -27,29 +27,47 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
+import com.wire.android.navigation.HomeDestination
+import com.wire.android.navigation.currentFilter
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarType
+import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WireTertiaryIconButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @Composable
 fun HomeTopBar(
+    navigationItem: HomeDestination,
     userAvatarData: UserAvatarData,
-    title: String,
     elevation: Dp,
     withLegalHoldIndicator: Boolean,
     shouldShowCreateTeamUnreadIndicator: Boolean,
     onHamburgerMenuClick: () -> Unit,
-    onNavigateToSelfUserProfile: () -> Unit
+    onNavigateToSelfUserProfile: () -> Unit,
+    onOpenConversationFilter: (filter: ConversationFilter) -> Unit
 ) {
     WireCenterAlignedTopAppBar(
-        title = title,
+        title = stringResource(navigationItem.title),
         onNavigationPressed = onHamburgerMenuClick,
         navigationIconType = NavigationIconType.Menu,
         actions = {
+            if (navigationItem.withNewConversationFab) {
+                WireTertiaryIconButton(
+                    iconResource = R.drawable.ic_filter,
+                    contentDescription = R.string.label_filter_conversations,
+                    state = if (navigationItem.currentFilter() == ConversationFilter.ALL) {
+                        WireButtonState.Default
+                    } else {
+                        WireButtonState.Selected
+                    },
+                    onButtonClicked = { onOpenConversationFilter(navigationItem.currentFilter()) }
+                )
+            }
             val openLabel = stringResource(R.string.content_description_open_label)
             UserProfileAvatar(
                 avatarData = userAvatarData,
@@ -57,11 +75,8 @@ fun HomeTopBar(
                     Clickable(enabled = true, onClickDescription = openLabel) { onNavigateToSelfUserProfile() }
                 },
                 type = UserProfileAvatarType.WithIndicators.RegularUser(legalHoldIndicatorVisible = withLegalHoldIndicator),
-<<<<<<< HEAD
-                shouldShowCreateTeamUnreadIndicator = shouldShowCreateTeamUnreadIndicator
-=======
+                shouldShowCreateTeamUnreadIndicator = shouldShowCreateTeamUnreadIndicator,
                 contentDescription = stringResource(R.string.content_description_home_profile_btn)
->>>>>>> 175d83b8d (feat: Add accessibility string to ConversationList [WPB-9789] (#3561))
             )
         },
         elevation = elevation,
@@ -73,13 +88,14 @@ fun HomeTopBar(
 fun PreviewTopBar() {
     WireTheme {
         HomeTopBar(
+            navigationItem = HomeDestination.Conversations,
             userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-            title = "Title",
             elevation = 0.dp,
             withLegalHoldIndicator = false,
             shouldShowCreateTeamUnreadIndicator = false,
             onHamburgerMenuClick = {},
-            onNavigateToSelfUserProfile = {}
+            onNavigateToSelfUserProfile = {},
+            onOpenConversationFilter = {}
         )
     }
 }
@@ -89,17 +105,18 @@ fun PreviewTopBar() {
 fun PreviewTopBarWithNameBasedAvatar() {
     WireTheme {
         HomeTopBar(
+            navigationItem = HomeDestination.Conversations,
             userAvatarData = UserAvatarData(
                 asset = null,
                 availabilityStatus = UserAvailabilityStatus.AVAILABLE,
                 nameBasedAvatar = NameBasedAvatar("Jon Doe", -1)
             ),
-            title = "Title",
             elevation = 0.dp,
             withLegalHoldIndicator = false,
             shouldShowCreateTeamUnreadIndicator = false,
             onHamburgerMenuClick = {},
-            onNavigateToSelfUserProfile = {}
+            onNavigateToSelfUserProfile = {},
+            onOpenConversationFilter = {}
         )
     }
 }
@@ -109,13 +126,14 @@ fun PreviewTopBarWithNameBasedAvatar() {
 fun PreviewTopBarWithLegalHold() {
     WireTheme {
         HomeTopBar(
+            navigationItem = HomeDestination.Archive,
             userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-            title = "Title",
             elevation = 0.dp,
             withLegalHoldIndicator = true,
             shouldShowCreateTeamUnreadIndicator = false,
             onHamburgerMenuClick = {},
-            onNavigateToSelfUserProfile = {}
+            onNavigateToSelfUserProfile = {},
+            onOpenConversationFilter = {}
         )
     }
 }

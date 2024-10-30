@@ -256,6 +256,7 @@
     <string name="url_system_message_learn_more_about_mls" translatable="false">https://support.wire.com/hc/articles/12434725011485</string>
     <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/articles/6655706999581</string>
     <string name="url_why_verify_conversation" translatable="false">https://support.wire.com/hc/articles/207859815</string>
+    <string name="url_how_to_add_favorites" translatable="false">https://support.wire.com/hc/articles/360002855557</string>
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
     <string name="url_team_management" translatable="false">https://teams.wire.com/</string>
     <!-- Navigation -->
@@ -634,6 +635,13 @@
     <string name="label_unblock">Unblock</string>
     <string name="label_leave_group">Leave Group</string>
     <string name="label_delete_group">Delete Group</string>
+    <!-- Conversation filter BottomSheet -->
+    <string name="label_filter_conversations">Filter Conversations</string>
+    <string name="label_filter_all">All Conversations</string>
+    <string name="label_filter_favorites">Favorites</string>
+    <string name="label_filter_group">Groups</string>
+    <string name="label_filter_one_on_one">1:1 Conversations</string>
+
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Everything</string>
     <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>
@@ -1164,6 +1172,10 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_key_packages_count">Key-packages count</string>
     <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
+    <string name="favorites_empty_list_description">Select your favorite conversations, and you’ll find them here</string>
+    <string name="group_empty_list_description">You are not part of any group conversation yet.\nStart a new conversation!</string>
+    <string name="one_on_one_empty_list_description">You have no contacts yet.\nSearch for people on %1$s and get connected.</string>
+    <string name="favorites_empty_list_how_to_label">How to label conversations as favorites</string>
     <string name="conversation_empty_list_title">Welcome 👋</string>
     <string name="label_no_conversation_found">No conversations could be found.</string>
     <string name="label_connect_with_new_users">Connect with new users or start a new conversation</string>

@@ -80,6 +80,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.debug.FeatureVisibilityFlags.QRCodeEnabled
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -244,7 +245,7 @@ fun UserProfileInfo(
                         bottom.linkTo(displayName.bottom)
                     }
             ) {
-                if (isLoading.not()) {
+                if (QRCodeEnabled && isLoading.not()) {
                     onQrCodeClick?.let { QRCodeIcon(it) }
                 }
             }
@@ -343,11 +344,13 @@ fun QRCodeIcon(
     modifier: Modifier = Modifier,
 ) {
     val contentDescription = stringResource(id = R.string.user_profile_qr_code_share_link)
+    val clickDescription = stringResource(id = R.string.content_description_share_label)
     WireSecondaryButton(
         modifier = modifier.semantics { this.contentDescription = contentDescription },
         leadingIcon = Icons.Filled.QrCode.Icon(),
         contentPadding = PaddingValues(0.dp),
         onClick = onQrCodeClick,
+        onClickDescription = clickDescription,
         fillMaxWidth = false,
         minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
         minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,

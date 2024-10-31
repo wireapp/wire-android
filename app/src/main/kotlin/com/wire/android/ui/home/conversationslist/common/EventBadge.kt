@@ -149,6 +149,7 @@ fun ConnectRequestBadge(modifier: Modifier = Modifier) {
 fun ConnectPendingRequestBadge(modifier: Modifier = Modifier) {
     WireItemLabel(
         text = stringResource(id = R.string.connection_pending_label),
+        contentDescription = stringResource(R.string.content_description_pending_connection_badge),
         modifier = modifier
     )
 }

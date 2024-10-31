@@ -200,7 +200,6 @@ interface AnalyticsEvent {
         }
     }
 
-
     sealed class QrCode : AnalyticsEvent {
         data class Click(val isTeam: Boolean) : QrCode() {
             override val key: String = AnalyticsEventConstants.QR_CODE_CLICK

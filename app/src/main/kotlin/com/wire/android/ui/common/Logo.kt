@@ -31,7 +31,7 @@ import com.wire.android.R
 fun Logo(modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(id = R.drawable.ic_wire_logo),
-        contentDescription = stringResource(id = R.string.content_description_app_logo),
+        contentDescription = null,
         contentScale = ContentScale.Fit,
         modifier = modifier,
         colorFilter = ColorFilter.tint(colorsScheme().onSurface)

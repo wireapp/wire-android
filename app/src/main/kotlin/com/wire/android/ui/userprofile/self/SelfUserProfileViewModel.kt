@@ -341,6 +341,10 @@ class SelfUserProfileViewModel @Inject constructor(
         userProfileState = userProfileState.copy(errorMessageCode = null)
     }
 
+    fun trackQrCodeClick() {
+        anonymousAnalyticsManager.sendEvent(AnalyticsEvent.QrCode.Click(!userProfileState.teamName.isNullOrBlank()))
+    }
+
     fun sendPersonalToTeamMigrationEvent() {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.ClickedPersonalTeamMigrationCta(

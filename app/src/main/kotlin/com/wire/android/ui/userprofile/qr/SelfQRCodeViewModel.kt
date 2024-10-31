@@ -28,6 +28,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getTempWritableAttachmentUri
@@ -51,6 +53,7 @@ class SelfQRCodeViewModel @Inject constructor(
     private val selfServerLinks: SelfServerConfigUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val dispatchers: DispatcherProvider,
+    private val analyticsManager: AnonymousAnalyticsManager
 ) : ViewModel() {
     private val selfQrCodeNavArgs: SelfQrCodeNavArgs = savedStateHandle.navArgs()
     var selfQRCodeState by mutableStateOf(SelfQRCodeState(selfUserId, handle = selfQrCodeNavArgs.handle))
@@ -59,6 +62,7 @@ class SelfQRCodeViewModel @Inject constructor(
         get() = kaliumFileSystem.rootCachePath
 
     init {
+        trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.Displayed)
         viewModelScope.launch {
             getServerLinks()
         }
@@ -81,6 +85,10 @@ class SelfQRCodeViewModel @Inject constructor(
             qrImageFile
         }
         return job.await()
+    }
+
+    fun trackAnalyticsEvent(event: AnalyticsEvent.QrCode.Modal) {
+        analyticsManager.sendEvent(event)
     }
 
     private suspend fun getTempWritableQRUri(tempCachePath: Path): Uri = withContext(dispatchers.io()) {

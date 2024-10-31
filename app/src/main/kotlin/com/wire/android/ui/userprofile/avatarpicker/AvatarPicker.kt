@@ -200,25 +200,26 @@ private fun AvatarPickerContent(
                     {
                         MenuBottomSheetItem(
                             title = stringResource(R.string.profile_image_choose_from_gallery_menu_item),
-                            icon = {
+                            leading = {
                                 MenuItemIcon(
                                     id = R.drawable.ic_gallery,
                                     contentDescription = stringResource(R.string.content_description_choose_from_gallery)
                                 )
                             },
-                            action = { ArrowRightIcon() },
+                            trailing = { ArrowRightIcon() },
                             onItemClick = state::openGallery
                         )
-                    }, {
+                    },
+                    {
                         MenuBottomSheetItem(
                             title = stringResource(R.string.profile_image_take_a_picture_menu_item),
-                            icon = {
+                            leading = {
                                 MenuItemIcon(
                                     id = R.drawable.ic_camera,
                                     contentDescription = stringResource(R.string.content_description_take_a_picture)
                                 )
                             },
-                            action = { ArrowRightIcon() },
+                            trailing = { ArrowRightIcon() },
                             onItemClick = state::openCamera
                         )
                     }

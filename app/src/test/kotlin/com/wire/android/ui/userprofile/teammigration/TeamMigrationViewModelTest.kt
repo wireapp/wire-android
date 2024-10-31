@@ -95,8 +95,7 @@ class TeamMigrationViewModelTest {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
                         teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
-                        modalLeaveClicked = true,
-                        modalContinueClicked = false
+                        modalLeaveClicked = true
                     )
                 )
             }
@@ -114,7 +113,6 @@ class TeamMigrationViewModelTest {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
                         teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
-                        modalLeaveClicked = false,
                         modalContinueClicked = true
                     )
                 )
@@ -135,8 +133,7 @@ class TeamMigrationViewModelTest {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
                         teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
-                        modalOpenTeamManagementButtonClicked = true,
-                        backToWireButtonClicked = false
+                        modalOpenTeamManagementButtonClicked = true
                     )
                 )
             }
@@ -154,7 +151,6 @@ class TeamMigrationViewModelTest {
                 arrangement.anonymousAnalyticsManager.sendEvent(
                     AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(
                         teamName = viewModel.teamMigrationState.teamNameTextState.text.toString(),
-                        modalOpenTeamManagementButtonClicked = false,
                         backToWireButtonClicked = true
                     )
                 )

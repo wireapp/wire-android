@@ -340,11 +340,13 @@ fun QRCodeIcon(
     modifier: Modifier = Modifier,
 ) {
     val contentDescription = stringResource(id = R.string.user_profile_qr_code_share_link)
+    val clickDescription = stringResource(id = R.string.content_description_share_label)
     WireSecondaryButton(
         modifier = modifier.semantics { this.contentDescription = contentDescription },
         leadingIcon = Icons.Filled.QrCode.Icon(),
         contentPadding = PaddingValues(0.dp),
         onClick = onQrCodeClick,
+        onClickDescription = clickDescription,
         fillMaxWidth = false,
         minSize = MaterialTheme.wireDimensions.buttonSmallMinSize,
         minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,

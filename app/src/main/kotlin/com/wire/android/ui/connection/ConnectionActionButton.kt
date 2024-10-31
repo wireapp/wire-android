@@ -123,7 +123,7 @@ fun ConnectionActionButton(
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_check_tick),
-                    contentDescription = stringResource(R.string.content_description_right_arrow),
+                    contentDescription = null,
                     modifier = Modifier.padding(dimensions().spacing8x)
                 )
             },
@@ -139,7 +139,7 @@ fun ConnectionActionButton(
                 leadingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_check_tick),
-                        contentDescription = stringResource(R.string.content_description_right_arrow),
+                        contentDescription = null,
                         modifier = Modifier.padding(dimensions().spacing8x)
                     )
                 },
@@ -159,7 +159,7 @@ fun ConnectionActionButton(
                 leadingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_close),
-                        contentDescription = stringResource(R.string.content_description_right_arrow),
+                        contentDescription = null,
                         modifier = Modifier.padding(dimensions().spacing8x)
                     )
                 },
@@ -194,7 +194,7 @@ fun ConnectionActionButton(
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_add_contact),
-                    contentDescription = stringResource(R.string.content_description_right_arrow),
+                    contentDescription = null,
                     modifier = Modifier.padding(dimensions().spacing8x)
                 )
             },

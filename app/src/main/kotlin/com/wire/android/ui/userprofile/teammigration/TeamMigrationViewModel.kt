@@ -57,8 +57,8 @@ class TeamMigrationViewModel @Inject constructor(
     }
 
     fun sendPersonalTeamCreationFlowCanceledEvent(
-        modalLeaveClicked: Boolean = false,
-        modalContinueClicked: Boolean = false
+        modalLeaveClicked: Boolean? = null,
+        modalContinueClicked: Boolean? = null
     ) {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCanceled(
@@ -70,8 +70,8 @@ class TeamMigrationViewModel @Inject constructor(
     }
 
     fun sendPersonalTeamCreationFlowCompletedEvent(
-        modalOpenTeamManagementButtonClicked: Boolean = false,
-        backToWireButtonClicked: Boolean = false
+        modalOpenTeamManagementButtonClicked: Boolean? = null,
+        backToWireButtonClicked: Boolean? = null
     ) {
         anonymousAnalyticsManager.sendEvent(
             AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowCompleted(

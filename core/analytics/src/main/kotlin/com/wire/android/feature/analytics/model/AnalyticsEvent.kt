@@ -211,16 +211,20 @@ interface AnalyticsEvent {
     sealed interface PersonalTeamMigration : AnalyticsEvent {
 
         data class ClickedPersonalTeamMigrationCta(
-            val createTeamButtonClicked: Boolean = false,
-            val dismissCreateTeamButtonClicked: Boolean = false
+            val createTeamButtonClicked: Boolean? = null,
+            val dismissCreateTeamButtonClicked: Boolean? = null
         ) : AnalyticsEvent {
             override val key: String = CLICKED_PERSONAL_MIGRATION_CTA_EVENT
 
             override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    CLICKED_CREATE_TEAM to createTeamButtonClicked,
-                    CLICKED_DISMISS_CTA to dismissCreateTeamButtonClicked
-                )
+                val segmentations = mapOf<String, Boolean>()
+                createTeamButtonClicked?.let {
+                    segmentations.plus(CLICKED_CREATE_TEAM to it)
+                }
+                dismissCreateTeamButtonClicked?.let {
+                    segmentations.plus(CLICKED_DISMISS_CTA to it)
+                }
+                return segmentations
             }
         }
 
@@ -238,16 +242,19 @@ interface AnalyticsEvent {
 
         data class PersonalTeamCreationFlowCanceled(
             val teamName: String?,
-            val modalLeaveClicked: Boolean,
-            val modalContinueClicked: Boolean
+            val modalLeaveClicked: Boolean? = null,
+            val modalContinueClicked: Boolean? = null
         ) : AnalyticsEvent {
             override val key: String = PERSONAL_TEAM_CREATION_FLOW_CANCELLED
 
             override fun toSegmentation(): Map<String, Any> {
-                val segmentations = mapOf(
-                    MODAL_LEAVE_CLICKED to modalLeaveClicked,
-                    MODAL_CONTINUE_CLICKED to modalContinueClicked
-                )
+                val segmentations = mapOf<String, Any>()
+                modalLeaveClicked?.let {
+                    segmentations.plus(MODAL_LEAVE_CLICKED to it)
+                }
+                modalContinueClicked?.let {
+                    segmentations.plus(MODAL_CONTINUE_CLICKED to it)
+                }
                 teamName?.let {
                     segmentations.plus(MODAL_TEAM_NAME to it)
                 }
@@ -256,18 +263,24 @@ interface AnalyticsEvent {
         }
 
         data class PersonalTeamCreationFlowCompleted(
-            val teamName: String,
-            val modalOpenTeamManagementButtonClicked: Boolean,
-            val backToWireButtonClicked: Boolean
+            val teamName: String? = null,
+            val modalOpenTeamManagementButtonClicked: Boolean? = null,
+            val backToWireButtonClicked: Boolean? = null
         ) : AnalyticsEvent {
             override val key: String = PERSONAL_TEAM_CREATION_FLOW_COMPLETED
 
             override fun toSegmentation(): Map<String, Any> {
-                return mapOf(
-                    MODAL_TEAM_NAME to teamName,
-                    MODAL_BACK_TO_WIRE_CLICKED to backToWireButtonClicked,
-                    MODAL_OPEN_TEAM_MANAGEMENT_CLICKED to modalOpenTeamManagementButtonClicked
-                )
+                val segmentations = mapOf<String, Any>()
+                teamName?.let {
+                    segmentations.plus(MODAL_TEAM_NAME to it)
+                }
+                modalOpenTeamManagementButtonClicked?.let {
+                    segmentations.plus(MODAL_OPEN_TEAM_MANAGEMENT_CLICKED to it)
+                }
+                backToWireButtonClicked?.let {
+                    segmentations.plus(MODAL_BACK_TO_WIRE_CLICKED to it)
+                }
+                return segmentations
             }
         }
     }

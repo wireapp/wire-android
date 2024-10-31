@@ -25,7 +25,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.mapper.toConversationItem
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -33,12 +36,15 @@ import com.wire.android.ui.home.HomeSnackBarMessage
 import com.wire.android.ui.home.conversations.search.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversationslist.common.previewConversationFoldersFlow
+import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationFolderItem
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -51,6 +57,7 @@ import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
@@ -63,6 +70,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,6 +78,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -81,7 +90,7 @@ interface ConversationListViewModel {
     val infoMessage: SharedFlow<SnackBarMessage> get() = MutableSharedFlow()
     val closeBottomSheet: SharedFlow<Unit> get() = MutableSharedFlow()
     val requestInProgress: Boolean get() = false
-    val conversationListState: ConversationListState get() = ConversationListState()
+    val conversationListState: ConversationListState get() = ConversationListState.Paginated(emptyFlow())
     suspend fun refreshMissingMetadata() {}
     fun moveConversationToArchive(
         dialogState: DialogState,
@@ -101,7 +110,7 @@ interface ConversationListViewModel {
 class ConversationListViewModelPreview(
     foldersWithConversations: Flow<PagingData<ConversationFolderItem>> = previewConversationFoldersFlow(),
 ) : ConversationListViewModel {
-    override val conversationListState = ConversationListState(foldersWithConversations)
+    override val conversationListState = ConversationListState.Paginated(foldersWithConversations)
 }
 
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
@@ -111,6 +120,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
+    private val observeConversationListDetailsWithEvents: ObserveConversationListDetailsWithEventsUseCase,
     private val leaveConversation: LeaveConversationUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val blockUserUseCase: BlockUserUseCase,
@@ -119,6 +129,8 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val updateConversationArchivedStatus: UpdateConversationArchivedStatusUseCase,
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val userTypeMapper: UserTypeMapper,
 ) : ConversationListViewModel, ViewModel() {
 
     @AssistedFactory
@@ -137,7 +149,7 @@ class ConversationListViewModelImpl @AssistedInject constructor(
     private val searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
 
     private val containsNewActivitiesSection = conversationsSource == ConversationsSource.MAIN
-    private val conversationsFlow: Flow<PagingData<ConversationFolderItem>> = searchQueryFlow
+    private val conversationsPaginatedFlow: Flow<PagingData<ConversationFolderItem>> = searchQueryFlow
         .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
         .onStart { emit("") }
         .distinctUntilChanged()
@@ -172,9 +184,54 @@ class ConversationListViewModelImpl @AssistedInject constructor(
         }
         .flowOn(dispatcher.io())
 
-    override val conversationListState: ConversationListState = ConversationListState(
-        foldersWithConversations = conversationsFlow
-    )
+    private var notPaginatedConversationListState by mutableStateOf(ConversationListState.NotPaginated())
+    override val conversationListState: ConversationListState
+        get() = if (BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED) {
+            ConversationListState.Paginated(conversations = conversationsPaginatedFlow)
+        } else {
+            notPaginatedConversationListState
+        }
+
+    init {
+        if (!BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED) {
+            viewModelScope.launch {
+                searchQueryFlow
+                    .debounce { if (it.isEmpty()) 0L else DEFAULT_SEARCH_QUERY_DEBOUNCE }
+                    .onStart { emit("") }
+                    .distinctUntilChanged()
+                    .flatMapLatest { searchQuery: String ->
+                        observeConversationListDetailsWithEvents(
+                            fromArchive = conversationsSource == ConversationsSource.ARCHIVE
+                        ).map {
+                            it.map { conversationDetails ->
+                                conversationDetails.toConversationItem(
+                                    wireSessionImageLoader = wireSessionImageLoader,
+                                    userTypeMapper = userTypeMapper,
+                                    searchQuery = searchQuery,
+                                )
+                            }
+                        }.map { conversationItems ->
+                            conversationItems.withFolders(source = conversationsSource)
+                                .toImmutableMap() to searchQuery
+                        }
+                    }
+                    .map { (conversationsWithFolders, searchQuery) ->
+                        if (searchQuery.isEmpty()) {
+                            conversationsWithFolders
+                        } else {
+                            searchConversation(
+                                conversationDetails = conversationsWithFolders.values.flatten(),
+                                searchQuery = searchQuery
+                            ).withFolders(source = conversationsSource).toImmutableMap()
+                        }
+                    }
+                    .flowOn(dispatcher.io())
+                    .collect {
+                        notPaginatedConversationListState = notPaginatedConversationListState.copy(isLoading = false, conversations = it)
+                    }
+            }
+        }
+    }
 
     override fun searchQueryChanged(searchQuery: String) {
         viewModelScope.launch {
@@ -353,3 +410,76 @@ class ConversationListViewModelImpl @AssistedInject constructor(
 }
 
 fun Conversation.LegalHoldStatus.showLegalHoldIndicator() = this == Conversation.LegalHoldStatus.ENABLED
+
+@Suppress("ComplexMethod")
+private fun List<ConversationItem>.withFolders(source: ConversationsSource): Map<ConversationFolder, List<ConversationItem>> {
+    return when (source) {
+        ConversationsSource.ARCHIVE -> {
+            buildMap {
+                if (this@withFolders.isNotEmpty()) {
+                    put(ConversationFolder.WithoutHeader, this@withFolders)
+                }
+            }
+        }
+
+        ConversationsSource.MAIN -> {
+            val unreadConversations = filter {
+                when (it.mutedStatus) {
+                    MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
+                        BadgeEventType.Blocked -> false
+                        BadgeEventType.Deleted -> false
+                        BadgeEventType.Knock -> true
+                        BadgeEventType.MissedCall -> true
+                        BadgeEventType.None -> false
+                        BadgeEventType.ReceivedConnectionRequest -> true
+                        BadgeEventType.SentConnectRequest -> false
+                        BadgeEventType.UnreadMention -> true
+                        is BadgeEventType.UnreadMessage -> true
+                        BadgeEventType.UnreadReply -> true
+                    }
+
+                    MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
+                        when (it.badgeEventType) {
+                            BadgeEventType.UnreadReply -> true
+                            BadgeEventType.UnreadMention -> true
+                            BadgeEventType.ReceivedConnectionRequest -> true
+                            else -> false
+                        }
+
+                    MutedConversationStatus.AllMuted -> false
+                } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
+            }
+
+            val remainingConversations = this - unreadConversations.toSet()
+
+            buildMap {
+                if (unreadConversations.isNotEmpty()) {
+                    put(ConversationFolder.Predefined.NewActivities, unreadConversations)
+                }
+                if (remainingConversations.isNotEmpty()) {
+                    put(ConversationFolder.Predefined.Conversations, remainingConversations)
+                }
+            }
+        }
+    }
+}
+
+private fun searchConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> {
+    val matchingConversations = conversationDetails.filter { details ->
+        when (details) {
+            is ConversationItem.ConnectionConversation -> details.conversationInfo.name.contains(
+                searchQuery,
+                true
+            )
+            is ConversationItem.GroupConversation -> details.groupName.contains(
+                searchQuery,
+                true
+            )
+            is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(
+                searchQuery,
+                true
+            )
+        }
+    }
+    return matchingConversations
+}
